@@ -31,22 +31,28 @@ class _UUID implements UUID {
 
 extension on String {
   String get full {
-    var source =
-        r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$';
-    var regex = RegExp(source, multiLine: true, caseSensitive: false);
-    if (regex.hasMatch(this)) return this;
-    source = r'^[0-9a-f]{4}$';
-    regex = RegExp(source, multiLine: true, caseSensitive: false);
-    if (regex.hasMatch(this)) {
-      return '0x0000${this}-0000-1000-8000-00805F9B34FB';
+    final short = RegExp(
+      r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      multiLine: true,
+      caseSensitive: false,
+    );
+    if (short.hasMatch(this)) {
+      return this;
+    }
+    final full = RegExp(
+      r'^[0-9a-f]{4}$',
+      multiLine: true,
+      caseSensitive: false,
+    );
+    if (full.hasMatch(this)) {
+      return '0000${this}-0000-1000-8000-00805F9B34FB';
     }
     throw ArgumentError.value(this);
   }
 
   List<int> get value {
-    final source = r'-';
-    final regex = RegExp(source);
-    final encoded = splitMapJoin(regex);
+    final from = RegExp(r'-');
+    final encoded = replaceAll(from, '');
     return hex.decode(encoded);
   }
 }

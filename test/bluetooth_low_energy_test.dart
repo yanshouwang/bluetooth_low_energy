@@ -72,17 +72,14 @@ void main() {
   });
 
   test('${message.MessageCategory.CENTRAL_MANAGER_START_DISCOVERY}', () async {
-    final services = [
-      UUID(""),
-      UUID(""),
-    ];
+    final services = [UUID('1800'), UUID('1801')];
     await CentralManager().startDiscovery(services: services);
     expect(
       calls,
       [
         isMethodCall(
           message.MessageCategory.CENTRAL_MANAGER_START_DISCOVERY.name,
-          arguments: null,
+          arguments: [UUID('1800').value, UUID('1801').value],
         ),
       ],
     );
