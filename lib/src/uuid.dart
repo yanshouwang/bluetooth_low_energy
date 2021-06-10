@@ -5,25 +5,26 @@ import 'package:convert/convert.dart';
 abstract class UUID {
   List<int> get value;
 
-  factory UUID(String s) => _UUID(s);
+  factory UUID(List<int> value) => _UUID(value);
+  factory UUID.shortened(String s) => _UUID.shortened(s);
+  factory UUID.complete(String s) => _UUID.complete(s);
 }
 
 class _UUID implements UUID {
-  final String full;
+  final String s;
   @override
   final List<int> value;
   @override
   final int hashCode;
 
-  _UUID(String s) : this.full(s.full);
+  _UUID(String s) : s = s;
 
-  _UUID.full(String full) : this.create(full, full.value);
+  _UUID.complete(String full) : this.create(full, full.value);
 
-  _UUID.create(this.full, this.value)
-      : hashCode = ListEquality<int>().hash(value);
+  _UUID.create(this.s, this.value) : hashCode = ListEquality<int>().hash(value);
 
   @override
-  String toString() => full;
+  String toString() => s;
 
   @override
   bool operator ==(other) => other is UUID && other.hashCode == hashCode;
