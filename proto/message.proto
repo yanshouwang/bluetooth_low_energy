@@ -4,6 +4,7 @@ message Message {
   MessageCategory category = 1;
   oneof value {
       BluetoothManagerState state = 2;
+      Discovery discovery = 3;
   }
 }
 

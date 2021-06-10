@@ -32,9 +32,6 @@ class _BluetoothManager implements BluetoothManager {
 
 /// An object that scans for, discovers, connects to, and manages peripherals.
 abstract class CentralManager extends BluetoothManager {
-  /// A Boolean value that indicates whether the central is currently scanning.
-  Stream<bool> get scanning;
-
   /// The central manager discovered a peripheral while scanning for devices.
   Stream<Discovery> get discovered;
 
@@ -77,10 +74,6 @@ class _CentralManager extends _BluetoothManager implements CentralManager {
   @override
   // TODO: implement discovered
   Stream<Discovery> get discovered => throw UnimplementedError();
-
-  @override
-  // TODO: implement scanning
-  Stream<bool> get scanning => throw UnimplementedError();
 
   @override
   Future startDiscovery({List<UUID>? services}) => method.invokeMethod(

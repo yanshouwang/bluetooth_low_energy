@@ -42,6 +42,7 @@ const Message$json = const {
   '2': const [
     const {'1': 'category', '3': 1, '4': 1, '5': 14, '6': '.MessageCategory', '10': 'category'},
     const {'1': 'state', '3': 2, '4': 1, '5': 14, '6': '.BluetoothManagerState', '9': 0, '10': 'state'},
+    const {'1': 'discovery', '3': 3, '4': 1, '5': 11, '6': '.Discovery', '9': 0, '10': 'discovery'},
   ],
   '8': const [
     const {'1': 'value'},
@@ -49,7 +50,7 @@ const Message$json = const {
 };
 
 /// Descriptor for `Message`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List messageDescriptor = $convert.base64Decode('CgdNZXNzYWdlEiwKCGNhdGVnb3J5GAEgASgOMhAuTWVzc2FnZUNhdGVnb3J5UghjYXRlZ29yeRIuCgVzdGF0ZRgCIAEoDjIWLkJsdWV0b290aE1hbmFnZXJTdGF0ZUgAUgVzdGF0ZUIHCgV2YWx1ZQ==');
+final $typed_data.Uint8List messageDescriptor = $convert.base64Decode('CgdNZXNzYWdlEiwKCGNhdGVnb3J5GAEgASgOMhAuTWVzc2FnZUNhdGVnb3J5UghjYXRlZ29yeRIuCgVzdGF0ZRgCIAEoDjIWLkJsdWV0b290aE1hbmFnZXJTdGF0ZUgAUgVzdGF0ZRIqCglkaXNjb3ZlcnkYAyABKAsyCi5EaXNjb3ZlcnlIAFIJZGlzY292ZXJ5QgcKBXZhbHVl');
 @$core.Deprecated('Use discoveryDescriptor instead')
 const Discovery$json = const {
   '1': 'Discovery',

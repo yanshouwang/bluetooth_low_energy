@@ -15,18 +15,21 @@ export 'message.pbenum.dart';
 
 enum Message_Value {
   state, 
+  discovery, 
   notSet
 }
 
 class Message extends $pb.GeneratedMessage {
   static const $core.Map<$core.int, Message_Value> _Message_ValueByTag = {
     2 : Message_Value.state,
+    3 : Message_Value.discovery,
     0 : Message_Value.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Message', createEmptyInstance: create)
-    ..oo(0, [2])
+    ..oo(0, [2, 3])
     ..e<MessageCategory>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'category', $pb.PbFieldType.OE, defaultOrMaker: MessageCategory.BLUETOOTH_MANAGER_STATE, valueOf: MessageCategory.valueOf, enumValues: MessageCategory.values)
     ..e<BluetoothManagerState>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: BluetoothManagerState.UNKNOWN, valueOf: BluetoothManagerState.valueOf, enumValues: BluetoothManagerState.values)
+    ..aOM<Discovery>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'discovery', subBuilder: Discovery.create)
     ..hasRequiredFields = false
   ;
 
@@ -34,6 +37,7 @@ class Message extends $pb.GeneratedMessage {
   factory Message({
     MessageCategory? category,
     BluetoothManagerState? state,
+    Discovery? discovery,
   }) {
     final _result = create();
     if (category != null) {
@@ -41,6 +45,9 @@ class Message extends $pb.GeneratedMessage {
     }
     if (state != null) {
       _result.state = state;
+    }
+    if (discovery != null) {
+      _result.discovery = discovery;
     }
     return _result;
   }
@@ -85,6 +92,17 @@ class Message extends $pb.GeneratedMessage {
   $core.bool hasState() => $_has(1);
   @$pb.TagNumber(2)
   void clearState() => clearField(2);
+
+  @$pb.TagNumber(3)
+  Discovery get discovery => $_getN(2);
+  @$pb.TagNumber(3)
+  set discovery(Discovery v) { setField(3, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasDiscovery() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearDiscovery() => clearField(3);
+  @$pb.TagNumber(3)
+  Discovery ensureDiscovery() => $_ensure(2);
 }
 
 class Discovery extends $pb.GeneratedMessage {
