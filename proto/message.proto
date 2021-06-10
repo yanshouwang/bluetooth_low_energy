@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+message Message {
+  MessageCategory category = 1;
+  oneof value {
+      BluetoothManagerState state = 2;
+  }
+}
+
+message Discovery {
+  Peripheral peripheral = 1;
+  sint32 rssi = 2;
+  map<uint32, bytes> advertisements = 3;
+}
+
+message Peripheral {
+  bytes address = 1;
+}
+
+enum MessageCategory {
+    BLUETOOTH_MANAGER_STATE = 0;
+    CENTRAL_MANAGER_START_DISCOVERY = 1;
+    CENTRAL_MANAGER_STOP_DISCOVERY = 2;
+    CENTRAL_MANAGER_DISCOVERED = 3;
+}
+
+enum BluetoothManagerState {
+  UNKNOWN = 0;
+  RESETTING = 1;
+  UNSUPPORTED = 2;
+  UNAUTHORIZED = 3;
+  POWERED_OFF = 4;
+  POWERED_ON = 5;
+}
