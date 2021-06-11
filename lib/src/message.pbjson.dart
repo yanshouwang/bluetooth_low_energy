@@ -40,9 +40,9 @@ final $typed_data.Uint8List bluetoothManagerStateDescriptor = $convert.base64Dec
 const Message$json = const {
   '1': 'Message',
   '2': const [
-    const {'1': 'category', '3': 1, '4': 1, '5': 14, '6': '.MessageCategory', '10': 'category'},
-    const {'1': 'state', '3': 2, '4': 1, '5': 14, '6': '.BluetoothManagerState', '9': 0, '10': 'state'},
-    const {'1': 'discovery', '3': 3, '4': 1, '5': 11, '6': '.Discovery', '9': 0, '10': 'discovery'},
+    const {'1': 'category', '3': 1, '4': 1, '5': 14, '6': '.dev.yanshouwang.bluetooth_low_energy.MessageCategory', '10': 'category'},
+    const {'1': 'state', '3': 2, '4': 1, '5': 14, '6': '.dev.yanshouwang.bluetooth_low_energy.BluetoothManagerState', '9': 0, '10': 'state'},
+    const {'1': 'discovery', '3': 3, '4': 1, '5': 11, '6': '.dev.yanshouwang.bluetooth_low_energy.Discovery', '9': 0, '10': 'discovery'},
   ],
   '8': const [
     const {'1': 'value'},
@@ -50,14 +50,14 @@ const Message$json = const {
 };
 
 /// Descriptor for `Message`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List messageDescriptor = $convert.base64Decode('CgdNZXNzYWdlEiwKCGNhdGVnb3J5GAEgASgOMhAuTWVzc2FnZUNhdGVnb3J5UghjYXRlZ29yeRIuCgVzdGF0ZRgCIAEoDjIWLkJsdWV0b290aE1hbmFnZXJTdGF0ZUgAUgVzdGF0ZRIqCglkaXNjb3ZlcnkYAyABKAsyCi5EaXNjb3ZlcnlIAFIJZGlzY292ZXJ5QgcKBXZhbHVl');
+final $typed_data.Uint8List messageDescriptor = $convert.base64Decode('CgdNZXNzYWdlElEKCGNhdGVnb3J5GAEgASgOMjUuZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5Lk1lc3NhZ2VDYXRlZ29yeVIIY2F0ZWdvcnkSUwoFc3RhdGUYAiABKA4yOy5kZXYueWFuc2hvdXdhbmcuYmx1ZXRvb3RoX2xvd19lbmVyZ3kuQmx1ZXRvb3RoTWFuYWdlclN0YXRlSABSBXN0YXRlEk8KCWRpc2NvdmVyeRgDIAEoCzIvLmRldi55YW5zaG91d2FuZy5ibHVldG9vdGhfbG93X2VuZXJneS5EaXNjb3ZlcnlIAFIJZGlzY292ZXJ5QgcKBXZhbHVl');
 @$core.Deprecated('Use discoveryDescriptor instead')
 const Discovery$json = const {
   '1': 'Discovery',
   '2': const [
     const {'1': 'address', '3': 1, '4': 1, '5': 9, '10': 'address'},
     const {'1': 'rssi', '3': 2, '4': 1, '5': 17, '10': 'rssi'},
-    const {'1': 'advertisements', '3': 3, '4': 3, '5': 11, '6': '.Discovery.AdvertisementsEntry', '10': 'advertisements'},
+    const {'1': 'advertisements', '3': 3, '4': 3, '5': 11, '6': '.dev.yanshouwang.bluetooth_low_energy.Discovery.AdvertisementsEntry', '10': 'advertisements'},
   ],
   '3': const [Discovery_AdvertisementsEntry$json],
 };
@@ -73,4 +73,4 @@ const Discovery_AdvertisementsEntry$json = const {
 };
 
 /// Descriptor for `Discovery`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List discoveryDescriptor = $convert.base64Decode('CglEaXNjb3ZlcnkSGAoHYWRkcmVzcxgBIAEoCVIHYWRkcmVzcxISCgRyc3NpGAIgASgRUgRyc3NpEkYKDmFkdmVydGlzZW1lbnRzGAMgAygLMh4uRGlzY292ZXJ5LkFkdmVydGlzZW1lbnRzRW50cnlSDmFkdmVydGlzZW1lbnRzGkEKE0FkdmVydGlzZW1lbnRzRW50cnkSEAoDa2V5GAEgASgNUgNrZXkSFAoFdmFsdWUYAiABKAxSBXZhbHVlOgI4AQ==');
+final $typed_data.Uint8List discoveryDescriptor = $convert.base64Decode('CglEaXNjb3ZlcnkSGAoHYWRkcmVzcxgBIAEoCVIHYWRkcmVzcxISCgRyc3NpGAIgASgRUgRyc3NpEmsKDmFkdmVydGlzZW1lbnRzGAMgAygLMkMuZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5LkRpc2NvdmVyeS5BZHZlcnRpc2VtZW50c0VudHJ5Ug5hZHZlcnRpc2VtZW50cxpBChNBZHZlcnRpc2VtZW50c0VudHJ5EhAKA2tleRgBIAEoDVIDa2V5EhQKBXZhbHVlGAIgASgMUgV2YWx1ZToCOAE=');

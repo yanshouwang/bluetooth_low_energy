@@ -1,4 +1,5 @@
 syntax = "proto3";
+package dev.yanshouwang.bluetooth_low_energy;
 
 message Message {
   MessageCategory category = 1;
