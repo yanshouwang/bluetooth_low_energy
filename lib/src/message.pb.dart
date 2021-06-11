@@ -107,7 +107,7 @@ class Message extends $pb.GeneratedMessage {
 
 class Discovery extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Discovery', createEmptyInstance: create)
-    ..aOM<Peripheral>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'peripheral', subBuilder: Peripheral.create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'address')
     ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rssi', $pb.PbFieldType.OS3)
     ..m<$core.int, $core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'advertisements', entryClassName: 'Discovery.AdvertisementsEntry', keyFieldType: $pb.PbFieldType.OU3, valueFieldType: $pb.PbFieldType.OY)
     ..hasRequiredFields = false
@@ -115,13 +115,13 @@ class Discovery extends $pb.GeneratedMessage {
 
   Discovery._() : super();
   factory Discovery({
-    Peripheral? peripheral,
+    $core.String? address,
     $core.int? rssi,
     $core.Map<$core.int, $core.List<$core.int>>? advertisements,
   }) {
     final _result = create();
-    if (peripheral != null) {
-      _result.peripheral = peripheral;
+    if (address != null) {
+      _result.address = address;
     }
     if (rssi != null) {
       _result.rssi = rssi;
@@ -153,15 +153,13 @@ class Discovery extends $pb.GeneratedMessage {
   static Discovery? _defaultInstance;
 
   @$pb.TagNumber(1)
-  Peripheral get peripheral => $_getN(0);
+  $core.String get address => $_getSZ(0);
   @$pb.TagNumber(1)
-  set peripheral(Peripheral v) { setField(1, v); }
+  set address($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasPeripheral() => $_has(0);
+  $core.bool hasAddress() => $_has(0);
   @$pb.TagNumber(1)
-  void clearPeripheral() => clearField(1);
-  @$pb.TagNumber(1)
-  Peripheral ensurePeripheral() => $_ensure(0);
+  void clearAddress() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.int get rssi => $_getIZ(1);
@@ -174,52 +172,5 @@ class Discovery extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(3)
   $core.Map<$core.int, $core.List<$core.int>> get advertisements => $_getMap(2);
-}
-
-class Peripheral extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Peripheral', createEmptyInstance: create)
-    ..a<$core.List<$core.int>>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'address', $pb.PbFieldType.OY)
-    ..hasRequiredFields = false
-  ;
-
-  Peripheral._() : super();
-  factory Peripheral({
-    $core.List<$core.int>? address,
-  }) {
-    final _result = create();
-    if (address != null) {
-      _result.address = address;
-    }
-    return _result;
-  }
-  factory Peripheral.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Peripheral.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  Peripheral clone() => Peripheral()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  Peripheral copyWith(void Function(Peripheral) updates) => super.copyWith((message) => updates(message as Peripheral)) as Peripheral; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static Peripheral create() => Peripheral._();
-  Peripheral createEmptyInstance() => create();
-  static $pb.PbList<Peripheral> createRepeated() => $pb.PbList<Peripheral>();
-  @$core.pragma('dart2js:noInline')
-  static Peripheral getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Peripheral>(create);
-  static Peripheral? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.List<$core.int> get address => $_getN(0);
-  @$pb.TagNumber(1)
-  set address($core.List<$core.int> v) { $_setBytes(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasAddress() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearAddress() => clearField(1);
 }
 

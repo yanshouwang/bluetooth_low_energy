@@ -1,22 +1,22 @@
-import 'bluetooth.dart';
+import 'mac.dart';
 
 abstract class Discovery {
-  Peripheral get peripheral;
+  MAC get address;
   int get rssi;
   Map<int, List<int>> get advertisements;
 
-  factory Discovery(Peripheral peripheral, int rssi,
-          Map<int, List<int>> advertisements) =>
-      _Discovery(peripheral, rssi, advertisements);
+  factory Discovery(
+          MAC address, int rssi, Map<int, List<int>> advertisements) =>
+      _Discovery(address, rssi, advertisements);
 }
 
 class _Discovery implements Discovery {
   @override
-  final Peripheral peripheral;
+  final MAC address;
   @override
   final int rssi;
   @override
   final Map<int, List<int>> advertisements;
 
-  _Discovery(this.peripheral, this.rssi, this.advertisements);
+  _Discovery(this.address, this.rssi, this.advertisements);
 }

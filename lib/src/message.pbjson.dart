@@ -55,7 +55,7 @@ final $typed_data.Uint8List messageDescriptor = $convert.base64Decode('CgdNZXNzY
 const Discovery$json = const {
   '1': 'Discovery',
   '2': const [
-    const {'1': 'peripheral', '3': 1, '4': 1, '5': 11, '6': '.Peripheral', '10': 'peripheral'},
+    const {'1': 'address', '3': 1, '4': 1, '5': 9, '10': 'address'},
     const {'1': 'rssi', '3': 2, '4': 1, '5': 17, '10': 'rssi'},
     const {'1': 'advertisements', '3': 3, '4': 3, '5': 11, '6': '.Discovery.AdvertisementsEntry', '10': 'advertisements'},
   ],
@@ -73,14 +73,4 @@ const Discovery_AdvertisementsEntry$json = const {
 };
 
 /// Descriptor for `Discovery`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List discoveryDescriptor = $convert.base64Decode('CglEaXNjb3ZlcnkSKwoKcGVyaXBoZXJhbBgBIAEoCzILLlBlcmlwaGVyYWxSCnBlcmlwaGVyYWwSEgoEcnNzaRgCIAEoEVIEcnNzaRJGCg5hZHZlcnRpc2VtZW50cxgDIAMoCzIeLkRpc2NvdmVyeS5BZHZlcnRpc2VtZW50c0VudHJ5Ug5hZHZlcnRpc2VtZW50cxpBChNBZHZlcnRpc2VtZW50c0VudHJ5EhAKA2tleRgBIAEoDVIDa2V5EhQKBXZhbHVlGAIgASgMUgV2YWx1ZToCOAE=');
-@$core.Deprecated('Use peripheralDescriptor instead')
-const Peripheral$json = const {
-  '1': 'Peripheral',
-  '2': const [
-    const {'1': 'address', '3': 1, '4': 1, '5': 12, '10': 'address'},
-  ],
-};
-
-/// Descriptor for `Peripheral`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List peripheralDescriptor = $convert.base64Decode('CgpQZXJpcGhlcmFsEhgKB2FkZHJlc3MYASABKAxSB2FkZHJlc3M=');
+final $typed_data.Uint8List discoveryDescriptor = $convert.base64Decode('CglEaXNjb3ZlcnkSGAoHYWRkcmVzcxgBIAEoCVIHYWRkcmVzcxISCgRyc3NpGAIgASgRUgRyc3NpEkYKDmFkdmVydGlzZW1lbnRzGAMgAygLMh4uRGlzY292ZXJ5LkFkdmVydGlzZW1lbnRzRW50cnlSDmFkdmVydGlzZW1lbnRzGkEKE0FkdmVydGlzZW1lbnRzRW50cnkSEAoDa2V5GAEgASgNUgNrZXkSFAoFdmFsdWUYAiABKAxSBXZhbHVlOgI4AQ==');

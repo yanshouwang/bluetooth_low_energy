@@ -2,7 +2,8 @@ import 'bluetooth.dart';
 import 'channel.dart';
 import 'discovery.dart';
 import 'exception.dart';
-import 'message.pb.dart' as income;
+import 'mac.dart';
+import 'message.pb.dart' as proto;
 import 'uuid.dart';
 
 /// The abstract base class that manages central and peripheral objects.
@@ -19,15 +20,15 @@ abstract class BluetoothManager {
 class _BluetoothManager implements BluetoothManager {
   @override
   Future<BluetoothManagerState> get state => method
-      .invokeMethod<int>(income.MessageCategory.BLUETOOTH_MANAGER_STATE.name)
-      .then((value) => income.BluetoothManagerState.valueOf(value!)!.outcome);
+      .invokeMethod<int>(proto.MessageCategory.BLUETOOTH_MANAGER_STATE.name)
+      .then((value) => proto.BluetoothManagerState.valueOf(value!)!.conversion);
 
   @override
   Stream<BluetoothManagerState> get stateChanged => stream
-      .map((event) => income.Message.fromBuffer(event))
+      .map((event) => proto.Message.fromBuffer(event))
       .where((message) =>
-          message.category == income.MessageCategory.BLUETOOTH_MANAGER_STATE)
-      .map((message) => message.state.outcome);
+          message.category == proto.MessageCategory.BLUETOOTH_MANAGER_STATE)
+      .map((message) => message.state.conversion);
 }
 
 /// An object that scans for, discovers, connects to, and manages peripherals.
@@ -56,10 +57,10 @@ abstract class CentralManager extends BluetoothManager {
 class _CentralManager extends _BluetoothManager implements CentralManager {
   @override
   Stream<Discovery> get discovered => stream
-      .map((event) => income.Message.fromBuffer(event))
+      .map((event) => proto.Message.fromBuffer(event))
       .where((message) =>
-          message.category == income.MessageCategory.CENTRAL_MANAGER_DISCOVERED)
-      .map((message) => message.discovery.outcome);
+          message.category == proto.MessageCategory.CENTRAL_MANAGER_DISCOVERED)
+      .map((message) => message.discovery.conversion);
 
   @override
   // TODO: implement connectionLost
@@ -68,12 +69,12 @@ class _CentralManager extends _BluetoothManager implements CentralManager {
 
   @override
   Future startDiscovery({List<UUID>? services}) => method.invokeMethod(
-      income.MessageCategory.CENTRAL_MANAGER_START_DISCOVERY.name,
+      proto.MessageCategory.CENTRAL_MANAGER_START_DISCOVERY.name,
       services?.map((uuid) => uuid.value).toList());
 
   @override
   Future stopDiscovery() => method
-      .invokeMethod(income.MessageCategory.CENTRAL_MANAGER_STOP_DISCOVERY.name);
+      .invokeMethod(proto.MessageCategory.CENTRAL_MANAGER_STOP_DISCOVERY.name);
 
   @override
   Future connect(Peripheral peripheral) {
@@ -124,14 +125,15 @@ enum BluetoothManagerAuthorization {
   allowedAlways,
 }
 
-extension on income.BluetoothManagerState {
-  BluetoothManagerState get outcome => BluetoothManagerState.values[value];
+extension on proto.BluetoothManagerState {
+  BluetoothManagerState get conversion => BluetoothManagerState.values[value];
 }
 
-extension on income.Discovery {
-  Discovery get outcome => Discovery(peripheral.outcome, rssi, advertisements);
+extension on proto.Discovery {
+  Discovery get conversion =>
+      Discovery(address.conversion, rssi, advertisements);
 }
 
-extension on income.Peripheral {
-  Peripheral get outcome => Peripheral();
+extension on String {
+  MAC get conversion => MAC(this);
 }
