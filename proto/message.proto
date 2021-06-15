@@ -4,7 +4,7 @@ package dev.yanshouwang.bluetooth_low_energy;
 message Message {
   MessageCategory category = 1;
   oneof value {
-      BluetoothManagerState state = 2;
+      BluetoothState state = 2;
       Discovery discovery = 3;
   }
 }
@@ -16,13 +16,13 @@ message Discovery {
 }
 
 enum MessageCategory {
-    BLUETOOTH_MANAGER_STATE = 0;
-    CENTRAL_MANAGER_START_DISCOVERY = 1;
-    CENTRAL_MANAGER_STOP_DISCOVERY = 2;
-    CENTRAL_MANAGER_DISCOVERED = 3;
+    BLUETOOTH_STATE = 0;
+    CENTRAL_START_DISCOVERY = 1;
+    CENTRAL_STOP_DISCOVERY = 2;
+    CENTRAL_DISCOVERED = 3;
 }
 
-enum BluetoothManagerState {
+enum BluetoothState {
   UNKNOWN = 0;
   RESETTING = 1;
   UNSUPPORTED = 2;

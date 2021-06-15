@@ -12,18 +12,18 @@ import 'dart:typed_data' as $typed_data;
 const MessageCategory$json = const {
   '1': 'MessageCategory',
   '2': const [
-    const {'1': 'BLUETOOTH_MANAGER_STATE', '2': 0},
-    const {'1': 'CENTRAL_MANAGER_START_DISCOVERY', '2': 1},
-    const {'1': 'CENTRAL_MANAGER_STOP_DISCOVERY', '2': 2},
-    const {'1': 'CENTRAL_MANAGER_DISCOVERED', '2': 3},
+    const {'1': 'BLUETOOTH_STATE', '2': 0},
+    const {'1': 'CENTRAL_START_DISCOVERY', '2': 1},
+    const {'1': 'CENTRAL_STOP_DISCOVERY', '2': 2},
+    const {'1': 'CENTRAL_DISCOVERED', '2': 3},
   ],
 };
 
 /// Descriptor for `MessageCategory`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List messageCategoryDescriptor = $convert.base64Decode('Cg9NZXNzYWdlQ2F0ZWdvcnkSGwoXQkxVRVRPT1RIX01BTkFHRVJfU1RBVEUQABIjCh9DRU5UUkFMX01BTkFHRVJfU1RBUlRfRElTQ09WRVJZEAESIgoeQ0VOVFJBTF9NQU5BR0VSX1NUT1BfRElTQ09WRVJZEAISHgoaQ0VOVFJBTF9NQU5BR0VSX0RJU0NPVkVSRUQQAw==');
-@$core.Deprecated('Use bluetoothManagerStateDescriptor instead')
-const BluetoothManagerState$json = const {
-  '1': 'BluetoothManagerState',
+final $typed_data.Uint8List messageCategoryDescriptor = $convert.base64Decode('Cg9NZXNzYWdlQ2F0ZWdvcnkSEwoPQkxVRVRPT1RIX1NUQVRFEAASGwoXQ0VOVFJBTF9TVEFSVF9ESVNDT1ZFUlkQARIaChZDRU5UUkFMX1NUT1BfRElTQ09WRVJZEAISFgoSQ0VOVFJBTF9ESVNDT1ZFUkVEEAM=');
+@$core.Deprecated('Use bluetoothStateDescriptor instead')
+const BluetoothState$json = const {
+  '1': 'BluetoothState',
   '2': const [
     const {'1': 'UNKNOWN', '2': 0},
     const {'1': 'RESETTING', '2': 1},
@@ -34,14 +34,14 @@ const BluetoothManagerState$json = const {
   ],
 };
 
-/// Descriptor for `BluetoothManagerState`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List bluetoothManagerStateDescriptor = $convert.base64Decode('ChVCbHVldG9vdGhNYW5hZ2VyU3RhdGUSCwoHVU5LTk9XThAAEg0KCVJFU0VUVElORxABEg8KC1VOU1VQUE9SVEVEEAISEAoMVU5BVVRIT1JJWkVEEAMSDwoLUE9XRVJFRF9PRkYQBBIOCgpQT1dFUkVEX09OEAU=');
+/// Descriptor for `BluetoothState`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List bluetoothStateDescriptor = $convert.base64Decode('Cg5CbHVldG9vdGhTdGF0ZRILCgdVTktOT1dOEAASDQoJUkVTRVRUSU5HEAESDwoLVU5TVVBQT1JURUQQAhIQCgxVTkFVVEhPUklaRUQQAxIPCgtQT1dFUkVEX09GRhAEEg4KClBPV0VSRURfT04QBQ==');
 @$core.Deprecated('Use messageDescriptor instead')
 const Message$json = const {
   '1': 'Message',
   '2': const [
     const {'1': 'category', '3': 1, '4': 1, '5': 14, '6': '.dev.yanshouwang.bluetooth_low_energy.MessageCategory', '10': 'category'},
-    const {'1': 'state', '3': 2, '4': 1, '5': 14, '6': '.dev.yanshouwang.bluetooth_low_energy.BluetoothManagerState', '9': 0, '10': 'state'},
+    const {'1': 'state', '3': 2, '4': 1, '5': 14, '6': '.dev.yanshouwang.bluetooth_low_energy.BluetoothState', '9': 0, '10': 'state'},
     const {'1': 'discovery', '3': 3, '4': 1, '5': 11, '6': '.dev.yanshouwang.bluetooth_low_energy.Discovery', '9': 0, '10': 'discovery'},
   ],
   '8': const [
@@ -50,7 +50,7 @@ const Message$json = const {
 };
 
 /// Descriptor for `Message`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List messageDescriptor = $convert.base64Decode('CgdNZXNzYWdlElEKCGNhdGVnb3J5GAEgASgOMjUuZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5Lk1lc3NhZ2VDYXRlZ29yeVIIY2F0ZWdvcnkSUwoFc3RhdGUYAiABKA4yOy5kZXYueWFuc2hvdXdhbmcuYmx1ZXRvb3RoX2xvd19lbmVyZ3kuQmx1ZXRvb3RoTWFuYWdlclN0YXRlSABSBXN0YXRlEk8KCWRpc2NvdmVyeRgDIAEoCzIvLmRldi55YW5zaG91d2FuZy5ibHVldG9vdGhfbG93X2VuZXJneS5EaXNjb3ZlcnlIAFIJZGlzY292ZXJ5QgcKBXZhbHVl');
+final $typed_data.Uint8List messageDescriptor = $convert.base64Decode('CgdNZXNzYWdlElEKCGNhdGVnb3J5GAEgASgOMjUuZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5Lk1lc3NhZ2VDYXRlZ29yeVIIY2F0ZWdvcnkSTAoFc3RhdGUYAiABKA4yNC5kZXYueWFuc2hvdXdhbmcuYmx1ZXRvb3RoX2xvd19lbmVyZ3kuQmx1ZXRvb3RoU3RhdGVIAFIFc3RhdGUSTwoJZGlzY292ZXJ5GAMgASgLMi8uZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5LkRpc2NvdmVyeUgAUglkaXNjb3ZlcnlCBwoFdmFsdWU=');
 @$core.Deprecated('Use discoveryDescriptor instead')
 const Discovery$json = const {
   '1': 'Discovery',

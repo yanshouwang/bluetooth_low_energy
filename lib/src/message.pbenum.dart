@@ -10,16 +10,16 @@ import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 class MessageCategory extends $pb.ProtobufEnum {
-  static const MessageCategory BLUETOOTH_MANAGER_STATE = MessageCategory._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'BLUETOOTH_MANAGER_STATE');
-  static const MessageCategory CENTRAL_MANAGER_START_DISCOVERY = MessageCategory._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CENTRAL_MANAGER_START_DISCOVERY');
-  static const MessageCategory CENTRAL_MANAGER_STOP_DISCOVERY = MessageCategory._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CENTRAL_MANAGER_STOP_DISCOVERY');
-  static const MessageCategory CENTRAL_MANAGER_DISCOVERED = MessageCategory._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CENTRAL_MANAGER_DISCOVERED');
+  static const MessageCategory BLUETOOTH_STATE = MessageCategory._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'BLUETOOTH_STATE');
+  static const MessageCategory CENTRAL_START_DISCOVERY = MessageCategory._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CENTRAL_START_DISCOVERY');
+  static const MessageCategory CENTRAL_STOP_DISCOVERY = MessageCategory._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CENTRAL_STOP_DISCOVERY');
+  static const MessageCategory CENTRAL_DISCOVERED = MessageCategory._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CENTRAL_DISCOVERED');
 
   static const $core.List<MessageCategory> values = <MessageCategory> [
-    BLUETOOTH_MANAGER_STATE,
-    CENTRAL_MANAGER_START_DISCOVERY,
-    CENTRAL_MANAGER_STOP_DISCOVERY,
-    CENTRAL_MANAGER_DISCOVERED,
+    BLUETOOTH_STATE,
+    CENTRAL_START_DISCOVERY,
+    CENTRAL_STOP_DISCOVERY,
+    CENTRAL_DISCOVERED,
   ];
 
   static final $core.Map<$core.int, MessageCategory> _byValue = $pb.ProtobufEnum.initByValue(values);
@@ -28,15 +28,15 @@ class MessageCategory extends $pb.ProtobufEnum {
   const MessageCategory._($core.int v, $core.String n) : super(v, n);
 }
 
-class BluetoothManagerState extends $pb.ProtobufEnum {
-  static const BluetoothManagerState UNKNOWN = BluetoothManagerState._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UNKNOWN');
-  static const BluetoothManagerState RESETTING = BluetoothManagerState._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RESETTING');
-  static const BluetoothManagerState UNSUPPORTED = BluetoothManagerState._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UNSUPPORTED');
-  static const BluetoothManagerState UNAUTHORIZED = BluetoothManagerState._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UNAUTHORIZED');
-  static const BluetoothManagerState POWERED_OFF = BluetoothManagerState._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'POWERED_OFF');
-  static const BluetoothManagerState POWERED_ON = BluetoothManagerState._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'POWERED_ON');
+class BluetoothState extends $pb.ProtobufEnum {
+  static const BluetoothState UNKNOWN = BluetoothState._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UNKNOWN');
+  static const BluetoothState RESETTING = BluetoothState._(1, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'RESETTING');
+  static const BluetoothState UNSUPPORTED = BluetoothState._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UNSUPPORTED');
+  static const BluetoothState UNAUTHORIZED = BluetoothState._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'UNAUTHORIZED');
+  static const BluetoothState POWERED_OFF = BluetoothState._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'POWERED_OFF');
+  static const BluetoothState POWERED_ON = BluetoothState._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'POWERED_ON');
 
-  static const $core.List<BluetoothManagerState> values = <BluetoothManagerState> [
+  static const $core.List<BluetoothState> values = <BluetoothState> [
     UNKNOWN,
     RESETTING,
     UNSUPPORTED,
@@ -45,9 +45,9 @@ class BluetoothManagerState extends $pb.ProtobufEnum {
     POWERED_ON,
   ];
 
-  static final $core.Map<$core.int, BluetoothManagerState> _byValue = $pb.ProtobufEnum.initByValue(values);
-  static BluetoothManagerState? valueOf($core.int value) => _byValue[value];
+  static final $core.Map<$core.int, BluetoothState> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static BluetoothState? valueOf($core.int value) => _byValue[value];
 
-  const BluetoothManagerState._($core.int v, $core.String n) : super(v, n);
+  const BluetoothState._($core.int v, $core.String n) : super(v, n);
 }
 

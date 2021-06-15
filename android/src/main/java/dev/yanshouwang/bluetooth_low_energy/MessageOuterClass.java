@@ -20,40 +20,40 @@ public final class MessageOuterClass {
   public enum MessageCategory
       implements com.google.protobuf.ProtocolMessageEnum {
     /**
-     * <code>BLUETOOTH_MANAGER_STATE = 0;</code>
+     * <code>BLUETOOTH_STATE = 0;</code>
      */
-    BLUETOOTH_MANAGER_STATE(0),
+    BLUETOOTH_STATE(0),
     /**
-     * <code>CENTRAL_MANAGER_START_DISCOVERY = 1;</code>
+     * <code>CENTRAL_START_DISCOVERY = 1;</code>
      */
-    CENTRAL_MANAGER_START_DISCOVERY(1),
+    CENTRAL_START_DISCOVERY(1),
     /**
-     * <code>CENTRAL_MANAGER_STOP_DISCOVERY = 2;</code>
+     * <code>CENTRAL_STOP_DISCOVERY = 2;</code>
      */
-    CENTRAL_MANAGER_STOP_DISCOVERY(2),
+    CENTRAL_STOP_DISCOVERY(2),
     /**
-     * <code>CENTRAL_MANAGER_DISCOVERED = 3;</code>
+     * <code>CENTRAL_DISCOVERED = 3;</code>
      */
-    CENTRAL_MANAGER_DISCOVERED(3),
+    CENTRAL_DISCOVERED(3),
     UNRECOGNIZED(-1),
     ;
 
     /**
-     * <code>BLUETOOTH_MANAGER_STATE = 0;</code>
+     * <code>BLUETOOTH_STATE = 0;</code>
      */
-    public static final int BLUETOOTH_MANAGER_STATE_VALUE = 0;
+    public static final int BLUETOOTH_STATE_VALUE = 0;
     /**
-     * <code>CENTRAL_MANAGER_START_DISCOVERY = 1;</code>
+     * <code>CENTRAL_START_DISCOVERY = 1;</code>
      */
-    public static final int CENTRAL_MANAGER_START_DISCOVERY_VALUE = 1;
+    public static final int CENTRAL_START_DISCOVERY_VALUE = 1;
     /**
-     * <code>CENTRAL_MANAGER_STOP_DISCOVERY = 2;</code>
+     * <code>CENTRAL_STOP_DISCOVERY = 2;</code>
      */
-    public static final int CENTRAL_MANAGER_STOP_DISCOVERY_VALUE = 2;
+    public static final int CENTRAL_STOP_DISCOVERY_VALUE = 2;
     /**
-     * <code>CENTRAL_MANAGER_DISCOVERED = 3;</code>
+     * <code>CENTRAL_DISCOVERED = 3;</code>
      */
-    public static final int CENTRAL_MANAGER_DISCOVERED_VALUE = 3;
+    public static final int CENTRAL_DISCOVERED_VALUE = 3;
 
 
     public final int getNumber() {
@@ -80,10 +80,10 @@ public final class MessageOuterClass {
      */
     public static MessageCategory forNumber(int value) {
       switch (value) {
-        case 0: return BLUETOOTH_MANAGER_STATE;
-        case 1: return CENTRAL_MANAGER_START_DISCOVERY;
-        case 2: return CENTRAL_MANAGER_STOP_DISCOVERY;
-        case 3: return CENTRAL_MANAGER_DISCOVERED;
+        case 0: return BLUETOOTH_STATE;
+        case 1: return CENTRAL_START_DISCOVERY;
+        case 2: return CENTRAL_STOP_DISCOVERY;
+        case 3: return CENTRAL_DISCOVERED;
         default: return null;
       }
     }
@@ -141,9 +141,9 @@ public final class MessageOuterClass {
   }
 
   /**
-   * Protobuf enum {@code dev.yanshouwang.bluetooth_low_energy.BluetoothManagerState}
+   * Protobuf enum {@code dev.yanshouwang.bluetooth_low_energy.BluetoothState}
    */
-  public enum BluetoothManagerState
+  public enum BluetoothState
       implements com.google.protobuf.ProtocolMessageEnum {
     /**
      * <code>UNKNOWN = 0;</code>
@@ -212,7 +212,7 @@ public final class MessageOuterClass {
      * @deprecated Use {@link #forNumber(int)} instead.
      */
     @java.lang.Deprecated
-    public static BluetoothManagerState valueOf(int value) {
+    public static BluetoothState valueOf(int value) {
       return forNumber(value);
     }
 
@@ -220,7 +220,7 @@ public final class MessageOuterClass {
      * @param value The numeric wire value of the corresponding enum entry.
      * @return The enum associated with the given numeric wire value.
      */
-    public static BluetoothManagerState forNumber(int value) {
+    public static BluetoothState forNumber(int value) {
       switch (value) {
         case 0: return UNKNOWN;
         case 1: return RESETTING;
@@ -232,15 +232,15 @@ public final class MessageOuterClass {
       }
     }
 
-    public static com.google.protobuf.Internal.EnumLiteMap<BluetoothManagerState>
+    public static com.google.protobuf.Internal.EnumLiteMap<BluetoothState>
         internalGetValueMap() {
       return internalValueMap;
     }
     private static final com.google.protobuf.Internal.EnumLiteMap<
-        BluetoothManagerState> internalValueMap =
-          new com.google.protobuf.Internal.EnumLiteMap<BluetoothManagerState>() {
-            public BluetoothManagerState findValueByNumber(int number) {
-              return BluetoothManagerState.forNumber(number);
+        BluetoothState> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<BluetoothState>() {
+            public BluetoothState findValueByNumber(int number) {
+              return BluetoothState.forNumber(number);
             }
           };
 
@@ -261,9 +261,9 @@ public final class MessageOuterClass {
       return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.getDescriptor().getEnumTypes().get(1);
     }
 
-    private static final BluetoothManagerState[] VALUES = values();
+    private static final BluetoothState[] VALUES = values();
 
-    public static BluetoothManagerState valueOf(
+    public static BluetoothState valueOf(
         com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
       if (desc.getType() != getDescriptor()) {
         throw new java.lang.IllegalArgumentException(
@@ -277,11 +277,11 @@ public final class MessageOuterClass {
 
     private final int value;
 
-    private BluetoothManagerState(int value) {
+    private BluetoothState(int value) {
       this.value = value;
     }
 
-    // @@protoc_insertion_point(enum_scope:dev.yanshouwang.bluetooth_low_energy.BluetoothManagerState)
+    // @@protoc_insertion_point(enum_scope:dev.yanshouwang.bluetooth_low_energy.BluetoothState)
   }
 
   public interface MessageOrBuilder extends
@@ -300,20 +300,20 @@ public final class MessageOuterClass {
     dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.MessageCategory getCategory();
 
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothManagerState state = 2;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
      * @return Whether the state field is set.
      */
     boolean hasState();
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothManagerState state = 2;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
      * @return The enum numeric value on the wire for state.
      */
     int getStateValue();
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothManagerState state = 2;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
      * @return The state.
      */
-    dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothManagerState getState();
+    dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState getState();
 
     /**
      * <code>.dev.yanshouwang.bluetooth_low_energy.Discovery discovery = 3;</code>
@@ -498,14 +498,14 @@ public final class MessageOuterClass {
 
     public static final int STATE_FIELD_NUMBER = 2;
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothManagerState state = 2;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
      * @return Whether the state field is set.
      */
     public boolean hasState() {
       return valueCase_ == 2;
     }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothManagerState state = 2;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
      * @return The enum numeric value on the wire for state.
      */
     public int getStateValue() {
@@ -515,17 +515,17 @@ public final class MessageOuterClass {
       return 0;
     }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothManagerState state = 2;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
      * @return The state.
      */
-    public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothManagerState getState() {
+    public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState getState() {
       if (valueCase_ == 2) {
         @SuppressWarnings("deprecation")
-        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothManagerState result = dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothManagerState.valueOf(
+        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState result = dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState.valueOf(
             (java.lang.Integer) value_);
-        return result == null ? dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothManagerState.UNRECOGNIZED : result;
+        return result == null ? dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState.UNRECOGNIZED : result;
       }
-      return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothManagerState.UNKNOWN;
+      return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState.UNKNOWN;
     }
 
     public static final int DISCOVERY_FIELD_NUMBER = 3;
@@ -573,7 +573,7 @@ public final class MessageOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (category_ != dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.MessageCategory.BLUETOOTH_MANAGER_STATE.getNumber()) {
+      if (category_ != dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.MessageCategory.BLUETOOTH_STATE.getNumber()) {
         output.writeEnum(1, category_);
       }
       if (valueCase_ == 2) {
@@ -591,7 +591,7 @@ public final class MessageOuterClass {
       if (size != -1) return size;
 
       size = 0;
-      if (category_ != dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.MessageCategory.BLUETOOTH_MANAGER_STATE.getNumber()) {
+      if (category_ != dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.MessageCategory.BLUETOOTH_STATE.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(1, category_);
       }
@@ -995,7 +995,7 @@ public final class MessageOuterClass {
       }
 
       /**
-       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothManagerState state = 2;</code>
+       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
        * @return Whether the state field is set.
        */
       @java.lang.Override
@@ -1003,7 +1003,7 @@ public final class MessageOuterClass {
         return valueCase_ == 2;
       }
       /**
-       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothManagerState state = 2;</code>
+       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
        * @return The enum numeric value on the wire for state.
        */
       @java.lang.Override
@@ -1014,7 +1014,7 @@ public final class MessageOuterClass {
         return 0;
       }
       /**
-       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothManagerState state = 2;</code>
+       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
        * @param value The enum numeric value on the wire for state to set.
        * @return This builder for chaining.
        */
@@ -1025,25 +1025,25 @@ public final class MessageOuterClass {
         return this;
       }
       /**
-       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothManagerState state = 2;</code>
+       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
        * @return The state.
        */
       @java.lang.Override
-      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothManagerState getState() {
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState getState() {
         if (valueCase_ == 2) {
           @SuppressWarnings("deprecation")
-          dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothManagerState result = dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothManagerState.valueOf(
+          dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState result = dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState.valueOf(
               (java.lang.Integer) value_);
-          return result == null ? dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothManagerState.UNRECOGNIZED : result;
+          return result == null ? dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState.UNRECOGNIZED : result;
         }
-        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothManagerState.UNKNOWN;
+        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState.UNKNOWN;
       }
       /**
-       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothManagerState state = 2;</code>
+       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
        * @param value The state to set.
        * @return This builder for chaining.
        */
-      public Builder setState(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothManagerState value) {
+      public Builder setState(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState value) {
         if (value == null) {
           throw new NullPointerException();
         }
@@ -1053,7 +1053,7 @@ public final class MessageOuterClass {
         return this;
       }
       /**
-       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothManagerState state = 2;</code>
+       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
        * @return This builder for chaining.
        */
       public Builder clearState() {
@@ -2241,25 +2241,24 @@ public final class MessageOuterClass {
   static {
     java.lang.String[] descriptorData = {
       "\n\rmessage.proto\022$dev.yanshouwang.bluetoo" +
-      "th_low_energy\"\357\001\n\007Message\022G\n\010category\030\001 " +
+      "th_low_energy\"\350\001\n\007Message\022G\n\010category\030\001 " +
       "\001(\01625.dev.yanshouwang.bluetooth_low_ener" +
-      "gy.MessageCategory\022L\n\005state\030\002 \001(\0162;.dev." +
+      "gy.MessageCategory\022E\n\005state\030\002 \001(\01624.dev." +
       "yanshouwang.bluetooth_low_energy.Bluetoo" +
-      "thManagerStateH\000\022D\n\tdiscovery\030\003 \001(\0132/.de" +
-      "v.yanshouwang.bluetooth_low_energy.Disco" +
-      "veryH\000B\007\n\005value\"\276\001\n\tDiscovery\022\017\n\007address" +
-      "\030\001 \001(\t\022\014\n\004rssi\030\002 \001(\021\022[\n\016advertisements\030\003" +
-      " \003(\0132C.dev.yanshouwang.bluetooth_low_ene" +
-      "rgy.Discovery.AdvertisementsEntry\0325\n\023Adv" +
-      "ertisementsEntry\022\013\n\003key\030\001 \001(\r\022\r\n\005value\030\002" +
-      " \001(\014:\0028\001*\227\001\n\017MessageCategory\022\033\n\027BLUETOOT" +
-      "H_MANAGER_STATE\020\000\022#\n\037CENTRAL_MANAGER_STA" +
-      "RT_DISCOVERY\020\001\022\"\n\036CENTRAL_MANAGER_STOP_D" +
-      "ISCOVERY\020\002\022\036\n\032CENTRAL_MANAGER_DISCOVERED" +
-      "\020\003*w\n\025BluetoothManagerState\022\013\n\007UNKNOWN\020\000" +
-      "\022\r\n\tRESETTING\020\001\022\017\n\013UNSUPPORTED\020\002\022\020\n\014UNAU" +
-      "THORIZED\020\003\022\017\n\013POWERED_OFF\020\004\022\016\n\nPOWERED_O" +
-      "N\020\005b\006proto3"
+      "thStateH\000\022D\n\tdiscovery\030\003 \001(\0132/.dev.yansh" +
+      "ouwang.bluetooth_low_energy.DiscoveryH\000B" +
+      "\007\n\005value\"\276\001\n\tDiscovery\022\017\n\007address\030\001 \001(\t\022" +
+      "\014\n\004rssi\030\002 \001(\021\022[\n\016advertisements\030\003 \003(\0132C." +
+      "dev.yanshouwang.bluetooth_low_energy.Dis" +
+      "covery.AdvertisementsEntry\0325\n\023Advertisem" +
+      "entsEntry\022\013\n\003key\030\001 \001(\r\022\r\n\005value\030\002 \001(\014:\0028" +
+      "\001*w\n\017MessageCategory\022\023\n\017BLUETOOTH_STATE\020" +
+      "\000\022\033\n\027CENTRAL_START_DISCOVERY\020\001\022\032\n\026CENTRA" +
+      "L_STOP_DISCOVERY\020\002\022\026\n\022CENTRAL_DISCOVERED" +
+      "\020\003*p\n\016BluetoothState\022\013\n\007UNKNOWN\020\000\022\r\n\tRES" +
+      "ETTING\020\001\022\017\n\013UNSUPPORTED\020\002\022\020\n\014UNAUTHORIZE" +
+      "D\020\003\022\017\n\013POWERED_OFF\020\004\022\016\n\nPOWERED_ON\020\005b\006pr" +
+      "oto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,

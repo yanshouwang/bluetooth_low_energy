@@ -9,11 +9,11 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  final CentralManager manager;
+  final Central manager;
   final Map<MAC, Discovery> discoveries;
 
   _HomeViewState()
-      : manager = CentralManager(),
+      : manager = Central(),
         discoveries = {};
 
   @override

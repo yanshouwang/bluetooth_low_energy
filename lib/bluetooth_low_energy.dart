@@ -1,5 +1,5 @@
-export 'src/bluetooth_manager.dart';
 export 'src/bluetooth.dart';
+export 'src/gatt.dart';
 export 'src/discovery.dart';
 export 'src/mac.dart';
 export 'src/uuid.dart';
