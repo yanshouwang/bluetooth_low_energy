@@ -51,6 +51,16 @@ const Message$json = const {
 
 /// Descriptor for `Message`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List messageDescriptor = $convert.base64Decode('CgdNZXNzYWdlElEKCGNhdGVnb3J5GAEgASgOMjUuZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5Lk1lc3NhZ2VDYXRlZ29yeVIIY2F0ZWdvcnkSTAoFc3RhdGUYAiABKA4yNC5kZXYueWFuc2hvdXdhbmcuYmx1ZXRvb3RoX2xvd19lbmVyZ3kuQmx1ZXRvb3RoU3RhdGVIAFIFc3RhdGUSTwoJZGlzY292ZXJ5GAMgASgLMi8uZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5LkRpc2NvdmVyeUgAUglkaXNjb3ZlcnlCBwoFdmFsdWU=');
+@$core.Deprecated('Use discoverArgumentsDescriptor instead')
+const DiscoverArguments$json = const {
+  '1': 'DiscoverArguments',
+  '2': const [
+    const {'1': 'uuids', '3': 1, '4': 3, '5': 9, '10': 'uuids'},
+  ],
+};
+
+/// Descriptor for `DiscoverArguments`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List discoverArgumentsDescriptor = $convert.base64Decode('ChFEaXNjb3ZlckFyZ3VtZW50cxIUCgV1dWlkcxgBIAMoCVIFdXVpZHM=');
 @$core.Deprecated('Use discoveryDescriptor instead')
 const Discovery$json = const {
   '1': 'Discovery',

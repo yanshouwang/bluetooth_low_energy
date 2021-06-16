@@ -102,7 +102,7 @@ void main() {
       [
         isMethodCall(
           proto.MessageCategory.CENTRAL_START_DISCOVERY.name,
-          arguments: [UUID('1800').value, UUID('1801').value],
+          arguments: [UUID('1800').name, UUID('1801').name],
         ),
       ],
     );

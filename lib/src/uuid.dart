@@ -5,7 +5,7 @@ import 'util.dart';
 /// A universally unique identifier, as defined by bluetooth standards.
 abstract class UUID {
   List<int> get value;
-  String get hex;
+  String get name;
 
   factory UUID(String str) => _UUID(str);
 }
@@ -14,18 +14,18 @@ class _UUID implements UUID {
   @override
   final List<int> value;
   @override
-  final String hex;
+  final String name;
   @override
   final int hashCode;
 
-  _UUID(String str) : this.hex(str.completion);
+  _UUID(String str) : this.name(str.completion);
 
-  _UUID.hex(String hex) : this.hexValue(hex, hex.value);
+  _UUID.name(String name) : this.nameValue(name, name.value);
 
-  _UUID.hexValue(this.hex, this.value) : hashCode = equality.hash(value);
+  _UUID.nameValue(this.name, this.value) : hashCode = equality.hash(value);
 
   @override
-  String toString() => hex;
+  String toString() => name;
 
   @override
   bool operator ==(other) => other is UUID && other.hashCode == hashCode;

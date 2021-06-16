@@ -21,6 +21,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: HomeView(),
+      theme: ThemeData.light().copyWith(platform: TargetPlatform.iOS),
     );
   }
 }

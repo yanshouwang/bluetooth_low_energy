@@ -9,6 +9,10 @@ message Message {
   }
 }
 
+message DiscoverArguments {
+  repeated string uuids = 1;
+}
+
 message Discovery {
   string address = 1;
   sint32 rssi = 2;

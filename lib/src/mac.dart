@@ -4,22 +4,25 @@ import 'util.dart';
 
 abstract class MAC {
   List<int> get value;
-  String get hex;
+  String get name;
 
   factory MAC(String str) => _MAC(str);
 }
 
 class _MAC implements MAC {
   @override
-  final String hex;
+  final String name;
   @override
   final List<int> value;
   @override
   final int hashCode;
 
-  _MAC(String str) : this.hexValue(str, str.value);
+  _MAC(String name) : this.nameValue(name, name.value);
 
-  _MAC.hexValue(this.hex, this.value) : hashCode = equality.hash(value);
+  _MAC.nameValue(this.name, this.value) : hashCode = equality.hash(value);
+
+  @override
+  String toString() => name;
 
   @override
   bool operator ==(other) => other is MAC && other.hashCode == hashCode;
