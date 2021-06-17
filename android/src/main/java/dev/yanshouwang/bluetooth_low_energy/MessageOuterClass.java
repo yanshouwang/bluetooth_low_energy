@@ -35,6 +35,10 @@ public final class MessageOuterClass {
      * <code>CENTRAL_DISCOVERED = 3;</code>
      */
     CENTRAL_DISCOVERED(3),
+    /**
+     * <code>CENTRAL_SCANNING = 4;</code>
+     */
+    CENTRAL_SCANNING(4),
     UNRECOGNIZED(-1),
     ;
 
@@ -54,6 +58,10 @@ public final class MessageOuterClass {
      * <code>CENTRAL_DISCOVERED = 3;</code>
      */
     public static final int CENTRAL_DISCOVERED_VALUE = 3;
+    /**
+     * <code>CENTRAL_SCANNING = 4;</code>
+     */
+    public static final int CENTRAL_SCANNING_VALUE = 4;
 
 
     public final int getNumber() {
@@ -84,6 +92,7 @@ public final class MessageOuterClass {
         case 1: return CENTRAL_START_DISCOVERY;
         case 2: return CENTRAL_STOP_DISCOVERY;
         case 3: return CENTRAL_DISCOVERED;
+        case 4: return CENTRAL_SCANNING;
         default: return null;
       }
     }
@@ -1263,29 +1272,29 @@ public final class MessageOuterClass {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>repeated string uuids = 1;</code>
-     * @return A list containing the uuids.
+     * <code>repeated string services = 1;</code>
+     * @return A list containing the services.
      */
     java.util.List<java.lang.String>
-        getUuidsList();
+        getServicesList();
     /**
-     * <code>repeated string uuids = 1;</code>
-     * @return The count of uuids.
+     * <code>repeated string services = 1;</code>
+     * @return The count of services.
      */
-    int getUuidsCount();
+    int getServicesCount();
     /**
-     * <code>repeated string uuids = 1;</code>
+     * <code>repeated string services = 1;</code>
      * @param index The index of the element to return.
-     * @return The uuids at the given index.
+     * @return The services at the given index.
      */
-    java.lang.String getUuids(int index);
+    java.lang.String getServices(int index);
     /**
-     * <code>repeated string uuids = 1;</code>
+     * <code>repeated string services = 1;</code>
      * @param index The index of the value to return.
-     * @return The bytes of the uuids at the given index.
+     * @return The bytes of the services at the given index.
      */
     com.google.protobuf.ByteString
-        getUuidsBytes(int index);
+        getServicesBytes(int index);
   }
   /**
    * Protobuf type {@code dev.yanshouwang.bluetooth_low_energy.DiscoverArguments}
@@ -1300,7 +1309,7 @@ public final class MessageOuterClass {
       super(builder);
     }
     private DiscoverArguments() {
-      uuids_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      services_ = com.google.protobuf.LazyStringArrayList.EMPTY;
     }
 
     @java.lang.Override
@@ -1337,10 +1346,10 @@ public final class MessageOuterClass {
             case 10: {
               java.lang.String s = input.readStringRequireUtf8();
               if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                uuids_ = new com.google.protobuf.LazyStringArrayList();
+                services_ = new com.google.protobuf.LazyStringArrayList();
                 mutable_bitField0_ |= 0x00000001;
               }
-              uuids_.add(s);
+              services_.add(s);
               break;
             }
             default: {
@@ -1359,7 +1368,7 @@ public final class MessageOuterClass {
             e).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000001) != 0)) {
-          uuids_ = uuids_.getUnmodifiableView();
+          services_ = services_.getUnmodifiableView();
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -1378,39 +1387,39 @@ public final class MessageOuterClass {
               dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.DiscoverArguments.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.DiscoverArguments.Builder.class);
     }
 
-    public static final int UUIDS_FIELD_NUMBER = 1;
-    private com.google.protobuf.LazyStringList uuids_;
+    public static final int SERVICES_FIELD_NUMBER = 1;
+    private com.google.protobuf.LazyStringList services_;
     /**
-     * <code>repeated string uuids = 1;</code>
-     * @return A list containing the uuids.
+     * <code>repeated string services = 1;</code>
+     * @return A list containing the services.
      */
     public com.google.protobuf.ProtocolStringList
-        getUuidsList() {
-      return uuids_;
+        getServicesList() {
+      return services_;
     }
     /**
-     * <code>repeated string uuids = 1;</code>
-     * @return The count of uuids.
+     * <code>repeated string services = 1;</code>
+     * @return The count of services.
      */
-    public int getUuidsCount() {
-      return uuids_.size();
+    public int getServicesCount() {
+      return services_.size();
     }
     /**
-     * <code>repeated string uuids = 1;</code>
+     * <code>repeated string services = 1;</code>
      * @param index The index of the element to return.
-     * @return The uuids at the given index.
+     * @return The services at the given index.
      */
-    public java.lang.String getUuids(int index) {
-      return uuids_.get(index);
+    public java.lang.String getServices(int index) {
+      return services_.get(index);
     }
     /**
-     * <code>repeated string uuids = 1;</code>
+     * <code>repeated string services = 1;</code>
      * @param index The index of the value to return.
-     * @return The bytes of the uuids at the given index.
+     * @return The bytes of the services at the given index.
      */
     public com.google.protobuf.ByteString
-        getUuidsBytes(int index) {
-      return uuids_.getByteString(index);
+        getServicesBytes(int index) {
+      return services_.getByteString(index);
     }
 
     private byte memoizedIsInitialized = -1;
@@ -1427,8 +1436,8 @@ public final class MessageOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      for (int i = 0; i < uuids_.size(); i++) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, uuids_.getRaw(i));
+      for (int i = 0; i < services_.size(); i++) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, services_.getRaw(i));
       }
       unknownFields.writeTo(output);
     }
@@ -1441,11 +1450,11 @@ public final class MessageOuterClass {
       size = 0;
       {
         int dataSize = 0;
-        for (int i = 0; i < uuids_.size(); i++) {
-          dataSize += computeStringSizeNoTag(uuids_.getRaw(i));
+        for (int i = 0; i < services_.size(); i++) {
+          dataSize += computeStringSizeNoTag(services_.getRaw(i));
         }
         size += dataSize;
-        size += 1 * getUuidsList().size();
+        size += 1 * getServicesList().size();
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -1462,8 +1471,8 @@ public final class MessageOuterClass {
       }
       dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.DiscoverArguments other = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.DiscoverArguments) obj;
 
-      if (!getUuidsList()
-          .equals(other.getUuidsList())) return false;
+      if (!getServicesList()
+          .equals(other.getServicesList())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -1475,9 +1484,9 @@ public final class MessageOuterClass {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      if (getUuidsCount() > 0) {
-        hash = (37 * hash) + UUIDS_FIELD_NUMBER;
-        hash = (53 * hash) + getUuidsList().hashCode();
+      if (getServicesCount() > 0) {
+        hash = (37 * hash) + SERVICES_FIELD_NUMBER;
+        hash = (53 * hash) + getServicesList().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -1612,7 +1621,7 @@ public final class MessageOuterClass {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        uuids_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        services_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000001);
         return this;
       }
@@ -1642,10 +1651,10 @@ public final class MessageOuterClass {
         dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.DiscoverArguments result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.DiscoverArguments(this);
         int from_bitField0_ = bitField0_;
         if (((bitField0_ & 0x00000001) != 0)) {
-          uuids_ = uuids_.getUnmodifiableView();
+          services_ = services_.getUnmodifiableView();
           bitField0_ = (bitField0_ & ~0x00000001);
         }
-        result.uuids_ = uuids_;
+        result.services_ = services_;
         onBuilt();
         return result;
       }
@@ -1694,13 +1703,13 @@ public final class MessageOuterClass {
 
       public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.DiscoverArguments other) {
         if (other == dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.DiscoverArguments.getDefaultInstance()) return this;
-        if (!other.uuids_.isEmpty()) {
-          if (uuids_.isEmpty()) {
-            uuids_ = other.uuids_;
+        if (!other.services_.isEmpty()) {
+          if (services_.isEmpty()) {
+            services_ = other.services_;
             bitField0_ = (bitField0_ & ~0x00000001);
           } else {
-            ensureUuidsIsMutable();
-            uuids_.addAll(other.uuids_);
+            ensureServicesIsMutable();
+            services_.addAll(other.services_);
           }
           onChanged();
         }
@@ -1734,112 +1743,112 @@ public final class MessageOuterClass {
       }
       private int bitField0_;
 
-      private com.google.protobuf.LazyStringList uuids_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      private void ensureUuidsIsMutable() {
+      private com.google.protobuf.LazyStringList services_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureServicesIsMutable() {
         if (!((bitField0_ & 0x00000001) != 0)) {
-          uuids_ = new com.google.protobuf.LazyStringArrayList(uuids_);
+          services_ = new com.google.protobuf.LazyStringArrayList(services_);
           bitField0_ |= 0x00000001;
          }
       }
       /**
-       * <code>repeated string uuids = 1;</code>
-       * @return A list containing the uuids.
+       * <code>repeated string services = 1;</code>
+       * @return A list containing the services.
        */
       public com.google.protobuf.ProtocolStringList
-          getUuidsList() {
-        return uuids_.getUnmodifiableView();
+          getServicesList() {
+        return services_.getUnmodifiableView();
       }
       /**
-       * <code>repeated string uuids = 1;</code>
-       * @return The count of uuids.
+       * <code>repeated string services = 1;</code>
+       * @return The count of services.
        */
-      public int getUuidsCount() {
-        return uuids_.size();
+      public int getServicesCount() {
+        return services_.size();
       }
       /**
-       * <code>repeated string uuids = 1;</code>
+       * <code>repeated string services = 1;</code>
        * @param index The index of the element to return.
-       * @return The uuids at the given index.
+       * @return The services at the given index.
        */
-      public java.lang.String getUuids(int index) {
-        return uuids_.get(index);
+      public java.lang.String getServices(int index) {
+        return services_.get(index);
       }
       /**
-       * <code>repeated string uuids = 1;</code>
+       * <code>repeated string services = 1;</code>
        * @param index The index of the value to return.
-       * @return The bytes of the uuids at the given index.
+       * @return The bytes of the services at the given index.
        */
       public com.google.protobuf.ByteString
-          getUuidsBytes(int index) {
-        return uuids_.getByteString(index);
+          getServicesBytes(int index) {
+        return services_.getByteString(index);
       }
       /**
-       * <code>repeated string uuids = 1;</code>
+       * <code>repeated string services = 1;</code>
        * @param index The index to set the value at.
-       * @param value The uuids to set.
+       * @param value The services to set.
        * @return This builder for chaining.
        */
-      public Builder setUuids(
+      public Builder setServices(
           int index, java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureUuidsIsMutable();
-        uuids_.set(index, value);
+  ensureServicesIsMutable();
+        services_.set(index, value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string uuids = 1;</code>
-       * @param value The uuids to add.
+       * <code>repeated string services = 1;</code>
+       * @param value The services to add.
        * @return This builder for chaining.
        */
-      public Builder addUuids(
+      public Builder addServices(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureUuidsIsMutable();
-        uuids_.add(value);
+  ensureServicesIsMutable();
+        services_.add(value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string uuids = 1;</code>
-       * @param values The uuids to add.
+       * <code>repeated string services = 1;</code>
+       * @param values The services to add.
        * @return This builder for chaining.
        */
-      public Builder addAllUuids(
+      public Builder addAllServices(
           java.lang.Iterable<java.lang.String> values) {
-        ensureUuidsIsMutable();
+        ensureServicesIsMutable();
         com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, uuids_);
+            values, services_);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string uuids = 1;</code>
+       * <code>repeated string services = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearUuids() {
-        uuids_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      public Builder clearServices() {
+        services_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000001);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string uuids = 1;</code>
-       * @param value The bytes of the uuids to add.
+       * <code>repeated string services = 1;</code>
+       * @param value The bytes of the services to add.
        * @return This builder for chaining.
        */
-      public Builder addUuidsBytes(
+      public Builder addServicesBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   checkByteStringIsUtf8(value);
-        ensureUuidsIsMutable();
-        uuids_.add(value);
+        ensureServicesIsMutable();
+        services_.add(value);
         onChanged();
         return this;
       }
@@ -2890,18 +2899,19 @@ public final class MessageOuterClass {
       "yanshouwang.bluetooth_low_energy.Bluetoo" +
       "thStateH\000\022D\n\tdiscovery\030\003 \001(\0132/.dev.yansh" +
       "ouwang.bluetooth_low_energy.DiscoveryH\000B" +
-      "\007\n\005value\"\"\n\021DiscoverArguments\022\r\n\005uuids\030\001" +
-      " \003(\t\"\276\001\n\tDiscovery\022\017\n\007address\030\001 \001(\t\022\014\n\004r" +
-      "ssi\030\002 \001(\021\022[\n\016advertisements\030\003 \003(\0132C.dev." +
-      "yanshouwang.bluetooth_low_energy.Discove" +
-      "ry.AdvertisementsEntry\0325\n\023Advertisements" +
-      "Entry\022\013\n\003key\030\001 \001(\r\022\r\n\005value\030\002 \001(\014:\0028\001*w\n" +
-      "\017MessageCategory\022\023\n\017BLUETOOTH_STATE\020\000\022\033\n" +
-      "\027CENTRAL_START_DISCOVERY\020\001\022\032\n\026CENTRAL_ST" +
-      "OP_DISCOVERY\020\002\022\026\n\022CENTRAL_DISCOVERED\020\003*p" +
-      "\n\016BluetoothState\022\013\n\007UNKNOWN\020\000\022\r\n\tRESETTI" +
-      "NG\020\001\022\017\n\013UNSUPPORTED\020\002\022\020\n\014UNAUTHORIZED\020\003\022" +
-      "\017\n\013POWERED_OFF\020\004\022\016\n\nPOWERED_ON\020\005b\006proto3"
+      "\007\n\005value\"%\n\021DiscoverArguments\022\020\n\010service" +
+      "s\030\001 \003(\t\"\276\001\n\tDiscovery\022\017\n\007address\030\001 \001(\t\022\014" +
+      "\n\004rssi\030\002 \001(\021\022[\n\016advertisements\030\003 \003(\0132C.d" +
+      "ev.yanshouwang.bluetooth_low_energy.Disc" +
+      "overy.AdvertisementsEntry\0325\n\023Advertiseme" +
+      "ntsEntry\022\013\n\003key\030\001 \001(\r\022\r\n\005value\030\002 \001(\014:\0028\001" +
+      "*\215\001\n\017MessageCategory\022\023\n\017BLUETOOTH_STATE\020" +
+      "\000\022\033\n\027CENTRAL_START_DISCOVERY\020\001\022\032\n\026CENTRA" +
+      "L_STOP_DISCOVERY\020\002\022\026\n\022CENTRAL_DISCOVERED" +
+      "\020\003\022\024\n\020CENTRAL_SCANNING\020\004*p\n\016BluetoothSta" +
+      "te\022\013\n\007UNKNOWN\020\000\022\r\n\tRESETTING\020\001\022\017\n\013UNSUPP" +
+      "ORTED\020\002\022\020\n\014UNAUTHORIZED\020\003\022\017\n\013POWERED_OFF" +
+      "\020\004\022\016\n\nPOWERED_ON\020\005b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -2918,7 +2928,7 @@ public final class MessageOuterClass {
     internal_static_dev_yanshouwang_bluetooth_low_energy_DiscoverArguments_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_dev_yanshouwang_bluetooth_low_energy_DiscoverArguments_descriptor,
-        new java.lang.String[] { "Uuids", });
+        new java.lang.String[] { "Services", });
     internal_static_dev_yanshouwang_bluetooth_low_energy_Discovery_descriptor =
       getDescriptor().getMessageTypes().get(2);
     internal_static_dev_yanshouwang_bluetooth_low_energy_Discovery_fieldAccessorTable = new

@@ -20,8 +20,11 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        platform: TargetPlatform.iOS,
+        fontFamily: 'IBM Plex Mono',
+      ),
       home: HomeView(),
-      theme: ThemeData.light().copyWith(platform: TargetPlatform.iOS),
     );
   }
 }

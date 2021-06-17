@@ -10,7 +10,7 @@ message Message {
 }
 
 message DiscoverArguments {
-  repeated string uuids = 1;
+  repeated string services = 1;
 }
 
 message Discovery {
@@ -24,6 +24,7 @@ enum MessageCategory {
     CENTRAL_START_DISCOVERY = 1;
     CENTRAL_STOP_DISCOVERY = 2;
     CENTRAL_DISCOVERED = 3;
+    CENTRAL_SCANNING = 4;
 }
 
 enum BluetoothState {

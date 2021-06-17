@@ -1,8 +1,8 @@
 import 'gatt.dart';
-import 'channel.dart';
 import 'discovery.dart';
 import 'mac.dart';
 import 'message.pb.dart' as proto;
+import 'util.dart';
 import 'uuid.dart';
 
 /// The abstract base class that manages central and peripheral objects.
@@ -17,6 +17,8 @@ abstract class Bluetooth {
 }
 
 class _Bluetooth implements Bluetooth {
+  final stream = event.receiveBroadcastStream();
+
   @override
   Future<BluetoothState> get state => method
       .invokeMethod<int>(proto.MessageCategory.BLUETOOTH_STATE.name)
@@ -32,6 +34,8 @@ class _Bluetooth implements Bluetooth {
 
 /// An object that scans for, discovers, connects to, and manages peripherals.
 abstract class Central extends Bluetooth {
+  Future<bool> get scanning;
+
   /// The central manager discovered a peripheral while scanning for devices.
   Stream<Discovery> get discovered;
 
@@ -49,6 +53,11 @@ abstract class Central extends Bluetooth {
 
 class _Central extends _Bluetooth implements Central {
   @override
+  Future<bool> get scanning => method
+      .invokeMethod<bool>(proto.MessageCategory.CENTRAL_SCANNING.name)
+      .then((value) => value!);
+
+  @override
   Stream<Discovery> get discovered => stream
       .map((event) => proto.Message.fromBuffer(event))
       .where((message) =>
@@ -59,7 +68,7 @@ class _Central extends _Bluetooth implements Central {
   Future startDiscovery({List<UUID>? services}) => method.invokeMethod(
         proto.MessageCategory.CENTRAL_START_DISCOVERY.name,
         proto.DiscoverArguments(
-          uuids: services?.map((uuid) => uuid.name),
+          services: services?.map((uuid) => uuid.name),
         ).writeToBuffer(),
       );
 

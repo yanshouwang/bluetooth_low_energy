@@ -107,17 +107,17 @@ class Message extends $pb.GeneratedMessage {
 
 class DiscoverArguments extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DiscoverArguments', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
-    ..pPS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uuids')
+    ..pPS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'services')
     ..hasRequiredFields = false
   ;
 
   DiscoverArguments._() : super();
   factory DiscoverArguments({
-    $core.Iterable<$core.String>? uuids,
+    $core.Iterable<$core.String>? services,
   }) {
     final _result = create();
-    if (uuids != null) {
-      _result.uuids.addAll(uuids);
+    if (services != null) {
+      _result.services.addAll(services);
     }
     return _result;
   }
@@ -143,7 +143,7 @@ class DiscoverArguments extends $pb.GeneratedMessage {
   static DiscoverArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<$core.String> get uuids => $_getList(0);
+  $core.List<$core.String> get services => $_getList(0);
 }
 
 class Discovery extends $pb.GeneratedMessage {

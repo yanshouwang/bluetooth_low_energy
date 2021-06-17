@@ -1,13 +1,13 @@
 import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
-import 'package:bluetooth_low_energy/src/channel.dart' as channel;
 import 'package:bluetooth_low_energy/src/mac.dart';
+import 'package:bluetooth_low_energy/src/util.dart' as util;
 import 'package:bluetooth_low_energy/src/message.pb.dart' as proto;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  final method = MethodChannel('${channel.method.name}');
-  final event = MethodChannel('${channel.event.name}');
+  final method = MethodChannel('${util.method.name}');
+  final event = MethodChannel('${util.event.name}');
   final calls = <MethodCall>[];
   final manager = Central();
 
@@ -25,6 +25,8 @@ void main() {
       } else if (call.method ==
           proto.MessageCategory.CENTRAL_STOP_DISCOVERY.name) {
         return null;
+      } else if (call.method == proto.MessageCategory.CENTRAL_SCANNING.name) {
+        return true;
       } else {
         throw UnimplementedError();
       }
@@ -39,8 +41,8 @@ void main() {
           ).writeToBuffer();
           await ServicesBinding.instance!.defaultBinaryMessenger
               .handlePlatformMessage(
-            channel.event.name,
-            channel.event.codec.encodeSuccessEnvelope(state),
+            event.name,
+            event.codec.encodeSuccessEnvelope(state),
             (data) {},
           );
           // CENTRAL_MANAGER_DISCOVERED
@@ -56,8 +58,8 @@ void main() {
           ).writeToBuffer();
           await ServicesBinding.instance!.defaultBinaryMessenger
               .handlePlatformMessage(
-            channel.event.name,
-            channel.event.codec.encodeSuccessEnvelope(discovery),
+            event.name,
+            event.codec.encodeSuccessEnvelope(discovery),
             (data) {},
           );
           break;
@@ -102,7 +104,9 @@ void main() {
       [
         isMethodCall(
           proto.MessageCategory.CENTRAL_START_DISCOVERY.name,
-          arguments: [UUID('1800').name, UUID('1801').name],
+          arguments: proto.DiscoverArguments(
+            services: services.map((uuid) => uuid.name),
+          ).writeToBuffer(),
         ),
       ],
     );
@@ -131,5 +135,20 @@ void main() {
       0xff: [0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa],
     };
     expect(actual.advertisements, advertisements);
+  });
+
+  test('${proto.MessageCategory.CENTRAL_SCANNING}', () async {
+    final actual = await manager.scanning;
+    final matcher = true;
+    expect(actual, matcher);
+    expect(
+      calls,
+      [
+        isMethodCall(
+          proto.MessageCategory.CENTRAL_SCANNING.name,
+          arguments: null,
+        ),
+      ],
+    );
   });
 }

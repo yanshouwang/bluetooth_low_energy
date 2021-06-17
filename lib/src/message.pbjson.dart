@@ -16,11 +16,12 @@ const MessageCategory$json = const {
     const {'1': 'CENTRAL_START_DISCOVERY', '2': 1},
     const {'1': 'CENTRAL_STOP_DISCOVERY', '2': 2},
     const {'1': 'CENTRAL_DISCOVERED', '2': 3},
+    const {'1': 'CENTRAL_SCANNING', '2': 4},
   ],
 };
 
 /// Descriptor for `MessageCategory`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List messageCategoryDescriptor = $convert.base64Decode('Cg9NZXNzYWdlQ2F0ZWdvcnkSEwoPQkxVRVRPT1RIX1NUQVRFEAASGwoXQ0VOVFJBTF9TVEFSVF9ESVNDT1ZFUlkQARIaChZDRU5UUkFMX1NUT1BfRElTQ09WRVJZEAISFgoSQ0VOVFJBTF9ESVNDT1ZFUkVEEAM=');
+final $typed_data.Uint8List messageCategoryDescriptor = $convert.base64Decode('Cg9NZXNzYWdlQ2F0ZWdvcnkSEwoPQkxVRVRPT1RIX1NUQVRFEAASGwoXQ0VOVFJBTF9TVEFSVF9ESVNDT1ZFUlkQARIaChZDRU5UUkFMX1NUT1BfRElTQ09WRVJZEAISFgoSQ0VOVFJBTF9ESVNDT1ZFUkVEEAMSFAoQQ0VOVFJBTF9TQ0FOTklORxAE');
 @$core.Deprecated('Use bluetoothStateDescriptor instead')
 const BluetoothState$json = const {
   '1': 'BluetoothState',
@@ -55,12 +56,12 @@ final $typed_data.Uint8List messageDescriptor = $convert.base64Decode('CgdNZXNzY
 const DiscoverArguments$json = const {
   '1': 'DiscoverArguments',
   '2': const [
-    const {'1': 'uuids', '3': 1, '4': 3, '5': 9, '10': 'uuids'},
+    const {'1': 'services', '3': 1, '4': 3, '5': 9, '10': 'services'},
   ],
 };
 
 /// Descriptor for `DiscoverArguments`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List discoverArgumentsDescriptor = $convert.base64Decode('ChFEaXNjb3ZlckFyZ3VtZW50cxIUCgV1dWlkcxgBIAMoCVIFdXVpZHM=');
+final $typed_data.Uint8List discoverArgumentsDescriptor = $convert.base64Decode('ChFEaXNjb3ZlckFyZ3VtZW50cxIaCghzZXJ2aWNlcxgBIAMoCVIIc2VydmljZXM=');
 @$core.Deprecated('Use discoveryDescriptor instead')
 const Discovery$json = const {
   '1': 'Discovery',

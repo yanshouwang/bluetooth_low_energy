@@ -16,11 +16,9 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.protobuf.ByteString
-import dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState
-import dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.DiscoverArguments
-import dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.Discovery
+import dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.*
 import dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.Message
-import dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.MessageCategory
+import dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.MessageCategory.*
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -31,8 +29,8 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry.ActivityResultListener
-import java.util.UUID
+import io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener
+import java.util.*
 
 const val NAMESPACE = "yanshouwang.dev/bluetooth_low_energy"
 
@@ -42,14 +40,11 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
         private const val UNKNOWN = -1
         private const val NO_ERROR = 0
         private const val SCAN_ALREADY_STARTED = 1
+        private const val REQUEST_PERMISSION_FAILED = 2
         private const val UNFINISHED_RESULT = Int.MAX_VALUE
-        private const val REQUEST_CODE = 1993
+        private const val REQUEST_CODE = 443
     }
 
-    /// The MethodChannel that will the communication between Flutter and native Android
-    ///
-    /// This local reference serves to register the plugin with the Flutter Engine and unregister it
-    /// when the Flutter Engine is detached from the Activity
     private lateinit var method: MethodChannel
     private lateinit var event: EventChannel
     private lateinit var context: Context
@@ -69,28 +64,25 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
             field = value
         }
 
-    private val activityResultListener: ActivityResultListener by lazy {
-        ActivityResultListener { requestCode, resultCode, _ ->
+    private val requestPermissionsResultListener: RequestPermissionsResultListener by lazy {
+        RequestPermissionsResultListener { requestCode, _, results ->
             when {
-                requestCode != REQUEST_CODE -> {
-                    false
-                }
-                resultCode == PackageManager.PERMISSION_GRANTED -> {
-                    val data = call!!.arguments<ByteArray>()
-                    val arguments = DiscoverArguments.parseFrom(data)
-                    val code = startScan(arguments.uuidsList)
-                    if (code == NO_ERROR) {
-                        result!!.success()
-                        scanning = true
-                    } else {
-                        result!!.error(code, "Scan start failed with code: $code.")
-                    }
-                    call = null
+                requestCode != REQUEST_CODE -> false
+                results.any { result -> result != PackageManager.PERMISSION_GRANTED } -> {
+                    result!!.error(REQUEST_PERMISSION_FAILED, "Request permission failed.")
                     result = null
                     true
                 }
                 else -> {
-                    result!!.error(resultCode, "Request permission $requestCode failed with code $resultCode")
+                    val data = call!!.arguments<ByteArray>()
+                    val arguments = DiscoverArguments.parseFrom(data)
+                    val code = startScan(arguments.servicesList)
+                    if (code == NO_ERROR) {
+                        result!!.success()
+                    } else {
+                        result!!.error(code, "Scan start failed with code: $code.")
+                    }
+                    call = null
                     result = null
                     true
                 }
@@ -120,7 +112,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
                     else -> BluetoothState.UNRECOGNIZED
                 }
                 val message = Message.newBuilder()
-                        .setCategory(MessageCategory.BLUETOOTH_STATE)
+                        .setCategory(BLUETOOTH_STATE)
                         .setState(state)
                         .build()
                         .toByteArray()
@@ -152,7 +144,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
                     .putAllAdvertisements(scanRecord.advertisements)
                     .build()
             val message = Message.newBuilder()
-                    .setCategory(MessageCategory.CENTRAL_DISCOVERED)
+                    .setCategory(CENTRAL_DISCOVERED)
                     .setDiscovery(discovery)
                     .build()
                     .toByteArray()
@@ -162,6 +154,11 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
 
     private val scan21: ScanCallback by lazy {
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP) object : ScanCallback() {
+            override fun onScanFailed(errorCode: Int) {
+                super.onScanFailed(errorCode)
+                Log.d(TAG, "onScanFailed: $errorCode")
+            }
+
             override fun onScanResult(callbackType: Int, result: ScanResult?) {
                 super.onScanResult(callbackType, result)
                 if (result == null)
@@ -174,7 +171,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
                 }
                 val discovery = builder.build()
                 val message = Message.newBuilder()
-                        .setCategory(MessageCategory.CENTRAL_DISCOVERED)
+                        .setCategory(CENTRAL_DISCOVERED)
                         .setDiscovery(discovery)
                         .build()
                         .toByteArray()
@@ -192,7 +189,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
                     }
                     val discovery = builder.build()
                     val message = Message.newBuilder()
-                            .setCategory(MessageCategory.CENTRAL_DISCOVERED)
+                            .setCategory(CENTRAL_DISCOVERED)
                             .setDiscovery(discovery)
                             .build()
                             .toByteArray()
@@ -202,14 +199,14 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
         }
     }
 
-    private fun startScan(uuids: List<String>): Int {
+    private fun startScan(services: List<String>): Int {
         return when {
             scanning -> SCAN_ALREADY_STARTED
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP -> {
-                val filters = uuids.map { uuid ->
-                    val service = ParcelUuid.fromString(uuid)
+                val filters = services.map { service ->
+                    val uuid = ParcelUuid.fromString(service)
                     ScanFilter.Builder()
-                            .setServiceUuid(service)
+                            .setServiceUuid(uuid)
                             .build()
                 }
                 val settings = ScanSettings.Builder()
@@ -217,12 +214,14 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
                         .build()
                 adapter.bluetoothLeScanner.startScan(filters, settings, scan21)
                 // TODO: seems there is no way to get success callback when use bluetoothLeScanner#startScan.
+                scanning = true
                 NO_ERROR
             }
             else -> {
-                val services = uuids.map { name -> UUID.fromString(name) }.toTypedArray()
-                val succeed = adapter.startLeScan(services, scan18)
+                val uuids = services.map { service -> UUID.fromString(service) }.toTypedArray()
+                val succeed = adapter.startLeScan(uuids, scan18)
                 if (succeed) {
+                    scanning = true
                     NO_ERROR
                 } else {
                     UNKNOWN
@@ -231,7 +230,17 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
         }
     }
 
+    private fun stopScan() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            adapter.bluetoothLeScanner.stopScan(scan21)
+        } else {
+            adapter.stopLeScan(scan18)
+        }
+        scanning = false
+    }
+
     override fun onAttachedToEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+        Log.d(TAG, "onAttachedToEngine")
         method = MethodChannel(binding.binaryMessenger, "$NAMESPACE/method")
         method.setMethodCallHandler(this)
         event = EventChannel(binding.binaryMessenger, "$NAMESPACE/event")
@@ -242,18 +251,22 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
     }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-        method.setMethodCallHandler(null)
-        event.setStreamHandler(null)
+        Log.d(TAG, "onDetachedFromEngine")
+        if (scanning) stopScan()
         context.unregisterReceiver(stateChangedReceiver)
+        event.setStreamHandler(null)
+        method.setMethodCallHandler(null)
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        Log.d(TAG, "onAttachedToActivity")
         this.binding = binding
-        this.binding!!.addActivityResultListener(activityResultListener)
+        this.binding!!.addRequestPermissionsResultListener(requestPermissionsResultListener)
     }
 
     override fun onDetachedFromActivity() {
-        binding!!.removeActivityResultListener(activityResultListener)
+        Log.d(TAG, "onDetachedFromActivity")
+        binding!!.removeRequestPermissionsResultListener(requestPermissionsResultListener)
         binding = null
     }
 
@@ -267,15 +280,14 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
         when (call.method.category) {
-            MessageCategory.BLUETOOTH_STATE -> result.success(state.number)
-            MessageCategory.CENTRAL_START_DISCOVERY -> {
+            BLUETOOTH_STATE -> result.success(state.number)
+            CENTRAL_START_DISCOVERY -> {
                 if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                     val data = call.arguments<ByteArray>()
                     val arguments = DiscoverArguments.parseFrom(data)
-                    val code = startScan(arguments.uuidsList)
+                    val code = startScan(arguments.servicesList)
                     if (code == NO_ERROR) {
                         result.success()
-                        scanning = true
                     } else {
                         result.error(code, "Scan start failed with code: $code.")
                     }
@@ -286,34 +298,32 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
                     ActivityCompat.requestPermissions(binding!!.activity, permissions, REQUEST_CODE)
                 }
             }
-            MessageCategory.CENTRAL_STOP_DISCOVERY -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    adapter.bluetoothLeScanner.stopScan(scan21)
-                } else {
-                    adapter.stopLeScan(scan18)
-                }
+            CENTRAL_STOP_DISCOVERY -> {
+                stopScan()
                 result.success()
-                scanning = false
             }
-            MessageCategory.CENTRAL_DISCOVERED -> result.notImplemented()
-            MessageCategory.UNRECOGNIZED -> result.notImplemented()
+            CENTRAL_DISCOVERED -> result.notImplemented()
+            CENTRAL_SCANNING -> result.success(scanning)
+            UNRECOGNIZED -> result.notImplemented()
         }
     }
 
-    override fun onListen(arguments: Any?, events: EventSink?) {
-        sink = events
+    override fun onListen(arguments: Any?, sink: EventSink?) {
+        Log.d(TAG, "onListen")
+        this.sink = sink
     }
 
     override fun onCancel(arguments: Any?) {
+        Log.d(TAG, "onCancel")
         sink = null
     }
 }
 
 val Any.TAG: String
-    get() = javaClass.simpleName
+    get() = this::class.java.simpleName
 
 val String.category: MessageCategory
-    get() = MessageCategory.valueOf(this)
+    get() = valueOf(this)
 
 val Context.missingBluetoothFeature: Boolean
     get() = !packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)

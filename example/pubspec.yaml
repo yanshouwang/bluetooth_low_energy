@@ -69,3 +69,12 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+  fonts:
+    - family: IBM Plex Mono
+      fonts:
+        - asset: fonts/IBMPlexMono-Regular.ttf
+        - asset: fonts/IBMPlexMono-Italic.ttf
+          style: italic
+        - asset: fonts/IBMPlexMono-Bold.ttf
+          weight: 700
