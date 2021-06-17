@@ -25,6 +25,7 @@ enum MessageCategory {
     CENTRAL_STOP_DISCOVERY = 2;
     CENTRAL_DISCOVERED = 3;
     CENTRAL_SCANNING = 4;
+    CENTRAL_CONNECT = 5;
 }
 
 enum BluetoothState {

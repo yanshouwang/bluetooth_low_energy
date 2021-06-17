@@ -9,7 +9,7 @@ void main() {
   final method = MethodChannel('${util.method.name}');
   final event = MethodChannel('${util.event.name}');
   final calls = <MethodCall>[];
-  final manager = Central();
+  final central = Central();
 
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -27,6 +27,8 @@ void main() {
         return null;
       } else if (call.method == proto.MessageCategory.CENTRAL_SCANNING.name) {
         return true;
+      } else if (call.method == proto.MessageCategory.CENTRAL_CONNECT.name) {
+        return null;
       } else {
         throw UnimplementedError();
       }
@@ -76,7 +78,7 @@ void main() {
   });
 
   test('${proto.MessageCategory.BLUETOOTH_STATE}', () async {
-    final actual = await manager.state;
+    final actual = await central.state;
     final matcher = BluetoothState.poweredOff;
     expect(actual, matcher);
     expect(
@@ -91,14 +93,14 @@ void main() {
   });
 
   test('${proto.MessageCategory.BLUETOOTH_STATE} EVENT', () async {
-    final actual = await manager.stateChanged.first;
+    final actual = await central.stateChanged.first;
     final matcher = BluetoothState.poweredOn;
     expect(actual, matcher);
   });
 
   test('${proto.MessageCategory.CENTRAL_START_DISCOVERY}', () async {
     final services = [UUID('1800'), UUID('1801')];
-    await manager.startDiscovery(services: services);
+    await central.startDiscovery(services: services);
     expect(
       calls,
       [
@@ -113,7 +115,7 @@ void main() {
   });
 
   test('${proto.MessageCategory.CENTRAL_STOP_DISCOVERY}', () async {
-    await manager.stopDiscovery();
+    await central.stopDiscovery();
     expect(
       calls,
       [
@@ -126,7 +128,7 @@ void main() {
   });
 
   test('${proto.MessageCategory.CENTRAL_DISCOVERED} EVENT', () async {
-    final actual = await manager.discovered.first;
+    final actual = await central.discovered.first;
     final address = MAC('aa:bb:cc:dd:ee:ff');
     expect(actual.address, address);
     final rssi = -50;
@@ -138,7 +140,7 @@ void main() {
   });
 
   test('${proto.MessageCategory.CENTRAL_SCANNING}', () async {
-    final actual = await manager.scanning;
+    final actual = await central.scanning;
     final matcher = true;
     expect(actual, matcher);
     expect(
@@ -147,6 +149,21 @@ void main() {
         isMethodCall(
           proto.MessageCategory.CENTRAL_SCANNING.name,
           arguments: null,
+        ),
+      ],
+    );
+  });
+
+  test('${proto.MessageCategory.CENTRAL_CONNECT}', () async {
+    final address = MAC('aa:bb:cc:dd:ee:ff');
+    final actual = await central.connect(address);
+    expect(actual.address, address);
+    expect(
+      calls,
+      [
+        isMethodCall(
+          proto.MessageCategory.CENTRAL_CONNECT.name,
+          arguments: address.name,
         ),
       ],
     );

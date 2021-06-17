@@ -17,11 +17,12 @@ const MessageCategory$json = const {
     const {'1': 'CENTRAL_STOP_DISCOVERY', '2': 2},
     const {'1': 'CENTRAL_DISCOVERED', '2': 3},
     const {'1': 'CENTRAL_SCANNING', '2': 4},
+    const {'1': 'CENTRAL_CONNECT', '2': 5},
   ],
 };
 
 /// Descriptor for `MessageCategory`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List messageCategoryDescriptor = $convert.base64Decode('Cg9NZXNzYWdlQ2F0ZWdvcnkSEwoPQkxVRVRPT1RIX1NUQVRFEAASGwoXQ0VOVFJBTF9TVEFSVF9ESVNDT1ZFUlkQARIaChZDRU5UUkFMX1NUT1BfRElTQ09WRVJZEAISFgoSQ0VOVFJBTF9ESVNDT1ZFUkVEEAMSFAoQQ0VOVFJBTF9TQ0FOTklORxAE');
+final $typed_data.Uint8List messageCategoryDescriptor = $convert.base64Decode('Cg9NZXNzYWdlQ2F0ZWdvcnkSEwoPQkxVRVRPT1RIX1NUQVRFEAASGwoXQ0VOVFJBTF9TVEFSVF9ESVNDT1ZFUlkQARIaChZDRU5UUkFMX1NUT1BfRElTQ09WRVJZEAISFgoSQ0VOVFJBTF9ESVNDT1ZFUkVEEAMSFAoQQ0VOVFJBTF9TQ0FOTklORxAEEhMKD0NFTlRSQUxfQ09OTkVDVBAF');
 @$core.Deprecated('Use bluetoothStateDescriptor instead')
 const BluetoothState$json = const {
   '1': 'BluetoothState',

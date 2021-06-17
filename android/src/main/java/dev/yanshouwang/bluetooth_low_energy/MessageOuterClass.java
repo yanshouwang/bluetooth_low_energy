@@ -39,6 +39,10 @@ public final class MessageOuterClass {
      * <code>CENTRAL_SCANNING = 4;</code>
      */
     CENTRAL_SCANNING(4),
+    /**
+     * <code>CENTRAL_CONNECT = 5;</code>
+     */
+    CENTRAL_CONNECT(5),
     UNRECOGNIZED(-1),
     ;
 
@@ -62,6 +66,10 @@ public final class MessageOuterClass {
      * <code>CENTRAL_SCANNING = 4;</code>
      */
     public static final int CENTRAL_SCANNING_VALUE = 4;
+    /**
+     * <code>CENTRAL_CONNECT = 5;</code>
+     */
+    public static final int CENTRAL_CONNECT_VALUE = 5;
 
 
     public final int getNumber() {
@@ -93,6 +101,7 @@ public final class MessageOuterClass {
         case 2: return CENTRAL_STOP_DISCOVERY;
         case 3: return CENTRAL_DISCOVERED;
         case 4: return CENTRAL_SCANNING;
+        case 5: return CENTRAL_CONNECT;
         default: return null;
       }
     }
@@ -2905,13 +2914,14 @@ public final class MessageOuterClass {
       "ev.yanshouwang.bluetooth_low_energy.Disc" +
       "overy.AdvertisementsEntry\0325\n\023Advertiseme" +
       "ntsEntry\022\013\n\003key\030\001 \001(\r\022\r\n\005value\030\002 \001(\014:\0028\001" +
-      "*\215\001\n\017MessageCategory\022\023\n\017BLUETOOTH_STATE\020" +
+      "*\242\001\n\017MessageCategory\022\023\n\017BLUETOOTH_STATE\020" +
       "\000\022\033\n\027CENTRAL_START_DISCOVERY\020\001\022\032\n\026CENTRA" +
       "L_STOP_DISCOVERY\020\002\022\026\n\022CENTRAL_DISCOVERED" +
-      "\020\003\022\024\n\020CENTRAL_SCANNING\020\004*p\n\016BluetoothSta" +
-      "te\022\013\n\007UNKNOWN\020\000\022\r\n\tRESETTING\020\001\022\017\n\013UNSUPP" +
-      "ORTED\020\002\022\020\n\014UNAUTHORIZED\020\003\022\017\n\013POWERED_OFF" +
-      "\020\004\022\016\n\nPOWERED_ON\020\005b\006proto3"
+      "\020\003\022\024\n\020CENTRAL_SCANNING\020\004\022\023\n\017CENTRAL_CONN" +
+      "ECT\020\005*p\n\016BluetoothState\022\013\n\007UNKNOWN\020\000\022\r\n\t" +
+      "RESETTING\020\001\022\017\n\013UNSUPPORTED\020\002\022\020\n\014UNAUTHOR" +
+      "IZED\020\003\022\017\n\013POWERED_OFF\020\004\022\016\n\nPOWERED_ON\020\005b" +
+      "\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
