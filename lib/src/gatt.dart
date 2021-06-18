@@ -1,14 +1,10 @@
-import 'package:flutter/material.dart';
-
-import 'mac.dart';
+part of bluetooth_low_energy;
 
 abstract class GATT {
   MAC get address;
-  Stream<Exception> get connectionLost;
+  Stream<int> get connectionLost;
 
   Future disconnect();
-
-  factory GATT(MAC address) => _GATT(address);
 }
 
 class _GATT implements GATT {
@@ -18,12 +14,14 @@ class _GATT implements GATT {
   final MAC address;
 
   @override
-  // TODO: implement connectionLost
-  Stream<Exception> get connectionLost => throw UnimplementedError();
+  Stream<int> get connectionLost => stream
+      .map((event) => proto.Message.fromBuffer(event))
+      .where((event) =>
+          event.category == proto.MessageCategory.GATT_CONNECTION_LOST &&
+          event.connectionLostArguments.address.conversionOfMAC == address)
+      .map((event) => event.connectionLostArguments.errorCode);
 
   @override
-  Future disconnect() {
-    // TODO: implement disconnect
-    throw UnimplementedError();
-  }
+  Future disconnect() => method.invokeMethod(
+      proto.MessageCategory.GATT_DISCONNECT.name, address.name);
 }

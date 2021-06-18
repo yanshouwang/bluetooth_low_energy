@@ -1,6 +1,4 @@
-import 'package:convert/convert.dart';
-
-import 'util.dart';
+part of bluetooth_low_energy;
 
 abstract class MAC {
   List<int> get value;
@@ -17,7 +15,7 @@ class _MAC implements MAC {
   @override
   final int hashCode;
 
-  _MAC(String name) : this.nameValue(name, name.value);
+  _MAC(String name) : this.nameValue(name.toLowerCase(), name.valueOfMAC);
 
   _MAC.nameValue(this.name, this.value) : hashCode = equality.hash(value);
 
@@ -26,20 +24,4 @@ class _MAC implements MAC {
 
   @override
   bool operator ==(other) => other is MAC && other.hashCode == hashCode;
-}
-
-extension on String {
-  List<int> get value {
-    final exp = RegExp(
-      r'^[0-9a-f]{2}(:[0-9a-f]{2}){5}$',
-      multiLine: true,
-      caseSensitive: false,
-    );
-    if (!exp.hasMatch(this)) {
-      throw ArgumentError.value(this);
-    }
-    final from = RegExp(r':');
-    final encoded = replaceAll(from, '');
-    return hex.decode(encoded);
-  }
 }

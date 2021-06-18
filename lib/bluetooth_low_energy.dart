@@ -1,8 +1,19 @@
-export 'src/bluetooth.dart';
-export 'src/gatt.dart';
-export 'src/discovery.dart';
-export 'src/mac.dart';
-export 'src/uuid.dart';
-export 'src/gatt_service.dart';
-export 'src/gatt_characteristic.dart';
-export 'src/gatt_descriptor.dart';
+library bluetooth_low_energy;
+
+import 'dart:convert';
+
+import 'package:convert/convert.dart';
+import 'package:flutter/cupertino.dart';
+
+import 'src/message.pb.dart' as proto;
+import 'src/util.dart';
+
+part 'src/bluetooth.dart';
+part 'src/discovery.dart';
+part 'src/gatt.dart';
+part 'src/gatt_service.dart';
+part 'src/gatt_characteristic.dart';
+part 'src/gatt_descriptor.dart';
+part 'src/mac.dart';
+part 'src/uuid.dart';
+part 'src/extension.dart';
