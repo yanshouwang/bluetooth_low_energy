@@ -1,6 +1,4 @@
-import 'dart:convert';
-
-import 'mac.dart';
+part of bluetooth_low_energy;
 
 abstract class Discovery {
   MAC get address;

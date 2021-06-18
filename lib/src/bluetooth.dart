@@ -1,9 +1,4 @@
-import 'gatt.dart';
-import 'discovery.dart';
-import 'mac.dart';
-import 'message.pb.dart' as proto;
-import 'util.dart';
-import 'uuid.dart';
+part of bluetooth_low_energy;
 
 /// The abstract base class that manages central and peripheral objects.
 abstract class Bluetooth {
@@ -17,8 +12,6 @@ abstract class Bluetooth {
 }
 
 class _Bluetooth implements Bluetooth {
-  final stream = event.receiveBroadcastStream();
-
   @override
   Future<BluetoothState> get state => method
       .invokeMethod<int>(proto.MessageCategory.BLUETOOTH_STATE.name)
@@ -35,6 +28,8 @@ class _Bluetooth implements Bluetooth {
 /// An object that scans for, discovers, connects to, and manages peripherals.
 abstract class Central extends Bluetooth {
   Future<bool> get scanning;
+
+  Stream<bool> get scanningChanged;
 
   /// The central manager discovered a peripheral while scanning for devices.
   Stream<Discovery> get discovered;
@@ -58,6 +53,13 @@ class _Central extends _Bluetooth implements Central {
       .then((value) => value!);
 
   @override
+  Stream<bool> get scanningChanged => stream
+      .map((event) => proto.Message.fromBuffer(event))
+      .where((message) =>
+          message.category == proto.MessageCategory.CENTRAL_SCANNING)
+      .map((message) => message.scanning);
+
+  @override
   Stream<Discovery> get discovered => stream
       .map((event) => proto.Message.fromBuffer(event))
       .where((message) =>
@@ -79,7 +81,7 @@ class _Central extends _Bluetooth implements Central {
   @override
   Future<GATT> connect(MAC address) => method
       .invokeMethod(proto.MessageCategory.CENTRAL_CONNECT.name, address.name)
-      .then((value) => GATT(address));
+      .then((value) => _GATT(address));
 }
 
 /// The possible states of a bluetooth manager.
@@ -101,17 +103,4 @@ enum BluetoothState {
 
   /// A state that indicates bluetooth is currently powered on and available to use.
   poweredOn,
-}
-
-extension on proto.BluetoothState {
-  BluetoothState get conversion => BluetoothState.values[value];
-}
-
-extension on proto.Discovery {
-  Discovery get conversion =>
-      Discovery(address.conversion, rssi, advertisements);
-}
-
-extension on String {
-  MAC get conversion => MAC(this);
 }

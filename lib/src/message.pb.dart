@@ -16,6 +16,8 @@ export 'message.pbenum.dart';
 enum Message_Value {
   state, 
   discovery, 
+  scanning, 
+  connectionLostArguments, 
   notSet
 }
 
@@ -23,13 +25,17 @@ class Message extends $pb.GeneratedMessage {
   static const $core.Map<$core.int, Message_Value> _Message_ValueByTag = {
     2 : Message_Value.state,
     3 : Message_Value.discovery,
+    4 : Message_Value.scanning,
+    5 : Message_Value.connectionLostArguments,
     0 : Message_Value.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Message', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
-    ..oo(0, [2, 3])
+    ..oo(0, [2, 3, 4, 5])
     ..e<MessageCategory>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'category', $pb.PbFieldType.OE, defaultOrMaker: MessageCategory.BLUETOOTH_STATE, valueOf: MessageCategory.valueOf, enumValues: MessageCategory.values)
     ..e<BluetoothState>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: BluetoothState.UNKNOWN, valueOf: BluetoothState.valueOf, enumValues: BluetoothState.values)
     ..aOM<Discovery>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'discovery', subBuilder: Discovery.create)
+    ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'scanning')
+    ..aOM<ConnectionLostArguments>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'connectionLostArguments', protoName: 'connectionLostArguments', subBuilder: ConnectionLostArguments.create)
     ..hasRequiredFields = false
   ;
 
@@ -38,6 +44,8 @@ class Message extends $pb.GeneratedMessage {
     MessageCategory? category,
     BluetoothState? state,
     Discovery? discovery,
+    $core.bool? scanning,
+    ConnectionLostArguments? connectionLostArguments,
   }) {
     final _result = create();
     if (category != null) {
@@ -48,6 +56,12 @@ class Message extends $pb.GeneratedMessage {
     }
     if (discovery != null) {
       _result.discovery = discovery;
+    }
+    if (scanning != null) {
+      _result.scanning = scanning;
+    }
+    if (connectionLostArguments != null) {
+      _result.connectionLostArguments = connectionLostArguments;
     }
     return _result;
   }
@@ -103,6 +117,26 @@ class Message extends $pb.GeneratedMessage {
   void clearDiscovery() => clearField(3);
   @$pb.TagNumber(3)
   Discovery ensureDiscovery() => $_ensure(2);
+
+  @$pb.TagNumber(4)
+  $core.bool get scanning => $_getBF(3);
+  @$pb.TagNumber(4)
+  set scanning($core.bool v) { $_setBool(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasScanning() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearScanning() => clearField(4);
+
+  @$pb.TagNumber(5)
+  ConnectionLostArguments get connectionLostArguments => $_getN(4);
+  @$pb.TagNumber(5)
+  set connectionLostArguments(ConnectionLostArguments v) { setField(5, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasConnectionLostArguments() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearConnectionLostArguments() => clearField(5);
+  @$pb.TagNumber(5)
+  ConnectionLostArguments ensureConnectionLostArguments() => $_ensure(4);
 }
 
 class DiscoverArguments extends $pb.GeneratedMessage {
@@ -213,5 +247,66 @@ class Discovery extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(3)
   $core.Map<$core.int, $core.List<$core.int>> get advertisements => $_getMap(2);
+}
+
+class ConnectionLostArguments extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ConnectionLostArguments', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'address')
+    ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'errorCode', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  ConnectionLostArguments._() : super();
+  factory ConnectionLostArguments({
+    $core.String? address,
+    $core.int? errorCode,
+  }) {
+    final _result = create();
+    if (address != null) {
+      _result.address = address;
+    }
+    if (errorCode != null) {
+      _result.errorCode = errorCode;
+    }
+    return _result;
+  }
+  factory ConnectionLostArguments.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ConnectionLostArguments.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ConnectionLostArguments clone() => ConnectionLostArguments()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ConnectionLostArguments copyWith(void Function(ConnectionLostArguments) updates) => super.copyWith((message) => updates(message as ConnectionLostArguments)) as ConnectionLostArguments; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static ConnectionLostArguments create() => ConnectionLostArguments._();
+  ConnectionLostArguments createEmptyInstance() => create();
+  static $pb.PbList<ConnectionLostArguments> createRepeated() => $pb.PbList<ConnectionLostArguments>();
+  @$core.pragma('dart2js:noInline')
+  static ConnectionLostArguments getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ConnectionLostArguments>(create);
+  static ConnectionLostArguments? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get address => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set address($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasAddress() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearAddress() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get errorCode => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set errorCode($core.int v) { $_setSignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasErrorCode() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearErrorCode() => clearField(2);
 }
 

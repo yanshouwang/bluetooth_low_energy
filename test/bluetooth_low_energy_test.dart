@@ -1,5 +1,4 @@
 import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
-import 'package:bluetooth_low_energy/src/mac.dart';
 import 'package:bluetooth_low_energy/src/util.dart' as util;
 import 'package:bluetooth_low_energy/src/message.pb.dart' as proto;
 import 'package:flutter/services.dart';
@@ -36,7 +35,7 @@ void main() {
     event.setMockMethodCallHandler((call) async {
       switch (call.method) {
         case 'listen':
-          // BLUETOOTH_MANAGER_STATE
+          // BLUETOOTH_STATE
           final state = proto.Message(
             category: proto.MessageCategory.BLUETOOTH_STATE,
             state: proto.BluetoothState.POWERED_ON,
@@ -47,7 +46,7 @@ void main() {
             event.codec.encodeSuccessEnvelope(state),
             (data) {},
           );
-          // CENTRAL_MANAGER_DISCOVERED
+          // CENTRAL_DISCOVERED
           final discovery = proto.Message(
             category: proto.MessageCategory.CENTRAL_DISCOVERED,
             discovery: proto.Discovery(
@@ -64,6 +63,25 @@ void main() {
             event.codec.encodeSuccessEnvelope(discovery),
             (data) {},
           );
+          // CENTRAL_SCANNING
+          final scanning = proto.Message(
+            category: proto.MessageCategory.CENTRAL_SCANNING,
+            scanning: true,
+          ).writeToBuffer();
+          await ServicesBinding.instance!.defaultBinaryMessenger
+              .handlePlatformMessage(
+            event.name,
+            event.codec.encodeSuccessEnvelope(scanning),
+            (data) {},
+          );
+          // GATT_CONNECTION_LOST
+          final connectionLost = proto.Message(
+            category: proto.MessageCategory.GATT_CONNECTION_LOST,
+            connectionLostArguments: proto.ConnectionLostArguments(
+              address: 'aa:bb:cc:dd:ee:ff',
+              errorCode: 19,
+            ),
+          ).writeToBuffer();
           break;
         case 'cancel':
         default:
@@ -154,6 +172,12 @@ void main() {
     );
   });
 
+  test('${proto.MessageCategory.CENTRAL_SCANNING} EVENT', () async {
+    final actual = await central.scanningChanged.first;
+    final matcher = true;
+    expect(actual, matcher);
+  });
+
   test('${proto.MessageCategory.CENTRAL_CONNECT}', () async {
     final address = MAC('aa:bb:cc:dd:ee:ff');
     final actual = await central.connect(address);
@@ -168,4 +192,21 @@ void main() {
       ],
     );
   });
+
+  test('${proto.MessageCategory.GATT_DISCONNECT}', () async {
+    final address = MAC('aa:bb:cc:dd:ee:ff');
+    final gatt = await central.connect(address);
+    await gatt.disconnect();
+    expect(
+      calls,
+      [
+        isMethodCall(
+          proto.MessageCategory.GATT_DISCONNECT.name,
+          arguments: address.name,
+        ),
+      ],
+    );
+  });
+
+  test('${proto.MessageCategory.GATT_CONNECTION_LOST}', () {});
 }

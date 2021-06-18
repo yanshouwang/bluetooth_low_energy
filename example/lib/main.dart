@@ -25,6 +25,9 @@ class _MyAppState extends State<MyApp> {
         fontFamily: 'IBM Plex Mono',
       ),
       home: HomeView(),
+      routes: {
+        'gatt': (context) => GattView(),
+      },
     );
   }
 }

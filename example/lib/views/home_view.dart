@@ -15,7 +15,8 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   final Central central;
   final ValueNotifier<bool> scanning;
   final ValueNotifier<Map<MAC, Discovery>> discoveries;
-  late StreamSubscription<Discovery> subscription;
+  late StreamSubscription<Discovery> discoverySubscription;
+  late StreamSubscription<bool> scanningSubscription;
 
   _HomeViewState()
       : central = Central(),
@@ -27,12 +28,18 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     super.initState();
     print('initState');
     WidgetsBinding.instance!.addObserver(this);
-    subscription = central.discovered.listen((discovery) {
-      discoveries.value[discovery.address] = discovery;
-      // discoveries.value =
-      //     discoveries.value.map((key, value) => MapEntry(key, value));
-      discoveries.notifyListeners();
-    });
+    scanningSubscription = central.scanningChanged.listen(
+      (scanning) => this.scanning.value = scanning,
+    );
+    discoverySubscription = central.discovered.listen(
+      (discovery) {
+        discoveries.value[discovery.address] = discovery;
+        discoveries.value = discoveries.value.map(
+          (key, value) => MapEntry(key, value),
+        );
+        // discoveries.notifyListeners();
+      },
+    );
     loadState();
   }
 
@@ -65,7 +72,8 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    subscription.cancel();
+    discoverySubscription.cancel();
+    scanningSubscription.cancel();
     discoveries.dispose();
     scanning.dispose();
     WidgetsBinding.instance!.removeObserver(this);
@@ -76,22 +84,21 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: ValueListenableBuilder(
-          valueListenable: discoveries,
-          builder: (context, Map<MAC, Discovery> discoveries, child) =>
-              buildDiscoveriesView(discoveries),
-        ),
+      appBar: AppBar(
+        title: Text('Home'),
+      ),
+      body: ValueListenableBuilder(
+        valueListenable: discoveries,
+        builder: (context, Map<MAC, Discovery> discoveries, child) =>
+            buildDiscoveriesView(discoveries),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           if (scanning.value) {
             await central.stopDiscovery();
-            scanning.value = false;
           } else {
             discoveries.value = {};
             await central.startDiscovery();
-            scanning.value = true;
           }
         },
         child: ValueListenableBuilder(
@@ -104,12 +111,25 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     );
   }
 
-  void onTapDiscovery(Discovery discovery) {
+  void showAdvertisements(Discovery discovery) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       elevation: 0.0,
       builder: (context) => buildAdvertisementsView(discovery),
+    );
+  }
+
+  void showGattView(Discovery discovery) async {
+    if (await central.scanning) {
+      await central.stopDiscovery();
+    }
+    await Navigator.of(context).pushNamed(
+      'gatt',
+      arguments: {
+        'central': central,
+        'address': discovery.address,
+      },
     );
   }
 }
@@ -133,7 +153,8 @@ extension on _HomeViewState {
           key: Key(discovery.address.name),
           child: InkWell(
             splashColor: Colors.purple,
-            onTap: () => onTapDiscovery(discovery),
+            onTap: () => showGattView(discovery),
+            onLongPress: () => showAdvertisements(discovery),
             child: Container(
               height: 100.0,
               child: Row(

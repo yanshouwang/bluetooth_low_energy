@@ -1,8 +1,7 @@
 package dev.yanshouwang.bluetooth_low_energy
 
 import android.Manifest
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothManager
+import android.bluetooth.*
 import android.bluetooth.le.*
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -41,6 +40,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
         private const val NO_ERROR = 0
         private const val SCAN_ALREADY_STARTED = 1
         private const val REQUEST_PERMISSION_FAILED = 2
+        private const val REQUEST_MTU_FAILED = 3
         private const val UNFINISHED_RESULT = Int.MAX_VALUE
         private const val REQUEST_CODE = 443
     }
@@ -52,8 +52,6 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
     private var binding: ActivityPluginBinding? = null
     private var sink: EventSink? = null
 
-    private var scanning = false
-
     private var call: MethodCall? = null
 
     private var result: Result? = null
@@ -64,7 +62,9 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
             field = value
         }
 
-    private val requestPermissionsResultListener: RequestPermissionsResultListener by lazy {
+    private val handler by lazy { Handler(Looper.getMainLooper()) }
+
+    private val requestPermissionsResultListener by lazy {
         RequestPermissionsResultListener { requestCode, _, results ->
             when {
                 requestCode != REQUEST_CODE -> false
@@ -90,13 +90,13 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
         }
     }
 
-    private val adapter: BluetoothAdapter by lazy {
+    private val adapter by lazy {
         Log.d(TAG, "adapter: created")
         val manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         manager.adapter
     }
 
-    private val stateChangedReceiver: BroadcastReceiver by lazy {
+    private val stateChangedReceiver by lazy {
         object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 if (intent == null)
@@ -111,12 +111,12 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
                     BluetoothAdapter.STATE_TURNING_OFF -> BluetoothState.POWERED_ON
                     else -> BluetoothState.UNRECOGNIZED
                 }
-                val message = Message.newBuilder()
+                val event = Message.newBuilder()
                         .setCategory(BLUETOOTH_STATE)
                         .setState(state)
                         .build()
                         .toByteArray()
-                sink?.success(message)
+                sink?.success(event)
             }
         }
     }
@@ -136,23 +136,36 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
             }
         }
 
-    private val scan18: BluetoothAdapter.LeScanCallback by lazy {
+    private var scanning = false
+        set(value) {
+            if (field == value)
+                return
+            field = value
+            val event = Message.newBuilder()
+                    .setCategory(CENTRAL_SCANNING)
+                    .setScanning(field)
+                    .build()
+                    .toByteArray()
+            sink?.success(event)
+        }
+
+    private val scan18 by lazy {
         BluetoothAdapter.LeScanCallback { device, rssi, scanRecord ->
             val discovery = Discovery.newBuilder()
                     .setAddress(device.address)
                     .setRssi(rssi)
                     .putAllAdvertisements(scanRecord.advertisements)
                     .build()
-            val message = Message.newBuilder()
+            val event = Message.newBuilder()
                     .setCategory(CENTRAL_DISCOVERED)
                     .setDiscovery(discovery)
                     .build()
                     .toByteArray()
-            sink?.success(message)
+            sink?.success(event)
         }
     }
 
-    private val scan21: ScanCallback by lazy {
+    private val scan21 by lazy {
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP) object : ScanCallback() {
             override fun onScanFailed(errorCode: Int) {
                 super.onScanFailed(errorCode)
@@ -170,12 +183,12 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
                     builder.putAllAdvertisements(result.scanRecord?.bytes?.advertisements)
                 }
                 val discovery = builder.build()
-                val message = Message.newBuilder()
+                val event = Message.newBuilder()
                         .setCategory(CENTRAL_DISCOVERED)
                         .setDiscovery(discovery)
                         .build()
                         .toByteArray()
-                sink?.success(message)
+                sink?.success(event)
             }
 
             override fun onBatchScanResults(results: MutableList<ScanResult>?) {
@@ -188,12 +201,12 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
                         builder.putAllAdvertisements(result.scanRecord?.bytes?.advertisements)
                     }
                     val discovery = builder.build()
-                    val message = Message.newBuilder()
+                    val event = Message.newBuilder()
                             .setCategory(CENTRAL_DISCOVERED)
                             .setDiscovery(discovery)
                             .build()
                             .toByteArray()
-                    sink?.success(message)
+                    sink?.success(event)
                 }
             }
         }
@@ -237,6 +250,62 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
             adapter.stopLeScan(scan18)
         }
         scanning = false
+    }
+
+    private val gatts by lazy { mutableMapOf<String, BluetoothGatt>() }
+
+    private val bluetoothGattCallback by lazy {
+        object : BluetoothGattCallback() {
+            override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
+                super.onConnectionStateChange(gatt, status, newState)
+                Log.d(TAG, "onConnectionStateChange: address -> ${gatt!!.device.address}; status -> $status; newState -> $newState")
+                if (status == BluetoothGatt.GATT_SUCCESS) {
+                    when (newState) {
+                        BluetoothProfile.STATE_DISCONNECTED -> {
+                            gatts.remove(gatt.device.address)
+                            result!!.success()
+                        }
+                        BluetoothProfile.STATE_CONNECTED -> {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                // TODO: how to get local MTU size here?
+                                val requested = gatt.requestMtu(512)
+                                if (!requested) {
+                                    gatt.close()
+                                    result!!.error(REQUEST_MTU_FAILED, "request MTU failed.")
+                                }
+                            } else {
+                                // Just use 23 as MTU before LOLLIPOP.
+                                gatts[gatt.device.address] = gatt
+                                result!!.success(23)
+                            }
+                        }
+                        else -> result!!.notImplemented()
+                    }
+                } else {
+                    if (status == 133) {
+                        gatt.close()
+                    }
+                    val removed = gatts.remove(gatt.device.address)
+                    if (removed == null) {
+                        result!!.error(status, "GATT failed with code: $status")
+                    } else {
+                        sink!!.success(null)
+                    }
+                }
+            }
+
+            override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
+                super.onMtuChanged(gatt, mtu, status)
+                Log.d(TAG, "onMtuChanged: gatt -> ${gatt!!.device.address}; mtu -> $mtu; status -> $status")
+                if (status != BluetoothGatt.GATT_SUCCESS) {
+                    gatt.close()
+                    result!!.error(REQUEST_MTU_FAILED, "request MTU failed.")
+                } else {
+                    gatts[gatt.device.address] = gatt
+                    result!!.success(mtu)
+                }
+            }
+        }
     }
 
     override fun onAttachedToEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
@@ -304,6 +373,18 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
             }
             CENTRAL_DISCOVERED -> result.notImplemented()
             CENTRAL_SCANNING -> result.success(scanning)
+            CENTRAL_CONNECT -> {
+                this.result = result
+                val address = call.arguments<String>()
+                val device = adapter.getRemoteDevice(address)
+                when {
+                    // Use TRANSPORT_LE to avoid none flag device on Android 23 or later.
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ->
+                        device.connectGatt(context, false, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE)
+                    else ->
+                        device.connectGatt(context, false, bluetoothGattCallback)
+                }
+            }
             UNRECOGNIZED -> result.notImplemented()
         }
     }

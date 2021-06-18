@@ -16,6 +16,8 @@ class MessageCategory extends $pb.ProtobufEnum {
   static const MessageCategory CENTRAL_DISCOVERED = MessageCategory._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CENTRAL_DISCOVERED');
   static const MessageCategory CENTRAL_SCANNING = MessageCategory._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CENTRAL_SCANNING');
   static const MessageCategory CENTRAL_CONNECT = MessageCategory._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CENTRAL_CONNECT');
+  static const MessageCategory GATT_DISCONNECT = MessageCategory._(6, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GATT_DISCONNECT');
+  static const MessageCategory GATT_CONNECTION_LOST = MessageCategory._(7, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GATT_CONNECTION_LOST');
 
   static const $core.List<MessageCategory> values = <MessageCategory> [
     BLUETOOTH_STATE,
@@ -24,6 +26,8 @@ class MessageCategory extends $pb.ProtobufEnum {
     CENTRAL_DISCOVERED,
     CENTRAL_SCANNING,
     CENTRAL_CONNECT,
+    GATT_DISCONNECT,
+    GATT_CONNECTION_LOST,
   ];
 
   static final $core.Map<$core.int, MessageCategory> _byValue = $pb.ProtobufEnum.initByValue(values);

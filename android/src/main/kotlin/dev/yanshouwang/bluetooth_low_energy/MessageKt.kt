@@ -86,6 +86,54 @@ object MessageKt {
     fun hasDiscovery(): kotlin.Boolean {
       return _builder.hasDiscovery()
     }
+
+    /**
+     * <code>bool scanning = 4;</code>
+     */
+    var scanning: kotlin.Boolean
+      @JvmName("getScanning")
+      get() = _builder.getScanning()
+      @JvmName("setScanning")
+      set(value) {
+        _builder.setScanning(value)
+      }
+    /**
+     * <code>bool scanning = 4;</code>
+     */
+    fun clearScanning() {
+      _builder.clearScanning()
+    }
+    /**
+     * <code>bool scanning = 4;</code>
+     * @return Whether the scanning field is set.
+     */
+    fun hasScanning(): kotlin.Boolean {
+      return _builder.hasScanning()
+    }
+
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.ConnectionLostArguments connectionLostArguments = 5;</code>
+     */
+    var connectionLostArguments: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.ConnectionLostArguments
+      @JvmName("getConnectionLostArguments")
+      get() = _builder.getConnectionLostArguments()
+      @JvmName("setConnectionLostArguments")
+      set(value) {
+        _builder.setConnectionLostArguments(value)
+      }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.ConnectionLostArguments connectionLostArguments = 5;</code>
+     */
+    fun clearConnectionLostArguments() {
+      _builder.clearConnectionLostArguments()
+    }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.ConnectionLostArguments connectionLostArguments = 5;</code>
+     * @return Whether the connectionLostArguments field is set.
+     */
+    fun hasConnectionLostArguments(): kotlin.Boolean {
+      return _builder.hasConnectionLostArguments()
+    }
     val valueCase: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.Message.ValueCase
       @JvmName("getValueCase")
       get() = _builder.getValueCase()

@@ -6,6 +6,8 @@ message Message {
   oneof value {
       BluetoothState state = 2;
       Discovery discovery = 3;
+      bool scanning = 4;
+      ConnectionLostArguments connectionLostArguments = 5;
   }
 }
 
@@ -19,6 +21,11 @@ message Discovery {
   map<uint32, bytes> advertisements = 3;
 }
 
+message ConnectionLostArguments {
+  string address = 1;
+  int32 error_code = 2;
+}
+
 enum MessageCategory {
     BLUETOOTH_STATE = 0;
     CENTRAL_START_DISCOVERY = 1;
@@ -26,6 +33,8 @@ enum MessageCategory {
     CENTRAL_DISCOVERED = 3;
     CENTRAL_SCANNING = 4;
     CENTRAL_CONNECT = 5;
+    GATT_DISCONNECT = 6;
+    GATT_CONNECTION_LOST = 7;
 }
 
 enum BluetoothState {
