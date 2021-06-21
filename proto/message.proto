@@ -11,7 +11,7 @@ message Message {
   }
 }
 
-message DiscoverArguments {
+message DiscoveryArguments {
   repeated string services = 1;
 }
 

@@ -57,30 +57,28 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
     private var result: Result? = null
         set(value) {
             if (value != null && field != null) {
-                value.error(UNFINISHED_RESULT, "There is an unfinished result.")
+                value.errorNew(UNFINISHED_RESULT, "There is an unfinished result.")
             }
             field = value
         }
-
-    private val handler by lazy { Handler(Looper.getMainLooper()) }
 
     private val requestPermissionsResultListener by lazy {
         RequestPermissionsResultListener { requestCode, _, results ->
             when {
                 requestCode != REQUEST_CODE -> false
                 results.any { result -> result != PackageManager.PERMISSION_GRANTED } -> {
-                    result!!.error(REQUEST_PERMISSION_FAILED, "Request permission failed.")
+                    result!!.errorNew(REQUEST_PERMISSION_FAILED, "Request permission failed.")
                     result = null
                     true
                 }
                 else -> {
                     val data = call!!.arguments<ByteArray>()
-                    val arguments = DiscoverArguments.parseFrom(data)
+                    val arguments = DiscoveryArguments.parseFrom(data)
                     val code = startScan(arguments.servicesList)
                     if (code == NO_ERROR) {
-                        result!!.success()
+                        result!!.successNew()
                     } else {
-                        result!!.error(code, "Scan start failed with code: $code.")
+                        result!!.errorNew(code, "Scan start failed with code: $code.")
                     }
                     call = null
                     result = null
@@ -263,23 +261,23 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
                     when (newState) {
                         BluetoothProfile.STATE_DISCONNECTED -> {
                             gatts.remove(gatt.device.address)
-                            result!!.success()
+                            result!!.successNew()
                         }
                         BluetoothProfile.STATE_CONNECTED -> {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                 // TODO: how to get local MTU size here?
-                                val requested = gatt.requestMtu(512)
-                                if (!requested) {
+                                val failed = gatt.requestMtu(512).not()
+                                if (failed) {
                                     gatt.close()
-                                    result!!.error(REQUEST_MTU_FAILED, "request MTU failed.")
+                                    result!!.errorNew(REQUEST_MTU_FAILED, "request MTU failed.")
                                 }
                             } else {
                                 // Just use 23 as MTU before LOLLIPOP.
                                 gatts[gatt.device.address] = gatt
-                                result!!.success(23)
+                                result!!.successNew(23)
                             }
                         }
-                        else -> result!!.notImplemented()
+                        else -> result!!.notImplementedNew()
                     }
                 } else {
                     if (status == 133) {
@@ -287,7 +285,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
                     }
                     val removed = gatts.remove(gatt.device.address)
                     if (removed == null) {
-                        result!!.error(status, "GATT failed with code: $status")
+                        result!!.errorNew(status, "GATT failed with code: $status")
                     } else {
                         sink!!.success(null)
                     }
@@ -299,10 +297,10 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
                 Log.d(TAG, "onMtuChanged: gatt -> ${gatt!!.device.address}; mtu -> $mtu; status -> $status")
                 if (status != BluetoothGatt.GATT_SUCCESS) {
                     gatt.close()
-                    result!!.error(REQUEST_MTU_FAILED, "request MTU failed.")
+                    result!!.errorNew(REQUEST_MTU_FAILED, "request MTU failed.")
                 } else {
                     gatts[gatt.device.address] = gatt
-                    result!!.success(mtu)
+                    result!!.successNew(mtu)
                 }
             }
         }
@@ -349,16 +347,16 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
         when (call.method.category) {
-            BLUETOOTH_STATE -> result.success(state.number)
+            BLUETOOTH_STATE -> result.successNew(state.number)
             CENTRAL_START_DISCOVERY -> {
                 if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                     val data = call.arguments<ByteArray>()
-                    val arguments = DiscoverArguments.parseFrom(data)
+                    val arguments = DiscoveryArguments.parseFrom(data)
                     val code = startScan(arguments.servicesList)
                     if (code == NO_ERROR) {
-                        result.success()
+                        result.successNew()
                     } else {
-                        result.error(code, "Scan start failed with code: $code.")
+                        result.errorNew(code, "Scan start failed with code: $code.")
                     }
                 } else {
                     this.call = call
@@ -369,10 +367,10 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
             }
             CENTRAL_STOP_DISCOVERY -> {
                 stopScan()
-                result.success()
+                result.successNew()
             }
-            CENTRAL_DISCOVERED -> result.notImplemented()
-            CENTRAL_SCANNING -> result.success(scanning)
+            CENTRAL_DISCOVERED -> result.notImplementedNew()
+            CENTRAL_SCANNING -> result.successNew(scanning)
             CENTRAL_CONNECT -> {
                 this.result = result
                 val address = call.arguments<String>()
@@ -385,7 +383,9 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
                         device.connectGatt(context, false, bluetoothGattCallback)
                 }
             }
-            UNRECOGNIZED -> result.notImplemented()
+            GATT_DISCONNECT -> TODO()
+            GATT_CONNECTION_LOST -> result.notImplementedNew()
+            UNRECOGNIZED -> result.notImplementedNew()
         }
     }
 
@@ -415,12 +415,31 @@ val Context.missingBluetoothPermission: Boolean
         return !requested.contains(Manifest.permission.BLUETOOTH) || !requested.contains(Manifest.permission.BLUETOOTH_ADMIN)
     }
 
-fun Result.success() {
-    success(null)
+fun Result.successNew(value: Any? = null) {
+    val looper = Looper.getMainLooper()
+    if (Looper.myLooper() == looper) {
+        success(value)
+    } else {
+        Handler(looper).post { success(value) }
+    }
 }
 
-fun Result.error(code: Int, message: String? = null, details: String? = null) {
-    error("$code", message, details)
+fun Result.errorNew(code: Int, message: String? = null, details: String? = null) {
+    val looper = Looper.getMainLooper()
+    if (Looper.myLooper() == looper) {
+        error("$code", message, details)
+    } else {
+        Handler(looper).post { error("$code", message, details) }
+    }
+}
+
+fun Result.notImplementedNew() {
+    val looper = Looper.getMainLooper()
+    if (Looper.myLooper() == looper) {
+        notImplemented()
+    } else {
+        Handler(looper).post { notImplemented() }
+    }
 }
 
 val ByteArray.advertisements: Map<Int, ByteString>

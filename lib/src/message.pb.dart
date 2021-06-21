@@ -139,14 +139,14 @@ class Message extends $pb.GeneratedMessage {
   ConnectionLostArguments ensureConnectionLostArguments() => $_ensure(4);
 }
 
-class DiscoverArguments extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DiscoverArguments', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
+class DiscoveryArguments extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'DiscoveryArguments', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
     ..pPS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'services')
     ..hasRequiredFields = false
   ;
 
-  DiscoverArguments._() : super();
-  factory DiscoverArguments({
+  DiscoveryArguments._() : super();
+  factory DiscoveryArguments({
     $core.Iterable<$core.String>? services,
   }) {
     final _result = create();
@@ -155,26 +155,26 @@ class DiscoverArguments extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory DiscoverArguments.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory DiscoverArguments.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory DiscoveryArguments.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DiscoveryArguments.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  DiscoverArguments clone() => DiscoverArguments()..mergeFromMessage(this);
+  DiscoveryArguments clone() => DiscoveryArguments()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  DiscoverArguments copyWith(void Function(DiscoverArguments) updates) => super.copyWith((message) => updates(message as DiscoverArguments)) as DiscoverArguments; // ignore: deprecated_member_use
+  DiscoveryArguments copyWith(void Function(DiscoveryArguments) updates) => super.copyWith((message) => updates(message as DiscoveryArguments)) as DiscoveryArguments; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static DiscoverArguments create() => DiscoverArguments._();
-  DiscoverArguments createEmptyInstance() => create();
-  static $pb.PbList<DiscoverArguments> createRepeated() => $pb.PbList<DiscoverArguments>();
+  static DiscoveryArguments create() => DiscoveryArguments._();
+  DiscoveryArguments createEmptyInstance() => create();
+  static $pb.PbList<DiscoveryArguments> createRepeated() => $pb.PbList<DiscoveryArguments>();
   @$core.pragma('dart2js:noInline')
-  static DiscoverArguments getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DiscoverArguments>(create);
-  static DiscoverArguments? _defaultInstance;
+  static DiscoveryArguments getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DiscoveryArguments>(create);
+  static DiscoveryArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.List<$core.String> get services => $_getList(0);

@@ -3,7 +3,6 @@ library bluetooth_low_energy;
 import 'dart:convert';
 
 import 'package:convert/convert.dart';
-import 'package:flutter/cupertino.dart';
 
 import 'src/message.pb.dart' as proto;
 import 'src/util.dart';

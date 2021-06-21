@@ -12,15 +12,13 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
-  final Central central;
   final ValueNotifier<bool> scanning;
   final ValueNotifier<Map<MAC, Discovery>> discoveries;
   late StreamSubscription<Discovery> discoverySubscription;
   late StreamSubscription<bool> scanningSubscription;
 
   _HomeViewState()
-      : central = Central(),
-        scanning = ValueNotifier(false),
+      : scanning = ValueNotifier(false),
         discoveries = ValueNotifier({});
 
   @override

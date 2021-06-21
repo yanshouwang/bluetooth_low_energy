@@ -8,7 +8,6 @@ void main() {
   final method = MethodChannel('${util.method.name}');
   final event = MethodChannel('${util.event.name}');
   final calls = <MethodCall>[];
-  final central = Central();
 
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -28,6 +27,8 @@ void main() {
         return true;
       } else if (call.method == proto.MessageCategory.CENTRAL_CONNECT.name) {
         return null;
+      } else if (call.method == proto.MessageCategory.GATT_DISCONNECT.name) {
+        return null;
       } else {
         throw UnimplementedError();
       }
@@ -35,7 +36,6 @@ void main() {
     event.setMockMethodCallHandler((call) async {
       switch (call.method) {
         case 'listen':
-          // BLUETOOTH_STATE
           final state = proto.Message(
             category: proto.MessageCategory.BLUETOOTH_STATE,
             state: proto.BluetoothState.POWERED_ON,
@@ -46,7 +46,6 @@ void main() {
             event.codec.encodeSuccessEnvelope(state),
             (data) {},
           );
-          // CENTRAL_DISCOVERED
           final discovery = proto.Message(
             category: proto.MessageCategory.CENTRAL_DISCOVERED,
             discovery: proto.Discovery(
@@ -63,7 +62,6 @@ void main() {
             event.codec.encodeSuccessEnvelope(discovery),
             (data) {},
           );
-          // CENTRAL_SCANNING
           final scanning = proto.Message(
             category: proto.MessageCategory.CENTRAL_SCANNING,
             scanning: true,
@@ -74,18 +72,24 @@ void main() {
             event.codec.encodeSuccessEnvelope(scanning),
             (data) {},
           );
-          // GATT_CONNECTION_LOST
-          final connectionLost = proto.Message(
+          final connectionLostArguments = proto.Message(
             category: proto.MessageCategory.GATT_CONNECTION_LOST,
             connectionLostArguments: proto.ConnectionLostArguments(
               address: 'aa:bb:cc:dd:ee:ff',
               errorCode: 19,
             ),
           ).writeToBuffer();
+          await ServicesBinding.instance!.defaultBinaryMessenger
+              .handlePlatformMessage(
+            event.name,
+            event.codec.encodeSuccessEnvelope(connectionLostArguments),
+            (data) {},
+          );
           break;
         case 'cancel':
-        default:
           return null;
+        default:
+          throw UnimplementedError();
       }
     });
   });
@@ -124,7 +128,7 @@ void main() {
       [
         isMethodCall(
           proto.MessageCategory.CENTRAL_START_DISCOVERY.name,
-          arguments: proto.DiscoverArguments(
+          arguments: proto.DiscoveryArguments(
             services: services.map((uuid) => uuid.name),
           ).writeToBuffer(),
         ),
@@ -201,6 +205,10 @@ void main() {
       calls,
       [
         isMethodCall(
+          proto.MessageCategory.CENTRAL_CONNECT.name,
+          arguments: address.name,
+        ),
+        isMethodCall(
           proto.MessageCategory.GATT_DISCONNECT.name,
           arguments: address.name,
         ),
@@ -208,5 +216,10 @@ void main() {
     );
   });
 
-  test('${proto.MessageCategory.GATT_CONNECTION_LOST}', () {});
+  test('${proto.MessageCategory.GATT_CONNECTION_LOST}', () async {
+    final address = MAC('aa:bb:cc:dd:ee:ff');
+    final gatt = await central.connect(address);
+    final actual = await gatt.connectionLost.first;
+    expect(actual, 19);
+  });
 }

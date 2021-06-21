@@ -1,5 +1,7 @@
 part of bluetooth_low_energy;
 
+Central central = _Central();
+
 /// The abstract base class that manages central and peripheral objects.
 abstract class Bluetooth {
   /// The current state of the manager.
@@ -7,8 +9,6 @@ abstract class Bluetooth {
 
   /// The central manager’s state changed.
   Stream<BluetoothState> get stateChanged;
-
-  factory Bluetooth() => _Bluetooth();
 }
 
 class _Bluetooth implements Bluetooth {
@@ -42,8 +42,6 @@ abstract class Central extends Bluetooth {
 
   /// Establishes a local connection to a peripheral.
   Future<GATT> connect(MAC address);
-
-  factory Central() => _Central();
 }
 
 class _Central extends _Bluetooth implements Central {
@@ -69,7 +67,7 @@ class _Central extends _Bluetooth implements Central {
   @override
   Future startDiscovery({List<UUID>? services}) => method.invokeMethod(
         proto.MessageCategory.CENTRAL_START_DISCOVERY.name,
-        proto.DiscoverArguments(
+        proto.DiscoveryArguments(
           services: services?.map((uuid) => uuid.name),
         ).writeToBuffer(),
       );
