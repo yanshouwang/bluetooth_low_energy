@@ -26,7 +26,7 @@ void main() {
       } else if (call.method == proto.MessageCategory.CENTRAL_SCANNING.name) {
         return true;
       } else if (call.method == proto.MessageCategory.CENTRAL_CONNECT.name) {
-        return null;
+        return 23;
       } else if (call.method == proto.MessageCategory.GATT_DISCONNECT.name) {
         return null;
       } else {
@@ -186,6 +186,7 @@ void main() {
     final address = MAC('aa:bb:cc:dd:ee:ff');
     final actual = await central.connect(address);
     expect(actual.address, address);
+    expect(actual.mtu, 23);
     expect(
       calls,
       [

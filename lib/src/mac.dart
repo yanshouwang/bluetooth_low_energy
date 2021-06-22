@@ -15,7 +15,9 @@ class _MAC implements MAC {
   @override
   final int hashCode;
 
-  _MAC(String name) : this.nameValue(name.toLowerCase(), name.valueOfMAC);
+  _MAC(String str) : this.name(str.nameOfMAC);
+
+  _MAC.name(String name) : this.nameValue(name, name.valueOfMAC);
 
   _MAC.nameValue(this.name, this.value) : hashCode = equality.hash(value);
 

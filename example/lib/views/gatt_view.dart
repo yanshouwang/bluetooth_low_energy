@@ -9,27 +9,41 @@ class GattView extends StatefulWidget {
 }
 
 class _GattViewState extends State<GattView> {
-  late Central central;
   late MAC address;
+  ValueNotifier<String> state;
+
+  _GattViewState() : state = ValueNotifier('Disconnected');
 
   GATT? gatt;
 
   @override
   void initState() {
     super.initState();
-    final arguments =
-        ModalRoute.of(context)!.settings.arguments as Map<String, Object>;
-    central = arguments['central'] as Central;
-    address = arguments['address'] as MAC;
   }
 
   @override
   Widget build(BuildContext context) {
+    address = ModalRoute.of(context)!.settings.arguments as MAC;
+    connect();
     return Scaffold(
       appBar: AppBar(
         title: Text('GATT'),
       ),
-      body: Container(),
+      body: ValueListenableBuilder(
+        valueListenable: state,
+        builder: (context, String state, child) {
+          return Center(
+            child: Text(state),
+          );
+        },
+      ),
     );
+  }
+
+  void connect() async {
+    gatt = await central.connect(address);
+    state.value = 'Connected with MTU: ${gatt!.mtu}';
+    await gatt!.connectionLost.first;
+    state.value = 'Connection Lost';
   }
 }

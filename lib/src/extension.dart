@@ -1,15 +1,20 @@
 part of bluetooth_low_energy;
 
 extension on String {
-  List<int> get valueOfMAC {
+  String get nameOfMAC {
+    final upper = toUpperCase();
     final exp = RegExp(
-      r'^[0-9a-f]{2}(:[0-9a-f]{2}){5}$',
+      r'^[0-9A-F]{2}(:[0-9A-F]{2}){5}$',
       multiLine: true,
-      caseSensitive: false,
+      caseSensitive: true,
     );
-    if (!exp.hasMatch(this)) {
-      throw ArgumentError.value(this);
+    if (exp.hasMatch(upper)) {
+      return upper;
     }
+    throw ArgumentError.value(this);
+  }
+
+  List<int> get valueOfMAC {
     final from = RegExp(r':');
     final encoded = replaceAll(from, '');
     return hex.decode(encoded);
@@ -20,7 +25,7 @@ extension on String {
     final exp0 = RegExp(
       r'[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$',
       multiLine: true,
-      caseSensitive: false,
+      caseSensitive: true,
     );
     if (exp0.hasMatch(upper)) {
       return upper;
@@ -28,7 +33,7 @@ extension on String {
     final exp1 = RegExp(
       r'^[0-9A-F]{4}$',
       multiLine: true,
-      caseSensitive: false,
+      caseSensitive: true,
     );
     if (exp1.hasMatch(upper)) {
       return '0000$upper-0000-1000-8000-00805F9B34FB';

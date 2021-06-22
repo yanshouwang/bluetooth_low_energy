@@ -1,6 +1,6 @@
 part of bluetooth_low_energy;
 
-Central central = _Central();
+final Central central = _Central();
 
 /// The abstract base class that manages central and peripheral objects.
 abstract class Bluetooth {
@@ -78,8 +78,9 @@ class _Central extends _Bluetooth implements Central {
 
   @override
   Future<GATT> connect(MAC address) => method
-      .invokeMethod(proto.MessageCategory.CENTRAL_CONNECT.name, address.name)
-      .then((value) => _GATT(address));
+      .invokeMethod<int>(
+          proto.MessageCategory.CENTRAL_CONNECT.name, address.name)
+      .then((value) => _GATT(address, value!));
 }
 
 /// The possible states of a bluetooth manager.

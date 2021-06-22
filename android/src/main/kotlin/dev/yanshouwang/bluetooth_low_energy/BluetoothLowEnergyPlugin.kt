@@ -33,15 +33,19 @@ import java.util.*
 
 const val NAMESPACE = "yanshouwang.dev/bluetooth_low_energy"
 
+typealias RequestPermissionsHandler = (granted: Boolean) -> Unit
+
 /** BluetoothLowEnergyPlugin */
-class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler, StreamHandler {
+class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler, ActivityAware,
+        RequestPermissionsResultListener {
     companion object {
         private const val UNKNOWN = -1
         private const val NO_ERROR = 0
         private const val SCAN_ALREADY_STARTED = 1
-        private const val REQUEST_PERMISSION_FAILED = 2
-        private const val REQUEST_MTU_FAILED = 3
-        private const val UNFINISHED_RESULT = Int.MAX_VALUE
+        private const val DUPLICATED_REQUEST = 2
+        private const val REQUEST_PERMISSION_FAILED = 3
+        private const val WRONG_CONNECTION_STATE = 4
+        private const val REQUEST_MTU_FAILED = 5
         private const val REQUEST_CODE = 443
     }
 
@@ -52,66 +56,26 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
     private var binding: ActivityPluginBinding? = null
     private var sink: EventSink? = null
 
-    private var call: MethodCall? = null
+    private val handler by lazy { Handler(context.mainLooper) }
 
-    private var result: Result? = null
-        set(value) {
-            if (value != null && field != null) {
-                value.errorNew(UNFINISHED_RESULT, "There is an unfinished result.")
-            }
-            field = value
+    private val bluetoothManager by lazy { context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager }
+    private val bluetoothAdapter by lazy { bluetoothManager.adapter }
+
+    private val bluetoothState: BluetoothState
+        get() = when {
+            context.missingBluetoothFeature -> BluetoothState.UNSUPPORTED
+            else -> bluetoothAdapter.state.bluetoothState
         }
 
-    private val requestPermissionsResultListener by lazy {
-        RequestPermissionsResultListener { requestCode, _, results ->
-            when {
-                requestCode != REQUEST_CODE -> false
-                results.any { result -> result != PackageManager.PERMISSION_GRANTED } -> {
-                    result!!.errorNew(REQUEST_PERMISSION_FAILED, "Request permission failed.")
-                    result = null
-                    true
-                }
-                else -> {
-                    val data = call!!.arguments<ByteArray>()
-                    val arguments = DiscoveryArguments.parseFrom(data)
-                    val code = startScan(arguments.servicesList)
-                    if (code == NO_ERROR) {
-                        result!!.successNew()
-                    } else {
-                        result!!.errorNew(code, "Scan start failed with code: $code.")
-                    }
-                    call = null
-                    result = null
-                    true
-                }
-            }
-        }
-    }
-
-    private val adapter by lazy {
-        Log.d(TAG, "adapter: created")
-        val manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        manager.adapter
-    }
-
-    private val stateChangedReceiver by lazy {
+    private val bluetoothStateReceiver by lazy {
         object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                if (intent == null)
-                    return
-                val oldState = intent.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_STATE, UNKNOWN)
+                val oldState = intent!!.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_STATE, UNKNOWN)
                 val newState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, UNKNOWN)
                 Log.d(TAG, "Bluetooth adapter old state: $oldState; new state: $newState")
-                val state = when (newState) {
-                    BluetoothAdapter.STATE_OFF -> BluetoothState.POWERED_OFF
-                    BluetoothAdapter.STATE_TURNING_ON -> BluetoothState.POWERED_OFF
-                    BluetoothAdapter.STATE_ON -> BluetoothState.POWERED_ON
-                    BluetoothAdapter.STATE_TURNING_OFF -> BluetoothState.POWERED_ON
-                    else -> BluetoothState.UNRECOGNIZED
-                }
                 val event = Message.newBuilder()
                         .setCategory(BLUETOOTH_STATE)
-                        .setState(state)
+                        .setState(newState.bluetoothState)
                         .build()
                         .toByteArray()
                 sink?.success(event)
@@ -119,20 +83,13 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
         }
     }
 
-    private val state: BluetoothState
-        get() {
-            return when {
-                context.missingBluetoothFeature -> BluetoothState.UNSUPPORTED
-                context.missingBluetoothPermission -> BluetoothState.UNAUTHORIZED
-                else -> when (adapter.state) {
-                    BluetoothAdapter.STATE_OFF -> BluetoothState.POWERED_OFF
-                    BluetoothAdapter.STATE_TURNING_ON -> BluetoothState.POWERED_OFF
-                    BluetoothAdapter.STATE_ON -> BluetoothState.POWERED_ON
-                    BluetoothAdapter.STATE_TURNING_OFF -> BluetoothState.POWERED_ON
-                    else -> BluetoothState.UNRECOGNIZED
-                }
-            }
-        }
+    private val hasPermission
+        get() = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+    private var requestPermissionsHandler: RequestPermissionsHandler? = null
 
     private var scanning = false
         set(value) {
@@ -223,14 +180,14 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
                 val settings = ScanSettings.Builder()
                         .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                         .build()
-                adapter.bluetoothLeScanner.startScan(filters, settings, scan21)
+                bluetoothAdapter.bluetoothLeScanner.startScan(filters, settings, scan21)
                 // TODO: seems there is no way to get success callback when use bluetoothLeScanner#startScan.
                 scanning = true
                 NO_ERROR
             }
             else -> {
                 val uuids = services.map { service -> UUID.fromString(service) }.toTypedArray()
-                val succeed = adapter.startLeScan(uuids, scan18)
+                val succeed = bluetoothAdapter.startLeScan(uuids, scan18)
                 if (succeed) {
                     scanning = true
                     NO_ERROR
@@ -243,13 +200,15 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
 
     private fun stopScan() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            adapter.bluetoothLeScanner.stopScan(scan21)
+            bluetoothAdapter.bluetoothLeScanner.stopScan(scan21)
         } else {
-            adapter.stopLeScan(scan18)
+            bluetoothAdapter.stopLeScan(scan18)
         }
         scanning = false
     }
 
+    private val connects by lazy { mutableMapOf<String, Result>() }
+    private val disconnects by lazy { mutableMapOf<String, Result>() }
     private val gatts by lazy { mutableMapOf<String, BluetoothGatt>() }
 
     private val bluetoothGattCallback by lazy {
@@ -257,37 +216,50 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
             override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
                 super.onConnectionStateChange(gatt, status, newState)
                 Log.d(TAG, "onConnectionStateChange: address -> ${gatt!!.device.address}; status -> $status; newState -> $newState")
+                val address = gatt.device.address
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     when (newState) {
-                        BluetoothProfile.STATE_DISCONNECTED -> {
-                            gatts.remove(gatt.device.address)
-                            result!!.successNew()
-                        }
                         BluetoothProfile.STATE_CONNECTED -> {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                 // TODO: how to get local MTU size here?
-                                val failed = gatt.requestMtu(512).not()
+                                val failed = !gatt.requestMtu(512)
                                 if (failed) {
-                                    gatt.close()
-                                    result!!.errorNew(REQUEST_MTU_FAILED, "request MTU failed.")
+                                    gatts.remove(address)!!.close()
+                                    val result = connects.remove(address)!!
+                                    handler.post { result.error(REQUEST_MTU_FAILED) }
                                 }
                             } else {
                                 // Just use 23 as MTU before LOLLIPOP.
-                                gatts[gatt.device.address] = gatt
-                                result!!.successNew(23)
+                                val result = connects.remove(address)!!
+                                handler.post { result.success(23) }
                             }
                         }
-                        else -> result!!.notImplementedNew()
+                        BluetoothProfile.STATE_DISCONNECTED -> {
+                            gatts.remove(address)!!.close()
+                            val result = disconnects[address]!!
+                            handler.post { result.success() }
+                        }
+                        else -> throw NotImplementedError() // should never be called.
                     }
                 } else {
-                    if (status == 133) {
-                        gatt.close()
-                    }
-                    val removed = gatts.remove(gatt.device.address)
-                    if (removed == null) {
-                        result!!.errorNew(status, "GATT failed with code: $status")
-                    } else {
-                        sink!!.success(null)
+                    gatts.remove(address)!!.close()
+                    val connect = connects[address]
+                    val disconnect = disconnects[address]
+                    when {
+                        connect != null -> handler.post { connect.error(status) }
+                        disconnect != null -> handler.post { disconnect.error(status) }
+                        else -> {
+                            val connectionLostArguments = ConnectionLostArguments.newBuilder()
+                                    .setAddress(address)
+                                    .setErrorCode(status)
+                                    .build()
+                            val event = Message.newBuilder()
+                                    .setCategory(GATT_CONNECTION_LOST)
+                                    .setConnectionLostArguments(connectionLostArguments)
+                                    .build()
+                                    .toByteArray()
+                            handler.post { sink?.success(event) }
+                        }
                     }
                 }
             }
@@ -295,97 +267,121 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
             override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
                 super.onMtuChanged(gatt, mtu, status)
                 Log.d(TAG, "onMtuChanged: gatt -> ${gatt!!.device.address}; mtu -> $mtu; status -> $status")
-                if (status != BluetoothGatt.GATT_SUCCESS) {
-                    gatt.close()
-                    result!!.errorNew(REQUEST_MTU_FAILED, "request MTU failed.")
+                val address = gatt.device.address
+                val connect = connects.remove(address)!!
+                if (status == BluetoothGatt.GATT_SUCCESS) {
+                    handler.post { connect.success(mtu) }
                 } else {
-                    gatts[gatt.device.address] = gatt
-                    result!!.successNew(mtu)
+                    gatts.remove(address)!!.close()
+                    handler.post { connect.error(status) }
                 }
             }
         }
     }
 
     override fun onAttachedToEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-        Log.d(TAG, "onAttachedToEngine")
         method = MethodChannel(binding.binaryMessenger, "$NAMESPACE/method")
         method.setMethodCallHandler(this)
         event = EventChannel(binding.binaryMessenger, "$NAMESPACE/event")
         event.setStreamHandler(this)
         context = binding.applicationContext
-        val stateChangedFilter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-        context.registerReceiver(stateChangedReceiver, stateChangedFilter)
+        // Register bluetooth adapter state receiver.
+        val adapterStateFilter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+        context.registerReceiver(bluetoothStateReceiver, adapterStateFilter)
     }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-        Log.d(TAG, "onDetachedFromEngine")
+        // Clear notifications.
+        // Clear connections.
+        for (gatt in gatts.values) {
+            gatt.close()
+        }
+        gatts.clear()
+        // Stop scan.
         if (scanning) stopScan()
-        context.unregisterReceiver(stateChangedReceiver)
+        // Unregister bluetooth adapter state receiver.
+        context.unregisterReceiver(bluetoothStateReceiver)
         event.setStreamHandler(null)
         method.setMethodCallHandler(null)
     }
 
-    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        Log.d(TAG, "onAttachedToActivity")
-        this.binding = binding
-        this.binding!!.addRequestPermissionsResultListener(requestPermissionsResultListener)
-    }
-
-    override fun onDetachedFromActivity() {
-        Log.d(TAG, "onDetachedFromActivity")
-        binding!!.removeRequestPermissionsResultListener(requestPermissionsResultListener)
-        binding = null
-    }
-
-    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-        onAttachedToActivity(binding)
-    }
-
-    override fun onDetachedFromActivityForConfigChanges() {
-        onDetachedFromActivity()
-    }
-
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-        when (call.method.category) {
-            BLUETOOTH_STATE -> result.successNew(state.number)
+        when (call.category) {
+            BLUETOOTH_STATE -> result.success(bluetoothState.number)
             CENTRAL_START_DISCOVERY -> {
-                if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    val data = call.arguments<ByteArray>()
-                    val arguments = DiscoveryArguments.parseFrom(data)
-                    val code = startScan(arguments.servicesList)
-                    if (code == NO_ERROR) {
-                        result.successNew()
-                    } else {
-                        result.errorNew(code, "Scan start failed with code: $code.")
+                when {
+                    requestPermissionsHandler != null -> result.error(DUPLICATED_REQUEST)
+                    else -> {
+                        val startDiscovery = Runnable {
+                            val data = call.arguments<ByteArray>()
+                            val arguments = DiscoveryArguments.parseFrom(data)
+                            val code = startScan(arguments.servicesList)
+                            if (code == NO_ERROR) {
+                                result.success()
+                            } else {
+                                result.error(code, "Scan start failed with code: $code.")
+                            }
+                        }
+                        when {
+                            hasPermission -> startDiscovery.run()
+                            else -> {
+                                requestPermissionsHandler = { granted ->
+                                    if (granted) startDiscovery.run()
+                                    else result.error(
+                                            REQUEST_PERMISSION_FAILED,
+                                            "Request permission failed."
+                                    )
+                                }
+                                val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+                                ActivityCompat.requestPermissions(
+                                        binding!!.activity,
+                                        permissions,
+                                        REQUEST_CODE
+                                )
+                            }
+                        }
                     }
-                } else {
-                    this.call = call
-                    this.result = result
-                    val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-                    ActivityCompat.requestPermissions(binding!!.activity, permissions, REQUEST_CODE)
                 }
             }
             CENTRAL_STOP_DISCOVERY -> {
                 stopScan()
-                result.successNew()
+                result.success()
             }
-            CENTRAL_DISCOVERED -> result.notImplementedNew()
-            CENTRAL_SCANNING -> result.successNew(scanning)
+            CENTRAL_DISCOVERED -> result.notImplemented()
+            CENTRAL_SCANNING -> result.success(scanning)
             CENTRAL_CONNECT -> {
-                this.result = result
                 val address = call.arguments<String>()
-                val device = adapter.getRemoteDevice(address)
-                when {
-                    // Use TRANSPORT_LE to avoid none flag device on Android 23 or later.
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ->
-                        device.connectGatt(context, false, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE)
-                    else ->
-                        device.connectGatt(context, false, bluetoothGattCallback)
+                val device = bluetoothAdapter.getRemoteDevice(address)
+                val state = bluetoothManager.getConnectionState(device, BluetoothProfile.GATT)
+                if (state != BluetoothProfile.STATE_DISCONNECTED) {
+                    result.error(WRONG_CONNECTION_STATE)
+                } else {
+                    connects[address] = result
+                    val gatt = when {
+                        // Use TRANSPORT_LE to avoid none flag device on Android 23 or later.
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> device.connectGatt(
+                                context,
+                                false,
+                                bluetoothGattCallback,
+                                BluetoothDevice.TRANSPORT_LE
+                        )
+                        else -> device.connectGatt(context, false, bluetoothGattCallback)
+                    }
+                    gatts[address] = gatt
                 }
             }
-            GATT_DISCONNECT -> TODO()
-            GATT_CONNECTION_LOST -> result.notImplementedNew()
-            UNRECOGNIZED -> result.notImplementedNew()
+            GATT_DISCONNECT -> {
+                val address = call.arguments<String>()
+                val device = bluetoothAdapter.getRemoteDevice(address)
+                val state = bluetoothManager.getConnectionState(device, BluetoothProfile.GATT)
+                if (state != BluetoothProfile.STATE_CONNECTED) {
+                    result.error(WRONG_CONNECTION_STATE)
+                }
+                disconnects[address] = result
+                gatts[address]!!.disconnect()
+            }
+            GATT_CONNECTION_LOST -> result.notImplemented()
+            UNRECOGNIZED -> result.notImplemented()
         }
     }
 
@@ -398,49 +394,68 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
         Log.d(TAG, "onCancel")
         sink = null
     }
+
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        this.binding = binding
+        this.binding!!.addRequestPermissionsResultListener(this)
+    }
+
+    override fun onDetachedFromActivity() {
+        binding!!.removeRequestPermissionsResultListener(this)
+        binding = null
+    }
+
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        onAttachedToActivity(binding)
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() {
+        onDetachedFromActivity()
+    }
+
+    override fun onRequestPermissionsResult(
+            requestCode: Int,
+            permissions: Array<out String>?,
+            grantResults: IntArray?
+    ): Boolean {
+        return when {
+            requestCode != REQUEST_CODE || requestPermissionsHandler == null -> false
+            else -> {
+                val granted =
+                        grantResults != null && grantResults.all { result -> result == PackageManager.PERMISSION_GRANTED }
+                requestPermissionsHandler!!.invoke(granted)
+                requestPermissionsHandler = null
+                true
+            }
+        }
+    }
+}
+
+fun Result.success() {
+    success(null)
+}
+
+fun Result.error(code: Int, message: String? = null, details: String? = null) {
+    error("$code", message, details)
 }
 
 val Any.TAG: String
     get() = this::class.java.simpleName
 
-val String.category: MessageCategory
-    get() = valueOf(this)
+val MethodCall.category: MessageCategory
+    get() = valueOf(method)
 
 val Context.missingBluetoothFeature: Boolean
     get() = !packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
 
-val Context.missingBluetoothPermission: Boolean
-    get() {
-        val requested = packageManager.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS).requestedPermissions
-        return !requested.contains(Manifest.permission.BLUETOOTH) || !requested.contains(Manifest.permission.BLUETOOTH_ADMIN)
+val Int.bluetoothState: BluetoothState
+    get() = when (this) {
+        BluetoothAdapter.STATE_OFF -> BluetoothState.POWERED_OFF
+        BluetoothAdapter.STATE_TURNING_ON -> BluetoothState.POWERED_OFF
+        BluetoothAdapter.STATE_ON -> BluetoothState.POWERED_ON
+        BluetoothAdapter.STATE_TURNING_OFF -> BluetoothState.POWERED_ON
+        else -> BluetoothState.UNKNOWN
     }
-
-fun Result.successNew(value: Any? = null) {
-    val looper = Looper.getMainLooper()
-    if (Looper.myLooper() == looper) {
-        success(value)
-    } else {
-        Handler(looper).post { success(value) }
-    }
-}
-
-fun Result.errorNew(code: Int, message: String? = null, details: String? = null) {
-    val looper = Looper.getMainLooper()
-    if (Looper.myLooper() == looper) {
-        error("$code", message, details)
-    } else {
-        Handler(looper).post { error("$code", message, details) }
-    }
-}
-
-fun Result.notImplementedNew() {
-    val looper = Looper.getMainLooper()
-    if (Looper.myLooper() == looper) {
-        notImplemented()
-    } else {
-        Handler(looper).post { notImplemented() }
-    }
-}
 
 val ByteArray.advertisements: Map<Int, ByteString>
     get() {

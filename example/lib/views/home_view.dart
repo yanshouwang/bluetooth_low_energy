@@ -124,10 +124,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     }
     await Navigator.of(context).pushNamed(
       'gatt',
-      arguments: {
-        'central': central,
-        'address': discovery.address,
-      },
+      arguments: discovery.address,
     );
   }
 }
