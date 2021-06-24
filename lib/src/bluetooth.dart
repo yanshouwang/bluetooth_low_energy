@@ -78,9 +78,9 @@ class _Central extends _Bluetooth implements Central {
 
   @override
   Future<GATT> connect(MAC address) => method
-      .invokeMethod<int>(
+      .invokeMethod<List<int>>(
           proto.MessageCategory.CENTRAL_CONNECT.name, address.name)
-      .then((value) => _GATT(address, value!));
+      .map((value) => );
 }
 
 /// The possible states of a bluetooth manager.

@@ -1,5 +1,6 @@
 import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class GattView extends StatefulWidget {
   const GattView({Key? key}) : super(key: key);
@@ -41,9 +42,13 @@ class _GattViewState extends State<GattView> {
   }
 
   void connect() async {
-    gatt = await central.connect(address);
-    state.value = 'Connected with MTU: ${gatt!.mtu}';
-    await gatt!.connectionLost.first;
-    state.value = 'Connection Lost';
+    try {
+      gatt = await central.connect(address);
+      state.value = 'Connected with MTU: ${gatt!.mtu}';
+      await gatt!.connectionLost.first;
+      state.value = 'Connection Lost';
+    } on PlatformException catch (e) {
+      state.value = 'Connect failed with error code: ${e.code}';
+    }
   }
 }

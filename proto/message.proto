@@ -21,6 +21,29 @@ message Discovery {
   map<uint32, bytes> advertisements = 3;
 }
 
+message GATT {
+  int32 mtu = 1;
+  repeated GattService services = 2;
+}
+
+message GattService {
+  string uuid = 1;
+  repeated GattCharacteristic characteristics = 2;
+}
+
+message GattCharacteristic {
+  string uuid = 1;
+  repeated GattDescriptor descriptors = 2;
+  bool canRead = 3;
+  bool canWrite = 4;
+  bool canWriteWithoutResponse = 5;
+  bool canNotify = 6;
+}
+
+message GattDescriptor {
+  string uuid = 1;
+}
+
 message ConnectionLostArguments {
   string address = 1;
   int32 error_code = 2;

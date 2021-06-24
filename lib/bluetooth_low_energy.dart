@@ -1,5 +1,6 @@
 library bluetooth_low_energy;
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:convert/convert.dart';
