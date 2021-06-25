@@ -46,6 +46,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
         private const val REQUEST_PERMISSION_FAILED = 3
         private const val WRONG_CONNECTION_STATE = 4
         private const val REQUEST_MTU_FAILED = 5
+        private const val DISCOVER_SERVICES_FAILED = 6
         private const val REQUEST_CODE = 443
     }
 
@@ -208,6 +209,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
     }
 
     private val connects by lazy { mutableMapOf<String, Result>() }
+    private val mtus by lazy { mutableMapOf<String, Int>() }
     private val disconnects by lazy { mutableMapOf<String, Result>() }
     private val gatts by lazy { mutableMapOf<String, BluetoothGatt>() }
 
@@ -215,50 +217,58 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
         object : BluetoothGattCallback() {
             override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
                 super.onConnectionStateChange(gatt, status, newState)
-                Log.d(TAG, "onConnectionStateChange: address -> ${gatt!!.device.address}; status -> $status; newState -> $newState")
-                val address = gatt.device.address
-                if (status == BluetoothGatt.GATT_SUCCESS) {
-                    when (newState) {
-                        BluetoothProfile.STATE_CONNECTED -> {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                // TODO: how to get local MTU size here?
-                                val failed = !gatt.requestMtu(512)
-                                if (failed) {
-                                    gatts.remove(address)!!.close()
-                                    val result = connects.remove(address)!!
-                                    handler.post { result.error(REQUEST_MTU_FAILED) }
+                val address = gatt!!.device.address
+                when (status) {
+                    BluetoothGatt.GATT_SUCCESS -> {
+                        when (newState) {
+                            BluetoothProfile.STATE_CONNECTED -> {
+                                val code = when {
+                                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP -> {
+                                        // TODO: how to get local MTU size here?
+                                        if (gatt.requestMtu(512)) NO_ERROR
+                                        else REQUEST_MTU_FAILED
+                                    }
+                                    else -> {
+                                        if (gatt.discoverServices()) {
+                                            // Just use 23 as MTU before LOLLIPOP.
+                                            mtus[address] = 23
+                                            NO_ERROR
+                                        } else DISCOVER_SERVICES_FAILED
+                                    }
                                 }
-                            } else {
-                                // Just use 23 as MTU before LOLLIPOP.
-                                val result = connects.remove(address)!!
-                                handler.post { result.success(23) }
+                                if (code != NO_ERROR) {
+                                    gatts.remove(address)!!.close()
+                                    val connect = connects.remove(address)!!
+                                    handler.post { connect.error(code) }
+                                }
                             }
+                            BluetoothProfile.STATE_DISCONNECTED -> {
+                                gatts.remove(address)!!.close()
+                                val disconnect = disconnects.remove(address)!!
+                                handler.post { disconnect.success() }
+                            }
+                            else -> throw NotImplementedError() // should never be called.
                         }
-                        BluetoothProfile.STATE_DISCONNECTED -> {
-                            gatts.remove(address)!!.close()
-                            val result = disconnects[address]!!
-                            handler.post { result.success() }
-                        }
-                        else -> throw NotImplementedError() // should never be called.
                     }
-                } else {
-                    gatts.remove(address)!!.close()
-                    val connect = connects[address]
-                    val disconnect = disconnects[address]
-                    when {
-                        connect != null -> handler.post { connect.error(status) }
-                        disconnect != null -> handler.post { disconnect.error(status) }
-                        else -> {
-                            val connectionLostArguments = ConnectionLostArguments.newBuilder()
-                                    .setAddress(address)
-                                    .setErrorCode(status)
-                                    .build()
-                            val event = Message.newBuilder()
-                                    .setCategory(GATT_CONNECTION_LOST)
-                                    .setConnectionLostArguments(connectionLostArguments)
-                                    .build()
-                                    .toByteArray()
-                            handler.post { sink?.success(event) }
+                    else -> {
+                        gatts.remove(address)!!.close()
+                        val connect = connects.remove(address)
+                        val disconnect = disconnects.remove(address)
+                        when {
+                            connect != null -> handler.post { connect.error(status) }
+                            disconnect != null -> handler.post { disconnect.error(status) }
+                            else -> {
+                                val connectionLostArguments = ConnectionLostArguments.newBuilder()
+                                        .setAddress(address)
+                                        .setErrorCode(status)
+                                        .build()
+                                val event = Message.newBuilder()
+                                        .setCategory(GATT_CONNECTION_LOST)
+                                        .setConnectionLostArguments(connectionLostArguments)
+                                        .build()
+                                        .toByteArray()
+                                handler.post { sink?.success(event) }
+                            }
                         }
                     }
                 }
@@ -266,14 +276,65 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
 
             override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
                 super.onMtuChanged(gatt, mtu, status)
-                Log.d(TAG, "onMtuChanged: gatt -> ${gatt!!.device.address}; mtu -> $mtu; status -> $status")
-                val address = gatt.device.address
-                val connect = connects.remove(address)!!
-                if (status == BluetoothGatt.GATT_SUCCESS) {
-                    handler.post { connect.success(mtu) }
-                } else {
+                val address = gatt!!.device.address
+                val code = when (status) {
+                    BluetoothGatt.GATT_SUCCESS -> {
+                        if (gatt.discoverServices()) {
+                            mtus[address] = mtu
+                            NO_ERROR
+                        } else DISCOVER_SERVICES_FAILED
+                    }
+                    else -> status
+                }
+                if (code != NO_ERROR) {
                     gatts.remove(address)!!.close()
-                    handler.post { connect.error(status) }
+                    val connect = connects.remove(address)!!
+                    handler.post { connect.error(code) }
+                }
+            }
+
+            override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
+                super.onServicesDiscovered(gatt, status)
+                val address = gatt!!.device.address
+                val connect = connects.remove(address)!!
+                val mtu = mtus.remove(address)!!
+                when (status) {
+                    BluetoothGatt.GATT_SUCCESS -> {
+                        val services = gatt.services.map { service ->
+                            val serviceUUID = service.uuid.toString()
+                            val characteristics = service.characteristics.map { characteristic ->
+                                val characteristicUUID = characteristic.uuid.toString()
+                                val properties = characteristic.properties
+                                val canRead = properties and BluetoothGattCharacteristic.PROPERTY_READ != 0
+                                val canWrite = properties and BluetoothGattCharacteristic.PROPERTY_WRITE != 0
+                                val canWriteWithoutResponse = properties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE != 0
+                                val canNotify = properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY != 0
+                                val descriptors = characteristic.descriptors.map { descriptor ->
+                                    val descriptorUUID = descriptor.uuid.toString()
+                                    GattDescriptor.newBuilder()
+                                            .setUuid(descriptorUUID)
+                                            .build()
+                                }
+                                GattCharacteristic.newBuilder()
+                                        .setUuid(characteristicUUID)
+                                        .setCanRead(canRead)
+                                        .setCanWrite(canWrite)
+                                        .setCanWriteWithoutResponse(canWriteWithoutResponse)
+                                        .setCanNotify(canNotify)
+                                        .addAllDescriptors(descriptors)
+                                        .build()
+                            }
+                            GattService.newBuilder()
+                                    .setUuid(serviceUUID)
+                                    .addAllCharacteristics(characteristics).build()
+                        }
+                        val reply = GATT.newBuilder().setMtu(mtu).addAllServices(services).build().toByteArray()
+                        handler.post { connect.success(reply) }
+                    }
+                    else -> {
+                        gatts.remove(address)!!.close()
+                        handler.post { connect.error(status) }
+                    }
                 }
             }
         }
@@ -359,12 +420,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                     connects[address] = result
                     val gatt = when {
                         // Use TRANSPORT_LE to avoid none flag device on Android 23 or later.
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> device.connectGatt(
-                                context,
-                                false,
-                                bluetoothGattCallback,
-                                BluetoothDevice.TRANSPORT_LE
-                        )
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> device.connectGatt(context, false, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE)
                         else -> device.connectGatt(context, false, bluetoothGattCallback)
                     }
                     gatts[address] = gatt

@@ -48,6 +48,8 @@ extension on String {
   }
 
   MAC get conversionOfMAC => MAC(this);
+
+  UUID get conversionOfUUID => UUID(this);
 }
 
 extension on proto.BluetoothState {
@@ -57,4 +59,40 @@ extension on proto.BluetoothState {
 extension on proto.Discovery {
   Discovery get conversion =>
       Discovery(address.conversionOfMAC, rssi, advertisements);
+}
+
+extension on proto.GATT {
+  GATT convert(MAC address) {
+    final convertedServices =
+        services.map((service) => service.conversion).toList();
+    return _GATT(address, mtu, convertedServices);
+  }
+}
+
+extension on proto.GattService {
+  GattService get conversion {
+    final convertedCharacteristics = characteristics
+        .map((characteristic) => characteristic.conversion)
+        .toList();
+    return _GattService(uuid.conversionOfUUID, convertedCharacteristics);
+  }
+}
+
+extension on proto.GattCharacteristic {
+  GattCharacteristic get conversion {
+    final convertedDescriptors =
+        descriptors.map((descriptor) => descriptor.conversion).toList();
+    return _GattCharacteristic(
+      uuid.conversionOfUUID,
+      convertedDescriptors,
+      canRead,
+      canWrite,
+      canWriteWithoutResponse,
+      canNotify,
+    );
+  }
+}
+
+extension on proto.GattDescriptor {
+  GattDescriptor get conversion => _GattDescriptor(uuid.conversionOfUUID);
 }

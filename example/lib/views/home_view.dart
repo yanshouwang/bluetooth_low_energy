@@ -32,9 +32,9 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     discoverySubscription = central.discovered.listen(
       (discovery) {
         discoveries.value[discovery.address] = discovery;
-        discoveries.value = discoveries.value.map(
-          (key, value) => MapEntry(key, value),
-        );
+        var entries = discoveries.value.entries.toList();
+        entries.sort((a, b) => b.value.rssi.compareTo(a.value.rssi));
+        discoveries.value = Map.fromEntries(entries);
         // discoveries.notifyListeners();
       },
     );

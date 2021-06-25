@@ -3224,6 +3224,3607 @@ public final class MessageOuterClass {
 
   }
 
+  public interface GATTOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:dev.yanshouwang.bluetooth_low_energy.GATT)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>int32 mtu = 1;</code>
+     * @return The mtu.
+     */
+    int getMtu();
+
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+     */
+    java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService> 
+        getServicesList();
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+     */
+    dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService getServices(int index);
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+     */
+    int getServicesCount();
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+     */
+    java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattServiceOrBuilder> 
+        getServicesOrBuilderList();
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+     */
+    dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattServiceOrBuilder getServicesOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code dev.yanshouwang.bluetooth_low_energy.GATT}
+   */
+  public static final class GATT extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:dev.yanshouwang.bluetooth_low_energy.GATT)
+      GATTOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use GATT.newBuilder() to construct.
+    private GATT(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private GATT() {
+      services_ = java.util.Collections.emptyList();
+    }
+
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new GATT();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private GATT(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 8: {
+
+              mtu_ = input.readInt32();
+              break;
+            }
+            case 18: {
+              if (!((mutable_bitField0_ & 0x00000001) != 0)) {
+                services_ = new java.util.ArrayList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              services_.add(
+                  input.readMessage(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.parser(), extensionRegistry));
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) != 0)) {
+          services_ = java.util.Collections.unmodifiableList(services_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GATT_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GATT_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT.Builder.class);
+    }
+
+    public static final int MTU_FIELD_NUMBER = 1;
+    private int mtu_;
+    /**
+     * <code>int32 mtu = 1;</code>
+     * @return The mtu.
+     */
+    @java.lang.Override
+    public int getMtu() {
+      return mtu_;
+    }
+
+    public static final int SERVICES_FIELD_NUMBER = 2;
+    private java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService> services_;
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+     */
+    @java.lang.Override
+    public java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService> getServicesList() {
+      return services_;
+    }
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+     */
+    @java.lang.Override
+    public java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattServiceOrBuilder> 
+        getServicesOrBuilderList() {
+      return services_;
+    }
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+     */
+    @java.lang.Override
+    public int getServicesCount() {
+      return services_.size();
+    }
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+     */
+    @java.lang.Override
+    public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService getServices(int index) {
+      return services_.get(index);
+    }
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+     */
+    @java.lang.Override
+    public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattServiceOrBuilder getServicesOrBuilder(
+        int index) {
+      return services_.get(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (mtu_ != 0) {
+        output.writeInt32(1, mtu_);
+      }
+      for (int i = 0; i < services_.size(); i++) {
+        output.writeMessage(2, services_.get(i));
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (mtu_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1, mtu_);
+      }
+      for (int i = 0; i < services_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, services_.get(i));
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT)) {
+        return super.equals(obj);
+      }
+      dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT other = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT) obj;
+
+      if (getMtu()
+          != other.getMtu()) return false;
+      if (!getServicesList()
+          .equals(other.getServicesList())) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + MTU_FIELD_NUMBER;
+      hash = (53 * hash) + getMtu();
+      if (getServicesCount() > 0) {
+        hash = (37 * hash) + SERVICES_FIELD_NUMBER;
+        hash = (53 * hash) + getServicesList().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code dev.yanshouwang.bluetooth_low_energy.GATT}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:dev.yanshouwang.bluetooth_low_energy.GATT)
+        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATTOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GATT_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GATT_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT.Builder.class);
+      }
+
+      // Construct using dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+          getServicesFieldBuilder();
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        mtu_ = 0;
+
+        if (servicesBuilder_ == null) {
+          services_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          servicesBuilder_.clear();
+        }
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GATT_descriptor;
+      }
+
+      @java.lang.Override
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT getDefaultInstanceForType() {
+        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT build() {
+        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT buildPartial() {
+        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT(this);
+        int from_bitField0_ = bitField0_;
+        result.mtu_ = mtu_;
+        if (servicesBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) != 0)) {
+            services_ = java.util.Collections.unmodifiableList(services_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.services_ = services_;
+        } else {
+          result.services_ = servicesBuilder_.build();
+        }
+        onBuilt();
+        return result;
+      }
+
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT) {
+          return mergeFrom((dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT other) {
+        if (other == dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT.getDefaultInstance()) return this;
+        if (other.getMtu() != 0) {
+          setMtu(other.getMtu());
+        }
+        if (servicesBuilder_ == null) {
+          if (!other.services_.isEmpty()) {
+            if (services_.isEmpty()) {
+              services_ = other.services_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureServicesIsMutable();
+              services_.addAll(other.services_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.services_.isEmpty()) {
+            if (servicesBuilder_.isEmpty()) {
+              servicesBuilder_.dispose();
+              servicesBuilder_ = null;
+              services_ = other.services_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              servicesBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getServicesFieldBuilder() : null;
+            } else {
+              servicesBuilder_.addAllMessages(other.services_);
+            }
+          }
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private int mtu_ ;
+      /**
+       * <code>int32 mtu = 1;</code>
+       * @return The mtu.
+       */
+      @java.lang.Override
+      public int getMtu() {
+        return mtu_;
+      }
+      /**
+       * <code>int32 mtu = 1;</code>
+       * @param value The mtu to set.
+       * @return This builder for chaining.
+       */
+      public Builder setMtu(int value) {
+        
+        mtu_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int32 mtu = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearMtu() {
+        
+        mtu_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService> services_ =
+        java.util.Collections.emptyList();
+      private void ensureServicesIsMutable() {
+        if (!((bitField0_ & 0x00000001) != 0)) {
+          services_ = new java.util.ArrayList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService>(services_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.Builder, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattServiceOrBuilder> servicesBuilder_;
+
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService> getServicesList() {
+        if (servicesBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(services_);
+        } else {
+          return servicesBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public int getServicesCount() {
+        if (servicesBuilder_ == null) {
+          return services_.size();
+        } else {
+          return servicesBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService getServices(int index) {
+        if (servicesBuilder_ == null) {
+          return services_.get(index);
+        } else {
+          return servicesBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public Builder setServices(
+          int index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService value) {
+        if (servicesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureServicesIsMutable();
+          services_.set(index, value);
+          onChanged();
+        } else {
+          servicesBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public Builder setServices(
+          int index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.Builder builderForValue) {
+        if (servicesBuilder_ == null) {
+          ensureServicesIsMutable();
+          services_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          servicesBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public Builder addServices(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService value) {
+        if (servicesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureServicesIsMutable();
+          services_.add(value);
+          onChanged();
+        } else {
+          servicesBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public Builder addServices(
+          int index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService value) {
+        if (servicesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureServicesIsMutable();
+          services_.add(index, value);
+          onChanged();
+        } else {
+          servicesBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public Builder addServices(
+          dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.Builder builderForValue) {
+        if (servicesBuilder_ == null) {
+          ensureServicesIsMutable();
+          services_.add(builderForValue.build());
+          onChanged();
+        } else {
+          servicesBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public Builder addServices(
+          int index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.Builder builderForValue) {
+        if (servicesBuilder_ == null) {
+          ensureServicesIsMutable();
+          services_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          servicesBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public Builder addAllServices(
+          java.lang.Iterable<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService> values) {
+        if (servicesBuilder_ == null) {
+          ensureServicesIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, services_);
+          onChanged();
+        } else {
+          servicesBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public Builder clearServices() {
+        if (servicesBuilder_ == null) {
+          services_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          servicesBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public Builder removeServices(int index) {
+        if (servicesBuilder_ == null) {
+          ensureServicesIsMutable();
+          services_.remove(index);
+          onChanged();
+        } else {
+          servicesBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.Builder getServicesBuilder(
+          int index) {
+        return getServicesFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattServiceOrBuilder getServicesOrBuilder(
+          int index) {
+        if (servicesBuilder_ == null) {
+          return services_.get(index);  } else {
+          return servicesBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattServiceOrBuilder> 
+           getServicesOrBuilderList() {
+        if (servicesBuilder_ != null) {
+          return servicesBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(services_);
+        }
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.Builder addServicesBuilder() {
+        return getServicesFieldBuilder().addBuilder(
+            dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.Builder addServicesBuilder(
+          int index) {
+        return getServicesFieldBuilder().addBuilder(
+            index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+       */
+      public java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.Builder> 
+           getServicesBuilderList() {
+        return getServicesFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.Builder, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattServiceOrBuilder> 
+          getServicesFieldBuilder() {
+        if (servicesBuilder_ == null) {
+          servicesBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.Builder, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattServiceOrBuilder>(
+                  services_,
+                  ((bitField0_ & 0x00000001) != 0),
+                  getParentForChildren(),
+                  isClean());
+          services_ = null;
+        }
+        return servicesBuilder_;
+      }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:dev.yanshouwang.bluetooth_low_energy.GATT)
+    }
+
+    // @@protoc_insertion_point(class_scope:dev.yanshouwang.bluetooth_low_energy.GATT)
+    private static final dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT();
+    }
+
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<GATT>
+        PARSER = new com.google.protobuf.AbstractParser<GATT>() {
+      @java.lang.Override
+      public GATT parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new GATT(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<GATT> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<GATT> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface GattServiceOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:dev.yanshouwang.bluetooth_low_energy.GattService)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>string uuid = 1;</code>
+     * @return The uuid.
+     */
+    java.lang.String getUuid();
+    /**
+     * <code>string uuid = 1;</code>
+     * @return The bytes for uuid.
+     */
+    com.google.protobuf.ByteString
+        getUuidBytes();
+
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+     */
+    java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic> 
+        getCharacteristicsList();
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+     */
+    dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic getCharacteristics(int index);
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+     */
+    int getCharacteristicsCount();
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+     */
+    java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicOrBuilder> 
+        getCharacteristicsOrBuilderList();
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+     */
+    dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicOrBuilder getCharacteristicsOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code dev.yanshouwang.bluetooth_low_energy.GattService}
+   */
+  public static final class GattService extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:dev.yanshouwang.bluetooth_low_energy.GattService)
+      GattServiceOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use GattService.newBuilder() to construct.
+    private GattService(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private GattService() {
+      uuid_ = "";
+      characteristics_ = java.util.Collections.emptyList();
+    }
+
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new GattService();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private GattService(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              uuid_ = s;
+              break;
+            }
+            case 18: {
+              if (!((mutable_bitField0_ & 0x00000001) != 0)) {
+                characteristics_ = new java.util.ArrayList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              characteristics_.add(
+                  input.readMessage(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.parser(), extensionRegistry));
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) != 0)) {
+          characteristics_ = java.util.Collections.unmodifiableList(characteristics_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GattService_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GattService_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.Builder.class);
+    }
+
+    public static final int UUID_FIELD_NUMBER = 1;
+    private volatile java.lang.Object uuid_;
+    /**
+     * <code>string uuid = 1;</code>
+     * @return The uuid.
+     */
+    @java.lang.Override
+    public java.lang.String getUuid() {
+      java.lang.Object ref = uuid_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        uuid_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string uuid = 1;</code>
+     * @return The bytes for uuid.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getUuidBytes() {
+      java.lang.Object ref = uuid_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        uuid_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int CHARACTERISTICS_FIELD_NUMBER = 2;
+    private java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic> characteristics_;
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+     */
+    @java.lang.Override
+    public java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic> getCharacteristicsList() {
+      return characteristics_;
+    }
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+     */
+    @java.lang.Override
+    public java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicOrBuilder> 
+        getCharacteristicsOrBuilderList() {
+      return characteristics_;
+    }
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+     */
+    @java.lang.Override
+    public int getCharacteristicsCount() {
+      return characteristics_.size();
+    }
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+     */
+    @java.lang.Override
+    public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic getCharacteristics(int index) {
+      return characteristics_.get(index);
+    }
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+     */
+    @java.lang.Override
+    public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicOrBuilder getCharacteristicsOrBuilder(
+        int index) {
+      return characteristics_.get(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!getUuidBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, uuid_);
+      }
+      for (int i = 0; i < characteristics_.size(); i++) {
+        output.writeMessage(2, characteristics_.get(i));
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!getUuidBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, uuid_);
+      }
+      for (int i = 0; i < characteristics_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, characteristics_.get(i));
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService)) {
+        return super.equals(obj);
+      }
+      dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService other = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService) obj;
+
+      if (!getUuid()
+          .equals(other.getUuid())) return false;
+      if (!getCharacteristicsList()
+          .equals(other.getCharacteristicsList())) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + UUID_FIELD_NUMBER;
+      hash = (53 * hash) + getUuid().hashCode();
+      if (getCharacteristicsCount() > 0) {
+        hash = (37 * hash) + CHARACTERISTICS_FIELD_NUMBER;
+        hash = (53 * hash) + getCharacteristicsList().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code dev.yanshouwang.bluetooth_low_energy.GattService}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:dev.yanshouwang.bluetooth_low_energy.GattService)
+        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattServiceOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GattService_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GattService_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.Builder.class);
+      }
+
+      // Construct using dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+          getCharacteristicsFieldBuilder();
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        uuid_ = "";
+
+        if (characteristicsBuilder_ == null) {
+          characteristics_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          characteristicsBuilder_.clear();
+        }
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GattService_descriptor;
+      }
+
+      @java.lang.Override
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService getDefaultInstanceForType() {
+        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService build() {
+        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService buildPartial() {
+        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService(this);
+        int from_bitField0_ = bitField0_;
+        result.uuid_ = uuid_;
+        if (characteristicsBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) != 0)) {
+            characteristics_ = java.util.Collections.unmodifiableList(characteristics_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.characteristics_ = characteristics_;
+        } else {
+          result.characteristics_ = characteristicsBuilder_.build();
+        }
+        onBuilt();
+        return result;
+      }
+
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService) {
+          return mergeFrom((dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService other) {
+        if (other == dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.getDefaultInstance()) return this;
+        if (!other.getUuid().isEmpty()) {
+          uuid_ = other.uuid_;
+          onChanged();
+        }
+        if (characteristicsBuilder_ == null) {
+          if (!other.characteristics_.isEmpty()) {
+            if (characteristics_.isEmpty()) {
+              characteristics_ = other.characteristics_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureCharacteristicsIsMutable();
+              characteristics_.addAll(other.characteristics_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.characteristics_.isEmpty()) {
+            if (characteristicsBuilder_.isEmpty()) {
+              characteristicsBuilder_.dispose();
+              characteristicsBuilder_ = null;
+              characteristics_ = other.characteristics_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              characteristicsBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getCharacteristicsFieldBuilder() : null;
+            } else {
+              characteristicsBuilder_.addAllMessages(other.characteristics_);
+            }
+          }
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object uuid_ = "";
+      /**
+       * <code>string uuid = 1;</code>
+       * @return The uuid.
+       */
+      public java.lang.String getUuid() {
+        java.lang.Object ref = uuid_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          uuid_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string uuid = 1;</code>
+       * @return The bytes for uuid.
+       */
+      public com.google.protobuf.ByteString
+          getUuidBytes() {
+        java.lang.Object ref = uuid_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          uuid_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string uuid = 1;</code>
+       * @param value The uuid to set.
+       * @return This builder for chaining.
+       */
+      public Builder setUuid(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        uuid_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string uuid = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearUuid() {
+        
+        uuid_ = getDefaultInstance().getUuid();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string uuid = 1;</code>
+       * @param value The bytes for uuid to set.
+       * @return This builder for chaining.
+       */
+      public Builder setUuidBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        uuid_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic> characteristics_ =
+        java.util.Collections.emptyList();
+      private void ensureCharacteristicsIsMutable() {
+        if (!((bitField0_ & 0x00000001) != 0)) {
+          characteristics_ = new java.util.ArrayList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic>(characteristics_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.Builder, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicOrBuilder> characteristicsBuilder_;
+
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic> getCharacteristicsList() {
+        if (characteristicsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(characteristics_);
+        } else {
+          return characteristicsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public int getCharacteristicsCount() {
+        if (characteristicsBuilder_ == null) {
+          return characteristics_.size();
+        } else {
+          return characteristicsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic getCharacteristics(int index) {
+        if (characteristicsBuilder_ == null) {
+          return characteristics_.get(index);
+        } else {
+          return characteristicsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public Builder setCharacteristics(
+          int index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic value) {
+        if (characteristicsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureCharacteristicsIsMutable();
+          characteristics_.set(index, value);
+          onChanged();
+        } else {
+          characteristicsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public Builder setCharacteristics(
+          int index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.Builder builderForValue) {
+        if (characteristicsBuilder_ == null) {
+          ensureCharacteristicsIsMutable();
+          characteristics_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          characteristicsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public Builder addCharacteristics(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic value) {
+        if (characteristicsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureCharacteristicsIsMutable();
+          characteristics_.add(value);
+          onChanged();
+        } else {
+          characteristicsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public Builder addCharacteristics(
+          int index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic value) {
+        if (characteristicsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureCharacteristicsIsMutable();
+          characteristics_.add(index, value);
+          onChanged();
+        } else {
+          characteristicsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public Builder addCharacteristics(
+          dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.Builder builderForValue) {
+        if (characteristicsBuilder_ == null) {
+          ensureCharacteristicsIsMutable();
+          characteristics_.add(builderForValue.build());
+          onChanged();
+        } else {
+          characteristicsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public Builder addCharacteristics(
+          int index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.Builder builderForValue) {
+        if (characteristicsBuilder_ == null) {
+          ensureCharacteristicsIsMutable();
+          characteristics_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          characteristicsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public Builder addAllCharacteristics(
+          java.lang.Iterable<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic> values) {
+        if (characteristicsBuilder_ == null) {
+          ensureCharacteristicsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, characteristics_);
+          onChanged();
+        } else {
+          characteristicsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public Builder clearCharacteristics() {
+        if (characteristicsBuilder_ == null) {
+          characteristics_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          characteristicsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public Builder removeCharacteristics(int index) {
+        if (characteristicsBuilder_ == null) {
+          ensureCharacteristicsIsMutable();
+          characteristics_.remove(index);
+          onChanged();
+        } else {
+          characteristicsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.Builder getCharacteristicsBuilder(
+          int index) {
+        return getCharacteristicsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicOrBuilder getCharacteristicsOrBuilder(
+          int index) {
+        if (characteristicsBuilder_ == null) {
+          return characteristics_.get(index);  } else {
+          return characteristicsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicOrBuilder> 
+           getCharacteristicsOrBuilderList() {
+        if (characteristicsBuilder_ != null) {
+          return characteristicsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(characteristics_);
+        }
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.Builder addCharacteristicsBuilder() {
+        return getCharacteristicsFieldBuilder().addBuilder(
+            dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.Builder addCharacteristicsBuilder(
+          int index) {
+        return getCharacteristicsFieldBuilder().addBuilder(
+            index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+       */
+      public java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.Builder> 
+           getCharacteristicsBuilderList() {
+        return getCharacteristicsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.Builder, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicOrBuilder> 
+          getCharacteristicsFieldBuilder() {
+        if (characteristicsBuilder_ == null) {
+          characteristicsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.Builder, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicOrBuilder>(
+                  characteristics_,
+                  ((bitField0_ & 0x00000001) != 0),
+                  getParentForChildren(),
+                  isClean());
+          characteristics_ = null;
+        }
+        return characteristicsBuilder_;
+      }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:dev.yanshouwang.bluetooth_low_energy.GattService)
+    }
+
+    // @@protoc_insertion_point(class_scope:dev.yanshouwang.bluetooth_low_energy.GattService)
+    private static final dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService();
+    }
+
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<GattService>
+        PARSER = new com.google.protobuf.AbstractParser<GattService>() {
+      @java.lang.Override
+      public GattService parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new GattService(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<GattService> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<GattService> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface GattCharacteristicOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:dev.yanshouwang.bluetooth_low_energy.GattCharacteristic)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>string uuid = 1;</code>
+     * @return The uuid.
+     */
+    java.lang.String getUuid();
+    /**
+     * <code>string uuid = 1;</code>
+     * @return The bytes for uuid.
+     */
+    com.google.protobuf.ByteString
+        getUuidBytes();
+
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+     */
+    java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor> 
+        getDescriptorsList();
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+     */
+    dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor getDescriptors(int index);
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+     */
+    int getDescriptorsCount();
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+     */
+    java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder> 
+        getDescriptorsOrBuilderList();
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+     */
+    dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder getDescriptorsOrBuilder(
+        int index);
+
+    /**
+     * <code>bool canRead = 3;</code>
+     * @return The canRead.
+     */
+    boolean getCanRead();
+
+    /**
+     * <code>bool canWrite = 4;</code>
+     * @return The canWrite.
+     */
+    boolean getCanWrite();
+
+    /**
+     * <code>bool canWriteWithoutResponse = 5;</code>
+     * @return The canWriteWithoutResponse.
+     */
+    boolean getCanWriteWithoutResponse();
+
+    /**
+     * <code>bool canNotify = 6;</code>
+     * @return The canNotify.
+     */
+    boolean getCanNotify();
+  }
+  /**
+   * Protobuf type {@code dev.yanshouwang.bluetooth_low_energy.GattCharacteristic}
+   */
+  public static final class GattCharacteristic extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:dev.yanshouwang.bluetooth_low_energy.GattCharacteristic)
+      GattCharacteristicOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use GattCharacteristic.newBuilder() to construct.
+    private GattCharacteristic(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private GattCharacteristic() {
+      uuid_ = "";
+      descriptors_ = java.util.Collections.emptyList();
+    }
+
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new GattCharacteristic();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private GattCharacteristic(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              uuid_ = s;
+              break;
+            }
+            case 18: {
+              if (!((mutable_bitField0_ & 0x00000001) != 0)) {
+                descriptors_ = new java.util.ArrayList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              descriptors_.add(
+                  input.readMessage(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.parser(), extensionRegistry));
+              break;
+            }
+            case 24: {
+
+              canRead_ = input.readBool();
+              break;
+            }
+            case 32: {
+
+              canWrite_ = input.readBool();
+              break;
+            }
+            case 40: {
+
+              canWriteWithoutResponse_ = input.readBool();
+              break;
+            }
+            case 48: {
+
+              canNotify_ = input.readBool();
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) != 0)) {
+          descriptors_ = java.util.Collections.unmodifiableList(descriptors_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristic_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristic_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.Builder.class);
+    }
+
+    public static final int UUID_FIELD_NUMBER = 1;
+    private volatile java.lang.Object uuid_;
+    /**
+     * <code>string uuid = 1;</code>
+     * @return The uuid.
+     */
+    @java.lang.Override
+    public java.lang.String getUuid() {
+      java.lang.Object ref = uuid_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        uuid_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string uuid = 1;</code>
+     * @return The bytes for uuid.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getUuidBytes() {
+      java.lang.Object ref = uuid_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        uuid_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int DESCRIPTORS_FIELD_NUMBER = 2;
+    private java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor> descriptors_;
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+     */
+    @java.lang.Override
+    public java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor> getDescriptorsList() {
+      return descriptors_;
+    }
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+     */
+    @java.lang.Override
+    public java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder> 
+        getDescriptorsOrBuilderList() {
+      return descriptors_;
+    }
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+     */
+    @java.lang.Override
+    public int getDescriptorsCount() {
+      return descriptors_.size();
+    }
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+     */
+    @java.lang.Override
+    public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor getDescriptors(int index) {
+      return descriptors_.get(index);
+    }
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+     */
+    @java.lang.Override
+    public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder getDescriptorsOrBuilder(
+        int index) {
+      return descriptors_.get(index);
+    }
+
+    public static final int CANREAD_FIELD_NUMBER = 3;
+    private boolean canRead_;
+    /**
+     * <code>bool canRead = 3;</code>
+     * @return The canRead.
+     */
+    @java.lang.Override
+    public boolean getCanRead() {
+      return canRead_;
+    }
+
+    public static final int CANWRITE_FIELD_NUMBER = 4;
+    private boolean canWrite_;
+    /**
+     * <code>bool canWrite = 4;</code>
+     * @return The canWrite.
+     */
+    @java.lang.Override
+    public boolean getCanWrite() {
+      return canWrite_;
+    }
+
+    public static final int CANWRITEWITHOUTRESPONSE_FIELD_NUMBER = 5;
+    private boolean canWriteWithoutResponse_;
+    /**
+     * <code>bool canWriteWithoutResponse = 5;</code>
+     * @return The canWriteWithoutResponse.
+     */
+    @java.lang.Override
+    public boolean getCanWriteWithoutResponse() {
+      return canWriteWithoutResponse_;
+    }
+
+    public static final int CANNOTIFY_FIELD_NUMBER = 6;
+    private boolean canNotify_;
+    /**
+     * <code>bool canNotify = 6;</code>
+     * @return The canNotify.
+     */
+    @java.lang.Override
+    public boolean getCanNotify() {
+      return canNotify_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!getUuidBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, uuid_);
+      }
+      for (int i = 0; i < descriptors_.size(); i++) {
+        output.writeMessage(2, descriptors_.get(i));
+      }
+      if (canRead_ != false) {
+        output.writeBool(3, canRead_);
+      }
+      if (canWrite_ != false) {
+        output.writeBool(4, canWrite_);
+      }
+      if (canWriteWithoutResponse_ != false) {
+        output.writeBool(5, canWriteWithoutResponse_);
+      }
+      if (canNotify_ != false) {
+        output.writeBool(6, canNotify_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!getUuidBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, uuid_);
+      }
+      for (int i = 0; i < descriptors_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, descriptors_.get(i));
+      }
+      if (canRead_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(3, canRead_);
+      }
+      if (canWrite_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(4, canWrite_);
+      }
+      if (canWriteWithoutResponse_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(5, canWriteWithoutResponse_);
+      }
+      if (canNotify_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(6, canNotify_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic)) {
+        return super.equals(obj);
+      }
+      dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic other = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic) obj;
+
+      if (!getUuid()
+          .equals(other.getUuid())) return false;
+      if (!getDescriptorsList()
+          .equals(other.getDescriptorsList())) return false;
+      if (getCanRead()
+          != other.getCanRead()) return false;
+      if (getCanWrite()
+          != other.getCanWrite()) return false;
+      if (getCanWriteWithoutResponse()
+          != other.getCanWriteWithoutResponse()) return false;
+      if (getCanNotify()
+          != other.getCanNotify()) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + UUID_FIELD_NUMBER;
+      hash = (53 * hash) + getUuid().hashCode();
+      if (getDescriptorsCount() > 0) {
+        hash = (37 * hash) + DESCRIPTORS_FIELD_NUMBER;
+        hash = (53 * hash) + getDescriptorsList().hashCode();
+      }
+      hash = (37 * hash) + CANREAD_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getCanRead());
+      hash = (37 * hash) + CANWRITE_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getCanWrite());
+      hash = (37 * hash) + CANWRITEWITHOUTRESPONSE_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getCanWriteWithoutResponse());
+      hash = (37 * hash) + CANNOTIFY_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getCanNotify());
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code dev.yanshouwang.bluetooth_low_energy.GattCharacteristic}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:dev.yanshouwang.bluetooth_low_energy.GattCharacteristic)
+        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristic_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristic_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.Builder.class);
+      }
+
+      // Construct using dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+          getDescriptorsFieldBuilder();
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        uuid_ = "";
+
+        if (descriptorsBuilder_ == null) {
+          descriptors_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          descriptorsBuilder_.clear();
+        }
+        canRead_ = false;
+
+        canWrite_ = false;
+
+        canWriteWithoutResponse_ = false;
+
+        canNotify_ = false;
+
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristic_descriptor;
+      }
+
+      @java.lang.Override
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic getDefaultInstanceForType() {
+        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic build() {
+        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic buildPartial() {
+        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic(this);
+        int from_bitField0_ = bitField0_;
+        result.uuid_ = uuid_;
+        if (descriptorsBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) != 0)) {
+            descriptors_ = java.util.Collections.unmodifiableList(descriptors_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.descriptors_ = descriptors_;
+        } else {
+          result.descriptors_ = descriptorsBuilder_.build();
+        }
+        result.canRead_ = canRead_;
+        result.canWrite_ = canWrite_;
+        result.canWriteWithoutResponse_ = canWriteWithoutResponse_;
+        result.canNotify_ = canNotify_;
+        onBuilt();
+        return result;
+      }
+
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic) {
+          return mergeFrom((dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic other) {
+        if (other == dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.getDefaultInstance()) return this;
+        if (!other.getUuid().isEmpty()) {
+          uuid_ = other.uuid_;
+          onChanged();
+        }
+        if (descriptorsBuilder_ == null) {
+          if (!other.descriptors_.isEmpty()) {
+            if (descriptors_.isEmpty()) {
+              descriptors_ = other.descriptors_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureDescriptorsIsMutable();
+              descriptors_.addAll(other.descriptors_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.descriptors_.isEmpty()) {
+            if (descriptorsBuilder_.isEmpty()) {
+              descriptorsBuilder_.dispose();
+              descriptorsBuilder_ = null;
+              descriptors_ = other.descriptors_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              descriptorsBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getDescriptorsFieldBuilder() : null;
+            } else {
+              descriptorsBuilder_.addAllMessages(other.descriptors_);
+            }
+          }
+        }
+        if (other.getCanRead() != false) {
+          setCanRead(other.getCanRead());
+        }
+        if (other.getCanWrite() != false) {
+          setCanWrite(other.getCanWrite());
+        }
+        if (other.getCanWriteWithoutResponse() != false) {
+          setCanWriteWithoutResponse(other.getCanWriteWithoutResponse());
+        }
+        if (other.getCanNotify() != false) {
+          setCanNotify(other.getCanNotify());
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object uuid_ = "";
+      /**
+       * <code>string uuid = 1;</code>
+       * @return The uuid.
+       */
+      public java.lang.String getUuid() {
+        java.lang.Object ref = uuid_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          uuid_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string uuid = 1;</code>
+       * @return The bytes for uuid.
+       */
+      public com.google.protobuf.ByteString
+          getUuidBytes() {
+        java.lang.Object ref = uuid_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          uuid_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string uuid = 1;</code>
+       * @param value The uuid to set.
+       * @return This builder for chaining.
+       */
+      public Builder setUuid(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        uuid_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string uuid = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearUuid() {
+        
+        uuid_ = getDefaultInstance().getUuid();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string uuid = 1;</code>
+       * @param value The bytes for uuid to set.
+       * @return This builder for chaining.
+       */
+      public Builder setUuidBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        uuid_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor> descriptors_ =
+        java.util.Collections.emptyList();
+      private void ensureDescriptorsIsMutable() {
+        if (!((bitField0_ & 0x00000001) != 0)) {
+          descriptors_ = new java.util.ArrayList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor>(descriptors_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder> descriptorsBuilder_;
+
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor> getDescriptorsList() {
+        if (descriptorsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(descriptors_);
+        } else {
+          return descriptorsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public int getDescriptorsCount() {
+        if (descriptorsBuilder_ == null) {
+          return descriptors_.size();
+        } else {
+          return descriptorsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor getDescriptors(int index) {
+        if (descriptorsBuilder_ == null) {
+          return descriptors_.get(index);
+        } else {
+          return descriptorsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public Builder setDescriptors(
+          int index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor value) {
+        if (descriptorsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureDescriptorsIsMutable();
+          descriptors_.set(index, value);
+          onChanged();
+        } else {
+          descriptorsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public Builder setDescriptors(
+          int index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder builderForValue) {
+        if (descriptorsBuilder_ == null) {
+          ensureDescriptorsIsMutable();
+          descriptors_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          descriptorsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public Builder addDescriptors(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor value) {
+        if (descriptorsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureDescriptorsIsMutable();
+          descriptors_.add(value);
+          onChanged();
+        } else {
+          descriptorsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public Builder addDescriptors(
+          int index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor value) {
+        if (descriptorsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureDescriptorsIsMutable();
+          descriptors_.add(index, value);
+          onChanged();
+        } else {
+          descriptorsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public Builder addDescriptors(
+          dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder builderForValue) {
+        if (descriptorsBuilder_ == null) {
+          ensureDescriptorsIsMutable();
+          descriptors_.add(builderForValue.build());
+          onChanged();
+        } else {
+          descriptorsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public Builder addDescriptors(
+          int index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder builderForValue) {
+        if (descriptorsBuilder_ == null) {
+          ensureDescriptorsIsMutable();
+          descriptors_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          descriptorsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public Builder addAllDescriptors(
+          java.lang.Iterable<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor> values) {
+        if (descriptorsBuilder_ == null) {
+          ensureDescriptorsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, descriptors_);
+          onChanged();
+        } else {
+          descriptorsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public Builder clearDescriptors() {
+        if (descriptorsBuilder_ == null) {
+          descriptors_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          descriptorsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public Builder removeDescriptors(int index) {
+        if (descriptorsBuilder_ == null) {
+          ensureDescriptorsIsMutable();
+          descriptors_.remove(index);
+          onChanged();
+        } else {
+          descriptorsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder getDescriptorsBuilder(
+          int index) {
+        return getDescriptorsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder getDescriptorsOrBuilder(
+          int index) {
+        if (descriptorsBuilder_ == null) {
+          return descriptors_.get(index);  } else {
+          return descriptorsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder> 
+           getDescriptorsOrBuilderList() {
+        if (descriptorsBuilder_ != null) {
+          return descriptorsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(descriptors_);
+        }
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder addDescriptorsBuilder() {
+        return getDescriptorsFieldBuilder().addBuilder(
+            dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder addDescriptorsBuilder(
+          int index) {
+        return getDescriptorsFieldBuilder().addBuilder(
+            index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 2;</code>
+       */
+      public java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder> 
+           getDescriptorsBuilderList() {
+        return getDescriptorsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder> 
+          getDescriptorsFieldBuilder() {
+        if (descriptorsBuilder_ == null) {
+          descriptorsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder>(
+                  descriptors_,
+                  ((bitField0_ & 0x00000001) != 0),
+                  getParentForChildren(),
+                  isClean());
+          descriptors_ = null;
+        }
+        return descriptorsBuilder_;
+      }
+
+      private boolean canRead_ ;
+      /**
+       * <code>bool canRead = 3;</code>
+       * @return The canRead.
+       */
+      @java.lang.Override
+      public boolean getCanRead() {
+        return canRead_;
+      }
+      /**
+       * <code>bool canRead = 3;</code>
+       * @param value The canRead to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCanRead(boolean value) {
+        
+        canRead_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bool canRead = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearCanRead() {
+        
+        canRead_ = false;
+        onChanged();
+        return this;
+      }
+
+      private boolean canWrite_ ;
+      /**
+       * <code>bool canWrite = 4;</code>
+       * @return The canWrite.
+       */
+      @java.lang.Override
+      public boolean getCanWrite() {
+        return canWrite_;
+      }
+      /**
+       * <code>bool canWrite = 4;</code>
+       * @param value The canWrite to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCanWrite(boolean value) {
+        
+        canWrite_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bool canWrite = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearCanWrite() {
+        
+        canWrite_ = false;
+        onChanged();
+        return this;
+      }
+
+      private boolean canWriteWithoutResponse_ ;
+      /**
+       * <code>bool canWriteWithoutResponse = 5;</code>
+       * @return The canWriteWithoutResponse.
+       */
+      @java.lang.Override
+      public boolean getCanWriteWithoutResponse() {
+        return canWriteWithoutResponse_;
+      }
+      /**
+       * <code>bool canWriteWithoutResponse = 5;</code>
+       * @param value The canWriteWithoutResponse to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCanWriteWithoutResponse(boolean value) {
+        
+        canWriteWithoutResponse_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bool canWriteWithoutResponse = 5;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearCanWriteWithoutResponse() {
+        
+        canWriteWithoutResponse_ = false;
+        onChanged();
+        return this;
+      }
+
+      private boolean canNotify_ ;
+      /**
+       * <code>bool canNotify = 6;</code>
+       * @return The canNotify.
+       */
+      @java.lang.Override
+      public boolean getCanNotify() {
+        return canNotify_;
+      }
+      /**
+       * <code>bool canNotify = 6;</code>
+       * @param value The canNotify to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCanNotify(boolean value) {
+        
+        canNotify_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bool canNotify = 6;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearCanNotify() {
+        
+        canNotify_ = false;
+        onChanged();
+        return this;
+      }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:dev.yanshouwang.bluetooth_low_energy.GattCharacteristic)
+    }
+
+    // @@protoc_insertion_point(class_scope:dev.yanshouwang.bluetooth_low_energy.GattCharacteristic)
+    private static final dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic();
+    }
+
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<GattCharacteristic>
+        PARSER = new com.google.protobuf.AbstractParser<GattCharacteristic>() {
+      @java.lang.Override
+      public GattCharacteristic parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new GattCharacteristic(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<GattCharacteristic> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<GattCharacteristic> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface GattDescriptorOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:dev.yanshouwang.bluetooth_low_energy.GattDescriptor)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>string uuid = 1;</code>
+     * @return The uuid.
+     */
+    java.lang.String getUuid();
+    /**
+     * <code>string uuid = 1;</code>
+     * @return The bytes for uuid.
+     */
+    com.google.protobuf.ByteString
+        getUuidBytes();
+  }
+  /**
+   * Protobuf type {@code dev.yanshouwang.bluetooth_low_energy.GattDescriptor}
+   */
+  public static final class GattDescriptor extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:dev.yanshouwang.bluetooth_low_energy.GattDescriptor)
+      GattDescriptorOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use GattDescriptor.newBuilder() to construct.
+    private GattDescriptor(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private GattDescriptor() {
+      uuid_ = "";
+    }
+
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new GattDescriptor();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private GattDescriptor(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              uuid_ = s;
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptor_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptor_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder.class);
+    }
+
+    public static final int UUID_FIELD_NUMBER = 1;
+    private volatile java.lang.Object uuid_;
+    /**
+     * <code>string uuid = 1;</code>
+     * @return The uuid.
+     */
+    @java.lang.Override
+    public java.lang.String getUuid() {
+      java.lang.Object ref = uuid_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        uuid_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string uuid = 1;</code>
+     * @return The bytes for uuid.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getUuidBytes() {
+      java.lang.Object ref = uuid_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        uuid_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!getUuidBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, uuid_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!getUuidBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, uuid_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor)) {
+        return super.equals(obj);
+      }
+      dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor other = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor) obj;
+
+      if (!getUuid()
+          .equals(other.getUuid())) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + UUID_FIELD_NUMBER;
+      hash = (53 * hash) + getUuid().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code dev.yanshouwang.bluetooth_low_energy.GattDescriptor}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:dev.yanshouwang.bluetooth_low_energy.GattDescriptor)
+        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptor_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptor_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder.class);
+      }
+
+      // Construct using dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        uuid_ = "";
+
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptor_descriptor;
+      }
+
+      @java.lang.Override
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor getDefaultInstanceForType() {
+        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor build() {
+        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor buildPartial() {
+        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor(this);
+        result.uuid_ = uuid_;
+        onBuilt();
+        return result;
+      }
+
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor) {
+          return mergeFrom((dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor other) {
+        if (other == dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.getDefaultInstance()) return this;
+        if (!other.getUuid().isEmpty()) {
+          uuid_ = other.uuid_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private java.lang.Object uuid_ = "";
+      /**
+       * <code>string uuid = 1;</code>
+       * @return The uuid.
+       */
+      public java.lang.String getUuid() {
+        java.lang.Object ref = uuid_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          uuid_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string uuid = 1;</code>
+       * @return The bytes for uuid.
+       */
+      public com.google.protobuf.ByteString
+          getUuidBytes() {
+        java.lang.Object ref = uuid_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          uuid_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string uuid = 1;</code>
+       * @param value The uuid to set.
+       * @return This builder for chaining.
+       */
+      public Builder setUuid(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        uuid_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string uuid = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearUuid() {
+        
+        uuid_ = getDefaultInstance().getUuid();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string uuid = 1;</code>
+       * @param value The bytes for uuid to set.
+       * @return This builder for chaining.
+       */
+      public Builder setUuidBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        uuid_ = value;
+        onChanged();
+        return this;
+      }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:dev.yanshouwang.bluetooth_low_energy.GattDescriptor)
+    }
+
+    // @@protoc_insertion_point(class_scope:dev.yanshouwang.bluetooth_low_energy.GattDescriptor)
+    private static final dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor();
+    }
+
+    public static dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<GattDescriptor>
+        PARSER = new com.google.protobuf.AbstractParser<GattDescriptor>() {
+      @java.lang.Override
+      public GattDescriptor parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new GattDescriptor(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<GattDescriptor> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<GattDescriptor> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface ConnectionLostArgumentsOrBuilder extends
       // @@protoc_insertion_point(interface_extends:dev.yanshouwang.bluetooth_low_energy.ConnectionLostArguments)
       com.google.protobuf.MessageOrBuilder {
@@ -3883,6 +7484,26 @@ public final class MessageOuterClass {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_dev_yanshouwang_bluetooth_low_energy_Discovery_AdvertisementsEntry_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_dev_yanshouwang_bluetooth_low_energy_GATT_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_dev_yanshouwang_bluetooth_low_energy_GATT_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_dev_yanshouwang_bluetooth_low_energy_GattService_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_dev_yanshouwang_bluetooth_low_energy_GattService_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristic_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristic_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptor_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptor_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_dev_yanshouwang_bluetooth_low_energy_ConnectionLostArguments_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -3912,16 +7533,27 @@ public final class MessageOuterClass {
       "v.yanshouwang.bluetooth_low_energy.Disco" +
       "very.AdvertisementsEntry\0325\n\023Advertisemen" +
       "tsEntry\022\013\n\003key\030\001 \001(\r\022\r\n\005value\030\002 \001(\014:\0028\001\"" +
-      ">\n\027ConnectionLostArguments\022\017\n\007address\030\001 " +
-      "\001(\t\022\022\n\nerror_code\030\002 \001(\005*\321\001\n\017MessageCateg" +
-      "ory\022\023\n\017BLUETOOTH_STATE\020\000\022\033\n\027CENTRAL_STAR" +
-      "T_DISCOVERY\020\001\022\032\n\026CENTRAL_STOP_DISCOVERY\020" +
-      "\002\022\026\n\022CENTRAL_DISCOVERED\020\003\022\024\n\020CENTRAL_SCA" +
-      "NNING\020\004\022\023\n\017CENTRAL_CONNECT\020\005\022\023\n\017GATT_DIS" +
-      "CONNECT\020\006\022\030\n\024GATT_CONNECTION_LOST\020\007*p\n\016B" +
-      "luetoothState\022\013\n\007UNKNOWN\020\000\022\r\n\tRESETTING\020" +
-      "\001\022\017\n\013UNSUPPORTED\020\002\022\020\n\014UNAUTHORIZED\020\003\022\017\n\013" +
-      "POWERED_OFF\020\004\022\016\n\nPOWERED_ON\020\005b\006proto3"
+      "X\n\004GATT\022\013\n\003mtu\030\001 \001(\005\022C\n\010services\030\002 \003(\01321" +
+      ".dev.yanshouwang.bluetooth_low_energy.Ga" +
+      "ttService\"n\n\013GattService\022\014\n\004uuid\030\001 \001(\t\022Q" +
+      "\n\017characteristics\030\002 \003(\01328.dev.yanshouwan" +
+      "g.bluetooth_low_energy.GattCharacteristi" +
+      "c\"\304\001\n\022GattCharacteristic\022\014\n\004uuid\030\001 \001(\t\022I" +
+      "\n\013descriptors\030\002 \003(\01324.dev.yanshouwang.bl" +
+      "uetooth_low_energy.GattDescriptor\022\017\n\007can" +
+      "Read\030\003 \001(\010\022\020\n\010canWrite\030\004 \001(\010\022\037\n\027canWrite" +
+      "WithoutResponse\030\005 \001(\010\022\021\n\tcanNotify\030\006 \001(\010" +
+      "\"\036\n\016GattDescriptor\022\014\n\004uuid\030\001 \001(\t\">\n\027Conn" +
+      "ectionLostArguments\022\017\n\007address\030\001 \001(\t\022\022\n\n" +
+      "error_code\030\002 \001(\005*\321\001\n\017MessageCategory\022\023\n\017" +
+      "BLUETOOTH_STATE\020\000\022\033\n\027CENTRAL_START_DISCO" +
+      "VERY\020\001\022\032\n\026CENTRAL_STOP_DISCOVERY\020\002\022\026\n\022CE" +
+      "NTRAL_DISCOVERED\020\003\022\024\n\020CENTRAL_SCANNING\020\004" +
+      "\022\023\n\017CENTRAL_CONNECT\020\005\022\023\n\017GATT_DISCONNECT" +
+      "\020\006\022\030\n\024GATT_CONNECTION_LOST\020\007*p\n\016Bluetoot" +
+      "hState\022\013\n\007UNKNOWN\020\000\022\r\n\tRESETTING\020\001\022\017\n\013UN" +
+      "SUPPORTED\020\002\022\020\n\014UNAUTHORIZED\020\003\022\017\n\013POWERED" +
+      "_OFF\020\004\022\016\n\nPOWERED_ON\020\005b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -3951,8 +7583,32 @@ public final class MessageOuterClass {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_dev_yanshouwang_bluetooth_low_energy_Discovery_AdvertisementsEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
-    internal_static_dev_yanshouwang_bluetooth_low_energy_ConnectionLostArguments_descriptor =
+    internal_static_dev_yanshouwang_bluetooth_low_energy_GATT_descriptor =
       getDescriptor().getMessageTypes().get(3);
+    internal_static_dev_yanshouwang_bluetooth_low_energy_GATT_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_dev_yanshouwang_bluetooth_low_energy_GATT_descriptor,
+        new java.lang.String[] { "Mtu", "Services", });
+    internal_static_dev_yanshouwang_bluetooth_low_energy_GattService_descriptor =
+      getDescriptor().getMessageTypes().get(4);
+    internal_static_dev_yanshouwang_bluetooth_low_energy_GattService_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_dev_yanshouwang_bluetooth_low_energy_GattService_descriptor,
+        new java.lang.String[] { "Uuid", "Characteristics", });
+    internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristic_descriptor =
+      getDescriptor().getMessageTypes().get(5);
+    internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristic_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristic_descriptor,
+        new java.lang.String[] { "Uuid", "Descriptors", "CanRead", "CanWrite", "CanWriteWithoutResponse", "CanNotify", });
+    internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptor_descriptor =
+      getDescriptor().getMessageTypes().get(6);
+    internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptor_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptor_descriptor,
+        new java.lang.String[] { "Uuid", });
+    internal_static_dev_yanshouwang_bluetooth_low_energy_ConnectionLostArguments_descriptor =
+      getDescriptor().getMessageTypes().get(7);
     internal_static_dev_yanshouwang_bluetooth_low_energy_ConnectionLostArguments_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_dev_yanshouwang_bluetooth_low_energy_ConnectionLostArguments_descriptor,

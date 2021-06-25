@@ -80,7 +80,7 @@ class _Central extends _Bluetooth implements Central {
   Future<GATT> connect(MAC address) => method
       .invokeMethod<List<int>>(
           proto.MessageCategory.CENTRAL_CONNECT.name, address.name)
-      .map((value) => );
+      .then((value) => proto.GATT.fromBuffer(value!).convert(address));
 }
 
 /// The possible states of a bluetooth manager.

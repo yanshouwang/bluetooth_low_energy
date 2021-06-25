@@ -90,6 +90,53 @@ const Discovery_AdvertisementsEntry$json = const {
 
 /// Descriptor for `Discovery`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List discoveryDescriptor = $convert.base64Decode('CglEaXNjb3ZlcnkSGAoHYWRkcmVzcxgBIAEoCVIHYWRkcmVzcxISCgRyc3NpGAIgASgRUgRyc3NpEmsKDmFkdmVydGlzZW1lbnRzGAMgAygLMkMuZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5LkRpc2NvdmVyeS5BZHZlcnRpc2VtZW50c0VudHJ5Ug5hZHZlcnRpc2VtZW50cxpBChNBZHZlcnRpc2VtZW50c0VudHJ5EhAKA2tleRgBIAEoDVIDa2V5EhQKBXZhbHVlGAIgASgMUgV2YWx1ZToCOAE=');
+@$core.Deprecated('Use gATTDescriptor instead')
+const GATT$json = const {
+  '1': 'GATT',
+  '2': const [
+    const {'1': 'mtu', '3': 1, '4': 1, '5': 5, '10': 'mtu'},
+    const {'1': 'services', '3': 2, '4': 3, '5': 11, '6': '.dev.yanshouwang.bluetooth_low_energy.GattService', '10': 'services'},
+  ],
+};
+
+/// Descriptor for `GATT`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gATTDescriptor = $convert.base64Decode('CgRHQVRUEhAKA210dRgBIAEoBVIDbXR1Ek0KCHNlcnZpY2VzGAIgAygLMjEuZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5LkdhdHRTZXJ2aWNlUghzZXJ2aWNlcw==');
+@$core.Deprecated('Use gattServiceDescriptor instead')
+const GattService$json = const {
+  '1': 'GattService',
+  '2': const [
+    const {'1': 'uuid', '3': 1, '4': 1, '5': 9, '10': 'uuid'},
+    const {'1': 'characteristics', '3': 2, '4': 3, '5': 11, '6': '.dev.yanshouwang.bluetooth_low_energy.GattCharacteristic', '10': 'characteristics'},
+  ],
+};
+
+/// Descriptor for `GattService`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gattServiceDescriptor = $convert.base64Decode('CgtHYXR0U2VydmljZRISCgR1dWlkGAEgASgJUgR1dWlkEmIKD2NoYXJhY3RlcmlzdGljcxgCIAMoCzI4LmRldi55YW5zaG91d2FuZy5ibHVldG9vdGhfbG93X2VuZXJneS5HYXR0Q2hhcmFjdGVyaXN0aWNSD2NoYXJhY3RlcmlzdGljcw==');
+@$core.Deprecated('Use gattCharacteristicDescriptor instead')
+const GattCharacteristic$json = const {
+  '1': 'GattCharacteristic',
+  '2': const [
+    const {'1': 'uuid', '3': 1, '4': 1, '5': 9, '10': 'uuid'},
+    const {'1': 'descriptors', '3': 2, '4': 3, '5': 11, '6': '.dev.yanshouwang.bluetooth_low_energy.GattDescriptor', '10': 'descriptors'},
+    const {'1': 'canRead', '3': 3, '4': 1, '5': 8, '10': 'canRead'},
+    const {'1': 'canWrite', '3': 4, '4': 1, '5': 8, '10': 'canWrite'},
+    const {'1': 'canWriteWithoutResponse', '3': 5, '4': 1, '5': 8, '10': 'canWriteWithoutResponse'},
+    const {'1': 'canNotify', '3': 6, '4': 1, '5': 8, '10': 'canNotify'},
+  ],
+};
+
+/// Descriptor for `GattCharacteristic`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gattCharacteristicDescriptor = $convert.base64Decode('ChJHYXR0Q2hhcmFjdGVyaXN0aWMSEgoEdXVpZBgBIAEoCVIEdXVpZBJWCgtkZXNjcmlwdG9ycxgCIAMoCzI0LmRldi55YW5zaG91d2FuZy5ibHVldG9vdGhfbG93X2VuZXJneS5HYXR0RGVzY3JpcHRvclILZGVzY3JpcHRvcnMSGAoHY2FuUmVhZBgDIAEoCFIHY2FuUmVhZBIaCghjYW5Xcml0ZRgEIAEoCFIIY2FuV3JpdGUSOAoXY2FuV3JpdGVXaXRob3V0UmVzcG9uc2UYBSABKAhSF2NhbldyaXRlV2l0aG91dFJlc3BvbnNlEhwKCWNhbk5vdGlmeRgGIAEoCFIJY2FuTm90aWZ5');
+@$core.Deprecated('Use gattDescriptorDescriptor instead')
+const GattDescriptor$json = const {
+  '1': 'GattDescriptor',
+  '2': const [
+    const {'1': 'uuid', '3': 1, '4': 1, '5': 9, '10': 'uuid'},
+  ],
+};
+
+/// Descriptor for `GattDescriptor`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gattDescriptorDescriptor = $convert.base64Decode('Cg5HYXR0RGVzY3JpcHRvchISCgR1dWlkGAEgASgJUgR1dWlk');
 @$core.Deprecated('Use connectionLostArgumentsDescriptor instead')
 const ConnectionLostArguments$json = const {
   '1': 'ConnectionLostArguments',

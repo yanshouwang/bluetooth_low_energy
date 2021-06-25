@@ -1,6 +1,7 @@
 part of bluetooth_low_energy;
 
 abstract class GATT {
+  MAC get address;
   int get mtu;
   Stream<int> get connectionLost;
   List<GattService> get services;
@@ -11,6 +12,7 @@ abstract class GATT {
 class _GATT implements GATT {
   _GATT(this.address, this.mtu, this.services);
 
+  @override
   final MAC address;
   @override
   final int mtu;

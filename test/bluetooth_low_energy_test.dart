@@ -26,7 +26,24 @@ void main() {
       } else if (call.method == proto.MessageCategory.CENTRAL_SCANNING.name) {
         return true;
       } else if (call.method == proto.MessageCategory.CENTRAL_CONNECT.name) {
-        return 23;
+        final descriptors = [
+          proto.GattDescriptor(uuid: '2900'),
+        ];
+        final characteristics = [
+          proto.GattCharacteristic(
+            uuid: '2A00',
+            descriptors: descriptors,
+            canRead: true,
+            canWrite: false,
+            canWriteWithoutResponse: false,
+            canNotify: false,
+          ),
+        ];
+        final services = [
+          proto.GattService(uuid: '1800', characteristics: characteristics),
+        ];
+        final gatt = proto.GATT(mtu: 23, services: services);
+        return gatt.writeToBuffer();
       } else if (call.method == proto.MessageCategory.GATT_DISCONNECT.name) {
         return null;
       } else {
@@ -187,6 +204,19 @@ void main() {
     final actual = await central.connect(address);
     expect(actual.address, address);
     expect(actual.mtu, 23);
+    expect(actual.services.length, 1);
+    final service = actual.services[0];
+    expect(service.uuid, UUID('1800'));
+    expect(service.characteristics.length, 1);
+    final characteristic = service.characteristics[0];
+    expect(characteristic.uuid, UUID('2A00'));
+    expect(characteristic.descriptors.length, 1);
+    expect(characteristic.canRead, true);
+    expect(characteristic.canWrite, false);
+    expect(characteristic.canWriteWithoutResponse, false);
+    expect(characteristic.canNotify, false);
+    final descriptor = characteristic.descriptors[0];
+    expect(descriptor.uuid, UUID('2900'));
     expect(
       calls,
       [
