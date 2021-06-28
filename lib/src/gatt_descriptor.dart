@@ -23,7 +23,7 @@ class _GattDescriptor implements GattDescriptor {
       device: device.name,
       service: service.name,
       characteristic: characteristic.name,
-      descriptor: uuid.name,
+      uuid: uuid.name,
     ).writeToBuffer();
     return method
         .invokeListMethod<int>(name, arguments)
@@ -37,7 +37,7 @@ class _GattDescriptor implements GattDescriptor {
       device: device.name,
       service: service.name,
       characteristic: characteristic.name,
-      descriptor: uuid.name,
+      uuid: uuid.name,
       value: value,
     ).writeToBuffer();
     return method.invokeMethod(name, arguments);

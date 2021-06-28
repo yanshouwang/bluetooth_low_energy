@@ -50,7 +50,7 @@ class _GattCharacteristic implements GattCharacteristic {
               proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY &&
           message.characteristicValue.device.conversionOfMAC == device &&
           message.characteristicValue.service.conversionOfUUID == service &&
-          message.characteristicValue.characteristic.conversionOfUUID == uuid)
+          message.characteristicValue.uuid.conversionOfUUID == uuid)
       .map((message) => message.characteristicValue.value);
 
   @override
@@ -59,7 +59,7 @@ class _GattCharacteristic implements GattCharacteristic {
     final arguments = proto.GattCharacteristicReadArguments(
       device: device.name,
       service: service.name,
-      characteristic: uuid.name,
+      uuid: uuid.name,
     ).writeToBuffer();
     return method
         .invokeListMethod<int>(name, arguments)
@@ -72,7 +72,7 @@ class _GattCharacteristic implements GattCharacteristic {
     final arguments = proto.GattCharacteristicWriteArguments(
       device: device.name,
       service: service.name,
-      characteristic: uuid.name,
+      uuid: uuid.name,
       value: value,
       withoutResponse: withoutResponse,
     ).writeToBuffer();
@@ -85,7 +85,7 @@ class _GattCharacteristic implements GattCharacteristic {
     final arguments = proto.GattCharacteristicNotifyArguments(
       device: device.name,
       service: service.name,
-      characteristic: uuid.name,
+      uuid: uuid.name,
       state: state,
     ).writeToBuffer();
     return method.invokeMethod(name, arguments);

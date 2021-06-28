@@ -79,7 +79,7 @@ void main() {
           final discovery = proto.Message(
             category: proto.MessageCategory.CENTRAL_DISCOVERED,
             discovery: proto.Discovery(
-              device: 'aa:bb:cc:dd:ee:ff',
+              address: 'aa:bb:cc:dd:ee:ff',
               rssi: -50,
               advertisements: {
                 0xff: [0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa],
@@ -105,7 +105,7 @@ void main() {
           final connectionLost = proto.Message(
             category: proto.MessageCategory.GATT_CONNECTION_LOST,
             connectionLost: proto.ConnectionLost(
-              device: 'aa:bb:cc:dd:ee:ff',
+              address: 'aa:bb:cc:dd:ee:ff',
               errorCode: 19,
             ),
           ).writeToBuffer();
@@ -120,7 +120,7 @@ void main() {
             characteristicValue: proto.GattCharacteristicValue(
               device: 'aa:bb:cc:dd:ee:ff',
               service: '00001800-0000-1000-8000-00805f9b34fb',
-              characteristic: '00002A00-0000-1000-8000-00805f9b34fb',
+              uuid: '00002A00-0000-1000-8000-00805f9b34fb',
               value: [0x0A, 0x0B, 0x0C, 0x0D, 0x0E],
             ),
           ).writeToBuffer();
@@ -320,7 +320,7 @@ void main() {
             arguments: proto.GattCharacteristicReadArguments(
               device: address.name,
               service: service.uuid.name,
-              characteristic: characteristic.uuid.name,
+              uuid: characteristic.uuid.name,
             ).writeToBuffer(),
           ),
         ],
@@ -348,7 +348,7 @@ void main() {
             arguments: proto.GattCharacteristicWriteArguments(
               device: address.name,
               service: service.uuid.name,
-              characteristic: characteristic.uuid.name,
+              uuid: characteristic.uuid.name,
               value: value,
               withoutResponse: true,
             ).writeToBuffer(),
@@ -377,7 +377,7 @@ void main() {
             arguments: proto.GattCharacteristicNotifyArguments(
               device: address.name,
               service: service.uuid.name,
-              characteristic: characteristic.uuid.name,
+              uuid: characteristic.uuid.name,
               state: true,
             ).writeToBuffer(),
           ),
@@ -419,7 +419,7 @@ void main() {
               device: address.name,
               service: service.uuid.name,
               characteristic: characteristic.uuid.name,
-              descriptor: descriptor.uuid.name,
+              uuid: descriptor.uuid.name,
             ).writeToBuffer(),
           ),
         ],
@@ -449,7 +449,7 @@ void main() {
               device: address.name,
               service: service.uuid.name,
               characteristic: characteristic.uuid.name,
-              descriptor: descriptor.uuid.name,
+              uuid: descriptor.uuid.name,
               value: value,
             ).writeToBuffer(),
           ),

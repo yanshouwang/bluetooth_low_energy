@@ -17,7 +17,7 @@ message StartDiscoveryArguments {
 }
 
 message Discovery {
-  string device = 1;
+  string address = 1;
   sint32 rssi = 2;
   map<uint32, bytes> advertisements = 3;
 }
@@ -46,20 +46,20 @@ message GattDescriptor {
 }
 
 message ConnectionLost {
-  string device = 1;
+  string address = 1;
   int32 error_code = 2;
 }
 
 message GattCharacteristicReadArguments {
   string device = 1;
   string service = 2;
-  string characteristic = 3;
+  string uuid = 3;
 }
 
 message GattCharacteristicWriteArguments {
   string device = 1;
   string service = 2;
-  string characteristic = 3;
+  string uuid = 3;
   bytes value = 4;
   bool withoutResponse = 5;
 }
@@ -67,14 +67,14 @@ message GattCharacteristicWriteArguments {
 message GattCharacteristicNotifyArguments{
   string device = 1;
   string service = 2;
-  string characteristic = 3;
+  string uuid = 3;
   bool state = 4;
 }
 
 message GattCharacteristicValue {
   string device = 1;
   string service = 2;
-  string characteristic = 3;
+  string uuid = 3;
   bytes value = 4;
 }
 
@@ -82,14 +82,14 @@ message GattDescriptorReadArguments {
   string device = 1;
   string service = 2;
   string characteristic = 3;
-  string descriptor = 4;
+  string uuid = 4;
 }
 
 message GattDescriptorWriteArguments {
   string device = 1;
   string service = 2;
   string characteristic = 3;
-  string descriptor = 4;
+  string uuid = 4;
   bytes value = 5;
 }
 

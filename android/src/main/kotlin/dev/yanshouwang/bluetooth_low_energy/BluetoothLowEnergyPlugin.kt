@@ -113,7 +113,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
     private val scan18 by lazy {
         BluetoothAdapter.LeScanCallback { device, rssi, scanRecord ->
             val discovery = Discovery.newBuilder()
-                    .setDevice(device.address)
+                    .setAddress(device.address)
                     .setRssi(rssi)
                     .putAllAdvertisements(scanRecord.advertisements)
                     .build()
@@ -138,7 +138,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 if (result == null)
                     return
                 val builder = Discovery.newBuilder()
-                        .setDevice(result.device.address)
+                        .setAddress(result.device.address)
                         .setRssi(result.rssi)
                 if (result.scanRecord != null) {
                     builder.putAllAdvertisements(result.scanRecord?.bytes?.advertisements)
@@ -154,9 +154,9 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
 
             override fun onBatchScanResults(results: MutableList<ScanResult>?) {
                 super.onBatchScanResults(results)
-                results?.forEach { result ->
+                for (result in results!!) {
                     val builder = Discovery.newBuilder()
-                            .setDevice(result.device.address)
+                            .setAddress(result.device.address)
                             .setRssi(result.rssi)
                     if (result.scanRecord != null) {
                         builder.putAllAdvertisements(result.scanRecord?.bytes?.advertisements)
@@ -268,7 +268,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                             disconnect != null -> handler.post { disconnect.error(status) }
                             else -> {
                                 val connectionLost = ConnectionLost.newBuilder()
-                                        .setDevice(address)
+                                        .setAddress(address)
                                         .setErrorCode(status)
                                         .build()
                                 val event = Message.newBuilder()
@@ -371,12 +371,12 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 super.onCharacteristicChanged(gatt, characteristic)
                 val address = gatt!!.device.address
                 val serviceUUID = characteristic!!.service.uuid.toString()
-                val characteristicUUID = characteristic.uuid.toString()
+                val uuid = characteristic.uuid.toString()
                 val value = ByteString.copyFrom(characteristic.value)
                 val characteristicValue = GattCharacteristicValue.newBuilder()
                         .setDevice(address)
                         .setService(serviceUUID)
-                        .setCharacteristic(characteristicUUID)
+                        .setUuid(uuid)
                         .setValue(value)
                         .build()
                 val event = Message.newBuilder()
@@ -512,7 +512,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 else {
                     val serviceUUID = UUID.fromString(arguments.service)
                     val service = gatt.getService(serviceUUID)
-                    val characteristicUUID = UUID.fromString(arguments.characteristic)
+                    val characteristicUUID = UUID.fromString(arguments.uuid)
                     val characteristic = service.getCharacteristic(characteristicUUID)
                     val key = characteristic.hashCode()
                     val characteristicRead = characteristicReads[key]
@@ -532,7 +532,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 else {
                     val serviceUUID = UUID.fromString(arguments.service)
                     val service = gatt.getService(serviceUUID)
-                    val characteristicUUID = UUID.fromString(arguments.characteristic)
+                    val characteristicUUID = UUID.fromString(arguments.uuid)
                     val characteristic = service.getCharacteristic(characteristicUUID)
                     val key = characteristic.hashCode()
                     val characteristicWrite = characteristicWrites[key]
@@ -556,7 +556,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 else {
                     val serviceUUID = UUID.fromString(arguments.service)
                     val service = gatt.getService(serviceUUID)
-                    val characteristicUUID = UUID.fromString(arguments.characteristic)
+                    val characteristicUUID = UUID.fromString(arguments.uuid)
                     val characteristic = service.getCharacteristic(characteristicUUID)
                     val descriptorUUID = UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG)
                     val descriptor = characteristic.getDescriptor(descriptorUUID)
@@ -587,7 +587,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                     val service = gatt.getService(serviceUUID)
                     val characteristicUUID = UUID.fromString(arguments.characteristic)
                     val characteristic = service.getCharacteristic(characteristicUUID)
-                    val descriptorUUID = UUID.fromString(arguments.descriptor)
+                    val descriptorUUID = UUID.fromString(arguments.uuid)
                     val descriptor = characteristic.getDescriptor(descriptorUUID)
                     val key = descriptor.hashCode()
                     val descriptorRead = descriptorReads[key]
@@ -609,7 +609,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                     val service = gatt.getService(serviceUUID)
                     val characteristicUUID = UUID.fromString(arguments.characteristic)
                     val characteristic = service.getCharacteristic(characteristicUUID)
-                    val descriptorUUID = UUID.fromString(arguments.descriptor)
+                    val descriptorUUID = UUID.fromString(arguments.uuid)
                     val descriptor = characteristic.getDescriptor(descriptorUUID)
                     val key = descriptor.hashCode()
                     val descriptorWrite = descriptorWrites[key]

@@ -74,20 +74,20 @@ object GattDescriptorWriteArgumentsKt {
     }
 
     /**
-     * <code>string descriptor = 4;</code>
+     * <code>string uuid = 4;</code>
      */
-    var descriptor: kotlin.String
-      @JvmName("getDescriptor")
-      get() = _builder.getDescriptor()
-      @JvmName("setDescriptor")
+    var uuid: kotlin.String
+      @JvmName("getUuid")
+      get() = _builder.getUuid()
+      @JvmName("setUuid")
       set(value) {
-        _builder.setDescriptor(value)
+        _builder.setUuid(value)
       }
     /**
-     * <code>string descriptor = 4;</code>
+     * <code>string uuid = 4;</code>
      */
-    fun clearDescriptor() {
-      _builder.clearDescriptor()
+    fun clearUuid() {
+      _builder.clearUuid()
     }
 
     /**

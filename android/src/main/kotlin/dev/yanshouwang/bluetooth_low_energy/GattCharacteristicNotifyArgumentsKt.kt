@@ -57,20 +57,20 @@ object GattCharacteristicNotifyArgumentsKt {
     }
 
     /**
-     * <code>string characteristic = 3;</code>
+     * <code>string uuid = 3;</code>
      */
-    var characteristic: kotlin.String
-      @JvmName("getCharacteristic")
-      get() = _builder.getCharacteristic()
-      @JvmName("setCharacteristic")
+    var uuid: kotlin.String
+      @JvmName("getUuid")
+      get() = _builder.getUuid()
+      @JvmName("setUuid")
       set(value) {
-        _builder.setCharacteristic(value)
+        _builder.setUuid(value)
       }
     /**
-     * <code>string characteristic = 3;</code>
+     * <code>string uuid = 3;</code>
      */
-    fun clearCharacteristic() {
-      _builder.clearCharacteristic()
+    fun clearUuid() {
+      _builder.clearUuid()
     }
 
     /**

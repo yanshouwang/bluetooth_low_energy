@@ -58,7 +58,7 @@ extension on proto.BluetoothState {
 
 extension on proto.Discovery {
   Discovery get conversion =>
-      Discovery(device.conversionOfMAC, rssi, advertisements);
+      Discovery(address.conversionOfMAC, rssi, advertisements);
 }
 
 extension on proto.GATT {
