@@ -57,64 +57,21 @@ object DiscoveryKt {
     }
 
     /**
-     * An uninstantiable, behaviorless type to represent the field in
-     * generics.
+     * <code>bytes advertisements = 3;</code>
      */
-    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
-    class AdvertisementsProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
+    var advertisements: com.google.protobuf.ByteString
+      @JvmName("getAdvertisements")
+      get() = _builder.getAdvertisements()
+      @JvmName("setAdvertisements")
+      set(value) {
+        _builder.setAdvertisements(value)
+      }
     /**
-     * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
+     * <code>bytes advertisements = 3;</code>
      */
-     val advertisements: com.google.protobuf.kotlin.DslMap<kotlin.Int, com.google.protobuf.ByteString, AdvertisementsProxy>
-      @kotlin.jvm.JvmSynthetic
-      @JvmName("getAdvertisementsMap")
-      get() = com.google.protobuf.kotlin.DslMap(
-        _builder.getAdvertisementsMap()
-      )
-    /**
-     * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-     */
-    @JvmName("putAdvertisements")
-    fun com.google.protobuf.kotlin.DslMap<kotlin.Int, com.google.protobuf.ByteString, AdvertisementsProxy>
-      .put(key: kotlin.Int, value: com.google.protobuf.ByteString) {
-         _builder.putAdvertisements(key, value)
-       }
-    /**
-     * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-     */
-    @kotlin.jvm.JvmSynthetic
-    @JvmName("setAdvertisements")
-    inline operator fun com.google.protobuf.kotlin.DslMap<kotlin.Int, com.google.protobuf.ByteString, AdvertisementsProxy>
-      .set(key: kotlin.Int, value: com.google.protobuf.ByteString) {
-         put(key, value)
-       }
-    /**
-     * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-     */
-    @kotlin.jvm.JvmSynthetic
-    @JvmName("removeAdvertisements")
-    fun com.google.protobuf.kotlin.DslMap<kotlin.Int, com.google.protobuf.ByteString, AdvertisementsProxy>
-      .remove(key: kotlin.Int) {
-         _builder.removeAdvertisements(key)
-       }
-    /**
-     * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-     */
-    @kotlin.jvm.JvmSynthetic
-    @JvmName("putAllAdvertisements")
-    fun com.google.protobuf.kotlin.DslMap<kotlin.Int, com.google.protobuf.ByteString, AdvertisementsProxy>
-      .putAll(map: kotlin.collections.Map<kotlin.Int, com.google.protobuf.ByteString>) {
-         _builder.putAllAdvertisements(map)
-       }
-    /**
-     * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-     */
-    @kotlin.jvm.JvmSynthetic
-    @JvmName("clearAdvertisements")
-    fun com.google.protobuf.kotlin.DslMap<kotlin.Int, com.google.protobuf.ByteString, AdvertisementsProxy>
-      .clear() {
-         _builder.clearAdvertisements()
-       }
+    fun clearAdvertisements() {
+      _builder.clearAdvertisements()
+    }
   }
 }
 @kotlin.jvm.JvmSynthetic

@@ -202,7 +202,7 @@ class Discovery extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Discovery', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'address')
     ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rssi', $pb.PbFieldType.OS3)
-    ..m<$core.int, $core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'advertisements', entryClassName: 'Discovery.AdvertisementsEntry', keyFieldType: $pb.PbFieldType.OU3, valueFieldType: $pb.PbFieldType.OY, packageName: const $pb.PackageName('dev.yanshouwang.bluetooth_low_energy'))
+    ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'advertisements', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
@@ -210,7 +210,7 @@ class Discovery extends $pb.GeneratedMessage {
   factory Discovery({
     $core.String? address,
     $core.int? rssi,
-    $core.Map<$core.int, $core.List<$core.int>>? advertisements,
+    $core.List<$core.int>? advertisements,
   }) {
     final _result = create();
     if (address != null) {
@@ -220,7 +220,7 @@ class Discovery extends $pb.GeneratedMessage {
       _result.rssi = rssi;
     }
     if (advertisements != null) {
-      _result.advertisements.addAll(advertisements);
+      _result.advertisements = advertisements;
     }
     return _result;
   }
@@ -264,7 +264,13 @@ class Discovery extends $pb.GeneratedMessage {
   void clearRssi() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.Map<$core.int, $core.List<$core.int>> get advertisements => $_getMap(2);
+  $core.List<$core.int> get advertisements => $_getN(2);
+  @$pb.TagNumber(3)
+  set advertisements($core.List<$core.int> v) { $_setBytes(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasAdvertisements() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearAdvertisements() => clearField(3);
 }
 
 class GATT extends $pb.GeneratedMessage {

@@ -2563,38 +2563,10 @@ public final class MessageOuterClass {
     int getRssi();
 
     /**
-     * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
+     * <code>bytes advertisements = 3;</code>
+     * @return The advertisements.
      */
-    int getAdvertisementsCount();
-    /**
-     * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-     */
-    boolean containsAdvertisements(
-        int key);
-    /**
-     * Use {@link #getAdvertisementsMap()} instead.
-     */
-    @java.lang.Deprecated
-    java.util.Map<java.lang.Integer, com.google.protobuf.ByteString>
-    getAdvertisements();
-    /**
-     * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-     */
-    java.util.Map<java.lang.Integer, com.google.protobuf.ByteString>
-    getAdvertisementsMap();
-    /**
-     * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-     */
-
-    com.google.protobuf.ByteString getAdvertisementsOrDefault(
-        int key,
-        com.google.protobuf.ByteString defaultValue);
-    /**
-     * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-     */
-
-    com.google.protobuf.ByteString getAdvertisementsOrThrow(
-        int key);
+    com.google.protobuf.ByteString getAdvertisements();
   }
   /**
    * Protobuf type {@code dev.yanshouwang.bluetooth_low_energy.Discovery}
@@ -2610,6 +2582,7 @@ public final class MessageOuterClass {
     }
     private Discovery() {
       address_ = "";
+      advertisements_ = com.google.protobuf.ByteString.EMPTY;
     }
 
     @java.lang.Override
@@ -2632,7 +2605,6 @@ public final class MessageOuterClass {
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
-      int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -2655,16 +2627,8 @@ public final class MessageOuterClass {
               break;
             }
             case 26: {
-              if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                advertisements_ = com.google.protobuf.MapField.newMapField(
-                    AdvertisementsDefaultEntryHolder.defaultEntry);
-                mutable_bitField0_ |= 0x00000001;
-              }
-              com.google.protobuf.MapEntry<java.lang.Integer, com.google.protobuf.ByteString>
-              advertisements__ = input.readMessage(
-                  AdvertisementsDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
-              advertisements_.getMutableMap().put(
-                  advertisements__.getKey(), advertisements__.getValue());
+
+              advertisements_ = input.readBytes();
               break;
             }
             default: {
@@ -2691,18 +2655,6 @@ public final class MessageOuterClass {
       return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_Discovery_descriptor;
     }
 
-    @SuppressWarnings({"rawtypes"})
-    @java.lang.Override
-    protected com.google.protobuf.MapField internalGetMapField(
-        int number) {
-      switch (number) {
-        case 3:
-          return internalGetAdvertisements();
-        default:
-          throw new RuntimeException(
-              "Invalid map field number: " + number);
-      }
-    }
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
@@ -2761,84 +2713,14 @@ public final class MessageOuterClass {
     }
 
     public static final int ADVERTISEMENTS_FIELD_NUMBER = 3;
-    private static final class AdvertisementsDefaultEntryHolder {
-      static final com.google.protobuf.MapEntry<
-          java.lang.Integer, com.google.protobuf.ByteString> defaultEntry =
-              com.google.protobuf.MapEntry
-              .<java.lang.Integer, com.google.protobuf.ByteString>newDefaultInstance(
-                  dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_Discovery_AdvertisementsEntry_descriptor, 
-                  com.google.protobuf.WireFormat.FieldType.UINT32,
-                  0,
-                  com.google.protobuf.WireFormat.FieldType.BYTES,
-                  com.google.protobuf.ByteString.EMPTY);
-    }
-    private com.google.protobuf.MapField<
-        java.lang.Integer, com.google.protobuf.ByteString> advertisements_;
-    private com.google.protobuf.MapField<java.lang.Integer, com.google.protobuf.ByteString>
-    internalGetAdvertisements() {
-      if (advertisements_ == null) {
-        return com.google.protobuf.MapField.emptyMapField(
-            AdvertisementsDefaultEntryHolder.defaultEntry);
-      }
+    private com.google.protobuf.ByteString advertisements_;
+    /**
+     * <code>bytes advertisements = 3;</code>
+     * @return The advertisements.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString getAdvertisements() {
       return advertisements_;
-    }
-
-    public int getAdvertisementsCount() {
-      return internalGetAdvertisements().getMap().size();
-    }
-    /**
-     * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-     */
-
-    @java.lang.Override
-    public boolean containsAdvertisements(
-        int key) {
-      
-      return internalGetAdvertisements().getMap().containsKey(key);
-    }
-    /**
-     * Use {@link #getAdvertisementsMap()} instead.
-     */
-    @java.lang.Override
-    @java.lang.Deprecated
-    public java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> getAdvertisements() {
-      return getAdvertisementsMap();
-    }
-    /**
-     * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-     */
-    @java.lang.Override
-
-    public java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> getAdvertisementsMap() {
-      return internalGetAdvertisements().getMap();
-    }
-    /**
-     * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-     */
-    @java.lang.Override
-
-    public com.google.protobuf.ByteString getAdvertisementsOrDefault(
-        int key,
-        com.google.protobuf.ByteString defaultValue) {
-      
-      java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> map =
-          internalGetAdvertisements().getMap();
-      return map.containsKey(key) ? map.get(key) : defaultValue;
-    }
-    /**
-     * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-     */
-    @java.lang.Override
-
-    public com.google.protobuf.ByteString getAdvertisementsOrThrow(
-        int key) {
-      
-      java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> map =
-          internalGetAdvertisements().getMap();
-      if (!map.containsKey(key)) {
-        throw new java.lang.IllegalArgumentException();
-      }
-      return map.get(key);
     }
 
     private byte memoizedIsInitialized = -1;
@@ -2861,12 +2743,9 @@ public final class MessageOuterClass {
       if (rssi_ != 0) {
         output.writeSInt32(2, rssi_);
       }
-      com.google.protobuf.GeneratedMessageV3
-        .serializeIntegerMapTo(
-          output,
-          internalGetAdvertisements(),
-          AdvertisementsDefaultEntryHolder.defaultEntry,
-          3);
+      if (!advertisements_.isEmpty()) {
+        output.writeBytes(3, advertisements_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -2883,15 +2762,9 @@ public final class MessageOuterClass {
         size += com.google.protobuf.CodedOutputStream
           .computeSInt32Size(2, rssi_);
       }
-      for (java.util.Map.Entry<java.lang.Integer, com.google.protobuf.ByteString> entry
-           : internalGetAdvertisements().getMap().entrySet()) {
-        com.google.protobuf.MapEntry<java.lang.Integer, com.google.protobuf.ByteString>
-        advertisements__ = AdvertisementsDefaultEntryHolder.defaultEntry.newBuilderForType()
-            .setKey(entry.getKey())
-            .setValue(entry.getValue())
-            .build();
+      if (!advertisements_.isEmpty()) {
         size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(3, advertisements__);
+          .computeBytesSize(3, advertisements_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -2912,8 +2785,8 @@ public final class MessageOuterClass {
           .equals(other.getAddress())) return false;
       if (getRssi()
           != other.getRssi()) return false;
-      if (!internalGetAdvertisements().equals(
-          other.internalGetAdvertisements())) return false;
+      if (!getAdvertisements()
+          .equals(other.getAdvertisements())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -2929,10 +2802,8 @@ public final class MessageOuterClass {
       hash = (53 * hash) + getAddress().hashCode();
       hash = (37 * hash) + RSSI_FIELD_NUMBER;
       hash = (53 * hash) + getRssi();
-      if (!internalGetAdvertisements().getMap().isEmpty()) {
-        hash = (37 * hash) + ADVERTISEMENTS_FIELD_NUMBER;
-        hash = (53 * hash) + internalGetAdvertisements().hashCode();
-      }
+      hash = (37 * hash) + ADVERTISEMENTS_FIELD_NUMBER;
+      hash = (53 * hash) + getAdvertisements().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -3040,28 +2911,6 @@ public final class MessageOuterClass {
         return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.internal_static_dev_yanshouwang_bluetooth_low_energy_Discovery_descriptor;
       }
 
-      @SuppressWarnings({"rawtypes"})
-      protected com.google.protobuf.MapField internalGetMapField(
-          int number) {
-        switch (number) {
-          case 3:
-            return internalGetAdvertisements();
-          default:
-            throw new RuntimeException(
-                "Invalid map field number: " + number);
-        }
-      }
-      @SuppressWarnings({"rawtypes"})
-      protected com.google.protobuf.MapField internalGetMutableMapField(
-          int number) {
-        switch (number) {
-          case 3:
-            return internalGetMutableAdvertisements();
-          default:
-            throw new RuntimeException(
-                "Invalid map field number: " + number);
-        }
-      }
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
@@ -3092,7 +2941,8 @@ public final class MessageOuterClass {
 
         rssi_ = 0;
 
-        internalGetMutableAdvertisements().clear();
+        advertisements_ = com.google.protobuf.ByteString.EMPTY;
+
         return this;
       }
 
@@ -3119,11 +2969,9 @@ public final class MessageOuterClass {
       @java.lang.Override
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.Discovery buildPartial() {
         dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.Discovery result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.Discovery(this);
-        int from_bitField0_ = bitField0_;
         result.address_ = address_;
         result.rssi_ = rssi_;
-        result.advertisements_ = internalGetAdvertisements();
-        result.advertisements_.makeImmutable();
+        result.advertisements_ = advertisements_;
         onBuilt();
         return result;
       }
@@ -3179,8 +3027,9 @@ public final class MessageOuterClass {
         if (other.getRssi() != 0) {
           setRssi(other.getRssi());
         }
-        internalGetMutableAdvertisements().mergeFrom(
-            other.internalGetAdvertisements());
+        if (other.getAdvertisements() != com.google.protobuf.ByteString.EMPTY) {
+          setAdvertisements(other.getAdvertisements());
+        }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
@@ -3209,7 +3058,6 @@ public final class MessageOuterClass {
         }
         return this;
       }
-      private int bitField0_;
 
       private java.lang.Object address_ = "";
       /**
@@ -3318,131 +3166,37 @@ public final class MessageOuterClass {
         return this;
       }
 
-      private com.google.protobuf.MapField<
-          java.lang.Integer, com.google.protobuf.ByteString> advertisements_;
-      private com.google.protobuf.MapField<java.lang.Integer, com.google.protobuf.ByteString>
-      internalGetAdvertisements() {
-        if (advertisements_ == null) {
-          return com.google.protobuf.MapField.emptyMapField(
-              AdvertisementsDefaultEntryHolder.defaultEntry);
-        }
+      private com.google.protobuf.ByteString advertisements_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>bytes advertisements = 3;</code>
+       * @return The advertisements.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString getAdvertisements() {
         return advertisements_;
       }
-      private com.google.protobuf.MapField<java.lang.Integer, com.google.protobuf.ByteString>
-      internalGetMutableAdvertisements() {
-        onChanged();;
-        if (advertisements_ == null) {
-          advertisements_ = com.google.protobuf.MapField.newMapField(
-              AdvertisementsDefaultEntryHolder.defaultEntry);
-        }
-        if (!advertisements_.isMutable()) {
-          advertisements_ = advertisements_.copy();
-        }
-        return advertisements_;
-      }
-
-      public int getAdvertisementsCount() {
-        return internalGetAdvertisements().getMap().size();
+      /**
+       * <code>bytes advertisements = 3;</code>
+       * @param value The advertisements to set.
+       * @return This builder for chaining.
+       */
+      public Builder setAdvertisements(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        advertisements_ = value;
+        onChanged();
+        return this;
       }
       /**
-       * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
+       * <code>bytes advertisements = 3;</code>
+       * @return This builder for chaining.
        */
-
-      @java.lang.Override
-      public boolean containsAdvertisements(
-          int key) {
-        
-        return internalGetAdvertisements().getMap().containsKey(key);
-      }
-      /**
-       * Use {@link #getAdvertisementsMap()} instead.
-       */
-      @java.lang.Override
-      @java.lang.Deprecated
-      public java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> getAdvertisements() {
-        return getAdvertisementsMap();
-      }
-      /**
-       * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-       */
-      @java.lang.Override
-
-      public java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> getAdvertisementsMap() {
-        return internalGetAdvertisements().getMap();
-      }
-      /**
-       * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-       */
-      @java.lang.Override
-
-      public com.google.protobuf.ByteString getAdvertisementsOrDefault(
-          int key,
-          com.google.protobuf.ByteString defaultValue) {
-        
-        java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> map =
-            internalGetAdvertisements().getMap();
-        return map.containsKey(key) ? map.get(key) : defaultValue;
-      }
-      /**
-       * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-       */
-      @java.lang.Override
-
-      public com.google.protobuf.ByteString getAdvertisementsOrThrow(
-          int key) {
-        
-        java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> map =
-            internalGetAdvertisements().getMap();
-        if (!map.containsKey(key)) {
-          throw new java.lang.IllegalArgumentException();
-        }
-        return map.get(key);
-      }
-
       public Builder clearAdvertisements() {
-        internalGetMutableAdvertisements().getMutableMap()
-            .clear();
-        return this;
-      }
-      /**
-       * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-       */
-
-      public Builder removeAdvertisements(
-          int key) {
         
-        internalGetMutableAdvertisements().getMutableMap()
-            .remove(key);
-        return this;
-      }
-      /**
-       * Use alternate mutation accessors instead.
-       */
-      @java.lang.Deprecated
-      public java.util.Map<java.lang.Integer, com.google.protobuf.ByteString>
-      getMutableAdvertisements() {
-        return internalGetMutableAdvertisements().getMutableMap();
-      }
-      /**
-       * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-       */
-      public Builder putAdvertisements(
-          int key,
-          com.google.protobuf.ByteString value) {
-        
-        if (value == null) { throw new java.lang.NullPointerException(); }
-        internalGetMutableAdvertisements().getMutableMap()
-            .put(key, value);
-        return this;
-      }
-      /**
-       * <code>map&lt;uint32, bytes&gt; advertisements = 3;</code>
-       */
-
-      public Builder putAllAdvertisements(
-          java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> values) {
-        internalGetMutableAdvertisements().getMutableMap()
-            .putAll(values);
+        advertisements_ = getDefaultInstance().getAdvertisements();
+        onChanged();
         return this;
       }
       @java.lang.Override
@@ -13625,11 +13379,6 @@ public final class MessageOuterClass {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_dev_yanshouwang_bluetooth_low_energy_Discovery_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_dev_yanshouwang_bluetooth_low_energy_Discovery_AdvertisementsEntry_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_dev_yanshouwang_bluetooth_low_energy_Discovery_AdvertisementsEntry_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_dev_yanshouwang_bluetooth_low_energy_GATT_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -13706,51 +13455,48 @@ public final class MessageOuterClass {
       "ue\030\006 \001(\0132=.dev.yanshouwang.bluetooth_low" +
       "_energy.GattCharacteristicValueH\000B\007\n\005val" +
       "ue\"+\n\027StartDiscoveryArguments\022\020\n\010service" +
-      "s\030\001 \003(\t\"\276\001\n\tDiscovery\022\017\n\007address\030\001 \001(\t\022\014" +
-      "\n\004rssi\030\002 \001(\021\022[\n\016advertisements\030\003 \003(\0132C.d" +
-      "ev.yanshouwang.bluetooth_low_energy.Disc" +
-      "overy.AdvertisementsEntry\0325\n\023Advertiseme" +
-      "ntsEntry\022\013\n\003key\030\001 \001(\r\022\r\n\005value\030\002 \001(\014:\0028\001" +
-      "\"X\n\004GATT\022\013\n\003mtu\030\001 \001(\005\022C\n\010services\030\002 \003(\0132" +
-      "1.dev.yanshouwang.bluetooth_low_energy.G" +
-      "attService\"n\n\013GattService\022\014\n\004uuid\030\001 \001(\t\022" +
-      "Q\n\017characteristics\030\002 \003(\01328.dev.yanshouwa" +
-      "ng.bluetooth_low_energy.GattCharacterist" +
-      "ic\"\304\001\n\022GattCharacteristic\022\014\n\004uuid\030\001 \001(\t\022" +
-      "I\n\013descriptors\030\002 \003(\01324.dev.yanshouwang.b" +
-      "luetooth_low_energy.GattDescriptor\022\017\n\007ca" +
-      "nRead\030\003 \001(\010\022\020\n\010canWrite\030\004 \001(\010\022\037\n\027canWrit" +
-      "eWithoutResponse\030\005 \001(\010\022\021\n\tcanNotify\030\006 \001(" +
-      "\010\"\036\n\016GattDescriptor\022\014\n\004uuid\030\001 \001(\t\"5\n\016Con" +
-      "nectionLost\022\017\n\007address\030\001 \001(\t\022\022\n\nerror_co" +
-      "de\030\002 \001(\005\"P\n\037GattCharacteristicReadArgume" +
-      "nts\022\016\n\006device\030\001 \001(\t\022\017\n\007service\030\002 \001(\t\022\014\n\004" +
-      "uuid\030\003 \001(\t\"y\n GattCharacteristicWriteArg" +
-      "uments\022\016\n\006device\030\001 \001(\t\022\017\n\007service\030\002 \001(\t\022" +
-      "\014\n\004uuid\030\003 \001(\t\022\r\n\005value\030\004 \001(\014\022\027\n\017withoutR" +
-      "esponse\030\005 \001(\010\"a\n!GattCharacteristicNotif" +
-      "yArguments\022\016\n\006device\030\001 \001(\t\022\017\n\007service\030\002 " +
-      "\001(\t\022\014\n\004uuid\030\003 \001(\t\022\r\n\005state\030\004 \001(\010\"W\n\027Gatt" +
-      "CharacteristicValue\022\016\n\006device\030\001 \001(\t\022\017\n\007s" +
-      "ervice\030\002 \001(\t\022\014\n\004uuid\030\003 \001(\t\022\r\n\005value\030\004 \001(" +
-      "\014\"d\n\033GattDescriptorReadArguments\022\016\n\006devi" +
-      "ce\030\001 \001(\t\022\017\n\007service\030\002 \001(\t\022\026\n\016characteris" +
-      "tic\030\003 \001(\t\022\014\n\004uuid\030\004 \001(\t\"t\n\034GattDescripto" +
-      "rWriteArguments\022\016\n\006device\030\001 \001(\t\022\017\n\007servi" +
-      "ce\030\002 \001(\t\022\026\n\016characteristic\030\003 \001(\t\022\014\n\004uuid" +
-      "\030\004 \001(\t\022\r\n\005value\030\005 \001(\014*\343\002\n\017MessageCategor" +
-      "y\022\023\n\017BLUETOOTH_STATE\020\000\022\033\n\027CENTRAL_START_" +
-      "DISCOVERY\020\001\022\032\n\026CENTRAL_STOP_DISCOVERY\020\002\022" +
-      "\026\n\022CENTRAL_DISCOVERED\020\003\022\024\n\020CENTRAL_SCANN" +
-      "ING\020\004\022\023\n\017CENTRAL_CONNECT\020\005\022\023\n\017GATT_DISCO" +
-      "NNECT\020\006\022\030\n\024GATT_CONNECTION_LOST\020\007\022\034\n\030GAT" +
-      "T_CHARACTERISTIC_READ\020\010\022\035\n\031GATT_CHARACTE" +
-      "RISTIC_WRITE\020\t\022\036\n\032GATT_CHARACTERISTIC_NO" +
-      "TIFY\020\n\022\030\n\024GATT_DESCRIPTOR_READ\020\013\022\031\n\025GATT" +
-      "_DESCRIPTOR_WRITE\020\014*p\n\016BluetoothState\022\013\n" +
-      "\007UNKNOWN\020\000\022\r\n\tRESETTING\020\001\022\017\n\013UNSUPPORTED" +
-      "\020\002\022\020\n\014UNAUTHORIZED\020\003\022\017\n\013POWERED_OFF\020\004\022\016\n" +
-      "\nPOWERED_ON\020\005b\006proto3"
+      "s\030\001 \003(\t\"B\n\tDiscovery\022\017\n\007address\030\001 \001(\t\022\014\n" +
+      "\004rssi\030\002 \001(\021\022\026\n\016advertisements\030\003 \001(\014\"X\n\004G" +
+      "ATT\022\013\n\003mtu\030\001 \001(\005\022C\n\010services\030\002 \003(\01321.dev" +
+      ".yanshouwang.bluetooth_low_energy.GattSe" +
+      "rvice\"n\n\013GattService\022\014\n\004uuid\030\001 \001(\t\022Q\n\017ch" +
+      "aracteristics\030\002 \003(\01328.dev.yanshouwang.bl" +
+      "uetooth_low_energy.GattCharacteristic\"\304\001" +
+      "\n\022GattCharacteristic\022\014\n\004uuid\030\001 \001(\t\022I\n\013de" +
+      "scriptors\030\002 \003(\01324.dev.yanshouwang.blueto" +
+      "oth_low_energy.GattDescriptor\022\017\n\007canRead" +
+      "\030\003 \001(\010\022\020\n\010canWrite\030\004 \001(\010\022\037\n\027canWriteWith" +
+      "outResponse\030\005 \001(\010\022\021\n\tcanNotify\030\006 \001(\010\"\036\n\016" +
+      "GattDescriptor\022\014\n\004uuid\030\001 \001(\t\"5\n\016Connecti" +
+      "onLost\022\017\n\007address\030\001 \001(\t\022\022\n\nerror_code\030\002 " +
+      "\001(\005\"P\n\037GattCharacteristicReadArguments\022\016" +
+      "\n\006device\030\001 \001(\t\022\017\n\007service\030\002 \001(\t\022\014\n\004uuid\030" +
+      "\003 \001(\t\"y\n GattCharacteristicWriteArgument" +
+      "s\022\016\n\006device\030\001 \001(\t\022\017\n\007service\030\002 \001(\t\022\014\n\004uu" +
+      "id\030\003 \001(\t\022\r\n\005value\030\004 \001(\014\022\027\n\017withoutRespon" +
+      "se\030\005 \001(\010\"a\n!GattCharacteristicNotifyArgu" +
+      "ments\022\016\n\006device\030\001 \001(\t\022\017\n\007service\030\002 \001(\t\022\014" +
+      "\n\004uuid\030\003 \001(\t\022\r\n\005state\030\004 \001(\010\"W\n\027GattChara" +
+      "cteristicValue\022\016\n\006device\030\001 \001(\t\022\017\n\007servic" +
+      "e\030\002 \001(\t\022\014\n\004uuid\030\003 \001(\t\022\r\n\005value\030\004 \001(\014\"d\n\033" +
+      "GattDescriptorReadArguments\022\016\n\006device\030\001 " +
+      "\001(\t\022\017\n\007service\030\002 \001(\t\022\026\n\016characteristic\030\003" +
+      " \001(\t\022\014\n\004uuid\030\004 \001(\t\"t\n\034GattDescriptorWrit" +
+      "eArguments\022\016\n\006device\030\001 \001(\t\022\017\n\007service\030\002 " +
+      "\001(\t\022\026\n\016characteristic\030\003 \001(\t\022\014\n\004uuid\030\004 \001(" +
+      "\t\022\r\n\005value\030\005 \001(\014*\343\002\n\017MessageCategory\022\023\n\017" +
+      "BLUETOOTH_STATE\020\000\022\033\n\027CENTRAL_START_DISCO" +
+      "VERY\020\001\022\032\n\026CENTRAL_STOP_DISCOVERY\020\002\022\026\n\022CE" +
+      "NTRAL_DISCOVERED\020\003\022\024\n\020CENTRAL_SCANNING\020\004" +
+      "\022\023\n\017CENTRAL_CONNECT\020\005\022\023\n\017GATT_DISCONNECT" +
+      "\020\006\022\030\n\024GATT_CONNECTION_LOST\020\007\022\034\n\030GATT_CHA" +
+      "RACTERISTIC_READ\020\010\022\035\n\031GATT_CHARACTERISTI" +
+      "C_WRITE\020\t\022\036\n\032GATT_CHARACTERISTIC_NOTIFY\020" +
+      "\n\022\030\n\024GATT_DESCRIPTOR_READ\020\013\022\031\n\025GATT_DESC" +
+      "RIPTOR_WRITE\020\014*p\n\016BluetoothState\022\013\n\007UNKN" +
+      "OWN\020\000\022\r\n\tRESETTING\020\001\022\017\n\013UNSUPPORTED\020\002\022\020\n" +
+      "\014UNAUTHORIZED\020\003\022\017\n\013POWERED_OFF\020\004\022\016\n\nPOWE" +
+      "RED_ON\020\005b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -13774,12 +13520,6 @@ public final class MessageOuterClass {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_dev_yanshouwang_bluetooth_low_energy_Discovery_descriptor,
         new java.lang.String[] { "Address", "Rssi", "Advertisements", });
-    internal_static_dev_yanshouwang_bluetooth_low_energy_Discovery_AdvertisementsEntry_descriptor =
-      internal_static_dev_yanshouwang_bluetooth_low_energy_Discovery_descriptor.getNestedTypes().get(0);
-    internal_static_dev_yanshouwang_bluetooth_low_energy_Discovery_AdvertisementsEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_dev_yanshouwang_bluetooth_low_energy_Discovery_AdvertisementsEntry_descriptor,
-        new java.lang.String[] { "Key", "Value", });
     internal_static_dev_yanshouwang_bluetooth_low_energy_GATT_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_dev_yanshouwang_bluetooth_low_energy_GATT_fieldAccessorTable = new

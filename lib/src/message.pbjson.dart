@@ -79,23 +79,12 @@ const Discovery$json = const {
   '2': const [
     const {'1': 'address', '3': 1, '4': 1, '5': 9, '10': 'address'},
     const {'1': 'rssi', '3': 2, '4': 1, '5': 17, '10': 'rssi'},
-    const {'1': 'advertisements', '3': 3, '4': 3, '5': 11, '6': '.dev.yanshouwang.bluetooth_low_energy.Discovery.AdvertisementsEntry', '10': 'advertisements'},
+    const {'1': 'advertisements', '3': 3, '4': 1, '5': 12, '10': 'advertisements'},
   ],
-  '3': const [Discovery_AdvertisementsEntry$json],
-};
-
-@$core.Deprecated('Use discoveryDescriptor instead')
-const Discovery_AdvertisementsEntry$json = const {
-  '1': 'AdvertisementsEntry',
-  '2': const [
-    const {'1': 'key', '3': 1, '4': 1, '5': 13, '10': 'key'},
-    const {'1': 'value', '3': 2, '4': 1, '5': 12, '10': 'value'},
-  ],
-  '7': const {'7': true},
 };
 
 /// Descriptor for `Discovery`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List discoveryDescriptor = $convert.base64Decode('CglEaXNjb3ZlcnkSGAoHYWRkcmVzcxgBIAEoCVIHYWRkcmVzcxISCgRyc3NpGAIgASgRUgRyc3NpEmsKDmFkdmVydGlzZW1lbnRzGAMgAygLMkMuZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5LkRpc2NvdmVyeS5BZHZlcnRpc2VtZW50c0VudHJ5Ug5hZHZlcnRpc2VtZW50cxpBChNBZHZlcnRpc2VtZW50c0VudHJ5EhAKA2tleRgBIAEoDVIDa2V5EhQKBXZhbHVlGAIgASgMUgV2YWx1ZToCOAE=');
+final $typed_data.Uint8List discoveryDescriptor = $convert.base64Decode('CglEaXNjb3ZlcnkSGAoHYWRkcmVzcxgBIAEoCVIHYWRkcmVzcxISCgRyc3NpGAIgASgRUgRyc3NpEiYKDmFkdmVydGlzZW1lbnRzGAMgASgMUg5hZHZlcnRpc2VtZW50cw==');
 @$core.Deprecated('Use gATTDescriptor instead')
 const GATT$json = const {
   '1': 'GATT',

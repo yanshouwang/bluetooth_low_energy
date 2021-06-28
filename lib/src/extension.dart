@@ -57,8 +57,22 @@ extension on proto.BluetoothState {
 }
 
 extension on proto.Discovery {
-  Discovery get conversion =>
-      Discovery(address.conversionOfMAC, rssi, advertisements);
+  Discovery get conversion {
+    final convertedAdvertisements = <int, List<int>>{};
+    var start = 0;
+    while (start < advertisements.length) {
+      final length = advertisements[start++];
+      if (length == 0) {
+        break;
+      }
+      final end = start + length;
+      final key = advertisements[start++];
+      final value = advertisements.sublist(start, end);
+      start = end;
+      convertedAdvertisements[key] = value;
+    }
+    return Discovery(address.conversionOfMAC, rssi, convertedAdvertisements);
+  }
 }
 
 extension on proto.GATT {

@@ -2,21 +2,24 @@ package dev.yanshouwang.bluetooth_low_energy
 
 import android.Manifest
 import android.bluetooth.*
-import android.bluetooth.le.*
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
+import android.bluetooth.le.ScanResult
+import android.bluetooth.le.ScanSettings
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.os.*
+import android.os.Build
+import android.os.Handler
+import android.os.ParcelUuid
 import android.util.Log
 import androidx.annotation.NonNull
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.protobuf.ByteString
 import dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.*
-import dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.Message
 import dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.MessageCategory.*
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -36,8 +39,7 @@ const val NAMESPACE = "yanshouwang.dev/bluetooth_low_energy"
 typealias RequestPermissionsHandler = (granted: Boolean) -> Unit
 
 /** BluetoothLowEnergyPlugin */
-class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler, ActivityAware,
-        RequestPermissionsResultListener {
+class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler, ActivityAware, RequestPermissionsResultListener {
     companion object {
         private const val CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
         private const val UNKNOWN = -1
@@ -110,24 +112,8 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
             sink?.success(event)
         }
 
-    private val scan18 by lazy {
-        BluetoothAdapter.LeScanCallback { device, rssi, scanRecord ->
-            val discovery = Discovery.newBuilder()
-                    .setAddress(device.address)
-                    .setRssi(rssi)
-                    .putAllAdvertisements(scanRecord.advertisements)
-                    .build()
-            val event = Message.newBuilder()
-                    .setCategory(CENTRAL_DISCOVERED)
-                    .setDiscovery(discovery)
-                    .build()
-                    .toByteArray()
-            sink?.success(event)
-        }
-    }
-
-    private val scan21 by lazy {
-        @RequiresApi(Build.VERSION_CODES.LOLLIPOP) object : ScanCallback() {
+    private val scanCallback by lazy {
+        object : ScanCallback() {
             override fun onScanFailed(errorCode: Int) {
                 super.onScanFailed(errorCode)
                 Log.d(TAG, "onScanFailed: $errorCode")
@@ -135,14 +121,17 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
 
             override fun onScanResult(callbackType: Int, result: ScanResult?) {
                 super.onScanResult(callbackType, result)
-                if (result == null)
-                    return
+                if (result == null) return
+                val address = result.device.address
+                val rssi = result.rssi
+                val record = result.scanRecord
+                val advertisements =
+                        if (record == null) ByteString.EMPTY
+                        else ByteString.copyFrom(record.bytes)
                 val builder = Discovery.newBuilder()
-                        .setAddress(result.device.address)
-                        .setRssi(result.rssi)
-                if (result.scanRecord != null) {
-                    builder.putAllAdvertisements(result.scanRecord?.bytes?.advertisements)
-                }
+                        .setAddress(address)
+                        .setRssi(rssi)
+                        .setAdvertisements(advertisements)
                 val discovery = builder.build()
                 val event = Message.newBuilder()
                         .setCategory(CENTRAL_DISCOVERED)
@@ -154,13 +143,18 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
 
             override fun onBatchScanResults(results: MutableList<ScanResult>?) {
                 super.onBatchScanResults(results)
-                for (result in results!!) {
+                if (results == null) return
+                for (result in results) {
+                    val address = result.device.address
+                    val rssi = result.rssi
+                    val record = result.scanRecord
+                    val advertisements =
+                            if (record == null) ByteString.EMPTY
+                            else ByteString.copyFrom(record.bytes)
                     val builder = Discovery.newBuilder()
-                            .setAddress(result.device.address)
-                            .setRssi(result.rssi)
-                    if (result.scanRecord != null) {
-                        builder.putAllAdvertisements(result.scanRecord?.bytes?.advertisements)
-                    }
+                            .setAddress(address)
+                            .setRssi(rssi)
+                            .setAdvertisements(advertisements)
                     val discovery = builder.build()
                     val event = Message.newBuilder()
                             .setCategory(CENTRAL_DISCOVERED)
@@ -176,7 +170,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
     private fun startScan(services: List<String>): Int {
         return when {
             scanning -> SCAN_ALREADY_STARTED
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP -> {
+            else -> {
                 val filters = services.map { service ->
                     val uuid = ParcelUuid.fromString(service)
                     ScanFilter.Builder()
@@ -186,30 +180,16 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 val settings = ScanSettings.Builder()
                         .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                         .build()
-                bluetoothAdapter.bluetoothLeScanner.startScan(filters, settings, scan21)
+                bluetoothAdapter.bluetoothLeScanner.startScan(filters, settings, scanCallback)
                 // TODO: seems there is no way to get success callback when use bluetoothLeScanner#startScan.
                 scanning = true
                 NO_ERROR
-            }
-            else -> {
-                val uuids = services.map { service -> UUID.fromString(service) }.toTypedArray()
-                val succeed = bluetoothAdapter.startLeScan(uuids, scan18)
-                if (succeed) {
-                    scanning = true
-                    NO_ERROR
-                } else {
-                    UNKNOWN
-                }
             }
         }
     }
 
     private fun stopScan() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            bluetoothAdapter.bluetoothLeScanner.stopScan(scan21)
-        } else {
-            bluetoothAdapter.stopLeScan(scan18)
-        }
+        bluetoothAdapter.bluetoothLeScanner.stopScan(scanCallback)
         scanning = false
     }
 
@@ -695,21 +675,4 @@ val Int.bluetoothState: BluetoothState
         BluetoothAdapter.STATE_ON -> BluetoothState.POWERED_ON
         BluetoothAdapter.STATE_TURNING_OFF -> BluetoothState.POWERED_ON
         else -> BluetoothState.UNKNOWN
-    }
-
-val ByteArray.advertisements: Map<Int, ByteString>
-    get() {
-        val advertisements = mutableMapOf<Int, ByteString>()
-        var i = 0
-        while (i < size) {
-            val remained = this[i++].toUByte().toInt()
-            if (remained == 0) {
-                break
-            }
-            val key = this[i++].toUByte().toInt()
-            val value = ByteString.copyFrom(this, i, remained - 1)
-            i += value.size()
-            advertisements[key] = value
-        }
-        return advertisements
     }

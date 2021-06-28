@@ -81,9 +81,7 @@ void main() {
             discovery: proto.Discovery(
               address: 'aa:bb:cc:dd:ee:ff',
               rssi: -50,
-              advertisements: {
-                0xff: [0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa],
-              },
+              advertisements: [0x07, 0xff, 0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa],
             ),
           ).writeToBuffer();
           await ServicesBinding.instance!.defaultBinaryMessenger

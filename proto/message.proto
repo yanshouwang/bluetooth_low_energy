@@ -19,7 +19,7 @@ message StartDiscoveryArguments {
 message Discovery {
   string address = 1;
   sint32 rssi = 2;
-  map<uint32, bytes> advertisements = 3;
+  bytes advertisements = 3;
 }
 
 message GATT {
