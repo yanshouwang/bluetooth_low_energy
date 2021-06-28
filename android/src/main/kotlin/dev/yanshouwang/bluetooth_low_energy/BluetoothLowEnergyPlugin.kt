@@ -258,13 +258,13 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                             connect != null -> handler.post { connect.error(status) }
                             disconnect != null -> handler.post { disconnect.error(status) }
                             else -> {
-                                val connectionLostEvent = ConnectionLostEvent.newBuilder()
+                                val connectionLost = ConnectionLost.newBuilder()
                                         .setDevice(address)
                                         .setErrorCode(status)
                                         .build()
                                 val event = Message.newBuilder()
                                         .setCategory(GATT_CONNECTION_LOST)
-                                        .setConnectionLostEvent(connectionLostEvent)
+                                        .setConnectionLost(connectionLost)
                                         .build()
                                         .toByteArray()
                                 handler.post { sink?.success(event) }
@@ -375,7 +375,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                     else -> {
                         val startDiscovery = Runnable {
                             val data = call.arguments<ByteArray>()
-                            val arguments = DiscoveryArguments.parseFrom(data)
+                            val arguments = StartDiscoveryArguments.parseFrom(data)
                             val code = startScan(arguments.servicesList)
                             if (code == NO_ERROR) {
                                 result.success()
@@ -437,6 +437,11 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 gatts[address]!!.disconnect()
             }
             GATT_CONNECTION_LOST -> result.notImplemented()
+            GATT_CHARACTERISTIC_READ -> TODO()
+            GATT_CHARACTERISTIC_WRITE -> TODO()
+            GATT_CHARACTERISTIC_NOTIFY -> TODO()
+            GATT_DESCRIPTOR_READ -> TODO()
+            GATT_DESCRIPTOR_WRITE -> TODO()
             UNRECOGNIZED -> result.notImplemented()
         }
     }

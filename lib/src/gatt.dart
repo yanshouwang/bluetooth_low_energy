@@ -22,8 +22,8 @@ class _GATT implements GATT {
       .map((event) => proto.Message.fromBuffer(event))
       .where((event) =>
           event.category == proto.MessageCategory.GATT_CONNECTION_LOST &&
-          event.connectionLostEvent.device.conversionOfMAC == device)
-      .map((event) => event.connectionLostEvent.errorCode);
+          event.connectionLost.device.conversionOfMAC == device)
+      .map((event) => event.connectionLost.errorCode);
 
   @override
   Future disconnect() => method.invokeMethod(

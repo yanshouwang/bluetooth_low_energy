@@ -102,9 +102,9 @@ void main() {
             event.codec.encodeSuccessEnvelope(scanning),
             (data) {},
           );
-          final connectionLostEvent = proto.Message(
+          final connectionLost = proto.Message(
             category: proto.MessageCategory.GATT_CONNECTION_LOST,
-            connectionLostEvent: proto.ConnectionLostEvent(
+            connectionLost: proto.ConnectionLost(
               device: 'aa:bb:cc:dd:ee:ff',
               errorCode: 19,
             ),
@@ -112,12 +112,12 @@ void main() {
           await ServicesBinding.instance!.defaultBinaryMessenger
               .handlePlatformMessage(
             event.name,
-            event.codec.encodeSuccessEnvelope(connectionLostEvent),
+            event.codec.encodeSuccessEnvelope(connectionLost),
             (data) {},
           );
-          final notifyEvent = proto.Message(
+          final characteristicValue = proto.Message(
             category: proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY,
-            notifyEvent: proto.GattCharacteristicNotifyEvent(
+            characteristicValue: proto.GattCharacteristicValue(
               device: 'aa:bb:cc:dd:ee:ff',
               service: '00001800-0000-1000-8000-00805F9B34FB',
               characteristic: '00002A00-0000-1000-8000-00805F9B34FB',
@@ -127,7 +127,7 @@ void main() {
           await ServicesBinding.instance!.defaultBinaryMessenger
               .handlePlatformMessage(
             event.name,
-            event.codec.encodeSuccessEnvelope(notifyEvent),
+            event.codec.encodeSuccessEnvelope(characteristicValue),
             (data) {},
           );
           break;
@@ -177,7 +177,7 @@ void main() {
         [
           isMethodCall(
             proto.MessageCategory.CENTRAL_START_DISCOVERY.name,
-            arguments: proto.DiscoveryArguments(
+            arguments: proto.StartDiscoveryArguments(
               services: services.map((uuid) => uuid.name),
             ).writeToBuffer(),
           ),

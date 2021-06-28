@@ -47,7 +47,7 @@ class _GattCharacteristic implements GattCharacteristic {
       .map((event) => proto.Message.fromBuffer(event))
       .where((message) =>
           message.category == proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY)
-      .map((message) => message.notifyEvent.value);
+      .map((message) => message.characteristicValue.value);
 
   @override
   Future<List<int>> read() {

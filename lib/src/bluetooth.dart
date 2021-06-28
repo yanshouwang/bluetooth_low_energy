@@ -67,7 +67,7 @@ class _Central extends _Bluetooth implements Central {
   @override
   Future startDiscovery({List<UUID>? services}) => method.invokeMethod(
         proto.MessageCategory.CENTRAL_START_DISCOVERY.name,
-        proto.DiscoveryArguments(
+        proto.StartDiscoveryArguments(
           services: services?.map((uuid) => uuid.name),
         ).writeToBuffer(),
       );

@@ -7,12 +7,12 @@ message Message {
       BluetoothState state = 2;
       Discovery discovery = 3;
       bool scanning = 4;
-      ConnectionLostEvent connectionLostEvent = 5;
-      GattCharacteristicNotifyEvent notifyEvent = 6;
+      ConnectionLost connectionLost = 5;
+      GattCharacteristicValue characteristicValue = 6;
   }
 }
 
-message DiscoveryArguments {
+message StartDiscoveryArguments {
   repeated string services = 1;
 }
 
@@ -45,7 +45,7 @@ message GattDescriptor {
   string uuid = 1;
 }
 
-message ConnectionLostEvent {
+message ConnectionLost {
   string device = 1;
   int32 error_code = 2;
 }
@@ -71,7 +71,7 @@ message GattCharacteristicNotifyArguments{
   bool state = 4;
 }
 
-message GattCharacteristicNotifyEvent {
+message GattCharacteristicValue {
   string device = 1;
   string service = 2;
   string characteristic = 3;
