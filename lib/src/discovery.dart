@@ -20,15 +20,3 @@ class _Discovery implements Discovery {
 
   _Discovery(this.address, this.rssi, this.advertisements);
 }
-
-extension DiscoveryX on Discovery {
-  String? get name {
-    if (advertisements.containsKey(0x08)) {
-      return utf8.decode(advertisements[0x08]!);
-    } else if (advertisements.containsKey(0x09)) {
-      return utf8.decode(advertisements[0x09]!);
-    } else {
-      return null;
-    }
-  }
-}

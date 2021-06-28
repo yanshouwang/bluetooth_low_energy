@@ -18,6 +18,11 @@ class MessageCategory extends $pb.ProtobufEnum {
   static const MessageCategory CENTRAL_CONNECT = MessageCategory._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'CENTRAL_CONNECT');
   static const MessageCategory GATT_DISCONNECT = MessageCategory._(6, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GATT_DISCONNECT');
   static const MessageCategory GATT_CONNECTION_LOST = MessageCategory._(7, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GATT_CONNECTION_LOST');
+  static const MessageCategory GATT_CHARACTERISTIC_READ = MessageCategory._(8, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GATT_CHARACTERISTIC_READ');
+  static const MessageCategory GATT_CHARACTERISTIC_WRITE = MessageCategory._(9, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GATT_CHARACTERISTIC_WRITE');
+  static const MessageCategory GATT_CHARACTERISTIC_NOTIFY = MessageCategory._(10, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GATT_CHARACTERISTIC_NOTIFY');
+  static const MessageCategory GATT_DESCRIPTOR_READ = MessageCategory._(11, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GATT_DESCRIPTOR_READ');
+  static const MessageCategory GATT_DESCRIPTOR_WRITE = MessageCategory._(12, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'GATT_DESCRIPTOR_WRITE');
 
   static const $core.List<MessageCategory> values = <MessageCategory> [
     BLUETOOTH_STATE,
@@ -28,6 +33,11 @@ class MessageCategory extends $pb.ProtobufEnum {
     CENTRAL_CONNECT,
     GATT_DISCONNECT,
     GATT_CONNECTION_LOST,
+    GATT_CHARACTERISTIC_READ,
+    GATT_CHARACTERISTIC_WRITE,
+    GATT_CHARACTERISTIC_NOTIFY,
+    GATT_DESCRIPTOR_READ,
+    GATT_DESCRIPTOR_WRITE,
   ];
 
   static final $core.Map<$core.int, MessageCategory> _byValue = $pb.ProtobufEnum.initByValue(values);

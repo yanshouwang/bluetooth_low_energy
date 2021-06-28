@@ -6,8 +6,9 @@ abstract class GattService {
 }
 
 class _GattService implements GattService {
-  _GattService(this.uuid, this.characteristics);
+  _GattService(this.device, this.uuid, this.characteristics);
 
+  final MAC device;
   @override
   final UUID uuid;
   @override

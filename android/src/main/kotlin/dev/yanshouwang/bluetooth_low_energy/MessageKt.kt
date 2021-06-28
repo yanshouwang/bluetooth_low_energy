@@ -112,27 +112,51 @@ object MessageKt {
     }
 
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.ConnectionLostArguments connectionLostArguments = 5;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.ConnectionLostEvent connectionLostEvent = 5;</code>
      */
-    var connectionLostArguments: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.ConnectionLostArguments
-      @JvmName("getConnectionLostArguments")
-      get() = _builder.getConnectionLostArguments()
-      @JvmName("setConnectionLostArguments")
+    var connectionLostEvent: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.ConnectionLostEvent
+      @JvmName("getConnectionLostEvent")
+      get() = _builder.getConnectionLostEvent()
+      @JvmName("setConnectionLostEvent")
       set(value) {
-        _builder.setConnectionLostArguments(value)
+        _builder.setConnectionLostEvent(value)
       }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.ConnectionLostArguments connectionLostArguments = 5;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.ConnectionLostEvent connectionLostEvent = 5;</code>
      */
-    fun clearConnectionLostArguments() {
-      _builder.clearConnectionLostArguments()
+    fun clearConnectionLostEvent() {
+      _builder.clearConnectionLostEvent()
     }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.ConnectionLostArguments connectionLostArguments = 5;</code>
-     * @return Whether the connectionLostArguments field is set.
+     * <code>.dev.yanshouwang.bluetooth_low_energy.ConnectionLostEvent connectionLostEvent = 5;</code>
+     * @return Whether the connectionLostEvent field is set.
      */
-    fun hasConnectionLostArguments(): kotlin.Boolean {
-      return _builder.hasConnectionLostArguments()
+    fun hasConnectionLostEvent(): kotlin.Boolean {
+      return _builder.hasConnectionLostEvent()
+    }
+
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicNotifyEvent notifyEvent = 6;</code>
+     */
+    var notifyEvent: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicNotifyEvent
+      @JvmName("getNotifyEvent")
+      get() = _builder.getNotifyEvent()
+      @JvmName("setNotifyEvent")
+      set(value) {
+        _builder.setNotifyEvent(value)
+      }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicNotifyEvent notifyEvent = 6;</code>
+     */
+    fun clearNotifyEvent() {
+      _builder.clearNotifyEvent()
+    }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicNotifyEvent notifyEvent = 6;</code>
+     * @return Whether the notifyEvent field is set.
+     */
+    fun hasNotifyEvent(): kotlin.Boolean {
+      return _builder.hasNotifyEvent()
     }
     val valueCase: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.Message.ValueCase
       @JvmName("getValueCase")

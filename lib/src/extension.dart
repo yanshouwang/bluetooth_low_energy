@@ -58,32 +58,41 @@ extension on proto.BluetoothState {
 
 extension on proto.Discovery {
   Discovery get conversion =>
-      Discovery(address.conversionOfMAC, rssi, advertisements);
+      Discovery(device.conversionOfMAC, rssi, advertisements);
 }
 
 extension on proto.GATT {
-  GATT convert(MAC address) {
+  GATT convert(MAC device) {
     final convertedServices =
-        services.map((service) => service.conversion).toList();
-    return _GATT(address, mtu, convertedServices);
+        services.map((service) => service.convert(device)).toList();
+    return _GATT(device, mtu, convertedServices);
   }
 }
 
 extension on proto.GattService {
-  GattService get conversion {
+  GattService convert(MAC device) {
+    final convertedUUID = uuid.conversionOfUUID;
     final convertedCharacteristics = characteristics
-        .map((characteristic) => characteristic.conversion)
+        .map((characteristic) => characteristic.convert(device, convertedUUID))
         .toList();
-    return _GattService(uuid.conversionOfUUID, convertedCharacteristics);
+    return _GattService(
+      device,
+      convertedUUID,
+      convertedCharacteristics,
+    );
   }
 }
 
 extension on proto.GattCharacteristic {
-  GattCharacteristic get conversion {
-    final convertedDescriptors =
-        descriptors.map((descriptor) => descriptor.conversion).toList();
+  GattCharacteristic convert(MAC device, UUID service) {
+    final convertedUUID = uuid.conversionOfUUID;
+    final convertedDescriptors = descriptors
+        .map((descriptor) => descriptor.convert(device, service, convertedUUID))
+        .toList();
     return _GattCharacteristic(
-      uuid.conversionOfUUID,
+      device,
+      service,
+      convertedUUID,
       convertedDescriptors,
       canRead,
       canWrite,
@@ -94,5 +103,25 @@ extension on proto.GattCharacteristic {
 }
 
 extension on proto.GattDescriptor {
-  GattDescriptor get conversion => _GattDescriptor(uuid.conversionOfUUID);
+  GattDescriptor convert(MAC device, UUID service, UUID characteristic) {
+    final convertedUUID = uuid.conversionOfUUID;
+    return _GattDescriptor(
+      device,
+      service,
+      characteristic,
+      convertedUUID,
+    );
+  }
+}
+
+extension DiscoveryX on Discovery {
+  String? get name {
+    if (advertisements.containsKey(0x08)) {
+      return utf8.decode(advertisements[0x08]!);
+    } else if (advertisements.containsKey(0x09)) {
+      return utf8.decode(advertisements[0x09]!);
+    } else {
+      return null;
+    }
+  }
 }

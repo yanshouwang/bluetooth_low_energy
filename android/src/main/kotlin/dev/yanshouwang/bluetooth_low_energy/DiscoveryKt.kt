@@ -23,20 +23,20 @@ object DiscoveryKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.Discovery = _builder.build()
 
     /**
-     * <code>string address = 1;</code>
+     * <code>string device = 1;</code>
      */
-    var address: kotlin.String
-      @JvmName("getAddress")
-      get() = _builder.getAddress()
-      @JvmName("setAddress")
+    var device: kotlin.String
+      @JvmName("getDevice")
+      get() = _builder.getDevice()
+      @JvmName("setDevice")
       set(value) {
-        _builder.setAddress(value)
+        _builder.setDevice(value)
       }
     /**
-     * <code>string address = 1;</code>
+     * <code>string device = 1;</code>
      */
-    fun clearAddress() {
-      _builder.clearAddress()
+    fun clearDevice() {
+      _builder.clearDevice()
     }
 
     /**

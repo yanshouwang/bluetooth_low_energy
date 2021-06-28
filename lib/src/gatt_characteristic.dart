@@ -11,14 +11,14 @@ abstract class GattCharacteristic {
   Stream<List<int>> get valueChanged;
 
   Future<List<int>> read();
-  Future write(List<int> value);
-  Future writeWithoutResponse(List<int> value);
-  Future startNotify();
-  Future stopNotify();
+  Future write(List<int> value, {bool withoutResponse = false});
+  Future notify(bool state);
 }
 
 class _GattCharacteristic implements GattCharacteristic {
   _GattCharacteristic(
+    this.device,
+    this.service,
     this.uuid,
     this.descriptors,
     this.canRead,
@@ -27,6 +27,8 @@ class _GattCharacteristic implements GattCharacteristic {
     this.canNotify,
   );
 
+  final MAC device;
+  final UUID service;
   @override
   final UUID uuid;
   @override
@@ -41,36 +43,47 @@ class _GattCharacteristic implements GattCharacteristic {
   final bool canNotify;
 
   @override
-  // TODO: implement valueChanged
-  Stream<List<int>> get valueChanged => throw UnimplementedError();
+  Stream<List<int>> get valueChanged => stream
+      .map((event) => proto.Message.fromBuffer(event))
+      .where((message) =>
+          message.category == proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY)
+      .map((message) => message.notifyEvent.value);
 
   @override
   Future<List<int>> read() {
-    // TODO: implement read
-    throw UnimplementedError();
+    final name = proto.MessageCategory.GATT_CHARACTERISTIC_READ.name;
+    final arguments = proto.GattCharacteristicReadArguments(
+      device: device.name,
+      service: service.name,
+      characteristic: uuid.name,
+    ).writeToBuffer();
+    return method
+        .invokeListMethod<int>(name, arguments)
+        .then((value) => value!);
   }
 
   @override
-  Future write(List<int> value) {
-    // TODO: implement write
-    throw UnimplementedError();
+  Future write(List<int> value, {bool withoutResponse = false}) {
+    final name = proto.MessageCategory.GATT_CHARACTERISTIC_WRITE.name;
+    final arguments = proto.GattCharacteristicWriteArguments(
+      device: device.name,
+      service: service.name,
+      characteristic: uuid.name,
+      value: value,
+      withoutResponse: withoutResponse,
+    ).writeToBuffer();
+    return method.invokeMethod(name, arguments);
   }
 
   @override
-  Future writeWithoutResponse(List<int> value) {
-    // TODO: implement writeWithoutResponse
-    throw UnimplementedError();
-  }
-
-  @override
-  Future startNotify() {
-    // TODO: implement startNotify
-    throw UnimplementedError();
-  }
-
-  @override
-  Future stopNotify() {
-    // TODO: implement stopNotify
-    throw UnimplementedError();
+  Future notify(bool state) {
+    final name = proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY.name;
+    final arguments = proto.GattCharacteristicNotifyArguments(
+      device: device.name,
+      service: service.name,
+      characteristic: uuid.name,
+      state: state,
+    ).writeToBuffer();
+    return method.invokeMethod(name, arguments);
   }
 }

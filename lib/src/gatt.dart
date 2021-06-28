@@ -1,7 +1,6 @@
 part of bluetooth_low_energy;
 
 abstract class GATT {
-  MAC get address;
   int get mtu;
   Stream<int> get connectionLost;
   List<GattService> get services;
@@ -10,10 +9,9 @@ abstract class GATT {
 }
 
 class _GATT implements GATT {
-  _GATT(this.address, this.mtu, this.services);
+  _GATT(this.device, this.mtu, this.services);
 
-  @override
-  final MAC address;
+  final MAC device;
   @override
   final int mtu;
   @override
@@ -24,10 +22,10 @@ class _GATT implements GATT {
       .map((event) => proto.Message.fromBuffer(event))
       .where((event) =>
           event.category == proto.MessageCategory.GATT_CONNECTION_LOST &&
-          event.connectionLostArguments.address.conversionOfMAC == address)
-      .map((event) => event.connectionLostArguments.errorCode);
+          event.connectionLostEvent.device.conversionOfMAC == device)
+      .map((event) => event.connectionLostEvent.errorCode);
 
   @override
   Future disconnect() => method.invokeMethod(
-      proto.MessageCategory.GATT_DISCONNECT.name, address.name);
+      proto.MessageCategory.GATT_DISCONNECT.name, device.name);
 }

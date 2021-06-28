@@ -7,7 +7,8 @@ message Message {
       BluetoothState state = 2;
       Discovery discovery = 3;
       bool scanning = 4;
-      ConnectionLostArguments connectionLostArguments = 5;
+      ConnectionLostEvent connectionLostEvent = 5;
+      GattCharacteristicNotifyEvent notifyEvent = 6;
   }
 }
 
@@ -16,7 +17,7 @@ message DiscoveryArguments {
 }
 
 message Discovery {
-  string address = 1;
+  string device = 1;
   sint32 rssi = 2;
   map<uint32, bytes> advertisements = 3;
 }
@@ -44,9 +45,52 @@ message GattDescriptor {
   string uuid = 1;
 }
 
-message ConnectionLostArguments {
-  string address = 1;
+message ConnectionLostEvent {
+  string device = 1;
   int32 error_code = 2;
+}
+
+message GattCharacteristicReadArguments {
+  string device = 1;
+  string service = 2;
+  string characteristic = 3;
+}
+
+message GattCharacteristicWriteArguments {
+  string device = 1;
+  string service = 2;
+  string characteristic = 3;
+  bytes value = 4;
+  bool withoutResponse = 5;
+}
+
+message GattCharacteristicNotifyArguments{
+  string device = 1;
+  string service = 2;
+  string characteristic = 3;
+  bool state = 4;
+}
+
+message GattCharacteristicNotifyEvent {
+  string device = 1;
+  string service = 2;
+  string characteristic = 3;
+  bytes value = 4;
+}
+
+message GattDescriptorReadArguments {
+  string device = 1;
+  string service = 2;
+  string characteristic = 3;
+  string descriptor = 4;
+}
+
+message GattDescriptorWriteArguments {
+  string device = 1;
+  string service = 2;
+  string characteristic = 3;
+  string descriptor = 4;
+  bytes value = 5;
 }
 
 enum MessageCategory {
@@ -58,6 +102,11 @@ enum MessageCategory {
     CENTRAL_CONNECT = 5;
     GATT_DISCONNECT = 6;
     GATT_CONNECTION_LOST = 7;
+    GATT_CHARACTERISTIC_READ = 8;
+    GATT_CHARACTERISTIC_WRITE = 9;
+    GATT_CHARACTERISTIC_NOTIFY = 10;
+    GATT_DESCRIPTOR_READ = 11;
+    GATT_DESCRIPTOR_WRITE = 12;
 }
 
 enum BluetoothState {

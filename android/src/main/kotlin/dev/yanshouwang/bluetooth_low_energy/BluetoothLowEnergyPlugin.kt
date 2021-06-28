@@ -108,7 +108,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
     private val scan18 by lazy {
         BluetoothAdapter.LeScanCallback { device, rssi, scanRecord ->
             val discovery = Discovery.newBuilder()
-                    .setAddress(device.address)
+                    .setDevice(device.address)
                     .setRssi(rssi)
                     .putAllAdvertisements(scanRecord.advertisements)
                     .build()
@@ -133,7 +133,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 if (result == null)
                     return
                 val builder = Discovery.newBuilder()
-                        .setAddress(result.device.address)
+                        .setDevice(result.device.address)
                         .setRssi(result.rssi)
                 if (result.scanRecord != null) {
                     builder.putAllAdvertisements(result.scanRecord?.bytes?.advertisements)
@@ -151,7 +151,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 super.onBatchScanResults(results)
                 results?.forEach { result ->
                     val builder = Discovery.newBuilder()
-                            .setAddress(result.device.address)
+                            .setDevice(result.device.address)
                             .setRssi(result.rssi)
                     if (result.scanRecord != null) {
                         builder.putAllAdvertisements(result.scanRecord?.bytes?.advertisements)
@@ -258,13 +258,13 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                             connect != null -> handler.post { connect.error(status) }
                             disconnect != null -> handler.post { disconnect.error(status) }
                             else -> {
-                                val connectionLostArguments = ConnectionLostArguments.newBuilder()
-                                        .setAddress(address)
+                                val connectionLostEvent = ConnectionLostEvent.newBuilder()
+                                        .setDevice(address)
                                         .setErrorCode(status)
                                         .build()
                                 val event = Message.newBuilder()
                                         .setCategory(GATT_CONNECTION_LOST)
-                                        .setConnectionLostArguments(connectionLostArguments)
+                                        .setConnectionLostEvent(connectionLostEvent)
                                         .build()
                                         .toByteArray()
                                 handler.post { sink?.success(event) }
