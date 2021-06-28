@@ -421,12 +421,8 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
     }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-        // Clear notifications.
         // Clear connections.
-        for (gatt in gatts.values) {
-            gatt.close()
-        }
-        gatts.clear()
+        for (gatt in gatts.values) gatt.close()
         // Stop scan.
         if (scanning) stopScan()
         // Unregister bluetooth adapter state receiver.
