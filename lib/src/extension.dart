@@ -63,8 +63,10 @@ extension on proto.Discovery {
 
 extension on proto.GATT {
   GATT convert(MAC device) {
-    final convertedServices =
-        services.map((service) => service.convert(device)).toList();
+    final convertedServices = {
+      for (var service in services)
+        service.uuid.conversionOfUUID: service.convert(device)
+    };
     return _GATT(device, mtu, convertedServices);
   }
 }
@@ -72,9 +74,11 @@ extension on proto.GATT {
 extension on proto.GattService {
   GattService convert(MAC device) {
     final convertedUUID = uuid.conversionOfUUID;
-    final convertedCharacteristics = characteristics
-        .map((characteristic) => characteristic.convert(device, convertedUUID))
-        .toList();
+    final convertedCharacteristics = {
+      for (var characteristic in characteristics)
+        characteristic.uuid.conversionOfUUID:
+            characteristic.convert(device, convertedUUID)
+    };
     return _GattService(
       device,
       convertedUUID,
@@ -86,9 +90,11 @@ extension on proto.GattService {
 extension on proto.GattCharacteristic {
   GattCharacteristic convert(MAC device, UUID service) {
     final convertedUUID = uuid.conversionOfUUID;
-    final convertedDescriptors = descriptors
-        .map((descriptor) => descriptor.convert(device, service, convertedUUID))
-        .toList();
+    final convertedDescriptors = {
+      for (var descriptor in descriptors)
+        descriptor.uuid.conversionOfUUID:
+            descriptor.convert(device, service, convertedUUID)
+    };
     return _GattCharacteristic(
       device,
       service,

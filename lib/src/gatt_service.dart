@@ -2,7 +2,7 @@ part of bluetooth_low_energy;
 
 abstract class GattService {
   UUID get uuid;
-  List<GattCharacteristic> get characteristics;
+  Map<UUID, GattCharacteristic> get characteristics;
 }
 
 class _GattService implements GattService {
@@ -12,5 +12,5 @@ class _GattService implements GattService {
   @override
   final UUID uuid;
   @override
-  final List<GattCharacteristic> characteristics;
+  final Map<UUID, GattCharacteristic> characteristics;
 }

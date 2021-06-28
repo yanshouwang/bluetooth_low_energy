@@ -71,7 +71,7 @@ class _GattViewState extends State<GattView> {
               return ValueListenableBuilder(
                 valueListenable: service,
                 builder: (context, GattService? serviceValue, child) {
-                  final services = gatt.value!.services
+                  final services = gatt.value!.services.values
                       .map((service) => DropdownMenuItem<GattService>(
                             value: service,
                             child: Text(
@@ -92,7 +92,7 @@ class _GattViewState extends State<GattView> {
                   );
                   final views = <Widget>[serviceView];
                   if (serviceValue != null) {
-                    final characteristics = serviceValue.characteristics
+                    final characteristics = serviceValue.characteristics.values
                         .map((characteristic) => DropdownMenuItem(
                               value: characteristic,
                               child: Text(

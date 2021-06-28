@@ -3,7 +3,7 @@ part of bluetooth_low_energy;
 abstract class GATT {
   int get mtu;
   Stream<int> get connectionLost;
-  List<GattService> get services;
+  Map<UUID, GattService> get services;
 
   Future disconnect();
 }
@@ -15,7 +15,7 @@ class _GATT implements GATT {
   @override
   final int mtu;
   @override
-  final List<GattService> services;
+  final Map<UUID, GattService> services;
 
   @override
   Stream<int> get connectionLost => stream

@@ -119,8 +119,8 @@ void main() {
             category: proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY,
             characteristicValue: proto.GattCharacteristicValue(
               device: 'aa:bb:cc:dd:ee:ff',
-              service: '00001800-0000-1000-8000-00805F9B34FB',
-              characteristic: '00002A00-0000-1000-8000-00805F9B34FB',
+              service: '00001800-0000-1000-8000-00805f9b34fb',
+              characteristic: '00002A00-0000-1000-8000-00805f9b34fb',
               value: [0x0A, 0x0B, 0x0C, 0x0D, 0x0E],
             ),
           ).writeToBuffer();
@@ -246,17 +246,17 @@ void main() {
       final actual = await central.connect(address);
       expect(actual.mtu, 23);
       expect(actual.services.length, 1);
-      final service = actual.services[0];
+      final service = actual.services.values.first;
       expect(service.uuid, UUID('1800'));
       expect(service.characteristics.length, 1);
-      final characteristic = service.characteristics[0];
+      final characteristic = service.characteristics.values.first;
       expect(characteristic.uuid, UUID('2A00'));
       expect(characteristic.descriptors.length, 1);
       expect(characteristic.canRead, true);
       expect(characteristic.canWrite, true);
       expect(characteristic.canWriteWithoutResponse, true);
       expect(characteristic.canNotify, true);
-      final descriptor = characteristic.descriptors[0];
+      final descriptor = characteristic.descriptors.values.first;
       expect(descriptor.uuid, UUID('2900'));
       expect(
         calls,
@@ -304,8 +304,8 @@ void main() {
     () async {
       final address = MAC('aa:bb:cc:dd:ee:ff');
       final gatt = await central.connect(address);
-      final service = gatt.services.first;
-      final characteristic = service.characteristics.first;
+      final service = gatt.services.values.first;
+      final characteristic = service.characteristics.values.first;
       final actual = await characteristic.read();
       expect(actual, [0x01, 0x02, 0x03, 0x04, 0x05]);
       expect(
@@ -332,8 +332,8 @@ void main() {
     () async {
       final address = MAC('aa:bb:cc:dd:ee:ff');
       final gatt = await central.connect(address);
-      final service = gatt.services.first;
-      final characteristic = service.characteristics.first;
+      final service = gatt.services.values.first;
+      final characteristic = service.characteristics.values.first;
       final value = [0x01, 0x02, 0x03, 0x04, 0x05];
       await characteristic.write(value, withoutResponse: true);
       expect(
@@ -362,8 +362,8 @@ void main() {
     () async {
       final address = MAC('aa:bb:cc:dd:ee:ff');
       final gatt = await central.connect(address);
-      final service = gatt.services.first;
-      final characteristic = service.characteristics.first;
+      final service = gatt.services.values.first;
+      final characteristic = service.characteristics.values.first;
       await characteristic.notify(true);
       expect(
         calls,
@@ -390,8 +390,8 @@ void main() {
     () async {
       final address = MAC('aa:bb:cc:dd:ee:ff');
       final gatt = await central.connect(address);
-      final service = gatt.services.first;
-      final characteristic = service.characteristics.first;
+      final service = gatt.services.values.first;
+      final characteristic = service.characteristics.values.first;
       final value = await characteristic.valueChanged.first;
       expect(value, [0x0A, 0x0B, 0x0C, 0x0D, 0x0E]);
     },
@@ -401,9 +401,9 @@ void main() {
     () async {
       final address = MAC('aa:bb:cc:dd:ee:ff');
       final gatt = await central.connect(address);
-      final service = gatt.services.first;
-      final characteristic = service.characteristics.first;
-      final descriptor = characteristic.descriptors.first;
+      final service = gatt.services.values.first;
+      final characteristic = service.characteristics.values.first;
+      final descriptor = characteristic.descriptors.values.first;
       final actual = await descriptor.read();
       expect(actual, [0x05, 0x04, 0x03, 0x02, 0x01]);
       expect(
@@ -431,9 +431,9 @@ void main() {
     () async {
       final address = MAC('aa:bb:cc:dd:ee:ff');
       final gatt = await central.connect(address);
-      final service = gatt.services.first;
-      final characteristic = service.characteristics.first;
-      final descriptor = characteristic.descriptors.first;
+      final service = gatt.services.values.first;
+      final characteristic = service.characteristics.values.first;
+      final descriptor = characteristic.descriptors.values.first;
       final value = [0x01, 0x02, 0x03, 0x04, 0x05];
       await descriptor.write(value);
       expect(

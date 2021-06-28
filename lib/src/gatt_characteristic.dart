@@ -2,7 +2,7 @@ part of bluetooth_low_energy;
 
 abstract class GattCharacteristic {
   UUID get uuid;
-  List<GattDescriptor> get descriptors;
+  Map<UUID, GattDescriptor> get descriptors;
   bool get canRead;
   bool get canWrite;
   bool get canWriteWithoutResponse;
@@ -32,7 +32,7 @@ class _GattCharacteristic implements GattCharacteristic {
   @override
   final UUID uuid;
   @override
-  final List<GattDescriptor> descriptors;
+  final Map<UUID, GattDescriptor> descriptors;
   @override
   final bool canRead;
   @override
@@ -46,7 +46,11 @@ class _GattCharacteristic implements GattCharacteristic {
   Stream<List<int>> get valueChanged => stream
       .map((event) => proto.Message.fromBuffer(event))
       .where((message) =>
-          message.category == proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY)
+          message.category ==
+              proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY &&
+          message.characteristicValue.device.conversionOfMAC == device &&
+          message.characteristicValue.service.conversionOfUUID == service &&
+          message.characteristicValue.characteristic.conversionOfUUID == uuid)
       .map((message) => message.characteristicValue.value);
 
   @override
