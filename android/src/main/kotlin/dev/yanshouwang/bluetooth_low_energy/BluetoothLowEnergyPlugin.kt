@@ -364,7 +364,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                         .setCharacteristicValue(characteristicValue)
                         .build()
                         .toByteArray()
-                sink?.success(event)
+                handler.post { sink?.success(event) }
             }
 
             override fun onDescriptorRead(gatt: BluetoothGatt?, descriptor: BluetoothGattDescriptor?, status: Int) {

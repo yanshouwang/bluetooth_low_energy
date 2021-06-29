@@ -21,7 +21,6 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        platform: TargetPlatform.iOS,
         fontFamily: 'IBM Plex Mono',
       ),
       home: HomeView(),
