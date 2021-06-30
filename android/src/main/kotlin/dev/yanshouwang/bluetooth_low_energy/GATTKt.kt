@@ -23,7 +23,24 @@ object GATTKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT = _builder.build()
 
     /**
-     * <code>int32 mtu = 1;</code>
+     * <code>int32 id = 1;</code>
+     */
+    var id: kotlin.Int
+      @JvmName("getId")
+      get() = _builder.getId()
+      @JvmName("setId")
+      set(value) {
+        _builder.setId(value)
+      }
+    /**
+     * <code>int32 id = 1;</code>
+     */
+    fun clearId() {
+      _builder.clearId()
+    }
+
+    /**
+     * <code>int32 mtu = 2;</code>
      */
     var mtu: kotlin.Int
       @JvmName("getMtu")
@@ -33,7 +50,7 @@ object GATTKt {
         _builder.setMtu(value)
       }
     /**
-     * <code>int32 mtu = 1;</code>
+     * <code>int32 mtu = 2;</code>
      */
     fun clearMtu() {
       _builder.clearMtu()
@@ -46,7 +63,7 @@ object GATTKt {
     @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
     class ServicesProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
     /**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 3;</code>
      */
      val services: com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService, ServicesProxy>
       @kotlin.jvm.JvmSynthetic
@@ -54,7 +71,7 @@ object GATTKt {
         _builder.getServicesList()
       )
     /**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 3;</code>
      * @param value The services to add.
      */
     @kotlin.jvm.JvmSynthetic
@@ -62,7 +79,7 @@ object GATTKt {
     fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService, ServicesProxy>.add(value: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService) {
       _builder.addServices(value)
     }/**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 3;</code>
      * @param value The services to add.
      */
     @kotlin.jvm.JvmSynthetic
@@ -70,7 +87,7 @@ object GATTKt {
     inline operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService, ServicesProxy>.plusAssign(value: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService) {
       add(value)
     }/**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 3;</code>
      * @param values The services to add.
      */
     @kotlin.jvm.JvmSynthetic
@@ -78,7 +95,7 @@ object GATTKt {
     fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService, ServicesProxy>.addAll(values: kotlin.collections.Iterable<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService>) {
       _builder.addAllServices(values)
     }/**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 3;</code>
      * @param values The services to add.
      */
     @kotlin.jvm.JvmSynthetic
@@ -86,7 +103,7 @@ object GATTKt {
     inline operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService, ServicesProxy>.plusAssign(values: kotlin.collections.Iterable<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService>) {
       addAll(values)
     }/**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 3;</code>
      * @param index The index to set the value at.
      * @param value The services to set.
      */
@@ -95,7 +112,7 @@ object GATTKt {
     operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService, ServicesProxy>.set(index: kotlin.Int, value: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService) {
       _builder.setServices(index, value)
     }/**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 2;</code>
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattService services = 3;</code>
      */
     @kotlin.jvm.JvmSynthetic
     @kotlin.jvm.JvmName("clearServices")

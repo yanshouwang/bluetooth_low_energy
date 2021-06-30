@@ -76,25 +76,26 @@ extension on proto.Discovery {
 }
 
 extension on proto.GATT {
-  GATT convert(MAC device) {
+  GATT convert(MAC address) {
     final convertedServices = {
       for (var service in services)
-        service.uuid.conversionOfUUID: service.convert(device)
+        service.uuid.conversionOfUUID: service.convert(address)
     };
-    return _GATT(device, mtu, convertedServices);
+    return _GATT(address, id, mtu, convertedServices);
   }
 }
 
 extension on proto.GattService {
-  GattService convert(MAC device) {
+  GattService convert(MAC address) {
     final convertedUUID = uuid.conversionOfUUID;
     final convertedCharacteristics = {
       for (var characteristic in characteristics)
         characteristic.uuid.conversionOfUUID:
-            characteristic.convert(device, convertedUUID)
+            characteristic.convert(address, convertedUUID)
     };
     return _GattService(
-      device,
+      address,
+      id,
       convertedUUID,
       convertedCharacteristics,
     );
@@ -102,16 +103,17 @@ extension on proto.GattService {
 }
 
 extension on proto.GattCharacteristic {
-  GattCharacteristic convert(MAC device, UUID service) {
+  GattCharacteristic convert(MAC address, UUID serviceUUID) {
     final convertedUUID = uuid.conversionOfUUID;
     final convertedDescriptors = {
       for (var descriptor in descriptors)
         descriptor.uuid.conversionOfUUID:
-            descriptor.convert(device, service, convertedUUID)
+            descriptor.convert(address, serviceUUID, convertedUUID)
     };
     return _GattCharacteristic(
-      device,
-      service,
+      address,
+      serviceUUID,
+      id,
       convertedUUID,
       convertedDescriptors,
       canRead,
@@ -123,12 +125,14 @@ extension on proto.GattCharacteristic {
 }
 
 extension on proto.GattDescriptor {
-  GattDescriptor convert(MAC device, UUID service, UUID characteristic) {
+  GattDescriptor convert(
+      MAC address, UUID serviceUUID, UUID characteristicUUID) {
     final convertedUUID = uuid.conversionOfUUID;
     return _GattDescriptor(
-      device,
-      service,
-      characteristic,
+      address,
+      serviceUUID,
+      characteristicUUID,
+      id,
       convertedUUID,
     );
   }

@@ -27,10 +27,6 @@ class _Bluetooth implements Bluetooth {
 
 /// An object that scans for, discovers, connects to, and manages peripherals.
 abstract class Central extends Bluetooth {
-  Future<bool> get scanning;
-
-  Stream<bool> get scanningChanged;
-
   /// The central manager discovered a peripheral while scanning for devices.
   Stream<Discovery> get discovered;
 
@@ -46,18 +42,6 @@ abstract class Central extends Bluetooth {
 
 class _Central extends _Bluetooth implements Central {
   @override
-  Future<bool> get scanning => method
-      .invokeMethod<bool>(proto.MessageCategory.CENTRAL_SCANNING.name)
-      .then((value) => value!);
-
-  @override
-  Stream<bool> get scanningChanged => stream
-      .map((event) => proto.Message.fromBuffer(event))
-      .where((message) =>
-          message.category == proto.MessageCategory.CENTRAL_SCANNING)
-      .map((message) => message.scanning);
-
-  @override
   Stream<Discovery> get discovered => stream
       .map((event) => proto.Message.fromBuffer(event))
       .where((message) =>
@@ -65,22 +49,29 @@ class _Central extends _Bluetooth implements Central {
       .map((message) => message.discovery.conversion);
 
   @override
-  Future startDiscovery({List<UUID>? services}) => method.invokeMethod(
-        proto.MessageCategory.CENTRAL_START_DISCOVERY.name,
-        proto.StartDiscoveryArguments(
-          services: services?.map((uuid) => uuid.name),
-        ).writeToBuffer(),
-      );
+  Future startDiscovery({List<UUID>? services}) {
+    final name = proto.MessageCategory.CENTRAL_START_DISCOVERY.name;
+    final arguments = proto.StartDiscoveryArguments(
+      services: services?.map((uuid) => uuid.name),
+    ).writeToBuffer();
+    return method.invokeMethod(name, arguments);
+  }
 
   @override
-  Future stopDiscovery() =>
-      method.invokeMethod(proto.MessageCategory.CENTRAL_STOP_DISCOVERY.name);
+  Future stopDiscovery() {
+    final name = proto.MessageCategory.CENTRAL_STOP_DISCOVERY.name;
+    return method.invokeMethod(name);
+  }
 
   @override
-  Future<GATT> connect(MAC address) => method
-      .invokeMethod<List<int>>(
-          proto.MessageCategory.CENTRAL_CONNECT.name, address.name)
-      .then((value) => proto.GATT.fromBuffer(value!).convert(address));
+  Future<GATT> connect(MAC address) {
+    final name = proto.MessageCategory.CENTRAL_CONNECT.name;
+    final arguments =
+        proto.ConnectArguments(address: address.name).writeToBuffer();
+    return method
+        .invokeMethod<List<int>>(name, arguments)
+        .then((value) => proto.GATT.fromBuffer(value!).convert(address));
+  }
 }
 
 /// The possible states of a bluetooth manager.

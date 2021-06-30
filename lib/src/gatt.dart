@@ -9,9 +9,10 @@ abstract class GATT {
 }
 
 class _GATT implements GATT {
-  _GATT(this.address, this.mtu, this.services);
+  _GATT(this.address, this.id, this.mtu, this.services);
 
   final MAC address;
+  final int id;
   @override
   final int mtu;
   @override
@@ -22,10 +23,15 @@ class _GATT implements GATT {
       .map((event) => proto.Message.fromBuffer(event))
       .where((event) =>
           event.category == proto.MessageCategory.GATT_CONNECTION_LOST &&
-          event.connectionLost.address.conversionOfMAC == address)
+          event.connectionLost.id == id)
       .map((event) => event.connectionLost.errorCode);
 
   @override
-  Future disconnect() => method.invokeMethod(
-      proto.MessageCategory.GATT_DISCONNECT.name, address.name);
+  Future disconnect() {
+    final name = proto.MessageCategory.GATT_DISCONNECT.name;
+    final arguments =
+        proto.GattDisconnectArguments(address: address.name, id: id)
+            .writeToBuffer();
+    return method.invokeMethod(name, arguments);
+  }
 }

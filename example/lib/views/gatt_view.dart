@@ -97,7 +97,17 @@ class _GattViewState extends State<GattView> {
       gatt = await central.connect(address);
       state.value = ConnectionState.connected;
       connectionLostSubscription = gatt!.connectionLost.listen(
-        (errorCode) {
+        (errorCode) async {
+          for (var subscription in notifies.value.values) {
+            await subscription.cancel();
+          }
+          await connectionLostSubscription!.cancel();
+          gatt = null;
+          connectionLostSubscription = null;
+          service.value = null;
+          characteristic.value = null;
+          notifies.value.clear();
+          logs.value.clear();
           state.value = ConnectionState.disconnected;
         },
       );
@@ -110,6 +120,9 @@ class _GattViewState extends State<GattView> {
     try {
       state.value = ConnectionState.disconnecting;
       await gatt!.disconnect();
+      for (var subscription in notifies.value.values) {
+        await subscription.cancel();
+      }
       await connectionLostSubscription!.cancel();
       gatt = null;
       connectionLostSubscription = null;
@@ -152,7 +165,12 @@ extension on _GattViewState {
         }
         return TextButton(
           onPressed: onPressed,
-          child: Text(data),
+          child: Text(
+            data,
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
         );
       },
     );
@@ -235,17 +253,15 @@ extension on _GattViewState {
               final canNotify =
                   characteristicValue != null && characteristicValue.canNotify;
               final readAndNotifyView = Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
                     onPressed: canRead
                         ? () async {
                             final value = await characteristicValue!.read();
-                            final time = DateTime.now();
-                            final hms =
-                                '${time.hour}:${time.minute}:${time.second}';
-                            final log = '[$hms][READ] ${hex.encode(value)}';
-                            logs.value.add(log);
-                            logs.notifyListeners();
+                            final time = DateTime.now().display;
+                            final log = '[$time][READ] ${hex.encode(value)}';
+                            logs.value = [...logs.value, log];
                           }
                         : null,
                     icon: Icon(Icons.archive),
@@ -263,27 +279,27 @@ extension on _GattViewState {
                               ? () async {
                                   if (notifying) {
                                     await characteristicValue!.notify(false);
-                                    await notifies.value
+                                    await notifiesValue
                                         .remove(characteristicValue)!
                                         .cancel();
                                   } else {
                                     await characteristicValue!.notify(true);
-                                    notifies.value[characteristicValue] =
+                                    notifiesValue[characteristicValue] =
                                         characteristicValue.valueChanged
                                             .listen((value) {
-                                      final time = DateTime.now();
-                                      final hms =
-                                          '${time.hour}:${time.minute}:${time.second}';
+                                      final time = DateTime.now().display;
                                       final log =
-                                          '[$hms][NOTIFY] ${hex.encode(value)}';
-                                      logs.value.add(log);
-                                      logs.notifyListeners();
+                                          '[$time][NOTIFY] ${hex.encode(value)}';
+                                      logs.value = [...logs.value, log];
                                     });
                                   }
-                                  notifies.notifyListeners();
+                                  notifies.value = {...notifiesValue};
                                 }
                               : null,
-                          icon: Icon(Icons.notifications),
+                          icon: Icon(
+                            Icons.notifications,
+                            color: notifying ? Colors.blue : null,
+                          ),
                         );
                       }),
                 ],
@@ -323,17 +339,20 @@ extension on _GattViewState {
           views.add(characteristicView);
         }
         final loggerView = Expanded(
-          child: ValueListenableBuilder(
-              valueListenable: logs,
-              builder: (context, List<String> logsValue, child) {
-                return ListView.builder(
-                  itemCount: logsValue.length,
-                  itemBuilder: (context, i) {
-                    final log = logsValue[i];
-                    return Text(log);
-                  },
-                );
-              }),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12.0),
+            child: ValueListenableBuilder(
+                valueListenable: logs,
+                builder: (context, List<String> logsValue, child) {
+                  return ListView.builder(
+                    itemCount: logsValue.length,
+                    itemBuilder: (context, i) {
+                      final log = logsValue[i];
+                      return Text(log);
+                    },
+                  );
+                }),
+          ),
         );
         views.add(loggerView);
         return Container(
@@ -351,5 +370,14 @@ extension on _GattViewState {
     return Center(
       child: Text('正在断开连接'),
     );
+  }
+}
+
+extension on DateTime {
+  String get display {
+    final hh = hour.toString().padLeft(2, '0');
+    final mm = minute.toString().padLeft(2, '0');
+    final ss = second.toString().padLeft(2, '0');
+    return '$hh:$mm:$ss';
   }
 }

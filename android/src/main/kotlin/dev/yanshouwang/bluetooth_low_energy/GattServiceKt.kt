@@ -23,7 +23,24 @@ object GattServiceKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService = _builder.build()
 
     /**
-     * <code>string uuid = 1;</code>
+     * <code>int32 id = 1;</code>
+     */
+    var id: kotlin.Int
+      @JvmName("getId")
+      get() = _builder.getId()
+      @JvmName("setId")
+      set(value) {
+        _builder.setId(value)
+      }
+    /**
+     * <code>int32 id = 1;</code>
+     */
+    fun clearId() {
+      _builder.clearId()
+    }
+
+    /**
+     * <code>string uuid = 2;</code>
      */
     var uuid: kotlin.String
       @JvmName("getUuid")
@@ -33,7 +50,7 @@ object GattServiceKt {
         _builder.setUuid(value)
       }
     /**
-     * <code>string uuid = 1;</code>
+     * <code>string uuid = 2;</code>
      */
     fun clearUuid() {
       _builder.clearUuid()
@@ -46,7 +63,7 @@ object GattServiceKt {
     @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
     class CharacteristicsProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
     /**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 3;</code>
      */
      val characteristics: com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic, CharacteristicsProxy>
       @kotlin.jvm.JvmSynthetic
@@ -54,7 +71,7 @@ object GattServiceKt {
         _builder.getCharacteristicsList()
       )
     /**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 3;</code>
      * @param value The characteristics to add.
      */
     @kotlin.jvm.JvmSynthetic
@@ -62,7 +79,7 @@ object GattServiceKt {
     fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic, CharacteristicsProxy>.add(value: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic) {
       _builder.addCharacteristics(value)
     }/**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 3;</code>
      * @param value The characteristics to add.
      */
     @kotlin.jvm.JvmSynthetic
@@ -70,7 +87,7 @@ object GattServiceKt {
     inline operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic, CharacteristicsProxy>.plusAssign(value: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic) {
       add(value)
     }/**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 3;</code>
      * @param values The characteristics to add.
      */
     @kotlin.jvm.JvmSynthetic
@@ -78,7 +95,7 @@ object GattServiceKt {
     fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic, CharacteristicsProxy>.addAll(values: kotlin.collections.Iterable<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic>) {
       _builder.addAllCharacteristics(values)
     }/**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 3;</code>
      * @param values The characteristics to add.
      */
     @kotlin.jvm.JvmSynthetic
@@ -86,7 +103,7 @@ object GattServiceKt {
     inline operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic, CharacteristicsProxy>.plusAssign(values: kotlin.collections.Iterable<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic>) {
       addAll(values)
     }/**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 3;</code>
      * @param index The index to set the value at.
      * @param value The characteristics to set.
      */
@@ -95,7 +112,7 @@ object GattServiceKt {
     operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic, CharacteristicsProxy>.set(index: kotlin.Int, value: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic) {
       _builder.setCharacteristics(index, value)
     }/**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 2;</code>
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattCharacteristic characteristics = 3;</code>
      */
     @kotlin.jvm.JvmSynthetic
     @kotlin.jvm.JvmName("clearCharacteristics")

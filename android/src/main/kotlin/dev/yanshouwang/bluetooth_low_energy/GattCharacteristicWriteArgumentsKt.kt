@@ -23,37 +23,37 @@ object GattCharacteristicWriteArgumentsKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicWriteArguments = _builder.build()
 
     /**
-     * <code>string device = 1;</code>
+     * <code>string address = 1;</code>
      */
-    var device: kotlin.String
-      @JvmName("getDevice")
-      get() = _builder.getDevice()
-      @JvmName("setDevice")
+    var address: kotlin.String
+      @JvmName("getAddress")
+      get() = _builder.getAddress()
+      @JvmName("setAddress")
       set(value) {
-        _builder.setDevice(value)
+        _builder.setAddress(value)
       }
     /**
-     * <code>string device = 1;</code>
+     * <code>string address = 1;</code>
      */
-    fun clearDevice() {
-      _builder.clearDevice()
+    fun clearAddress() {
+      _builder.clearAddress()
     }
 
     /**
-     * <code>string service = 2;</code>
+     * <code>string service_uuid = 2;</code>
      */
-    var service: kotlin.String
-      @JvmName("getService")
-      get() = _builder.getService()
-      @JvmName("setService")
+    var serviceUuid: kotlin.String
+      @JvmName("getServiceUuid")
+      get() = _builder.getServiceUuid()
+      @JvmName("setServiceUuid")
       set(value) {
-        _builder.setService(value)
+        _builder.setServiceUuid(value)
       }
     /**
-     * <code>string service = 2;</code>
+     * <code>string service_uuid = 2;</code>
      */
-    fun clearService() {
-      _builder.clearService()
+    fun clearServiceUuid() {
+      _builder.clearServiceUuid()
     }
 
     /**
@@ -74,7 +74,24 @@ object GattCharacteristicWriteArgumentsKt {
     }
 
     /**
-     * <code>bytes value = 4;</code>
+     * <code>int32 id = 4;</code>
+     */
+    var id: kotlin.Int
+      @JvmName("getId")
+      get() = _builder.getId()
+      @JvmName("setId")
+      set(value) {
+        _builder.setId(value)
+      }
+    /**
+     * <code>int32 id = 4;</code>
+     */
+    fun clearId() {
+      _builder.clearId()
+    }
+
+    /**
+     * <code>bytes value = 5;</code>
      */
     var value: com.google.protobuf.ByteString
       @JvmName("getValue")
@@ -84,14 +101,14 @@ object GattCharacteristicWriteArgumentsKt {
         _builder.setValue(value)
       }
     /**
-     * <code>bytes value = 4;</code>
+     * <code>bytes value = 5;</code>
      */
     fun clearValue() {
       _builder.clearValue()
     }
 
     /**
-     * <code>bool withoutResponse = 5;</code>
+     * <code>bool withoutResponse = 6;</code>
      */
     var withoutResponse: kotlin.Boolean
       @JvmName("getWithoutResponse")
@@ -101,7 +118,7 @@ object GattCharacteristicWriteArgumentsKt {
         _builder.setWithoutResponse(value)
       }
     /**
-     * <code>bool withoutResponse = 5;</code>
+     * <code>bool withoutResponse = 6;</code>
      */
     fun clearWithoutResponse() {
       _builder.clearWithoutResponse()

@@ -12,13 +12,13 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
-  final ValueNotifier<bool> scanning;
+  final ValueNotifier<bool> discovering;
   final ValueNotifier<Map<MAC, Discovery>> discoveries;
   late StreamSubscription<Discovery> discoverySubscription;
   late StreamSubscription<bool> scanningSubscription;
 
   _HomeViewState()
-      : scanning = ValueNotifier(false),
+      : discovering = ValueNotifier(false),
         discoveries = ValueNotifier({});
 
   @override
@@ -26,23 +26,14 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     super.initState();
     print('initState');
     WidgetsBinding.instance!.addObserver(this);
-    scanningSubscription = central.scanningChanged.listen(
-      (scanning) => this.scanning.value = scanning,
-    );
     discoverySubscription = central.discovered.listen(
       (discovery) {
         discoveries.value[discovery.address] = discovery;
         var entries = discoveries.value.entries.toList();
         entries.sort((a, b) => b.value.rssi.compareTo(a.value.rssi));
         discoveries.value = Map.fromEntries(entries);
-        // discoveries.notifyListeners();
       },
     );
-    loadState();
-  }
-
-  void loadState() async {
-    scanning.value = await central.scanning;
   }
 
   @override
@@ -73,7 +64,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     discoverySubscription.cancel();
     scanningSubscription.cancel();
     discoveries.dispose();
-    scanning.dispose();
+    discovering.dispose();
     WidgetsBinding.instance!.removeObserver(this);
     print('dispose');
     super.dispose();
@@ -92,7 +83,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          if (scanning.value) {
+          if (discovering.value) {
             await central.stopDiscovery();
           } else {
             discoveries.value = {};
@@ -100,7 +91,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
           }
         },
         child: ValueListenableBuilder(
-          valueListenable: scanning,
+          valueListenable: discovering,
           builder: (context, bool scanning, child) {
             return scanning ? Icon(Icons.stop) : Icon(Icons.play_arrow);
           },
@@ -119,7 +110,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   }
 
   void showGattView(Discovery discovery) async {
-    if (await central.scanning) {
+    if (discovering.value) {
       await central.stopDiscovery();
     }
     await Navigator.of(context).pushNamed(

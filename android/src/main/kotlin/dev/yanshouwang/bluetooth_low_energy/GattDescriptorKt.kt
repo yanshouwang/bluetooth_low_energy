@@ -23,7 +23,24 @@ object GattDescriptorKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor = _builder.build()
 
     /**
-     * <code>string uuid = 1;</code>
+     * <code>int32 id = 1;</code>
+     */
+    var id: kotlin.Int
+      @JvmName("getId")
+      get() = _builder.getId()
+      @JvmName("setId")
+      set(value) {
+        _builder.setId(value)
+      }
+    /**
+     * <code>int32 id = 1;</code>
+     */
+    fun clearId() {
+      _builder.clearId()
+    }
+
+    /**
+     * <code>string uuid = 2;</code>
      */
     var uuid: kotlin.String
       @JvmName("getUuid")
@@ -33,7 +50,7 @@ object GattDescriptorKt {
         _builder.setUuid(value)
       }
     /**
-     * <code>string uuid = 1;</code>
+     * <code>string uuid = 2;</code>
      */
     fun clearUuid() {
       _builder.clearUuid()

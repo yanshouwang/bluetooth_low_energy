@@ -17,8 +17,9 @@ abstract class GattCharacteristic {
 
 class _GattCharacteristic implements GattCharacteristic {
   _GattCharacteristic(
-    this.device,
-    this.service,
+    this.address,
+    this.serviceUUID,
+    this.id,
     this.uuid,
     this.descriptors,
     this.canRead,
@@ -27,8 +28,9 @@ class _GattCharacteristic implements GattCharacteristic {
     this.canNotify,
   );
 
-  final MAC device;
-  final UUID service;
+  final MAC address;
+  final UUID serviceUUID;
+  final int id;
   @override
   final UUID uuid;
   @override
@@ -48,18 +50,17 @@ class _GattCharacteristic implements GattCharacteristic {
       .where((message) =>
           message.category ==
               proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY &&
-          message.characteristicValue.device.conversionOfMAC == device &&
-          message.characteristicValue.service.conversionOfUUID == service &&
-          message.characteristicValue.uuid.conversionOfUUID == uuid)
+          message.characteristicValue.id == id)
       .map((message) => message.characteristicValue.value);
 
   @override
   Future<List<int>> read() {
     final name = proto.MessageCategory.GATT_CHARACTERISTIC_READ.name;
     final arguments = proto.GattCharacteristicReadArguments(
-      device: device.name,
-      service: service.name,
+      address: address.name,
+      serviceUuid: serviceUUID.name,
       uuid: uuid.name,
+      id: id,
     ).writeToBuffer();
     return method
         .invokeListMethod<int>(name, arguments)
@@ -70,9 +71,10 @@ class _GattCharacteristic implements GattCharacteristic {
   Future write(List<int> value, {bool withoutResponse = false}) {
     final name = proto.MessageCategory.GATT_CHARACTERISTIC_WRITE.name;
     final arguments = proto.GattCharacteristicWriteArguments(
-      device: device.name,
-      service: service.name,
+      address: address.name,
+      serviceUuid: serviceUUID.name,
       uuid: uuid.name,
+      id: id,
       value: value,
       withoutResponse: withoutResponse,
     ).writeToBuffer();
@@ -83,9 +85,10 @@ class _GattCharacteristic implements GattCharacteristic {
   Future notify(bool state) {
     final name = proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY.name;
     final arguments = proto.GattCharacteristicNotifyArguments(
-      device: device.name,
-      service: service.name,
+      address: address.name,
+      serviceUuid: serviceUUID.name,
       uuid: uuid.name,
+      id: id,
       state: state,
     ).writeToBuffer();
     return method.invokeMethod(name, arguments);

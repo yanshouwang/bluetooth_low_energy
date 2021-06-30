@@ -23,20 +23,20 @@ object ConnectionLostKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.ConnectionLost = _builder.build()
 
     /**
-     * <code>string address = 1;</code>
+     * <code>int32 id = 1;</code>
      */
-    var address: kotlin.String
-      @JvmName("getAddress")
-      get() = _builder.getAddress()
-      @JvmName("setAddress")
+    var id: kotlin.Int
+      @JvmName("getId")
+      get() = _builder.getId()
+      @JvmName("setId")
       set(value) {
-        _builder.setAddress(value)
+        _builder.setId(value)
       }
     /**
-     * <code>string address = 1;</code>
+     * <code>int32 id = 1;</code>
      */
-    fun clearAddress() {
-      _builder.clearAddress()
+    fun clearId() {
+      _builder.clearId()
     }
 
     /**

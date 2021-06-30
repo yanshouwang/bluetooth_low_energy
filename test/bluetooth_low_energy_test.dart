@@ -9,6 +9,7 @@ void main() {
   final event = MethodChannel('${util.event.name}');
   final calls = <MethodCall>[];
   TestWidgetsFlutterBinding.ensureInitialized();
+
   setUp(() {
     calls.clear();
     method.setMockMethodCallHandler((call) async {
@@ -21,14 +22,16 @@ void main() {
       } else if (call.method ==
           proto.MessageCategory.CENTRAL_STOP_DISCOVERY.name) {
         return null;
-      } else if (call.method == proto.MessageCategory.CENTRAL_SCANNING.name) {
-        return true;
       } else if (call.method == proto.MessageCategory.CENTRAL_CONNECT.name) {
         final descriptors = [
-          proto.GattDescriptor(uuid: '2900'),
+          proto.GattDescriptor(
+            id: 4000,
+            uuid: '2900',
+          ),
         ];
         final characteristics = [
           proto.GattCharacteristic(
+            id: 3000,
             uuid: '2A00',
             descriptors: descriptors,
             canRead: true,
@@ -38,9 +41,17 @@ void main() {
           ),
         ];
         final services = [
-          proto.GattService(uuid: '1800', characteristics: characteristics),
+          proto.GattService(
+            id: 2000,
+            uuid: '1800',
+            characteristics: characteristics,
+          ),
         ];
-        final gatt = proto.GATT(mtu: 23, services: services);
+        final gatt = proto.GATT(
+          id: 1000,
+          mtu: 23,
+          services: services,
+        );
         return gatt.writeToBuffer();
       } else if (call.method == proto.MessageCategory.GATT_DISCONNECT.name) {
         return null;
@@ -90,20 +101,10 @@ void main() {
             event.codec.encodeSuccessEnvelope(discovery),
             (data) {},
           );
-          final scanning = proto.Message(
-            category: proto.MessageCategory.CENTRAL_SCANNING,
-            scanning: true,
-          ).writeToBuffer();
-          await ServicesBinding.instance!.defaultBinaryMessenger
-              .handlePlatformMessage(
-            event.name,
-            event.codec.encodeSuccessEnvelope(scanning),
-            (data) {},
-          );
           final connectionLost = proto.Message(
             category: proto.MessageCategory.GATT_CONNECTION_LOST,
             connectionLost: proto.ConnectionLost(
-              address: 'aa:bb:cc:dd:ee:ff',
+              id: 1000,
               errorCode: 19,
             ),
           ).writeToBuffer();
@@ -116,9 +117,7 @@ void main() {
           final characteristicValue = proto.Message(
             category: proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY,
             characteristicValue: proto.GattCharacteristicValue(
-              device: 'aa:bb:cc:dd:ee:ff',
-              service: '00001800-0000-1000-8000-00805f9b34fb',
-              uuid: '00002A00-0000-1000-8000-00805f9b34fb',
+              id: 3000,
               value: [0x0A, 0x0B, 0x0C, 0x0D, 0x0E],
             ),
           ).writeToBuffer();
@@ -140,6 +139,7 @@ void main() {
     method.setMockMethodCallHandler(null);
     event.setMockMethodCallHandler(null);
   });
+
   test(
     '${proto.MessageCategory.BLUETOOTH_STATE}',
     () async {
@@ -213,31 +213,6 @@ void main() {
     },
   );
   test(
-    '${proto.MessageCategory.CENTRAL_SCANNING}',
-    () async {
-      final actual = await central.scanning;
-      final matcher = true;
-      expect(actual, matcher);
-      expect(
-        calls,
-        [
-          isMethodCall(
-            proto.MessageCategory.CENTRAL_SCANNING.name,
-            arguments: null,
-          ),
-        ],
-      );
-    },
-  );
-  test(
-    '${proto.MessageCategory.CENTRAL_SCANNING} EVENT',
-    () async {
-      final actual = await central.scanningChanged.first;
-      final matcher = true;
-      expect(actual, matcher);
-    },
-  );
-  test(
     '${proto.MessageCategory.CENTRAL_CONNECT}',
     () async {
       final address = MAC('aa:bb:cc:dd:ee:ff');
@@ -261,7 +236,9 @@ void main() {
         [
           isMethodCall(
             proto.MessageCategory.CENTRAL_CONNECT.name,
-            arguments: address.name,
+            arguments: proto.ConnectArguments(
+              address: address.name,
+            ).writeToBuffer(),
           ),
         ],
       );
@@ -278,11 +255,16 @@ void main() {
         [
           isMethodCall(
             proto.MessageCategory.CENTRAL_CONNECT.name,
-            arguments: address.name,
+            arguments: proto.ConnectArguments(
+              address: address.name,
+            ).writeToBuffer(),
           ),
           isMethodCall(
             proto.MessageCategory.GATT_DISCONNECT.name,
-            arguments: address.name,
+            arguments: proto.GattDisconnectArguments(
+              address: address.name,
+              id: 1000,
+            ).writeToBuffer(),
           ),
         ],
       );
@@ -311,14 +293,17 @@ void main() {
         [
           isMethodCall(
             proto.MessageCategory.CENTRAL_CONNECT.name,
-            arguments: address.name,
+            arguments: proto.ConnectArguments(
+              address: address.name,
+            ).writeToBuffer(),
           ),
           isMethodCall(
             proto.MessageCategory.GATT_CHARACTERISTIC_READ.name,
             arguments: proto.GattCharacteristicReadArguments(
-              device: address.name,
-              service: service.uuid.name,
+              address: address.name,
+              serviceUuid: service.uuid.name,
               uuid: characteristic.uuid.name,
+              id: 3000,
             ).writeToBuffer(),
           ),
         ],
@@ -339,14 +324,17 @@ void main() {
         [
           isMethodCall(
             proto.MessageCategory.CENTRAL_CONNECT.name,
-            arguments: address.name,
+            arguments: proto.ConnectArguments(
+              address: address.name,
+            ).writeToBuffer(),
           ),
           isMethodCall(
             proto.MessageCategory.GATT_CHARACTERISTIC_WRITE.name,
             arguments: proto.GattCharacteristicWriteArguments(
-              device: address.name,
-              service: service.uuid.name,
+              address: address.name,
+              serviceUuid: service.uuid.name,
               uuid: characteristic.uuid.name,
+              id: 3000,
               value: value,
               withoutResponse: true,
             ).writeToBuffer(),
@@ -368,14 +356,17 @@ void main() {
         [
           isMethodCall(
             proto.MessageCategory.CENTRAL_CONNECT.name,
-            arguments: address.name,
+            arguments: proto.ConnectArguments(
+              address: address.name,
+            ).writeToBuffer(),
           ),
           isMethodCall(
             proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY.name,
             arguments: proto.GattCharacteristicNotifyArguments(
-              device: address.name,
-              service: service.uuid.name,
+              address: address.name,
+              serviceUuid: service.uuid.name,
               uuid: characteristic.uuid.name,
+              id: 3000,
               state: true,
             ).writeToBuffer(),
           ),
@@ -409,15 +400,18 @@ void main() {
         [
           isMethodCall(
             proto.MessageCategory.CENTRAL_CONNECT.name,
-            arguments: address.name,
+            arguments: proto.ConnectArguments(
+              address: address.name,
+            ).writeToBuffer(),
           ),
           isMethodCall(
             proto.MessageCategory.GATT_DESCRIPTOR_READ.name,
             arguments: proto.GattDescriptorReadArguments(
-              device: address.name,
-              service: service.uuid.name,
-              characteristic: characteristic.uuid.name,
+              address: address.name,
+              serviceUuid: service.uuid.name,
+              characteristicUuid: characteristic.uuid.name,
               uuid: descriptor.uuid.name,
+              id: 4000,
             ).writeToBuffer(),
           ),
         ],
@@ -439,15 +433,18 @@ void main() {
         [
           isMethodCall(
             proto.MessageCategory.CENTRAL_CONNECT.name,
-            arguments: address.name,
+            arguments: proto.ConnectArguments(
+              address: address.name,
+            ).writeToBuffer(),
           ),
           isMethodCall(
             proto.MessageCategory.GATT_DESCRIPTOR_WRITE.name,
             arguments: proto.GattDescriptorWriteArguments(
-              device: address.name,
-              service: service.uuid.name,
-              characteristic: characteristic.uuid.name,
+              address: address.name,
+              serviceUuid: service.uuid.name,
+              characteristicUuid: characteristic.uuid.name,
               uuid: descriptor.uuid.name,
+              id: 4000,
               value: value,
             ).writeToBuffer(),
           ),

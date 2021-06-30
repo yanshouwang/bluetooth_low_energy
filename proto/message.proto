@@ -22,75 +22,91 @@ message Discovery {
   bytes advertisements = 3;
 }
 
+message ConnectArguments {
+  string address = 1;
+}
+
 message GATT {
-  int32 mtu = 1;
-  repeated GattService services = 2;
+  int32 id = 1;
+  int32 mtu = 2;
+  repeated GattService services = 3;
+}
+
+message GattDisconnectArguments{
+  string address = 1;
+  int32 id = 2;
 }
 
 message GattService {
-  string uuid = 1;
-  repeated GattCharacteristic characteristics = 2;
+  int32 id = 1;
+  string uuid = 2;
+  repeated GattCharacteristic characteristics = 3;
 }
 
 message GattCharacteristic {
-  string uuid = 1;
-  repeated GattDescriptor descriptors = 2;
-  bool canRead = 3;
-  bool canWrite = 4;
-  bool canWriteWithoutResponse = 5;
-  bool canNotify = 6;
+  int32 id = 1;
+  string uuid = 2;
+  repeated GattDescriptor descriptors = 3;
+  bool canRead = 4;
+  bool canWrite = 5;
+  bool canWriteWithoutResponse = 6;
+  bool canNotify = 7;
 }
 
 message GattDescriptor {
-  string uuid = 1;
+  int32 id = 1;
+  string uuid = 2;
 }
 
 message ConnectionLost {
-  string address = 1;
+  int32 id = 1;
   int32 error_code = 2;
 }
 
 message GattCharacteristicReadArguments {
-  string device = 1;
-  string service = 2;
+  string address = 1;
+  string service_uuid = 2;
   string uuid = 3;
+  int32 id = 4;
 }
 
 message GattCharacteristicWriteArguments {
-  string device = 1;
-  string service = 2;
+  string address = 1;
+  string service_uuid = 2;
   string uuid = 3;
-  bytes value = 4;
-  bool withoutResponse = 5;
+  int32 id = 4;
+  bytes value = 5;
+  bool withoutResponse = 6;
 }
 
 message GattCharacteristicNotifyArguments{
-  string device = 1;
-  string service = 2;
+  string address = 1;
+  string service_uuid = 2;
   string uuid = 3;
-  bool state = 4;
+  int32 id = 4;
+  bool state = 5;
 }
 
 message GattCharacteristicValue {
-  string device = 1;
-  string service = 2;
-  string uuid = 3;
+  int32 id = 3;
   bytes value = 4;
 }
 
 message GattDescriptorReadArguments {
-  string device = 1;
-  string service = 2;
-  string characteristic = 3;
+  string address = 1;
+  string service_uuid = 2;
+  string characteristic_uuid = 3;
   string uuid = 4;
+  int32 id = 5;
 }
 
 message GattDescriptorWriteArguments {
-  string device = 1;
-  string service = 2;
-  string characteristic = 3;
+  string address = 1;
+  string service_uuid = 2;
+  string characteristic_uuid = 3;
   string uuid = 4;
-  bytes value = 5;
+  int32 id = 5;
+  bytes value = 6;
 }
 
 enum MessageCategory {
@@ -98,15 +114,14 @@ enum MessageCategory {
     CENTRAL_START_DISCOVERY = 1;
     CENTRAL_STOP_DISCOVERY = 2;
     CENTRAL_DISCOVERED = 3;
-    CENTRAL_SCANNING = 4;
-    CENTRAL_CONNECT = 5;
-    GATT_DISCONNECT = 6;
-    GATT_CONNECTION_LOST = 7;
-    GATT_CHARACTERISTIC_READ = 8;
-    GATT_CHARACTERISTIC_WRITE = 9;
-    GATT_CHARACTERISTIC_NOTIFY = 10;
-    GATT_DESCRIPTOR_READ = 11;
-    GATT_DESCRIPTOR_WRITE = 12;
+    CENTRAL_CONNECT = 4;
+    GATT_DISCONNECT = 5;
+    GATT_CONNECTION_LOST = 6;
+    GATT_CHARACTERISTIC_READ = 7;
+    GATT_CHARACTERISTIC_WRITE = 8;
+    GATT_CHARACTERISTIC_NOTIFY = 9;
+    GATT_DESCRIPTOR_READ = 10;
+    GATT_DESCRIPTOR_WRITE = 11;
 }
 
 enum BluetoothState {
