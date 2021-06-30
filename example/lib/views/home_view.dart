@@ -15,7 +15,6 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   final ValueNotifier<bool> discovering;
   final ValueNotifier<Map<MAC, Discovery>> discoveries;
   late StreamSubscription<Discovery> discoverySubscription;
-  late StreamSubscription<bool> scanningSubscription;
 
   _HomeViewState()
       : discovering = ValueNotifier(false),
@@ -29,11 +28,10 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     discoverySubscription = central.discovered.listen(
       (discovery) {
         discoveries.value[discovery.address] = discovery;
-        var entries = discoveries.value.entries.toList();
-        entries.sort((a, b) => b.value.rssi.compareTo(a.value.rssi));
-        discoveries.value = Map.fromEntries(entries);
+        discoveries.value = {...discoveries.value};
       },
     );
+    startDiscovery();
   }
 
   @override
@@ -61,8 +59,8 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    stopDiscovery();
     discoverySubscription.cancel();
-    scanningSubscription.cancel();
     discoveries.dispose();
     discovering.dispose();
     WidgetsBinding.instance!.removeObserver(this);
@@ -76,28 +74,27 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
       appBar: AppBar(
         title: Text('Home'),
       ),
-      body: ValueListenableBuilder(
-        valueListenable: discoveries,
-        builder: (context, Map<MAC, Discovery> discoveries, child) =>
-            buildDiscoveriesView(discoveries),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          if (discovering.value) {
-            await central.stopDiscovery();
-          } else {
-            discoveries.value = {};
-            await central.startDiscovery();
-          }
+      body: RefreshIndicator(
+        onRefresh: () async {
+          discoveries.value = {};
         },
         child: ValueListenableBuilder(
-          valueListenable: discovering,
-          builder: (context, bool scanning, child) {
-            return scanning ? Icon(Icons.stop) : Icon(Icons.play_arrow);
-          },
+          valueListenable: discoveries,
+          builder: (context, Map<MAC, Discovery> discoveries, child) =>
+              buildDiscoveriesView(discoveries),
         ),
       ),
     );
+  }
+
+  void startDiscovery() async {
+    await central.startDiscovery();
+    discovering.value = true;
+  }
+
+  void stopDiscovery() async {
+    await central.stopDiscovery();
+    discovering.value = false;
   }
 
   void showAdvertisements(Discovery discovery) {
@@ -110,13 +107,12 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   }
 
   void showGattView(Discovery discovery) async {
-    if (discovering.value) {
-      await central.stopDiscovery();
-    }
+    stopDiscovery();
     await Navigator.of(context).pushNamed(
       'gatt',
       arguments: discovery.address,
     );
+    startDiscovery();
   }
 }
 
