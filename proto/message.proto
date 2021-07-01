@@ -4,7 +4,7 @@ package dev.yanshouwang.bluetooth_low_energy;
 message Message {
   MessageCategory category = 1;
   oneof value {
-      BluetoothState state = 2;
+      bool state = 2;
       Discovery discovery = 3;
       bool scanning = 4;
       ConnectionLost connectionLost = 5;
@@ -110,25 +110,17 @@ message GattDescriptorWriteArguments {
 }
 
 enum MessageCategory {
-    BLUETOOTH_STATE = 0;
-    CENTRAL_START_DISCOVERY = 1;
-    CENTRAL_STOP_DISCOVERY = 2;
-    CENTRAL_DISCOVERED = 3;
-    CENTRAL_CONNECT = 4;
-    GATT_DISCONNECT = 5;
-    GATT_CONNECTION_LOST = 6;
-    GATT_CHARACTERISTIC_READ = 7;
-    GATT_CHARACTERISTIC_WRITE = 8;
-    GATT_CHARACTERISTIC_NOTIFY = 9;
-    GATT_DESCRIPTOR_READ = 10;
-    GATT_DESCRIPTOR_WRITE = 11;
-}
-
-enum BluetoothState {
-  UNKNOWN = 0;
-  RESETTING = 1;
-  UNSUPPORTED = 2;
-  UNAUTHORIZED = 3;
-  POWERED_OFF = 4;
-  POWERED_ON = 5;
+  BLUETOOTH_AVAILABLE =0;
+  BLUETOOTH_STATE = 1;
+  CENTRAL_START_DISCOVERY = 2;
+  CENTRAL_STOP_DISCOVERY = 3;
+  CENTRAL_DISCOVERED = 4;
+  CENTRAL_CONNECT = 5;
+  GATT_DISCONNECT = 6;
+  GATT_CONNECTION_LOST = 7;
+  GATT_CHARACTERISTIC_READ = 8;
+  GATT_CHARACTERISTIC_WRITE = 9;
+  GATT_CHARACTERISTIC_NOTIFY = 10;
+  GATT_DESCRIPTOR_READ = 11;
+  GATT_DESCRIPTOR_WRITE = 12;
 }

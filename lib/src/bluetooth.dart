@@ -4,25 +4,32 @@ final Central central = _Central();
 
 /// The abstract base class that manages central and peripheral objects.
 abstract class Bluetooth {
+  Future<bool> get available;
+
   /// The current state of the manager.
-  Future<BluetoothState> get state;
+  Future<bool> get state;
 
   /// The central manager’s state changed.
-  Stream<BluetoothState> get stateChanged;
+  Stream<bool> get stateChanged;
 }
 
 class _Bluetooth implements Bluetooth {
   @override
-  Future<BluetoothState> get state => method
-      .invokeMethod<int>(proto.MessageCategory.BLUETOOTH_STATE.name)
-      .then((value) => proto.BluetoothState.valueOf(value!)!.conversion);
+  Future<bool> get available => method
+      .invokeMethod<bool>(proto.MessageCategory.BLUETOOTH_AVAILABLE.name)
+      .then((value) => value!);
 
   @override
-  Stream<BluetoothState> get stateChanged => stream
+  Future<bool> get state => method
+      .invokeMethod<bool>(proto.MessageCategory.BLUETOOTH_STATE.name)
+      .then((value) => value!);
+
+  @override
+  Stream<bool> get stateChanged => stream
       .map((event) => proto.Message.fromBuffer(event))
       .where((message) =>
           message.category == proto.MessageCategory.BLUETOOTH_STATE)
-      .map((message) => message.state.conversion);
+      .map((message) => message.state);
 }
 
 /// An object that scans for, discovers, connects to, and manages peripherals.
@@ -72,25 +79,4 @@ class _Central extends _Bluetooth implements Central {
         .invokeMethod<List<int>>(name, arguments)
         .then((value) => proto.GATT.fromBuffer(value!).convert(address));
   }
-}
-
-/// The possible states of a bluetooth manager.
-enum BluetoothState {
-  /// The manager’s state is unknown.
-  unknown,
-
-  /// A state that indicates the connection with the system service was momentarily lost.
-  resetting,
-
-  /// A state that indicates this device doesn’t support the bluetooth low energy central or client role.
-  unsupported,
-
-  /// A state that indicates the application isn’t authorized to use the bluetooth low energy role.
-  unauthorized,
-
-  /// A state that indicates bluetooth is currently powered off.
-  poweredOff,
-
-  /// A state that indicates bluetooth is currently powered on and available to use.
-  poweredOn,
 }

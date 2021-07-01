@@ -2,16 +2,14 @@ package dev.yanshouwang.bluetooth_low_energy
 
 import android.Manifest
 import android.bluetooth.*
-import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanFilter
-import android.bluetooth.le.ScanResult
-import android.bluetooth.le.ScanSettings
+import android.bluetooth.le.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.DeadObjectException
 import android.os.Handler
 import android.os.ParcelUuid
 import android.util.Log
@@ -36,24 +34,24 @@ import java.util.*
 
 const val NAMESPACE = "yanshouwang.dev/bluetooth_low_energy"
 
+typealias StartScanHandler = (code: Int) -> Unit
 typealias RequestPermissionsHandler = (granted: Boolean) -> Unit
 
 /** BluetoothLowEnergyPlugin */
 class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler, ActivityAware, RequestPermissionsResultListener {
     companion object {
         private const val CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
-        private const val UNKNOWN = -1
+        private const val BLUETOOTH_ADAPTER_STATE_UNKNOWN = -1
         private const val NO_ERROR = 0
-        private const val SCAN_ALREADY_STARTED = 1
-        private const val INVALID_REQUEST = 2
-        private const val REQUEST_PERMISSION_FAILED = 3
-        private const val REQUEST_MTU_FAILED = 4
-        private const val DISCOVER_SERVICES_FAILED = 5
-        private const val READ_CHARACTERISTIC_FAILED = 6
-        private const val WRITE_CHARACTERISTIC_FAILED = 7
-        private const val NOTIFY_CHARACTERISTIC_FAILED = 8
-        private const val READ_DESCRIPTOR_FAILED = 9
-        private const val WRITE_DESCRIPTOR_FAILED = 10
+        private const val INVALID_REQUEST = 1
+        private const val REQUEST_PERMISSION_FAILED = 2
+        private const val REQUEST_MTU_FAILED = 3
+        private const val DISCOVER_SERVICES_FAILED = 4
+        private const val READ_CHARACTERISTIC_FAILED = 5
+        private const val WRITE_CHARACTERISTIC_FAILED = 6
+        private const val NOTIFY_CHARACTERISTIC_FAILED = 7
+        private const val READ_DESCRIPTOR_FAILED = 8
+        private const val WRITE_DESCRIPTOR_FAILED = 9
         private const val REQUEST_CODE = 443
     }
 
@@ -64,26 +62,23 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
     private var binding: ActivityPluginBinding? = null
     private var sink: EventSink? = null
 
-    private val handler by lazy { Handler(context.mainLooper) }
-
+    private val bluetoothAvailable by lazy { context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) }
     private val bluetoothManager by lazy { context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager }
     private val bluetoothAdapter by lazy { bluetoothManager.adapter }
-
-    private val bluetoothState: BluetoothState
-        get() = when {
-            context.missingBluetoothFeature -> BluetoothState.UNSUPPORTED
-            else -> bluetoothAdapter.state.bluetoothState
-        }
+    private val handler by lazy { Handler(context.mainLooper) }
 
     private val bluetoothStateReceiver by lazy {
         object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                val oldState = intent!!.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_STATE, UNKNOWN)
-                val newState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, UNKNOWN)
-                Log.d(TAG, "Bluetooth adapter old state: $oldState; new state: $newState")
+                val oldState = intent!!.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_STATE, BLUETOOTH_ADAPTER_STATE_UNKNOWN).opened
+                val newState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BLUETOOTH_ADAPTER_STATE_UNKNOWN).opened
+                // TODO: clear status when bluetooth closed.
+                if (newState == oldState) return
+                val closed = !newState
+                if (closed && scanning) scanning = false
                 val event = Message.newBuilder()
                         .setCategory(BLUETOOTH_STATE)
-                        .setState(newState.bluetoothState)
+                        .setState(newState)
                         .build()
                         .toByteArray()
                 sink?.success(event)
@@ -92,20 +87,17 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
     }
 
     private val hasPermission
-        get() = ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
+        get() = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
     private var requestPermissionsHandler: RequestPermissionsHandler? = null
 
+    private var scanCode = NO_ERROR
     private var scanning = false
-
     private val scanCallback by lazy {
         object : ScanCallback() {
             override fun onScanFailed(errorCode: Int) {
                 super.onScanFailed(errorCode)
-                Log.d(TAG, "onScanFailed: $errorCode")
+                scanCode = errorCode
             }
 
             override fun onScanResult(callbackType: Int, result: ScanResult?) {
@@ -156,41 +148,14 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
         }
     }
 
-    private fun startScan(services: List<String>): Int {
-        return when {
-            scanning -> SCAN_ALREADY_STARTED
-            else -> {
-                val filters = services.map { service ->
-                    val uuid = ParcelUuid.fromString(service)
-                    ScanFilter.Builder()
-                            .setServiceUuid(uuid)
-                            .build()
-                }
-                val settings = ScanSettings.Builder()
-                        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                        .build()
-                bluetoothAdapter.bluetoothLeScanner.startScan(filters, settings, scanCallback)
-                // TODO: seems there is no way to get success callback when use bluetoothLeScanner#startScan.
-                scanning = true
-                NO_ERROR
-            }
-        }
-    }
-
-    private fun stopScan() {
-        bluetoothAdapter.bluetoothLeScanner.stopScan(scanCallback)
-        scanning = false
-    }
-
+    private val gatts by lazy { mutableMapOf<String, BluetoothGatt>() }
     private val connects by lazy { mutableMapOf<String, Result>() }
     private val mtus by lazy { mutableMapOf<String, Int>() }
     private val disconnects by lazy { mutableMapOf<String, Result>() }
-    private val gatts by lazy { mutableMapOf<String, BluetoothGatt>() }
     private val characteristicReads by lazy { mutableMapOf<Int, Result>() }
     private val characteristicWrites by lazy { mutableMapOf<Int, Result>() }
     private val descriptorReads by lazy { mutableMapOf<Int, Result>() }
     private val descriptorWrites by lazy { mutableMapOf<Int, Result>() }
-
     private val bluetoothGattCallback by lazy {
         object : BluetoothGattCallback() {
             override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
@@ -199,10 +164,29 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 when (status) {
                     BluetoothGatt.GATT_SUCCESS -> {
                         when (newState) {
+                            BluetoothProfile.STATE_DISCONNECTED -> {
+                                gatts.remove(address)!!.close()
+                                val disconnect = disconnects.remove(address)
+                                if (disconnect != null) handler.post { disconnect.success() }
+                                else {
+                                    // An adapter closed event
+                                    val id = gatt.hashCode()
+                                    val connectionLost = ConnectionLost.newBuilder()
+                                            .setId(id)
+                                            .setErrorCode(status)
+                                            .build()
+                                    val event = Message.newBuilder()
+                                            .setCategory(GATT_CONNECTION_LOST)
+                                            .setConnectionLost(connectionLost)
+                                            .build()
+                                            .toByteArray()
+                                    handler.post { sink?.success(event) }
+                                }
+                            }
                             BluetoothProfile.STATE_CONNECTED -> {
                                 val code = when {
                                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP -> {
-                                        // TODO: how to get local MTU size here?
+                                        // TODO: how to get exact MTU size of this device here?
                                         if (gatt.requestMtu(512)) NO_ERROR
                                         else REQUEST_MTU_FAILED
                                     }
@@ -219,11 +203,6 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                                     val connect = connects.remove(address)!!
                                     handler.post { connect.error(code) }
                                 }
-                            }
-                            BluetoothProfile.STATE_DISCONNECTED -> {
-                                gatts.remove(address)!!.close()
-                                val disconnect = disconnects.remove(address)!!
-                                handler.post { disconnect.success() }
                             }
                             else -> throw NotImplementedError() // should never be called.
                         }
@@ -387,6 +366,33 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
         }
     }
 
+    private fun startScan(services: List<String>, startScanHandler: StartScanHandler) {
+        val filters = services.map { service ->
+            val serviceUUID = ParcelUuid.fromString(service)
+            ScanFilter.Builder()
+                    .setServiceUuid(serviceUUID)
+                    .build()
+        }
+        val settings = ScanSettings.Builder()
+                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                .build()
+        bluetoothAdapter.bluetoothLeScanner.startScan(filters, settings, scanCallback)
+        // use handler.post to delay until #onScanFailed executed.
+        handler.post {
+            val code = scanCode
+            when (code) {
+                NO_ERROR -> scanning = true
+                else -> scanCode = NO_ERROR
+            }
+            startScanHandler.invoke(code)
+        }
+    }
+
+    private fun stopScan() {
+        bluetoothAdapter.bluetoothLeScanner.stopScan(scanCallback)
+        scanning = false
+    }
+
     override fun onAttachedToEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         method = MethodChannel(binding.binaryMessenger, "$NAMESPACE/method")
         method.setMethodCallHandler(this)
@@ -401,6 +407,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         // Clear connections.
         for (gatt in gatts.values) gatt.close()
+        gatts.clear()
         // Stop scan.
         if (scanning) stopScan()
         // Unregister bluetooth adapter state receiver.
@@ -410,8 +417,11 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-        when (call.category) {
-            BLUETOOTH_STATE -> result.success(bluetoothState.number)
+        val category = call.category
+        if (category != BLUETOOTH_AVAILABLE && category != BLUETOOTH_STATE && !bluetoothAdapter.state.opened) result.error(INVALID_REQUEST)
+        else when (category) {
+            BLUETOOTH_AVAILABLE -> result.success(bluetoothAvailable)
+            BLUETOOTH_STATE -> result.success(bluetoothAdapter.state.opened)
             CENTRAL_START_DISCOVERY -> {
                 when {
                     requestPermissionsHandler != null -> result.error(INVALID_REQUEST)
@@ -419,29 +429,23 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                         val startDiscovery = Runnable {
                             val data = call.arguments<ByteArray>()
                             val arguments = StartDiscoveryArguments.parseFrom(data)
-                            val code = startScan(arguments.servicesList)
-                            if (code == NO_ERROR) {
-                                result.success()
-                            } else {
-                                result.error(code, "Scan start failed with code: $code.")
+                            val startScanHandler: StartScanHandler = { code ->
+                                when (code) {
+                                    NO_ERROR -> result.success()
+                                    else -> result.error(code)
+                                }
                             }
+                            startScan(arguments.servicesList, startScanHandler)
                         }
                         when {
                             hasPermission -> startDiscovery.run()
                             else -> {
                                 requestPermissionsHandler = { granted ->
                                     if (granted) startDiscovery.run()
-                                    else result.error(
-                                            REQUEST_PERMISSION_FAILED,
-                                            "Request permission failed."
-                                    )
+                                    else result.error(REQUEST_PERMISSION_FAILED)
                                 }
                                 val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-                                ActivityCompat.requestPermissions(
-                                        binding!!.activity,
-                                        permissions,
-                                        REQUEST_CODE
-                                )
+                                ActivityCompat.requestPermissions(binding!!.activity, permissions, REQUEST_CODE)
                             }
                         }
                     }
@@ -614,7 +618,12 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
 
     override fun onCancel(arguments: Any?) {
         Log.d(TAG, "onCancel")
-        // TODO: This must be a hot reload for now, maybe we should clear all status here.
+        // This must be a hot reload for now, clear all status here.
+        // Clear connections.
+        for (gatt in gatts.values) gatt.close()
+        gatts.clear()
+        // Stop scan.
+        if (scanning) stopScan()
         sink = null
     }
 
@@ -668,14 +677,11 @@ val Any.TAG: String
 val MethodCall.category: MessageCategory
     get() = valueOf(method)
 
-val Context.missingBluetoothFeature: Boolean
-    get() = !packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
-
-val Int.bluetoothState: BluetoothState
+val Int.opened: Boolean
     get() = when (this) {
-        BluetoothAdapter.STATE_OFF -> BluetoothState.POWERED_OFF
-        BluetoothAdapter.STATE_TURNING_ON -> BluetoothState.POWERED_OFF
-        BluetoothAdapter.STATE_ON -> BluetoothState.POWERED_ON
-        BluetoothAdapter.STATE_TURNING_OFF -> BluetoothState.POWERED_ON
-        else -> BluetoothState.UNKNOWN
+        BluetoothAdapter.STATE_OFF -> false
+        BluetoothAdapter.STATE_TURNING_ON -> false
+        BluetoothAdapter.STATE_ON -> true
+        BluetoothAdapter.STATE_TURNING_OFF -> true
+        else -> false
     }

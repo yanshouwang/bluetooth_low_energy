@@ -40,9 +40,9 @@ object MessageKt {
     }
 
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
+     * <code>bool state = 2;</code>
      */
-    var state: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState
+    var state: kotlin.Boolean
       @JvmName("getState")
       get() = _builder.getState()
       @JvmName("setState")
@@ -50,13 +50,13 @@ object MessageKt {
         _builder.setState(value)
       }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
+     * <code>bool state = 2;</code>
      */
     fun clearState() {
       _builder.clearState()
     }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
+     * <code>bool state = 2;</code>
      * @return Whether the state field is set.
      */
     fun hasState(): kotlin.Boolean {

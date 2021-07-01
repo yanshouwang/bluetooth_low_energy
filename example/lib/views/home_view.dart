@@ -14,6 +14,7 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   final ValueNotifier<bool> discovering;
   final ValueNotifier<Map<MAC, Discovery>> discoveries;
+  late StreamSubscription<bool> stateSubscription;
   late StreamSubscription<Discovery> discoverySubscription;
 
   _HomeViewState()
@@ -23,8 +24,15 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    print('initState');
     WidgetsBinding.instance!.addObserver(this);
+    stateSubscription = central.stateChanged.listen((state) {
+      if (state) {
+        startDiscovery();
+      } else {
+        discoveries.value = {};
+        discovering.value = false;
+      }
+    });
     discoverySubscription = central.discovered.listen(
       (discovery) {
         discoveries.value[discovery.address] = discovery;
@@ -35,31 +43,14 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    print('didChangeDependencies');
-  }
-
-  @override
-  void didUpdateWidget(covariant HomeView oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    print('didUpdateWidget');
-  }
-
-  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    print('didChangeAppLifecycleState: $state');
-    switch (state) {
-      case AppLifecycleState.detached:
-        break;
-      default:
-    }
   }
 
   @override
   void dispose() {
     stopDiscovery();
+    stateSubscription.cancel();
     discoverySubscription.cancel();
     discoveries.dispose();
     discovering.dispose();
@@ -74,25 +65,20 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
       appBar: AppBar(
         title: Text('Home'),
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          discoveries.value = {};
-        },
-        child: ValueListenableBuilder(
-          valueListenable: discoveries,
-          builder: (context, Map<MAC, Discovery> discoveries, child) =>
-              buildDiscoveriesView(discoveries),
-        ),
-      ),
+      body: bodyView,
     );
   }
 
   void startDiscovery() async {
+    final state = await central.state;
+    if (!state) return;
     await central.startDiscovery();
     discovering.value = true;
   }
 
   void stopDiscovery() async {
+    final state = await central.state;
+    if (!state) return;
     await central.stopDiscovery();
     discovering.value = false;
   }
@@ -117,45 +103,73 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
 }
 
 extension on _HomeViewState {
-  Widget buildDiscoveriesView(Map<MAC, Discovery> discoveries) {
-    return ListView.builder(
-      padding: EdgeInsets.all(6.0),
-      itemCount: discoveries.length,
-      itemBuilder: (context, i) {
-        final discovery = discoveries.values.elementAt(i);
-        return Card(
-          color: Colors.amber,
-          clipBehavior: Clip.antiAlias,
-          shape: BeveledRectangleBorder(
-            borderRadius: BorderRadius.only(
-                topRight: Radius.circular(12.0),
-                bottomLeft: Radius.circular(12.0)),
-          ),
-          margin: EdgeInsets.all(6.0),
-          key: Key(discovery.address.name),
-          child: InkWell(
-            splashColor: Colors.purple,
-            onTap: () => showGattView(discovery),
-            onLongPress: () => showAdvertisements(discovery),
-            child: Container(
-              height: 100.0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(discovery.name ?? 'NaN'),
-                      Text(discovery.address.name),
-                    ],
+  Widget get bodyView {
+    return FutureBuilder<bool>(
+      future: central.state,
+      builder: (context, snapshot) => snapshot.hasData
+          ? StreamBuilder<bool>(
+              stream: central.stateChanged,
+              initialData: snapshot.data,
+              builder: (context, snapshot) =>
+                  snapshot.data! ? discoveriesView : closedView,
+            )
+          : closedView,
+    );
+  }
+
+  Widget get closedView {
+    return Center(
+      child: Text('蓝牙未开启'),
+    );
+  }
+
+  Widget get discoveriesView {
+    return RefreshIndicator(
+      onRefresh: () async => discoveries.value = {},
+      child: ValueListenableBuilder(
+        valueListenable: discoveries,
+        builder: (context, Map<MAC, Discovery> discoveries, child) {
+          return ListView.builder(
+            padding: EdgeInsets.all(6.0),
+            itemCount: discoveries.length,
+            itemBuilder: (context, i) {
+              final discovery = discoveries.values.elementAt(i);
+              return Card(
+                color: Colors.amber,
+                clipBehavior: Clip.antiAlias,
+                shape: BeveledRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(12.0),
+                      bottomLeft: Radius.circular(12.0)),
+                ),
+                margin: EdgeInsets.all(6.0),
+                key: Key(discovery.address.name),
+                child: InkWell(
+                  splashColor: Colors.purple,
+                  onTap: () => showGattView(discovery),
+                  onLongPress: () => showAdvertisements(discovery),
+                  child: Container(
+                    height: 100.0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(discovery.name ?? 'NaN'),
+                            Text(discovery.address.name),
+                          ],
+                        ),
+                        Text(discovery.rssi.toString()),
+                      ],
+                    ),
                   ),
-                  Text(discovery.rssi.toString()),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 

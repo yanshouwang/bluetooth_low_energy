@@ -33,8 +33,8 @@ class Message extends $pb.GeneratedMessage {
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Message', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
     ..oo(0, [2, 3, 4, 5, 6])
-    ..e<MessageCategory>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'category', $pb.PbFieldType.OE, defaultOrMaker: MessageCategory.BLUETOOTH_STATE, valueOf: MessageCategory.valueOf, enumValues: MessageCategory.values)
-    ..e<BluetoothState>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: BluetoothState.UNKNOWN, valueOf: BluetoothState.valueOf, enumValues: BluetoothState.values)
+    ..e<MessageCategory>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'category', $pb.PbFieldType.OE, defaultOrMaker: MessageCategory.BLUETOOTH_AVAILABLE, valueOf: MessageCategory.valueOf, enumValues: MessageCategory.values)
+    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'state')
     ..aOM<Discovery>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'discovery', subBuilder: Discovery.create)
     ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'scanning')
     ..aOM<ConnectionLost>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'connectionLost', protoName: 'connectionLost', subBuilder: ConnectionLost.create)
@@ -45,7 +45,7 @@ class Message extends $pb.GeneratedMessage {
   Message._() : super();
   factory Message({
     MessageCategory? category,
-    BluetoothState? state,
+    $core.bool? state,
     Discovery? discovery,
     $core.bool? scanning,
     ConnectionLost? connectionLost,
@@ -106,9 +106,9 @@ class Message extends $pb.GeneratedMessage {
   void clearCategory() => clearField(1);
 
   @$pb.TagNumber(2)
-  BluetoothState get state => $_getN(1);
+  $core.bool get state => $_getBF(1);
   @$pb.TagNumber(2)
-  set state(BluetoothState v) { setField(2, v); }
+  set state($core.bool v) { $_setBool(1, v); }
   @$pb.TagNumber(2)
   $core.bool hasState() => $_has(1);
   @$pb.TagNumber(2)

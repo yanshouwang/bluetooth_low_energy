@@ -14,8 +14,10 @@ void main() {
     calls.clear();
     method.setMockMethodCallHandler((call) async {
       calls.add(call);
-      if (call.method == proto.MessageCategory.BLUETOOTH_STATE.name) {
-        return proto.BluetoothState.POWERED_OFF.value;
+      if (call.method == proto.MessageCategory.BLUETOOTH_AVAILABLE.name) {
+        return true;
+      } else if (call.method == proto.MessageCategory.BLUETOOTH_STATE.name) {
+        return true;
       } else if (call.method ==
           proto.MessageCategory.CENTRAL_START_DISCOVERY.name) {
         return null;
@@ -79,7 +81,7 @@ void main() {
         case 'listen':
           final state = proto.Message(
             category: proto.MessageCategory.BLUETOOTH_STATE,
-            state: proto.BluetoothState.POWERED_ON,
+            state: false,
           ).writeToBuffer();
           await ServicesBinding.instance!.defaultBinaryMessenger
               .handlePlatformMessage(
@@ -141,11 +143,26 @@ void main() {
   });
 
   test(
+    '${proto.MessageCategory.BLUETOOTH_AVAILABLE}',
+    () async {
+      final actual = await central.available;
+      expect(actual, true);
+      expect(
+        calls,
+        [
+          isMethodCall(
+            proto.MessageCategory.BLUETOOTH_AVAILABLE.name,
+            arguments: null,
+          ),
+        ],
+      );
+    },
+  );
+  test(
     '${proto.MessageCategory.BLUETOOTH_STATE}',
     () async {
       final actual = await central.state;
-      final matcher = BluetoothState.poweredOff;
-      expect(actual, matcher);
+      expect(actual, true);
       expect(
         calls,
         [
@@ -161,8 +178,7 @@ void main() {
     '${proto.MessageCategory.BLUETOOTH_STATE} EVENT',
     () async {
       final actual = await central.stateChanged.first;
-      final matcher = BluetoothState.poweredOn;
-      expect(actual, matcher);
+      expect(actual, false);
     },
   );
   test(

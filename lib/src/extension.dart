@@ -52,10 +52,6 @@ extension on String {
   UUID get conversionOfUUID => UUID(this);
 }
 
-extension on proto.BluetoothState {
-  BluetoothState get conversion => BluetoothState.values[value];
-}
-
 extension on proto.Discovery {
   Discovery get conversion {
     final convertedAdvertisements = <int, List<int>>{};

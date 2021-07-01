@@ -20,104 +20,112 @@ public final class MessageOuterClass {
   public enum MessageCategory
       implements com.google.protobuf.ProtocolMessageEnum {
     /**
-     * <code>BLUETOOTH_STATE = 0;</code>
+     * <code>BLUETOOTH_AVAILABLE = 0;</code>
      */
-    BLUETOOTH_STATE(0),
+    BLUETOOTH_AVAILABLE(0),
     /**
-     * <code>CENTRAL_START_DISCOVERY = 1;</code>
+     * <code>BLUETOOTH_STATE = 1;</code>
      */
-    CENTRAL_START_DISCOVERY(1),
+    BLUETOOTH_STATE(1),
     /**
-     * <code>CENTRAL_STOP_DISCOVERY = 2;</code>
+     * <code>CENTRAL_START_DISCOVERY = 2;</code>
      */
-    CENTRAL_STOP_DISCOVERY(2),
+    CENTRAL_START_DISCOVERY(2),
     /**
-     * <code>CENTRAL_DISCOVERED = 3;</code>
+     * <code>CENTRAL_STOP_DISCOVERY = 3;</code>
      */
-    CENTRAL_DISCOVERED(3),
+    CENTRAL_STOP_DISCOVERY(3),
     /**
-     * <code>CENTRAL_CONNECT = 4;</code>
+     * <code>CENTRAL_DISCOVERED = 4;</code>
      */
-    CENTRAL_CONNECT(4),
+    CENTRAL_DISCOVERED(4),
     /**
-     * <code>GATT_DISCONNECT = 5;</code>
+     * <code>CENTRAL_CONNECT = 5;</code>
      */
-    GATT_DISCONNECT(5),
+    CENTRAL_CONNECT(5),
     /**
-     * <code>GATT_CONNECTION_LOST = 6;</code>
+     * <code>GATT_DISCONNECT = 6;</code>
      */
-    GATT_CONNECTION_LOST(6),
+    GATT_DISCONNECT(6),
     /**
-     * <code>GATT_CHARACTERISTIC_READ = 7;</code>
+     * <code>GATT_CONNECTION_LOST = 7;</code>
      */
-    GATT_CHARACTERISTIC_READ(7),
+    GATT_CONNECTION_LOST(7),
     /**
-     * <code>GATT_CHARACTERISTIC_WRITE = 8;</code>
+     * <code>GATT_CHARACTERISTIC_READ = 8;</code>
      */
-    GATT_CHARACTERISTIC_WRITE(8),
+    GATT_CHARACTERISTIC_READ(8),
     /**
-     * <code>GATT_CHARACTERISTIC_NOTIFY = 9;</code>
+     * <code>GATT_CHARACTERISTIC_WRITE = 9;</code>
      */
-    GATT_CHARACTERISTIC_NOTIFY(9),
+    GATT_CHARACTERISTIC_WRITE(9),
     /**
-     * <code>GATT_DESCRIPTOR_READ = 10;</code>
+     * <code>GATT_CHARACTERISTIC_NOTIFY = 10;</code>
      */
-    GATT_DESCRIPTOR_READ(10),
+    GATT_CHARACTERISTIC_NOTIFY(10),
     /**
-     * <code>GATT_DESCRIPTOR_WRITE = 11;</code>
+     * <code>GATT_DESCRIPTOR_READ = 11;</code>
      */
-    GATT_DESCRIPTOR_WRITE(11),
+    GATT_DESCRIPTOR_READ(11),
+    /**
+     * <code>GATT_DESCRIPTOR_WRITE = 12;</code>
+     */
+    GATT_DESCRIPTOR_WRITE(12),
     UNRECOGNIZED(-1),
     ;
 
     /**
-     * <code>BLUETOOTH_STATE = 0;</code>
+     * <code>BLUETOOTH_AVAILABLE = 0;</code>
      */
-    public static final int BLUETOOTH_STATE_VALUE = 0;
+    public static final int BLUETOOTH_AVAILABLE_VALUE = 0;
     /**
-     * <code>CENTRAL_START_DISCOVERY = 1;</code>
+     * <code>BLUETOOTH_STATE = 1;</code>
      */
-    public static final int CENTRAL_START_DISCOVERY_VALUE = 1;
+    public static final int BLUETOOTH_STATE_VALUE = 1;
     /**
-     * <code>CENTRAL_STOP_DISCOVERY = 2;</code>
+     * <code>CENTRAL_START_DISCOVERY = 2;</code>
      */
-    public static final int CENTRAL_STOP_DISCOVERY_VALUE = 2;
+    public static final int CENTRAL_START_DISCOVERY_VALUE = 2;
     /**
-     * <code>CENTRAL_DISCOVERED = 3;</code>
+     * <code>CENTRAL_STOP_DISCOVERY = 3;</code>
      */
-    public static final int CENTRAL_DISCOVERED_VALUE = 3;
+    public static final int CENTRAL_STOP_DISCOVERY_VALUE = 3;
     /**
-     * <code>CENTRAL_CONNECT = 4;</code>
+     * <code>CENTRAL_DISCOVERED = 4;</code>
      */
-    public static final int CENTRAL_CONNECT_VALUE = 4;
+    public static final int CENTRAL_DISCOVERED_VALUE = 4;
     /**
-     * <code>GATT_DISCONNECT = 5;</code>
+     * <code>CENTRAL_CONNECT = 5;</code>
      */
-    public static final int GATT_DISCONNECT_VALUE = 5;
+    public static final int CENTRAL_CONNECT_VALUE = 5;
     /**
-     * <code>GATT_CONNECTION_LOST = 6;</code>
+     * <code>GATT_DISCONNECT = 6;</code>
      */
-    public static final int GATT_CONNECTION_LOST_VALUE = 6;
+    public static final int GATT_DISCONNECT_VALUE = 6;
     /**
-     * <code>GATT_CHARACTERISTIC_READ = 7;</code>
+     * <code>GATT_CONNECTION_LOST = 7;</code>
      */
-    public static final int GATT_CHARACTERISTIC_READ_VALUE = 7;
+    public static final int GATT_CONNECTION_LOST_VALUE = 7;
     /**
-     * <code>GATT_CHARACTERISTIC_WRITE = 8;</code>
+     * <code>GATT_CHARACTERISTIC_READ = 8;</code>
      */
-    public static final int GATT_CHARACTERISTIC_WRITE_VALUE = 8;
+    public static final int GATT_CHARACTERISTIC_READ_VALUE = 8;
     /**
-     * <code>GATT_CHARACTERISTIC_NOTIFY = 9;</code>
+     * <code>GATT_CHARACTERISTIC_WRITE = 9;</code>
      */
-    public static final int GATT_CHARACTERISTIC_NOTIFY_VALUE = 9;
+    public static final int GATT_CHARACTERISTIC_WRITE_VALUE = 9;
     /**
-     * <code>GATT_DESCRIPTOR_READ = 10;</code>
+     * <code>GATT_CHARACTERISTIC_NOTIFY = 10;</code>
      */
-    public static final int GATT_DESCRIPTOR_READ_VALUE = 10;
+    public static final int GATT_CHARACTERISTIC_NOTIFY_VALUE = 10;
     /**
-     * <code>GATT_DESCRIPTOR_WRITE = 11;</code>
+     * <code>GATT_DESCRIPTOR_READ = 11;</code>
      */
-    public static final int GATT_DESCRIPTOR_WRITE_VALUE = 11;
+    public static final int GATT_DESCRIPTOR_READ_VALUE = 11;
+    /**
+     * <code>GATT_DESCRIPTOR_WRITE = 12;</code>
+     */
+    public static final int GATT_DESCRIPTOR_WRITE_VALUE = 12;
 
 
     public final int getNumber() {
@@ -144,18 +152,19 @@ public final class MessageOuterClass {
      */
     public static MessageCategory forNumber(int value) {
       switch (value) {
-        case 0: return BLUETOOTH_STATE;
-        case 1: return CENTRAL_START_DISCOVERY;
-        case 2: return CENTRAL_STOP_DISCOVERY;
-        case 3: return CENTRAL_DISCOVERED;
-        case 4: return CENTRAL_CONNECT;
-        case 5: return GATT_DISCONNECT;
-        case 6: return GATT_CONNECTION_LOST;
-        case 7: return GATT_CHARACTERISTIC_READ;
-        case 8: return GATT_CHARACTERISTIC_WRITE;
-        case 9: return GATT_CHARACTERISTIC_NOTIFY;
-        case 10: return GATT_DESCRIPTOR_READ;
-        case 11: return GATT_DESCRIPTOR_WRITE;
+        case 0: return BLUETOOTH_AVAILABLE;
+        case 1: return BLUETOOTH_STATE;
+        case 2: return CENTRAL_START_DISCOVERY;
+        case 3: return CENTRAL_STOP_DISCOVERY;
+        case 4: return CENTRAL_DISCOVERED;
+        case 5: return CENTRAL_CONNECT;
+        case 6: return GATT_DISCONNECT;
+        case 7: return GATT_CONNECTION_LOST;
+        case 8: return GATT_CHARACTERISTIC_READ;
+        case 9: return GATT_CHARACTERISTIC_WRITE;
+        case 10: return GATT_CHARACTERISTIC_NOTIFY;
+        case 11: return GATT_DESCRIPTOR_READ;
+        case 12: return GATT_DESCRIPTOR_WRITE;
         default: return null;
       }
     }
@@ -212,150 +221,6 @@ public final class MessageOuterClass {
     // @@protoc_insertion_point(enum_scope:dev.yanshouwang.bluetooth_low_energy.MessageCategory)
   }
 
-  /**
-   * Protobuf enum {@code dev.yanshouwang.bluetooth_low_energy.BluetoothState}
-   */
-  public enum BluetoothState
-      implements com.google.protobuf.ProtocolMessageEnum {
-    /**
-     * <code>UNKNOWN = 0;</code>
-     */
-    UNKNOWN(0),
-    /**
-     * <code>RESETTING = 1;</code>
-     */
-    RESETTING(1),
-    /**
-     * <code>UNSUPPORTED = 2;</code>
-     */
-    UNSUPPORTED(2),
-    /**
-     * <code>UNAUTHORIZED = 3;</code>
-     */
-    UNAUTHORIZED(3),
-    /**
-     * <code>POWERED_OFF = 4;</code>
-     */
-    POWERED_OFF(4),
-    /**
-     * <code>POWERED_ON = 5;</code>
-     */
-    POWERED_ON(5),
-    UNRECOGNIZED(-1),
-    ;
-
-    /**
-     * <code>UNKNOWN = 0;</code>
-     */
-    public static final int UNKNOWN_VALUE = 0;
-    /**
-     * <code>RESETTING = 1;</code>
-     */
-    public static final int RESETTING_VALUE = 1;
-    /**
-     * <code>UNSUPPORTED = 2;</code>
-     */
-    public static final int UNSUPPORTED_VALUE = 2;
-    /**
-     * <code>UNAUTHORIZED = 3;</code>
-     */
-    public static final int UNAUTHORIZED_VALUE = 3;
-    /**
-     * <code>POWERED_OFF = 4;</code>
-     */
-    public static final int POWERED_OFF_VALUE = 4;
-    /**
-     * <code>POWERED_ON = 5;</code>
-     */
-    public static final int POWERED_ON_VALUE = 5;
-
-
-    public final int getNumber() {
-      if (this == UNRECOGNIZED) {
-        throw new java.lang.IllegalArgumentException(
-            "Can't get the number of an unknown enum value.");
-      }
-      return value;
-    }
-
-    /**
-     * @param value The numeric wire value of the corresponding enum entry.
-     * @return The enum associated with the given numeric wire value.
-     * @deprecated Use {@link #forNumber(int)} instead.
-     */
-    @java.lang.Deprecated
-    public static BluetoothState valueOf(int value) {
-      return forNumber(value);
-    }
-
-    /**
-     * @param value The numeric wire value of the corresponding enum entry.
-     * @return The enum associated with the given numeric wire value.
-     */
-    public static BluetoothState forNumber(int value) {
-      switch (value) {
-        case 0: return UNKNOWN;
-        case 1: return RESETTING;
-        case 2: return UNSUPPORTED;
-        case 3: return UNAUTHORIZED;
-        case 4: return POWERED_OFF;
-        case 5: return POWERED_ON;
-        default: return null;
-      }
-    }
-
-    public static com.google.protobuf.Internal.EnumLiteMap<BluetoothState>
-        internalGetValueMap() {
-      return internalValueMap;
-    }
-    private static final com.google.protobuf.Internal.EnumLiteMap<
-        BluetoothState> internalValueMap =
-          new com.google.protobuf.Internal.EnumLiteMap<BluetoothState>() {
-            public BluetoothState findValueByNumber(int number) {
-              return BluetoothState.forNumber(number);
-            }
-          };
-
-    public final com.google.protobuf.Descriptors.EnumValueDescriptor
-        getValueDescriptor() {
-      if (this == UNRECOGNIZED) {
-        throw new java.lang.IllegalStateException(
-            "Can't get the descriptor of an unrecognized enum value.");
-      }
-      return getDescriptor().getValues().get(ordinal());
-    }
-    public final com.google.protobuf.Descriptors.EnumDescriptor
-        getDescriptorForType() {
-      return getDescriptor();
-    }
-    public static final com.google.protobuf.Descriptors.EnumDescriptor
-        getDescriptor() {
-      return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.getDescriptor().getEnumTypes().get(1);
-    }
-
-    private static final BluetoothState[] VALUES = values();
-
-    public static BluetoothState valueOf(
-        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
-      if (desc.getType() != getDescriptor()) {
-        throw new java.lang.IllegalArgumentException(
-          "EnumValueDescriptor is not for this type.");
-      }
-      if (desc.getIndex() == -1) {
-        return UNRECOGNIZED;
-      }
-      return VALUES[desc.getIndex()];
-    }
-
-    private final int value;
-
-    private BluetoothState(int value) {
-      this.value = value;
-    }
-
-    // @@protoc_insertion_point(enum_scope:dev.yanshouwang.bluetooth_low_energy.BluetoothState)
-  }
-
   public interface MessageOrBuilder extends
       // @@protoc_insertion_point(interface_extends:dev.yanshouwang.bluetooth_low_energy.Message)
       com.google.protobuf.MessageOrBuilder {
@@ -372,20 +237,15 @@ public final class MessageOuterClass {
     dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.MessageCategory getCategory();
 
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
+     * <code>bool state = 2;</code>
      * @return Whether the state field is set.
      */
     boolean hasState();
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
-     * @return The enum numeric value on the wire for state.
-     */
-    int getStateValue();
-    /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
+     * <code>bool state = 2;</code>
      * @return The state.
      */
-    dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState getState();
+    boolean getState();
 
     /**
      * <code>.dev.yanshouwang.bluetooth_low_energy.Discovery discovery = 3;</code>
@@ -498,9 +358,8 @@ public final class MessageOuterClass {
               break;
             }
             case 16: {
-              int rawValue = input.readEnum();
               valueCase_ = 2;
-              value_ = rawValue;
+              value_ = input.readBool();
               break;
             }
             case 26: {
@@ -650,34 +509,23 @@ public final class MessageOuterClass {
 
     public static final int STATE_FIELD_NUMBER = 2;
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
+     * <code>bool state = 2;</code>
      * @return Whether the state field is set.
      */
+    @java.lang.Override
     public boolean hasState() {
       return valueCase_ == 2;
     }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
-     * @return The enum numeric value on the wire for state.
-     */
-    public int getStateValue() {
-      if (valueCase_ == 2) {
-        return (java.lang.Integer) value_;
-      }
-      return 0;
-    }
-    /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
+     * <code>bool state = 2;</code>
      * @return The state.
      */
-    public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState getState() {
+    @java.lang.Override
+    public boolean getState() {
       if (valueCase_ == 2) {
-        @SuppressWarnings("deprecation")
-        dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState result = dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState.valueOf(
-            (java.lang.Integer) value_);
-        return result == null ? dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState.UNRECOGNIZED : result;
+        return (java.lang.Boolean) value_;
       }
-      return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState.UNKNOWN;
+      return false;
     }
 
     public static final int DISCOVERY_FIELD_NUMBER = 3;
@@ -808,11 +656,12 @@ public final class MessageOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (category_ != dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.MessageCategory.BLUETOOTH_STATE.getNumber()) {
+      if (category_ != dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.MessageCategory.BLUETOOTH_AVAILABLE.getNumber()) {
         output.writeEnum(1, category_);
       }
       if (valueCase_ == 2) {
-        output.writeEnum(2, ((java.lang.Integer) value_));
+        output.writeBool(
+            2, (boolean)((java.lang.Boolean) value_));
       }
       if (valueCase_ == 3) {
         output.writeMessage(3, (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.Discovery) value_);
@@ -836,13 +685,14 @@ public final class MessageOuterClass {
       if (size != -1) return size;
 
       size = 0;
-      if (category_ != dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.MessageCategory.BLUETOOTH_STATE.getNumber()) {
+      if (category_ != dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.MessageCategory.BLUETOOTH_AVAILABLE.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(1, category_);
       }
       if (valueCase_ == 2) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(2, ((java.lang.Integer) value_));
+          .computeBoolSize(
+              2, (boolean)((java.lang.Boolean) value_));
       }
       if (valueCase_ == 3) {
         size += com.google.protobuf.CodedOutputStream
@@ -880,8 +730,8 @@ public final class MessageOuterClass {
       if (!getValueCase().equals(other.getValueCase())) return false;
       switch (valueCase_) {
         case 2:
-          if (getStateValue()
-              != other.getStateValue()) return false;
+          if (getState()
+              != other.getState()) return false;
           break;
         case 3:
           if (!getDiscovery()
@@ -918,7 +768,8 @@ public final class MessageOuterClass {
       switch (valueCase_) {
         case 2:
           hash = (37 * hash) + STATE_FIELD_NUMBER;
-          hash = (53 * hash) + getStateValue();
+          hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+              getState());
           break;
         case 3:
           hash = (37 * hash) + DISCOVERY_FIELD_NUMBER;
@@ -1185,7 +1036,7 @@ public final class MessageOuterClass {
         }
         switch (other.getValueCase()) {
           case STATE: {
-            setStateValue(other.getStateValue());
+            setState(other.getState());
             break;
           }
           case DISCOVERY: {
@@ -1307,65 +1158,35 @@ public final class MessageOuterClass {
       }
 
       /**
-       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
+       * <code>bool state = 2;</code>
        * @return Whether the state field is set.
        */
-      @java.lang.Override
       public boolean hasState() {
         return valueCase_ == 2;
       }
       /**
-       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
-       * @return The enum numeric value on the wire for state.
+       * <code>bool state = 2;</code>
+       * @return The state.
        */
-      @java.lang.Override
-      public int getStateValue() {
+      public boolean getState() {
         if (valueCase_ == 2) {
-          return ((java.lang.Integer) value_).intValue();
+          return (java.lang.Boolean) value_;
         }
-        return 0;
+        return false;
       }
       /**
-       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
-       * @param value The enum numeric value on the wire for state to set.
+       * <code>bool state = 2;</code>
+       * @param value The state to set.
        * @return This builder for chaining.
        */
-      public Builder setStateValue(int value) {
+      public Builder setState(boolean value) {
         valueCase_ = 2;
         value_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
-       * @return The state.
-       */
-      @java.lang.Override
-      public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState getState() {
-        if (valueCase_ == 2) {
-          @SuppressWarnings("deprecation")
-          dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState result = dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState.valueOf(
-              (java.lang.Integer) value_);
-          return result == null ? dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState.UNRECOGNIZED : result;
-        }
-        return dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState.UNKNOWN;
-      }
-      /**
-       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
-       * @param value The state to set.
-       * @return This builder for chaining.
-       */
-      public Builder setState(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState value) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        valueCase_ = 2;
-        value_ = value.getNumber();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
+       * <code>bool state = 2;</code>
        * @return This builder for chaining.
        */
       public Builder clearState() {
@@ -14820,64 +14641,61 @@ public final class MessageOuterClass {
   static {
     java.lang.String[] descriptorData = {
       "\n\rmessage.proto\022$dev.yanshouwang.bluetoo" +
-      "th_low_energy\"\252\003\n\007Message\022G\n\010category\030\001 " +
+      "th_low_energy\"\364\002\n\007Message\022G\n\010category\030\001 " +
       "\001(\01625.dev.yanshouwang.bluetooth_low_ener" +
-      "gy.MessageCategory\022E\n\005state\030\002 \001(\01624.dev." +
-      "yanshouwang.bluetooth_low_energy.Bluetoo" +
-      "thStateH\000\022D\n\tdiscovery\030\003 \001(\0132/.dev.yansh" +
-      "ouwang.bluetooth_low_energy.DiscoveryH\000\022" +
-      "\022\n\010scanning\030\004 \001(\010H\000\022N\n\016connectionLost\030\005 " +
-      "\001(\01324.dev.yanshouwang.bluetooth_low_ener" +
-      "gy.ConnectionLostH\000\022\\\n\023characteristicVal" +
-      "ue\030\006 \001(\0132=.dev.yanshouwang.bluetooth_low" +
-      "_energy.GattCharacteristicValueH\000B\007\n\005val" +
-      "ue\"+\n\027StartDiscoveryArguments\022\020\n\010service" +
-      "s\030\001 \003(\t\"B\n\tDiscovery\022\017\n\007address\030\001 \001(\t\022\014\n" +
-      "\004rssi\030\002 \001(\021\022\026\n\016advertisements\030\003 \001(\014\"#\n\020C" +
-      "onnectArguments\022\017\n\007address\030\001 \001(\t\"d\n\004GATT" +
-      "\022\n\n\002id\030\001 \001(\005\022\013\n\003mtu\030\002 \001(\005\022C\n\010services\030\003 " +
-      "\003(\01321.dev.yanshouwang.bluetooth_low_ener" +
-      "gy.GattService\"6\n\027GattDisconnectArgument" +
-      "s\022\017\n\007address\030\001 \001(\t\022\n\n\002id\030\002 \001(\005\"z\n\013GattSe" +
-      "rvice\022\n\n\002id\030\001 \001(\005\022\014\n\004uuid\030\002 \001(\t\022Q\n\017chara" +
-      "cteristics\030\003 \003(\01328.dev.yanshouwang.bluet" +
-      "ooth_low_energy.GattCharacteristic\"\320\001\n\022G" +
-      "attCharacteristic\022\n\n\002id\030\001 \001(\005\022\014\n\004uuid\030\002 " +
-      "\001(\t\022I\n\013descriptors\030\003 \003(\01324.dev.yanshouwa" +
-      "ng.bluetooth_low_energy.GattDescriptor\022\017" +
-      "\n\007canRead\030\004 \001(\010\022\020\n\010canWrite\030\005 \001(\010\022\037\n\027can" +
-      "WriteWithoutResponse\030\006 \001(\010\022\021\n\tcanNotify\030" +
-      "\007 \001(\010\"*\n\016GattDescriptor\022\n\n\002id\030\001 \001(\005\022\014\n\004u" +
-      "uid\030\002 \001(\t\"0\n\016ConnectionLost\022\n\n\002id\030\001 \001(\005\022" +
-      "\022\n\nerror_code\030\002 \001(\005\"b\n\037GattCharacteristi" +
-      "cReadArguments\022\017\n\007address\030\001 \001(\t\022\024\n\014servi" +
-      "ce_uuid\030\002 \001(\t\022\014\n\004uuid\030\003 \001(\t\022\n\n\002id\030\004 \001(\005\"" +
-      "\213\001\n GattCharacteristicWriteArguments\022\017\n\007" +
-      "address\030\001 \001(\t\022\024\n\014service_uuid\030\002 \001(\t\022\014\n\004u" +
-      "uid\030\003 \001(\t\022\n\n\002id\030\004 \001(\005\022\r\n\005value\030\005 \001(\014\022\027\n\017" +
-      "withoutResponse\030\006 \001(\010\"s\n!GattCharacteris" +
-      "ticNotifyArguments\022\017\n\007address\030\001 \001(\t\022\024\n\014s" +
-      "ervice_uuid\030\002 \001(\t\022\014\n\004uuid\030\003 \001(\t\022\n\n\002id\030\004 " +
-      "\001(\005\022\r\n\005state\030\005 \001(\010\"4\n\027GattCharacteristic" +
-      "Value\022\n\n\002id\030\003 \001(\005\022\r\n\005value\030\004 \001(\014\"{\n\033Gatt" +
-      "DescriptorReadArguments\022\017\n\007address\030\001 \001(\t" +
-      "\022\024\n\014service_uuid\030\002 \001(\t\022\033\n\023characteristic" +
-      "_uuid\030\003 \001(\t\022\014\n\004uuid\030\004 \001(\t\022\n\n\002id\030\005 \001(\005\"\213\001" +
-      "\n\034GattDescriptorWriteArguments\022\017\n\007addres" +
-      "s\030\001 \001(\t\022\024\n\014service_uuid\030\002 \001(\t\022\033\n\023charact" +
-      "eristic_uuid\030\003 \001(\t\022\014\n\004uuid\030\004 \001(\t\022\n\n\002id\030\005" +
-      " \001(\005\022\r\n\005value\030\006 \001(\014*\315\002\n\017MessageCategory\022" +
-      "\023\n\017BLUETOOTH_STATE\020\000\022\033\n\027CENTRAL_START_DI" +
-      "SCOVERY\020\001\022\032\n\026CENTRAL_STOP_DISCOVERY\020\002\022\026\n" +
-      "\022CENTRAL_DISCOVERED\020\003\022\023\n\017CENTRAL_CONNECT" +
-      "\020\004\022\023\n\017GATT_DISCONNECT\020\005\022\030\n\024GATT_CONNECTI" +
-      "ON_LOST\020\006\022\034\n\030GATT_CHARACTERISTIC_READ\020\007\022" +
-      "\035\n\031GATT_CHARACTERISTIC_WRITE\020\010\022\036\n\032GATT_C" +
-      "HARACTERISTIC_NOTIFY\020\t\022\030\n\024GATT_DESCRIPTO" +
-      "R_READ\020\n\022\031\n\025GATT_DESCRIPTOR_WRITE\020\013*p\n\016B" +
-      "luetoothState\022\013\n\007UNKNOWN\020\000\022\r\n\tRESETTING\020" +
-      "\001\022\017\n\013UNSUPPORTED\020\002\022\020\n\014UNAUTHORIZED\020\003\022\017\n\013" +
-      "POWERED_OFF\020\004\022\016\n\nPOWERED_ON\020\005b\006proto3"
+      "gy.MessageCategory\022\017\n\005state\030\002 \001(\010H\000\022D\n\td" +
+      "iscovery\030\003 \001(\0132/.dev.yanshouwang.bluetoo" +
+      "th_low_energy.DiscoveryH\000\022\022\n\010scanning\030\004 " +
+      "\001(\010H\000\022N\n\016connectionLost\030\005 \001(\01324.dev.yans" +
+      "houwang.bluetooth_low_energy.ConnectionL" +
+      "ostH\000\022\\\n\023characteristicValue\030\006 \001(\0132=.dev" +
+      ".yanshouwang.bluetooth_low_energy.GattCh" +
+      "aracteristicValueH\000B\007\n\005value\"+\n\027StartDis" +
+      "coveryArguments\022\020\n\010services\030\001 \003(\t\"B\n\tDis" +
+      "covery\022\017\n\007address\030\001 \001(\t\022\014\n\004rssi\030\002 \001(\021\022\026\n" +
+      "\016advertisements\030\003 \001(\014\"#\n\020ConnectArgument" +
+      "s\022\017\n\007address\030\001 \001(\t\"d\n\004GATT\022\n\n\002id\030\001 \001(\005\022\013" +
+      "\n\003mtu\030\002 \001(\005\022C\n\010services\030\003 \003(\01321.dev.yans" +
+      "houwang.bluetooth_low_energy.GattService" +
+      "\"6\n\027GattDisconnectArguments\022\017\n\007address\030\001" +
+      " \001(\t\022\n\n\002id\030\002 \001(\005\"z\n\013GattService\022\n\n\002id\030\001 " +
+      "\001(\005\022\014\n\004uuid\030\002 \001(\t\022Q\n\017characteristics\030\003 \003" +
+      "(\01328.dev.yanshouwang.bluetooth_low_energ" +
+      "y.GattCharacteristic\"\320\001\n\022GattCharacteris" +
+      "tic\022\n\n\002id\030\001 \001(\005\022\014\n\004uuid\030\002 \001(\t\022I\n\013descrip" +
+      "tors\030\003 \003(\01324.dev.yanshouwang.bluetooth_l" +
+      "ow_energy.GattDescriptor\022\017\n\007canRead\030\004 \001(" +
+      "\010\022\020\n\010canWrite\030\005 \001(\010\022\037\n\027canWriteWithoutRe" +
+      "sponse\030\006 \001(\010\022\021\n\tcanNotify\030\007 \001(\010\"*\n\016GattD" +
+      "escriptor\022\n\n\002id\030\001 \001(\005\022\014\n\004uuid\030\002 \001(\t\"0\n\016C" +
+      "onnectionLost\022\n\n\002id\030\001 \001(\005\022\022\n\nerror_code\030" +
+      "\002 \001(\005\"b\n\037GattCharacteristicReadArguments" +
+      "\022\017\n\007address\030\001 \001(\t\022\024\n\014service_uuid\030\002 \001(\t\022" +
+      "\014\n\004uuid\030\003 \001(\t\022\n\n\002id\030\004 \001(\005\"\213\001\n GattCharac" +
+      "teristicWriteArguments\022\017\n\007address\030\001 \001(\t\022" +
+      "\024\n\014service_uuid\030\002 \001(\t\022\014\n\004uuid\030\003 \001(\t\022\n\n\002i" +
+      "d\030\004 \001(\005\022\r\n\005value\030\005 \001(\014\022\027\n\017withoutRespons" +
+      "e\030\006 \001(\010\"s\n!GattCharacteristicNotifyArgum" +
+      "ents\022\017\n\007address\030\001 \001(\t\022\024\n\014service_uuid\030\002 " +
+      "\001(\t\022\014\n\004uuid\030\003 \001(\t\022\n\n\002id\030\004 \001(\005\022\r\n\005state\030\005" +
+      " \001(\010\"4\n\027GattCharacteristicValue\022\n\n\002id\030\003 " +
+      "\001(\005\022\r\n\005value\030\004 \001(\014\"{\n\033GattDescriptorRead" +
+      "Arguments\022\017\n\007address\030\001 \001(\t\022\024\n\014service_uu" +
+      "id\030\002 \001(\t\022\033\n\023characteristic_uuid\030\003 \001(\t\022\014\n" +
+      "\004uuid\030\004 \001(\t\022\n\n\002id\030\005 \001(\005\"\213\001\n\034GattDescript" +
+      "orWriteArguments\022\017\n\007address\030\001 \001(\t\022\024\n\014ser" +
+      "vice_uuid\030\002 \001(\t\022\033\n\023characteristic_uuid\030\003" +
+      " \001(\t\022\014\n\004uuid\030\004 \001(\t\022\n\n\002id\030\005 \001(\005\022\r\n\005value\030" +
+      "\006 \001(\014*\346\002\n\017MessageCategory\022\027\n\023BLUETOOTH_A" +
+      "VAILABLE\020\000\022\023\n\017BLUETOOTH_STATE\020\001\022\033\n\027CENTR" +
+      "AL_START_DISCOVERY\020\002\022\032\n\026CENTRAL_STOP_DIS" +
+      "COVERY\020\003\022\026\n\022CENTRAL_DISCOVERED\020\004\022\023\n\017CENT" +
+      "RAL_CONNECT\020\005\022\023\n\017GATT_DISCONNECT\020\006\022\030\n\024GA" +
+      "TT_CONNECTION_LOST\020\007\022\034\n\030GATT_CHARACTERIS" +
+      "TIC_READ\020\010\022\035\n\031GATT_CHARACTERISTIC_WRITE\020" +
+      "\t\022\036\n\032GATT_CHARACTERISTIC_NOTIFY\020\n\022\030\n\024GAT" +
+      "T_DESCRIPTOR_READ\020\013\022\031\n\025GATT_DESCRIPTOR_W" +
+      "RITE\020\014b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
