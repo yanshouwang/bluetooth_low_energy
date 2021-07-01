@@ -1,7 +1,8 @@
 name: bluetooth_low_energy
-description: A new flutter plugin project.
+description: A bluetooth low energy plugin for flutter, which can be used for a central role.
 version: 0.0.1
-homepage:
+homepage: https://github.com/yanshouwang/camerax
+publish_to: https://pub.dev
 
 environment:
   sdk: ">=2.12.0 <3.0.0"

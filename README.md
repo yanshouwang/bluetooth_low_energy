@@ -1,15 +1,42 @@
-# bluetooth_low_energy
+# Bluetooth Low Energy
 
-A new flutter plugin project.
+A bluetooth low energy plugin for flutter, which can be used to develope central role apps.
+
+## Features
+
+### Central APIs
+- [x] Discover advertisements.
+- [x] Connect/Disconnect to GATTs.
+- [x] Read/Write/Notify characteristics.
+- [x] Read/Write descriptors.
+
+### Peripheral APIs
+- [ ] Add/Send advertisements.
+- [ ] Add services
+- [ ] Add/Listen/Write characteristics
+- [ ] Add/Listen/Write descriptors.
+- [ ] Listen GATT connect/disconnect events.
 
 ## Getting Started
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+Add `bluetooth_low_energy` as a [dependency in your pubspec.yaml file](https://flutter.dev/using-packages/).
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```
+dependencies:
+  bluetooth_low_energy: ^<latest-version>
+```
 
+### Android
+
+Make sure you have a `miniSdkVersion` with 21 or higher in your `android/app/build.gradle` file, now we only support Android 5.0 or above.
+
+*Note*: Bluetooth Low Energy doesn't work on Android emulators, so use physical devices which has bluetooth features for development.
+
+### iOS
+
+TO BE DONE.
+
+## Issues
+
+- Only support Android for now, iOS will available as soon as possible.
+- Only support central APIs for now.

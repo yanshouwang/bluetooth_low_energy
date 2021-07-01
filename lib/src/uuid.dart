@@ -1,52 +1,34 @@
-import 'package:collection/collection.dart';
-import 'package:convert/convert.dart';
+part of bluetooth_low_energy;
 
 /// A universally unique identifier, as defined by bluetooth standards.
 abstract class UUID {
+  /// TO BE DONE.
   List<int> get value;
 
-  factory UUID(String s) => _UUID(s);
+  /// TO BE DONE.
+  String get name;
+
+  /// TO BE DONE.
+  factory UUID(String str) => _UUID(str);
 }
 
 class _UUID implements UUID {
-  final String full;
   @override
   final List<int> value;
   @override
+  final String name;
+  @override
   final int hashCode;
 
-  _UUID(String s) : this.full(s.full);
+  _UUID(String str) : this.name(str.nameOfUUID);
 
-  _UUID.full(String full) : this.create(full, full.value);
+  _UUID.name(String name) : this.nameValue(name, name.valueOfUUID);
 
-  _UUID.create(this.full, this.value)
-      : hashCode = ListEquality<int>().hash(value);
+  _UUID.nameValue(this.name, this.value) : hashCode = equality.hash(value);
 
   @override
-  String toString() => full;
+  String toString() => name;
 
   @override
   bool operator ==(other) => other is UUID && other.hashCode == hashCode;
-}
-
-extension on String {
-  String get full {
-    var source =
-        r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$';
-    var regex = RegExp(source, multiLine: true, caseSensitive: false);
-    if (regex.hasMatch(this)) return this;
-    source = r'^[0-9a-f]{4}$';
-    regex = RegExp(source, multiLine: true, caseSensitive: false);
-    if (regex.hasMatch(this)) {
-      return '0x0000${this}-0000-1000-8000-00805F9B34FB';
-    }
-    throw ArgumentError.value(this);
-  }
-
-  List<int> get value {
-    final source = r'-';
-    final regex = RegExp(source);
-    final encoded = splitMapJoin(regex);
-    return hex.decode(encoded);
-  }
 }
