@@ -1,10 +1,17 @@
 part of bluetooth_low_energy;
 
+/// TO BE DONE.
 abstract class GATT {
+  /// TO BE DONE.
   int get mtu;
+
+  /// TO BE DONE.
   Stream<int> get connectionLost;
+
+  /// TO BE DONE.
   Map<UUID, GattService> get services;
 
+  /// TO BE DONE.
   Future disconnect();
 }
 

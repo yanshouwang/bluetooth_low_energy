@@ -1,9 +1,14 @@
 part of bluetooth_low_energy;
 
+/// TO BE DONE.
 abstract class MAC {
+  /// TO BE DONE.
   List<int> get value;
+
+  /// TO BE DONE.
   String get name;
 
+  /// TO BE DONE.
   factory MAC(String str) => _MAC(str);
 }
 

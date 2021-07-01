@@ -67,7 +67,7 @@ extension on proto.Discovery {
       start = end;
       convertedAdvertisements[key] = value;
     }
-    return Discovery(address.conversionOfMAC, rssi, convertedAdvertisements);
+    return _Discovery(address.conversionOfMAC, rssi, convertedAdvertisements);
   }
 }
 
@@ -134,7 +134,9 @@ extension on proto.GattDescriptor {
   }
 }
 
+/// TO BE DONE.
 extension DiscoveryX on Discovery {
+  /// TO BE DONE.
   String? get name {
     if (advertisements.containsKey(0x08)) {
       return utf8.decode(advertisements[0x08]!);
