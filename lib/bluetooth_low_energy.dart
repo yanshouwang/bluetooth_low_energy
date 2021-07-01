@@ -9,6 +9,7 @@ import 'src/message.pb.dart' as proto;
 import 'src/util.dart';
 
 part 'src/bluetooth.dart';
+part 'src/central.dart';
 part 'src/discovery.dart';
 part 'src/gatt.dart';
 part 'src/gatt_service.dart';

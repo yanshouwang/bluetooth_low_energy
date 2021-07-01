@@ -1,9 +1,14 @@
 part of bluetooth_low_energy;
 
+/// TO BE DONE.
 abstract class GattDescriptor {
+  /// TO BE DONE.
   UUID get uuid;
 
+  /// TO BE DONE.
   Future<List<int>> read();
+
+  /// TO BE DONE.
   Future write(List<int> value);
 }
 

@@ -2,9 +2,13 @@ part of bluetooth_low_energy;
 
 /// A universally unique identifier, as defined by bluetooth standards.
 abstract class UUID {
+  /// TO BE DONE.
   List<int> get value;
+
+  /// TO BE DONE.
   String get name;
 
+  /// TO BE DONE.
   factory UUID(String str) => _UUID(str);
 }
 

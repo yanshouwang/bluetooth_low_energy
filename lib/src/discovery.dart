@@ -1,13 +1,15 @@
 part of bluetooth_low_energy;
 
+/// TO BE DONE.
 abstract class Discovery {
+  /// TO BE DONE.
   MAC get address;
-  int get rssi;
-  Map<int, List<int>> get advertisements;
 
-  factory Discovery(
-          MAC address, int rssi, Map<int, List<int>> advertisements) =>
-      _Discovery(address, rssi, advertisements);
+  /// TO BE DONE.
+  int get rssi;
+
+  /// TO BE DONE.
+  Map<int, List<int>> get advertisements;
 }
 
 class _Discovery implements Discovery {

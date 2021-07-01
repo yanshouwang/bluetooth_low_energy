@@ -1,17 +1,35 @@
 part of bluetooth_low_energy;
 
+/// TO BE DONE.
 abstract class GattCharacteristic {
+  /// TO BE DONE.
   UUID get uuid;
+
+  /// TO BE DONE.
   Map<UUID, GattDescriptor> get descriptors;
+
+  /// TO BE DONE.
   bool get canRead;
+
+  /// TO BE DONE.
   bool get canWrite;
+
+  /// TO BE DONE.
   bool get canWriteWithoutResponse;
+
+  /// TO BE DONE.
   bool get canNotify;
 
+  /// TO BE DONE.
   Stream<List<int>> get valueChanged;
 
+  /// TO BE DONE.
   Future<List<int>> read();
+
+  /// TO BE DONE.
   Future write(List<int> value, {bool withoutResponse = false});
+
+  /// TO BE DONE.
   Future notify(bool state);
 }
 
