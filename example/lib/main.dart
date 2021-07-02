@@ -40,14 +40,17 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
-    stateSubscription = central.stateChanged.listen((state) {
-      if (state) {
-        startDiscovery();
-      } else {
-        discoveries.value = {};
-        discovering.value = false;
-      }
-    });
+    stateSubscription = central.stateChanged.listen(
+      (state) {
+        final invisible = !ModalRoute.of(context)!.isCurrent;
+        if (invisible) return;
+        if (state) {
+          startDiscovery();
+        } else {
+          discovering.value = false;
+        }
+      },
+    );
     discoverySubscription = central.discovered.listen(
       (discovery) {
         discoveries.value[discovery.address] = discovery;
@@ -85,16 +88,15 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   }
 
   void startDiscovery() async {
-    final state = await central.state;
-    if (!state) return;
+    if (discovering.value || !await central.state) return;
     await central.startDiscovery();
     discovering.value = true;
   }
 
   void stopDiscovery() async {
-    final state = await central.state;
-    if (!state) return;
+    if (!discovering.value || !await central.state) return;
     await central.stopDiscovery();
+    discoveries.value = {};
     discovering.value = false;
   }
 
