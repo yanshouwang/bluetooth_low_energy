@@ -1,17 +1,278 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:convert';
 
-import 'views.dart';
+import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
+import 'package:convert/convert.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
-  runApp(MyApp());
+  final app = MaterialApp(
+    theme: ThemeData(
+      fontFamily: 'IBM Plex Mono',
+    ),
+    home: HomeView(),
+    routes: {
+      'gatt': (context) => GattView(),
+    },
+  );
+  runApp(app);
 }
 
-class MyApp extends StatefulWidget {
+class HomeView extends StatefulWidget {
+  const HomeView({Key? key}) : super(key: key);
+
   @override
-  _MyAppState createState() => _MyAppState();
+  _HomeViewState createState() => _HomeViewState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
+  final ValueNotifier<bool> discovering;
+  final ValueNotifier<Map<MAC, Discovery>> discoveries;
+  late StreamSubscription<bool> stateSubscription;
+  late StreamSubscription<Discovery> discoverySubscription;
+
+  _HomeViewState()
+      : discovering = ValueNotifier(false),
+        discoveries = ValueNotifier({});
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+    stateSubscription = central.stateChanged.listen((state) {
+      if (state) {
+        startDiscovery();
+      } else {
+        discoveries.value = {};
+        discovering.value = false;
+      }
+    });
+    discoverySubscription = central.discovered.listen(
+      (discovery) {
+        discoveries.value[discovery.address] = discovery;
+        discoveries.value = {...discoveries.value};
+      },
+    );
+    startDiscovery();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+  }
+
+  @override
+  void dispose() {
+    stopDiscovery();
+    stateSubscription.cancel();
+    discoverySubscription.cancel();
+    discoveries.dispose();
+    discovering.dispose();
+    WidgetsBinding.instance!.removeObserver(this);
+    print('dispose');
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Home'),
+      ),
+      body: bodyView,
+    );
+  }
+
+  void startDiscovery() async {
+    final state = await central.state;
+    if (!state) return;
+    await central.startDiscovery();
+    discovering.value = true;
+  }
+
+  void stopDiscovery() async {
+    final state = await central.state;
+    if (!state) return;
+    await central.stopDiscovery();
+    discovering.value = false;
+  }
+
+  void showAdvertisements(Discovery discovery) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      elevation: 0.0,
+      builder: (context) => buildAdvertisementsView(discovery),
+    );
+  }
+
+  void showGattView(Discovery discovery) async {
+    stopDiscovery();
+    await Navigator.of(context).pushNamed(
+      'gatt',
+      arguments: discovery.address,
+    );
+    startDiscovery();
+  }
+}
+
+extension on _HomeViewState {
+  Widget get bodyView {
+    return FutureBuilder<bool>(
+      future: central.state,
+      builder: (context, snapshot) => snapshot.hasData
+          ? StreamBuilder<bool>(
+              stream: central.stateChanged,
+              initialData: snapshot.data,
+              builder: (context, snapshot) =>
+                  snapshot.data! ? discoveriesView : closedView,
+            )
+          : closedView,
+    );
+  }
+
+  Widget get closedView {
+    return Center(
+      child: Text('蓝牙未开启'),
+    );
+  }
+
+  Widget get discoveriesView {
+    return RefreshIndicator(
+      onRefresh: () async => discoveries.value = {},
+      child: ValueListenableBuilder(
+        valueListenable: discoveries,
+        builder: (context, Map<MAC, Discovery> discoveries, child) {
+          return ListView.builder(
+            padding: EdgeInsets.all(6.0),
+            itemCount: discoveries.length,
+            itemBuilder: (context, i) {
+              final discovery = discoveries.values.elementAt(i);
+              return Card(
+                color: Colors.amber,
+                clipBehavior: Clip.antiAlias,
+                shape: BeveledRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(12.0),
+                      bottomLeft: Radius.circular(12.0)),
+                ),
+                margin: EdgeInsets.all(6.0),
+                key: Key(discovery.address.name),
+                child: InkWell(
+                  splashColor: Colors.purple,
+                  onTap: () => showGattView(discovery),
+                  onLongPress: () => showAdvertisements(discovery),
+                  child: Container(
+                    height: 100.0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(discovery.name ?? 'NaN'),
+                            Text(discovery.address.name),
+                          ],
+                        ),
+                        Text(discovery.rssi.toString()),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget buildAdvertisementsView(Discovery discovery) {
+    final widgets = <Widget>[
+      Row(
+        children: [
+          Text('Type'),
+          Expanded(
+            child: Center(
+              child: Text('Value'),
+            ),
+          ),
+        ],
+      ),
+      Divider(),
+    ];
+    for (final entry in discovery.advertisements.entries) {
+      final key = entry.key.toRadixString(16).padLeft(2, '0');
+      final value = hex.encode(entry.value);
+      final widget = Row(
+        children: [
+          Text('0x$key'),
+          Container(width: 12.0),
+          Expanded(
+            child: Text(
+              '$value',
+              softWrap: true,
+            ),
+          ),
+        ],
+      );
+      widgets.add(widget);
+      if (entry.key != discovery.advertisements.entries.last.key) {
+        final divider = Divider();
+        widgets.add(divider);
+      }
+    }
+    return Container(
+      margin: const EdgeInsets.all(12.0),
+      child: Material(
+        elevation: 1.0,
+        shape: BeveledRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(12.0),
+            bottomRight: Radius.circular(12.0),
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: widgets,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class GattView extends StatefulWidget {
+  const GattView({Key? key}) : super(key: key);
+
+  @override
+  _GattViewState createState() => _GattViewState();
+}
+
+class _GattViewState extends State<GattView> {
+  final ValueNotifier<ConnectionState> state;
+  GATT? gatt;
+  StreamSubscription? connectionLostSubscription;
+  final ValueNotifier<GattService?> service;
+  final ValueNotifier<GattCharacteristic?> characteristic;
+  final TextEditingController writeController;
+  final ValueNotifier<Map<GattCharacteristic, StreamSubscription>> notifies;
+  final ValueNotifier<List<String>> logs;
+
+  late MAC address;
+
+  _GattViewState()
+      : state = ValueNotifier(ConnectionState.disconnected),
+        service = ValueNotifier(null),
+        characteristic = ValueNotifier(null),
+        writeController = TextEditingController(),
+        notifies = ValueNotifier({}),
+        logs = ValueNotifier([]);
+
   @override
   void initState() {
     super.initState();
@@ -19,14 +280,344 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        fontFamily: 'IBM Plex Mono',
+    address = ModalRoute.of(context)!.settings.arguments as MAC;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('$address'),
+        actions: [
+          connectionView,
+        ],
       ),
-      home: HomeView(),
-      routes: {
-        'gatt': (context) => GattView(),
+      body: bodyView,
+    );
+  }
+
+  void Function()? disposeListener;
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    if (state.value != ConnectionState.disconnected) {
+      disposeListener ??= () => disposeGATT();
+      state.addListener(disposeListener!);
+      if (state.value == ConnectionState.connected) {
+        disconnect();
+      }
+    } else {
+      state.dispose();
+      service.dispose();
+      characteristic.dispose();
+      notifies.dispose();
+      logs.dispose();
+    }
+  }
+
+  void disposeGATT() {
+    switch (state.value) {
+      case ConnectionState.connected:
+        disconnect();
+        break;
+      case ConnectionState.disconnected:
+        state.removeListener(disposeListener!);
+        state.dispose();
+        service.dispose();
+        characteristic.dispose();
+        notifies.dispose();
+        logs.dispose();
+        break;
+      default:
+        break;
+    }
+  }
+
+  void connect() async {
+    try {
+      state.value = ConnectionState.connecting;
+      gatt = await central.connect(address);
+      state.value = ConnectionState.connected;
+      connectionLostSubscription = gatt!.connectionLost.listen(
+        (errorCode) async {
+          for (var subscription in notifies.value.values) {
+            await subscription.cancel();
+          }
+          await connectionLostSubscription!.cancel();
+          gatt = null;
+          connectionLostSubscription = null;
+          service.value = null;
+          characteristic.value = null;
+          notifies.value.clear();
+          logs.value.clear();
+          state.value = ConnectionState.disconnected;
+        },
+      );
+    } on PlatformException {
+      state.value = ConnectionState.disconnected;
+    }
+  }
+
+  void disconnect() async {
+    try {
+      state.value = ConnectionState.disconnecting;
+      await gatt!.disconnect();
+      for (var subscription in notifies.value.values) {
+        await subscription.cancel();
+      }
+      await connectionLostSubscription!.cancel();
+      gatt = null;
+      connectionLostSubscription = null;
+      service.value = null;
+      characteristic.value = null;
+      notifies.value.clear();
+      logs.value.clear();
+      state.value = ConnectionState.disconnected;
+    } on PlatformException {
+      state.value = ConnectionState.connected;
+    }
+  }
+}
+
+extension on _GattViewState {
+  Widget get connectionView {
+    return ValueListenableBuilder(
+      valueListenable: state,
+      builder: (context, ConnectionState stateValue, child) {
+        void Function()? onPressed;
+        var data = '';
+        switch (stateValue) {
+          case ConnectionState.disconnected:
+            onPressed = connect;
+            data = '连接';
+            break;
+          case ConnectionState.connected:
+            onPressed = disconnect;
+            data = '断开';
+            break;
+          default:
+            break;
+        }
+        return TextButton(
+          onPressed: onPressed,
+          child: Text(
+            data,
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+        );
       },
     );
   }
+
+  Widget get bodyView {
+    return ValueListenableBuilder(
+      valueListenable: state,
+      builder: (context, ConnectionState stateValue, child) {
+        switch (stateValue) {
+          case ConnectionState.disconnected:
+            return disconnectedView;
+          case ConnectionState.connecting:
+            return connectingView;
+          case ConnectionState.connected:
+            return connectedView;
+          case ConnectionState.disconnecting:
+            return disconnectingView;
+          default:
+            throw UnimplementedError();
+        }
+      },
+    );
+  }
+
+  Widget get disconnectedView {
+    return Center(
+      child: Text('未连接'),
+    );
+  }
+
+  Widget get connectingView {
+    return Center(
+      child: Text('正在建立连接'),
+    );
+  }
+
+  Widget get connectedView {
+    return ValueListenableBuilder(
+      valueListenable: service,
+      builder: (context, GattService? serviceValue, child) {
+        final services = gatt!.services.values
+            .map((service) => DropdownMenuItem<GattService>(
+                  value: service,
+                  child: Text(
+                    service.uuid.name,
+                    softWrap: false,
+                  ),
+                ))
+            .toList();
+        final serviceView = DropdownButton<GattService>(
+          isExpanded: true,
+          hint: Text('选择服务'),
+          value: serviceValue,
+          items: services,
+          onChanged: (value) {
+            service.value = value;
+            characteristic.value = null;
+          },
+        );
+        final views = <Widget>[serviceView];
+        if (serviceValue != null) {
+          final characteristics = serviceValue.characteristics.values
+              .map((characteristic) => DropdownMenuItem(
+                    value: characteristic,
+                    child: Text(
+                      characteristic.uuid.name,
+                      softWrap: false,
+                    ),
+                  ))
+              .toList();
+          final characteristicView = ValueListenableBuilder(
+            valueListenable: characteristic,
+            builder: (context, GattCharacteristic? characteristicValue, child) {
+              final canWrite = characteristicValue != null &&
+                  (characteristicValue.canWrite ||
+                      characteristicValue.canWriteWithoutResponse);
+              final canRead =
+                  characteristicValue != null && characteristicValue.canRead;
+              final canNotify =
+                  characteristicValue != null && characteristicValue.canNotify;
+              final readAndNotifyView = Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    onPressed: canRead
+                        ? () async {
+                            final value = await characteristicValue!.read();
+                            final time = DateTime.now().display;
+                            final log = '[$time][READ] ${hex.encode(value)}';
+                            logs.value = [...logs.value, log];
+                          }
+                        : null,
+                    icon: Icon(Icons.archive),
+                  ),
+                  ValueListenableBuilder(
+                      valueListenable: notifies,
+                      builder: (context,
+                          Map<GattCharacteristic, StreamSubscription>
+                              notifiesValue,
+                          child) {
+                        final notifying =
+                            notifiesValue.containsKey(characteristicValue);
+                        return IconButton(
+                          onPressed: canNotify
+                              ? () async {
+                                  if (notifying) {
+                                    await characteristicValue!.notify(false);
+                                    await notifiesValue
+                                        .remove(characteristicValue)!
+                                        .cancel();
+                                  } else {
+                                    await characteristicValue!.notify(true);
+                                    notifiesValue[characteristicValue] =
+                                        characteristicValue.valueChanged
+                                            .listen((value) {
+                                      final time = DateTime.now().display;
+                                      final log =
+                                          '[$time][NOTIFY] ${hex.encode(value)}';
+                                      logs.value = [...logs.value, log];
+                                    });
+                                  }
+                                  notifies.value = {...notifiesValue};
+                                }
+                              : null,
+                          icon: Icon(
+                            Icons.notifications,
+                            color: notifying ? Colors.blue : null,
+                          ),
+                        );
+                      }),
+                ],
+              );
+              final controllerView = TextField(
+                controller: writeController,
+                decoration: InputDecoration(
+                  suffixIcon: IconButton(
+                    onPressed: canWrite
+                        ? () {
+                            final value = utf8.encode(writeController.text);
+                            final withoutResponse =
+                                !characteristicValue!.canWrite;
+                            characteristicValue.write(value,
+                                withoutResponse: withoutResponse);
+                          }
+                        : null,
+                    icon: Icon(Icons.send),
+                  ),
+                ),
+              );
+              return Column(
+                children: [
+                  DropdownButton<GattCharacteristic>(
+                    isExpanded: true,
+                    hint: Text('选择特征值'),
+                    value: characteristicValue,
+                    items: characteristics,
+                    onChanged: (value) => characteristic.value = value,
+                  ),
+                  readAndNotifyView,
+                  controllerView,
+                ],
+              );
+            },
+          );
+          views.add(characteristicView);
+        }
+        final loggerView = Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12.0),
+            child: ValueListenableBuilder(
+                valueListenable: logs,
+                builder: (context, List<String> logsValue, child) {
+                  return ListView.builder(
+                    itemCount: logsValue.length,
+                    itemBuilder: (context, i) {
+                      final log = logsValue[i];
+                      return Text(log);
+                    },
+                  );
+                }),
+          ),
+        );
+        views.add(loggerView);
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: views,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget get disconnectingView {
+    return Center(
+      child: Text('正在断开连接'),
+    );
+  }
+}
+
+extension on DateTime {
+  String get display {
+    final hh = hour.toString().padLeft(2, '0');
+    final mm = minute.toString().padLeft(2, '0');
+    final ss = second.toString().padLeft(2, '0');
+    return '$hh:$mm:$ss';
+  }
+}
+
+enum ConnectionState {
+  disconnected,
+  connecting,
+  connected,
+  disconnecting,
 }
