@@ -285,7 +285,7 @@ class _GattViewState extends State<GattView> {
       appBar: AppBar(
         title: Text('$address'),
         actions: [
-          connectionView,
+          changeStateView,
         ],
       ),
       body: bodyView,
@@ -378,32 +378,37 @@ class _GattViewState extends State<GattView> {
 }
 
 extension on _GattViewState {
-  Widget get connectionView {
+  Widget get changeStateView {
     return ValueListenableBuilder(
       valueListenable: state,
       builder: (context, ConnectionState stateValue, child) {
         void Function()? onPressed;
-        var data = '';
+        String data;
         switch (stateValue) {
           case ConnectionState.disconnected:
             onPressed = connect;
+            data = '连接';
+            break;
+          case ConnectionState.connecting:
             data = '连接';
             break;
           case ConnectionState.connected:
             onPressed = disconnect;
             data = '断开';
             break;
+          case ConnectionState.disconnecting:
+            data = '断开';
+            break;
           default:
+            data = '';
             break;
         }
         return TextButton(
           onPressed: onPressed,
-          child: Text(
-            data,
-            style: TextStyle(
-              color: Colors.white,
-            ),
+          style: TextButton.styleFrom(
+            primary: Colors.white,
           ),
+          child: Text(data),
         );
       },
     );
