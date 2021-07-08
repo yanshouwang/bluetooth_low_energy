@@ -108,11 +108,11 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 val advertisements =
                         if (record == null) ByteString.EMPTY
                         else ByteString.copyFrom(record.bytes)
-                val connectable = when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> result.isConnectable
-                    record == null || record.advertiseFlags == -1 -> false
-                    else -> record.advertiseFlags and 0x02 != 0
-                }
+                // TODO: We can't get connectable value before Android 8.0, here we just return true
+                //  remove this useless code after the minSdkVersion set to 26 or later.
+                val connectable =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) result.isConnectable
+                        else true
                 val builder = Discovery.newBuilder()
                         .setUuid(uuid)
                         .setRssi(rssi)
@@ -137,11 +137,11 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                     val advertisements =
                             if (record == null) ByteString.EMPTY
                             else ByteString.copyFrom(record.bytes)
-                    val connectable = when {
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> result.isConnectable
-                        record == null || record.advertiseFlags == -1 -> false
-                        else -> record.advertiseFlags and 0x02 != 0
-                    }
+                    // TODO: We can't get connectable value before Android 8.0, here we just return true
+                    //  remove this useless code after the minSdkVersion set to 26 or later.
+                    val connectable =
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) result.isConnectable
+                            else true
                     val builder = Discovery.newBuilder()
                             .setUuid(uuid)
                             .setRssi(rssi)
