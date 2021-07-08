@@ -15,6 +15,5 @@ part 'src/gatt.dart';
 part 'src/gatt_service.dart';
 part 'src/gatt_characteristic.dart';
 part 'src/gatt_descriptor.dart';
-part 'src/mac.dart';
 part 'src/uuid.dart';
 part 'src/extension.dart';

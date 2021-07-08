@@ -4,23 +4,23 @@
 package dev.yanshouwang.bluetooth_low_energy;
 
 @kotlin.jvm.JvmSynthetic
-inline fun connectionLost(block: dev.yanshouwang.bluetooth_low_energy.ConnectionLostKt.Dsl.() -> Unit): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.ConnectionLost =
-  dev.yanshouwang.bluetooth_low_energy.ConnectionLostKt.Dsl._create(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.ConnectionLost.newBuilder()).apply { block() }._build()
-object ConnectionLostKt {
+inline fun gattConnectionLost(block: dev.yanshouwang.bluetooth_low_energy.GattConnectionLostKt.Dsl.() -> Unit): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattConnectionLost =
+  dev.yanshouwang.bluetooth_low_energy.GattConnectionLostKt.Dsl._create(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattConnectionLost.newBuilder()).apply { block() }._build()
+object GattConnectionLostKt {
   @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
   @com.google.protobuf.kotlin.ProtoDslMarker
   class Dsl private constructor(
-    @kotlin.jvm.JvmField private val _builder: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.ConnectionLost.Builder
+    @kotlin.jvm.JvmField private val _builder: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattConnectionLost.Builder
   ) {
     companion object {
       @kotlin.jvm.JvmSynthetic
       @kotlin.PublishedApi
-      internal fun _create(builder: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.ConnectionLost.Builder): Dsl = Dsl(builder)
+      internal fun _create(builder: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattConnectionLost.Builder): Dsl = Dsl(builder)
     }
 
     @kotlin.jvm.JvmSynthetic
     @kotlin.PublishedApi
-    internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.ConnectionLost = _builder.build()
+    internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattConnectionLost = _builder.build()
 
     /**
      * <code>int32 id = 1;</code>
@@ -58,5 +58,5 @@ object ConnectionLostKt {
   }
 }
 @kotlin.jvm.JvmSynthetic
-inline fun dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.ConnectionLost.copy(block: dev.yanshouwang.bluetooth_low_energy.ConnectionLostKt.Dsl.() -> Unit): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.ConnectionLost =
-  dev.yanshouwang.bluetooth_low_energy.ConnectionLostKt.Dsl._create(this.toBuilder()).apply { block() }._build()
+inline fun dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattConnectionLost.copy(block: dev.yanshouwang.bluetooth_low_energy.GattConnectionLostKt.Dsl.() -> Unit): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattConnectionLost =
+  dev.yanshouwang.bluetooth_low_energy.GattConnectionLostKt.Dsl._create(this.toBuilder()).apply { block() }._build()

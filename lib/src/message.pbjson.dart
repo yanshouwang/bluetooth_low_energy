@@ -46,32 +46,107 @@ const Message$json = const {
     },
     const {'1': 'state', '3': 2, '4': 1, '5': 8, '9': 0, '10': 'state'},
     const {
-      '1': 'discovery',
+      '1': 'startDiscoveryArguments',
       '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.dev.yanshouwang.bluetooth_low_energy.StartDiscoveryArguments',
+      '9': 0,
+      '10': 'startDiscoveryArguments'
+    },
+    const {'1': 'scanning', '3': 4, '4': 1, '5': 8, '9': 0, '10': 'scanning'},
+    const {
+      '1': 'discovery',
+      '3': 5,
       '4': 1,
       '5': 11,
       '6': '.dev.yanshouwang.bluetooth_low_energy.Discovery',
       '9': 0,
       '10': 'discovery'
     },
-    const {'1': 'scanning', '3': 4, '4': 1, '5': 8, '9': 0, '10': 'scanning'},
     const {
-      '1': 'connectionLost',
-      '3': 5,
+      '1': 'connectArguments',
+      '3': 6,
       '4': 1,
       '5': 11,
-      '6': '.dev.yanshouwang.bluetooth_low_energy.ConnectionLost',
+      '6': '.dev.yanshouwang.bluetooth_low_energy.ConnectArguments',
+      '9': 0,
+      '10': 'connectArguments'
+    },
+    const {
+      '1': 'disconnectArguments',
+      '3': 7,
+      '4': 1,
+      '5': 11,
+      '6': '.dev.yanshouwang.bluetooth_low_energy.GattDisconnectArguments',
+      '9': 0,
+      '10': 'disconnectArguments'
+    },
+    const {
+      '1': 'connectionLost',
+      '3': 8,
+      '4': 1,
+      '5': 11,
+      '6': '.dev.yanshouwang.bluetooth_low_energy.GattConnectionLost',
       '9': 0,
       '10': 'connectionLost'
     },
     const {
+      '1': 'characteristicReadArguments',
+      '3': 9,
+      '4': 1,
+      '5': 11,
+      '6':
+          '.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicReadArguments',
+      '9': 0,
+      '10': 'characteristicReadArguments'
+    },
+    const {
+      '1': 'characteristicWriteArguments',
+      '3': 10,
+      '4': 1,
+      '5': 11,
+      '6':
+          '.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicWriteArguments',
+      '9': 0,
+      '10': 'characteristicWriteArguments'
+    },
+    const {
+      '1': 'characteristicNotifyArguments',
+      '3': 11,
+      '4': 1,
+      '5': 11,
+      '6':
+          '.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicNotifyArguments',
+      '9': 0,
+      '10': 'characteristicNotifyArguments'
+    },
+    const {
       '1': 'characteristicValue',
-      '3': 6,
+      '3': 12,
       '4': 1,
       '5': 11,
       '6': '.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicValue',
       '9': 0,
       '10': 'characteristicValue'
+    },
+    const {
+      '1': 'descriptorReadArguments',
+      '3': 13,
+      '4': 1,
+      '5': 11,
+      '6': '.dev.yanshouwang.bluetooth_low_energy.GattDescriptorReadArguments',
+      '9': 0,
+      '10': 'descriptorReadArguments'
+    },
+    const {
+      '1': 'descriptorWriteArguments',
+      '3': 14,
+      '4': 1,
+      '5': 11,
+      '6': '.dev.yanshouwang.bluetooth_low_energy.GattDescriptorWriteArguments',
+      '9': 0,
+      '10': 'descriptorWriteArguments'
     },
   ],
   '8': const [
@@ -81,7 +156,7 @@ const Message$json = const {
 
 /// Descriptor for `Message`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List messageDescriptor = $convert.base64Decode(
-    'CgdNZXNzYWdlElEKCGNhdGVnb3J5GAEgASgOMjUuZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5Lk1lc3NhZ2VDYXRlZ29yeVIIY2F0ZWdvcnkSFgoFc3RhdGUYAiABKAhIAFIFc3RhdGUSTwoJZGlzY292ZXJ5GAMgASgLMi8uZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5LkRpc2NvdmVyeUgAUglkaXNjb3ZlcnkSHAoIc2Nhbm5pbmcYBCABKAhIAFIIc2Nhbm5pbmcSXgoOY29ubmVjdGlvbkxvc3QYBSABKAsyNC5kZXYueWFuc2hvdXdhbmcuYmx1ZXRvb3RoX2xvd19lbmVyZ3kuQ29ubmVjdGlvbkxvc3RIAFIOY29ubmVjdGlvbkxvc3QScQoTY2hhcmFjdGVyaXN0aWNWYWx1ZRgGIAEoCzI9LmRldi55YW5zaG91d2FuZy5ibHVldG9vdGhfbG93X2VuZXJneS5HYXR0Q2hhcmFjdGVyaXN0aWNWYWx1ZUgAUhNjaGFyYWN0ZXJpc3RpY1ZhbHVlQgcKBXZhbHVl');
+    'CgdNZXNzYWdlElEKCGNhdGVnb3J5GAEgASgOMjUuZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5Lk1lc3NhZ2VDYXRlZ29yeVIIY2F0ZWdvcnkSFgoFc3RhdGUYAiABKAhIAFIFc3RhdGUSeQoXc3RhcnREaXNjb3ZlcnlBcmd1bWVudHMYAyABKAsyPS5kZXYueWFuc2hvdXdhbmcuYmx1ZXRvb3RoX2xvd19lbmVyZ3kuU3RhcnREaXNjb3ZlcnlBcmd1bWVudHNIAFIXc3RhcnREaXNjb3ZlcnlBcmd1bWVudHMSHAoIc2Nhbm5pbmcYBCABKAhIAFIIc2Nhbm5pbmcSTwoJZGlzY292ZXJ5GAUgASgLMi8uZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5LkRpc2NvdmVyeUgAUglkaXNjb3ZlcnkSZAoQY29ubmVjdEFyZ3VtZW50cxgGIAEoCzI2LmRldi55YW5zaG91d2FuZy5ibHVldG9vdGhfbG93X2VuZXJneS5Db25uZWN0QXJndW1lbnRzSABSEGNvbm5lY3RBcmd1bWVudHMScQoTZGlzY29ubmVjdEFyZ3VtZW50cxgHIAEoCzI9LmRldi55YW5zaG91d2FuZy5ibHVldG9vdGhfbG93X2VuZXJneS5HYXR0RGlzY29ubmVjdEFyZ3VtZW50c0gAUhNkaXNjb25uZWN0QXJndW1lbnRzEmIKDmNvbm5lY3Rpb25Mb3N0GAggASgLMjguZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5LkdhdHRDb25uZWN0aW9uTG9zdEgAUg5jb25uZWN0aW9uTG9zdBKJAQobY2hhcmFjdGVyaXN0aWNSZWFkQXJndW1lbnRzGAkgASgLMkUuZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5LkdhdHRDaGFyYWN0ZXJpc3RpY1JlYWRBcmd1bWVudHNIAFIbY2hhcmFjdGVyaXN0aWNSZWFkQXJndW1lbnRzEowBChxjaGFyYWN0ZXJpc3RpY1dyaXRlQXJndW1lbnRzGAogASgLMkYuZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5LkdhdHRDaGFyYWN0ZXJpc3RpY1dyaXRlQXJndW1lbnRzSABSHGNoYXJhY3RlcmlzdGljV3JpdGVBcmd1bWVudHMSjwEKHWNoYXJhY3RlcmlzdGljTm90aWZ5QXJndW1lbnRzGAsgASgLMkcuZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5LkdhdHRDaGFyYWN0ZXJpc3RpY05vdGlmeUFyZ3VtZW50c0gAUh1jaGFyYWN0ZXJpc3RpY05vdGlmeUFyZ3VtZW50cxJxChNjaGFyYWN0ZXJpc3RpY1ZhbHVlGAwgASgLMj0uZGV2LnlhbnNob3V3YW5nLmJsdWV0b290aF9sb3dfZW5lcmd5LkdhdHRDaGFyYWN0ZXJpc3RpY1ZhbHVlSABSE2NoYXJhY3RlcmlzdGljVmFsdWUSfQoXZGVzY3JpcHRvclJlYWRBcmd1bWVudHMYDSABKAsyQS5kZXYueWFuc2hvdXdhbmcuYmx1ZXRvb3RoX2xvd19lbmVyZ3kuR2F0dERlc2NyaXB0b3JSZWFkQXJndW1lbnRzSABSF2Rlc2NyaXB0b3JSZWFkQXJndW1lbnRzEoABChhkZXNjcmlwdG9yV3JpdGVBcmd1bWVudHMYDiABKAsyQi5kZXYueWFuc2hvdXdhbmcuYmx1ZXRvb3RoX2xvd19lbmVyZ3kuR2F0dERlc2NyaXB0b3JXcml0ZUFyZ3VtZW50c0gAUhhkZXNjcmlwdG9yV3JpdGVBcmd1bWVudHNCBwoFdmFsdWU=');
 @$core.Deprecated('Use startDiscoveryArgumentsDescriptor instead')
 const StartDiscoveryArguments$json = const {
   '1': 'StartDiscoveryArguments',
@@ -98,7 +173,7 @@ final $typed_data.Uint8List startDiscoveryArgumentsDescriptor =
 const Discovery$json = const {
   '1': 'Discovery',
   '2': const [
-    const {'1': 'address', '3': 1, '4': 1, '5': 9, '10': 'address'},
+    const {'1': 'uuid', '3': 1, '4': 1, '5': 9, '10': 'uuid'},
     const {'1': 'rssi', '3': 2, '4': 1, '5': 17, '10': 'rssi'},
     const {
       '1': 'advertisements',
@@ -112,18 +187,18 @@ const Discovery$json = const {
 
 /// Descriptor for `Discovery`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List discoveryDescriptor = $convert.base64Decode(
-    'CglEaXNjb3ZlcnkSGAoHYWRkcmVzcxgBIAEoCVIHYWRkcmVzcxISCgRyc3NpGAIgASgRUgRyc3NpEiYKDmFkdmVydGlzZW1lbnRzGAMgASgMUg5hZHZlcnRpc2VtZW50cw==');
+    'CglEaXNjb3ZlcnkSEgoEdXVpZBgBIAEoCVIEdXVpZBISCgRyc3NpGAIgASgRUgRyc3NpEiYKDmFkdmVydGlzZW1lbnRzGAMgASgMUg5hZHZlcnRpc2VtZW50cw==');
 @$core.Deprecated('Use connectArgumentsDescriptor instead')
 const ConnectArguments$json = const {
   '1': 'ConnectArguments',
   '2': const [
-    const {'1': 'address', '3': 1, '4': 1, '5': 9, '10': 'address'},
+    const {'1': 'uuid', '3': 1, '4': 1, '5': 9, '10': 'uuid'},
   ],
 };
 
 /// Descriptor for `ConnectArguments`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List connectArgumentsDescriptor = $convert.base64Decode(
-    'ChBDb25uZWN0QXJndW1lbnRzEhgKB2FkZHJlc3MYASABKAlSB2FkZHJlc3M=');
+final $typed_data.Uint8List connectArgumentsDescriptor = $convert
+    .base64Decode('ChBDb25uZWN0QXJndW1lbnRzEhIKBHV1aWQYASABKAlSBHV1aWQ=');
 @$core.Deprecated('Use gATTDescriptor instead')
 const GATT$json = const {
   '1': 'GATT',
@@ -144,19 +219,6 @@ const GATT$json = const {
 /// Descriptor for `GATT`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gATTDescriptor = $convert.base64Decode(
     'CgRHQVRUEg4KAmlkGAEgASgFUgJpZBIQCgNtdHUYAiABKAVSA210dRJNCghzZXJ2aWNlcxgDIAMoCzIxLmRldi55YW5zaG91d2FuZy5ibHVldG9vdGhfbG93X2VuZXJneS5HYXR0U2VydmljZVIIc2VydmljZXM=');
-@$core.Deprecated('Use gattDisconnectArgumentsDescriptor instead')
-const GattDisconnectArguments$json = const {
-  '1': 'GattDisconnectArguments',
-  '2': const [
-    const {'1': 'address', '3': 1, '4': 1, '5': 9, '10': 'address'},
-    const {'1': 'id', '3': 2, '4': 1, '5': 5, '10': 'id'},
-  ],
-};
-
-/// Descriptor for `GattDisconnectArguments`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gattDisconnectArgumentsDescriptor =
-    $convert.base64Decode(
-        'ChdHYXR0RGlzY29ubmVjdEFyZ3VtZW50cxIYCgdhZGRyZXNzGAEgASgJUgdhZGRyZXNzEg4KAmlkGAIgASgFUgJpZA==');
 @$core.Deprecated('Use gattServiceDescriptor instead')
 const GattService$json = const {
   '1': 'GattService',
@@ -219,23 +281,36 @@ const GattDescriptor$json = const {
 /// Descriptor for `GattDescriptor`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gattDescriptorDescriptor = $convert.base64Decode(
     'Cg5HYXR0RGVzY3JpcHRvchIOCgJpZBgBIAEoBVICaWQSEgoEdXVpZBgCIAEoCVIEdXVpZA==');
-@$core.Deprecated('Use connectionLostDescriptor instead')
-const ConnectionLost$json = const {
-  '1': 'ConnectionLost',
+@$core.Deprecated('Use gattDisconnectArgumentsDescriptor instead')
+const GattDisconnectArguments$json = const {
+  '1': 'GattDisconnectArguments',
+  '2': const [
+    const {'1': 'uuid', '3': 1, '4': 1, '5': 9, '10': 'uuid'},
+    const {'1': 'id', '3': 2, '4': 1, '5': 5, '10': 'id'},
+  ],
+};
+
+/// Descriptor for `GattDisconnectArguments`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gattDisconnectArgumentsDescriptor =
+    $convert.base64Decode(
+        'ChdHYXR0RGlzY29ubmVjdEFyZ3VtZW50cxISCgR1dWlkGAEgASgJUgR1dWlkEg4KAmlkGAIgASgFUgJpZA==');
+@$core.Deprecated('Use gattConnectionLostDescriptor instead')
+const GattConnectionLost$json = const {
+  '1': 'GattConnectionLost',
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 5, '10': 'id'},
     const {'1': 'error_code', '3': 2, '4': 1, '5': 5, '10': 'errorCode'},
   ],
 };
 
-/// Descriptor for `ConnectionLost`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List connectionLostDescriptor = $convert.base64Decode(
-    'Cg5Db25uZWN0aW9uTG9zdBIOCgJpZBgBIAEoBVICaWQSHQoKZXJyb3JfY29kZRgCIAEoBVIJZXJyb3JDb2Rl');
+/// Descriptor for `GattConnectionLost`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gattConnectionLostDescriptor = $convert.base64Decode(
+    'ChJHYXR0Q29ubmVjdGlvbkxvc3QSDgoCaWQYASABKAVSAmlkEh0KCmVycm9yX2NvZGUYAiABKAVSCWVycm9yQ29kZQ==');
 @$core.Deprecated('Use gattCharacteristicReadArgumentsDescriptor instead')
 const GattCharacteristicReadArguments$json = const {
   '1': 'GattCharacteristicReadArguments',
   '2': const [
-    const {'1': 'address', '3': 1, '4': 1, '5': 9, '10': 'address'},
+    const {'1': 'device_uuid', '3': 1, '4': 1, '5': 9, '10': 'deviceUuid'},
     const {'1': 'service_uuid', '3': 2, '4': 1, '5': 9, '10': 'serviceUuid'},
     const {'1': 'uuid', '3': 3, '4': 1, '5': 9, '10': 'uuid'},
     const {'1': 'id', '3': 4, '4': 1, '5': 5, '10': 'id'},
@@ -245,12 +320,12 @@ const GattCharacteristicReadArguments$json = const {
 /// Descriptor for `GattCharacteristicReadArguments`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gattCharacteristicReadArgumentsDescriptor =
     $convert.base64Decode(
-        'Ch9HYXR0Q2hhcmFjdGVyaXN0aWNSZWFkQXJndW1lbnRzEhgKB2FkZHJlc3MYASABKAlSB2FkZHJlc3MSIQoMc2VydmljZV91dWlkGAIgASgJUgtzZXJ2aWNlVXVpZBISCgR1dWlkGAMgASgJUgR1dWlkEg4KAmlkGAQgASgFUgJpZA==');
+        'Ch9HYXR0Q2hhcmFjdGVyaXN0aWNSZWFkQXJndW1lbnRzEh8KC2RldmljZV91dWlkGAEgASgJUgpkZXZpY2VVdWlkEiEKDHNlcnZpY2VfdXVpZBgCIAEoCVILc2VydmljZVV1aWQSEgoEdXVpZBgDIAEoCVIEdXVpZBIOCgJpZBgEIAEoBVICaWQ=');
 @$core.Deprecated('Use gattCharacteristicWriteArgumentsDescriptor instead')
 const GattCharacteristicWriteArguments$json = const {
   '1': 'GattCharacteristicWriteArguments',
   '2': const [
-    const {'1': 'address', '3': 1, '4': 1, '5': 9, '10': 'address'},
+    const {'1': 'device_uuid', '3': 1, '4': 1, '5': 9, '10': 'deviceUuid'},
     const {'1': 'service_uuid', '3': 2, '4': 1, '5': 9, '10': 'serviceUuid'},
     const {'1': 'uuid', '3': 3, '4': 1, '5': 9, '10': 'uuid'},
     const {'1': 'id', '3': 4, '4': 1, '5': 5, '10': 'id'},
@@ -268,12 +343,12 @@ const GattCharacteristicWriteArguments$json = const {
 /// Descriptor for `GattCharacteristicWriteArguments`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gattCharacteristicWriteArgumentsDescriptor =
     $convert.base64Decode(
-        'CiBHYXR0Q2hhcmFjdGVyaXN0aWNXcml0ZUFyZ3VtZW50cxIYCgdhZGRyZXNzGAEgASgJUgdhZGRyZXNzEiEKDHNlcnZpY2VfdXVpZBgCIAEoCVILc2VydmljZVV1aWQSEgoEdXVpZBgDIAEoCVIEdXVpZBIOCgJpZBgEIAEoBVICaWQSFAoFdmFsdWUYBSABKAxSBXZhbHVlEigKD3dpdGhvdXRSZXNwb25zZRgGIAEoCFIPd2l0aG91dFJlc3BvbnNl');
+        'CiBHYXR0Q2hhcmFjdGVyaXN0aWNXcml0ZUFyZ3VtZW50cxIfCgtkZXZpY2VfdXVpZBgBIAEoCVIKZGV2aWNlVXVpZBIhCgxzZXJ2aWNlX3V1aWQYAiABKAlSC3NlcnZpY2VVdWlkEhIKBHV1aWQYAyABKAlSBHV1aWQSDgoCaWQYBCABKAVSAmlkEhQKBXZhbHVlGAUgASgMUgV2YWx1ZRIoCg93aXRob3V0UmVzcG9uc2UYBiABKAhSD3dpdGhvdXRSZXNwb25zZQ==');
 @$core.Deprecated('Use gattCharacteristicNotifyArgumentsDescriptor instead')
 const GattCharacteristicNotifyArguments$json = const {
   '1': 'GattCharacteristicNotifyArguments',
   '2': const [
-    const {'1': 'address', '3': 1, '4': 1, '5': 9, '10': 'address'},
+    const {'1': 'device_uuid', '3': 1, '4': 1, '5': 9, '10': 'deviceUuid'},
     const {'1': 'service_uuid', '3': 2, '4': 1, '5': 9, '10': 'serviceUuid'},
     const {'1': 'uuid', '3': 3, '4': 1, '5': 9, '10': 'uuid'},
     const {'1': 'id', '3': 4, '4': 1, '5': 5, '10': 'id'},
@@ -284,7 +359,7 @@ const GattCharacteristicNotifyArguments$json = const {
 /// Descriptor for `GattCharacteristicNotifyArguments`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gattCharacteristicNotifyArgumentsDescriptor =
     $convert.base64Decode(
-        'CiFHYXR0Q2hhcmFjdGVyaXN0aWNOb3RpZnlBcmd1bWVudHMSGAoHYWRkcmVzcxgBIAEoCVIHYWRkcmVzcxIhCgxzZXJ2aWNlX3V1aWQYAiABKAlSC3NlcnZpY2VVdWlkEhIKBHV1aWQYAyABKAlSBHV1aWQSDgoCaWQYBCABKAVSAmlkEhQKBXN0YXRlGAUgASgIUgVzdGF0ZQ==');
+        'CiFHYXR0Q2hhcmFjdGVyaXN0aWNOb3RpZnlBcmd1bWVudHMSHwoLZGV2aWNlX3V1aWQYASABKAlSCmRldmljZVV1aWQSIQoMc2VydmljZV91dWlkGAIgASgJUgtzZXJ2aWNlVXVpZBISCgR1dWlkGAMgASgJUgR1dWlkEg4KAmlkGAQgASgFUgJpZBIUCgVzdGF0ZRgFIAEoCFIFc3RhdGU=');
 @$core.Deprecated('Use gattCharacteristicValueDescriptor instead')
 const GattCharacteristicValue$json = const {
   '1': 'GattCharacteristicValue',
@@ -302,7 +377,7 @@ final $typed_data.Uint8List gattCharacteristicValueDescriptor =
 const GattDescriptorReadArguments$json = const {
   '1': 'GattDescriptorReadArguments',
   '2': const [
-    const {'1': 'address', '3': 1, '4': 1, '5': 9, '10': 'address'},
+    const {'1': 'device_uuid', '3': 1, '4': 1, '5': 9, '10': 'deviceUuid'},
     const {'1': 'service_uuid', '3': 2, '4': 1, '5': 9, '10': 'serviceUuid'},
     const {
       '1': 'characteristic_uuid',
@@ -319,12 +394,12 @@ const GattDescriptorReadArguments$json = const {
 /// Descriptor for `GattDescriptorReadArguments`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gattDescriptorReadArgumentsDescriptor =
     $convert.base64Decode(
-        'ChtHYXR0RGVzY3JpcHRvclJlYWRBcmd1bWVudHMSGAoHYWRkcmVzcxgBIAEoCVIHYWRkcmVzcxIhCgxzZXJ2aWNlX3V1aWQYAiABKAlSC3NlcnZpY2VVdWlkEi8KE2NoYXJhY3RlcmlzdGljX3V1aWQYAyABKAlSEmNoYXJhY3RlcmlzdGljVXVpZBISCgR1dWlkGAQgASgJUgR1dWlkEg4KAmlkGAUgASgFUgJpZA==');
+        'ChtHYXR0RGVzY3JpcHRvclJlYWRBcmd1bWVudHMSHwoLZGV2aWNlX3V1aWQYASABKAlSCmRldmljZVV1aWQSIQoMc2VydmljZV91dWlkGAIgASgJUgtzZXJ2aWNlVXVpZBIvChNjaGFyYWN0ZXJpc3RpY191dWlkGAMgASgJUhJjaGFyYWN0ZXJpc3RpY1V1aWQSEgoEdXVpZBgEIAEoCVIEdXVpZBIOCgJpZBgFIAEoBVICaWQ=');
 @$core.Deprecated('Use gattDescriptorWriteArgumentsDescriptor instead')
 const GattDescriptorWriteArguments$json = const {
   '1': 'GattDescriptorWriteArguments',
   '2': const [
-    const {'1': 'address', '3': 1, '4': 1, '5': 9, '10': 'address'},
+    const {'1': 'device_uuid', '3': 1, '4': 1, '5': 9, '10': 'deviceUuid'},
     const {'1': 'service_uuid', '3': 2, '4': 1, '5': 9, '10': 'serviceUuid'},
     const {
       '1': 'characteristic_uuid',
@@ -342,4 +417,4 @@ const GattDescriptorWriteArguments$json = const {
 /// Descriptor for `GattDescriptorWriteArguments`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gattDescriptorWriteArgumentsDescriptor =
     $convert.base64Decode(
-        'ChxHYXR0RGVzY3JpcHRvcldyaXRlQXJndW1lbnRzEhgKB2FkZHJlc3MYASABKAlSB2FkZHJlc3MSIQoMc2VydmljZV91dWlkGAIgASgJUgtzZXJ2aWNlVXVpZBIvChNjaGFyYWN0ZXJpc3RpY191dWlkGAMgASgJUhJjaGFyYWN0ZXJpc3RpY1V1aWQSEgoEdXVpZBgEIAEoCVIEdXVpZBIOCgJpZBgFIAEoBVICaWQSFAoFdmFsdWUYBiABKAxSBXZhbHVl');
+        'ChxHYXR0RGVzY3JpcHRvcldyaXRlQXJndW1lbnRzEh8KC2RldmljZV91dWlkGAEgASgJUgpkZXZpY2VVdWlkEiEKDHNlcnZpY2VfdXVpZBgCIAEoCVILc2VydmljZVV1aWQSLwoTY2hhcmFjdGVyaXN0aWNfdXVpZBgDIAEoCVISY2hhcmFjdGVyaXN0aWNVdWlkEhIKBHV1aWQYBCABKAlSBHV1aWQSDgoCaWQYBSABKAVSAmlkEhQKBXZhbHVlGAYgASgMUgV2YWx1ZQ==');

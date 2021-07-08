@@ -20,9 +20,9 @@ class _UUID implements UUID {
   @override
   final int hashCode;
 
-  _UUID(String str) : this.name(str.nameOfUUID);
+  _UUID(String str) : this.name(str.uuidName);
 
-  _UUID.name(String name) : this.nameValue(name, name.valueOfUUID);
+  _UUID.name(String name) : this.nameValue(name, name.uuidVaue);
 
   _UUID.nameValue(this.name, this.value) : hashCode = equality.hash(value);
 

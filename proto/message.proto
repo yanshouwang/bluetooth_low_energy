@@ -4,11 +4,19 @@ package dev.yanshouwang.bluetooth_low_energy;
 message Message {
   MessageCategory category = 1;
   oneof value {
-      bool state = 2;
-      Discovery discovery = 3;
-      bool scanning = 4;
-      ConnectionLost connectionLost = 5;
-      GattCharacteristicValue characteristicValue = 6;
+    bool state = 2;
+    StartDiscoveryArguments startDiscoveryArguments = 3;
+    bool scanning = 4;
+    Discovery discovery = 5;
+    ConnectArguments connectArguments = 6;
+    GattDisconnectArguments disconnectArguments = 7;
+    GattConnectionLost connectionLost = 8;
+    GattCharacteristicReadArguments characteristicReadArguments = 9;
+    GattCharacteristicWriteArguments characteristicWriteArguments = 10;
+    GattCharacteristicNotifyArguments characteristicNotifyArguments = 11;
+    GattCharacteristicValue characteristicValue = 12;
+    GattDescriptorReadArguments descriptorReadArguments = 13;
+    GattDescriptorWriteArguments descriptorWriteArguments = 14;
   }
 }
 
@@ -17,24 +25,19 @@ message StartDiscoveryArguments {
 }
 
 message Discovery {
-  string address = 1;
+  string uuid = 1;
   sint32 rssi = 2;
   bytes advertisements = 3;
 }
 
 message ConnectArguments {
-  string address = 1;
+  string uuid = 1;
 }
 
 message GATT {
   int32 id = 1;
   int32 mtu = 2;
   repeated GattService services = 3;
-}
-
-message GattDisconnectArguments{
-  string address = 1;
-  int32 id = 2;
 }
 
 message GattService {
@@ -58,20 +61,25 @@ message GattDescriptor {
   string uuid = 2;
 }
 
-message ConnectionLost {
+message GattDisconnectArguments{
+  string uuid = 1;
+  int32 id = 2;
+}
+
+message GattConnectionLost {
   int32 id = 1;
   int32 error_code = 2;
 }
 
 message GattCharacteristicReadArguments {
-  string address = 1;
+  string device_uuid = 1;
   string service_uuid = 2;
   string uuid = 3;
   int32 id = 4;
 }
 
 message GattCharacteristicWriteArguments {
-  string address = 1;
+  string device_uuid = 1;
   string service_uuid = 2;
   string uuid = 3;
   int32 id = 4;
@@ -80,7 +88,7 @@ message GattCharacteristicWriteArguments {
 }
 
 message GattCharacteristicNotifyArguments{
-  string address = 1;
+  string device_uuid = 1;
   string service_uuid = 2;
   string uuid = 3;
   int32 id = 4;
@@ -93,7 +101,7 @@ message GattCharacteristicValue {
 }
 
 message GattDescriptorReadArguments {
-  string address = 1;
+  string device_uuid = 1;
   string service_uuid = 2;
   string characteristic_uuid = 3;
   string uuid = 4;
@@ -101,7 +109,7 @@ message GattDescriptorReadArguments {
 }
 
 message GattDescriptorWriteArguments {
-  string address = 1;
+  string device_uuid = 1;
   string service_uuid = 2;
   string characteristic_uuid = 3;
   string uuid = 4;

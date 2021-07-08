@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.DeadObjectException
 import android.os.Handler
 import android.os.ParcelUuid
 import android.util.Log
@@ -103,14 +102,14 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
             override fun onScanResult(callbackType: Int, result: ScanResult?) {
                 super.onScanResult(callbackType, result)
                 if (result == null) return
-                val address = result.device.address
+                val uuid = result.device.uuid
                 val rssi = result.rssi
                 val record = result.scanRecord
                 val advertisements =
                         if (record == null) ByteString.EMPTY
                         else ByteString.copyFrom(record.bytes)
                 val builder = Discovery.newBuilder()
-                        .setAddress(address)
+                        .setUuid(uuid)
                         .setRssi(rssi)
                         .setAdvertisements(advertisements)
                 val discovery = builder.build()
@@ -126,14 +125,14 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 super.onBatchScanResults(results)
                 if (results == null) return
                 for (result in results) {
-                    val address = result.device.address
+                    val uuid = result.device.uuid
                     val rssi = result.rssi
                     val record = result.scanRecord
                     val advertisements =
                             if (record == null) ByteString.EMPTY
                             else ByteString.copyFrom(record.bytes)
                     val builder = Discovery.newBuilder()
-                            .setAddress(address)
+                            .setUuid(uuid)
                             .setRssi(rssi)
                             .setAdvertisements(advertisements)
                     val discovery = builder.build()
@@ -171,7 +170,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                                 else {
                                     // An adapter closed event
                                     val id = gatt.hashCode()
-                                    val connectionLost = ConnectionLost.newBuilder()
+                                    val connectionLost = GattConnectionLost.newBuilder()
                                             .setId(id)
                                             .setErrorCode(status)
                                             .build()
@@ -216,7 +215,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                             disconnect != null -> handler.post { disconnect.error(status) }
                             else -> {
                                 val id = gatt.hashCode()
-                                val connectionLost = ConnectionLost.newBuilder()
+                                val connectionLost = GattConnectionLost.newBuilder()
                                         .setId(id)
                                         .setErrorCode(status)
                                         .build()
@@ -417,7 +416,9 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-        val category = call.category
+        val data = call.arguments<ByteArray>()
+        val message = Message.parseFrom(data)
+        val category = message.category!!
         if (category != BLUETOOTH_AVAILABLE && category != BLUETOOTH_STATE && !bluetoothAdapter.state.opened) result.error(INVALID_REQUEST)
         else when (category) {
             BLUETOOTH_AVAILABLE -> result.success(bluetoothAvailable)
@@ -427,15 +428,15 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                     requestPermissionsHandler != null -> result.error(INVALID_REQUEST)
                     else -> {
                         val startDiscovery = Runnable {
-                            val data = call.arguments<ByteArray>()
-                            val arguments = StartDiscoveryArguments.parseFrom(data)
+                            val arguments = message.startDiscoveryArguments
+                            val services = arguments.servicesList
                             val startScanHandler: StartScanHandler = { code ->
                                 when (code) {
                                     NO_ERROR -> result.success()
                                     else -> result.error(code)
                                 }
                             }
-                            startScan(arguments.servicesList, startScanHandler)
+                            startScan(services, startScanHandler)
                         }
                         when {
                             hasPermission -> startDiscovery.run()
@@ -457,9 +458,8 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
             }
             CENTRAL_DISCOVERED -> result.notImplemented()
             CENTRAL_CONNECT -> {
-                val data = call.arguments<ByteArray>()
-                val arguments = ConnectArguments.parseFrom(data)
-                val address = arguments.address
+                val arguments = message.connectArguments
+                val address = arguments.uuid.address
                 val connect = connects[address]
                 var gatt = gatts[address]
                 if (connect != null || gatt != null) {
@@ -476,9 +476,8 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 }
             }
             GATT_DISCONNECT -> {
-                val data = call.arguments<ByteArray>()
-                val arguments = GattDisconnectArguments.parseFrom(data)
-                val address = arguments.address
+                val arguments = message.disconnectArguments
+                val address = arguments.uuid.address
                 val disconnect = disconnects[address]
                 val gatt = gatts[address]
                 if (disconnect != null || gatt == null || gatt.hashCode() != arguments.id) {
@@ -490,9 +489,9 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
             }
             GATT_CONNECTION_LOST -> result.notImplemented()
             GATT_CHARACTERISTIC_READ -> {
-                val data = call.arguments<ByteArray>()
-                val arguments = GattCharacteristicReadArguments.parseFrom(data)
-                val gatt = gatts[arguments.address]
+                val arguments = message.characteristicReadArguments
+                val address = arguments.deviceUuid.address
+                val gatt = gatts[address]
                 if (gatt == null) result.error(INVALID_REQUEST)
                 else {
                     val serviceUUID = UUID.fromString(arguments.serviceUuid)
@@ -510,9 +509,9 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 }
             }
             GATT_CHARACTERISTIC_WRITE -> {
-                val data = call.arguments<ByteArray>()
-                val arguments = GattCharacteristicWriteArguments.parseFrom(data)
-                val gatt = gatts[arguments.address]
+                val arguments = message.characteristicWriteArguments
+                val address = arguments.deviceUuid.address
+                val gatt = gatts[address]
                 if (gatt == null) result.error(INVALID_REQUEST)
                 else {
                     val serviceUUID = UUID.fromString(arguments.serviceUuid)
@@ -534,9 +533,9 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 }
             }
             GATT_CHARACTERISTIC_NOTIFY -> {
-                val data = call.arguments<ByteArray>()
-                val arguments = GattCharacteristicNotifyArguments.parseFrom(data)
-                val gatt = gatts[arguments.address]
+                val arguments = message.characteristicNotifyArguments
+                val address = arguments.deviceUuid.address
+                val gatt = gatts[address]
                 if (gatt == null) result.error(INVALID_REQUEST)
                 else {
                     val serviceUUID = UUID.fromString(arguments.serviceUuid)
@@ -564,9 +563,9 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 }
             }
             GATT_DESCRIPTOR_READ -> {
-                val data = call.arguments<ByteArray>()
-                val arguments = GattDescriptorReadArguments.parseFrom(data)
-                val gatt = gatts[arguments.address]
+                val arguments = message.descriptorReadArguments
+                val address = arguments.deviceUuid.address
+                val gatt = gatts[address]
                 if (gatt == null) result.error(INVALID_REQUEST)
                 else {
                     val serviceUUID = UUID.fromString(arguments.serviceUuid)
@@ -586,9 +585,9 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 }
             }
             GATT_DESCRIPTOR_WRITE -> {
-                val data = call.arguments<ByteArray>()
-                val arguments = GattDescriptorWriteArguments.parseFrom(data)
-                val gatt = gatts[arguments.address]
+                val arguments = message.descriptorWriteArguments
+                val address = arguments.deviceUuid.address
+                val gatt = gatts[address]
                 if (gatt == null) result.error(INVALID_REQUEST)
                 else {
                     val serviceUUID = UUID.fromString(arguments.serviceUuid)
@@ -674,9 +673,6 @@ fun Result.error(code: Int, message: String? = null, details: String? = null) {
 val Any.TAG: String
     get() = this::class.java.simpleName
 
-val MethodCall.category: MessageCategory
-    get() = valueOf(method)
-
 val Int.opened: Boolean
     get() = when (this) {
         BluetoothAdapter.STATE_OFF -> false
@@ -685,3 +681,13 @@ val Int.opened: Boolean
         BluetoothAdapter.STATE_TURNING_OFF -> true
         else -> false
     }
+
+val BluetoothDevice.uuid: String
+    get() {
+        val node = address.filter { char -> char != ':' }.lowercase()
+        // We don't known the timestamp of the bluetooth device, use nil UUID as prefix.
+        return "00000000-0000-0000-0000-$node"
+    }
+
+val String.address: String
+    get() = takeLast(12).chunked(2).joinToString(":").uppercase()

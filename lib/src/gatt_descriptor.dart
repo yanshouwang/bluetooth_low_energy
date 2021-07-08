@@ -14,14 +14,14 @@ abstract class GattDescriptor {
 
 class _GattDescriptor implements GattDescriptor {
   _GattDescriptor(
-    this.address,
+    this.deviceUUID,
     this.serviceUUID,
     this.characteristicUUID,
     this.id,
     this.uuid,
   );
 
-  final MAC address;
+  final UUID deviceUUID;
   final UUID serviceUUID;
   final UUID characteristicUUID;
   final int id;
@@ -30,30 +30,32 @@ class _GattDescriptor implements GattDescriptor {
 
   @override
   Future<List<int>> read() {
-    final name = proto.MessageCategory.GATT_DESCRIPTOR_READ.name;
-    final arguments = proto.GattDescriptorReadArguments(
-      address: address.name,
-      serviceUuid: serviceUUID.name,
-      characteristicUuid: characteristicUUID.name,
-      uuid: uuid.name,
-      id: id,
+    final message = proto.Message(
+      category: proto.MessageCategory.GATT_DESCRIPTOR_READ,
+      descriptorReadArguments: proto.GattDescriptorReadArguments(
+        deviceUuid: deviceUUID.name,
+        serviceUuid: serviceUUID.name,
+        characteristicUuid: characteristicUUID.name,
+        uuid: uuid.name,
+        id: id,
+      ),
     ).writeToBuffer();
-    return method
-        .invokeListMethod<int>(name, arguments)
-        .then((value) => value!);
+    return method.invokeListMethod<int>('', message).then((value) => value!);
   }
 
   @override
   Future write(List<int> value) {
-    final name = proto.MessageCategory.GATT_DESCRIPTOR_WRITE.name;
-    final arguments = proto.GattDescriptorWriteArguments(
-      address: address.name,
-      serviceUuid: serviceUUID.name,
-      characteristicUuid: characteristicUUID.name,
-      uuid: uuid.name,
-      id: id,
-      value: value,
+    final message = proto.Message(
+      category: proto.MessageCategory.GATT_DESCRIPTOR_WRITE,
+      descriptorWriteArguments: proto.GattDescriptorWriteArguments(
+        deviceUuid: deviceUUID.name,
+        serviceUuid: serviceUUID.name,
+        characteristicUuid: characteristicUUID.name,
+        uuid: uuid.name,
+        id: id,
+        value: value,
+      ),
     ).writeToBuffer();
-    return method.invokeMethod(name, arguments);
+    return method.invokeMethod('', message);
   }
 }

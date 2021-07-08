@@ -23,20 +23,20 @@ object GattCharacteristicReadArgumentsKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicReadArguments = _builder.build()
 
     /**
-     * <code>string address = 1;</code>
+     * <code>string device_uuid = 1;</code>
      */
-    var address: kotlin.String
-      @JvmName("getAddress")
-      get() = _builder.getAddress()
-      @JvmName("setAddress")
+    var deviceUuid: kotlin.String
+      @JvmName("getDeviceUuid")
+      get() = _builder.getDeviceUuid()
+      @JvmName("setDeviceUuid")
       set(value) {
-        _builder.setAddress(value)
+        _builder.setDeviceUuid(value)
       }
     /**
-     * <code>string address = 1;</code>
+     * <code>string device_uuid = 1;</code>
      */
-    fun clearAddress() {
-      _builder.clearAddress()
+    fun clearDeviceUuid() {
+      _builder.clearDeviceUuid()
     }
 
     /**

@@ -23,7 +23,7 @@ class _GattViewState extends State<GattView> {
   final ValueNotifier<Map<GattCharacteristic, StreamSubscription>> notifies;
   final ValueNotifier<List<String>> logs;
 
-  late MAC address;
+  late UUID uuid;
 
   _GattViewState()
       : state = ValueNotifier(ConnectionState.disconnected),
@@ -40,10 +40,10 @@ class _GattViewState extends State<GattView> {
 
   @override
   Widget build(BuildContext context) {
-    address = ModalRoute.of(context)!.settings.arguments as MAC;
+    uuid = ModalRoute.of(context)!.settings.arguments as UUID;
     return Scaffold(
       appBar: AppBar(
-        title: Text('$address'),
+        title: Text(uuid.name),
         actions: [
           connectionView,
         ],
@@ -94,7 +94,7 @@ class _GattViewState extends State<GattView> {
   void connect() async {
     try {
       state.value = ConnectionState.connecting;
-      gatt = await central.connect(address);
+      gatt = await central.connect(uuid);
       state.value = ConnectionState.connected;
       connectionLostSubscription = gatt!.connectionLost.listen(
         (errorCode) async {

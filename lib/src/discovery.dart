@@ -3,7 +3,7 @@ part of bluetooth_low_energy;
 /// TO BE DONE.
 abstract class Discovery {
   /// TO BE DONE.
-  MAC get address;
+  UUID get uuid;
 
   /// TO BE DONE.
   int get rssi;
@@ -14,11 +14,11 @@ abstract class Discovery {
 
 class _Discovery implements Discovery {
   @override
-  final MAC address;
+  final UUID uuid;
   @override
   final int rssi;
   @override
   final Map<int, List<int>> advertisements;
 
-  _Discovery(this.address, this.rssi, this.advertisements);
+  _Discovery(this.uuid, this.rssi, this.advertisements);
 }
