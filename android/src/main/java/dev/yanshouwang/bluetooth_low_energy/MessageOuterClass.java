@@ -4211,6 +4211,12 @@ public final class MessageOuterClass {
      * @return The advertisements.
      */
     com.google.protobuf.ByteString getAdvertisements();
+
+    /**
+     * <code>bool connectable = 4;</code>
+     * @return The connectable.
+     */
+    boolean getConnectable();
   }
   /**
    * Protobuf type {@code dev.yanshouwang.bluetooth_low_energy.Discovery}
@@ -4273,6 +4279,11 @@ public final class MessageOuterClass {
             case 26: {
 
               advertisements_ = input.readBytes();
+              break;
+            }
+            case 32: {
+
+              connectable_ = input.readBool();
               break;
             }
             default: {
@@ -4367,6 +4378,17 @@ public final class MessageOuterClass {
       return advertisements_;
     }
 
+    public static final int CONNECTABLE_FIELD_NUMBER = 4;
+    private boolean connectable_;
+    /**
+     * <code>bool connectable = 4;</code>
+     * @return The connectable.
+     */
+    @java.lang.Override
+    public boolean getConnectable() {
+      return connectable_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -4390,6 +4412,9 @@ public final class MessageOuterClass {
       if (!advertisements_.isEmpty()) {
         output.writeBytes(3, advertisements_);
       }
+      if (connectable_ != false) {
+        output.writeBool(4, connectable_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -4409,6 +4434,10 @@ public final class MessageOuterClass {
       if (!advertisements_.isEmpty()) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(3, advertisements_);
+      }
+      if (connectable_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(4, connectable_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -4431,6 +4460,8 @@ public final class MessageOuterClass {
           != other.getRssi()) return false;
       if (!getAdvertisements()
           .equals(other.getAdvertisements())) return false;
+      if (getConnectable()
+          != other.getConnectable()) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -4448,6 +4479,9 @@ public final class MessageOuterClass {
       hash = (53 * hash) + getRssi();
       hash = (37 * hash) + ADVERTISEMENTS_FIELD_NUMBER;
       hash = (53 * hash) + getAdvertisements().hashCode();
+      hash = (37 * hash) + CONNECTABLE_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getConnectable());
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -4587,6 +4621,8 @@ public final class MessageOuterClass {
 
         advertisements_ = com.google.protobuf.ByteString.EMPTY;
 
+        connectable_ = false;
+
         return this;
       }
 
@@ -4616,6 +4652,7 @@ public final class MessageOuterClass {
         result.uuid_ = uuid_;
         result.rssi_ = rssi_;
         result.advertisements_ = advertisements_;
+        result.connectable_ = connectable_;
         onBuilt();
         return result;
       }
@@ -4673,6 +4710,9 @@ public final class MessageOuterClass {
         }
         if (other.getAdvertisements() != com.google.protobuf.ByteString.EMPTY) {
           setAdvertisements(other.getAdvertisements());
+        }
+        if (other.getConnectable() != false) {
+          setConnectable(other.getConnectable());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -4840,6 +4880,37 @@ public final class MessageOuterClass {
       public Builder clearAdvertisements() {
         
         advertisements_ = getDefaultInstance().getAdvertisements();
+        onChanged();
+        return this;
+      }
+
+      private boolean connectable_ ;
+      /**
+       * <code>bool connectable = 4;</code>
+       * @return The connectable.
+       */
+      @java.lang.Override
+      public boolean getConnectable() {
+        return connectable_;
+      }
+      /**
+       * <code>bool connectable = 4;</code>
+       * @param value The connectable to set.
+       * @return This builder for chaining.
+       */
+      public Builder setConnectable(boolean value) {
+        
+        connectable_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bool connectable = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearConnectable() {
+        
+        connectable_ = false;
         onChanged();
         return this;
       }
@@ -16504,51 +16575,51 @@ public final class MessageOuterClass {
       "ments\030\016 \001(\0132B.dev.yanshouwang.bluetooth_" +
       "low_energy.GattDescriptorWriteArgumentsH" +
       "\000B\007\n\005value\"+\n\027StartDiscoveryArguments\022\020\n" +
-      "\010services\030\001 \003(\t\"?\n\tDiscovery\022\014\n\004uuid\030\001 \001" +
+      "\010services\030\001 \003(\t\"T\n\tDiscovery\022\014\n\004uuid\030\001 \001" +
       "(\t\022\014\n\004rssi\030\002 \001(\021\022\026\n\016advertisements\030\003 \001(\014" +
-      "\" \n\020ConnectArguments\022\014\n\004uuid\030\001 \001(\t\"d\n\004GA" +
-      "TT\022\n\n\002id\030\001 \001(\005\022\013\n\003mtu\030\002 \001(\005\022C\n\010services\030" +
-      "\003 \003(\01321.dev.yanshouwang.bluetooth_low_en" +
-      "ergy.GattService\"z\n\013GattService\022\n\n\002id\030\001 " +
-      "\001(\005\022\014\n\004uuid\030\002 \001(\t\022Q\n\017characteristics\030\003 \003" +
-      "(\01328.dev.yanshouwang.bluetooth_low_energ" +
-      "y.GattCharacteristic\"\320\001\n\022GattCharacteris" +
-      "tic\022\n\n\002id\030\001 \001(\005\022\014\n\004uuid\030\002 \001(\t\022I\n\013descrip" +
-      "tors\030\003 \003(\01324.dev.yanshouwang.bluetooth_l" +
-      "ow_energy.GattDescriptor\022\017\n\007canRead\030\004 \001(" +
-      "\010\022\020\n\010canWrite\030\005 \001(\010\022\037\n\027canWriteWithoutRe" +
-      "sponse\030\006 \001(\010\022\021\n\tcanNotify\030\007 \001(\010\"*\n\016GattD" +
-      "escriptor\022\n\n\002id\030\001 \001(\005\022\014\n\004uuid\030\002 \001(\t\"3\n\027G" +
-      "attDisconnectArguments\022\014\n\004uuid\030\001 \001(\t\022\n\n\002" +
-      "id\030\002 \001(\005\"4\n\022GattConnectionLost\022\n\n\002id\030\001 \001" +
-      "(\005\022\022\n\nerror_code\030\002 \001(\005\"f\n\037GattCharacteri" +
-      "sticReadArguments\022\023\n\013device_uuid\030\001 \001(\t\022\024" +
-      "\n\014service_uuid\030\002 \001(\t\022\014\n\004uuid\030\003 \001(\t\022\n\n\002id" +
-      "\030\004 \001(\005\"\217\001\n GattCharacteristicWriteArgume" +
-      "nts\022\023\n\013device_uuid\030\001 \001(\t\022\024\n\014service_uuid" +
-      "\030\002 \001(\t\022\014\n\004uuid\030\003 \001(\t\022\n\n\002id\030\004 \001(\005\022\r\n\005valu" +
-      "e\030\005 \001(\014\022\027\n\017withoutResponse\030\006 \001(\010\"w\n!Gatt" +
-      "CharacteristicNotifyArguments\022\023\n\013device_" +
-      "uuid\030\001 \001(\t\022\024\n\014service_uuid\030\002 \001(\t\022\014\n\004uuid" +
-      "\030\003 \001(\t\022\n\n\002id\030\004 \001(\005\022\r\n\005state\030\005 \001(\010\"4\n\027Gat" +
-      "tCharacteristicValue\022\n\n\002id\030\003 \001(\005\022\r\n\005valu" +
-      "e\030\004 \001(\014\"\177\n\033GattDescriptorReadArguments\022\023" +
+      "\022\023\n\013connectable\030\004 \001(\010\" \n\020ConnectArgument" +
+      "s\022\014\n\004uuid\030\001 \001(\t\"d\n\004GATT\022\n\n\002id\030\001 \001(\005\022\013\n\003m" +
+      "tu\030\002 \001(\005\022C\n\010services\030\003 \003(\01321.dev.yanshou" +
+      "wang.bluetooth_low_energy.GattService\"z\n" +
+      "\013GattService\022\n\n\002id\030\001 \001(\005\022\014\n\004uuid\030\002 \001(\t\022Q" +
+      "\n\017characteristics\030\003 \003(\01328.dev.yanshouwan" +
+      "g.bluetooth_low_energy.GattCharacteristi" +
+      "c\"\320\001\n\022GattCharacteristic\022\n\n\002id\030\001 \001(\005\022\014\n\004" +
+      "uuid\030\002 \001(\t\022I\n\013descriptors\030\003 \003(\01324.dev.ya" +
+      "nshouwang.bluetooth_low_energy.GattDescr" +
+      "iptor\022\017\n\007canRead\030\004 \001(\010\022\020\n\010canWrite\030\005 \001(\010" +
+      "\022\037\n\027canWriteWithoutResponse\030\006 \001(\010\022\021\n\tcan" +
+      "Notify\030\007 \001(\010\"*\n\016GattDescriptor\022\n\n\002id\030\001 \001" +
+      "(\005\022\014\n\004uuid\030\002 \001(\t\"3\n\027GattDisconnectArgume" +
+      "nts\022\014\n\004uuid\030\001 \001(\t\022\n\n\002id\030\002 \001(\005\"4\n\022GattCon" +
+      "nectionLost\022\n\n\002id\030\001 \001(\005\022\022\n\nerror_code\030\002 " +
+      "\001(\005\"f\n\037GattCharacteristicReadArguments\022\023" +
       "\n\013device_uuid\030\001 \001(\t\022\024\n\014service_uuid\030\002 \001(" +
-      "\t\022\033\n\023characteristic_uuid\030\003 \001(\t\022\014\n\004uuid\030\004" +
-      " \001(\t\022\n\n\002id\030\005 \001(\005\"\217\001\n\034GattDescriptorWrite" +
-      "Arguments\022\023\n\013device_uuid\030\001 \001(\t\022\024\n\014servic" +
-      "e_uuid\030\002 \001(\t\022\033\n\023characteristic_uuid\030\003 \001(" +
-      "\t\022\014\n\004uuid\030\004 \001(\t\022\n\n\002id\030\005 \001(\005\022\r\n\005value\030\006 \001" +
-      "(\014*\346\002\n\017MessageCategory\022\027\n\023BLUETOOTH_AVAI" +
-      "LABLE\020\000\022\023\n\017BLUETOOTH_STATE\020\001\022\033\n\027CENTRAL_" +
-      "START_DISCOVERY\020\002\022\032\n\026CENTRAL_STOP_DISCOV" +
-      "ERY\020\003\022\026\n\022CENTRAL_DISCOVERED\020\004\022\023\n\017CENTRAL" +
-      "_CONNECT\020\005\022\023\n\017GATT_DISCONNECT\020\006\022\030\n\024GATT_" +
-      "CONNECTION_LOST\020\007\022\034\n\030GATT_CHARACTERISTIC" +
-      "_READ\020\010\022\035\n\031GATT_CHARACTERISTIC_WRITE\020\t\022\036" +
-      "\n\032GATT_CHARACTERISTIC_NOTIFY\020\n\022\030\n\024GATT_D" +
-      "ESCRIPTOR_READ\020\013\022\031\n\025GATT_DESCRIPTOR_WRIT" +
-      "E\020\014b\006proto3"
+      "\t\022\014\n\004uuid\030\003 \001(\t\022\n\n\002id\030\004 \001(\005\"\217\001\n GattChar" +
+      "acteristicWriteArguments\022\023\n\013device_uuid\030" +
+      "\001 \001(\t\022\024\n\014service_uuid\030\002 \001(\t\022\014\n\004uuid\030\003 \001(" +
+      "\t\022\n\n\002id\030\004 \001(\005\022\r\n\005value\030\005 \001(\014\022\027\n\017withoutR" +
+      "esponse\030\006 \001(\010\"w\n!GattCharacteristicNotif" +
+      "yArguments\022\023\n\013device_uuid\030\001 \001(\t\022\024\n\014servi" +
+      "ce_uuid\030\002 \001(\t\022\014\n\004uuid\030\003 \001(\t\022\n\n\002id\030\004 \001(\005\022" +
+      "\r\n\005state\030\005 \001(\010\"4\n\027GattCharacteristicValu" +
+      "e\022\n\n\002id\030\003 \001(\005\022\r\n\005value\030\004 \001(\014\"\177\n\033GattDesc" +
+      "riptorReadArguments\022\023\n\013device_uuid\030\001 \001(\t" +
+      "\022\024\n\014service_uuid\030\002 \001(\t\022\033\n\023characteristic" +
+      "_uuid\030\003 \001(\t\022\014\n\004uuid\030\004 \001(\t\022\n\n\002id\030\005 \001(\005\"\217\001" +
+      "\n\034GattDescriptorWriteArguments\022\023\n\013device" +
+      "_uuid\030\001 \001(\t\022\024\n\014service_uuid\030\002 \001(\t\022\033\n\023cha" +
+      "racteristic_uuid\030\003 \001(\t\022\014\n\004uuid\030\004 \001(\t\022\n\n\002" +
+      "id\030\005 \001(\005\022\r\n\005value\030\006 \001(\014*\346\002\n\017MessageCateg" +
+      "ory\022\027\n\023BLUETOOTH_AVAILABLE\020\000\022\023\n\017BLUETOOT" +
+      "H_STATE\020\001\022\033\n\027CENTRAL_START_DISCOVERY\020\002\022\032" +
+      "\n\026CENTRAL_STOP_DISCOVERY\020\003\022\026\n\022CENTRAL_DI" +
+      "SCOVERED\020\004\022\023\n\017CENTRAL_CONNECT\020\005\022\023\n\017GATT_" +
+      "DISCONNECT\020\006\022\030\n\024GATT_CONNECTION_LOST\020\007\022\034" +
+      "\n\030GATT_CHARACTERISTIC_READ\020\010\022\035\n\031GATT_CHA" +
+      "RACTERISTIC_WRITE\020\t\022\036\n\032GATT_CHARACTERIST" +
+      "IC_NOTIFY\020\n\022\030\n\024GATT_DESCRIPTOR_READ\020\013\022\031\n" +
+      "\025GATT_DESCRIPTOR_WRITE\020\014b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -16571,7 +16642,7 @@ public final class MessageOuterClass {
     internal_static_dev_yanshouwang_bluetooth_low_energy_Discovery_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_dev_yanshouwang_bluetooth_low_energy_Discovery_descriptor,
-        new java.lang.String[] { "Uuid", "Rssi", "Advertisements", });
+        new java.lang.String[] { "Uuid", "Rssi", "Advertisements", "Connectable", });
     internal_static_dev_yanshouwang_bluetooth_low_energy_ConnectArguments_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_dev_yanshouwang_bluetooth_low_energy_ConnectArguments_fieldAccessorTable = new

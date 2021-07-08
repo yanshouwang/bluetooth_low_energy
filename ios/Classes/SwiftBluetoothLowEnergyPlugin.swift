@@ -29,42 +29,43 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-//        let category = call.category
-//        if category != .bluetoothAvailable && category != .bluetoothState && !central.opened {
-//            let error = FlutterError(code: "Central closed.", message: nil, details: nil)
-//            result(error)
-//        } else {
-//            switch category {
-//            case .bluetoothAvailable:
-//                result(central.state != .unsupported)
-//                break
-//            case .bluetoothState:
-//                result(central.opened)
-//                break
-//            case .centralStartDiscovery:
-//                let withServices = call.startDiscoveryArguments.withServices
-//                central.scanForPeripherals(withServices: withServices, options: nil)
-//                break
-//            case .centralStopDiscovery:
-//                break
-//            case .centralConnect:
-//                break
-//            case .gattDisconnect:
-//                break
-//            case .gattCharacteristicRead:
-//                break
-//            case .gattCharacteristicWrite:
-//                break
-//            case .gattCharacteristicNotify:
-//                break
-//            case .gattDescriptorRead:
-//                break
-//            case .gattDescriptorWrite:
-//                break
-//            default:
-//                result(FlutterMethodNotImplemented)
-//            }
-//        }
+        let message = try! Message(serializedData: call.arguments as! Data)
+        let category = message.category
+        if category != .bluetoothAvailable && category != .bluetoothState && !central.opened {
+            let error = FlutterError(code: "Central closed.", message: nil, details: nil)
+            result(error)
+        } else {
+            switch category {
+            case .bluetoothAvailable:
+                result(central.state != .unsupported)
+                break
+            case .bluetoothState:
+                result(central.opened)
+                break
+            case .centralStartDiscovery:
+                let withServices = message.startDiscoveryArguments.services.map { CBUUID(string: $0) }
+                central.scanForPeripherals(withServices: withServices, options: nil)
+                break
+            case .centralStopDiscovery:
+                break
+            case .centralConnect:
+                break
+            case .gattDisconnect:
+                break
+            case .gattCharacteristicRead:
+                break
+            case .gattCharacteristicWrite:
+                break
+            case .gattCharacteristicNotify:
+                break
+            case .gattDescriptorRead:
+                break
+            case .gattDescriptorWrite:
+                break
+            default:
+                result(FlutterMethodNotImplemented)
+            }
+        }
     }
     
     public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
@@ -78,31 +79,76 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
     }
     
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
-//        let opened = central.opened
-//        if self.opened != nil && self.opened != opened {
-//            let event = try! Message.with {
-//                $0.category = .bluetoothState
-//                $0.state = opened
-//            }.serializedData()
-//            events?(event)
-//        }
-//        self.opened = opened
+        let opened = central.opened
+        if self.opened != nil && self.opened != opened {
+            let message = try! Message.with {
+                $0.category = .bluetoothState
+                $0.state = opened
+            }.serializedData()
+            events?(message)
+        }
+        self.opened = opened
     }
     
     public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-//        let advertisements = advertisementData[""]
-//        Message().value.
-//
-//        let discovery = Discovery.with {
-//            $0.address = peripheral.identifier.uuidString
-//            $0.rssi = RSSI.int32Value
-//            $0.advertisements = advertisementData
-//        }
-//        let event = try! Message.with {
-//            $0.category = .centralDiscovered
-//            $0.discovery = discovery
-//        }.serializedData()
-//        events?(event)
+        var advertisements = Data()
+        for key in advertisementData.keys {
+            switch key {
+            case CBAdvertisementDataLocalNameKey:
+                let name = advertisementData[key] as! String
+                let data = name.data(using: .utf8)!
+                let length = UInt8(data.count) + 1
+                advertisements.append(length)
+                advertisements.append(0x09)
+                advertisements.append(data)
+                break
+            case CBAdvertisementDataManufacturerDataKey:
+                let data = advertisementData[key] as! Data
+                let length = UInt8(data.count) + 1
+                advertisements.append(length)
+                advertisements.append(0xff)
+                advertisements.append(data)
+                break
+            case CBAdvertisementDataServiceDataKey:
+                let serviceData = advertisementData[key] as! [CBUUID: Data]
+                
+                break
+            case CBAdvertisementDataServiceUUIDsKey:
+                let serviceUUIDs = advertisementData[key] as! [CBUUID]
+                
+                break
+            case CBAdvertisementDataOverflowServiceUUIDsKey:
+                let serviceUUIDs = advertisementData[key] as! [CBUUID]
+                
+                break
+            case CBAdvertisementDataTxPowerLevelKey:
+                let txPowerLevel = advertisementData[key] as! UInt8
+                
+                break
+            case CBAdvertisementDataIsConnectable:
+                let connectable = advertisementData[key] as! Uint8
+                advertisements.append(2)
+                advertisements.append(0xaa)
+                advertisements.append(connectable)
+                break
+            case CBAdvertisementDataSolicitedServiceUUIDsKey:
+                let solicitedServiceUUIDs = advertisementData[key] as! [CBUUID]
+                
+                break
+            default:
+                break
+            }
+        }
+        let discovery = Discovery.with {
+            $0.uuid = peripheral.identifier.uuidString
+            $0.rssi = RSSI.int32Value
+            $0.advertisements = advertisements
+        }
+        let message = try! Message.with {
+            $0.category = .centralDiscovered
+            $0.discovery = discovery
+        }.serializedData()
+        events?(message)
     }
     
     public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
@@ -114,45 +160,6 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
     }
 }
 
-//extension FlutterMethodCall {
-//    var category: Dev_Yanshouwang_BluetoothLowEnergy_MessageCategory {
-//        switch method {
-//        case "BLUETOOTH_AVAILABLE":
-//            return .bluetoothAvailable
-//        case "BLUETOOTH_STATE":
-//            return .bluetoothState
-//        case "CENTRAL_START_DISCOVERY":
-//            return .centralStartDiscovery
-//        case "CENTRAL_STOP_DISCOVERY":
-//            return .centralStopDiscovery
-//        case "CENTRAL_DISCOVERED":
-//            return .centralDiscovered
-//        case "CENTRAL_CONNECT":
-//            return .centralConnect
-//        case "GATT_DISCONNECT":
-//            return .gattDisconnect
-//        case "GATT_CONNECTION_LOST":
-//            return .gattConnectionLost
-//        case "GATT_CHARACTERISTIC_READ":
-//            return .gattCharacteristicRead
-//        case "GATT_CHARACTERISTIC_WRITE":
-//            return .gattCharacteristicWrite
-//        case "GATT_DESCRIPTOR_READ":
-//            return .gattDescriptorRead
-//        case "GATT_DESCRIPTOR_WRITE":
-//            return .gattDescriptorWrite
-//        default:
-//            return MessageCategory.UNRECOGNIZED(-1)
-//        }
-//    }
-//
-//    var startDiscoveryArguments: StartDiscoveryArguments { try! StartDiscoveryArguments(serializedData: arguments as! Data) }
-//}
-//
-//extension CBCentralManager {
-//    var opened: Bool { state == .poweredOn }
-//}
-//
-//extension StartDiscoveryArguments {
-//    var withServices: [CBUUID] { services.map { CBUUID(string: $0) } }
-//}
+extension CBCentralManager {
+    var opened: Bool { state == .poweredOn }
+}

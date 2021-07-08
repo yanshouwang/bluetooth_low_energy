@@ -72,6 +72,23 @@ object DiscoveryKt {
     fun clearAdvertisements() {
       _builder.clearAdvertisements()
     }
+
+    /**
+     * <code>bool connectable = 4;</code>
+     */
+    var connectable: kotlin.Boolean
+      @JvmName("getConnectable")
+      get() = _builder.getConnectable()
+      @JvmName("setConnectable")
+      set(value) {
+        _builder.setConnectable(value)
+      }
+    /**
+     * <code>bool connectable = 4;</code>
+     */
+    fun clearConnectable() {
+      _builder.clearConnectable()
+    }
   }
 }
 @kotlin.jvm.JvmSynthetic

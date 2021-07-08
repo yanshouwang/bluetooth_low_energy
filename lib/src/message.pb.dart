@@ -456,6 +456,7 @@ class Discovery extends $pb.GeneratedMessage {
             ? ''
             : 'advertisements',
         $pb.PbFieldType.OY)
+    ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'connectable')
     ..hasRequiredFields = false;
 
   Discovery._() : super();
@@ -463,6 +464,7 @@ class Discovery extends $pb.GeneratedMessage {
     $core.String? uuid,
     $core.int? rssi,
     $core.List<$core.int>? advertisements,
+    $core.bool? connectable,
   }) {
     final _result = create();
     if (uuid != null) {
@@ -473,6 +475,9 @@ class Discovery extends $pb.GeneratedMessage {
     }
     if (advertisements != null) {
       _result.advertisements = advertisements;
+    }
+    if (connectable != null) {
+      _result.connectable = connectable;
     }
     return _result;
   }
@@ -537,6 +542,18 @@ class Discovery extends $pb.GeneratedMessage {
   $core.bool hasAdvertisements() => $_has(2);
   @$pb.TagNumber(3)
   void clearAdvertisements() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.bool get connectable => $_getBF(3);
+  @$pb.TagNumber(4)
+  set connectable($core.bool v) {
+    $_setBool(3, v);
+  }
+
+  @$pb.TagNumber(4)
+  $core.bool hasConnectable() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearConnectable() => clearField(4);
 }
 
 class ConnectArguments extends $pb.GeneratedMessage {

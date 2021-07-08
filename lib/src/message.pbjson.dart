@@ -182,12 +182,13 @@ const Discovery$json = const {
       '5': 12,
       '10': 'advertisements'
     },
+    const {'1': 'connectable', '3': 4, '4': 1, '5': 8, '10': 'connectable'},
   ],
 };
 
 /// Descriptor for `Discovery`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List discoveryDescriptor = $convert.base64Decode(
-    'CglEaXNjb3ZlcnkSEgoEdXVpZBgBIAEoCVIEdXVpZBISCgRyc3NpGAIgASgRUgRyc3NpEiYKDmFkdmVydGlzZW1lbnRzGAMgASgMUg5hZHZlcnRpc2VtZW50cw==');
+    'CglEaXNjb3ZlcnkSEgoEdXVpZBgBIAEoCVIEdXVpZBISCgRyc3NpGAIgASgRUgRyc3NpEiYKDmFkdmVydGlzZW1lbnRzGAMgASgMUg5hZHZlcnRpc2VtZW50cxIgCgtjb25uZWN0YWJsZRgEIAEoCFILY29ubmVjdGFibGU=');
 @$core.Deprecated('Use connectArgumentsDescriptor instead')
 const ConnectArguments$json = const {
   '1': 'ConnectArguments',

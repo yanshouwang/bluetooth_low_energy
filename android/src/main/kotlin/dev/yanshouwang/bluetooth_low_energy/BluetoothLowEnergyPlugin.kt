@@ -59,7 +59,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
     private lateinit var context: Context
 
     private var binding: ActivityPluginBinding? = null
-    private var sink: EventSink? = null
+    private var events: EventSink? = null
 
     private val bluetoothAvailable by lazy { context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) }
     private val bluetoothManager by lazy { context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager }
@@ -75,12 +75,12 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 if (newState == oldState) return
                 val closed = !newState
                 if (closed && scanning) scanning = false
-                val event = Message.newBuilder()
+                val message = Message.newBuilder()
                         .setCategory(BLUETOOTH_STATE)
                         .setState(newState)
                         .build()
                         .toByteArray()
-                sink?.success(event)
+                events?.success(message)
             }
         }
     }
@@ -108,17 +108,23 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 val advertisements =
                         if (record == null) ByteString.EMPTY
                         else ByteString.copyFrom(record.bytes)
+                val connectable = when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> result.isConnectable
+                    record == null || record.advertiseFlags == -1 -> false
+                    else -> record.advertiseFlags and 0x02 != 0
+                }
                 val builder = Discovery.newBuilder()
                         .setUuid(uuid)
                         .setRssi(rssi)
                         .setAdvertisements(advertisements)
+                        .setConnectable(connectable)
                 val discovery = builder.build()
-                val event = Message.newBuilder()
+                val message = Message.newBuilder()
                         .setCategory(CENTRAL_DISCOVERED)
                         .setDiscovery(discovery)
                         .build()
                         .toByteArray()
-                sink?.success(event)
+                events?.success(message)
             }
 
             override fun onBatchScanResults(results: MutableList<ScanResult>?) {
@@ -131,17 +137,23 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                     val advertisements =
                             if (record == null) ByteString.EMPTY
                             else ByteString.copyFrom(record.bytes)
+                    val connectable = when {
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> result.isConnectable
+                        record == null || record.advertiseFlags == -1 -> false
+                        else -> record.advertiseFlags and 0x02 != 0
+                    }
                     val builder = Discovery.newBuilder()
                             .setUuid(uuid)
                             .setRssi(rssi)
                             .setAdvertisements(advertisements)
+                            .setConnectable(connectable)
                     val discovery = builder.build()
-                    val event = Message.newBuilder()
+                    val message = Message.newBuilder()
                             .setCategory(CENTRAL_DISCOVERED)
                             .setDiscovery(discovery)
                             .build()
                             .toByteArray()
-                    sink?.success(event)
+                    events?.success(message)
                 }
             }
         }
@@ -174,12 +186,12 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                                             .setId(id)
                                             .setErrorCode(status)
                                             .build()
-                                    val event = Message.newBuilder()
+                                    val message = Message.newBuilder()
                                             .setCategory(GATT_CONNECTION_LOST)
                                             .setConnectionLost(connectionLost)
                                             .build()
                                             .toByteArray()
-                                    handler.post { sink?.success(event) }
+                                    handler.post { events?.success(message) }
                                 }
                             }
                             BluetoothProfile.STATE_CONNECTED -> {
@@ -219,12 +231,12 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                                         .setId(id)
                                         .setErrorCode(status)
                                         .build()
-                                val event = Message.newBuilder()
+                                val message = Message.newBuilder()
                                         .setCategory(GATT_CONNECTION_LOST)
                                         .setConnectionLost(connectionLost)
                                         .build()
                                         .toByteArray()
-                                handler.post { sink?.success(event) }
+                                handler.post { events?.success(message) }
                             }
                         }
                     }
@@ -335,12 +347,12 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                         .setId(id)
                         .setValue(value)
                         .build()
-                val event = Message.newBuilder()
+                val message = Message.newBuilder()
                         .setCategory(GATT_CHARACTERISTIC_NOTIFY)
                         .setCharacteristicValue(characteristicValue)
                         .build()
                         .toByteArray()
-                handler.post { sink?.success(event) }
+                handler.post { events?.success(message) }
             }
 
             override fun onDescriptorRead(gatt: BluetoothGatt?, descriptor: BluetoothGattDescriptor?, status: Int) {
@@ -610,9 +622,9 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
         }
     }
 
-    override fun onListen(arguments: Any?, sink: EventSink?) {
+    override fun onListen(arguments: Any?, events: EventSink?) {
         Log.d(TAG, "onListen")
-        this.sink = sink
+        this.events = events
     }
 
     override fun onCancel(arguments: Any?) {
@@ -623,7 +635,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
         gatts.clear()
         // Stop scan.
         if (scanning) stopScan()
-        sink = null
+        events = null
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {

@@ -10,6 +10,9 @@ abstract class Discovery {
 
   /// TO BE DONE.
   Map<int, List<int>> get advertisements;
+
+  /// TO BE DONE.
+  bool get connectable;
 }
 
 class _Discovery implements Discovery {
@@ -19,6 +22,8 @@ class _Discovery implements Discovery {
   final int rssi;
   @override
   final Map<int, List<int>> advertisements;
+  @override
+  final bool connectable;
 
-  _Discovery(this.uuid, this.rssi, this.advertisements);
+  _Discovery(this.uuid, this.rssi, this.advertisements, this.connectable);
 }

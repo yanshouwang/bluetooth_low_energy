@@ -324,6 +324,8 @@ struct Dev_Yanshouwang_BluetoothLowEnergy_Discovery {
 
   var advertisements: Data = Data()
 
+  var connectable: Bool = false
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
@@ -878,6 +880,7 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_Discovery: SwiftProtobuf.Message, S
     1: .same(proto: "uuid"),
     2: .same(proto: "rssi"),
     3: .same(proto: "advertisements"),
+    4: .same(proto: "connectable"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -889,6 +892,7 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_Discovery: SwiftProtobuf.Message, S
       case 1: try { try decoder.decodeSingularStringField(value: &self.uuid) }()
       case 2: try { try decoder.decodeSingularSInt32Field(value: &self.rssi) }()
       case 3: try { try decoder.decodeSingularBytesField(value: &self.advertisements) }()
+      case 4: try { try decoder.decodeSingularBoolField(value: &self.connectable) }()
       default: break
       }
     }
@@ -904,6 +908,9 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_Discovery: SwiftProtobuf.Message, S
     if !self.advertisements.isEmpty {
       try visitor.visitSingularBytesField(value: self.advertisements, fieldNumber: 3)
     }
+    if self.connectable != false {
+      try visitor.visitSingularBoolField(value: self.connectable, fieldNumber: 4)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -911,6 +918,7 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_Discovery: SwiftProtobuf.Message, S
     if lhs.uuid != rhs.uuid {return false}
     if lhs.rssi != rhs.rssi {return false}
     if lhs.advertisements != rhs.advertisements {return false}
+    if lhs.connectable != rhs.connectable {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

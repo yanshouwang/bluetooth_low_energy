@@ -42,7 +42,7 @@ extension on proto.Discovery {
       start = end;
       advertisements[key] = value;
     }
-    return _Discovery(uuid.uuid, rssi, advertisements);
+    return _Discovery(uuid.uuid, rssi, advertisements, connectable);
   }
 }
 

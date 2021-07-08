@@ -28,6 +28,7 @@ message Discovery {
   string uuid = 1;
   sint32 rssi = 2;
   bytes advertisements = 3;
+  bool connectable = 4;
 }
 
 message ConnectArguments {
