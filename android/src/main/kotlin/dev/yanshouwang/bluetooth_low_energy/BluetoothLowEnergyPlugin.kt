@@ -168,8 +168,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
     private val descriptorReads by lazy { mutableMapOf<Int, Result>() }
     private val descriptorWrites by lazy { mutableMapOf<Int, Result>() }
     private val bluetoothGattCallback by lazy {
-        object : BluetoothGattCallback() {
-            override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
+        object : BluetoothGattCallback() { override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
                 super.onConnectionStateChange(gatt, status, newState)
                 val address = gatt!!.device.address
                 when (status) {
@@ -201,17 +200,13 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                             BluetoothProfile.STATE_CONNECTED -> {
                                 // Must be connect succeed.
                                 val requested = gatt.requestMtu(512)
-                                if (!requested) {
-                                    gatts.remove(address)!!.close()
-                                    val connect = connects.remove(address)!!
-                                    handler.post { connect.error(REQUEST_MTU_FAILED) }
-                                }
+                                if (!requested) gatt.disconnect()
                             }
                             else -> throw NotImplementedError() // should never be called.
                         }
                     }
                     else -> {
-                        // Maybe connect failed, disconnect failed or connection lost when an adaptor closed event triggered.
+                        // Maybe connect failed, disconnect failed or connection lost.
                         gatts.remove(address)!!.close()
                         val connect = connects.remove(address)
                         if (connect != null) handler.post { connect.error(status) }
@@ -239,30 +234,23 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
             override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
                 super.onMtuChanged(gatt, mtu, status)
                 val address = gatt!!.device.address
-                val code = when (status) {
+                when (status) {
                     BluetoothGatt.GATT_SUCCESS -> {
                         val discovered = gatt.discoverServices()
-                        if (discovered) {
-                            mtus[address] = mtu
-                            NO_ERROR
-                        } else DISCOVER_SERVICES_FAILED
+                        if (discovered) mtus[address] = mtu
+                        else gatt.disconnect()
                     }
-                    else -> status
-                }
-                if (code != NO_ERROR) {
-                    gatts.remove(address)!!.close()
-                    val connect = connects.remove(address)!!
-                    handler.post { connect.error(code) }
+                    else -> gatt.disconnect()
                 }
             }
 
             override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
                 super.onServicesDiscovered(gatt, status)
                 val address = gatt!!.device.address
-                val connect = connects.remove(address)!!
                 val mtu = mtus.remove(address)!!
                 when (status) {
                     BluetoothGatt.GATT_SUCCESS -> {
+                        val connect = connects.remove(address)!!
                         val id = gatt.hashCode()
                         val services = gatt.services.map { service ->
                             val serviceId = service.hashCode()
@@ -306,10 +294,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                                 .toByteArray()
                         handler.post { connect.success(reply) }
                     }
-                    else -> {
-                        gatts.remove(address)!!.close()
-                        handler.post { connect.error(status) }
-                    }
+                    else -> gatt.disconnect()
                 }
             }
 
