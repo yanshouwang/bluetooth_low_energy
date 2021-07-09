@@ -72,7 +72,6 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
             override fun onReceive(context: Context?, intent: Intent?) {
                 val oldState = intent!!.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_STATE, BLUETOOTH_ADAPTER_STATE_UNKNOWN).opened
                 val newState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BLUETOOTH_ADAPTER_STATE_UNKNOWN).opened
-                // TODO: clear status when bluetooth closed.
                 if (newState == oldState) return
                 val closed = !newState
                 if (closed && scanning) scanning = false
@@ -186,16 +185,16 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                                     if (connect != null) handler.post { connect.error(BLUETOOTH_ADAPTER_CLOSED) }
                                     else {
                                         val id = gatt.hashCode()
-                                        val connectionLost = ConnectionLost.newBuilder()
+                                        val connectionLost = GattConnectionLost.newBuilder()
                                                 .setId(id)
                                                 .setErrorCode(BLUETOOTH_ADAPTER_CLOSED)
                                                 .build()
-                                        val event = Message.newBuilder()
+                                        val message = Message.newBuilder()
                                                 .setCategory(GATT_CONNECTION_LOST)
                                                 .setConnectionLost(connectionLost)
                                                 .build()
                                                 .toByteArray()
-                                        handler.post { sink?.success(event) }
+                                        handler.post { events?.success(message) }
                                     }
                                 }
                             }
@@ -221,11 +220,11 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                             if (disconnect != null) handler.post { disconnect.error(status) }
                             else {
                                 val id = gatt.hashCode()
-                                val connectionLost = ConnectionLost.newBuilder()
+                                val connectionLost = GattConnectionLost.newBuilder()
                                         .setId(id)
                                         .setErrorCode(status)
                                         .build()
-                                val event = Message.newBuilder()
+                                val message = Message.newBuilder()
                                         .setCategory(GATT_CONNECTION_LOST)
                                         .setConnectionLost(connectionLost)
                                         .build()

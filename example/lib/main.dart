@@ -152,7 +152,7 @@ extension on _HomeViewState {
             itemBuilder: (context, i) {
               final discovery = discoveries.values.elementAt(i);
               return Card(
-                color: Colors.amber,
+                color: discovery.connectable ? Colors.amber : Colors.grey,
                 clipBehavior: Clip.antiAlias,
                 shape: BeveledRectangleBorder(
                   borderRadius: BorderRadius.only(
@@ -163,7 +163,9 @@ extension on _HomeViewState {
                 key: Key(discovery.uuid.name),
                 child: InkWell(
                   splashColor: Colors.purple,
-                  onTap: () => showGattView(discovery),
+                  onTap: discovery.connectable
+                      ? () => showGattView(discovery)
+                      : null,
                   onLongPress: () => showAdvertisements(discovery),
                   child: Container(
                     height: 100.0,
