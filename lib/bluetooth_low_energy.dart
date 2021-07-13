@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:convert/convert.dart';
+import 'package:flutter/foundation.dart';
 
 import 'src/message.pb.dart' as proto;
 import 'src/util.dart';

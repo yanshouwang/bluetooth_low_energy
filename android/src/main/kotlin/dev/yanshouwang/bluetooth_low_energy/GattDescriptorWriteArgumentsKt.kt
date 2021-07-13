@@ -23,75 +23,7 @@ object GattDescriptorWriteArgumentsKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorWriteArguments = _builder.build()
 
     /**
-     * <code>string device_uuid = 1;</code>
-     */
-    var deviceUuid: kotlin.String
-      @JvmName("getDeviceUuid")
-      get() = _builder.getDeviceUuid()
-      @JvmName("setDeviceUuid")
-      set(value) {
-        _builder.setDeviceUuid(value)
-      }
-    /**
-     * <code>string device_uuid = 1;</code>
-     */
-    fun clearDeviceUuid() {
-      _builder.clearDeviceUuid()
-    }
-
-    /**
-     * <code>string service_uuid = 2;</code>
-     */
-    var serviceUuid: kotlin.String
-      @JvmName("getServiceUuid")
-      get() = _builder.getServiceUuid()
-      @JvmName("setServiceUuid")
-      set(value) {
-        _builder.setServiceUuid(value)
-      }
-    /**
-     * <code>string service_uuid = 2;</code>
-     */
-    fun clearServiceUuid() {
-      _builder.clearServiceUuid()
-    }
-
-    /**
-     * <code>string characteristic_uuid = 3;</code>
-     */
-    var characteristicUuid: kotlin.String
-      @JvmName("getCharacteristicUuid")
-      get() = _builder.getCharacteristicUuid()
-      @JvmName("setCharacteristicUuid")
-      set(value) {
-        _builder.setCharacteristicUuid(value)
-      }
-    /**
-     * <code>string characteristic_uuid = 3;</code>
-     */
-    fun clearCharacteristicUuid() {
-      _builder.clearCharacteristicUuid()
-    }
-
-    /**
-     * <code>string uuid = 4;</code>
-     */
-    var uuid: kotlin.String
-      @JvmName("getUuid")
-      get() = _builder.getUuid()
-      @JvmName("setUuid")
-      set(value) {
-        _builder.setUuid(value)
-      }
-    /**
-     * <code>string uuid = 4;</code>
-     */
-    fun clearUuid() {
-      _builder.clearUuid()
-    }
-
-    /**
-     * <code>int32 id = 5;</code>
+     * <code>int32 id = 1;</code>
      */
     var id: kotlin.Int
       @JvmName("getId")
@@ -101,14 +33,14 @@ object GattDescriptorWriteArgumentsKt {
         _builder.setId(value)
       }
     /**
-     * <code>int32 id = 5;</code>
+     * <code>int32 id = 1;</code>
      */
     fun clearId() {
       _builder.clearId()
     }
 
     /**
-     * <code>bytes value = 6;</code>
+     * <code>bytes value = 2;</code>
      */
     var value: com.google.protobuf.ByteString
       @JvmName("getValue")
@@ -118,7 +50,7 @@ object GattDescriptorWriteArgumentsKt {
         _builder.setValue(value)
       }
     /**
-     * <code>bytes value = 6;</code>
+     * <code>bytes value = 2;</code>
      */
     fun clearValue() {
       _builder.clearValue()

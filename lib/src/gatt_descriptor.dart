@@ -13,17 +13,8 @@ abstract class GattDescriptor {
 }
 
 class _GattDescriptor implements GattDescriptor {
-  _GattDescriptor(
-    this.deviceUUID,
-    this.serviceUUID,
-    this.characteristicUUID,
-    this.id,
-    this.uuid,
-  );
+  _GattDescriptor(this.id, this.uuid);
 
-  final UUID deviceUUID;
-  final UUID serviceUUID;
-  final UUID characteristicUUID;
   final int id;
   @override
   final UUID uuid;
@@ -32,13 +23,7 @@ class _GattDescriptor implements GattDescriptor {
   Future<List<int>> read() {
     final message = proto.Message(
       category: proto.MessageCategory.GATT_DESCRIPTOR_READ,
-      descriptorReadArguments: proto.GattDescriptorReadArguments(
-        deviceUuid: deviceUUID.name,
-        serviceUuid: serviceUUID.name,
-        characteristicUuid: characteristicUUID.name,
-        uuid: uuid.name,
-        id: id,
-      ),
+      descriptorReadArguments: proto.GattDescriptorReadArguments(id: id),
     ).writeToBuffer();
     return method.invokeListMethod<int>('', message).then((value) => value!);
   }
@@ -48,10 +33,6 @@ class _GattDescriptor implements GattDescriptor {
     final message = proto.Message(
       category: proto.MessageCategory.GATT_DESCRIPTOR_WRITE,
       descriptorWriteArguments: proto.GattDescriptorWriteArguments(
-        deviceUuid: deviceUUID.name,
-        serviceUuid: serviceUUID.name,
-        characteristicUuid: characteristicUUID.name,
-        uuid: uuid.name,
         id: id,
         value: value,
       ),

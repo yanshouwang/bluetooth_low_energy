@@ -6,8 +6,14 @@ let NAMESAPCE = "yanshouwang.dev/bluetooth_low_energy"
 
 typealias MessageCategory = Dev_Yanshouwang_BluetoothLowEnergy_MessageCategory
 typealias Message = Dev_Yanshouwang_BluetoothLowEnergy_Message
+typealias BluetoothState = Dev_Yanshouwang_BluetoothLowEnergy_BluetoothState
 typealias StartDiscoveryArguments = Dev_Yanshouwang_BluetoothLowEnergy_StartDiscoveryArguments
 typealias Discovery = Dev_Yanshouwang_BluetoothLowEnergy_Discovery
+typealias GATT = Dev_Yanshouwang_BluetoothLowEnergy_GATT
+typealias GattService = Dev_Yanshouwang_BluetoothLowEnergy_GattService
+typealias GattCharacteristic = Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristic
+typealias GattDescriptor = Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptor
+typealias GattConnectionLost = Dev_Yanshouwang_BluetoothLowEnergy_GattConnectionLost
 
 public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CBCentralManagerDelegate, CBPeripheralDelegate {
     let SHORTENED_LOCAL_NAME_TYPE = 0x08
@@ -28,10 +34,20 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
     let TX_POWER_LEVEL_TYPE: UInt8 = 0x0a
     
     var events: FlutterEventSink? = nil
-    var opened: Bool? = nil
     
-    lazy var central = CBCentralManager(delegate: self, queue: nil)
+    let central: CBCentralManager
+    var oldState: BluetoothState? = nil
+    
+    public override init() {
+        central = CBCentralManager()
+        super.init()
+        central.delegate = self
+    }
+    
+    // Need to keep a strong reference when connect to a peripheral.
     lazy var connects = [UUID: FlutterResult]()
+    lazy var peripherals = [Int: CBPeripheral]()
+    lazy var disconnects = [Int: FlutterResult]()
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let instance = SwiftBluetoothLowEnergyPlugin()
@@ -47,52 +63,58 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let message = try! Message(serializedData: call.arguments as! Data)
-        let category = message.category
-        if category != .bluetoothAvailable && category != .bluetoothState && !central.opened {
-            let error = FlutterError(code: "Central is closed.", message: nil, details: nil)
-            result(error)
-        } else {
-            switch category {
-            case .bluetoothAvailable:
-                result(central.state != .unsupported)
-                break
-            case .bluetoothState:
-                result(central.opened)
-                break
-            case .centralStartDiscovery:
-                let withServices = message.startDiscoveryArguments.services.map { CBUUID(string: $0) }
-                central.scanForPeripherals(withServices: withServices, options: nil)
-                break
-            case .centralStopDiscovery:
-                central.stopScan()
-                break
-            case .centralConnect:
-                let uuid = UUID(uuidString: message.connectArguments.uuid)!
-                let connect = connects[uuid]
-                if connect != nil {
-                    let error = FlutterError(code: "Already in connecting state.", message: nil, details: nil)
-                    result(error)
-                }
+        let arguments = call.arguments as! FlutterStandardTypedData
+        let message = try! Message(serializedData: arguments.data)
+        switch message.category {
+        case .bluetoothState:
+            result(central.bluetoothState.rawValue)
+        case .centralStartDiscovery:
+            let withServices = message.startDiscoveryArguments.services.map { CBUUID(string: $0) }
+            let options = [CBCentralManagerScanOptionAllowDuplicatesKey: true]
+            central.scanForPeripherals(withServices: withServices, options: options)
+            result(nil)
+        case .centralStopDiscovery:
+            central.stopScan()
+            result(nil)
+        case .centralConnect:
+            let arguments = message.connectArguments
+            let uuid = UUID(uuidString: arguments.uuid)!
+            let connect = connects[uuid]
+            if connect != nil {
+                let error = FlutterError(code: "Already in connecting state.", message: nil, details: nil)
+                result(error)
+            } else {
                 let peripheral = central.retrievePeripherals(withIdentifiers: [uuid]).first!
                 connects[uuid] = result
+                let id = peripheral.hash
+                peripherals[id] = peripheral
                 central.connect(peripheral, options: nil)
-                break
-            case .gattDisconnect:
-                break
-            case .gattCharacteristicRead:
-                break
-            case .gattCharacteristicWrite:
-                break
-            case .gattCharacteristicNotify:
-                break
-            case .gattDescriptorRead:
-                break
-            case .gattDescriptorWrite:
-                break
-            default:
-                result(FlutterMethodNotImplemented)
             }
+        case .gattDisconnect:
+            let arguments = message.disconnectArguments
+            let id = Int(arguments.id)
+            let disconnect = disconnects[id]
+            if disconnect != nil {
+                let error = FlutterError(code: "Already in disconnecting state.", message: nil, details: nil)
+                result(error)
+            } else {
+                let peripheral = peripherals.removeValue(forKey: id)!
+                disconnects[id] = result
+                central.cancelPeripheralConnection(peripheral)
+            }
+            break
+        case .gattCharacteristicRead:
+            break
+        case .gattCharacteristicWrite:
+            break
+        case .gattCharacteristicNotify:
+            break
+        case .gattDescriptorRead:
+            break
+        case .gattDescriptorWrite:
+            break
+        default:
+            result(FlutterMethodNotImplemented)
         }
     }
     
@@ -107,15 +129,19 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
     }
     
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        let opened = central.opened
-        if self.opened != nil && self.opened != opened {
+        let newState = central.bluetoothState
+        if newState == oldState {
+            return
+        } else if oldState == nil {
+            oldState = newState
+        } else {
+            oldState = newState
             let message = try! Message.with {
                 $0.category = .bluetoothState
-                $0.state = opened
+                $0.state = newState
             }.serializedData()
             events?(message)
         }
-        self.opened = opened
     }
     
     public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
@@ -213,55 +239,155 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
     }
     
     public func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        peripherals.removeValue(forKey: peripheral.hash)
         let connect = connects.removeValue(forKey: peripheral.identifier)!
         let error = FlutterError(code: error!.localizedDescription, message: nil, details: nil)
         connect(error)
     }
     
     public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-        if error == nil {
-            
+        peripherals.removeValue(forKey: peripheral.hash)
+        let connect = connects.removeValue(forKey: peripheral.identifier)
+        let disconnect = disconnects.removeValue(forKey: peripheral.hash)
+        if connect != nil {
+            let error = FlutterError(code: "GATT disconnected.", message: nil, details: nil)
+            connect!(error)
+        } else if disconnect != nil {
+            disconnect!(nil)
         } else {
-            
+            let id32 = NSNumber(value: hash).int32Value
+            let connectionLost = GattConnectionLost.with {
+                $0.id = id32
+                $0.error = error!.localizedDescription
+            }
+            let message = try! Message.with {
+                $0.category = MessageCategory.gattConnectionLost
+                $0.connectionLost = connectionLost
+            }.serializedData()
+            events?(message)
         }
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         if error == nil {
-            for service in peripheral.services! {
-                peripheral.discoverCharacteristics(nil, for: service)
-            }
+            let service = peripheral.services?.first(where: { $0.characteristics == nil })
+            peripheral.discoverCharacteristics(nil, for: service!)
         } else {
             central.cancelPeripheralConnection(peripheral)
-            let connect = connects.removeValue(forKey: peripheral.identifier)!
-            let error = FlutterError(code: error!.localizedDescription, message: nil, details: nil)
-            connect(error)
         }
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         if error == nil {
-            for characteristic in service.characteristics! {
-                peripheral.discoverDescriptors(for: characteristic)
+            let characteristic = service.characteristics?.first(where: { $0.descriptors == nil })
+            if characteristic != nil {
+                peripheral.discoverDescriptors(for: characteristic!)
             }
         } else {
-            let connect = connects.removeValue(forKey: peripheral.identifier)!
-            let error = FlutterError(code: error!.localizedDescription, message: nil, details: nil)
-            connect(error)
+            central.cancelPeripheralConnection(peripheral)
         }
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
         if error == nil {
-            
+            let service = characteristic.service
+            let nextCharacteristic = service.characteristics?.first(where: { $0.descriptors == nil })
+            if nextCharacteristic == nil {
+                let nextService = peripheral.services?.first(where: { $0.characteristics == nil })
+                if nextService == nil {
+                    let connect = connects.removeValue(forKey: peripheral.identifier)!
+                    let gatt = try! peripheral.gatt.serializedData()
+                    connect(gatt)
+                } else {
+                    peripheral.discoverCharacteristics(nil, for: nextService!)
+                }
+            } else {
+                peripheral.discoverDescriptors(for: nextCharacteristic!)
+            }
         } else {
-            let connect = connects.removeValue(forKey: peripheral.identifier)!
-            let error = FlutterError(code: error!.localizedDescription, message: nil, details: nil)
-            connect(error)
+            central.cancelPeripheralConnection(peripheral)
         }
     }
 }
 
 extension CBCentralManager {
-    var opened: Bool { state == .poweredOn }
+    var bluetoothState: BluetoothState {
+        switch state {
+        case .unknown:
+            return .unsupported
+        case .resetting:
+            return .unsupported
+        case .unsupported:
+            return .unsupported
+        case .unauthorized:
+            return .unsupported
+        case .poweredOff:
+            return .poweredOff
+        case .poweredOn:
+            return .poweredOn
+        default:
+            return .UNRECOGNIZED(-1)
+        }
+    }
+}
+
+extension CBPeripheral {
+    var gatt: GATT {
+        let id32 = NSNumber(value: hash).int32Value
+        let maximumWriteLengthWithResponse = maximumWriteValueLength(for: .withResponse)
+        let maximumWriteLengthWithoutResponse = maximumWriteValueLength(for: .withoutResponse)
+        let maximumWriteLength = min(maximumWriteLengthWithResponse, maximumWriteLengthWithoutResponse)
+        let maximumWriteLength32 = NSNumber(value: maximumWriteLength).int32Value
+        let gattServices = services?.map({ $0.gattService })
+        return GATT.with {
+            $0.id = id32
+            $0.maximumWriteLength = maximumWriteLength32
+            $0.services = gattServices!
+        }
+    }
+}
+
+extension CBService {
+    var gattService: GattService {
+        let id32 = NSNumber(value: hash).int32Value
+        let uuidString = uuid.uuidString
+        let gattCharacteristics = characteristics?.map({ $0.gattCharacteristic })
+        return GattService.with {
+            $0.id = id32
+            $0.uuid = uuidString
+            $0.characteristics = gattCharacteristics!
+        }
+    }
+}
+
+extension CBCharacteristic {
+    var gattCharacteristic: GattCharacteristic {
+        let id32 = NSNumber(value: hash).int32Value
+        let uuidString = uuid.uuidString
+        let canRead = properties.contains(.read)
+        let canWrite = properties.contains(.write)
+        let canWriteWithoutResponse = properties.contains(.writeWithoutResponse)
+        let canNotify = properties.contains(.notify)
+        let gattDescriptors = descriptors?.map({ $0.gattDescriptor })
+        return GattCharacteristic.with {
+            $0.id = id32
+            $0.uuid = uuidString
+            $0.canRead = canRead
+            $0.canWrite = canWrite
+            $0.canWriteWithoutResponse = canWriteWithoutResponse
+            $0.canNotify = canNotify
+            $0.descriptors = gattDescriptors!
+        }
+    }
+}
+
+extension CBDescriptor {
+    var gattDescriptor: GattDescriptor {
+        let id32 = NSNumber(value: hash).int32Value
+        let uuidString = uuid.uuidString
+        return GattDescriptor.with {
+            $0.id = id32
+            $0.uuid = uuidString
+        }
+    }
 }

@@ -16,10 +16,8 @@ void main() {
       calls.add(call);
       final message = proto.Message.fromBuffer(call.arguments);
       switch (message.category) {
-        case proto.MessageCategory.BLUETOOTH_AVAILABLE:
-          return true;
         case proto.MessageCategory.BLUETOOTH_STATE:
-          return true;
+          return proto.BluetoothState.POWERED_ON.value;
         case proto.MessageCategory.CENTRAL_START_DISCOVERY:
           return null;
         case proto.MessageCategory.CENTRAL_STOP_DISCOVERY:
@@ -51,7 +49,7 @@ void main() {
           ];
           final gatt = proto.GATT(
             id: 1000,
-            mtu: 23,
+            maximumWriteLength: 20,
             services: services,
           );
           return gatt.writeToBuffer();
@@ -76,7 +74,7 @@ void main() {
         case 'listen':
           final state = proto.Message(
             category: proto.MessageCategory.BLUETOOTH_STATE,
-            state: false,
+            state: proto.BluetoothState.POWERED_OFF,
           ).writeToBuffer();
           await ServicesBinding.instance!.defaultBinaryMessenger
               .handlePlatformMessage(
@@ -102,7 +100,7 @@ void main() {
             category: proto.MessageCategory.GATT_CONNECTION_LOST,
             connectionLost: proto.GattConnectionLost(
               id: 1000,
-              errorCode: 19,
+              error: 'Connection lost.',
             ),
           ).writeToBuffer();
           await ServicesBinding.instance!.defaultBinaryMessenger
@@ -138,28 +136,10 @@ void main() {
   });
 
   test(
-    '${proto.MessageCategory.BLUETOOTH_AVAILABLE}',
-    () async {
-      final actual = await central.available;
-      expect(actual, true);
-      expect(
-        calls,
-        [
-          isMethodCall(
-            '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.BLUETOOTH_AVAILABLE,
-            ).writeToBuffer(),
-          ),
-        ],
-      );
-    },
-  );
-  test(
     '${proto.MessageCategory.BLUETOOTH_STATE}',
     () async {
       final actual = await central.state;
-      expect(actual, true);
+      expect(actual, BluetoothState.poweredOn);
       expect(
         calls,
         [
@@ -177,7 +157,7 @@ void main() {
     '${proto.MessageCategory.BLUETOOTH_STATE} EVENT',
     () async {
       final actual = await central.stateChanged.first;
-      expect(actual, false);
+      expect(actual, BluetoothState.poweredOff);
     },
   );
   test(
@@ -237,7 +217,7 @@ void main() {
     () async {
       final uuid = UUID('AABB');
       final actual = await central.connect(uuid);
-      expect(actual.mtu, 23);
+      expect(actual.maximumWriteLength, 20);
       expect(actual.services.length, 1);
       final service = actual.services.values.first;
       expect(service.uuid, UUID('1800'));
@@ -289,10 +269,7 @@ void main() {
             '',
             arguments: proto.Message(
               category: proto.MessageCategory.GATT_DISCONNECT,
-              disconnectArguments: proto.GattDisconnectArguments(
-                uuid: uuid.name,
-                id: 1000,
-              ),
+              disconnectArguments: proto.GattDisconnectArguments(id: 1000),
             ).writeToBuffer(),
           ),
         ],
@@ -305,7 +282,8 @@ void main() {
       final uuid = UUID('AABB');
       final gatt = await central.connect(uuid);
       final actual = await gatt.connectionLost.first;
-      expect(actual, 19);
+      final matcher = Exception('Connection lost.');
+      expect('$actual', '$matcher');
       expect(
         calls,
         [
@@ -348,12 +326,7 @@ void main() {
             arguments: proto.Message(
               category: proto.MessageCategory.GATT_CHARACTERISTIC_READ,
               characteristicReadArguments:
-                  proto.GattCharacteristicReadArguments(
-                deviceUuid: uuid.name,
-                serviceUuid: service.uuid.name,
-                uuid: characteristic.uuid.name,
-                id: 3000,
-              ),
+                  proto.GattCharacteristicReadArguments(id: 3000),
             ).writeToBuffer(),
           ),
         ],
@@ -387,9 +360,6 @@ void main() {
               category: proto.MessageCategory.GATT_CHARACTERISTIC_WRITE,
               characteristicWriteArguments:
                   proto.GattCharacteristicWriteArguments(
-                deviceUuid: uuid.name,
-                serviceUuid: service.uuid.name,
-                uuid: characteristic.uuid.name,
                 id: 3000,
                 value: value,
                 withoutResponse: true,
@@ -426,9 +396,6 @@ void main() {
               category: proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY,
               characteristicNotifyArguments:
                   proto.GattCharacteristicNotifyArguments(
-                deviceUuid: uuid.name,
-                serviceUuid: service.uuid.name,
-                uuid: characteristic.uuid.name,
                 id: 3000,
                 state: true,
               ),
@@ -489,13 +456,8 @@ void main() {
             '',
             arguments: proto.Message(
               category: proto.MessageCategory.GATT_DESCRIPTOR_READ,
-              descriptorReadArguments: proto.GattDescriptorReadArguments(
-                deviceUuid: uuid.name,
-                serviceUuid: service.uuid.name,
-                characteristicUuid: characteristic.uuid.name,
-                uuid: descriptor.uuid.name,
-                id: 4000,
-              ),
+              descriptorReadArguments:
+                  proto.GattDescriptorReadArguments(id: 4000),
             ).writeToBuffer(),
           ),
         ],
@@ -529,10 +491,6 @@ void main() {
             arguments: proto.Message(
               category: proto.MessageCategory.GATT_DESCRIPTOR_WRITE,
               descriptorWriteArguments: proto.GattDescriptorWriteArguments(
-                deviceUuid: uuid.name,
-                serviceUuid: service.uuid.name,
-                characteristicUuid: characteristic.uuid.name,
-                uuid: descriptor.uuid.name,
                 id: 4000,
                 value: value,
               ),

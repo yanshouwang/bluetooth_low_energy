@@ -27,10 +27,16 @@ extension on String {
   }
 
   UUID get uuid => UUID(this);
+
+  Exception get exceptoin => Exception(this);
+}
+
+extension on proto.BluetoothState {
+  BluetoothState toState() => BluetoothState.values[value];
 }
 
 extension on proto.Discovery {
-  Discovery get discovery {
+  Discovery toDiscovery() {
     final advertisements = <int, List<int>>{};
     var start = 0;
     while (start < this.advertisements.length) {
@@ -47,43 +53,34 @@ extension on proto.Discovery {
 }
 
 extension on proto.GATT {
-  GATT toGATT(UUID uuid) {
+  GATT toGATT() {
     final services = {
       for (var service in this.services)
-        service.uuid.uuid: service.toGattService(uuid)
+        service.uuid.uuid: service.toGattService()
     };
-    return _GATT(uuid, id, mtu, services);
+    return _GATT(id, maximumWriteLength, services);
   }
 }
 
 extension on proto.GattService {
-  GattService toGattService(UUID deviceUUID) {
+  GattService toGattService() {
     final uuid = this.uuid.uuid;
     final characteristics = {
       for (var characteristic in this.characteristics)
-        characteristic.uuid.uuid:
-            characteristic.toGattCharacteristic(deviceUUID, uuid)
+        characteristic.uuid.uuid: characteristic.toGattCharacteristic()
     };
-    return _GattService(
-      deviceUUID,
-      id,
-      uuid,
-      characteristics,
-    );
+    return _GattService(id, uuid, characteristics);
   }
 }
 
 extension on proto.GattCharacteristic {
-  GattCharacteristic toGattCharacteristic(UUID deviceUUID, UUID serviceUUID) {
+  GattCharacteristic toGattCharacteristic() {
     final uuid = this.uuid.uuid;
     final descriptors = {
       for (var descriptor in this.descriptors)
-        descriptor.uuid.uuid:
-            descriptor.toGattDescriptor(deviceUUID, serviceUUID, uuid)
+        descriptor.uuid.uuid: descriptor.toGattDescriptor()
     };
     return _GattCharacteristic(
-      deviceUUID,
-      serviceUUID,
       id,
       uuid,
       descriptors,
@@ -96,16 +93,9 @@ extension on proto.GattCharacteristic {
 }
 
 extension on proto.GattDescriptor {
-  GattDescriptor toGattDescriptor(
-      UUID deviceUUID, UUID serviceUUID, UUID characteristicUUID) {
+  GattDescriptor toGattDescriptor() {
     final uuid = this.uuid.uuid;
-    return _GattDescriptor(
-      deviceUUID,
-      serviceUUID,
-      characteristicUUID,
-      id,
-      uuid,
-    );
+    return _GattDescriptor(id, uuid);
   }
 }
 

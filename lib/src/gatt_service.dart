@@ -10,9 +10,8 @@ abstract class GattService {
 }
 
 class _GattService implements GattService {
-  _GattService(this.deviceUUID, this.id, this.uuid, this.characteristics);
+  _GattService(this.id, this.uuid, this.characteristics);
 
-  final UUID deviceUUID;
   final int id;
   @override
   final UUID uuid;

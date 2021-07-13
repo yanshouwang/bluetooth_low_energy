@@ -2,36 +2,39 @@ part of bluetooth_low_energy;
 
 /// The abstract base class that manages central and peripheral objects.
 abstract class Bluetooth {
-  /// The availability of the bluetooth.
-  Future<bool> get available;
-
   /// The current state of the bluetooth.
-  Future<bool> get state;
+  Future<BluetoothState> get state;
 
   /// The bluetooth’s state changed.
-  Stream<bool> get stateChanged;
+  Stream<BluetoothState> get stateChanged;
 }
 
 class _Bluetooth implements Bluetooth {
   @override
-  Future<bool> get available {
-    final message = proto.Message(
-      category: proto.MessageCategory.BLUETOOTH_AVAILABLE,
-    ).writeToBuffer();
-    return method.invokeMethod<bool>('', message).then((value) => value!);
-  }
-
-  @override
-  Future<bool> get state {
+  Future<BluetoothState> get state {
     final message = proto.Message(
       category: proto.MessageCategory.BLUETOOTH_STATE,
     ).writeToBuffer();
-    return method.invokeMethod<bool>('', message).then((value) => value!);
+    return method
+        .invokeMethod<int>('', message)
+        .then((value) => BluetoothState.values[value!]);
   }
 
   @override
-  Stream<bool> get stateChanged => stream
+  Stream<BluetoothState> get stateChanged => stream
       .where((message) =>
           message.category == proto.MessageCategory.BLUETOOTH_STATE)
-      .map((message) => message.state);
+      .map((message) => message.state.toState());
+}
+
+/// TO BE DONE.
+enum BluetoothState {
+  /// TO BE DONE.
+  unsupported,
+
+  /// TO BE DONE.
+  poweredOff,
+
+  /// TO BE DONE.
+  poweredOn,
 }

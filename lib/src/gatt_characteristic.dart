@@ -35,8 +35,6 @@ abstract class GattCharacteristic {
 
 class _GattCharacteristic implements GattCharacteristic {
   _GattCharacteristic(
-    this.deviceUUID,
-    this.serviceUUID,
     this.id,
     this.uuid,
     this.descriptors,
@@ -46,8 +44,6 @@ class _GattCharacteristic implements GattCharacteristic {
     this.canNotify,
   );
 
-  final UUID deviceUUID;
-  final UUID serviceUUID;
   final int id;
   @override
   final UUID uuid;
@@ -74,12 +70,8 @@ class _GattCharacteristic implements GattCharacteristic {
   Future<List<int>> read() {
     final message = proto.Message(
       category: proto.MessageCategory.GATT_CHARACTERISTIC_READ,
-      characteristicReadArguments: proto.GattCharacteristicReadArguments(
-        deviceUuid: deviceUUID.name,
-        serviceUuid: serviceUUID.name,
-        uuid: uuid.name,
-        id: id,
-      ),
+      characteristicReadArguments:
+          proto.GattCharacteristicReadArguments(id: id),
     ).writeToBuffer();
     return method.invokeListMethod<int>('', message).then((value) => value!);
   }
@@ -89,9 +81,6 @@ class _GattCharacteristic implements GattCharacteristic {
     final message = proto.Message(
       category: proto.MessageCategory.GATT_CHARACTERISTIC_WRITE,
       characteristicWriteArguments: proto.GattCharacteristicWriteArguments(
-        deviceUuid: deviceUUID.name,
-        serviceUuid: serviceUUID.name,
-        uuid: uuid.name,
         id: id,
         value: value,
         withoutResponse: withoutResponse,
@@ -105,9 +94,6 @@ class _GattCharacteristic implements GattCharacteristic {
     final message = proto.Message(
       category: proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY,
       characteristicNotifyArguments: proto.GattCharacteristicNotifyArguments(
-        deviceUuid: deviceUUID.name,
-        serviceUuid: serviceUUID.name,
-        uuid: uuid.name,
         id: id,
         state: state,
       ),

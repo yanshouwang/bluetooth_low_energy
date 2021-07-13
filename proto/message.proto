@@ -4,19 +4,18 @@ package dev.yanshouwang.bluetooth_low_energy;
 message Message {
   MessageCategory category = 1;
   oneof value {
-    bool state = 2;
+    BluetoothState state = 2;
     StartDiscoveryArguments startDiscoveryArguments = 3;
-    bool scanning = 4;
-    Discovery discovery = 5;
-    ConnectArguments connectArguments = 6;
-    GattDisconnectArguments disconnectArguments = 7;
-    GattConnectionLost connectionLost = 8;
-    GattCharacteristicReadArguments characteristicReadArguments = 9;
-    GattCharacteristicWriteArguments characteristicWriteArguments = 10;
-    GattCharacteristicNotifyArguments characteristicNotifyArguments = 11;
-    GattCharacteristicValue characteristicValue = 12;
-    GattDescriptorReadArguments descriptorReadArguments = 13;
-    GattDescriptorWriteArguments descriptorWriteArguments = 14;
+    Discovery discovery = 4;
+    ConnectArguments connectArguments = 5;
+    GattDisconnectArguments disconnectArguments = 6;
+    GattConnectionLost connectionLost = 7;
+    GattCharacteristicReadArguments characteristicReadArguments = 8;
+    GattCharacteristicWriteArguments characteristicWriteArguments = 9;
+    GattCharacteristicNotifyArguments characteristicNotifyArguments = 10;
+    GattCharacteristicValue characteristicValue = 11;
+    GattDescriptorReadArguments descriptorReadArguments = 12;
+    GattDescriptorWriteArguments descriptorWriteArguments = 13;
   }
 }
 
@@ -37,7 +36,7 @@ message ConnectArguments {
 
 message GATT {
   int32 id = 1;
-  int32 mtu = 2;
+  int32 maximumWriteLength = 2;
   repeated GattService services = 3;
 }
 
@@ -63,73 +62,60 @@ message GattDescriptor {
 }
 
 message GattDisconnectArguments{
-  string uuid = 1;
-  int32 id = 2;
+  int32 id = 1;
 }
 
 message GattConnectionLost {
   int32 id = 1;
-  int32 error_code = 2;
+  string error = 2;
 }
 
 message GattCharacteristicReadArguments {
-  string device_uuid = 1;
-  string service_uuid = 2;
-  string uuid = 3;
-  int32 id = 4;
+  int32 id = 1;
 }
 
 message GattCharacteristicWriteArguments {
-  string device_uuid = 1;
-  string service_uuid = 2;
-  string uuid = 3;
-  int32 id = 4;
-  bytes value = 5;
-  bool withoutResponse = 6;
+  int32 id = 1;
+  bytes value = 2;
+  bool withoutResponse = 3;
 }
 
 message GattCharacteristicNotifyArguments{
-  string device_uuid = 1;
-  string service_uuid = 2;
-  string uuid = 3;
-  int32 id = 4;
-  bool state = 5;
+  int32 id = 1;
+  bool state = 2;
 }
 
 message GattCharacteristicValue {
-  int32 id = 3;
-  bytes value = 4;
+  int32 id = 1;
+  bytes value = 2;
 }
 
 message GattDescriptorReadArguments {
-  string device_uuid = 1;
-  string service_uuid = 2;
-  string characteristic_uuid = 3;
-  string uuid = 4;
-  int32 id = 5;
+  int32 id = 1;
 }
 
 message GattDescriptorWriteArguments {
-  string device_uuid = 1;
-  string service_uuid = 2;
-  string characteristic_uuid = 3;
-  string uuid = 4;
-  int32 id = 5;
-  bytes value = 6;
+  int32 id = 1;
+  bytes value = 2;
 }
 
 enum MessageCategory {
-  BLUETOOTH_AVAILABLE =0;
-  BLUETOOTH_STATE = 1;
-  CENTRAL_START_DISCOVERY = 2;
-  CENTRAL_STOP_DISCOVERY = 3;
-  CENTRAL_DISCOVERED = 4;
-  CENTRAL_CONNECT = 5;
-  GATT_DISCONNECT = 6;
-  GATT_CONNECTION_LOST = 7;
-  GATT_CHARACTERISTIC_READ = 8;
-  GATT_CHARACTERISTIC_WRITE = 9;
-  GATT_CHARACTERISTIC_NOTIFY = 10;
-  GATT_DESCRIPTOR_READ = 11;
-  GATT_DESCRIPTOR_WRITE = 12;
+  BLUETOOTH_STATE = 0;
+  CENTRAL_START_DISCOVERY = 1;
+  CENTRAL_STOP_DISCOVERY = 2;
+  CENTRAL_DISCOVERED = 3;
+  CENTRAL_CONNECT = 4;
+  GATT_DISCONNECT = 5;
+  GATT_CONNECTION_LOST = 6;
+  GATT_CHARACTERISTIC_READ = 7;
+  GATT_CHARACTERISTIC_WRITE = 8;
+  GATT_CHARACTERISTIC_NOTIFY = 9;
+  GATT_DESCRIPTOR_READ = 10;
+  GATT_DESCRIPTOR_WRITE = 11;
+}
+
+enum BluetoothState {
+  UNSUPPORTED = 0;
+  POWERED_OFF = 1;
+  POWERED_ON = 2;
 }

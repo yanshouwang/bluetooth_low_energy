@@ -22,7 +22,7 @@ class _Central extends _Bluetooth implements Central {
   Stream<Discovery> get discovered => stream
       .where((message) =>
           message.category == proto.MessageCategory.CENTRAL_DISCOVERED)
-      .map((message) => message.discovery.discovery);
+      .map((message) => message.discovery.toDiscovery());
 
   @override
   Future startDiscovery({List<UUID>? services}) {
@@ -51,6 +51,6 @@ class _Central extends _Bluetooth implements Central {
     ).writeToBuffer();
     return method
         .invokeMethod<List<int>>('', message)
-        .then((value) => proto.GATT.fromBuffer(value!).toGATT(uuid));
+        .then((value) => proto.GATT.fromBuffer(value!).toGATT());
   }
 }

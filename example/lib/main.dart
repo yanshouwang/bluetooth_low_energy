@@ -27,24 +27,33 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
+  final ValueNotifier<bool> state;
   final ValueNotifier<bool> discovering;
   final ValueNotifier<Map<UUID, Discovery>> discoveries;
-  late StreamSubscription<bool> stateSubscription;
+  late StreamSubscription<BluetoothState> stateSubscription;
   late StreamSubscription<Discovery> discoverySubscription;
 
   _HomeViewState()
-      : discovering = ValueNotifier(false),
+      : state = ValueNotifier(false),
+        discovering = ValueNotifier(false),
         discoveries = ValueNotifier({});
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
+    setup();
+  }
+
+  void setup() async {
+    final state = await central.state;
+    this.state.value = state == BluetoothState.poweredOn;
     stateSubscription = central.stateChanged.listen(
       (state) {
+        this.state.value = state == BluetoothState.poweredOn;
         final invisible = !ModalRoute.of(context)!.isCurrent;
         if (invisible) return;
-        if (state) {
+        if (this.state.value) {
           startDiscovery();
         } else {
           discovering.value = false;
@@ -57,7 +66,9 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
         discoveries.value = {...discoveries.value};
       },
     );
-    startDiscovery();
+    if (this.state.value) {
+      startDiscovery();
+    }
   }
 
   @override
@@ -88,13 +99,13 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   }
 
   void startDiscovery() async {
-    if (discovering.value || !await central.state) return;
+    if (discovering.value || !state.value) return;
     await central.startDiscovery();
     discovering.value = true;
   }
 
   void stopDiscovery() async {
-    if (!discovering.value || !await central.state) return;
+    if (!discovering.value || !state.value) return;
     await central.stopDiscovery();
     discoveries.value = {};
     discovering.value = false;
@@ -121,16 +132,10 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
 
 extension on _HomeViewState {
   Widget get bodyView {
-    return FutureBuilder<bool>(
-      future: central.state,
-      builder: (context, snapshot) => snapshot.hasData
-          ? StreamBuilder<bool>(
-              stream: central.stateChanged,
-              initialData: snapshot.data,
-              builder: (context, snapshot) =>
-                  snapshot.data! ? discoveriesView : closedView,
-            )
-          : closedView,
+    return ValueListenableBuilder(
+      valueListenable: state,
+      builder: (context, bool state, child) =>
+          state ? discoveriesView : closedView,
     );
   }
 
@@ -169,17 +174,30 @@ extension on _HomeViewState {
                   onLongPress: () => showAdvertisements(discovery),
                   child: Container(
                     height: 100.0,
+                    padding: EdgeInsets.all(12.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(discovery.name ?? 'NaN'),
-                            Text(discovery.uuid.name),
-                          ],
+                        Expanded(
+                          flex: 3,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(discovery.name ?? 'NaN'),
+                              Text(
+                                discovery.uuid.name,
+                                softWrap: true,
+                              ),
+                            ],
+                          ),
                         ),
-                        Text(discovery.rssi.toString()),
+                        Expanded(
+                          flex: 1,
+                          child: Text(
+                            discovery.rssi.toString(),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                       ],
                     ),
                   ),

@@ -40,20 +40,20 @@ object GATTKt {
     }
 
     /**
-     * <code>int32 mtu = 2;</code>
+     * <code>int32 maximumWriteLength = 2;</code>
      */
-    var mtu: kotlin.Int
-      @JvmName("getMtu")
-      get() = _builder.getMtu()
-      @JvmName("setMtu")
+    var maximumWriteLength: kotlin.Int
+      @JvmName("getMaximumWriteLength")
+      get() = _builder.getMaximumWriteLength()
+      @JvmName("setMaximumWriteLength")
       set(value) {
-        _builder.setMtu(value)
+        _builder.setMaximumWriteLength(value)
       }
     /**
-     * <code>int32 mtu = 2;</code>
+     * <code>int32 maximumWriteLength = 2;</code>
      */
-    fun clearMtu() {
-      _builder.clearMtu()
+    fun clearMaximumWriteLength() {
+      _builder.clearMaximumWriteLength()
     }
 
     /**

@@ -23,7 +23,7 @@ object GattCharacteristicValueKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicValue = _builder.build()
 
     /**
-     * <code>int32 id = 3;</code>
+     * <code>int32 id = 1;</code>
      */
     var id: kotlin.Int
       @JvmName("getId")
@@ -33,14 +33,14 @@ object GattCharacteristicValueKt {
         _builder.setId(value)
       }
     /**
-     * <code>int32 id = 3;</code>
+     * <code>int32 id = 1;</code>
      */
     fun clearId() {
       _builder.clearId()
     }
 
     /**
-     * <code>bytes value = 4;</code>
+     * <code>bytes value = 2;</code>
      */
     var value: com.google.protobuf.ByteString
       @JvmName("getValue")
@@ -50,7 +50,7 @@ object GattCharacteristicValueKt {
         _builder.setValue(value)
       }
     /**
-     * <code>bytes value = 4;</code>
+     * <code>bytes value = 2;</code>
      */
     fun clearValue() {
       _builder.clearValue()

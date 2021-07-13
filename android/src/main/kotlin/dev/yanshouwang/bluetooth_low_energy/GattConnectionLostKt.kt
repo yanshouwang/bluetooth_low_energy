@@ -40,20 +40,20 @@ object GattConnectionLostKt {
     }
 
     /**
-     * <code>int32 error_code = 2;</code>
+     * <code>string error = 2;</code>
      */
-    var errorCode: kotlin.Int
-      @JvmName("getErrorCode")
-      get() = _builder.getErrorCode()
-      @JvmName("setErrorCode")
+    var error: kotlin.String
+      @JvmName("getError")
+      get() = _builder.getError()
+      @JvmName("setError")
       set(value) {
-        _builder.setErrorCode(value)
+        _builder.setError(value)
       }
     /**
-     * <code>int32 error_code = 2;</code>
+     * <code>string error = 2;</code>
      */
-    fun clearErrorCode() {
-      _builder.clearErrorCode()
+    fun clearError() {
+      _builder.clearError()
     }
   }
 }
