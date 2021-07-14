@@ -14,6 +14,7 @@ typealias GattService = Dev_Yanshouwang_BluetoothLowEnergy_GattService
 typealias GattCharacteristic = Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristic
 typealias GattDescriptor = Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptor
 typealias GattConnectionLost = Dev_Yanshouwang_BluetoothLowEnergy_GattConnectionLost
+typealias GattCharacteristicValue = Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicValue
 
 public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CBCentralManagerDelegate, CBPeripheralDelegate {
     let SHORTENED_LOCAL_NAME_TYPE = 0x08
@@ -44,10 +45,18 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
         central.delegate = self
     }
     
-    // Need to keep a strong reference when connect to a peripheral.
-    lazy var connects = [UUID: FlutterResult]()
-    lazy var peripherals = [Int: CBPeripheral]()
-    lazy var disconnects = [Int: FlutterResult]()
+    lazy var peripherals = [Int32: CBPeripheral]()
+    lazy var services = [Int32: CBService]()
+    lazy var characteristics = [Int32: CBCharacteristic]()
+    lazy var descriptors = [Int32: CBDescriptor]()
+    
+    lazy var connects = [CBPeripheral: FlutterResult]()
+    lazy var disconnects = [CBPeripheral: FlutterResult]()
+    lazy var characteristicReads = [CBCharacteristic: FlutterResult]()
+    lazy var characteristicWrites = [CBCharacteristic: FlutterResult]()
+    lazy var characteristicNotifies = [CBCharacteristic: FlutterResult]()
+    lazy var descriptorReads = [CBDescriptor: FlutterResult]()
+    lazy var descriptorWrites = [CBDescriptor: FlutterResult]()
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let instance = SwiftBluetoothLowEnergyPlugin()
@@ -64,12 +73,12 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let arguments = call.arguments as! FlutterStandardTypedData
-        let message = try! Message(serializedData: arguments.data)
-        switch message.category {
+        let command = try! Message(serializedData: arguments.data)
+        switch command.category {
         case .bluetoothState:
-            result(central.bluetoothState.rawValue)
+            result(central.messageState.rawValue)
         case .centralStartDiscovery:
-            let withServices = message.startDiscoveryArguments.services.map { CBUUID(string: $0) }
+            let withServices = command.startDiscoveryArguments.services.map { CBUUID(string: $0) }
             let options = [CBCentralManagerScanOptionAllowDuplicatesKey: true]
             central.scanForPeripherals(withServices: withServices, options: options)
             result(nil)
@@ -77,41 +86,57 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
             central.stopScan()
             result(nil)
         case .centralConnect:
-            let arguments = message.connectArguments
-            let uuid = UUID(uuidString: arguments.uuid)!
-            let connect = connects[uuid]
-            if connect != nil {
-                let error = FlutterError(code: "Already in connecting state.", message: nil, details: nil)
-                result(error)
-            } else {
-                let peripheral = central.retrievePeripherals(withIdentifiers: [uuid]).first!
-                connects[uuid] = result
-                let id = peripheral.hash
-                peripherals[id] = peripheral
-                central.connect(peripheral, options: nil)
-            }
+            let uuid = UUID(uuidString: command.connectArguments.uuid)!
+            let peripheral = central.retrievePeripherals(withIdentifiers: [uuid]).first!
+            connects[peripheral] = result
+            central.connect(peripheral, options: nil)
         case .gattDisconnect:
-            let arguments = message.disconnectArguments
-            let id = Int(arguments.id)
-            let disconnect = disconnects[id]
-            if disconnect != nil {
-                let error = FlutterError(code: "Already in disconnecting state.", message: nil, details: nil)
-                result(error)
-            } else {
-                let peripheral = peripherals.removeValue(forKey: id)!
-                disconnects[id] = result
-                central.cancelPeripheralConnection(peripheral)
-            }
-            break
+            let id = command.disconnectArguments.id
+            let peripheral = peripherals[id]!
+            disconnects[peripheral] = result
+            central.cancelPeripheralConnection(peripheral)
         case .gattCharacteristicRead:
-            break
+            let gattId = command.characteristicReadArguments.gattID
+            let id = command.characteristicReadArguments.id
+            let peripheral = peripherals[gattId]!
+            let characteristic = characteristics[id]!
+            characteristicReads[characteristic] = result
+            peripheral.readValue(for: characteristic)
         case .gattCharacteristicWrite:
+            let gattId = command.characteristicWriteArguments.gattID
+            let id = command.characteristicWriteArguments.id
+            let value = command.characteristicWriteArguments.value
+            let type: CBCharacteristicWriteType = command.characteristicWriteArguments.withoutResponse ? .withoutResponse : .withResponse
+            let peripheral = peripherals[gattId]!
+            let characteristic = characteristics[id]!
+            characteristicWrites[characteristic] = result
+            peripheral.writeValue(value, for: characteristic, type: type)
             break
         case .gattCharacteristicNotify:
+            let gattId = command.characteristicNotifyArguments.gattID
+            let id = command.characteristicNotifyArguments.id
+            let state = command.characteristicNotifyArguments.state
+            let peripheral = peripherals[gattId]!
+            let characteristic = characteristics[id]!
+            characteristicNotifies[characteristic] = result
+            peripheral.setNotifyValue(state, for: characteristic)
             break
         case .gattDescriptorRead:
+            let gattId = command.descriptorReadArguments.gattID
+            let id = command.descriptorReadArguments.id
+            let peripheral = peripherals[gattId]!
+            let descriptor = descriptors[id]!
+            descriptorReads[descriptor] = result
+            peripheral.readValue(for: descriptor)
             break
         case .gattDescriptorWrite:
+            let gattId = command.descriptorWriteArguments.gattID
+            let id = command.descriptorWriteArguments.id
+            let value = command.descriptorWriteArguments.value
+            let peripheral = peripherals[gattId]!
+            let descriptor = descriptors[id]!
+            descriptorWrites[descriptor] = result
+            peripheral.writeValue(value, for: descriptor)
             break
         default:
             result(FlutterMethodNotImplemented)
@@ -129,23 +154,23 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
     }
     
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        let newState = central.bluetoothState
+        let newState = central.messageState
         if newState == oldState {
             return
         } else if oldState == nil {
             oldState = newState
         } else {
             oldState = newState
-            let message = try! Message.with {
+            let event = try! Message.with {
                 $0.category = .bluetoothState
                 $0.state = newState
             }.serializedData()
-            events?(message)
+            events?(event)
         }
     }
     
     public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-        // We can't analyze the complete raw advertisements on iOS.
+        // Can't analyze complete raw advertisements on iOS.
         var advertisements = Data()
         for key in advertisementData.keys {
             switch key {
@@ -226,11 +251,11 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
             $0.advertisements = advertisements
             $0.connectable = connectable
         }
-        let message = try! Message.with {
+        let event = try! Message.with {
             $0.category = .centralDiscovered
             $0.discovery = discovery
         }.serializedData()
-        events?(message)
+        events?(event)
     }
     
     public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
@@ -239,32 +264,42 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
     }
     
     public func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-        peripherals.removeValue(forKey: peripheral.hash)
-        let connect = connects.removeValue(forKey: peripheral.identifier)!
+        let connect = connects.removeValue(forKey: peripheral)!
         let error = FlutterError(code: error!.localizedDescription, message: nil, details: nil)
         connect(error)
     }
     
     public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-        peripherals.removeValue(forKey: peripheral.hash)
-        let connect = connects.removeValue(forKey: peripheral.identifier)
-        let disconnect = disconnects.removeValue(forKey: peripheral.hash)
-        if connect != nil {
+        if connects.keys.contains(peripheral) {
+            let connect = connects.removeValue(forKey: peripheral)!
             let error = FlutterError(code: "GATT disconnected.", message: nil, details: nil)
-            connect!(error)
-        } else if disconnect != nil {
-            disconnect!(nil)
+            connect(error)
         } else {
-            let id32 = NSNumber(value: hash).int32Value
-            let connectionLost = GattConnectionLost.with {
-                $0.id = id32
-                $0.error = error!.localizedDescription
+            // TODO: services can't reach after disconnected.
+            for service in peripheral.services! {
+                for characteristic in service.characteristics! {
+                    for descriptor in characteristic.descriptors! {
+                        _ = descriptors.remove(value: descriptor)
+                    }
+                    _ = characteristics.remove(value: characteristic)
+                }
+                _ = services.remove(value: service)
             }
-            let message = try! Message.with {
-                $0.category = MessageCategory.gattConnectionLost
-                $0.connectionLost = connectionLost
-            }.serializedData()
-            events?(message)
+            let key = peripherals.remove(value: peripheral)
+            if disconnects.keys.contains(peripheral) {
+                let disconnect = disconnects.removeValue(forKey: peripheral)!
+                disconnect(nil)
+            } else {
+                let connectionLost = GattConnectionLost.with {
+                    $0.id = key
+                    $0.error = error!.localizedDescription
+                }
+                let event = try! Message.with {
+                    $0.category = MessageCategory.gattConnectionLost
+                    $0.connectionLost = connectionLost
+                }.serializedData()
+                events?(event)
+            }
         }
     }
     
@@ -290,14 +325,51 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
     
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
         if error == nil {
-            let service = characteristic.service
-            let nextCharacteristic = service.characteristics?.first(where: { $0.descriptors == nil })
+            let nextCharacteristic = characteristic.service.characteristics?.first(where: { $0.descriptors == nil })
             if nextCharacteristic == nil {
                 let nextService = peripheral.services?.first(where: { $0.characteristics == nil })
                 if nextService == nil {
-                    let connect = connects.removeValue(forKey: peripheral.identifier)!
-                    let gatt = try! peripheral.gatt.serializedData()
-                    connect(gatt)
+                    let peripheralKey = peripherals.add(value: peripheral)
+                    var messageServices = [GattService]()
+                    for service in peripheral.services! {
+                        let serviceKey = self.services.add(value: service)
+                        var messageCharacteristics = [GattCharacteristic]()
+                        for characteristic in service.characteristics! {
+                            let characteristicKey = characteristics.add(value: characteristic)
+                            var messageDescriptors = [GattDescriptor]()
+                            for descriptor in characteristic.descriptors! {
+                                let descriptorKey = descriptors.add(value: descriptor)
+                                let messageDescriptor = GattDescriptor.with {
+                                    $0.id = descriptorKey
+                                    $0.uuid = descriptor.uuid.uuidString
+                                }
+                                messageDescriptors.append(messageDescriptor)
+                            }
+                            let messageCharacteristic = GattCharacteristic.with {
+                                $0.id = characteristicKey
+                                $0.uuid = characteristic.uuid.uuidString
+                                $0.canRead = characteristic.properties.contains(.read)
+                                $0.canWrite = characteristic.properties.contains(.write)
+                                $0.canWriteWithoutResponse = characteristic.properties.contains(.writeWithoutResponse)
+                                $0.canNotify = characteristic.properties.contains(.notify)
+                                $0.descriptors = messageDescriptors
+                            }
+                            messageCharacteristics.append(messageCharacteristic)
+                        }
+                        let messageService = GattService.with {
+                            $0.id = serviceKey
+                            $0.uuid = service.uuid.uuidString
+                            $0.characteristics = messageCharacteristics
+                        }
+                        messageServices.append(messageService)
+                    }
+                    let reply = try! GATT.with {
+                        $0.id = peripheralKey
+                        $0.maximumWriteLength = peripheral.maximumWriteLength
+                        $0.services = messageServices
+                    }.serializedData()
+                    let connect = connects.removeValue(forKey: peripheral)!
+                    connect(reply)
                 } else {
                     peripheral.discoverCharacteristics(nil, for: nextService!)
                 }
@@ -308,10 +380,71 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
             central.cancelPeripheralConnection(peripheral)
         }
     }
+    
+    public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        let read = characteristicReads.removeValue(forKey: characteristic)
+        if read == nil {
+            let key = characteristics.first(where: { $1 === characteristic })!.key
+            let characteristicValue = GattCharacteristicValue.with {
+                $0.id = key
+                $0.value = characteristic.value!
+            }
+            let event = try! Message.with {
+                $0.category = .gattCharacteristicNotify
+                $0.characteristicValue = characteristicValue
+            }.serializedData()
+            events?(event)
+        } else if error == nil {
+            read!(characteristic.value!)
+        } else {
+            let error = FlutterError(code: error!.localizedDescription, message: nil, details: nil)
+            read!(error)
+        }
+    }
+    
+    public func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+        let write = characteristicWrites.removeValue(forKey: characteristic)!
+        if error == nil {
+            write(nil)
+        } else {
+            let error = FlutterError(code: error!.localizedDescription, message: nil, details: nil)
+            write(error)
+        }
+    }
+    
+    public func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
+        let notify = characteristicNotifies[characteristic]!
+        if error == nil {
+            notify(nil)
+        } else {
+            let error = FlutterError(code: error!.localizedDescription, message: nil, details: nil)
+            notify(error)
+        }
+    }
+    
+    public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor descriptor: CBDescriptor, error: Error?) {
+        let read = descriptorReads[descriptor]!
+        if error == nil {
+            read(descriptor.value!)
+        } else {
+            let error = FlutterError(code: error!.localizedDescription, message: nil, details: nil)
+            read(error)
+        }
+    }
+    
+    public func peripheral(_ peripheral: CBPeripheral, didWriteValueFor descriptor: CBDescriptor, error: Error?) {
+        let write = descriptorWrites[descriptor]!
+        if error == nil {
+            write(nil)
+        } else {
+            let error = FlutterError(code: error!.localizedDescription, message: nil, details: nil)
+            write(error)
+        }
+    }
 }
 
 extension CBCentralManager {
-    var bluetoothState: BluetoothState {
+    var messageState: BluetoothState {
         switch state {
         case .unknown:
             return .unsupported
@@ -332,62 +465,30 @@ extension CBCentralManager {
 }
 
 extension CBPeripheral {
-    var gatt: GATT {
-        let id32 = NSNumber(value: hash).int32Value
+    var maximumWriteLength: Int32 {
         let maximumWriteLengthWithResponse = maximumWriteValueLength(for: .withResponse)
         let maximumWriteLengthWithoutResponse = maximumWriteValueLength(for: .withoutResponse)
+        // TODO: Is this two length the same value?
         let maximumWriteLength = min(maximumWriteLengthWithResponse, maximumWriteLengthWithoutResponse)
-        let maximumWriteLength32 = NSNumber(value: maximumWriteLength).int32Value
-        let gattServices = services?.map({ $0.gattService })
-        return GATT.with {
-            $0.id = id32
-            $0.maximumWriteLength = maximumWriteLength32
-            $0.services = gattServices!
-        }
+        return Int32(maximumWriteLength)
     }
 }
 
-extension CBService {
-    var gattService: GattService {
-        let id32 = NSNumber(value: hash).int32Value
-        let uuidString = uuid.uuidString
-        let gattCharacteristics = characteristics?.map({ $0.gattCharacteristic })
-        return GattService.with {
-            $0.id = id32
-            $0.uuid = uuidString
-            $0.characteristics = gattCharacteristics!
+extension Dictionary where Key == Int32, Value : AnyObject {
+    mutating func add(value: Value) -> Int32 {
+        for key in 0...Int32.max {
+            if keys.contains(key) {
+                continue
+            }
+            self[key] = value
+            return key
         }
+        fatalError("Memory leak when add value.")
     }
-}
-
-extension CBCharacteristic {
-    var gattCharacteristic: GattCharacteristic {
-        let id32 = NSNumber(value: hash).int32Value
-        let uuidString = uuid.uuidString
-        let canRead = properties.contains(.read)
-        let canWrite = properties.contains(.write)
-        let canWriteWithoutResponse = properties.contains(.writeWithoutResponse)
-        let canNotify = properties.contains(.notify)
-        let gattDescriptors = descriptors?.map({ $0.gattDescriptor })
-        return GattCharacteristic.with {
-            $0.id = id32
-            $0.uuid = uuidString
-            $0.canRead = canRead
-            $0.canWrite = canWrite
-            $0.canWriteWithoutResponse = canWriteWithoutResponse
-            $0.canNotify = canNotify
-            $0.descriptors = gattDescriptors!
-        }
-    }
-}
-
-extension CBDescriptor {
-    var gattDescriptor: GattDescriptor {
-        let id32 = NSNumber(value: hash).int32Value
-        let uuidString = uuid.uuidString
-        return GattDescriptor.with {
-            $0.id = id32
-            $0.uuid = uuidString
-        }
+    
+    mutating func remove(value: Value) -> Int32 {
+        let key = first(where: { $1 === value })!.key
+        removeValue(forKey: key)
+        return key
     }
 }

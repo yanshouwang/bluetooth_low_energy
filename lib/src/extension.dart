@@ -56,31 +56,32 @@ extension on proto.GATT {
   GATT toGATT() {
     final services = {
       for (var service in this.services)
-        service.uuid.uuid: service.toGattService()
+        service.uuid.uuid: service.toGattService(id)
     };
     return _GATT(id, maximumWriteLength, services);
   }
 }
 
 extension on proto.GattService {
-  GattService toGattService() {
+  GattService toGattService(int gattId) {
     final uuid = this.uuid.uuid;
     final characteristics = {
       for (var characteristic in this.characteristics)
-        characteristic.uuid.uuid: characteristic.toGattCharacteristic()
+        characteristic.uuid.uuid: characteristic.toGattCharacteristic(gattId)
     };
     return _GattService(id, uuid, characteristics);
   }
 }
 
 extension on proto.GattCharacteristic {
-  GattCharacteristic toGattCharacteristic() {
+  GattCharacteristic toGattCharacteristic(int gattId) {
     final uuid = this.uuid.uuid;
     final descriptors = {
       for (var descriptor in this.descriptors)
-        descriptor.uuid.uuid: descriptor.toGattDescriptor()
+        descriptor.uuid.uuid: descriptor.toGattDescriptor(gattId)
     };
     return _GattCharacteristic(
+      gattId,
       id,
       uuid,
       descriptors,
@@ -93,9 +94,9 @@ extension on proto.GattCharacteristic {
 }
 
 extension on proto.GattDescriptor {
-  GattDescriptor toGattDescriptor() {
+  GattDescriptor toGattDescriptor(int gattId) {
     final uuid = this.uuid.uuid;
-    return _GattDescriptor(id, uuid);
+    return _GattDescriptor(gattId, id, uuid);
   }
 }
 

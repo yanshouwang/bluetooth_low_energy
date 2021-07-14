@@ -23,7 +23,24 @@ object GattDescriptorWriteArgumentsKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorWriteArguments = _builder.build()
 
     /**
-     * <code>int32 id = 1;</code>
+     * <code>int32 gatt_id = 1;</code>
+     */
+    var gattId: kotlin.Int
+      @JvmName("getGattId")
+      get() = _builder.getGattId()
+      @JvmName("setGattId")
+      set(value) {
+        _builder.setGattId(value)
+      }
+    /**
+     * <code>int32 gatt_id = 1;</code>
+     */
+    fun clearGattId() {
+      _builder.clearGattId()
+    }
+
+    /**
+     * <code>int32 id = 2;</code>
      */
     var id: kotlin.Int
       @JvmName("getId")
@@ -33,14 +50,14 @@ object GattDescriptorWriteArgumentsKt {
         _builder.setId(value)
       }
     /**
-     * <code>int32 id = 1;</code>
+     * <code>int32 id = 2;</code>
      */
     fun clearId() {
       _builder.clearId()
     }
 
     /**
-     * <code>bytes value = 2;</code>
+     * <code>bytes value = 3;</code>
      */
     var value: com.google.protobuf.ByteString
       @JvmName("getValue")
@@ -50,7 +67,7 @@ object GattDescriptorWriteArgumentsKt {
         _builder.setValue(value)
       }
     /**
-     * <code>bytes value = 2;</code>
+     * <code>bytes value = 3;</code>
      */
     fun clearValue() {
       _builder.clearValue()

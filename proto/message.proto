@@ -71,18 +71,21 @@ message GattConnectionLost {
 }
 
 message GattCharacteristicReadArguments {
-  int32 id = 1;
+  int32 gatt_id = 1;
+  int32 id = 2;
 }
 
 message GattCharacteristicWriteArguments {
-  int32 id = 1;
-  bytes value = 2;
-  bool withoutResponse = 3;
+  int32 gatt_id = 1;
+  int32 id = 2;
+  bytes value = 3;
+  bool withoutResponse = 4;
 }
 
 message GattCharacteristicNotifyArguments{
-  int32 id = 1;
-  bool state = 2;
+  int32 gatt_id = 1;
+  int32 id = 2;
+  bool state = 3;
 }
 
 message GattCharacteristicValue {
@@ -91,12 +94,14 @@ message GattCharacteristicValue {
 }
 
 message GattDescriptorReadArguments {
-  int32 id = 1;
+  int32 gatt_id = 1;
+  int32 id = 2;
 }
 
 message GattDescriptorWriteArguments {
-  int32 id = 1;
-  bytes value = 2;
+  int32 gatt_id = 1;
+  int32 id = 2;
+  bytes value = 3;
 }
 
 enum MessageCategory {

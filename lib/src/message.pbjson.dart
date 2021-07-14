@@ -334,23 +334,25 @@ final $typed_data.Uint8List gattConnectionLostDescriptor = $convert.base64Decode
 const GattCharacteristicReadArguments$json = const {
   '1': 'GattCharacteristicReadArguments',
   '2': const [
-    const {'1': 'id', '3': 1, '4': 1, '5': 5, '10': 'id'},
+    const {'1': 'gatt_id', '3': 1, '4': 1, '5': 5, '10': 'gattId'},
+    const {'1': 'id', '3': 2, '4': 1, '5': 5, '10': 'id'},
   ],
 };
 
 /// Descriptor for `GattCharacteristicReadArguments`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gattCharacteristicReadArgumentsDescriptor =
     $convert.base64Decode(
-        'Ch9HYXR0Q2hhcmFjdGVyaXN0aWNSZWFkQXJndW1lbnRzEg4KAmlkGAEgASgFUgJpZA==');
+        'Ch9HYXR0Q2hhcmFjdGVyaXN0aWNSZWFkQXJndW1lbnRzEhcKB2dhdHRfaWQYASABKAVSBmdhdHRJZBIOCgJpZBgCIAEoBVICaWQ=');
 @$core.Deprecated('Use gattCharacteristicWriteArgumentsDescriptor instead')
 const GattCharacteristicWriteArguments$json = const {
   '1': 'GattCharacteristicWriteArguments',
   '2': const [
-    const {'1': 'id', '3': 1, '4': 1, '5': 5, '10': 'id'},
-    const {'1': 'value', '3': 2, '4': 1, '5': 12, '10': 'value'},
+    const {'1': 'gatt_id', '3': 1, '4': 1, '5': 5, '10': 'gattId'},
+    const {'1': 'id', '3': 2, '4': 1, '5': 5, '10': 'id'},
+    const {'1': 'value', '3': 3, '4': 1, '5': 12, '10': 'value'},
     const {
       '1': 'withoutResponse',
-      '3': 3,
+      '3': 4,
       '4': 1,
       '5': 8,
       '10': 'withoutResponse'
@@ -361,20 +363,21 @@ const GattCharacteristicWriteArguments$json = const {
 /// Descriptor for `GattCharacteristicWriteArguments`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gattCharacteristicWriteArgumentsDescriptor =
     $convert.base64Decode(
-        'CiBHYXR0Q2hhcmFjdGVyaXN0aWNXcml0ZUFyZ3VtZW50cxIOCgJpZBgBIAEoBVICaWQSFAoFdmFsdWUYAiABKAxSBXZhbHVlEigKD3dpdGhvdXRSZXNwb25zZRgDIAEoCFIPd2l0aG91dFJlc3BvbnNl');
+        'CiBHYXR0Q2hhcmFjdGVyaXN0aWNXcml0ZUFyZ3VtZW50cxIXCgdnYXR0X2lkGAEgASgFUgZnYXR0SWQSDgoCaWQYAiABKAVSAmlkEhQKBXZhbHVlGAMgASgMUgV2YWx1ZRIoCg93aXRob3V0UmVzcG9uc2UYBCABKAhSD3dpdGhvdXRSZXNwb25zZQ==');
 @$core.Deprecated('Use gattCharacteristicNotifyArgumentsDescriptor instead')
 const GattCharacteristicNotifyArguments$json = const {
   '1': 'GattCharacteristicNotifyArguments',
   '2': const [
-    const {'1': 'id', '3': 1, '4': 1, '5': 5, '10': 'id'},
-    const {'1': 'state', '3': 2, '4': 1, '5': 8, '10': 'state'},
+    const {'1': 'gatt_id', '3': 1, '4': 1, '5': 5, '10': 'gattId'},
+    const {'1': 'id', '3': 2, '4': 1, '5': 5, '10': 'id'},
+    const {'1': 'state', '3': 3, '4': 1, '5': 8, '10': 'state'},
   ],
 };
 
 /// Descriptor for `GattCharacteristicNotifyArguments`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gattCharacteristicNotifyArgumentsDescriptor =
     $convert.base64Decode(
-        'CiFHYXR0Q2hhcmFjdGVyaXN0aWNOb3RpZnlBcmd1bWVudHMSDgoCaWQYASABKAVSAmlkEhQKBXN0YXRlGAIgASgIUgVzdGF0ZQ==');
+        'CiFHYXR0Q2hhcmFjdGVyaXN0aWNOb3RpZnlBcmd1bWVudHMSFwoHZ2F0dF9pZBgBIAEoBVIGZ2F0dElkEg4KAmlkGAIgASgFUgJpZBIUCgVzdGF0ZRgDIAEoCFIFc3RhdGU=');
 @$core.Deprecated('Use gattCharacteristicValueDescriptor instead')
 const GattCharacteristicValue$json = const {
   '1': 'GattCharacteristicValue',
@@ -392,24 +395,26 @@ final $typed_data.Uint8List gattCharacteristicValueDescriptor =
 const GattDescriptorReadArguments$json = const {
   '1': 'GattDescriptorReadArguments',
   '2': const [
-    const {'1': 'id', '3': 1, '4': 1, '5': 5, '10': 'id'},
+    const {'1': 'gatt_id', '3': 1, '4': 1, '5': 5, '10': 'gattId'},
+    const {'1': 'id', '3': 2, '4': 1, '5': 5, '10': 'id'},
   ],
 };
 
 /// Descriptor for `GattDescriptorReadArguments`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gattDescriptorReadArgumentsDescriptor =
     $convert.base64Decode(
-        'ChtHYXR0RGVzY3JpcHRvclJlYWRBcmd1bWVudHMSDgoCaWQYASABKAVSAmlk');
+        'ChtHYXR0RGVzY3JpcHRvclJlYWRBcmd1bWVudHMSFwoHZ2F0dF9pZBgBIAEoBVIGZ2F0dElkEg4KAmlkGAIgASgFUgJpZA==');
 @$core.Deprecated('Use gattDescriptorWriteArgumentsDescriptor instead')
 const GattDescriptorWriteArguments$json = const {
   '1': 'GattDescriptorWriteArguments',
   '2': const [
-    const {'1': 'id', '3': 1, '4': 1, '5': 5, '10': 'id'},
-    const {'1': 'value', '3': 2, '4': 1, '5': 12, '10': 'value'},
+    const {'1': 'gatt_id', '3': 1, '4': 1, '5': 5, '10': 'gattId'},
+    const {'1': 'id', '3': 2, '4': 1, '5': 5, '10': 'id'},
+    const {'1': 'value', '3': 3, '4': 1, '5': 12, '10': 'value'},
   ],
 };
 
 /// Descriptor for `GattDescriptorWriteArguments`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gattDescriptorWriteArgumentsDescriptor =
     $convert.base64Decode(
-        'ChxHYXR0RGVzY3JpcHRvcldyaXRlQXJndW1lbnRzEg4KAmlkGAEgASgFUgJpZBIUCgV2YWx1ZRgCIAEoDFIFdmFsdWU=');
+        'ChxHYXR0RGVzY3JpcHRvcldyaXRlQXJndW1lbnRzEhcKB2dhdHRfaWQYASABKAVSBmdhdHRJZBIOCgJpZBgCIAEoBVICaWQSFAoFdmFsdWUYAyABKAxSBXZhbHVl');

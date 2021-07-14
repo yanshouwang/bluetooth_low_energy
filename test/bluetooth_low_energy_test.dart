@@ -326,7 +326,7 @@ void main() {
             arguments: proto.Message(
               category: proto.MessageCategory.GATT_CHARACTERISTIC_READ,
               characteristicReadArguments:
-                  proto.GattCharacteristicReadArguments(id: 3000),
+                  proto.GattCharacteristicReadArguments(gattId: 1000, id: 3000),
             ).writeToBuffer(),
           ),
         ],
@@ -360,6 +360,7 @@ void main() {
               category: proto.MessageCategory.GATT_CHARACTERISTIC_WRITE,
               characteristicWriteArguments:
                   proto.GattCharacteristicWriteArguments(
+                gattId: 1000,
                 id: 3000,
                 value: value,
                 withoutResponse: true,
@@ -396,6 +397,7 @@ void main() {
               category: proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY,
               characteristicNotifyArguments:
                   proto.GattCharacteristicNotifyArguments(
+                gattId: 1000,
                 id: 3000,
                 state: true,
               ),
@@ -457,7 +459,7 @@ void main() {
             arguments: proto.Message(
               category: proto.MessageCategory.GATT_DESCRIPTOR_READ,
               descriptorReadArguments:
-                  proto.GattDescriptorReadArguments(id: 4000),
+                  proto.GattDescriptorReadArguments(gattId: 1000, id: 4000),
             ).writeToBuffer(),
           ),
         ],
@@ -491,6 +493,7 @@ void main() {
             arguments: proto.Message(
               category: proto.MessageCategory.GATT_DESCRIPTOR_WRITE,
               descriptorWriteArguments: proto.GattDescriptorWriteArguments(
+                gattId: 1000,
                 id: 4000,
                 value: value,
               ),

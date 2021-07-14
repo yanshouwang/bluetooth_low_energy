@@ -1230,15 +1230,25 @@ class GattCharacteristicReadArguments extends $pb.GeneratedMessage {
         1,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
+            : 'gattId',
+        $pb.PbFieldType.O3)
+    ..a<$core.int>(
+        2,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
             : 'id',
         $pb.PbFieldType.O3)
     ..hasRequiredFields = false;
 
   GattCharacteristicReadArguments._() : super();
   factory GattCharacteristicReadArguments({
+    $core.int? gattId,
     $core.int? id,
   }) {
     final _result = create();
+    if (gattId != null) {
+      _result.gattId = gattId;
+    }
     if (id != null) {
       _result.id = id;
     }
@@ -1277,16 +1287,28 @@ class GattCharacteristicReadArguments extends $pb.GeneratedMessage {
   static GattCharacteristicReadArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.int get id => $_getIZ(0);
+  $core.int get gattId => $_getIZ(0);
   @$pb.TagNumber(1)
-  set id($core.int v) {
+  set gattId($core.int v) {
     $_setSignedInt32(0, v);
   }
 
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasGattId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearGattId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get id => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set id($core.int v) {
+    $_setSignedInt32(1, v);
+  }
+
+  @$pb.TagNumber(2)
+  $core.bool hasId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearId() => clearField(2);
 }
 
 class GattCharacteristicWriteArguments extends $pb.GeneratedMessage {
@@ -1303,26 +1325,32 @@ class GattCharacteristicWriteArguments extends $pb.GeneratedMessage {
         1,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'id',
+            : 'gattId',
         $pb.PbFieldType.O3)
-    ..a<$core.List<$core.int>>(
+    ..a<$core.int>(
         2,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'value',
+            : 'id',
+        $pb.PbFieldType.O3)
+    ..a<$core.List<$core.int>>(
+        3,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value',
         $pb.PbFieldType.OY)
-    ..aOB(
-        3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'withoutResponse',
-        protoName: 'withoutResponse')
+    ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'withoutResponse', protoName: 'withoutResponse')
     ..hasRequiredFields = false;
 
   GattCharacteristicWriteArguments._() : super();
   factory GattCharacteristicWriteArguments({
+    $core.int? gattId,
     $core.int? id,
     $core.List<$core.int>? value,
     $core.bool? withoutResponse,
   }) {
     final _result = create();
+    if (gattId != null) {
+      _result.gattId = gattId;
+    }
     if (id != null) {
       _result.id = id;
     }
@@ -1367,40 +1395,52 @@ class GattCharacteristicWriteArguments extends $pb.GeneratedMessage {
   static GattCharacteristicWriteArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.int get id => $_getIZ(0);
+  $core.int get gattId => $_getIZ(0);
   @$pb.TagNumber(1)
-  set id($core.int v) {
+  set gattId($core.int v) {
     $_setSignedInt32(0, v);
   }
 
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasGattId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearGattId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.List<$core.int> get value => $_getN(1);
+  $core.int get id => $_getIZ(1);
   @$pb.TagNumber(2)
+  set id($core.int v) {
+    $_setSignedInt32(1, v);
+  }
+
+  @$pb.TagNumber(2)
+  $core.bool hasId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.List<$core.int> get value => $_getN(2);
+  @$pb.TagNumber(3)
   set value($core.List<$core.int> v) {
-    $_setBytes(1, v);
+    $_setBytes(2, v);
   }
 
-  @$pb.TagNumber(2)
-  $core.bool hasValue() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearValue() => clearField(2);
+  @$pb.TagNumber(3)
+  $core.bool hasValue() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearValue() => clearField(3);
 
-  @$pb.TagNumber(3)
-  $core.bool get withoutResponse => $_getBF(2);
-  @$pb.TagNumber(3)
+  @$pb.TagNumber(4)
+  $core.bool get withoutResponse => $_getBF(3);
+  @$pb.TagNumber(4)
   set withoutResponse($core.bool v) {
-    $_setBool(2, v);
+    $_setBool(3, v);
   }
 
-  @$pb.TagNumber(3)
-  $core.bool hasWithoutResponse() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearWithoutResponse() => clearField(3);
+  @$pb.TagNumber(4)
+  $core.bool hasWithoutResponse() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearWithoutResponse() => clearField(4);
 }
 
 class GattCharacteristicNotifyArguments extends $pb.GeneratedMessage {
@@ -1417,21 +1457,28 @@ class GattCharacteristicNotifyArguments extends $pb.GeneratedMessage {
         1,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'id',
+            : 'gattId',
         $pb.PbFieldType.O3)
-    ..aOB(
+    ..a<$core.int>(
         2,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'state')
+            : 'id',
+        $pb.PbFieldType.O3)
+    ..aOB(
+        3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'state')
     ..hasRequiredFields = false;
 
   GattCharacteristicNotifyArguments._() : super();
   factory GattCharacteristicNotifyArguments({
+    $core.int? gattId,
     $core.int? id,
     $core.bool? state,
   }) {
     final _result = create();
+    if (gattId != null) {
+      _result.gattId = gattId;
+    }
     if (id != null) {
       _result.id = id;
     }
@@ -1473,28 +1520,40 @@ class GattCharacteristicNotifyArguments extends $pb.GeneratedMessage {
   static GattCharacteristicNotifyArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.int get id => $_getIZ(0);
+  $core.int get gattId => $_getIZ(0);
   @$pb.TagNumber(1)
-  set id($core.int v) {
+  set gattId($core.int v) {
     $_setSignedInt32(0, v);
   }
 
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasGattId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearGattId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.bool get state => $_getBF(1);
+  $core.int get id => $_getIZ(1);
   @$pb.TagNumber(2)
-  set state($core.bool v) {
-    $_setBool(1, v);
+  set id($core.int v) {
+    $_setSignedInt32(1, v);
   }
 
   @$pb.TagNumber(2)
-  $core.bool hasState() => $_has(1);
+  $core.bool hasId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearState() => clearField(2);
+  void clearId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.bool get state => $_getBF(2);
+  @$pb.TagNumber(3)
+  set state($core.bool v) {
+    $_setBool(2, v);
+  }
+
+  @$pb.TagNumber(3)
+  $core.bool hasState() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearState() => clearField(3);
 }
 
 class GattCharacteristicValue extends $pb.GeneratedMessage {
@@ -1603,15 +1662,25 @@ class GattDescriptorReadArguments extends $pb.GeneratedMessage {
         1,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
+            : 'gattId',
+        $pb.PbFieldType.O3)
+    ..a<$core.int>(
+        2,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
             : 'id',
         $pb.PbFieldType.O3)
     ..hasRequiredFields = false;
 
   GattDescriptorReadArguments._() : super();
   factory GattDescriptorReadArguments({
+    $core.int? gattId,
     $core.int? id,
   }) {
     final _result = create();
+    if (gattId != null) {
+      _result.gattId = gattId;
+    }
     if (id != null) {
       _result.id = id;
     }
@@ -1649,16 +1718,28 @@ class GattDescriptorReadArguments extends $pb.GeneratedMessage {
   static GattDescriptorReadArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.int get id => $_getIZ(0);
+  $core.int get gattId => $_getIZ(0);
   @$pb.TagNumber(1)
-  set id($core.int v) {
+  set gattId($core.int v) {
     $_setSignedInt32(0, v);
   }
 
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasGattId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearGattId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get id => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set id($core.int v) {
+    $_setSignedInt32(1, v);
+  }
+
+  @$pb.TagNumber(2)
+  $core.bool hasId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearId() => clearField(2);
 }
 
 class GattDescriptorWriteArguments extends $pb.GeneratedMessage {
@@ -1666,31 +1747,38 @@ class GattDescriptorWriteArguments extends $pb.GeneratedMessage {
       const $core.bool.fromEnvironment('protobuf.omit_message_names')
           ? ''
           : 'GattDescriptorWriteArguments',
-      package: const $pb.PackageName(
-          const $core.bool.fromEnvironment('protobuf.omit_message_names')
-              ? ''
-              : 'dev.yanshouwang.bluetooth_low_energy'),
+      package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names')
+          ? ''
+          : 'dev.yanshouwang.bluetooth_low_energy'),
       createEmptyInstance: create)
     ..a<$core.int>(
         1,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'id',
+            : 'gattId',
         $pb.PbFieldType.O3)
-    ..a<$core.List<$core.int>>(
+    ..a<$core.int>(
         2,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'value',
+            : 'id',
+        $pb.PbFieldType.O3)
+    ..a<$core.List<$core.int>>(
+        3,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value',
         $pb.PbFieldType.OY)
     ..hasRequiredFields = false;
 
   GattDescriptorWriteArguments._() : super();
   factory GattDescriptorWriteArguments({
+    $core.int? gattId,
     $core.int? id,
     $core.List<$core.int>? value,
   }) {
     final _result = create();
+    if (gattId != null) {
+      _result.gattId = gattId;
+    }
     if (id != null) {
       _result.id = id;
     }
@@ -1731,26 +1819,38 @@ class GattDescriptorWriteArguments extends $pb.GeneratedMessage {
   static GattDescriptorWriteArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.int get id => $_getIZ(0);
+  $core.int get gattId => $_getIZ(0);
   @$pb.TagNumber(1)
-  set id($core.int v) {
+  set gattId($core.int v) {
     $_setSignedInt32(0, v);
   }
 
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasGattId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearGattId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.List<$core.int> get value => $_getN(1);
+  $core.int get id => $_getIZ(1);
   @$pb.TagNumber(2)
-  set value($core.List<$core.int> v) {
-    $_setBytes(1, v);
+  set id($core.int v) {
+    $_setSignedInt32(1, v);
   }
 
   @$pb.TagNumber(2)
-  $core.bool hasValue() => $_has(1);
+  $core.bool hasId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearValue() => clearField(2);
+  void clearId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.List<$core.int> get value => $_getN(2);
+  @$pb.TagNumber(3)
+  set value($core.List<$core.int> v) {
+    $_setBytes(2, v);
+  }
+
+  @$pb.TagNumber(3)
+  $core.bool hasValue() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearValue() => clearField(3);
 }

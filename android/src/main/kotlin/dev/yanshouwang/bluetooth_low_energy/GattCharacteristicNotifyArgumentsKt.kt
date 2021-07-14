@@ -23,7 +23,24 @@ object GattCharacteristicNotifyArgumentsKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicNotifyArguments = _builder.build()
 
     /**
-     * <code>int32 id = 1;</code>
+     * <code>int32 gatt_id = 1;</code>
+     */
+    var gattId: kotlin.Int
+      @JvmName("getGattId")
+      get() = _builder.getGattId()
+      @JvmName("setGattId")
+      set(value) {
+        _builder.setGattId(value)
+      }
+    /**
+     * <code>int32 gatt_id = 1;</code>
+     */
+    fun clearGattId() {
+      _builder.clearGattId()
+    }
+
+    /**
+     * <code>int32 id = 2;</code>
      */
     var id: kotlin.Int
       @JvmName("getId")
@@ -33,14 +50,14 @@ object GattCharacteristicNotifyArgumentsKt {
         _builder.setId(value)
       }
     /**
-     * <code>int32 id = 1;</code>
+     * <code>int32 id = 2;</code>
      */
     fun clearId() {
       _builder.clearId()
     }
 
     /**
-     * <code>bool state = 2;</code>
+     * <code>bool state = 3;</code>
      */
     var state: kotlin.Boolean
       @JvmName("getState")
@@ -50,7 +67,7 @@ object GattCharacteristicNotifyArgumentsKt {
         _builder.setState(value)
       }
     /**
-     * <code>bool state = 2;</code>
+     * <code>bool state = 3;</code>
      */
     fun clearState() {
       _builder.clearState()

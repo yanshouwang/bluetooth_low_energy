@@ -567,6 +567,7 @@ extension on _GattViewState {
               final controllerView = TextField(
                 controller: writeController,
                 decoration: InputDecoration(
+                  hintText: 'MTU: ${gatt!.maximumWriteLength}',
                   suffixIcon: IconButton(
                     onPressed: canWrite
                         ? () {

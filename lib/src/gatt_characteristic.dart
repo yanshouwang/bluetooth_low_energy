@@ -35,6 +35,7 @@ abstract class GattCharacteristic {
 
 class _GattCharacteristic implements GattCharacteristic {
   _GattCharacteristic(
+    this.gattId,
     this.id,
     this.uuid,
     this.descriptors,
@@ -44,6 +45,7 @@ class _GattCharacteristic implements GattCharacteristic {
     this.canNotify,
   );
 
+  final int gattId;
   final int id;
   @override
   final UUID uuid;
@@ -70,8 +72,10 @@ class _GattCharacteristic implements GattCharacteristic {
   Future<List<int>> read() {
     final message = proto.Message(
       category: proto.MessageCategory.GATT_CHARACTERISTIC_READ,
-      characteristicReadArguments:
-          proto.GattCharacteristicReadArguments(id: id),
+      characteristicReadArguments: proto.GattCharacteristicReadArguments(
+        gattId: gattId,
+        id: id,
+      ),
     ).writeToBuffer();
     return method.invokeListMethod<int>('', message).then((value) => value!);
   }
@@ -81,6 +85,7 @@ class _GattCharacteristic implements GattCharacteristic {
     final message = proto.Message(
       category: proto.MessageCategory.GATT_CHARACTERISTIC_WRITE,
       characteristicWriteArguments: proto.GattCharacteristicWriteArguments(
+        gattId: gattId,
         id: id,
         value: value,
         withoutResponse: withoutResponse,
@@ -94,6 +99,7 @@ class _GattCharacteristic implements GattCharacteristic {
     final message = proto.Message(
       category: proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY,
       characteristicNotifyArguments: proto.GattCharacteristicNotifyArguments(
+        gattId: gattId,
         id: id,
         state: state,
       ),
