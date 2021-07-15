@@ -27,24 +27,33 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
+  final ValueNotifier<bool> state;
   final ValueNotifier<bool> discovering;
-  final ValueNotifier<Map<MAC, Discovery>> discoveries;
-  late StreamSubscription<bool> stateSubscription;
+  final ValueNotifier<Map<UUID, Discovery>> discoveries;
+  late StreamSubscription<BluetoothState> stateSubscription;
   late StreamSubscription<Discovery> discoverySubscription;
 
   _HomeViewState()
-      : discovering = ValueNotifier(false),
+      : state = ValueNotifier(false),
+        discovering = ValueNotifier(false),
         discoveries = ValueNotifier({});
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
+    setup();
+  }
+
+  void setup() async {
+    final state = await central.state;
+    this.state.value = state == BluetoothState.poweredOn;
     stateSubscription = central.stateChanged.listen(
       (state) {
+        this.state.value = state == BluetoothState.poweredOn;
         final invisible = !ModalRoute.of(context)!.isCurrent;
         if (invisible) return;
-        if (state) {
+        if (this.state.value) {
           startDiscovery();
         } else {
           discovering.value = false;
@@ -53,11 +62,13 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     );
     discoverySubscription = central.discovered.listen(
       (discovery) {
-        discoveries.value[discovery.address] = discovery;
+        discoveries.value[discovery.uuid] = discovery;
         discoveries.value = {...discoveries.value};
       },
     );
-    startDiscovery();
+    if (this.state.value) {
+      startDiscovery();
+    }
   }
 
   @override
@@ -88,13 +99,13 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   }
 
   void startDiscovery() async {
-    if (discovering.value || !await central.state) return;
+    if (discovering.value || !state.value) return;
     await central.startDiscovery();
     discovering.value = true;
   }
 
   void stopDiscovery() async {
-    if (!discovering.value || !await central.state) return;
+    if (!discovering.value || !state.value) return;
     await central.stopDiscovery();
     discoveries.value = {};
     discovering.value = false;
@@ -113,7 +124,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     stopDiscovery();
     await Navigator.of(context).pushNamed(
       'gatt',
-      arguments: discovery.address,
+      arguments: discovery.uuid,
     );
     startDiscovery();
   }
@@ -121,16 +132,10 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
 
 extension on _HomeViewState {
   Widget get bodyView {
-    return FutureBuilder<bool>(
-      future: central.state,
-      builder: (context, snapshot) => snapshot.hasData
-          ? StreamBuilder<bool>(
-              stream: central.stateChanged,
-              initialData: snapshot.data,
-              builder: (context, snapshot) =>
-                  snapshot.data! ? discoveriesView : closedView,
-            )
-          : closedView,
+    return ValueListenableBuilder(
+      valueListenable: state,
+      builder: (context, bool state, child) =>
+          state ? discoveriesView : closedView,
     );
   }
 
@@ -145,14 +150,14 @@ extension on _HomeViewState {
       onRefresh: () async => discoveries.value = {},
       child: ValueListenableBuilder(
         valueListenable: discoveries,
-        builder: (context, Map<MAC, Discovery> discoveries, child) {
+        builder: (context, Map<UUID, Discovery> discoveries, child) {
           return ListView.builder(
             padding: EdgeInsets.all(6.0),
             itemCount: discoveries.length,
             itemBuilder: (context, i) {
               final discovery = discoveries.values.elementAt(i);
               return Card(
-                color: Colors.amber,
+                color: discovery.connectable ? Colors.amber : Colors.grey,
                 clipBehavior: Clip.antiAlias,
                 shape: BeveledRectangleBorder(
                   borderRadius: BorderRadius.only(
@@ -160,24 +165,39 @@ extension on _HomeViewState {
                       bottomLeft: Radius.circular(12.0)),
                 ),
                 margin: EdgeInsets.all(6.0),
-                key: Key(discovery.address.name),
+                key: Key(discovery.uuid.name),
                 child: InkWell(
                   splashColor: Colors.purple,
-                  onTap: () => showGattView(discovery),
+                  onTap: discovery.connectable
+                      ? () => showGattView(discovery)
+                      : null,
                   onLongPress: () => showAdvertisements(discovery),
                   child: Container(
                     height: 100.0,
+                    padding: EdgeInsets.all(12.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(discovery.name ?? 'NaN'),
-                            Text(discovery.address.name),
-                          ],
+                        Expanded(
+                          flex: 3,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(discovery.name ?? 'NaN'),
+                              Text(
+                                discovery.uuid.name,
+                                softWrap: true,
+                              ),
+                            ],
+                          ),
                         ),
-                        Text(discovery.rssi.toString()),
+                        Expanded(
+                          flex: 1,
+                          child: Text(
+                            discovery.rssi.toString(),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -265,7 +285,7 @@ class _GattViewState extends State<GattView> {
   final ValueNotifier<Map<GattCharacteristic, StreamSubscription>> notifies;
   final ValueNotifier<List<String>> logs;
 
-  late MAC address;
+  late UUID uuid;
 
   _GattViewState()
       : state = ValueNotifier(ConnectionState.disconnected),
@@ -282,10 +302,10 @@ class _GattViewState extends State<GattView> {
 
   @override
   Widget build(BuildContext context) {
-    address = ModalRoute.of(context)!.settings.arguments as MAC;
+    uuid = ModalRoute.of(context)!.settings.arguments as UUID;
     return Scaffold(
       appBar: AppBar(
-        title: Text('$address'),
+        title: Text(uuid.name),
         actions: [
           changeStateView,
         ],
@@ -336,7 +356,7 @@ class _GattViewState extends State<GattView> {
   void connect() async {
     try {
       state.value = ConnectionState.connecting;
-      gatt = await central.connect(address);
+      gatt = await central.connect(uuid);
       state.value = ConnectionState.connected;
       connectionLostSubscription = gatt!.connectionLost.listen(
         (errorCode) async {
@@ -547,6 +567,7 @@ extension on _GattViewState {
               final controllerView = TextField(
                 controller: writeController,
                 decoration: InputDecoration(
+                  hintText: 'MTU: ${gatt!.maximumWriteLength}',
                   suffixIcon: IconButton(
                     onPressed: canWrite
                         ? () {

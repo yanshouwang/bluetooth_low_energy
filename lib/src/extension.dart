@@ -1,136 +1,114 @@
 part of bluetooth_low_energy;
 
 extension on String {
-  String get nameOfMAC {
-    final upper = toUpperCase();
-    final exp = RegExp(
-      r'^[0-9A-F]{2}(:[0-9A-F]{2}){5}$',
-      multiLine: true,
-      caseSensitive: true,
-    );
-    if (exp.hasMatch(upper)) {
-      return upper;
-    }
-    throw ArgumentError.value(this);
-  }
-
-  List<int> get valueOfMAC {
-    final from = RegExp(r':');
-    final encoded = replaceAll(from, '');
-    return hex.decode(encoded);
-  }
-
-  String get nameOfUUID {
-    final upper = toUpperCase();
+  String get uuidName {
+    final lowerCase = toLowerCase();
     final exp0 = RegExp(
-      r'[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$',
-      multiLine: true,
-      caseSensitive: true,
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      caseSensitive: false,
     );
-    if (exp0.hasMatch(upper)) {
-      return upper;
+    if (exp0.hasMatch(lowerCase)) {
+      return lowerCase;
     }
     final exp1 = RegExp(
-      r'^[0-9A-F]{4}$',
-      multiLine: true,
-      caseSensitive: true,
+      r'^[0-9a-f]{4}$',
+      caseSensitive: false,
     );
-    if (exp1.hasMatch(upper)) {
-      return '0000$upper-0000-1000-8000-00805F9B34FB';
+    if (exp1.hasMatch(lowerCase)) {
+      return '0000$lowerCase-0000-1000-8000-00805f9b34fb';
     }
     throw ArgumentError.value(this);
   }
 
-  List<int> get valueOfUUID {
+  List<int> get uuidVaue {
     final from = RegExp(r'-');
     final encoded = replaceAll(from, '');
     return hex.decode(encoded);
   }
 
-  MAC get conversionOfMAC => MAC(this);
+  UUID get uuid => UUID(this);
 
-  UUID get conversionOfUUID => UUID(this);
+  Exception get exceptoin => Exception(this);
+}
+
+extension on proto.BluetoothState {
+  BluetoothState toState() => BluetoothState.values[value];
 }
 
 extension on proto.Discovery {
-  Discovery get conversion {
-    final convertedAdvertisements = <int, List<int>>{};
+  Discovery toDiscovery() {
+    final advertisements = <int, List<int>>{};
     var start = 0;
-    while (start < advertisements.length) {
-      final length = advertisements[start++];
-      if (length == 0) {
-        break;
-      }
+    while (start < this.advertisements.length) {
+      final length = this.advertisements[start++];
+      if (length == 0) break;
       final end = start + length;
-      final key = advertisements[start++];
-      final value = advertisements.sublist(start, end);
+      final key = this.advertisements[start++];
+      final value = this.advertisements.sublist(start, end);
       start = end;
-      convertedAdvertisements[key] = value;
+      advertisements[key] = value;
     }
-    return _Discovery(address.conversionOfMAC, rssi, convertedAdvertisements);
+    return _Discovery(uuid.uuid, rssi, advertisements, connectable);
   }
 }
 
 extension on proto.GATT {
-  GATT convert(MAC address) {
-    final convertedServices = {
-      for (var service in services)
-        service.uuid.conversionOfUUID: service.convert(address)
+  GATT toGATT() {
+    final services = {
+      for (var service in this.services)
+        service.uuid.uuid: service.toGattService(key)
     };
-    return _GATT(address, id, mtu, convertedServices);
+    return _GATT(key, maximumWriteLength, services);
   }
 }
 
 extension on proto.GattService {
-  GattService convert(MAC address) {
-    final convertedUUID = uuid.conversionOfUUID;
-    final convertedCharacteristics = {
-      for (var characteristic in characteristics)
-        characteristic.uuid.conversionOfUUID:
-            characteristic.convert(address, convertedUUID)
+  GattService toGattService(String gattKey) {
+    final uuid = this.uuid.uuid;
+    final characteristics = {
+      for (var characteristic in this.characteristics)
+        characteristic.uuid.uuid: characteristic.toGattCharacteristic(
+          gattKey,
+          key,
+        )
     };
-    return _GattService(
-      address,
-      id,
-      convertedUUID,
-      convertedCharacteristics,
-    );
+    return _GattService(gattKey, key, uuid, characteristics);
   }
 }
 
 extension on proto.GattCharacteristic {
-  GattCharacteristic convert(MAC address, UUID serviceUUID) {
-    final convertedUUID = uuid.conversionOfUUID;
-    final convertedDescriptors = {
-      for (var descriptor in descriptors)
-        descriptor.uuid.conversionOfUUID:
-            descriptor.convert(address, serviceUUID, convertedUUID)
+  GattCharacteristic toGattCharacteristic(String gattKey, String serviceKey) {
+    final uuid = this.uuid.uuid;
+    final descriptors = {
+      for (var descriptor in this.descriptors)
+        descriptor.uuid.uuid: descriptor.toGattDescriptor(
+          gattKey,
+          serviceKey,
+          key,
+        )
     };
     return _GattCharacteristic(
-      address,
-      serviceUUID,
-      id,
-      convertedUUID,
-      convertedDescriptors,
+      gattKey,
+      serviceKey,
+      key,
+      uuid,
       canRead,
       canWrite,
       canWriteWithoutResponse,
       canNotify,
+      descriptors,
     );
   }
 }
 
 extension on proto.GattDescriptor {
-  GattDescriptor convert(
-      MAC address, UUID serviceUUID, UUID characteristicUUID) {
-    final convertedUUID = uuid.conversionOfUUID;
-    return _GattDescriptor(
-      address,
-      serviceUUID,
-      characteristicUUID,
-      id,
-      convertedUUID,
-    );
+  GattDescriptor toGattDescriptor(
+    String gattKey,
+    String serviceKey,
+    String characteristicKey,
+  ) {
+    final uuid = this.uuid.uuid;
+    return _GattDescriptor(gattKey, serviceKey, characteristicKey, key, uuid);
   }
 }
 

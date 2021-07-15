@@ -40,9 +40,9 @@ object MessageKt {
     }
 
     /**
-     * <code>bool state = 2;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
      */
-    var state: kotlin.Boolean
+    var state: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.BluetoothState
       @JvmName("getState")
       get() = _builder.getState()
       @JvmName("setState")
@@ -50,13 +50,13 @@ object MessageKt {
         _builder.setState(value)
       }
     /**
-     * <code>bool state = 2;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
      */
     fun clearState() {
       _builder.clearState()
     }
     /**
-     * <code>bool state = 2;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothState state = 2;</code>
      * @return Whether the state field is set.
      */
     fun hasState(): kotlin.Boolean {
@@ -64,7 +64,31 @@ object MessageKt {
     }
 
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.Discovery discovery = 3;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.StartDiscoveryArguments startDiscoveryArguments = 3;</code>
+     */
+    var startDiscoveryArguments: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.StartDiscoveryArguments
+      @JvmName("getStartDiscoveryArguments")
+      get() = _builder.getStartDiscoveryArguments()
+      @JvmName("setStartDiscoveryArguments")
+      set(value) {
+        _builder.setStartDiscoveryArguments(value)
+      }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.StartDiscoveryArguments startDiscoveryArguments = 3;</code>
+     */
+    fun clearStartDiscoveryArguments() {
+      _builder.clearStartDiscoveryArguments()
+    }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.StartDiscoveryArguments startDiscoveryArguments = 3;</code>
+     * @return Whether the startDiscoveryArguments field is set.
+     */
+    fun hasStartDiscoveryArguments(): kotlin.Boolean {
+      return _builder.hasStartDiscoveryArguments()
+    }
+
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.Discovery discovery = 4;</code>
      */
     var discovery: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.Discovery
       @JvmName("getDiscovery")
@@ -74,13 +98,13 @@ object MessageKt {
         _builder.setDiscovery(value)
       }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.Discovery discovery = 3;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.Discovery discovery = 4;</code>
      */
     fun clearDiscovery() {
       _builder.clearDiscovery()
     }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.Discovery discovery = 3;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.Discovery discovery = 4;</code>
      * @return Whether the discovery field is set.
      */
     fun hasDiscovery(): kotlin.Boolean {
@@ -88,33 +112,57 @@ object MessageKt {
     }
 
     /**
-     * <code>bool scanning = 4;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.ConnectArguments connectArguments = 5;</code>
      */
-    var scanning: kotlin.Boolean
-      @JvmName("getScanning")
-      get() = _builder.getScanning()
-      @JvmName("setScanning")
+    var connectArguments: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.ConnectArguments
+      @JvmName("getConnectArguments")
+      get() = _builder.getConnectArguments()
+      @JvmName("setConnectArguments")
       set(value) {
-        _builder.setScanning(value)
+        _builder.setConnectArguments(value)
       }
     /**
-     * <code>bool scanning = 4;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.ConnectArguments connectArguments = 5;</code>
      */
-    fun clearScanning() {
-      _builder.clearScanning()
+    fun clearConnectArguments() {
+      _builder.clearConnectArguments()
     }
     /**
-     * <code>bool scanning = 4;</code>
-     * @return Whether the scanning field is set.
+     * <code>.dev.yanshouwang.bluetooth_low_energy.ConnectArguments connectArguments = 5;</code>
+     * @return Whether the connectArguments field is set.
      */
-    fun hasScanning(): kotlin.Boolean {
-      return _builder.hasScanning()
+    fun hasConnectArguments(): kotlin.Boolean {
+      return _builder.hasConnectArguments()
     }
 
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.ConnectionLost connectionLost = 5;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattDisconnectArguments disconnectArguments = 6;</code>
      */
-    var connectionLost: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.ConnectionLost
+    var disconnectArguments: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDisconnectArguments
+      @JvmName("getDisconnectArguments")
+      get() = _builder.getDisconnectArguments()
+      @JvmName("setDisconnectArguments")
+      set(value) {
+        _builder.setDisconnectArguments(value)
+      }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattDisconnectArguments disconnectArguments = 6;</code>
+     */
+    fun clearDisconnectArguments() {
+      _builder.clearDisconnectArguments()
+    }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattDisconnectArguments disconnectArguments = 6;</code>
+     * @return Whether the disconnectArguments field is set.
+     */
+    fun hasDisconnectArguments(): kotlin.Boolean {
+      return _builder.hasDisconnectArguments()
+    }
+
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattConnectionLost connectionLost = 7;</code>
+     */
+    var connectionLost: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattConnectionLost
       @JvmName("getConnectionLost")
       get() = _builder.getConnectionLost()
       @JvmName("setConnectionLost")
@@ -122,13 +170,13 @@ object MessageKt {
         _builder.setConnectionLost(value)
       }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.ConnectionLost connectionLost = 5;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattConnectionLost connectionLost = 7;</code>
      */
     fun clearConnectionLost() {
       _builder.clearConnectionLost()
     }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.ConnectionLost connectionLost = 5;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattConnectionLost connectionLost = 7;</code>
      * @return Whether the connectionLost field is set.
      */
     fun hasConnectionLost(): kotlin.Boolean {
@@ -136,7 +184,79 @@ object MessageKt {
     }
 
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicValue characteristicValue = 6;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicReadArguments characteristicReadArguments = 8;</code>
+     */
+    var characteristicReadArguments: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicReadArguments
+      @JvmName("getCharacteristicReadArguments")
+      get() = _builder.getCharacteristicReadArguments()
+      @JvmName("setCharacteristicReadArguments")
+      set(value) {
+        _builder.setCharacteristicReadArguments(value)
+      }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicReadArguments characteristicReadArguments = 8;</code>
+     */
+    fun clearCharacteristicReadArguments() {
+      _builder.clearCharacteristicReadArguments()
+    }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicReadArguments characteristicReadArguments = 8;</code>
+     * @return Whether the characteristicReadArguments field is set.
+     */
+    fun hasCharacteristicReadArguments(): kotlin.Boolean {
+      return _builder.hasCharacteristicReadArguments()
+    }
+
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicWriteArguments characteristicWriteArguments = 9;</code>
+     */
+    var characteristicWriteArguments: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicWriteArguments
+      @JvmName("getCharacteristicWriteArguments")
+      get() = _builder.getCharacteristicWriteArguments()
+      @JvmName("setCharacteristicWriteArguments")
+      set(value) {
+        _builder.setCharacteristicWriteArguments(value)
+      }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicWriteArguments characteristicWriteArguments = 9;</code>
+     */
+    fun clearCharacteristicWriteArguments() {
+      _builder.clearCharacteristicWriteArguments()
+    }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicWriteArguments characteristicWriteArguments = 9;</code>
+     * @return Whether the characteristicWriteArguments field is set.
+     */
+    fun hasCharacteristicWriteArguments(): kotlin.Boolean {
+      return _builder.hasCharacteristicWriteArguments()
+    }
+
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicNotifyArguments characteristicNotifyArguments = 10;</code>
+     */
+    var characteristicNotifyArguments: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicNotifyArguments
+      @JvmName("getCharacteristicNotifyArguments")
+      get() = _builder.getCharacteristicNotifyArguments()
+      @JvmName("setCharacteristicNotifyArguments")
+      set(value) {
+        _builder.setCharacteristicNotifyArguments(value)
+      }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicNotifyArguments characteristicNotifyArguments = 10;</code>
+     */
+    fun clearCharacteristicNotifyArguments() {
+      _builder.clearCharacteristicNotifyArguments()
+    }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicNotifyArguments characteristicNotifyArguments = 10;</code>
+     * @return Whether the characteristicNotifyArguments field is set.
+     */
+    fun hasCharacteristicNotifyArguments(): kotlin.Boolean {
+      return _builder.hasCharacteristicNotifyArguments()
+    }
+
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicValue characteristicValue = 11;</code>
      */
     var characteristicValue: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicValue
       @JvmName("getCharacteristicValue")
@@ -146,17 +266,65 @@ object MessageKt {
         _builder.setCharacteristicValue(value)
       }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicValue characteristicValue = 6;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicValue characteristicValue = 11;</code>
      */
     fun clearCharacteristicValue() {
       _builder.clearCharacteristicValue()
     }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicValue characteristicValue = 6;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicValue characteristicValue = 11;</code>
      * @return Whether the characteristicValue field is set.
      */
     fun hasCharacteristicValue(): kotlin.Boolean {
       return _builder.hasCharacteristicValue()
+    }
+
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattDescriptorReadArguments descriptorReadArguments = 12;</code>
+     */
+    var descriptorReadArguments: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorReadArguments
+      @JvmName("getDescriptorReadArguments")
+      get() = _builder.getDescriptorReadArguments()
+      @JvmName("setDescriptorReadArguments")
+      set(value) {
+        _builder.setDescriptorReadArguments(value)
+      }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattDescriptorReadArguments descriptorReadArguments = 12;</code>
+     */
+    fun clearDescriptorReadArguments() {
+      _builder.clearDescriptorReadArguments()
+    }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattDescriptorReadArguments descriptorReadArguments = 12;</code>
+     * @return Whether the descriptorReadArguments field is set.
+     */
+    fun hasDescriptorReadArguments(): kotlin.Boolean {
+      return _builder.hasDescriptorReadArguments()
+    }
+
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattDescriptorWriteArguments descriptorWriteArguments = 13;</code>
+     */
+    var descriptorWriteArguments: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorWriteArguments
+      @JvmName("getDescriptorWriteArguments")
+      get() = _builder.getDescriptorWriteArguments()
+      @JvmName("setDescriptorWriteArguments")
+      set(value) {
+        _builder.setDescriptorWriteArguments(value)
+      }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattDescriptorWriteArguments descriptorWriteArguments = 13;</code>
+     */
+    fun clearDescriptorWriteArguments() {
+      _builder.clearDescriptorWriteArguments()
+    }
+    /**
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattDescriptorWriteArguments descriptorWriteArguments = 13;</code>
+     * @return Whether the descriptorWriteArguments field is set.
+     */
+    fun hasDescriptorWriteArguments(): kotlin.Boolean {
+      return _builder.hasDescriptorWriteArguments()
     }
     val valueCase: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.Message.ValueCase
       @JvmName("getValueCase")

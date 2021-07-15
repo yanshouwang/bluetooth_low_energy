@@ -1,3 +1,10 @@
+## 0.1.0
+
+- Add implements on iOS.
+- Combine available and state for Bluetooth.
+- Add connectable for Discovery.
+- Add maximumWriteLength for GATT.
+
 ## 0.0.2
 
 - Fix connect blocked when bluetooth closed.

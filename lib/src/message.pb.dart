@@ -15,57 +15,83 @@ export 'message.pbenum.dart';
 
 enum Message_Value {
   state,
+  startDiscoveryArguments,
   discovery,
-  scanning,
+  connectArguments,
+  disconnectArguments,
   connectionLost,
+  characteristicReadArguments,
+  characteristicWriteArguments,
+  characteristicNotifyArguments,
   characteristicValue,
+  descriptorReadArguments,
+  descriptorWriteArguments,
   notSet
 }
 
 class Message extends $pb.GeneratedMessage {
   static const $core.Map<$core.int, Message_Value> _Message_ValueByTag = {
     2: Message_Value.state,
-    3: Message_Value.discovery,
-    4: Message_Value.scanning,
-    5: Message_Value.connectionLost,
-    6: Message_Value.characteristicValue,
+    3: Message_Value.startDiscoveryArguments,
+    4: Message_Value.discovery,
+    5: Message_Value.connectArguments,
+    6: Message_Value.disconnectArguments,
+    7: Message_Value.connectionLost,
+    8: Message_Value.characteristicReadArguments,
+    9: Message_Value.characteristicWriteArguments,
+    10: Message_Value.characteristicNotifyArguments,
+    11: Message_Value.characteristicValue,
+    12: Message_Value.descriptorReadArguments,
+    13: Message_Value.descriptorWriteArguments,
     0: Message_Value.notSet
   };
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      const $core.bool.fromEnvironment('protobuf.omit_message_names')
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Message',
+      package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names')
           ? ''
-          : 'Message',
-      package: const $pb.PackageName(
-          const $core.bool.fromEnvironment('protobuf.omit_message_names')
-              ? ''
-              : 'dev.yanshouwang.bluetooth_low_energy'),
+          : 'dev.yanshouwang.bluetooth_low_energy'),
       createEmptyInstance: create)
-    ..oo(0, [2, 3, 4, 5, 6])
-    ..e<MessageCategory>(
-        1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'category', $pb.PbFieldType.OE,
-        defaultOrMaker: MessageCategory.BLUETOOTH_AVAILABLE,
+    ..oo(0, [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+    ..e<MessageCategory>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'category', $pb.PbFieldType.OE,
+        defaultOrMaker: MessageCategory.BLUETOOTH_STATE,
         valueOf: MessageCategory.valueOf,
         enumValues: MessageCategory.values)
-    ..aOB(
-        2,
-        const $core.bool.fromEnvironment('protobuf.omit_field_names')
-            ? ''
-            : 'state')
-    ..aOM<Discovery>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'discovery',
+    ..e<BluetoothState>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'state', $pb.PbFieldType.OE,
+        defaultOrMaker: BluetoothState.UNSUPPORTED,
+        valueOf: BluetoothState.valueOf,
+        enumValues: BluetoothState.values)
+    ..aOM<StartDiscoveryArguments>(
+        3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'startDiscoveryArguments',
+        protoName: 'startDiscoveryArguments',
+        subBuilder: StartDiscoveryArguments.create)
+    ..aOM<Discovery>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'discovery',
         subBuilder: Discovery.create)
-    ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'scanning')
-    ..aOM<ConnectionLost>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'connectionLost', protoName: 'connectionLost', subBuilder: ConnectionLost.create)
-    ..aOM<GattCharacteristicValue>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'characteristicValue', protoName: 'characteristicValue', subBuilder: GattCharacteristicValue.create)
+    ..aOM<ConnectArguments>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'connectArguments',
+        protoName: 'connectArguments', subBuilder: ConnectArguments.create)
+    ..aOM<GattDisconnectArguments>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'disconnectArguments', protoName: 'disconnectArguments', subBuilder: GattDisconnectArguments.create)
+    ..aOM<GattConnectionLost>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'connectionLost', protoName: 'connectionLost', subBuilder: GattConnectionLost.create)
+    ..aOM<GattCharacteristicReadArguments>(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'characteristicReadArguments', protoName: 'characteristicReadArguments', subBuilder: GattCharacteristicReadArguments.create)
+    ..aOM<GattCharacteristicWriteArguments>(9, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'characteristicWriteArguments', protoName: 'characteristicWriteArguments', subBuilder: GattCharacteristicWriteArguments.create)
+    ..aOM<GattCharacteristicNotifyArguments>(10, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'characteristicNotifyArguments', protoName: 'characteristicNotifyArguments', subBuilder: GattCharacteristicNotifyArguments.create)
+    ..aOM<GattCharacteristicValue>(11, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'characteristicValue', protoName: 'characteristicValue', subBuilder: GattCharacteristicValue.create)
+    ..aOM<GattDescriptorReadArguments>(12, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'descriptorReadArguments', protoName: 'descriptorReadArguments', subBuilder: GattDescriptorReadArguments.create)
+    ..aOM<GattDescriptorWriteArguments>(13, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'descriptorWriteArguments', protoName: 'descriptorWriteArguments', subBuilder: GattDescriptorWriteArguments.create)
     ..hasRequiredFields = false;
 
   Message._() : super();
   factory Message({
     MessageCategory? category,
-    $core.bool? state,
+    BluetoothState? state,
+    StartDiscoveryArguments? startDiscoveryArguments,
     Discovery? discovery,
-    $core.bool? scanning,
-    ConnectionLost? connectionLost,
+    ConnectArguments? connectArguments,
+    GattDisconnectArguments? disconnectArguments,
+    GattConnectionLost? connectionLost,
+    GattCharacteristicReadArguments? characteristicReadArguments,
+    GattCharacteristicWriteArguments? characteristicWriteArguments,
+    GattCharacteristicNotifyArguments? characteristicNotifyArguments,
     GattCharacteristicValue? characteristicValue,
+    GattDescriptorReadArguments? descriptorReadArguments,
+    GattDescriptorWriteArguments? descriptorWriteArguments,
   }) {
     final _result = create();
     if (category != null) {
@@ -74,17 +100,38 @@ class Message extends $pb.GeneratedMessage {
     if (state != null) {
       _result.state = state;
     }
+    if (startDiscoveryArguments != null) {
+      _result.startDiscoveryArguments = startDiscoveryArguments;
+    }
     if (discovery != null) {
       _result.discovery = discovery;
     }
-    if (scanning != null) {
-      _result.scanning = scanning;
+    if (connectArguments != null) {
+      _result.connectArguments = connectArguments;
+    }
+    if (disconnectArguments != null) {
+      _result.disconnectArguments = disconnectArguments;
     }
     if (connectionLost != null) {
       _result.connectionLost = connectionLost;
     }
+    if (characteristicReadArguments != null) {
+      _result.characteristicReadArguments = characteristicReadArguments;
+    }
+    if (characteristicWriteArguments != null) {
+      _result.characteristicWriteArguments = characteristicWriteArguments;
+    }
+    if (characteristicNotifyArguments != null) {
+      _result.characteristicNotifyArguments = characteristicNotifyArguments;
+    }
     if (characteristicValue != null) {
       _result.characteristicValue = characteristicValue;
+    }
+    if (descriptorReadArguments != null) {
+      _result.descriptorReadArguments = descriptorReadArguments;
+    }
+    if (descriptorWriteArguments != null) {
+      _result.descriptorWriteArguments = descriptorWriteArguments;
     }
     return _result;
   }
@@ -130,10 +177,10 @@ class Message extends $pb.GeneratedMessage {
   void clearCategory() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.bool get state => $_getBF(1);
+  BluetoothState get state => $_getN(1);
   @$pb.TagNumber(2)
-  set state($core.bool v) {
-    $_setBool(1, v);
+  set state(BluetoothState v) {
+    setField(2, v);
   }
 
   @$pb.TagNumber(2)
@@ -142,58 +189,163 @@ class Message extends $pb.GeneratedMessage {
   void clearState() => clearField(2);
 
   @$pb.TagNumber(3)
-  Discovery get discovery => $_getN(2);
+  StartDiscoveryArguments get startDiscoveryArguments => $_getN(2);
   @$pb.TagNumber(3)
-  set discovery(Discovery v) {
+  set startDiscoveryArguments(StartDiscoveryArguments v) {
     setField(3, v);
   }
 
   @$pb.TagNumber(3)
-  $core.bool hasDiscovery() => $_has(2);
+  $core.bool hasStartDiscoveryArguments() => $_has(2);
   @$pb.TagNumber(3)
-  void clearDiscovery() => clearField(3);
+  void clearStartDiscoveryArguments() => clearField(3);
   @$pb.TagNumber(3)
-  Discovery ensureDiscovery() => $_ensure(2);
+  StartDiscoveryArguments ensureStartDiscoveryArguments() => $_ensure(2);
 
   @$pb.TagNumber(4)
-  $core.bool get scanning => $_getBF(3);
+  Discovery get discovery => $_getN(3);
   @$pb.TagNumber(4)
-  set scanning($core.bool v) {
-    $_setBool(3, v);
+  set discovery(Discovery v) {
+    setField(4, v);
   }
 
   @$pb.TagNumber(4)
-  $core.bool hasScanning() => $_has(3);
+  $core.bool hasDiscovery() => $_has(3);
   @$pb.TagNumber(4)
-  void clearScanning() => clearField(4);
+  void clearDiscovery() => clearField(4);
+  @$pb.TagNumber(4)
+  Discovery ensureDiscovery() => $_ensure(3);
 
   @$pb.TagNumber(5)
-  ConnectionLost get connectionLost => $_getN(4);
+  ConnectArguments get connectArguments => $_getN(4);
   @$pb.TagNumber(5)
-  set connectionLost(ConnectionLost v) {
+  set connectArguments(ConnectArguments v) {
     setField(5, v);
   }
 
   @$pb.TagNumber(5)
-  $core.bool hasConnectionLost() => $_has(4);
+  $core.bool hasConnectArguments() => $_has(4);
   @$pb.TagNumber(5)
-  void clearConnectionLost() => clearField(5);
+  void clearConnectArguments() => clearField(5);
   @$pb.TagNumber(5)
-  ConnectionLost ensureConnectionLost() => $_ensure(4);
+  ConnectArguments ensureConnectArguments() => $_ensure(4);
 
   @$pb.TagNumber(6)
-  GattCharacteristicValue get characteristicValue => $_getN(5);
+  GattDisconnectArguments get disconnectArguments => $_getN(5);
   @$pb.TagNumber(6)
-  set characteristicValue(GattCharacteristicValue v) {
+  set disconnectArguments(GattDisconnectArguments v) {
     setField(6, v);
   }
 
   @$pb.TagNumber(6)
-  $core.bool hasCharacteristicValue() => $_has(5);
+  $core.bool hasDisconnectArguments() => $_has(5);
   @$pb.TagNumber(6)
-  void clearCharacteristicValue() => clearField(6);
+  void clearDisconnectArguments() => clearField(6);
   @$pb.TagNumber(6)
-  GattCharacteristicValue ensureCharacteristicValue() => $_ensure(5);
+  GattDisconnectArguments ensureDisconnectArguments() => $_ensure(5);
+
+  @$pb.TagNumber(7)
+  GattConnectionLost get connectionLost => $_getN(6);
+  @$pb.TagNumber(7)
+  set connectionLost(GattConnectionLost v) {
+    setField(7, v);
+  }
+
+  @$pb.TagNumber(7)
+  $core.bool hasConnectionLost() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearConnectionLost() => clearField(7);
+  @$pb.TagNumber(7)
+  GattConnectionLost ensureConnectionLost() => $_ensure(6);
+
+  @$pb.TagNumber(8)
+  GattCharacteristicReadArguments get characteristicReadArguments => $_getN(7);
+  @$pb.TagNumber(8)
+  set characteristicReadArguments(GattCharacteristicReadArguments v) {
+    setField(8, v);
+  }
+
+  @$pb.TagNumber(8)
+  $core.bool hasCharacteristicReadArguments() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearCharacteristicReadArguments() => clearField(8);
+  @$pb.TagNumber(8)
+  GattCharacteristicReadArguments ensureCharacteristicReadArguments() =>
+      $_ensure(7);
+
+  @$pb.TagNumber(9)
+  GattCharacteristicWriteArguments get characteristicWriteArguments =>
+      $_getN(8);
+  @$pb.TagNumber(9)
+  set characteristicWriteArguments(GattCharacteristicWriteArguments v) {
+    setField(9, v);
+  }
+
+  @$pb.TagNumber(9)
+  $core.bool hasCharacteristicWriteArguments() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearCharacteristicWriteArguments() => clearField(9);
+  @$pb.TagNumber(9)
+  GattCharacteristicWriteArguments ensureCharacteristicWriteArguments() =>
+      $_ensure(8);
+
+  @$pb.TagNumber(10)
+  GattCharacteristicNotifyArguments get characteristicNotifyArguments =>
+      $_getN(9);
+  @$pb.TagNumber(10)
+  set characteristicNotifyArguments(GattCharacteristicNotifyArguments v) {
+    setField(10, v);
+  }
+
+  @$pb.TagNumber(10)
+  $core.bool hasCharacteristicNotifyArguments() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearCharacteristicNotifyArguments() => clearField(10);
+  @$pb.TagNumber(10)
+  GattCharacteristicNotifyArguments ensureCharacteristicNotifyArguments() =>
+      $_ensure(9);
+
+  @$pb.TagNumber(11)
+  GattCharacteristicValue get characteristicValue => $_getN(10);
+  @$pb.TagNumber(11)
+  set characteristicValue(GattCharacteristicValue v) {
+    setField(11, v);
+  }
+
+  @$pb.TagNumber(11)
+  $core.bool hasCharacteristicValue() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearCharacteristicValue() => clearField(11);
+  @$pb.TagNumber(11)
+  GattCharacteristicValue ensureCharacteristicValue() => $_ensure(10);
+
+  @$pb.TagNumber(12)
+  GattDescriptorReadArguments get descriptorReadArguments => $_getN(11);
+  @$pb.TagNumber(12)
+  set descriptorReadArguments(GattDescriptorReadArguments v) {
+    setField(12, v);
+  }
+
+  @$pb.TagNumber(12)
+  $core.bool hasDescriptorReadArguments() => $_has(11);
+  @$pb.TagNumber(12)
+  void clearDescriptorReadArguments() => clearField(12);
+  @$pb.TagNumber(12)
+  GattDescriptorReadArguments ensureDescriptorReadArguments() => $_ensure(11);
+
+  @$pb.TagNumber(13)
+  GattDescriptorWriteArguments get descriptorWriteArguments => $_getN(12);
+  @$pb.TagNumber(13)
+  set descriptorWriteArguments(GattDescriptorWriteArguments v) {
+    setField(13, v);
+  }
+
+  @$pb.TagNumber(13)
+  $core.bool hasDescriptorWriteArguments() => $_has(12);
+  @$pb.TagNumber(13)
+  void clearDescriptorWriteArguments() => clearField(13);
+  @$pb.TagNumber(13)
+  GattDescriptorWriteArguments ensureDescriptorWriteArguments() => $_ensure(12);
 }
 
 class StartDiscoveryArguments extends $pb.GeneratedMessage {
@@ -270,7 +422,7 @@ class Discovery extends $pb.GeneratedMessage {
         1,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'address')
+            : 'uuid')
     ..a<$core.int>(
         2,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
@@ -283,23 +435,28 @@ class Discovery extends $pb.GeneratedMessage {
             ? ''
             : 'advertisements',
         $pb.PbFieldType.OY)
+    ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'connectable')
     ..hasRequiredFields = false;
 
   Discovery._() : super();
   factory Discovery({
-    $core.String? address,
+    $core.String? uuid,
     $core.int? rssi,
     $core.List<$core.int>? advertisements,
+    $core.bool? connectable,
   }) {
     final _result = create();
-    if (address != null) {
-      _result.address = address;
+    if (uuid != null) {
+      _result.uuid = uuid;
     }
     if (rssi != null) {
       _result.rssi = rssi;
     }
     if (advertisements != null) {
       _result.advertisements = advertisements;
+    }
+    if (connectable != null) {
+      _result.connectable = connectable;
     }
     return _result;
   }
@@ -330,16 +487,16 @@ class Discovery extends $pb.GeneratedMessage {
   static Discovery? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get address => $_getSZ(0);
+  $core.String get uuid => $_getSZ(0);
   @$pb.TagNumber(1)
-  set address($core.String v) {
+  set uuid($core.String v) {
     $_setString(0, v);
   }
 
   @$pb.TagNumber(1)
-  $core.bool hasAddress() => $_has(0);
+  $core.bool hasUuid() => $_has(0);
   @$pb.TagNumber(1)
-  void clearAddress() => clearField(1);
+  void clearUuid() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.int get rssi => $_getIZ(1);
@@ -364,6 +521,18 @@ class Discovery extends $pb.GeneratedMessage {
   $core.bool hasAdvertisements() => $_has(2);
   @$pb.TagNumber(3)
   void clearAdvertisements() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.bool get connectable => $_getBF(3);
+  @$pb.TagNumber(4)
+  set connectable($core.bool v) {
+    $_setBool(3, v);
+  }
+
+  @$pb.TagNumber(4)
+  $core.bool hasConnectable() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearConnectable() => clearField(4);
 }
 
 class ConnectArguments extends $pb.GeneratedMessage {
@@ -380,16 +549,16 @@ class ConnectArguments extends $pb.GeneratedMessage {
         1,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'address')
+            : 'uuid')
     ..hasRequiredFields = false;
 
   ConnectArguments._() : super();
   factory ConnectArguments({
-    $core.String? address,
+    $core.String? uuid,
   }) {
     final _result = create();
-    if (address != null) {
-      _result.address = address;
+    if (uuid != null) {
+      _result.uuid = uuid;
     }
     return _result;
   }
@@ -421,16 +590,16 @@ class ConnectArguments extends $pb.GeneratedMessage {
   static ConnectArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get address => $_getSZ(0);
+  $core.String get uuid => $_getSZ(0);
   @$pb.TagNumber(1)
-  set address($core.String v) {
+  set uuid($core.String v) {
     $_setString(0, v);
   }
 
   @$pb.TagNumber(1)
-  $core.bool hasAddress() => $_has(0);
+  $core.bool hasUuid() => $_has(0);
   @$pb.TagNumber(1)
-  void clearAddress() => clearField(1);
+  void clearUuid() => clearField(1);
 }
 
 class GATT extends $pb.GeneratedMessage {
@@ -441,39 +610,35 @@ class GATT extends $pb.GeneratedMessage {
                   ? ''
                   : 'dev.yanshouwang.bluetooth_low_energy'),
           createEmptyInstance: create)
-        ..a<$core.int>(
+        ..aOS(
             1,
             const $core.bool.fromEnvironment('protobuf.omit_field_names')
                 ? ''
-                : 'id',
-            $pb.PbFieldType.O3)
+                : 'key')
         ..a<$core.int>(
             2,
             const $core.bool.fromEnvironment('protobuf.omit_field_names')
                 ? ''
-                : 'mtu',
-            $pb.PbFieldType.O3)
+                : 'maximumWriteLength',
+            $pb.PbFieldType.O3,
+            protoName: 'maximumWriteLength')
         ..pc<GattService>(
-            3,
-            const $core.bool.fromEnvironment('protobuf.omit_field_names')
-                ? ''
-                : 'services',
-            $pb.PbFieldType.PM,
+            3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'services', $pb.PbFieldType.PM,
             subBuilder: GattService.create)
         ..hasRequiredFields = false;
 
   GATT._() : super();
   factory GATT({
-    $core.int? id,
-    $core.int? mtu,
+    $core.String? key,
+    $core.int? maximumWriteLength,
     $core.Iterable<GattService>? services,
   }) {
     final _result = create();
-    if (id != null) {
-      _result.id = id;
+    if (key != null) {
+      _result.key = key;
     }
-    if (mtu != null) {
-      _result.mtu = mtu;
+    if (maximumWriteLength != null) {
+      _result.maximumWriteLength = maximumWriteLength;
     }
     if (services != null) {
       _result.services.addAll(services);
@@ -507,38 +672,38 @@ class GATT extends $pb.GeneratedMessage {
   static GATT? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.int get id => $_getIZ(0);
+  $core.String get key => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.int v) {
-    $_setSignedInt32(0, v);
+  set key($core.String v) {
+    $_setString(0, v);
   }
 
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasKey() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearKey() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.int get mtu => $_getIZ(1);
+  $core.int get maximumWriteLength => $_getIZ(1);
   @$pb.TagNumber(2)
-  set mtu($core.int v) {
+  set maximumWriteLength($core.int v) {
     $_setSignedInt32(1, v);
   }
 
   @$pb.TagNumber(2)
-  $core.bool hasMtu() => $_has(1);
+  $core.bool hasMaximumWriteLength() => $_has(1);
   @$pb.TagNumber(2)
-  void clearMtu() => clearField(2);
+  void clearMaximumWriteLength() => clearField(2);
 
   @$pb.TagNumber(3)
   $core.List<GattService> get services => $_getList(2);
 }
 
-class GattDisconnectArguments extends $pb.GeneratedMessage {
+class GattService extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       const $core.bool.fromEnvironment('protobuf.omit_message_names')
           ? ''
-          : 'GattDisconnectArguments',
+          : 'GattService',
       package: const $pb.PackageName(
           const $core.bool.fromEnvironment('protobuf.omit_message_names')
               ? ''
@@ -548,120 +713,30 @@ class GattDisconnectArguments extends $pb.GeneratedMessage {
         1,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'address')
-    ..a<$core.int>(
+            : 'key')
+    ..aOS(
         2,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'id',
-        $pb.PbFieldType.O3)
+            : 'uuid')
+    ..pc<GattCharacteristic>(
+        3,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'characteristics',
+        $pb.PbFieldType.PM,
+        subBuilder: GattCharacteristic.create)
     ..hasRequiredFields = false;
-
-  GattDisconnectArguments._() : super();
-  factory GattDisconnectArguments({
-    $core.String? address,
-    $core.int? id,
-  }) {
-    final _result = create();
-    if (address != null) {
-      _result.address = address;
-    }
-    if (id != null) {
-      _result.id = id;
-    }
-    return _result;
-  }
-  factory GattDisconnectArguments.fromBuffer($core.List<$core.int> i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(i, r);
-  factory GattDisconnectArguments.fromJson($core.String i,
-          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(i, r);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-      'Will be removed in next major version')
-  GattDisconnectArguments clone() =>
-      GattDisconnectArguments()..mergeFromMessage(this);
-  @$core.Deprecated('Using this can add significant overhead to your binary. '
-      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-      'Will be removed in next major version')
-  GattDisconnectArguments copyWith(
-          void Function(GattDisconnectArguments) updates) =>
-      super.copyWith((message) => updates(message as GattDisconnectArguments))
-          as GattDisconnectArguments; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static GattDisconnectArguments create() => GattDisconnectArguments._();
-  GattDisconnectArguments createEmptyInstance() => create();
-  static $pb.PbList<GattDisconnectArguments> createRepeated() =>
-      $pb.PbList<GattDisconnectArguments>();
-  @$core.pragma('dart2js:noInline')
-  static GattDisconnectArguments getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<GattDisconnectArguments>(create);
-  static GattDisconnectArguments? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.String get address => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set address($core.String v) {
-    $_setString(0, v);
-  }
-
-  @$pb.TagNumber(1)
-  $core.bool hasAddress() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearAddress() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.int get id => $_getIZ(1);
-  @$pb.TagNumber(2)
-  set id($core.int v) {
-    $_setSignedInt32(1, v);
-  }
-
-  @$pb.TagNumber(2)
-  $core.bool hasId() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearId() => clearField(2);
-}
-
-class GattService extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i =
-      $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattService',
-          package: const $pb.PackageName(
-              const $core.bool.fromEnvironment('protobuf.omit_message_names')
-                  ? ''
-                  : 'dev.yanshouwang.bluetooth_low_energy'),
-          createEmptyInstance: create)
-        ..a<$core.int>(
-            1,
-            const $core.bool.fromEnvironment('protobuf.omit_field_names')
-                ? ''
-                : 'id',
-            $pb.PbFieldType.O3)
-        ..aOS(
-            2,
-            const $core.bool.fromEnvironment('protobuf.omit_field_names')
-                ? ''
-                : 'uuid')
-        ..pc<GattCharacteristic>(
-            3,
-            const $core.bool.fromEnvironment('protobuf.omit_field_names')
-                ? ''
-                : 'characteristics',
-            $pb.PbFieldType.PM,
-            subBuilder: GattCharacteristic.create)
-        ..hasRequiredFields = false;
 
   GattService._() : super();
   factory GattService({
-    $core.int? id,
+    $core.String? key,
     $core.String? uuid,
     $core.Iterable<GattCharacteristic>? characteristics,
   }) {
     final _result = create();
-    if (id != null) {
-      _result.id = id;
+    if (key != null) {
+      _result.key = key;
     }
     if (uuid != null) {
       _result.uuid = uuid;
@@ -698,16 +773,16 @@ class GattService extends $pb.GeneratedMessage {
   static GattService? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.int get id => $_getIZ(0);
+  $core.String get key => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.int v) {
-    $_setSignedInt32(0, v);
+  set key($core.String v) {
+    $_setString(0, v);
   }
 
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasKey() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearKey() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.String get uuid => $_getSZ(1);
@@ -734,47 +809,42 @@ class GattCharacteristic extends $pb.GeneratedMessage {
           ? ''
           : 'dev.yanshouwang.bluetooth_low_energy'),
       createEmptyInstance: create)
-    ..a<$core.int>(
+    ..aOS(
         1,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'id',
-        $pb.PbFieldType.O3)
+            : 'key')
     ..aOS(
         2,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
             : 'uuid')
-    ..pc<GattDescriptor>(
-        3,
-        const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'descriptors',
-        $pb.PbFieldType.PM,
-        subBuilder: GattDescriptor.create)
-    ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'canRead', protoName: 'canRead')
-    ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'canWrite', protoName: 'canWrite')
-    ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'canWriteWithoutResponse', protoName: 'canWriteWithoutResponse')
-    ..aOB(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'canNotify', protoName: 'canNotify')
+    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'canRead',
+        protoName: 'canRead')
+    ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'canWrite',
+        protoName: 'canWrite')
+    ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'canWriteWithoutResponse',
+        protoName: 'canWriteWithoutResponse')
+    ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'canNotify', protoName: 'canNotify')
+    ..pc<GattDescriptor>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'descriptors', $pb.PbFieldType.PM, subBuilder: GattDescriptor.create)
     ..hasRequiredFields = false;
 
   GattCharacteristic._() : super();
   factory GattCharacteristic({
-    $core.int? id,
+    $core.String? key,
     $core.String? uuid,
-    $core.Iterable<GattDescriptor>? descriptors,
     $core.bool? canRead,
     $core.bool? canWrite,
     $core.bool? canWriteWithoutResponse,
     $core.bool? canNotify,
+    $core.Iterable<GattDescriptor>? descriptors,
   }) {
     final _result = create();
-    if (id != null) {
-      _result.id = id;
+    if (key != null) {
+      _result.key = key;
     }
     if (uuid != null) {
       _result.uuid = uuid;
-    }
-    if (descriptors != null) {
-      _result.descriptors.addAll(descriptors);
     }
     if (canRead != null) {
       _result.canRead = canRead;
@@ -787,6 +857,9 @@ class GattCharacteristic extends $pb.GeneratedMessage {
     }
     if (canNotify != null) {
       _result.canNotify = canNotify;
+    }
+    if (descriptors != null) {
+      _result.descriptors.addAll(descriptors);
     }
     return _result;
   }
@@ -818,16 +891,16 @@ class GattCharacteristic extends $pb.GeneratedMessage {
   static GattCharacteristic? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.int get id => $_getIZ(0);
+  $core.String get key => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.int v) {
-    $_setSignedInt32(0, v);
+  set key($core.String v) {
+    $_setString(0, v);
   }
 
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasKey() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearKey() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.String get uuid => $_getSZ(1);
@@ -842,55 +915,55 @@ class GattCharacteristic extends $pb.GeneratedMessage {
   void clearUuid() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.List<GattDescriptor> get descriptors => $_getList(2);
+  $core.bool get canRead => $_getBF(2);
+  @$pb.TagNumber(3)
+  set canRead($core.bool v) {
+    $_setBool(2, v);
+  }
+
+  @$pb.TagNumber(3)
+  $core.bool hasCanRead() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearCanRead() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.bool get canRead => $_getBF(3);
+  $core.bool get canWrite => $_getBF(3);
   @$pb.TagNumber(4)
-  set canRead($core.bool v) {
+  set canWrite($core.bool v) {
     $_setBool(3, v);
   }
 
   @$pb.TagNumber(4)
-  $core.bool hasCanRead() => $_has(3);
+  $core.bool hasCanWrite() => $_has(3);
   @$pb.TagNumber(4)
-  void clearCanRead() => clearField(4);
+  void clearCanWrite() => clearField(4);
 
   @$pb.TagNumber(5)
-  $core.bool get canWrite => $_getBF(4);
+  $core.bool get canWriteWithoutResponse => $_getBF(4);
   @$pb.TagNumber(5)
-  set canWrite($core.bool v) {
+  set canWriteWithoutResponse($core.bool v) {
     $_setBool(4, v);
   }
 
   @$pb.TagNumber(5)
-  $core.bool hasCanWrite() => $_has(4);
+  $core.bool hasCanWriteWithoutResponse() => $_has(4);
   @$pb.TagNumber(5)
-  void clearCanWrite() => clearField(5);
+  void clearCanWriteWithoutResponse() => clearField(5);
 
   @$pb.TagNumber(6)
-  $core.bool get canWriteWithoutResponse => $_getBF(5);
+  $core.bool get canNotify => $_getBF(5);
   @$pb.TagNumber(6)
-  set canWriteWithoutResponse($core.bool v) {
+  set canNotify($core.bool v) {
     $_setBool(5, v);
   }
 
   @$pb.TagNumber(6)
-  $core.bool hasCanWriteWithoutResponse() => $_has(5);
+  $core.bool hasCanNotify() => $_has(5);
   @$pb.TagNumber(6)
-  void clearCanWriteWithoutResponse() => clearField(6);
+  void clearCanNotify() => clearField(6);
 
   @$pb.TagNumber(7)
-  $core.bool get canNotify => $_getBF(6);
-  @$pb.TagNumber(7)
-  set canNotify($core.bool v) {
-    $_setBool(6, v);
-  }
-
-  @$pb.TagNumber(7)
-  $core.bool hasCanNotify() => $_has(6);
-  @$pb.TagNumber(7)
-  void clearCanNotify() => clearField(7);
+  $core.List<GattDescriptor> get descriptors => $_getList(6);
 }
 
 class GattDescriptor extends $pb.GeneratedMessage {
@@ -903,12 +976,11 @@ class GattDescriptor extends $pb.GeneratedMessage {
               ? ''
               : 'dev.yanshouwang.bluetooth_low_energy'),
       createEmptyInstance: create)
-    ..a<$core.int>(
+    ..aOS(
         1,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'id',
-        $pb.PbFieldType.O3)
+            : 'key')
     ..aOS(
         2,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
@@ -918,12 +990,12 @@ class GattDescriptor extends $pb.GeneratedMessage {
 
   GattDescriptor._() : super();
   factory GattDescriptor({
-    $core.int? id,
+    $core.String? key,
     $core.String? uuid,
   }) {
     final _result = create();
-    if (id != null) {
-      _result.id = id;
+    if (key != null) {
+      _result.key = key;
     }
     if (uuid != null) {
       _result.uuid = uuid;
@@ -958,16 +1030,16 @@ class GattDescriptor extends $pb.GeneratedMessage {
   static GattDescriptor? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.int get id => $_getIZ(0);
+  $core.String get key => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.int v) {
-    $_setSignedInt32(0, v);
+  set key($core.String v) {
+    $_setString(0, v);
   }
 
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasKey() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearKey() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.String get uuid => $_getSZ(1);
@@ -982,94 +1054,161 @@ class GattDescriptor extends $pb.GeneratedMessage {
   void clearUuid() => clearField(2);
 }
 
-class ConnectionLost extends $pb.GeneratedMessage {
+class GattDisconnectArguments extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       const $core.bool.fromEnvironment('protobuf.omit_message_names')
           ? ''
-          : 'ConnectionLost',
+          : 'GattDisconnectArguments',
       package: const $pb.PackageName(
           const $core.bool.fromEnvironment('protobuf.omit_message_names')
               ? ''
               : 'dev.yanshouwang.bluetooth_low_energy'),
       createEmptyInstance: create)
-    ..a<$core.int>(
+    ..aOS(
         1,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'id',
-        $pb.PbFieldType.O3)
-    ..a<$core.int>(
-        2,
-        const $core.bool.fromEnvironment('protobuf.omit_field_names')
-            ? ''
-            : 'errorCode',
-        $pb.PbFieldType.O3)
+            : 'key')
     ..hasRequiredFields = false;
 
-  ConnectionLost._() : super();
-  factory ConnectionLost({
-    $core.int? id,
-    $core.int? errorCode,
+  GattDisconnectArguments._() : super();
+  factory GattDisconnectArguments({
+    $core.String? key,
   }) {
     final _result = create();
-    if (id != null) {
-      _result.id = id;
-    }
-    if (errorCode != null) {
-      _result.errorCode = errorCode;
+    if (key != null) {
+      _result.key = key;
     }
     return _result;
   }
-  factory ConnectionLost.fromBuffer($core.List<$core.int> i,
+  factory GattDisconnectArguments.fromBuffer($core.List<$core.int> i,
           [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromBuffer(i, r);
-  factory ConnectionLost.fromJson($core.String i,
+  factory GattDisconnectArguments.fromJson($core.String i,
           [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromJson(i, r);
   @$core.Deprecated('Using this can add significant overhead to your binary. '
       'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
       'Will be removed in next major version')
-  ConnectionLost clone() => ConnectionLost()..mergeFromMessage(this);
+  GattDisconnectArguments clone() =>
+      GattDisconnectArguments()..mergeFromMessage(this);
   @$core.Deprecated('Using this can add significant overhead to your binary. '
       'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
       'Will be removed in next major version')
-  ConnectionLost copyWith(void Function(ConnectionLost) updates) =>
-      super.copyWith((message) => updates(message as ConnectionLost))
-          as ConnectionLost; // ignore: deprecated_member_use
+  GattDisconnectArguments copyWith(
+          void Function(GattDisconnectArguments) updates) =>
+      super.copyWith((message) => updates(message as GattDisconnectArguments))
+          as GattDisconnectArguments; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static ConnectionLost create() => ConnectionLost._();
-  ConnectionLost createEmptyInstance() => create();
-  static $pb.PbList<ConnectionLost> createRepeated() =>
-      $pb.PbList<ConnectionLost>();
+  static GattDisconnectArguments create() => GattDisconnectArguments._();
+  GattDisconnectArguments createEmptyInstance() => create();
+  static $pb.PbList<GattDisconnectArguments> createRepeated() =>
+      $pb.PbList<GattDisconnectArguments>();
   @$core.pragma('dart2js:noInline')
-  static ConnectionLost getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ConnectionLost>(create);
-  static ConnectionLost? _defaultInstance;
+  static GattDisconnectArguments getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<GattDisconnectArguments>(create);
+  static GattDisconnectArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.int get id => $_getIZ(0);
+  $core.String get key => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($core.int v) {
-    $_setSignedInt32(0, v);
+  set key($core.String v) {
+    $_setString(0, v);
   }
 
   @$pb.TagNumber(1)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasKey() => $_has(0);
   @$pb.TagNumber(1)
-  void clearId() => clearField(1);
+  void clearKey() => clearField(1);
+}
+
+class GattConnectionLost extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      const $core.bool.fromEnvironment('protobuf.omit_message_names')
+          ? ''
+          : 'GattConnectionLost',
+      package: const $pb.PackageName(
+          const $core.bool.fromEnvironment('protobuf.omit_message_names')
+              ? ''
+              : 'dev.yanshouwang.bluetooth_low_energy'),
+      createEmptyInstance: create)
+    ..aOS(
+        1,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'key')
+    ..aOS(
+        2,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'error')
+    ..hasRequiredFields = false;
+
+  GattConnectionLost._() : super();
+  factory GattConnectionLost({
+    $core.String? key,
+    $core.String? error,
+  }) {
+    final _result = create();
+    if (key != null) {
+      _result.key = key;
+    }
+    if (error != null) {
+      _result.error = error;
+    }
+    return _result;
+  }
+  factory GattConnectionLost.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory GattConnectionLost.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  GattConnectionLost clone() => GattConnectionLost()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  GattConnectionLost copyWith(void Function(GattConnectionLost) updates) =>
+      super.copyWith((message) => updates(message as GattConnectionLost))
+          as GattConnectionLost; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static GattConnectionLost create() => GattConnectionLost._();
+  GattConnectionLost createEmptyInstance() => create();
+  static $pb.PbList<GattConnectionLost> createRepeated() =>
+      $pb.PbList<GattConnectionLost>();
+  @$core.pragma('dart2js:noInline')
+  static GattConnectionLost getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<GattConnectionLost>(create);
+  static GattConnectionLost? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get key => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set key($core.String v) {
+    $_setString(0, v);
+  }
+
+  @$pb.TagNumber(1)
+  $core.bool hasKey() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearKey() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.int get errorCode => $_getIZ(1);
+  $core.String get error => $_getSZ(1);
   @$pb.TagNumber(2)
-  set errorCode($core.int v) {
-    $_setSignedInt32(1, v);
+  set error($core.String v) {
+    $_setString(1, v);
   }
 
   @$pb.TagNumber(2)
-  $core.bool hasErrorCode() => $_has(1);
+  $core.bool hasError() => $_has(1);
   @$pb.TagNumber(2)
-  void clearErrorCode() => clearField(2);
+  void clearError() => clearField(2);
 }
 
 class GattCharacteristicReadArguments extends $pb.GeneratedMessage {
@@ -1077,50 +1216,43 @@ class GattCharacteristicReadArguments extends $pb.GeneratedMessage {
       const $core.bool.fromEnvironment('protobuf.omit_message_names')
           ? ''
           : 'GattCharacteristicReadArguments',
-      package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names')
-          ? ''
-          : 'dev.yanshouwang.bluetooth_low_energy'),
+      package: const $pb.PackageName(
+          const $core.bool.fromEnvironment('protobuf.omit_message_names')
+              ? ''
+              : 'dev.yanshouwang.bluetooth_low_energy'),
       createEmptyInstance: create)
     ..aOS(
         1,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'address')
+            : 'gattKey')
     ..aOS(
         2,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'serviceUuid')
+            : 'serviceKey')
     ..aOS(
         3,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'uuid')
-    ..a<$core.int>(
-        4,
-        const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id',
-        $pb.PbFieldType.O3)
+            : 'key')
     ..hasRequiredFields = false;
 
   GattCharacteristicReadArguments._() : super();
   factory GattCharacteristicReadArguments({
-    $core.String? address,
-    $core.String? serviceUuid,
-    $core.String? uuid,
-    $core.int? id,
+    $core.String? gattKey,
+    $core.String? serviceKey,
+    $core.String? key,
   }) {
     final _result = create();
-    if (address != null) {
-      _result.address = address;
+    if (gattKey != null) {
+      _result.gattKey = gattKey;
     }
-    if (serviceUuid != null) {
-      _result.serviceUuid = serviceUuid;
+    if (serviceKey != null) {
+      _result.serviceKey = serviceKey;
     }
-    if (uuid != null) {
-      _result.uuid = uuid;
-    }
-    if (id != null) {
-      _result.id = id;
+    if (key != null) {
+      _result.key = key;
     }
     return _result;
   }
@@ -1157,52 +1289,40 @@ class GattCharacteristicReadArguments extends $pb.GeneratedMessage {
   static GattCharacteristicReadArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get address => $_getSZ(0);
+  $core.String get gattKey => $_getSZ(0);
   @$pb.TagNumber(1)
-  set address($core.String v) {
+  set gattKey($core.String v) {
     $_setString(0, v);
   }
 
   @$pb.TagNumber(1)
-  $core.bool hasAddress() => $_has(0);
+  $core.bool hasGattKey() => $_has(0);
   @$pb.TagNumber(1)
-  void clearAddress() => clearField(1);
+  void clearGattKey() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get serviceUuid => $_getSZ(1);
+  $core.String get serviceKey => $_getSZ(1);
   @$pb.TagNumber(2)
-  set serviceUuid($core.String v) {
+  set serviceKey($core.String v) {
     $_setString(1, v);
   }
 
   @$pb.TagNumber(2)
-  $core.bool hasServiceUuid() => $_has(1);
+  $core.bool hasServiceKey() => $_has(1);
   @$pb.TagNumber(2)
-  void clearServiceUuid() => clearField(2);
+  void clearServiceKey() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get uuid => $_getSZ(2);
+  $core.String get key => $_getSZ(2);
   @$pb.TagNumber(3)
-  set uuid($core.String v) {
+  set key($core.String v) {
     $_setString(2, v);
   }
 
   @$pb.TagNumber(3)
-  $core.bool hasUuid() => $_has(2);
+  $core.bool hasKey() => $_has(2);
   @$pb.TagNumber(3)
-  void clearUuid() => clearField(3);
-
-  @$pb.TagNumber(4)
-  $core.int get id => $_getIZ(3);
-  @$pb.TagNumber(4)
-  set id($core.int v) {
-    $_setSignedInt32(3, v);
-  }
-
-  @$pb.TagNumber(4)
-  $core.bool hasId() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearId() => clearField(4);
+  void clearKey() => clearField(3);
 }
 
 class GattCharacteristicWriteArguments extends $pb.GeneratedMessage {
@@ -1219,46 +1339,41 @@ class GattCharacteristicWriteArguments extends $pb.GeneratedMessage {
         1,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'address')
+            : 'gattKey')
     ..aOS(
         2,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'serviceUuid')
+            : 'serviceKey')
     ..aOS(
         3,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'uuid')
-    ..a<$core.int>(
+            : 'key')
+    ..a<$core.List<$core.int>>(
         4,
-        const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id',
-        $pb.PbFieldType.O3)
-    ..a<$core.List<$core.int>>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value', $pb.PbFieldType.OY)
-    ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'withoutResponse', protoName: 'withoutResponse')
+        const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value',
+        $pb.PbFieldType.OY)
+    ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'withoutResponse', protoName: 'withoutResponse')
     ..hasRequiredFields = false;
 
   GattCharacteristicWriteArguments._() : super();
   factory GattCharacteristicWriteArguments({
-    $core.String? address,
-    $core.String? serviceUuid,
-    $core.String? uuid,
-    $core.int? id,
+    $core.String? gattKey,
+    $core.String? serviceKey,
+    $core.String? key,
     $core.List<$core.int>? value,
     $core.bool? withoutResponse,
   }) {
     final _result = create();
-    if (address != null) {
-      _result.address = address;
+    if (gattKey != null) {
+      _result.gattKey = gattKey;
     }
-    if (serviceUuid != null) {
-      _result.serviceUuid = serviceUuid;
+    if (serviceKey != null) {
+      _result.serviceKey = serviceKey;
     }
-    if (uuid != null) {
-      _result.uuid = uuid;
-    }
-    if (id != null) {
-      _result.id = id;
+    if (key != null) {
+      _result.key = key;
     }
     if (value != null) {
       _result.value = value;
@@ -1301,76 +1416,64 @@ class GattCharacteristicWriteArguments extends $pb.GeneratedMessage {
   static GattCharacteristicWriteArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get address => $_getSZ(0);
+  $core.String get gattKey => $_getSZ(0);
   @$pb.TagNumber(1)
-  set address($core.String v) {
+  set gattKey($core.String v) {
     $_setString(0, v);
   }
 
   @$pb.TagNumber(1)
-  $core.bool hasAddress() => $_has(0);
+  $core.bool hasGattKey() => $_has(0);
   @$pb.TagNumber(1)
-  void clearAddress() => clearField(1);
+  void clearGattKey() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get serviceUuid => $_getSZ(1);
+  $core.String get serviceKey => $_getSZ(1);
   @$pb.TagNumber(2)
-  set serviceUuid($core.String v) {
+  set serviceKey($core.String v) {
     $_setString(1, v);
   }
 
   @$pb.TagNumber(2)
-  $core.bool hasServiceUuid() => $_has(1);
+  $core.bool hasServiceKey() => $_has(1);
   @$pb.TagNumber(2)
-  void clearServiceUuid() => clearField(2);
+  void clearServiceKey() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get uuid => $_getSZ(2);
+  $core.String get key => $_getSZ(2);
   @$pb.TagNumber(3)
-  set uuid($core.String v) {
+  set key($core.String v) {
     $_setString(2, v);
   }
 
   @$pb.TagNumber(3)
-  $core.bool hasUuid() => $_has(2);
+  $core.bool hasKey() => $_has(2);
   @$pb.TagNumber(3)
-  void clearUuid() => clearField(3);
+  void clearKey() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.int get id => $_getIZ(3);
+  $core.List<$core.int> get value => $_getN(3);
   @$pb.TagNumber(4)
-  set id($core.int v) {
-    $_setSignedInt32(3, v);
-  }
-
-  @$pb.TagNumber(4)
-  $core.bool hasId() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearId() => clearField(4);
-
-  @$pb.TagNumber(5)
-  $core.List<$core.int> get value => $_getN(4);
-  @$pb.TagNumber(5)
   set value($core.List<$core.int> v) {
-    $_setBytes(4, v);
+    $_setBytes(3, v);
   }
 
-  @$pb.TagNumber(5)
-  $core.bool hasValue() => $_has(4);
-  @$pb.TagNumber(5)
-  void clearValue() => clearField(5);
+  @$pb.TagNumber(4)
+  $core.bool hasValue() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearValue() => clearField(4);
 
-  @$pb.TagNumber(6)
-  $core.bool get withoutResponse => $_getBF(5);
-  @$pb.TagNumber(6)
+  @$pb.TagNumber(5)
+  $core.bool get withoutResponse => $_getBF(4);
+  @$pb.TagNumber(5)
   set withoutResponse($core.bool v) {
-    $_setBool(5, v);
+    $_setBool(4, v);
   }
 
-  @$pb.TagNumber(6)
-  $core.bool hasWithoutResponse() => $_has(5);
-  @$pb.TagNumber(6)
-  void clearWithoutResponse() => clearField(6);
+  @$pb.TagNumber(5)
+  $core.bool hasWithoutResponse() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearWithoutResponse() => clearField(5);
 }
 
 class GattCharacteristicNotifyArguments extends $pb.GeneratedMessage {
@@ -1378,52 +1481,46 @@ class GattCharacteristicNotifyArguments extends $pb.GeneratedMessage {
       const $core.bool.fromEnvironment('protobuf.omit_message_names')
           ? ''
           : 'GattCharacteristicNotifyArguments',
-      package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names')
-          ? ''
-          : 'dev.yanshouwang.bluetooth_low_energy'),
+      package: const $pb.PackageName(
+          const $core.bool.fromEnvironment('protobuf.omit_message_names')
+              ? ''
+              : 'dev.yanshouwang.bluetooth_low_energy'),
       createEmptyInstance: create)
     ..aOS(
         1,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'address')
+            : 'gattKey')
     ..aOS(
         2,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'serviceUuid')
+            : 'serviceKey')
     ..aOS(
         3,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'uuid')
-    ..a<$core.int>(
-        4,
-        const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id',
-        $pb.PbFieldType.O3)
-    ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'state')
+            : 'key')
+    ..aOB(
+        4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'state')
     ..hasRequiredFields = false;
 
   GattCharacteristicNotifyArguments._() : super();
   factory GattCharacteristicNotifyArguments({
-    $core.String? address,
-    $core.String? serviceUuid,
-    $core.String? uuid,
-    $core.int? id,
+    $core.String? gattKey,
+    $core.String? serviceKey,
+    $core.String? key,
     $core.bool? state,
   }) {
     final _result = create();
-    if (address != null) {
-      _result.address = address;
+    if (gattKey != null) {
+      _result.gattKey = gattKey;
     }
-    if (serviceUuid != null) {
-      _result.serviceUuid = serviceUuid;
+    if (serviceKey != null) {
+      _result.serviceKey = serviceKey;
     }
-    if (uuid != null) {
-      _result.uuid = uuid;
-    }
-    if (id != null) {
-      _result.id = id;
+    if (key != null) {
+      _result.key = key;
     }
     if (state != null) {
       _result.state = state;
@@ -1463,64 +1560,52 @@ class GattCharacteristicNotifyArguments extends $pb.GeneratedMessage {
   static GattCharacteristicNotifyArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get address => $_getSZ(0);
+  $core.String get gattKey => $_getSZ(0);
   @$pb.TagNumber(1)
-  set address($core.String v) {
+  set gattKey($core.String v) {
     $_setString(0, v);
   }
 
   @$pb.TagNumber(1)
-  $core.bool hasAddress() => $_has(0);
+  $core.bool hasGattKey() => $_has(0);
   @$pb.TagNumber(1)
-  void clearAddress() => clearField(1);
+  void clearGattKey() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get serviceUuid => $_getSZ(1);
+  $core.String get serviceKey => $_getSZ(1);
   @$pb.TagNumber(2)
-  set serviceUuid($core.String v) {
+  set serviceKey($core.String v) {
     $_setString(1, v);
   }
 
   @$pb.TagNumber(2)
-  $core.bool hasServiceUuid() => $_has(1);
+  $core.bool hasServiceKey() => $_has(1);
   @$pb.TagNumber(2)
-  void clearServiceUuid() => clearField(2);
+  void clearServiceKey() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get uuid => $_getSZ(2);
+  $core.String get key => $_getSZ(2);
   @$pb.TagNumber(3)
-  set uuid($core.String v) {
+  set key($core.String v) {
     $_setString(2, v);
   }
 
   @$pb.TagNumber(3)
-  $core.bool hasUuid() => $_has(2);
+  $core.bool hasKey() => $_has(2);
   @$pb.TagNumber(3)
-  void clearUuid() => clearField(3);
+  void clearKey() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.int get id => $_getIZ(3);
+  $core.bool get state => $_getBF(3);
   @$pb.TagNumber(4)
-  set id($core.int v) {
-    $_setSignedInt32(3, v);
-  }
-
-  @$pb.TagNumber(4)
-  $core.bool hasId() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearId() => clearField(4);
-
-  @$pb.TagNumber(5)
-  $core.bool get state => $_getBF(4);
-  @$pb.TagNumber(5)
   set state($core.bool v) {
-    $_setBool(4, v);
+    $_setBool(3, v);
   }
 
-  @$pb.TagNumber(5)
-  $core.bool hasState() => $_has(4);
-  @$pb.TagNumber(5)
-  void clearState() => clearField(5);
+  @$pb.TagNumber(4)
+  $core.bool hasState() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearState() => clearField(4);
 }
 
 class GattCharacteristicValue extends $pb.GeneratedMessage {
@@ -1528,33 +1613,47 @@ class GattCharacteristicValue extends $pb.GeneratedMessage {
       const $core.bool.fromEnvironment('protobuf.omit_message_names')
           ? ''
           : 'GattCharacteristicValue',
-      package: const $pb.PackageName(
-          const $core.bool.fromEnvironment('protobuf.omit_message_names')
-              ? ''
-              : 'dev.yanshouwang.bluetooth_low_energy'),
+      package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names')
+          ? ''
+          : 'dev.yanshouwang.bluetooth_low_energy'),
       createEmptyInstance: create)
-    ..a<$core.int>(
+    ..aOS(
+        1,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'gattKey')
+    ..aOS(
+        2,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'serviceKey')
+    ..aOS(
         3,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'id',
-        $pb.PbFieldType.O3)
+            : 'key')
     ..a<$core.List<$core.int>>(
         4,
-        const $core.bool.fromEnvironment('protobuf.omit_field_names')
-            ? ''
-            : 'value',
+        const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value',
         $pb.PbFieldType.OY)
     ..hasRequiredFields = false;
 
   GattCharacteristicValue._() : super();
   factory GattCharacteristicValue({
-    $core.int? id,
+    $core.String? gattKey,
+    $core.String? serviceKey,
+    $core.String? key,
     $core.List<$core.int>? value,
   }) {
     final _result = create();
-    if (id != null) {
-      _result.id = id;
+    if (gattKey != null) {
+      _result.gattKey = gattKey;
+    }
+    if (serviceKey != null) {
+      _result.serviceKey = serviceKey;
+    }
+    if (key != null) {
+      _result.key = key;
     }
     if (value != null) {
       _result.value = value;
@@ -1590,27 +1689,51 @@ class GattCharacteristicValue extends $pb.GeneratedMessage {
       $pb.GeneratedMessage.$_defaultFor<GattCharacteristicValue>(create);
   static GattCharacteristicValue? _defaultInstance;
 
+  @$pb.TagNumber(1)
+  $core.String get gattKey => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set gattKey($core.String v) {
+    $_setString(0, v);
+  }
+
+  @$pb.TagNumber(1)
+  $core.bool hasGattKey() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGattKey() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get serviceKey => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set serviceKey($core.String v) {
+    $_setString(1, v);
+  }
+
+  @$pb.TagNumber(2)
+  $core.bool hasServiceKey() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearServiceKey() => clearField(2);
+
   @$pb.TagNumber(3)
-  $core.int get id => $_getIZ(0);
+  $core.String get key => $_getSZ(2);
   @$pb.TagNumber(3)
-  set id($core.int v) {
-    $_setSignedInt32(0, v);
+  set key($core.String v) {
+    $_setString(2, v);
   }
 
   @$pb.TagNumber(3)
-  $core.bool hasId() => $_has(0);
+  $core.bool hasKey() => $_has(2);
   @$pb.TagNumber(3)
-  void clearId() => clearField(3);
+  void clearKey() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.List<$core.int> get value => $_getN(1);
+  $core.List<$core.int> get value => $_getN(3);
   @$pb.TagNumber(4)
   set value($core.List<$core.int> v) {
-    $_setBytes(1, v);
+    $_setBytes(3, v);
   }
 
   @$pb.TagNumber(4)
-  $core.bool hasValue() => $_has(1);
+  $core.bool hasValue() => $_has(3);
   @$pb.TagNumber(4)
   void clearValue() => clearField(4);
 }
@@ -1629,45 +1752,40 @@ class GattDescriptorReadArguments extends $pb.GeneratedMessage {
         1,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'address')
+            : 'gattKey')
     ..aOS(
         2,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'serviceUuid')
+            : 'serviceKey')
     ..aOS(
         3,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'characteristicUuid')
-    ..aOS(
-        4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uuid')
-    ..a<$core.int>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id', $pb.PbFieldType.O3)
+            : 'characteristicKey')
+    ..aOS(4,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'key')
     ..hasRequiredFields = false;
 
   GattDescriptorReadArguments._() : super();
   factory GattDescriptorReadArguments({
-    $core.String? address,
-    $core.String? serviceUuid,
-    $core.String? characteristicUuid,
-    $core.String? uuid,
-    $core.int? id,
+    $core.String? gattKey,
+    $core.String? serviceKey,
+    $core.String? characteristicKey,
+    $core.String? key,
   }) {
     final _result = create();
-    if (address != null) {
-      _result.address = address;
+    if (gattKey != null) {
+      _result.gattKey = gattKey;
     }
-    if (serviceUuid != null) {
-      _result.serviceUuid = serviceUuid;
+    if (serviceKey != null) {
+      _result.serviceKey = serviceKey;
     }
-    if (characteristicUuid != null) {
-      _result.characteristicUuid = characteristicUuid;
+    if (characteristicKey != null) {
+      _result.characteristicKey = characteristicKey;
     }
-    if (uuid != null) {
-      _result.uuid = uuid;
-    }
-    if (id != null) {
-      _result.id = id;
+    if (key != null) {
+      _result.key = key;
     }
     return _result;
   }
@@ -1703,64 +1821,52 @@ class GattDescriptorReadArguments extends $pb.GeneratedMessage {
   static GattDescriptorReadArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get address => $_getSZ(0);
+  $core.String get gattKey => $_getSZ(0);
   @$pb.TagNumber(1)
-  set address($core.String v) {
+  set gattKey($core.String v) {
     $_setString(0, v);
   }
 
   @$pb.TagNumber(1)
-  $core.bool hasAddress() => $_has(0);
+  $core.bool hasGattKey() => $_has(0);
   @$pb.TagNumber(1)
-  void clearAddress() => clearField(1);
+  void clearGattKey() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get serviceUuid => $_getSZ(1);
+  $core.String get serviceKey => $_getSZ(1);
   @$pb.TagNumber(2)
-  set serviceUuid($core.String v) {
+  set serviceKey($core.String v) {
     $_setString(1, v);
   }
 
   @$pb.TagNumber(2)
-  $core.bool hasServiceUuid() => $_has(1);
+  $core.bool hasServiceKey() => $_has(1);
   @$pb.TagNumber(2)
-  void clearServiceUuid() => clearField(2);
+  void clearServiceKey() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get characteristicUuid => $_getSZ(2);
+  $core.String get characteristicKey => $_getSZ(2);
   @$pb.TagNumber(3)
-  set characteristicUuid($core.String v) {
+  set characteristicKey($core.String v) {
     $_setString(2, v);
   }
 
   @$pb.TagNumber(3)
-  $core.bool hasCharacteristicUuid() => $_has(2);
+  $core.bool hasCharacteristicKey() => $_has(2);
   @$pb.TagNumber(3)
-  void clearCharacteristicUuid() => clearField(3);
+  void clearCharacteristicKey() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get uuid => $_getSZ(3);
+  $core.String get key => $_getSZ(3);
   @$pb.TagNumber(4)
-  set uuid($core.String v) {
+  set key($core.String v) {
     $_setString(3, v);
   }
 
   @$pb.TagNumber(4)
-  $core.bool hasUuid() => $_has(3);
+  $core.bool hasKey() => $_has(3);
   @$pb.TagNumber(4)
-  void clearUuid() => clearField(4);
-
-  @$pb.TagNumber(5)
-  $core.int get id => $_getIZ(4);
-  @$pb.TagNumber(5)
-  set id($core.int v) {
-    $_setSignedInt32(4, v);
-  }
-
-  @$pb.TagNumber(5)
-  $core.bool hasId() => $_has(4);
-  @$pb.TagNumber(5)
-  void clearId() => clearField(5);
+  void clearKey() => clearField(4);
 }
 
 class GattDescriptorWriteArguments extends $pb.GeneratedMessage {
@@ -1777,47 +1883,42 @@ class GattDescriptorWriteArguments extends $pb.GeneratedMessage {
         1,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'address')
+            : 'gattKey')
     ..aOS(
         2,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'serviceUuid')
+            : 'serviceKey')
     ..aOS(
         3,
         const $core.bool.fromEnvironment('protobuf.omit_field_names')
             ? ''
-            : 'characteristicUuid')
+            : 'characteristicKey')
     ..aOS(4,
-        const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uuid')
-    ..a<$core.int>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id', $pb.PbFieldType.O3)
-    ..a<$core.List<$core.int>>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value', $pb.PbFieldType.OY)
+        const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'key')
+    ..a<$core.List<$core.int>>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value', $pb.PbFieldType.OY)
     ..hasRequiredFields = false;
 
   GattDescriptorWriteArguments._() : super();
   factory GattDescriptorWriteArguments({
-    $core.String? address,
-    $core.String? serviceUuid,
-    $core.String? characteristicUuid,
-    $core.String? uuid,
-    $core.int? id,
+    $core.String? gattKey,
+    $core.String? serviceKey,
+    $core.String? characteristicKey,
+    $core.String? key,
     $core.List<$core.int>? value,
   }) {
     final _result = create();
-    if (address != null) {
-      _result.address = address;
+    if (gattKey != null) {
+      _result.gattKey = gattKey;
     }
-    if (serviceUuid != null) {
-      _result.serviceUuid = serviceUuid;
+    if (serviceKey != null) {
+      _result.serviceKey = serviceKey;
     }
-    if (characteristicUuid != null) {
-      _result.characteristicUuid = characteristicUuid;
+    if (characteristicKey != null) {
+      _result.characteristicKey = characteristicKey;
     }
-    if (uuid != null) {
-      _result.uuid = uuid;
-    }
-    if (id != null) {
-      _result.id = id;
+    if (key != null) {
+      _result.key = key;
     }
     if (value != null) {
       _result.value = value;
@@ -1856,74 +1957,62 @@ class GattDescriptorWriteArguments extends $pb.GeneratedMessage {
   static GattDescriptorWriteArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get address => $_getSZ(0);
+  $core.String get gattKey => $_getSZ(0);
   @$pb.TagNumber(1)
-  set address($core.String v) {
+  set gattKey($core.String v) {
     $_setString(0, v);
   }
 
   @$pb.TagNumber(1)
-  $core.bool hasAddress() => $_has(0);
+  $core.bool hasGattKey() => $_has(0);
   @$pb.TagNumber(1)
-  void clearAddress() => clearField(1);
+  void clearGattKey() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get serviceUuid => $_getSZ(1);
+  $core.String get serviceKey => $_getSZ(1);
   @$pb.TagNumber(2)
-  set serviceUuid($core.String v) {
+  set serviceKey($core.String v) {
     $_setString(1, v);
   }
 
   @$pb.TagNumber(2)
-  $core.bool hasServiceUuid() => $_has(1);
+  $core.bool hasServiceKey() => $_has(1);
   @$pb.TagNumber(2)
-  void clearServiceUuid() => clearField(2);
+  void clearServiceKey() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get characteristicUuid => $_getSZ(2);
+  $core.String get characteristicKey => $_getSZ(2);
   @$pb.TagNumber(3)
-  set characteristicUuid($core.String v) {
+  set characteristicKey($core.String v) {
     $_setString(2, v);
   }
 
   @$pb.TagNumber(3)
-  $core.bool hasCharacteristicUuid() => $_has(2);
+  $core.bool hasCharacteristicKey() => $_has(2);
   @$pb.TagNumber(3)
-  void clearCharacteristicUuid() => clearField(3);
+  void clearCharacteristicKey() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get uuid => $_getSZ(3);
+  $core.String get key => $_getSZ(3);
   @$pb.TagNumber(4)
-  set uuid($core.String v) {
+  set key($core.String v) {
     $_setString(3, v);
   }
 
   @$pb.TagNumber(4)
-  $core.bool hasUuid() => $_has(3);
+  $core.bool hasKey() => $_has(3);
   @$pb.TagNumber(4)
-  void clearUuid() => clearField(4);
+  void clearKey() => clearField(4);
 
   @$pb.TagNumber(5)
-  $core.int get id => $_getIZ(4);
+  $core.List<$core.int> get value => $_getN(4);
   @$pb.TagNumber(5)
-  set id($core.int v) {
-    $_setSignedInt32(4, v);
-  }
-
-  @$pb.TagNumber(5)
-  $core.bool hasId() => $_has(4);
-  @$pb.TagNumber(5)
-  void clearId() => clearField(5);
-
-  @$pb.TagNumber(6)
-  $core.List<$core.int> get value => $_getN(5);
-  @$pb.TagNumber(6)
   set value($core.List<$core.int> v) {
-    $_setBytes(5, v);
+    $_setBytes(4, v);
   }
 
-  @$pb.TagNumber(6)
-  $core.bool hasValue() => $_has(5);
-  @$pb.TagNumber(6)
-  void clearValue() => clearField(6);
+  @$pb.TagNumber(5)
+  $core.bool hasValue() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearValue() => clearField(5);
 }

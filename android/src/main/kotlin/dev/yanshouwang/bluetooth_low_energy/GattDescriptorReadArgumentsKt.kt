@@ -23,88 +23,71 @@ object GattDescriptorReadArgumentsKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorReadArguments = _builder.build()
 
     /**
-     * <code>string address = 1;</code>
+     * <code>string gatt_key = 1;</code>
      */
-    var address: kotlin.String
-      @JvmName("getAddress")
-      get() = _builder.getAddress()
-      @JvmName("setAddress")
+    var gattKey: kotlin.String
+      @JvmName("getGattKey")
+      get() = _builder.getGattKey()
+      @JvmName("setGattKey")
       set(value) {
-        _builder.setAddress(value)
+        _builder.setGattKey(value)
       }
     /**
-     * <code>string address = 1;</code>
+     * <code>string gatt_key = 1;</code>
      */
-    fun clearAddress() {
-      _builder.clearAddress()
+    fun clearGattKey() {
+      _builder.clearGattKey()
     }
 
     /**
-     * <code>string service_uuid = 2;</code>
+     * <code>string service_key = 2;</code>
      */
-    var serviceUuid: kotlin.String
-      @JvmName("getServiceUuid")
-      get() = _builder.getServiceUuid()
-      @JvmName("setServiceUuid")
+    var serviceKey: kotlin.String
+      @JvmName("getServiceKey")
+      get() = _builder.getServiceKey()
+      @JvmName("setServiceKey")
       set(value) {
-        _builder.setServiceUuid(value)
+        _builder.setServiceKey(value)
       }
     /**
-     * <code>string service_uuid = 2;</code>
+     * <code>string service_key = 2;</code>
      */
-    fun clearServiceUuid() {
-      _builder.clearServiceUuid()
+    fun clearServiceKey() {
+      _builder.clearServiceKey()
     }
 
     /**
-     * <code>string characteristic_uuid = 3;</code>
+     * <code>string characteristic_key = 3;</code>
      */
-    var characteristicUuid: kotlin.String
-      @JvmName("getCharacteristicUuid")
-      get() = _builder.getCharacteristicUuid()
-      @JvmName("setCharacteristicUuid")
+    var characteristicKey: kotlin.String
+      @JvmName("getCharacteristicKey")
+      get() = _builder.getCharacteristicKey()
+      @JvmName("setCharacteristicKey")
       set(value) {
-        _builder.setCharacteristicUuid(value)
+        _builder.setCharacteristicKey(value)
       }
     /**
-     * <code>string characteristic_uuid = 3;</code>
+     * <code>string characteristic_key = 3;</code>
      */
-    fun clearCharacteristicUuid() {
-      _builder.clearCharacteristicUuid()
+    fun clearCharacteristicKey() {
+      _builder.clearCharacteristicKey()
     }
 
     /**
-     * <code>string uuid = 4;</code>
+     * <code>string key = 4;</code>
      */
-    var uuid: kotlin.String
-      @JvmName("getUuid")
-      get() = _builder.getUuid()
-      @JvmName("setUuid")
+    var key: kotlin.String
+      @JvmName("getKey")
+      get() = _builder.getKey()
+      @JvmName("setKey")
       set(value) {
-        _builder.setUuid(value)
+        _builder.setKey(value)
       }
     /**
-     * <code>string uuid = 4;</code>
+     * <code>string key = 4;</code>
      */
-    fun clearUuid() {
-      _builder.clearUuid()
-    }
-
-    /**
-     * <code>int32 id = 5;</code>
-     */
-    var id: kotlin.Int
-      @JvmName("getId")
-      get() = _builder.getId()
-      @JvmName("setId")
-      set(value) {
-        _builder.setId(value)
-      }
-    /**
-     * <code>int32 id = 5;</code>
-     */
-    fun clearId() {
-      _builder.clearId()
+    fun clearKey() {
+      _builder.clearKey()
     }
   }
 }

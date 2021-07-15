@@ -26,17 +26,16 @@ dependencies:
   bluetooth_low_energy: ^<latest-version>
 ```
 
+*Note*: Bluetooth Low Energy doesn't work on Android emulators, so use physical devices which has bluetooth features for development.
+
 ### Android
 
 Make sure you have a `miniSdkVersion` with 21 or higher in your `android/app/build.gradle` file, now we only support Android 5.0 or above.
 
-*Note*: Bluetooth Low Energy doesn't work on Android emulators, so use physical devices which has bluetooth features for development.
-
 ### iOS
 
-TO BE DONE.
+Make sure you have a minimum deployment target of 9.0 or above, you can uncomment the first line `platform :ios, '9.0'` in your iOS project's `Podfile`.
 
 ## Issues
 
-- Only support Android for now, iOS will available as soon as possible.
-- Only support central APIs for now.
+- Not support peripheral APIs for now.

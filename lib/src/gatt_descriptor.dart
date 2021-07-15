@@ -14,46 +14,46 @@ abstract class GattDescriptor {
 
 class _GattDescriptor implements GattDescriptor {
   _GattDescriptor(
-    this.address,
-    this.serviceUUID,
-    this.characteristicUUID,
-    this.id,
+    this.gattKey,
+    this.serviceKey,
+    this.characteristicKey,
+    this.key,
     this.uuid,
   );
 
-  final MAC address;
-  final UUID serviceUUID;
-  final UUID characteristicUUID;
-  final int id;
+  final String gattKey;
+  final String serviceKey;
+  final String characteristicKey;
+  final String key;
   @override
   final UUID uuid;
 
   @override
   Future<List<int>> read() {
-    final name = proto.MessageCategory.GATT_DESCRIPTOR_READ.name;
-    final arguments = proto.GattDescriptorReadArguments(
-      address: address.name,
-      serviceUuid: serviceUUID.name,
-      characteristicUuid: characteristicUUID.name,
-      uuid: uuid.name,
-      id: id,
+    final message = proto.Message(
+      category: proto.MessageCategory.GATT_DESCRIPTOR_READ,
+      descriptorReadArguments: proto.GattDescriptorReadArguments(
+        gattKey: gattKey,
+        serviceKey: serviceKey,
+        characteristicKey: characteristicKey,
+        key: key,
+      ),
     ).writeToBuffer();
-    return method
-        .invokeListMethod<int>(name, arguments)
-        .then((value) => value!);
+    return method.invokeListMethod<int>('', message).then((value) => value!);
   }
 
   @override
   Future write(List<int> value) {
-    final name = proto.MessageCategory.GATT_DESCRIPTOR_WRITE.name;
-    final arguments = proto.GattDescriptorWriteArguments(
-      address: address.name,
-      serviceUuid: serviceUUID.name,
-      characteristicUuid: characteristicUUID.name,
-      uuid: uuid.name,
-      id: id,
-      value: value,
+    final message = proto.Message(
+      category: proto.MessageCategory.GATT_DESCRIPTOR_WRITE,
+      descriptorWriteArguments: proto.GattDescriptorWriteArguments(
+        gattKey: gattKey,
+        serviceKey: serviceKey,
+        characteristicKey: characteristicKey,
+        key: key,
+        value: value,
+      ),
     ).writeToBuffer();
-    return method.invokeMethod(name, arguments);
+    return method.invokeMethod('', message);
   }
 }

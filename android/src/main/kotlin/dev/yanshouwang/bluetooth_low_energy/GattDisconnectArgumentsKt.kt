@@ -23,37 +23,20 @@ object GattDisconnectArgumentsKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDisconnectArguments = _builder.build()
 
     /**
-     * <code>string address = 1;</code>
+     * <code>string key = 1;</code>
      */
-    var address: kotlin.String
-      @JvmName("getAddress")
-      get() = _builder.getAddress()
-      @JvmName("setAddress")
+    var key: kotlin.String
+      @JvmName("getKey")
+      get() = _builder.getKey()
+      @JvmName("setKey")
       set(value) {
-        _builder.setAddress(value)
+        _builder.setKey(value)
       }
     /**
-     * <code>string address = 1;</code>
+     * <code>string key = 1;</code>
      */
-    fun clearAddress() {
-      _builder.clearAddress()
-    }
-
-    /**
-     * <code>int32 id = 2;</code>
-     */
-    var id: kotlin.Int
-      @JvmName("getId")
-      get() = _builder.getId()
-      @JvmName("setId")
-      set(value) {
-        _builder.setId(value)
-      }
-    /**
-     * <code>int32 id = 2;</code>
-     */
-    fun clearId() {
-      _builder.clearId()
+    fun clearKey() {
+      _builder.clearKey()
     }
   }
 }

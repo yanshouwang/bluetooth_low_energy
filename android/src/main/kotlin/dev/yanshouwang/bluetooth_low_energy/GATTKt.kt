@@ -23,37 +23,37 @@ object GATTKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT = _builder.build()
 
     /**
-     * <code>int32 id = 1;</code>
+     * <code>string key = 1;</code>
      */
-    var id: kotlin.Int
-      @JvmName("getId")
-      get() = _builder.getId()
-      @JvmName("setId")
+    var key: kotlin.String
+      @JvmName("getKey")
+      get() = _builder.getKey()
+      @JvmName("setKey")
       set(value) {
-        _builder.setId(value)
+        _builder.setKey(value)
       }
     /**
-     * <code>int32 id = 1;</code>
+     * <code>string key = 1;</code>
      */
-    fun clearId() {
-      _builder.clearId()
+    fun clearKey() {
+      _builder.clearKey()
     }
 
     /**
-     * <code>int32 mtu = 2;</code>
+     * <code>int32 maximumWriteLength = 2;</code>
      */
-    var mtu: kotlin.Int
-      @JvmName("getMtu")
-      get() = _builder.getMtu()
-      @JvmName("setMtu")
+    var maximumWriteLength: kotlin.Int
+      @JvmName("getMaximumWriteLength")
+      get() = _builder.getMaximumWriteLength()
+      @JvmName("setMaximumWriteLength")
       set(value) {
-        _builder.setMtu(value)
+        _builder.setMaximumWriteLength(value)
       }
     /**
-     * <code>int32 mtu = 2;</code>
+     * <code>int32 maximumWriteLength = 2;</code>
      */
-    fun clearMtu() {
-      _builder.clearMtu()
+    fun clearMaximumWriteLength() {
+      _builder.clearMaximumWriteLength()
     }
 
     /**

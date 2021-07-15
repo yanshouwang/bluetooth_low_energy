@@ -6,9 +6,6 @@ abstract class GattCharacteristic {
   UUID get uuid;
 
   /// TO BE DONE.
-  Map<UUID, GattDescriptor> get descriptors;
-
-  /// TO BE DONE.
   bool get canRead;
 
   /// TO BE DONE.
@@ -19,6 +16,9 @@ abstract class GattCharacteristic {
 
   /// TO BE DONE.
   bool get canNotify;
+
+  /// TO BE DONE.
+  Map<UUID, GattDescriptor> get descriptors;
 
   /// TO BE DONE.
   Stream<List<int>> get valueChanged;
@@ -35,24 +35,22 @@ abstract class GattCharacteristic {
 
 class _GattCharacteristic implements GattCharacteristic {
   _GattCharacteristic(
-    this.address,
-    this.serviceUUID,
-    this.id,
+    this.gattKey,
+    this.serviceKey,
+    this.key,
     this.uuid,
-    this.descriptors,
     this.canRead,
     this.canWrite,
     this.canWriteWithoutResponse,
     this.canNotify,
+    this.descriptors,
   );
 
-  final MAC address;
-  final UUID serviceUUID;
-  final int id;
+  final String gattKey;
+  final String serviceKey;
+  final String key;
   @override
   final UUID uuid;
-  @override
-  final Map<UUID, GattDescriptor> descriptors;
   @override
   final bool canRead;
   @override
@@ -61,54 +59,58 @@ class _GattCharacteristic implements GattCharacteristic {
   final bool canWriteWithoutResponse;
   @override
   final bool canNotify;
+  @override
+  final Map<UUID, GattDescriptor> descriptors;
 
   @override
   Stream<List<int>> get valueChanged => stream
-      .map((event) => proto.Message.fromBuffer(event))
       .where((message) =>
           message.category ==
               proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY &&
-          message.characteristicValue.id == id)
+          message.characteristicValue.gattKey == gattKey &&
+          message.characteristicValue.serviceKey == serviceKey &&
+          message.characteristicValue.key == key)
       .map((message) => message.characteristicValue.value);
 
   @override
   Future<List<int>> read() {
-    final name = proto.MessageCategory.GATT_CHARACTERISTIC_READ.name;
-    final arguments = proto.GattCharacteristicReadArguments(
-      address: address.name,
-      serviceUuid: serviceUUID.name,
-      uuid: uuid.name,
-      id: id,
+    final message = proto.Message(
+      category: proto.MessageCategory.GATT_CHARACTERISTIC_READ,
+      characteristicReadArguments: proto.GattCharacteristicReadArguments(
+        gattKey: gattKey,
+        serviceKey: serviceKey,
+        key: key,
+      ),
     ).writeToBuffer();
-    return method
-        .invokeListMethod<int>(name, arguments)
-        .then((value) => value!);
+    return method.invokeListMethod<int>('', message).then((value) => value!);
   }
 
   @override
   Future write(List<int> value, {bool withoutResponse = false}) {
-    final name = proto.MessageCategory.GATT_CHARACTERISTIC_WRITE.name;
-    final arguments = proto.GattCharacteristicWriteArguments(
-      address: address.name,
-      serviceUuid: serviceUUID.name,
-      uuid: uuid.name,
-      id: id,
-      value: value,
-      withoutResponse: withoutResponse,
+    final message = proto.Message(
+      category: proto.MessageCategory.GATT_CHARACTERISTIC_WRITE,
+      characteristicWriteArguments: proto.GattCharacteristicWriteArguments(
+        gattKey: gattKey,
+        serviceKey: serviceKey,
+        key: key,
+        value: value,
+        withoutResponse: withoutResponse,
+      ),
     ).writeToBuffer();
-    return method.invokeMethod(name, arguments);
+    return method.invokeMethod('', message);
   }
 
   @override
   Future notify(bool state) {
-    final name = proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY.name;
-    final arguments = proto.GattCharacteristicNotifyArguments(
-      address: address.name,
-      serviceUuid: serviceUUID.name,
-      uuid: uuid.name,
-      id: id,
-      state: state,
+    final message = proto.Message(
+      category: proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY,
+      characteristicNotifyArguments: proto.GattCharacteristicNotifyArguments(
+        gattKey: gattKey,
+        serviceKey: serviceKey,
+        key: key,
+        state: state,
+      ),
     ).writeToBuffer();
-    return method.invokeMethod(name, arguments);
+    return method.invokeMethod('', message);
   }
 }

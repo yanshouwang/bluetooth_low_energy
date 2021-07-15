@@ -23,20 +23,20 @@ object ConnectArgumentsKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.ConnectArguments = _builder.build()
 
     /**
-     * <code>string address = 1;</code>
+     * <code>string uuid = 1;</code>
      */
-    var address: kotlin.String
-      @JvmName("getAddress")
-      get() = _builder.getAddress()
-      @JvmName("setAddress")
+    var uuid: kotlin.String
+      @JvmName("getUuid")
+      get() = _builder.getUuid()
+      @JvmName("setUuid")
       set(value) {
-        _builder.setAddress(value)
+        _builder.setUuid(value)
       }
     /**
-     * <code>string address = 1;</code>
+     * <code>string uuid = 1;</code>
      */
-    fun clearAddress() {
-      _builder.clearAddress()
+    fun clearUuid() {
+      _builder.clearUuid()
     }
   }
 }
