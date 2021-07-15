@@ -23,41 +23,75 @@ object GattDescriptorWriteArgumentsKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorWriteArguments = _builder.build()
 
     /**
-     * <code>int32 gatt_id = 1;</code>
+     * <code>string gatt_key = 1;</code>
      */
-    var gattId: kotlin.Int
-      @JvmName("getGattId")
-      get() = _builder.getGattId()
-      @JvmName("setGattId")
+    var gattKey: kotlin.String
+      @JvmName("getGattKey")
+      get() = _builder.getGattKey()
+      @JvmName("setGattKey")
       set(value) {
-        _builder.setGattId(value)
+        _builder.setGattKey(value)
       }
     /**
-     * <code>int32 gatt_id = 1;</code>
+     * <code>string gatt_key = 1;</code>
      */
-    fun clearGattId() {
-      _builder.clearGattId()
+    fun clearGattKey() {
+      _builder.clearGattKey()
     }
 
     /**
-     * <code>int32 id = 2;</code>
+     * <code>string service_key = 2;</code>
      */
-    var id: kotlin.Int
-      @JvmName("getId")
-      get() = _builder.getId()
-      @JvmName("setId")
+    var serviceKey: kotlin.String
+      @JvmName("getServiceKey")
+      get() = _builder.getServiceKey()
+      @JvmName("setServiceKey")
       set(value) {
-        _builder.setId(value)
+        _builder.setServiceKey(value)
       }
     /**
-     * <code>int32 id = 2;</code>
+     * <code>string service_key = 2;</code>
      */
-    fun clearId() {
-      _builder.clearId()
+    fun clearServiceKey() {
+      _builder.clearServiceKey()
     }
 
     /**
-     * <code>bytes value = 3;</code>
+     * <code>string characteristic_key = 3;</code>
+     */
+    var characteristicKey: kotlin.String
+      @JvmName("getCharacteristicKey")
+      get() = _builder.getCharacteristicKey()
+      @JvmName("setCharacteristicKey")
+      set(value) {
+        _builder.setCharacteristicKey(value)
+      }
+    /**
+     * <code>string characteristic_key = 3;</code>
+     */
+    fun clearCharacteristicKey() {
+      _builder.clearCharacteristicKey()
+    }
+
+    /**
+     * <code>string key = 4;</code>
+     */
+    var key: kotlin.String
+      @JvmName("getKey")
+      get() = _builder.getKey()
+      @JvmName("setKey")
+      set(value) {
+        _builder.setKey(value)
+      }
+    /**
+     * <code>string key = 4;</code>
+     */
+    fun clearKey() {
+      _builder.clearKey()
+    }
+
+    /**
+     * <code>bytes value = 5;</code>
      */
     var value: com.google.protobuf.ByteString
       @JvmName("getValue")
@@ -67,7 +101,7 @@ object GattDescriptorWriteArgumentsKt {
         _builder.setValue(value)
       }
     /**
-     * <code>bytes value = 3;</code>
+     * <code>bytes value = 5;</code>
      */
     fun clearValue() {
       _builder.clearValue()

@@ -23,24 +23,58 @@ object GattCharacteristicValueKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicValue = _builder.build()
 
     /**
-     * <code>int32 id = 1;</code>
+     * <code>string gatt_key = 1;</code>
      */
-    var id: kotlin.Int
-      @JvmName("getId")
-      get() = _builder.getId()
-      @JvmName("setId")
+    var gattKey: kotlin.String
+      @JvmName("getGattKey")
+      get() = _builder.getGattKey()
+      @JvmName("setGattKey")
       set(value) {
-        _builder.setId(value)
+        _builder.setGattKey(value)
       }
     /**
-     * <code>int32 id = 1;</code>
+     * <code>string gatt_key = 1;</code>
      */
-    fun clearId() {
-      _builder.clearId()
+    fun clearGattKey() {
+      _builder.clearGattKey()
     }
 
     /**
-     * <code>bytes value = 2;</code>
+     * <code>string service_key = 2;</code>
+     */
+    var serviceKey: kotlin.String
+      @JvmName("getServiceKey")
+      get() = _builder.getServiceKey()
+      @JvmName("setServiceKey")
+      set(value) {
+        _builder.setServiceKey(value)
+      }
+    /**
+     * <code>string service_key = 2;</code>
+     */
+    fun clearServiceKey() {
+      _builder.clearServiceKey()
+    }
+
+    /**
+     * <code>string key = 3;</code>
+     */
+    var key: kotlin.String
+      @JvmName("getKey")
+      get() = _builder.getKey()
+      @JvmName("setKey")
+      set(value) {
+        _builder.setKey(value)
+      }
+    /**
+     * <code>string key = 3;</code>
+     */
+    fun clearKey() {
+      _builder.clearKey()
+    }
+
+    /**
+     * <code>bytes value = 4;</code>
      */
     var value: com.google.protobuf.ByteString
       @JvmName("getValue")
@@ -50,7 +84,7 @@ object GattCharacteristicValueKt {
         _builder.setValue(value)
       }
     /**
-     * <code>bytes value = 2;</code>
+     * <code>bytes value = 4;</code>
      */
     fun clearValue() {
       _builder.clearValue()

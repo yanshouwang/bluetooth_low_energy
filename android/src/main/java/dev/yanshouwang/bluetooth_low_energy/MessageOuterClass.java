@@ -5587,10 +5587,16 @@ public final class MessageOuterClass {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>int32 id = 1;</code>
-     * @return The id.
+     * <code>string key = 1;</code>
+     * @return The key.
      */
-    int getId();
+    java.lang.String getKey();
+    /**
+     * <code>string key = 1;</code>
+     * @return The bytes for key.
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
 
     /**
      * <code>int32 maximumWriteLength = 2;</code>
@@ -5635,6 +5641,7 @@ public final class MessageOuterClass {
       super(builder);
     }
     private GATT() {
+      key_ = "";
       services_ = java.util.Collections.emptyList();
     }
 
@@ -5669,9 +5676,10 @@ public final class MessageOuterClass {
             case 0:
               done = true;
               break;
-            case 8: {
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              id_ = input.readInt32();
+              key_ = s;
               break;
             }
             case 16: {
@@ -5723,15 +5731,42 @@ public final class MessageOuterClass {
               dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT.Builder.class);
     }
 
-    public static final int ID_FIELD_NUMBER = 1;
-    private int id_;
+    public static final int KEY_FIELD_NUMBER = 1;
+    private volatile java.lang.Object key_;
     /**
-     * <code>int32 id = 1;</code>
-     * @return The id.
+     * <code>string key = 1;</code>
+     * @return The key.
      */
     @java.lang.Override
-    public int getId() {
-      return id_;
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        key_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string key = 1;</code>
+     * @return The bytes for key.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     public static final int MAXIMUMWRITELENGTH_FIELD_NUMBER = 2;
@@ -5799,8 +5834,8 @@ public final class MessageOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (id_ != 0) {
-        output.writeInt32(1, id_);
+      if (!getKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, key_);
       }
       if (maximumWriteLength_ != 0) {
         output.writeInt32(2, maximumWriteLength_);
@@ -5817,9 +5852,8 @@ public final class MessageOuterClass {
       if (size != -1) return size;
 
       size = 0;
-      if (id_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, id_);
+      if (!getKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, key_);
       }
       if (maximumWriteLength_ != 0) {
         size += com.google.protobuf.CodedOutputStream
@@ -5844,8 +5878,8 @@ public final class MessageOuterClass {
       }
       dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT other = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT) obj;
 
-      if (getId()
-          != other.getId()) return false;
+      if (!getKey()
+          .equals(other.getKey())) return false;
       if (getMaximumWriteLength()
           != other.getMaximumWriteLength()) return false;
       if (!getServicesList()
@@ -5861,8 +5895,8 @@ public final class MessageOuterClass {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + ID_FIELD_NUMBER;
-      hash = (53 * hash) + getId();
+      hash = (37 * hash) + KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getKey().hashCode();
       hash = (37 * hash) + MAXIMUMWRITELENGTH_FIELD_NUMBER;
       hash = (53 * hash) + getMaximumWriteLength();
       if (getServicesCount() > 0) {
@@ -6003,7 +6037,7 @@ public final class MessageOuterClass {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        id_ = 0;
+        key_ = "";
 
         maximumWriteLength_ = 0;
 
@@ -6040,7 +6074,7 @@ public final class MessageOuterClass {
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT buildPartial() {
         dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT(this);
         int from_bitField0_ = bitField0_;
-        result.id_ = id_;
+        result.key_ = key_;
         result.maximumWriteLength_ = maximumWriteLength_;
         if (servicesBuilder_ == null) {
           if (((bitField0_ & 0x00000001) != 0)) {
@@ -6099,8 +6133,9 @@ public final class MessageOuterClass {
 
       public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT other) {
         if (other == dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GATT.getDefaultInstance()) return this;
-        if (other.getId() != 0) {
-          setId(other.getId());
+        if (!other.getKey().isEmpty()) {
+          key_ = other.key_;
+          onChanged();
         }
         if (other.getMaximumWriteLength() != 0) {
           setMaximumWriteLength(other.getMaximumWriteLength());
@@ -6161,33 +6196,78 @@ public final class MessageOuterClass {
       }
       private int bitField0_;
 
-      private int id_ ;
+      private java.lang.Object key_ = "";
       /**
-       * <code>int32 id = 1;</code>
-       * @return The id.
+       * <code>string key = 1;</code>
+       * @return The key.
        */
-      @java.lang.Override
-      public int getId() {
-        return id_;
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          key_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>int32 id = 1;</code>
-       * @param value The id to set.
+       * <code>string key = 1;</code>
+       * @return The bytes for key.
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string key = 1;</code>
+       * @param value The key to set.
        * @return This builder for chaining.
        */
-      public Builder setId(int value) {
-        
-        id_ = value;
+      public Builder setKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        key_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 id = 1;</code>
+       * <code>string key = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearId() {
+      public Builder clearKey() {
         
-        id_ = 0;
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 1;</code>
+       * @param value The bytes for key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        key_ = value;
         onChanged();
         return this;
       }
@@ -6520,10 +6600,16 @@ public final class MessageOuterClass {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>int32 id = 1;</code>
-     * @return The id.
+     * <code>string key = 1;</code>
+     * @return The key.
      */
-    int getId();
+    java.lang.String getKey();
+    /**
+     * <code>string key = 1;</code>
+     * @return The bytes for key.
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
 
     /**
      * <code>string uuid = 2;</code>
@@ -6574,6 +6660,7 @@ public final class MessageOuterClass {
       super(builder);
     }
     private GattService() {
+      key_ = "";
       uuid_ = "";
       characteristics_ = java.util.Collections.emptyList();
     }
@@ -6609,9 +6696,10 @@ public final class MessageOuterClass {
             case 0:
               done = true;
               break;
-            case 8: {
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              id_ = input.readInt32();
+              key_ = s;
               break;
             }
             case 18: {
@@ -6664,15 +6752,42 @@ public final class MessageOuterClass {
               dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.Builder.class);
     }
 
-    public static final int ID_FIELD_NUMBER = 1;
-    private int id_;
+    public static final int KEY_FIELD_NUMBER = 1;
+    private volatile java.lang.Object key_;
     /**
-     * <code>int32 id = 1;</code>
-     * @return The id.
+     * <code>string key = 1;</code>
+     * @return The key.
      */
     @java.lang.Override
-    public int getId() {
-      return id_;
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        key_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string key = 1;</code>
+     * @return The bytes for key.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     public static final int UUID_FIELD_NUMBER = 2;
@@ -6767,8 +6882,8 @@ public final class MessageOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (id_ != 0) {
-        output.writeInt32(1, id_);
+      if (!getKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, key_);
       }
       if (!getUuidBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 2, uuid_);
@@ -6785,9 +6900,8 @@ public final class MessageOuterClass {
       if (size != -1) return size;
 
       size = 0;
-      if (id_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, id_);
+      if (!getKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, key_);
       }
       if (!getUuidBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, uuid_);
@@ -6811,8 +6925,8 @@ public final class MessageOuterClass {
       }
       dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService other = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService) obj;
 
-      if (getId()
-          != other.getId()) return false;
+      if (!getKey()
+          .equals(other.getKey())) return false;
       if (!getUuid()
           .equals(other.getUuid())) return false;
       if (!getCharacteristicsList()
@@ -6828,8 +6942,8 @@ public final class MessageOuterClass {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + ID_FIELD_NUMBER;
-      hash = (53 * hash) + getId();
+      hash = (37 * hash) + KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getKey().hashCode();
       hash = (37 * hash) + UUID_FIELD_NUMBER;
       hash = (53 * hash) + getUuid().hashCode();
       if (getCharacteristicsCount() > 0) {
@@ -6970,7 +7084,7 @@ public final class MessageOuterClass {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        id_ = 0;
+        key_ = "";
 
         uuid_ = "";
 
@@ -7007,7 +7121,7 @@ public final class MessageOuterClass {
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService buildPartial() {
         dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService(this);
         int from_bitField0_ = bitField0_;
-        result.id_ = id_;
+        result.key_ = key_;
         result.uuid_ = uuid_;
         if (characteristicsBuilder_ == null) {
           if (((bitField0_ & 0x00000001) != 0)) {
@@ -7066,8 +7180,9 @@ public final class MessageOuterClass {
 
       public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService other) {
         if (other == dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattService.getDefaultInstance()) return this;
-        if (other.getId() != 0) {
-          setId(other.getId());
+        if (!other.getKey().isEmpty()) {
+          key_ = other.key_;
+          onChanged();
         }
         if (!other.getUuid().isEmpty()) {
           uuid_ = other.uuid_;
@@ -7129,33 +7244,78 @@ public final class MessageOuterClass {
       }
       private int bitField0_;
 
-      private int id_ ;
+      private java.lang.Object key_ = "";
       /**
-       * <code>int32 id = 1;</code>
-       * @return The id.
+       * <code>string key = 1;</code>
+       * @return The key.
        */
-      @java.lang.Override
-      public int getId() {
-        return id_;
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          key_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>int32 id = 1;</code>
-       * @param value The id to set.
+       * <code>string key = 1;</code>
+       * @return The bytes for key.
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string key = 1;</code>
+       * @param value The key to set.
        * @return This builder for chaining.
        */
-      public Builder setId(int value) {
-        
-        id_ = value;
+      public Builder setKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        key_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 id = 1;</code>
+       * <code>string key = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearId() {
+      public Builder clearKey() {
         
-        id_ = 0;
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 1;</code>
+       * @param value The bytes for key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        key_ = value;
         onChanged();
         return this;
       }
@@ -7533,10 +7693,16 @@ public final class MessageOuterClass {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>int32 id = 1;</code>
-     * @return The id.
+     * <code>string key = 1;</code>
+     * @return The key.
      */
-    int getId();
+    java.lang.String getKey();
+    /**
+     * <code>string key = 1;</code>
+     * @return The bytes for key.
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
 
     /**
      * <code>string uuid = 2;</code>
@@ -7551,52 +7717,52 @@ public final class MessageOuterClass {
         getUuidBytes();
 
     /**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
-     */
-    java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor> 
-        getDescriptorsList();
-    /**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
-     */
-    dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor getDescriptors(int index);
-    /**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
-     */
-    int getDescriptorsCount();
-    /**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
-     */
-    java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder> 
-        getDescriptorsOrBuilderList();
-    /**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
-     */
-    dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder getDescriptorsOrBuilder(
-        int index);
-
-    /**
-     * <code>bool canRead = 4;</code>
+     * <code>bool canRead = 3;</code>
      * @return The canRead.
      */
     boolean getCanRead();
 
     /**
-     * <code>bool canWrite = 5;</code>
+     * <code>bool canWrite = 4;</code>
      * @return The canWrite.
      */
     boolean getCanWrite();
 
     /**
-     * <code>bool canWriteWithoutResponse = 6;</code>
+     * <code>bool canWriteWithoutResponse = 5;</code>
      * @return The canWriteWithoutResponse.
      */
     boolean getCanWriteWithoutResponse();
 
     /**
-     * <code>bool canNotify = 7;</code>
+     * <code>bool canNotify = 6;</code>
      * @return The canNotify.
      */
     boolean getCanNotify();
+
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
+     */
+    java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor> 
+        getDescriptorsList();
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
+     */
+    dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor getDescriptors(int index);
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
+     */
+    int getDescriptorsCount();
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
+     */
+    java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder> 
+        getDescriptorsOrBuilderList();
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
+     */
+    dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder getDescriptorsOrBuilder(
+        int index);
   }
   /**
    * Protobuf type {@code dev.yanshouwang.bluetooth_low_energy.GattCharacteristic}
@@ -7611,6 +7777,7 @@ public final class MessageOuterClass {
       super(builder);
     }
     private GattCharacteristic() {
+      key_ = "";
       uuid_ = "";
       descriptors_ = java.util.Collections.emptyList();
     }
@@ -7646,9 +7813,10 @@ public final class MessageOuterClass {
             case 0:
               done = true;
               break;
-            case 8: {
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              id_ = input.readInt32();
+              key_ = s;
               break;
             }
             case 18: {
@@ -7657,33 +7825,33 @@ public final class MessageOuterClass {
               uuid_ = s;
               break;
             }
-            case 26: {
+            case 24: {
+
+              canRead_ = input.readBool();
+              break;
+            }
+            case 32: {
+
+              canWrite_ = input.readBool();
+              break;
+            }
+            case 40: {
+
+              canWriteWithoutResponse_ = input.readBool();
+              break;
+            }
+            case 48: {
+
+              canNotify_ = input.readBool();
+              break;
+            }
+            case 58: {
               if (!((mutable_bitField0_ & 0x00000001) != 0)) {
                 descriptors_ = new java.util.ArrayList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor>();
                 mutable_bitField0_ |= 0x00000001;
               }
               descriptors_.add(
                   input.readMessage(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.parser(), extensionRegistry));
-              break;
-            }
-            case 32: {
-
-              canRead_ = input.readBool();
-              break;
-            }
-            case 40: {
-
-              canWrite_ = input.readBool();
-              break;
-            }
-            case 48: {
-
-              canWriteWithoutResponse_ = input.readBool();
-              break;
-            }
-            case 56: {
-
-              canNotify_ = input.readBool();
               break;
             }
             default: {
@@ -7721,15 +7889,42 @@ public final class MessageOuterClass {
               dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.Builder.class);
     }
 
-    public static final int ID_FIELD_NUMBER = 1;
-    private int id_;
+    public static final int KEY_FIELD_NUMBER = 1;
+    private volatile java.lang.Object key_;
     /**
-     * <code>int32 id = 1;</code>
-     * @return The id.
+     * <code>string key = 1;</code>
+     * @return The key.
      */
     @java.lang.Override
-    public int getId() {
-      return id_;
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        key_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string key = 1;</code>
+     * @return The bytes for key.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     public static final int UUID_FIELD_NUMBER = 2;
@@ -7770,50 +7965,10 @@ public final class MessageOuterClass {
       }
     }
 
-    public static final int DESCRIPTORS_FIELD_NUMBER = 3;
-    private java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor> descriptors_;
-    /**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
-     */
-    @java.lang.Override
-    public java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor> getDescriptorsList() {
-      return descriptors_;
-    }
-    /**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
-     */
-    @java.lang.Override
-    public java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder> 
-        getDescriptorsOrBuilderList() {
-      return descriptors_;
-    }
-    /**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
-     */
-    @java.lang.Override
-    public int getDescriptorsCount() {
-      return descriptors_.size();
-    }
-    /**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
-     */
-    @java.lang.Override
-    public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor getDescriptors(int index) {
-      return descriptors_.get(index);
-    }
-    /**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
-     */
-    @java.lang.Override
-    public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder getDescriptorsOrBuilder(
-        int index) {
-      return descriptors_.get(index);
-    }
-
-    public static final int CANREAD_FIELD_NUMBER = 4;
+    public static final int CANREAD_FIELD_NUMBER = 3;
     private boolean canRead_;
     /**
-     * <code>bool canRead = 4;</code>
+     * <code>bool canRead = 3;</code>
      * @return The canRead.
      */
     @java.lang.Override
@@ -7821,10 +7976,10 @@ public final class MessageOuterClass {
       return canRead_;
     }
 
-    public static final int CANWRITE_FIELD_NUMBER = 5;
+    public static final int CANWRITE_FIELD_NUMBER = 4;
     private boolean canWrite_;
     /**
-     * <code>bool canWrite = 5;</code>
+     * <code>bool canWrite = 4;</code>
      * @return The canWrite.
      */
     @java.lang.Override
@@ -7832,10 +7987,10 @@ public final class MessageOuterClass {
       return canWrite_;
     }
 
-    public static final int CANWRITEWITHOUTRESPONSE_FIELD_NUMBER = 6;
+    public static final int CANWRITEWITHOUTRESPONSE_FIELD_NUMBER = 5;
     private boolean canWriteWithoutResponse_;
     /**
-     * <code>bool canWriteWithoutResponse = 6;</code>
+     * <code>bool canWriteWithoutResponse = 5;</code>
      * @return The canWriteWithoutResponse.
      */
     @java.lang.Override
@@ -7843,15 +7998,55 @@ public final class MessageOuterClass {
       return canWriteWithoutResponse_;
     }
 
-    public static final int CANNOTIFY_FIELD_NUMBER = 7;
+    public static final int CANNOTIFY_FIELD_NUMBER = 6;
     private boolean canNotify_;
     /**
-     * <code>bool canNotify = 7;</code>
+     * <code>bool canNotify = 6;</code>
      * @return The canNotify.
      */
     @java.lang.Override
     public boolean getCanNotify() {
       return canNotify_;
+    }
+
+    public static final int DESCRIPTORS_FIELD_NUMBER = 7;
+    private java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor> descriptors_;
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
+     */
+    @java.lang.Override
+    public java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor> getDescriptorsList() {
+      return descriptors_;
+    }
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
+     */
+    @java.lang.Override
+    public java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder> 
+        getDescriptorsOrBuilderList() {
+      return descriptors_;
+    }
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
+     */
+    @java.lang.Override
+    public int getDescriptorsCount() {
+      return descriptors_.size();
+    }
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
+     */
+    @java.lang.Override
+    public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor getDescriptors(int index) {
+      return descriptors_.get(index);
+    }
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
+     */
+    @java.lang.Override
+    public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder getDescriptorsOrBuilder(
+        int index) {
+      return descriptors_.get(index);
     }
 
     private byte memoizedIsInitialized = -1;
@@ -7868,26 +8063,26 @@ public final class MessageOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (id_ != 0) {
-        output.writeInt32(1, id_);
+      if (!getKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, key_);
       }
       if (!getUuidBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 2, uuid_);
       }
-      for (int i = 0; i < descriptors_.size(); i++) {
-        output.writeMessage(3, descriptors_.get(i));
-      }
       if (canRead_ != false) {
-        output.writeBool(4, canRead_);
+        output.writeBool(3, canRead_);
       }
       if (canWrite_ != false) {
-        output.writeBool(5, canWrite_);
+        output.writeBool(4, canWrite_);
       }
       if (canWriteWithoutResponse_ != false) {
-        output.writeBool(6, canWriteWithoutResponse_);
+        output.writeBool(5, canWriteWithoutResponse_);
       }
       if (canNotify_ != false) {
-        output.writeBool(7, canNotify_);
+        output.writeBool(6, canNotify_);
+      }
+      for (int i = 0; i < descriptors_.size(); i++) {
+        output.writeMessage(7, descriptors_.get(i));
       }
       unknownFields.writeTo(output);
     }
@@ -7898,32 +8093,31 @@ public final class MessageOuterClass {
       if (size != -1) return size;
 
       size = 0;
-      if (id_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, id_);
+      if (!getKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, key_);
       }
       if (!getUuidBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, uuid_);
       }
-      for (int i = 0; i < descriptors_.size(); i++) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(3, descriptors_.get(i));
-      }
       if (canRead_ != false) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(4, canRead_);
+          .computeBoolSize(3, canRead_);
       }
       if (canWrite_ != false) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(5, canWrite_);
+          .computeBoolSize(4, canWrite_);
       }
       if (canWriteWithoutResponse_ != false) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(6, canWriteWithoutResponse_);
+          .computeBoolSize(5, canWriteWithoutResponse_);
       }
       if (canNotify_ != false) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(7, canNotify_);
+          .computeBoolSize(6, canNotify_);
+      }
+      for (int i = 0; i < descriptors_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(7, descriptors_.get(i));
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -7940,12 +8134,10 @@ public final class MessageOuterClass {
       }
       dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic other = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic) obj;
 
-      if (getId()
-          != other.getId()) return false;
+      if (!getKey()
+          .equals(other.getKey())) return false;
       if (!getUuid()
           .equals(other.getUuid())) return false;
-      if (!getDescriptorsList()
-          .equals(other.getDescriptorsList())) return false;
       if (getCanRead()
           != other.getCanRead()) return false;
       if (getCanWrite()
@@ -7954,6 +8146,8 @@ public final class MessageOuterClass {
           != other.getCanWriteWithoutResponse()) return false;
       if (getCanNotify()
           != other.getCanNotify()) return false;
+      if (!getDescriptorsList()
+          .equals(other.getDescriptorsList())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -7965,14 +8159,10 @@ public final class MessageOuterClass {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + ID_FIELD_NUMBER;
-      hash = (53 * hash) + getId();
+      hash = (37 * hash) + KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getKey().hashCode();
       hash = (37 * hash) + UUID_FIELD_NUMBER;
       hash = (53 * hash) + getUuid().hashCode();
-      if (getDescriptorsCount() > 0) {
-        hash = (37 * hash) + DESCRIPTORS_FIELD_NUMBER;
-        hash = (53 * hash) + getDescriptorsList().hashCode();
-      }
       hash = (37 * hash) + CANREAD_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getCanRead());
@@ -7985,6 +8175,10 @@ public final class MessageOuterClass {
       hash = (37 * hash) + CANNOTIFY_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getCanNotify());
+      if (getDescriptorsCount() > 0) {
+        hash = (37 * hash) + DESCRIPTORS_FIELD_NUMBER;
+        hash = (53 * hash) + getDescriptorsList().hashCode();
+      }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -8119,16 +8313,10 @@ public final class MessageOuterClass {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        id_ = 0;
+        key_ = "";
 
         uuid_ = "";
 
-        if (descriptorsBuilder_ == null) {
-          descriptors_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
-        } else {
-          descriptorsBuilder_.clear();
-        }
         canRead_ = false;
 
         canWrite_ = false;
@@ -8137,6 +8325,12 @@ public final class MessageOuterClass {
 
         canNotify_ = false;
 
+        if (descriptorsBuilder_ == null) {
+          descriptors_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          descriptorsBuilder_.clear();
+        }
         return this;
       }
 
@@ -8164,8 +8358,12 @@ public final class MessageOuterClass {
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic buildPartial() {
         dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic(this);
         int from_bitField0_ = bitField0_;
-        result.id_ = id_;
+        result.key_ = key_;
         result.uuid_ = uuid_;
+        result.canRead_ = canRead_;
+        result.canWrite_ = canWrite_;
+        result.canWriteWithoutResponse_ = canWriteWithoutResponse_;
+        result.canNotify_ = canNotify_;
         if (descriptorsBuilder_ == null) {
           if (((bitField0_ & 0x00000001) != 0)) {
             descriptors_ = java.util.Collections.unmodifiableList(descriptors_);
@@ -8175,10 +8373,6 @@ public final class MessageOuterClass {
         } else {
           result.descriptors_ = descriptorsBuilder_.build();
         }
-        result.canRead_ = canRead_;
-        result.canWrite_ = canWrite_;
-        result.canWriteWithoutResponse_ = canWriteWithoutResponse_;
-        result.canNotify_ = canNotify_;
         onBuilt();
         return result;
       }
@@ -8227,12 +8421,25 @@ public final class MessageOuterClass {
 
       public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic other) {
         if (other == dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.getDefaultInstance()) return this;
-        if (other.getId() != 0) {
-          setId(other.getId());
+        if (!other.getKey().isEmpty()) {
+          key_ = other.key_;
+          onChanged();
         }
         if (!other.getUuid().isEmpty()) {
           uuid_ = other.uuid_;
           onChanged();
+        }
+        if (other.getCanRead() != false) {
+          setCanRead(other.getCanRead());
+        }
+        if (other.getCanWrite() != false) {
+          setCanWrite(other.getCanWrite());
+        }
+        if (other.getCanWriteWithoutResponse() != false) {
+          setCanWriteWithoutResponse(other.getCanWriteWithoutResponse());
+        }
+        if (other.getCanNotify() != false) {
+          setCanNotify(other.getCanNotify());
         }
         if (descriptorsBuilder_ == null) {
           if (!other.descriptors_.isEmpty()) {
@@ -8259,18 +8466,6 @@ public final class MessageOuterClass {
               descriptorsBuilder_.addAllMessages(other.descriptors_);
             }
           }
-        }
-        if (other.getCanRead() != false) {
-          setCanRead(other.getCanRead());
-        }
-        if (other.getCanWrite() != false) {
-          setCanWrite(other.getCanWrite());
-        }
-        if (other.getCanWriteWithoutResponse() != false) {
-          setCanWriteWithoutResponse(other.getCanWriteWithoutResponse());
-        }
-        if (other.getCanNotify() != false) {
-          setCanNotify(other.getCanNotify());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -8302,33 +8497,78 @@ public final class MessageOuterClass {
       }
       private int bitField0_;
 
-      private int id_ ;
+      private java.lang.Object key_ = "";
       /**
-       * <code>int32 id = 1;</code>
-       * @return The id.
+       * <code>string key = 1;</code>
+       * @return The key.
        */
-      @java.lang.Override
-      public int getId() {
-        return id_;
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          key_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>int32 id = 1;</code>
-       * @param value The id to set.
+       * <code>string key = 1;</code>
+       * @return The bytes for key.
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string key = 1;</code>
+       * @param value The key to set.
        * @return This builder for chaining.
        */
-      public Builder setId(int value) {
-        
-        id_ = value;
+      public Builder setKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        key_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 id = 1;</code>
+       * <code>string key = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearId() {
+      public Builder clearKey() {
         
-        id_ = 0;
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 1;</code>
+       * @param value The bytes for key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        key_ = value;
         onChanged();
         return this;
       }
@@ -8409,6 +8649,130 @@ public final class MessageOuterClass {
         return this;
       }
 
+      private boolean canRead_ ;
+      /**
+       * <code>bool canRead = 3;</code>
+       * @return The canRead.
+       */
+      @java.lang.Override
+      public boolean getCanRead() {
+        return canRead_;
+      }
+      /**
+       * <code>bool canRead = 3;</code>
+       * @param value The canRead to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCanRead(boolean value) {
+        
+        canRead_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bool canRead = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearCanRead() {
+        
+        canRead_ = false;
+        onChanged();
+        return this;
+      }
+
+      private boolean canWrite_ ;
+      /**
+       * <code>bool canWrite = 4;</code>
+       * @return The canWrite.
+       */
+      @java.lang.Override
+      public boolean getCanWrite() {
+        return canWrite_;
+      }
+      /**
+       * <code>bool canWrite = 4;</code>
+       * @param value The canWrite to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCanWrite(boolean value) {
+        
+        canWrite_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bool canWrite = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearCanWrite() {
+        
+        canWrite_ = false;
+        onChanged();
+        return this;
+      }
+
+      private boolean canWriteWithoutResponse_ ;
+      /**
+       * <code>bool canWriteWithoutResponse = 5;</code>
+       * @return The canWriteWithoutResponse.
+       */
+      @java.lang.Override
+      public boolean getCanWriteWithoutResponse() {
+        return canWriteWithoutResponse_;
+      }
+      /**
+       * <code>bool canWriteWithoutResponse = 5;</code>
+       * @param value The canWriteWithoutResponse to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCanWriteWithoutResponse(boolean value) {
+        
+        canWriteWithoutResponse_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bool canWriteWithoutResponse = 5;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearCanWriteWithoutResponse() {
+        
+        canWriteWithoutResponse_ = false;
+        onChanged();
+        return this;
+      }
+
+      private boolean canNotify_ ;
+      /**
+       * <code>bool canNotify = 6;</code>
+       * @return The canNotify.
+       */
+      @java.lang.Override
+      public boolean getCanNotify() {
+        return canNotify_;
+      }
+      /**
+       * <code>bool canNotify = 6;</code>
+       * @param value The canNotify to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCanNotify(boolean value) {
+        
+        canNotify_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bool canNotify = 6;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearCanNotify() {
+        
+        canNotify_ = false;
+        onChanged();
+        return this;
+      }
+
       private java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor> descriptors_ =
         java.util.Collections.emptyList();
       private void ensureDescriptorsIsMutable() {
@@ -8422,7 +8786,7 @@ public final class MessageOuterClass {
           dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder> descriptorsBuilder_;
 
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor> getDescriptorsList() {
         if (descriptorsBuilder_ == null) {
@@ -8432,7 +8796,7 @@ public final class MessageOuterClass {
         }
       }
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public int getDescriptorsCount() {
         if (descriptorsBuilder_ == null) {
@@ -8442,7 +8806,7 @@ public final class MessageOuterClass {
         }
       }
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor getDescriptors(int index) {
         if (descriptorsBuilder_ == null) {
@@ -8452,7 +8816,7 @@ public final class MessageOuterClass {
         }
       }
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public Builder setDescriptors(
           int index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor value) {
@@ -8469,7 +8833,7 @@ public final class MessageOuterClass {
         return this;
       }
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public Builder setDescriptors(
           int index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder builderForValue) {
@@ -8483,7 +8847,7 @@ public final class MessageOuterClass {
         return this;
       }
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public Builder addDescriptors(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor value) {
         if (descriptorsBuilder_ == null) {
@@ -8499,7 +8863,7 @@ public final class MessageOuterClass {
         return this;
       }
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public Builder addDescriptors(
           int index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor value) {
@@ -8516,7 +8880,7 @@ public final class MessageOuterClass {
         return this;
       }
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public Builder addDescriptors(
           dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder builderForValue) {
@@ -8530,7 +8894,7 @@ public final class MessageOuterClass {
         return this;
       }
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public Builder addDescriptors(
           int index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder builderForValue) {
@@ -8544,7 +8908,7 @@ public final class MessageOuterClass {
         return this;
       }
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public Builder addAllDescriptors(
           java.lang.Iterable<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor> values) {
@@ -8559,7 +8923,7 @@ public final class MessageOuterClass {
         return this;
       }
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public Builder clearDescriptors() {
         if (descriptorsBuilder_ == null) {
@@ -8572,7 +8936,7 @@ public final class MessageOuterClass {
         return this;
       }
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public Builder removeDescriptors(int index) {
         if (descriptorsBuilder_ == null) {
@@ -8585,14 +8949,14 @@ public final class MessageOuterClass {
         return this;
       }
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder getDescriptorsBuilder(
           int index) {
         return getDescriptorsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder getDescriptorsOrBuilder(
           int index) {
@@ -8602,7 +8966,7 @@ public final class MessageOuterClass {
         }
       }
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorOrBuilder> 
            getDescriptorsOrBuilderList() {
@@ -8613,14 +8977,14 @@ public final class MessageOuterClass {
         }
       }
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder addDescriptorsBuilder() {
         return getDescriptorsFieldBuilder().addBuilder(
             dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.getDefaultInstance());
       }
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder addDescriptorsBuilder(
           int index) {
@@ -8628,7 +8992,7 @@ public final class MessageOuterClass {
             index, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.getDefaultInstance());
       }
       /**
-       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
+       * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
        */
       public java.util.List<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder> 
            getDescriptorsBuilderList() {
@@ -8647,130 +9011,6 @@ public final class MessageOuterClass {
           descriptors_ = null;
         }
         return descriptorsBuilder_;
-      }
-
-      private boolean canRead_ ;
-      /**
-       * <code>bool canRead = 4;</code>
-       * @return The canRead.
-       */
-      @java.lang.Override
-      public boolean getCanRead() {
-        return canRead_;
-      }
-      /**
-       * <code>bool canRead = 4;</code>
-       * @param value The canRead to set.
-       * @return This builder for chaining.
-       */
-      public Builder setCanRead(boolean value) {
-        
-        canRead_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>bool canRead = 4;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearCanRead() {
-        
-        canRead_ = false;
-        onChanged();
-        return this;
-      }
-
-      private boolean canWrite_ ;
-      /**
-       * <code>bool canWrite = 5;</code>
-       * @return The canWrite.
-       */
-      @java.lang.Override
-      public boolean getCanWrite() {
-        return canWrite_;
-      }
-      /**
-       * <code>bool canWrite = 5;</code>
-       * @param value The canWrite to set.
-       * @return This builder for chaining.
-       */
-      public Builder setCanWrite(boolean value) {
-        
-        canWrite_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>bool canWrite = 5;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearCanWrite() {
-        
-        canWrite_ = false;
-        onChanged();
-        return this;
-      }
-
-      private boolean canWriteWithoutResponse_ ;
-      /**
-       * <code>bool canWriteWithoutResponse = 6;</code>
-       * @return The canWriteWithoutResponse.
-       */
-      @java.lang.Override
-      public boolean getCanWriteWithoutResponse() {
-        return canWriteWithoutResponse_;
-      }
-      /**
-       * <code>bool canWriteWithoutResponse = 6;</code>
-       * @param value The canWriteWithoutResponse to set.
-       * @return This builder for chaining.
-       */
-      public Builder setCanWriteWithoutResponse(boolean value) {
-        
-        canWriteWithoutResponse_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>bool canWriteWithoutResponse = 6;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearCanWriteWithoutResponse() {
-        
-        canWriteWithoutResponse_ = false;
-        onChanged();
-        return this;
-      }
-
-      private boolean canNotify_ ;
-      /**
-       * <code>bool canNotify = 7;</code>
-       * @return The canNotify.
-       */
-      @java.lang.Override
-      public boolean getCanNotify() {
-        return canNotify_;
-      }
-      /**
-       * <code>bool canNotify = 7;</code>
-       * @param value The canNotify to set.
-       * @return This builder for chaining.
-       */
-      public Builder setCanNotify(boolean value) {
-        
-        canNotify_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>bool canNotify = 7;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearCanNotify() {
-        
-        canNotify_ = false;
-        onChanged();
-        return this;
       }
       @java.lang.Override
       public final Builder setUnknownFields(
@@ -8830,10 +9070,16 @@ public final class MessageOuterClass {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>int32 id = 1;</code>
-     * @return The id.
+     * <code>string key = 1;</code>
+     * @return The key.
      */
-    int getId();
+    java.lang.String getKey();
+    /**
+     * <code>string key = 1;</code>
+     * @return The bytes for key.
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
 
     /**
      * <code>string uuid = 2;</code>
@@ -8860,6 +9106,7 @@ public final class MessageOuterClass {
       super(builder);
     }
     private GattDescriptor() {
+      key_ = "";
       uuid_ = "";
     }
 
@@ -8893,9 +9140,10 @@ public final class MessageOuterClass {
             case 0:
               done = true;
               break;
-            case 8: {
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              id_ = input.readInt32();
+              key_ = s;
               break;
             }
             case 18: {
@@ -8936,15 +9184,42 @@ public final class MessageOuterClass {
               dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.Builder.class);
     }
 
-    public static final int ID_FIELD_NUMBER = 1;
-    private int id_;
+    public static final int KEY_FIELD_NUMBER = 1;
+    private volatile java.lang.Object key_;
     /**
-     * <code>int32 id = 1;</code>
-     * @return The id.
+     * <code>string key = 1;</code>
+     * @return The key.
      */
     @java.lang.Override
-    public int getId() {
-      return id_;
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        key_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string key = 1;</code>
+     * @return The bytes for key.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     public static final int UUID_FIELD_NUMBER = 2;
@@ -8999,8 +9274,8 @@ public final class MessageOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (id_ != 0) {
-        output.writeInt32(1, id_);
+      if (!getKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, key_);
       }
       if (!getUuidBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 2, uuid_);
@@ -9014,9 +9289,8 @@ public final class MessageOuterClass {
       if (size != -1) return size;
 
       size = 0;
-      if (id_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, id_);
+      if (!getKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, key_);
       }
       if (!getUuidBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, uuid_);
@@ -9036,8 +9310,8 @@ public final class MessageOuterClass {
       }
       dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor other = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor) obj;
 
-      if (getId()
-          != other.getId()) return false;
+      if (!getKey()
+          .equals(other.getKey())) return false;
       if (!getUuid()
           .equals(other.getUuid())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
@@ -9051,8 +9325,8 @@ public final class MessageOuterClass {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + ID_FIELD_NUMBER;
-      hash = (53 * hash) + getId();
+      hash = (37 * hash) + KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getKey().hashCode();
       hash = (37 * hash) + UUID_FIELD_NUMBER;
       hash = (53 * hash) + getUuid().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
@@ -9188,7 +9462,7 @@ public final class MessageOuterClass {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        id_ = 0;
+        key_ = "";
 
         uuid_ = "";
 
@@ -9218,7 +9492,7 @@ public final class MessageOuterClass {
       @java.lang.Override
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor buildPartial() {
         dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor(this);
-        result.id_ = id_;
+        result.key_ = key_;
         result.uuid_ = uuid_;
         onBuilt();
         return result;
@@ -9268,8 +9542,9 @@ public final class MessageOuterClass {
 
       public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor other) {
         if (other == dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor.getDefaultInstance()) return this;
-        if (other.getId() != 0) {
-          setId(other.getId());
+        if (!other.getKey().isEmpty()) {
+          key_ = other.key_;
+          onChanged();
         }
         if (!other.getUuid().isEmpty()) {
           uuid_ = other.uuid_;
@@ -9304,33 +9579,78 @@ public final class MessageOuterClass {
         return this;
       }
 
-      private int id_ ;
+      private java.lang.Object key_ = "";
       /**
-       * <code>int32 id = 1;</code>
-       * @return The id.
+       * <code>string key = 1;</code>
+       * @return The key.
        */
-      @java.lang.Override
-      public int getId() {
-        return id_;
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          key_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>int32 id = 1;</code>
-       * @param value The id to set.
+       * <code>string key = 1;</code>
+       * @return The bytes for key.
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string key = 1;</code>
+       * @param value The key to set.
        * @return This builder for chaining.
        */
-      public Builder setId(int value) {
-        
-        id_ = value;
+      public Builder setKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        key_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 id = 1;</code>
+       * <code>string key = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearId() {
+      public Builder clearKey() {
         
-        id_ = 0;
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 1;</code>
+       * @param value The bytes for key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        key_ = value;
         onChanged();
         return this;
       }
@@ -9468,10 +9788,16 @@ public final class MessageOuterClass {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>int32 id = 1;</code>
-     * @return The id.
+     * <code>string key = 1;</code>
+     * @return The key.
      */
-    int getId();
+    java.lang.String getKey();
+    /**
+     * <code>string key = 1;</code>
+     * @return The bytes for key.
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
   }
   /**
    * Protobuf type {@code dev.yanshouwang.bluetooth_low_energy.GattDisconnectArguments}
@@ -9486,6 +9812,7 @@ public final class MessageOuterClass {
       super(builder);
     }
     private GattDisconnectArguments() {
+      key_ = "";
     }
 
     @java.lang.Override
@@ -9518,9 +9845,10 @@ public final class MessageOuterClass {
             case 0:
               done = true;
               break;
-            case 8: {
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              id_ = input.readInt32();
+              key_ = s;
               break;
             }
             default: {
@@ -9555,15 +9883,42 @@ public final class MessageOuterClass {
               dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDisconnectArguments.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDisconnectArguments.Builder.class);
     }
 
-    public static final int ID_FIELD_NUMBER = 1;
-    private int id_;
+    public static final int KEY_FIELD_NUMBER = 1;
+    private volatile java.lang.Object key_;
     /**
-     * <code>int32 id = 1;</code>
-     * @return The id.
+     * <code>string key = 1;</code>
+     * @return The key.
      */
     @java.lang.Override
-    public int getId() {
-      return id_;
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        key_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string key = 1;</code>
+     * @return The bytes for key.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     private byte memoizedIsInitialized = -1;
@@ -9580,8 +9935,8 @@ public final class MessageOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (id_ != 0) {
-        output.writeInt32(1, id_);
+      if (!getKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, key_);
       }
       unknownFields.writeTo(output);
     }
@@ -9592,9 +9947,8 @@ public final class MessageOuterClass {
       if (size != -1) return size;
 
       size = 0;
-      if (id_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, id_);
+      if (!getKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, key_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -9611,8 +9965,8 @@ public final class MessageOuterClass {
       }
       dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDisconnectArguments other = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDisconnectArguments) obj;
 
-      if (getId()
-          != other.getId()) return false;
+      if (!getKey()
+          .equals(other.getKey())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -9624,8 +9978,8 @@ public final class MessageOuterClass {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + ID_FIELD_NUMBER;
-      hash = (53 * hash) + getId();
+      hash = (37 * hash) + KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getKey().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -9759,7 +10113,7 @@ public final class MessageOuterClass {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        id_ = 0;
+        key_ = "";
 
         return this;
       }
@@ -9787,7 +10141,7 @@ public final class MessageOuterClass {
       @java.lang.Override
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDisconnectArguments buildPartial() {
         dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDisconnectArguments result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDisconnectArguments(this);
-        result.id_ = id_;
+        result.key_ = key_;
         onBuilt();
         return result;
       }
@@ -9836,8 +10190,9 @@ public final class MessageOuterClass {
 
       public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDisconnectArguments other) {
         if (other == dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDisconnectArguments.getDefaultInstance()) return this;
-        if (other.getId() != 0) {
-          setId(other.getId());
+        if (!other.getKey().isEmpty()) {
+          key_ = other.key_;
+          onChanged();
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -9868,33 +10223,78 @@ public final class MessageOuterClass {
         return this;
       }
 
-      private int id_ ;
+      private java.lang.Object key_ = "";
       /**
-       * <code>int32 id = 1;</code>
-       * @return The id.
+       * <code>string key = 1;</code>
+       * @return The key.
        */
-      @java.lang.Override
-      public int getId() {
-        return id_;
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          key_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>int32 id = 1;</code>
-       * @param value The id to set.
+       * <code>string key = 1;</code>
+       * @return The bytes for key.
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string key = 1;</code>
+       * @param value The key to set.
        * @return This builder for chaining.
        */
-      public Builder setId(int value) {
-        
-        id_ = value;
+      public Builder setKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        key_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 id = 1;</code>
+       * <code>string key = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearId() {
+      public Builder clearKey() {
         
-        id_ = 0;
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 1;</code>
+       * @param value The bytes for key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        key_ = value;
         onChanged();
         return this;
       }
@@ -9956,10 +10356,16 @@ public final class MessageOuterClass {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>int32 id = 1;</code>
-     * @return The id.
+     * <code>string key = 1;</code>
+     * @return The key.
      */
-    int getId();
+    java.lang.String getKey();
+    /**
+     * <code>string key = 1;</code>
+     * @return The bytes for key.
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
 
     /**
      * <code>string error = 2;</code>
@@ -9986,6 +10392,7 @@ public final class MessageOuterClass {
       super(builder);
     }
     private GattConnectionLost() {
+      key_ = "";
       error_ = "";
     }
 
@@ -10019,9 +10426,10 @@ public final class MessageOuterClass {
             case 0:
               done = true;
               break;
-            case 8: {
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              id_ = input.readInt32();
+              key_ = s;
               break;
             }
             case 18: {
@@ -10062,15 +10470,42 @@ public final class MessageOuterClass {
               dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattConnectionLost.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattConnectionLost.Builder.class);
     }
 
-    public static final int ID_FIELD_NUMBER = 1;
-    private int id_;
+    public static final int KEY_FIELD_NUMBER = 1;
+    private volatile java.lang.Object key_;
     /**
-     * <code>int32 id = 1;</code>
-     * @return The id.
+     * <code>string key = 1;</code>
+     * @return The key.
      */
     @java.lang.Override
-    public int getId() {
-      return id_;
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        key_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string key = 1;</code>
+     * @return The bytes for key.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     public static final int ERROR_FIELD_NUMBER = 2;
@@ -10125,8 +10560,8 @@ public final class MessageOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (id_ != 0) {
-        output.writeInt32(1, id_);
+      if (!getKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, key_);
       }
       if (!getErrorBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 2, error_);
@@ -10140,9 +10575,8 @@ public final class MessageOuterClass {
       if (size != -1) return size;
 
       size = 0;
-      if (id_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, id_);
+      if (!getKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, key_);
       }
       if (!getErrorBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, error_);
@@ -10162,8 +10596,8 @@ public final class MessageOuterClass {
       }
       dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattConnectionLost other = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattConnectionLost) obj;
 
-      if (getId()
-          != other.getId()) return false;
+      if (!getKey()
+          .equals(other.getKey())) return false;
       if (!getError()
           .equals(other.getError())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
@@ -10177,8 +10611,8 @@ public final class MessageOuterClass {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + ID_FIELD_NUMBER;
-      hash = (53 * hash) + getId();
+      hash = (37 * hash) + KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getKey().hashCode();
       hash = (37 * hash) + ERROR_FIELD_NUMBER;
       hash = (53 * hash) + getError().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
@@ -10314,7 +10748,7 @@ public final class MessageOuterClass {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        id_ = 0;
+        key_ = "";
 
         error_ = "";
 
@@ -10344,7 +10778,7 @@ public final class MessageOuterClass {
       @java.lang.Override
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattConnectionLost buildPartial() {
         dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattConnectionLost result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattConnectionLost(this);
-        result.id_ = id_;
+        result.key_ = key_;
         result.error_ = error_;
         onBuilt();
         return result;
@@ -10394,8 +10828,9 @@ public final class MessageOuterClass {
 
       public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattConnectionLost other) {
         if (other == dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattConnectionLost.getDefaultInstance()) return this;
-        if (other.getId() != 0) {
-          setId(other.getId());
+        if (!other.getKey().isEmpty()) {
+          key_ = other.key_;
+          onChanged();
         }
         if (!other.getError().isEmpty()) {
           error_ = other.error_;
@@ -10430,33 +10865,78 @@ public final class MessageOuterClass {
         return this;
       }
 
-      private int id_ ;
+      private java.lang.Object key_ = "";
       /**
-       * <code>int32 id = 1;</code>
-       * @return The id.
+       * <code>string key = 1;</code>
+       * @return The key.
        */
-      @java.lang.Override
-      public int getId() {
-        return id_;
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          key_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>int32 id = 1;</code>
-       * @param value The id to set.
+       * <code>string key = 1;</code>
+       * @return The bytes for key.
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string key = 1;</code>
+       * @param value The key to set.
        * @return This builder for chaining.
        */
-      public Builder setId(int value) {
-        
-        id_ = value;
+      public Builder setKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        key_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 id = 1;</code>
+       * <code>string key = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearId() {
+      public Builder clearKey() {
         
-        id_ = 0;
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 1;</code>
+       * @param value The bytes for key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        key_ = value;
         onChanged();
         return this;
       }
@@ -10594,16 +11074,40 @@ public final class MessageOuterClass {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>int32 gatt_id = 1;</code>
-     * @return The gattId.
+     * <code>string gatt_key = 1;</code>
+     * @return The gattKey.
      */
-    int getGattId();
+    java.lang.String getGattKey();
+    /**
+     * <code>string gatt_key = 1;</code>
+     * @return The bytes for gattKey.
+     */
+    com.google.protobuf.ByteString
+        getGattKeyBytes();
 
     /**
-     * <code>int32 id = 2;</code>
-     * @return The id.
+     * <code>string service_key = 2;</code>
+     * @return The serviceKey.
      */
-    int getId();
+    java.lang.String getServiceKey();
+    /**
+     * <code>string service_key = 2;</code>
+     * @return The bytes for serviceKey.
+     */
+    com.google.protobuf.ByteString
+        getServiceKeyBytes();
+
+    /**
+     * <code>string key = 3;</code>
+     * @return The key.
+     */
+    java.lang.String getKey();
+    /**
+     * <code>string key = 3;</code>
+     * @return The bytes for key.
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
   }
   /**
    * Protobuf type {@code dev.yanshouwang.bluetooth_low_energy.GattCharacteristicReadArguments}
@@ -10618,6 +11122,9 @@ public final class MessageOuterClass {
       super(builder);
     }
     private GattCharacteristicReadArguments() {
+      gattKey_ = "";
+      serviceKey_ = "";
+      key_ = "";
     }
 
     @java.lang.Override
@@ -10650,14 +11157,22 @@ public final class MessageOuterClass {
             case 0:
               done = true;
               break;
-            case 8: {
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              gattId_ = input.readInt32();
+              gattKey_ = s;
               break;
             }
-            case 16: {
+            case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              id_ = input.readInt32();
+              serviceKey_ = s;
+              break;
+            }
+            case 26: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              key_ = s;
               break;
             }
             default: {
@@ -10692,26 +11207,118 @@ public final class MessageOuterClass {
               dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicReadArguments.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicReadArguments.Builder.class);
     }
 
-    public static final int GATT_ID_FIELD_NUMBER = 1;
-    private int gattId_;
+    public static final int GATT_KEY_FIELD_NUMBER = 1;
+    private volatile java.lang.Object gattKey_;
     /**
-     * <code>int32 gatt_id = 1;</code>
-     * @return The gattId.
+     * <code>string gatt_key = 1;</code>
+     * @return The gattKey.
      */
     @java.lang.Override
-    public int getGattId() {
-      return gattId_;
+    public java.lang.String getGattKey() {
+      java.lang.Object ref = gattKey_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        gattKey_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string gatt_key = 1;</code>
+     * @return The bytes for gattKey.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getGattKeyBytes() {
+      java.lang.Object ref = gattKey_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        gattKey_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
-    public static final int ID_FIELD_NUMBER = 2;
-    private int id_;
+    public static final int SERVICE_KEY_FIELD_NUMBER = 2;
+    private volatile java.lang.Object serviceKey_;
     /**
-     * <code>int32 id = 2;</code>
-     * @return The id.
+     * <code>string service_key = 2;</code>
+     * @return The serviceKey.
      */
     @java.lang.Override
-    public int getId() {
-      return id_;
+    public java.lang.String getServiceKey() {
+      java.lang.Object ref = serviceKey_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        serviceKey_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string service_key = 2;</code>
+     * @return The bytes for serviceKey.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getServiceKeyBytes() {
+      java.lang.Object ref = serviceKey_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        serviceKey_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int KEY_FIELD_NUMBER = 3;
+    private volatile java.lang.Object key_;
+    /**
+     * <code>string key = 3;</code>
+     * @return The key.
+     */
+    @java.lang.Override
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        key_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string key = 3;</code>
+     * @return The bytes for key.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     private byte memoizedIsInitialized = -1;
@@ -10728,11 +11335,14 @@ public final class MessageOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (gattId_ != 0) {
-        output.writeInt32(1, gattId_);
+      if (!getGattKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, gattKey_);
       }
-      if (id_ != 0) {
-        output.writeInt32(2, id_);
+      if (!getServiceKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, serviceKey_);
+      }
+      if (!getKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, key_);
       }
       unknownFields.writeTo(output);
     }
@@ -10743,13 +11353,14 @@ public final class MessageOuterClass {
       if (size != -1) return size;
 
       size = 0;
-      if (gattId_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, gattId_);
+      if (!getGattKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, gattKey_);
       }
-      if (id_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(2, id_);
+      if (!getServiceKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, serviceKey_);
+      }
+      if (!getKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, key_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -10766,10 +11377,12 @@ public final class MessageOuterClass {
       }
       dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicReadArguments other = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicReadArguments) obj;
 
-      if (getGattId()
-          != other.getGattId()) return false;
-      if (getId()
-          != other.getId()) return false;
+      if (!getGattKey()
+          .equals(other.getGattKey())) return false;
+      if (!getServiceKey()
+          .equals(other.getServiceKey())) return false;
+      if (!getKey()
+          .equals(other.getKey())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -10781,10 +11394,12 @@ public final class MessageOuterClass {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + GATT_ID_FIELD_NUMBER;
-      hash = (53 * hash) + getGattId();
-      hash = (37 * hash) + ID_FIELD_NUMBER;
-      hash = (53 * hash) + getId();
+      hash = (37 * hash) + GATT_KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getGattKey().hashCode();
+      hash = (37 * hash) + SERVICE_KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getServiceKey().hashCode();
+      hash = (37 * hash) + KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getKey().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -10918,9 +11533,11 @@ public final class MessageOuterClass {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        gattId_ = 0;
+        gattKey_ = "";
 
-        id_ = 0;
+        serviceKey_ = "";
+
+        key_ = "";
 
         return this;
       }
@@ -10948,8 +11565,9 @@ public final class MessageOuterClass {
       @java.lang.Override
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicReadArguments buildPartial() {
         dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicReadArguments result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicReadArguments(this);
-        result.gattId_ = gattId_;
-        result.id_ = id_;
+        result.gattKey_ = gattKey_;
+        result.serviceKey_ = serviceKey_;
+        result.key_ = key_;
         onBuilt();
         return result;
       }
@@ -10998,11 +11616,17 @@ public final class MessageOuterClass {
 
       public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicReadArguments other) {
         if (other == dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicReadArguments.getDefaultInstance()) return this;
-        if (other.getGattId() != 0) {
-          setGattId(other.getGattId());
+        if (!other.getGattKey().isEmpty()) {
+          gattKey_ = other.gattKey_;
+          onChanged();
         }
-        if (other.getId() != 0) {
-          setId(other.getId());
+        if (!other.getServiceKey().isEmpty()) {
+          serviceKey_ = other.serviceKey_;
+          onChanged();
+        }
+        if (!other.getKey().isEmpty()) {
+          key_ = other.key_;
+          onChanged();
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -11033,64 +11657,230 @@ public final class MessageOuterClass {
         return this;
       }
 
-      private int gattId_ ;
+      private java.lang.Object gattKey_ = "";
       /**
-       * <code>int32 gatt_id = 1;</code>
-       * @return The gattId.
+       * <code>string gatt_key = 1;</code>
+       * @return The gattKey.
        */
-      @java.lang.Override
-      public int getGattId() {
-        return gattId_;
+      public java.lang.String getGattKey() {
+        java.lang.Object ref = gattKey_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          gattKey_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>int32 gatt_id = 1;</code>
-       * @param value The gattId to set.
+       * <code>string gatt_key = 1;</code>
+       * @return The bytes for gattKey.
+       */
+      public com.google.protobuf.ByteString
+          getGattKeyBytes() {
+        java.lang.Object ref = gattKey_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          gattKey_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string gatt_key = 1;</code>
+       * @param value The gattKey to set.
        * @return This builder for chaining.
        */
-      public Builder setGattId(int value) {
-        
-        gattId_ = value;
+      public Builder setGattKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        gattKey_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 gatt_id = 1;</code>
+       * <code>string gatt_key = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearGattId() {
+      public Builder clearGattKey() {
         
-        gattId_ = 0;
+        gattKey_ = getDefaultInstance().getGattKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string gatt_key = 1;</code>
+       * @param value The bytes for gattKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setGattKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        gattKey_ = value;
         onChanged();
         return this;
       }
 
-      private int id_ ;
+      private java.lang.Object serviceKey_ = "";
       /**
-       * <code>int32 id = 2;</code>
-       * @return The id.
+       * <code>string service_key = 2;</code>
+       * @return The serviceKey.
        */
-      @java.lang.Override
-      public int getId() {
-        return id_;
+      public java.lang.String getServiceKey() {
+        java.lang.Object ref = serviceKey_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          serviceKey_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>int32 id = 2;</code>
-       * @param value The id to set.
+       * <code>string service_key = 2;</code>
+       * @return The bytes for serviceKey.
+       */
+      public com.google.protobuf.ByteString
+          getServiceKeyBytes() {
+        java.lang.Object ref = serviceKey_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          serviceKey_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string service_key = 2;</code>
+       * @param value The serviceKey to set.
        * @return This builder for chaining.
        */
-      public Builder setId(int value) {
-        
-        id_ = value;
+      public Builder setServiceKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        serviceKey_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 id = 2;</code>
+       * <code>string service_key = 2;</code>
        * @return This builder for chaining.
        */
-      public Builder clearId() {
+      public Builder clearServiceKey() {
         
-        id_ = 0;
+        serviceKey_ = getDefaultInstance().getServiceKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string service_key = 2;</code>
+       * @param value The bytes for serviceKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setServiceKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        serviceKey_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object key_ = "";
+      /**
+       * <code>string key = 3;</code>
+       * @return The key.
+       */
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          key_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string key = 3;</code>
+       * @return The bytes for key.
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string key = 3;</code>
+       * @param value The key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        key_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearKey() {
+        
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 3;</code>
+       * @param value The bytes for key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        key_ = value;
         onChanged();
         return this;
       }
@@ -11152,25 +11942,49 @@ public final class MessageOuterClass {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>int32 gatt_id = 1;</code>
-     * @return The gattId.
+     * <code>string gatt_key = 1;</code>
+     * @return The gattKey.
      */
-    int getGattId();
+    java.lang.String getGattKey();
+    /**
+     * <code>string gatt_key = 1;</code>
+     * @return The bytes for gattKey.
+     */
+    com.google.protobuf.ByteString
+        getGattKeyBytes();
 
     /**
-     * <code>int32 id = 2;</code>
-     * @return The id.
+     * <code>string service_key = 2;</code>
+     * @return The serviceKey.
      */
-    int getId();
+    java.lang.String getServiceKey();
+    /**
+     * <code>string service_key = 2;</code>
+     * @return The bytes for serviceKey.
+     */
+    com.google.protobuf.ByteString
+        getServiceKeyBytes();
 
     /**
-     * <code>bytes value = 3;</code>
+     * <code>string key = 3;</code>
+     * @return The key.
+     */
+    java.lang.String getKey();
+    /**
+     * <code>string key = 3;</code>
+     * @return The bytes for key.
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
+
+    /**
+     * <code>bytes value = 4;</code>
      * @return The value.
      */
     com.google.protobuf.ByteString getValue();
 
     /**
-     * <code>bool withoutResponse = 4;</code>
+     * <code>bool withoutResponse = 5;</code>
      * @return The withoutResponse.
      */
     boolean getWithoutResponse();
@@ -11188,6 +12002,9 @@ public final class MessageOuterClass {
       super(builder);
     }
     private GattCharacteristicWriteArguments() {
+      gattKey_ = "";
+      serviceKey_ = "";
+      key_ = "";
       value_ = com.google.protobuf.ByteString.EMPTY;
     }
 
@@ -11221,22 +12038,30 @@ public final class MessageOuterClass {
             case 0:
               done = true;
               break;
-            case 8: {
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              gattId_ = input.readInt32();
+              gattKey_ = s;
               break;
             }
-            case 16: {
+            case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              id_ = input.readInt32();
+              serviceKey_ = s;
               break;
             }
             case 26: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              key_ = s;
+              break;
+            }
+            case 34: {
 
               value_ = input.readBytes();
               break;
             }
-            case 32: {
+            case 40: {
 
               withoutResponse_ = input.readBool();
               break;
@@ -11273,32 +12098,124 @@ public final class MessageOuterClass {
               dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicWriteArguments.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicWriteArguments.Builder.class);
     }
 
-    public static final int GATT_ID_FIELD_NUMBER = 1;
-    private int gattId_;
+    public static final int GATT_KEY_FIELD_NUMBER = 1;
+    private volatile java.lang.Object gattKey_;
     /**
-     * <code>int32 gatt_id = 1;</code>
-     * @return The gattId.
+     * <code>string gatt_key = 1;</code>
+     * @return The gattKey.
      */
     @java.lang.Override
-    public int getGattId() {
-      return gattId_;
+    public java.lang.String getGattKey() {
+      java.lang.Object ref = gattKey_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        gattKey_ = s;
+        return s;
+      }
     }
-
-    public static final int ID_FIELD_NUMBER = 2;
-    private int id_;
     /**
-     * <code>int32 id = 2;</code>
-     * @return The id.
+     * <code>string gatt_key = 1;</code>
+     * @return The bytes for gattKey.
      */
     @java.lang.Override
-    public int getId() {
-      return id_;
+    public com.google.protobuf.ByteString
+        getGattKeyBytes() {
+      java.lang.Object ref = gattKey_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        gattKey_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
-    public static final int VALUE_FIELD_NUMBER = 3;
+    public static final int SERVICE_KEY_FIELD_NUMBER = 2;
+    private volatile java.lang.Object serviceKey_;
+    /**
+     * <code>string service_key = 2;</code>
+     * @return The serviceKey.
+     */
+    @java.lang.Override
+    public java.lang.String getServiceKey() {
+      java.lang.Object ref = serviceKey_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        serviceKey_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string service_key = 2;</code>
+     * @return The bytes for serviceKey.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getServiceKeyBytes() {
+      java.lang.Object ref = serviceKey_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        serviceKey_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int KEY_FIELD_NUMBER = 3;
+    private volatile java.lang.Object key_;
+    /**
+     * <code>string key = 3;</code>
+     * @return The key.
+     */
+    @java.lang.Override
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        key_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string key = 3;</code>
+     * @return The bytes for key.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int VALUE_FIELD_NUMBER = 4;
     private com.google.protobuf.ByteString value_;
     /**
-     * <code>bytes value = 3;</code>
+     * <code>bytes value = 4;</code>
      * @return The value.
      */
     @java.lang.Override
@@ -11306,10 +12223,10 @@ public final class MessageOuterClass {
       return value_;
     }
 
-    public static final int WITHOUTRESPONSE_FIELD_NUMBER = 4;
+    public static final int WITHOUTRESPONSE_FIELD_NUMBER = 5;
     private boolean withoutResponse_;
     /**
-     * <code>bool withoutResponse = 4;</code>
+     * <code>bool withoutResponse = 5;</code>
      * @return The withoutResponse.
      */
     @java.lang.Override
@@ -11331,17 +12248,20 @@ public final class MessageOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (gattId_ != 0) {
-        output.writeInt32(1, gattId_);
+      if (!getGattKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, gattKey_);
       }
-      if (id_ != 0) {
-        output.writeInt32(2, id_);
+      if (!getServiceKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, serviceKey_);
+      }
+      if (!getKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, key_);
       }
       if (!value_.isEmpty()) {
-        output.writeBytes(3, value_);
+        output.writeBytes(4, value_);
       }
       if (withoutResponse_ != false) {
-        output.writeBool(4, withoutResponse_);
+        output.writeBool(5, withoutResponse_);
       }
       unknownFields.writeTo(output);
     }
@@ -11352,21 +12272,22 @@ public final class MessageOuterClass {
       if (size != -1) return size;
 
       size = 0;
-      if (gattId_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, gattId_);
+      if (!getGattKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, gattKey_);
       }
-      if (id_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(2, id_);
+      if (!getServiceKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, serviceKey_);
+      }
+      if (!getKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, key_);
       }
       if (!value_.isEmpty()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(3, value_);
+          .computeBytesSize(4, value_);
       }
       if (withoutResponse_ != false) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(4, withoutResponse_);
+          .computeBoolSize(5, withoutResponse_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -11383,10 +12304,12 @@ public final class MessageOuterClass {
       }
       dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicWriteArguments other = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicWriteArguments) obj;
 
-      if (getGattId()
-          != other.getGattId()) return false;
-      if (getId()
-          != other.getId()) return false;
+      if (!getGattKey()
+          .equals(other.getGattKey())) return false;
+      if (!getServiceKey()
+          .equals(other.getServiceKey())) return false;
+      if (!getKey()
+          .equals(other.getKey())) return false;
       if (!getValue()
           .equals(other.getValue())) return false;
       if (getWithoutResponse()
@@ -11402,10 +12325,12 @@ public final class MessageOuterClass {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + GATT_ID_FIELD_NUMBER;
-      hash = (53 * hash) + getGattId();
-      hash = (37 * hash) + ID_FIELD_NUMBER;
-      hash = (53 * hash) + getId();
+      hash = (37 * hash) + GATT_KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getGattKey().hashCode();
+      hash = (37 * hash) + SERVICE_KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getServiceKey().hashCode();
+      hash = (37 * hash) + KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getKey().hashCode();
       hash = (37 * hash) + VALUE_FIELD_NUMBER;
       hash = (53 * hash) + getValue().hashCode();
       hash = (37 * hash) + WITHOUTRESPONSE_FIELD_NUMBER;
@@ -11544,9 +12469,11 @@ public final class MessageOuterClass {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        gattId_ = 0;
+        gattKey_ = "";
 
-        id_ = 0;
+        serviceKey_ = "";
+
+        key_ = "";
 
         value_ = com.google.protobuf.ByteString.EMPTY;
 
@@ -11578,8 +12505,9 @@ public final class MessageOuterClass {
       @java.lang.Override
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicWriteArguments buildPartial() {
         dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicWriteArguments result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicWriteArguments(this);
-        result.gattId_ = gattId_;
-        result.id_ = id_;
+        result.gattKey_ = gattKey_;
+        result.serviceKey_ = serviceKey_;
+        result.key_ = key_;
         result.value_ = value_;
         result.withoutResponse_ = withoutResponse_;
         onBuilt();
@@ -11630,11 +12558,17 @@ public final class MessageOuterClass {
 
       public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicWriteArguments other) {
         if (other == dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicWriteArguments.getDefaultInstance()) return this;
-        if (other.getGattId() != 0) {
-          setGattId(other.getGattId());
+        if (!other.getGattKey().isEmpty()) {
+          gattKey_ = other.gattKey_;
+          onChanged();
         }
-        if (other.getId() != 0) {
-          setId(other.getId());
+        if (!other.getServiceKey().isEmpty()) {
+          serviceKey_ = other.serviceKey_;
+          onChanged();
+        }
+        if (!other.getKey().isEmpty()) {
+          key_ = other.key_;
+          onChanged();
         }
         if (other.getValue() != com.google.protobuf.ByteString.EMPTY) {
           setValue(other.getValue());
@@ -11671,71 +12605,237 @@ public final class MessageOuterClass {
         return this;
       }
 
-      private int gattId_ ;
+      private java.lang.Object gattKey_ = "";
       /**
-       * <code>int32 gatt_id = 1;</code>
-       * @return The gattId.
+       * <code>string gatt_key = 1;</code>
+       * @return The gattKey.
        */
-      @java.lang.Override
-      public int getGattId() {
-        return gattId_;
+      public java.lang.String getGattKey() {
+        java.lang.Object ref = gattKey_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          gattKey_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>int32 gatt_id = 1;</code>
-       * @param value The gattId to set.
+       * <code>string gatt_key = 1;</code>
+       * @return The bytes for gattKey.
+       */
+      public com.google.protobuf.ByteString
+          getGattKeyBytes() {
+        java.lang.Object ref = gattKey_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          gattKey_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string gatt_key = 1;</code>
+       * @param value The gattKey to set.
        * @return This builder for chaining.
        */
-      public Builder setGattId(int value) {
-        
-        gattId_ = value;
+      public Builder setGattKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        gattKey_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 gatt_id = 1;</code>
+       * <code>string gatt_key = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearGattId() {
+      public Builder clearGattKey() {
         
-        gattId_ = 0;
+        gattKey_ = getDefaultInstance().getGattKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string gatt_key = 1;</code>
+       * @param value The bytes for gattKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setGattKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        gattKey_ = value;
         onChanged();
         return this;
       }
 
-      private int id_ ;
+      private java.lang.Object serviceKey_ = "";
       /**
-       * <code>int32 id = 2;</code>
-       * @return The id.
+       * <code>string service_key = 2;</code>
+       * @return The serviceKey.
        */
-      @java.lang.Override
-      public int getId() {
-        return id_;
+      public java.lang.String getServiceKey() {
+        java.lang.Object ref = serviceKey_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          serviceKey_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>int32 id = 2;</code>
-       * @param value The id to set.
+       * <code>string service_key = 2;</code>
+       * @return The bytes for serviceKey.
+       */
+      public com.google.protobuf.ByteString
+          getServiceKeyBytes() {
+        java.lang.Object ref = serviceKey_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          serviceKey_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string service_key = 2;</code>
+       * @param value The serviceKey to set.
        * @return This builder for chaining.
        */
-      public Builder setId(int value) {
-        
-        id_ = value;
+      public Builder setServiceKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        serviceKey_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 id = 2;</code>
+       * <code>string service_key = 2;</code>
        * @return This builder for chaining.
        */
-      public Builder clearId() {
+      public Builder clearServiceKey() {
         
-        id_ = 0;
+        serviceKey_ = getDefaultInstance().getServiceKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string service_key = 2;</code>
+       * @param value The bytes for serviceKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setServiceKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        serviceKey_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object key_ = "";
+      /**
+       * <code>string key = 3;</code>
+       * @return The key.
+       */
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          key_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string key = 3;</code>
+       * @return The bytes for key.
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string key = 3;</code>
+       * @param value The key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        key_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearKey() {
+        
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 3;</code>
+       * @param value The bytes for key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        key_ = value;
         onChanged();
         return this;
       }
 
       private com.google.protobuf.ByteString value_ = com.google.protobuf.ByteString.EMPTY;
       /**
-       * <code>bytes value = 3;</code>
+       * <code>bytes value = 4;</code>
        * @return The value.
        */
       @java.lang.Override
@@ -11743,7 +12843,7 @@ public final class MessageOuterClass {
         return value_;
       }
       /**
-       * <code>bytes value = 3;</code>
+       * <code>bytes value = 4;</code>
        * @param value The value to set.
        * @return This builder for chaining.
        */
@@ -11757,7 +12857,7 @@ public final class MessageOuterClass {
         return this;
       }
       /**
-       * <code>bytes value = 3;</code>
+       * <code>bytes value = 4;</code>
        * @return This builder for chaining.
        */
       public Builder clearValue() {
@@ -11769,7 +12869,7 @@ public final class MessageOuterClass {
 
       private boolean withoutResponse_ ;
       /**
-       * <code>bool withoutResponse = 4;</code>
+       * <code>bool withoutResponse = 5;</code>
        * @return The withoutResponse.
        */
       @java.lang.Override
@@ -11777,7 +12877,7 @@ public final class MessageOuterClass {
         return withoutResponse_;
       }
       /**
-       * <code>bool withoutResponse = 4;</code>
+       * <code>bool withoutResponse = 5;</code>
        * @param value The withoutResponse to set.
        * @return This builder for chaining.
        */
@@ -11788,7 +12888,7 @@ public final class MessageOuterClass {
         return this;
       }
       /**
-       * <code>bool withoutResponse = 4;</code>
+       * <code>bool withoutResponse = 5;</code>
        * @return This builder for chaining.
        */
       public Builder clearWithoutResponse() {
@@ -11855,19 +12955,43 @@ public final class MessageOuterClass {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>int32 gatt_id = 1;</code>
-     * @return The gattId.
+     * <code>string gatt_key = 1;</code>
+     * @return The gattKey.
      */
-    int getGattId();
+    java.lang.String getGattKey();
+    /**
+     * <code>string gatt_key = 1;</code>
+     * @return The bytes for gattKey.
+     */
+    com.google.protobuf.ByteString
+        getGattKeyBytes();
 
     /**
-     * <code>int32 id = 2;</code>
-     * @return The id.
+     * <code>string service_key = 2;</code>
+     * @return The serviceKey.
      */
-    int getId();
+    java.lang.String getServiceKey();
+    /**
+     * <code>string service_key = 2;</code>
+     * @return The bytes for serviceKey.
+     */
+    com.google.protobuf.ByteString
+        getServiceKeyBytes();
 
     /**
-     * <code>bool state = 3;</code>
+     * <code>string key = 3;</code>
+     * @return The key.
+     */
+    java.lang.String getKey();
+    /**
+     * <code>string key = 3;</code>
+     * @return The bytes for key.
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
+
+    /**
+     * <code>bool state = 4;</code>
      * @return The state.
      */
     boolean getState();
@@ -11885,6 +13009,9 @@ public final class MessageOuterClass {
       super(builder);
     }
     private GattCharacteristicNotifyArguments() {
+      gattKey_ = "";
+      serviceKey_ = "";
+      key_ = "";
     }
 
     @java.lang.Override
@@ -11917,17 +13044,25 @@ public final class MessageOuterClass {
             case 0:
               done = true;
               break;
-            case 8: {
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              gattId_ = input.readInt32();
+              gattKey_ = s;
               break;
             }
-            case 16: {
+            case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              id_ = input.readInt32();
+              serviceKey_ = s;
               break;
             }
-            case 24: {
+            case 26: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              key_ = s;
+              break;
+            }
+            case 32: {
 
               state_ = input.readBool();
               break;
@@ -11964,32 +13099,124 @@ public final class MessageOuterClass {
               dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicNotifyArguments.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicNotifyArguments.Builder.class);
     }
 
-    public static final int GATT_ID_FIELD_NUMBER = 1;
-    private int gattId_;
+    public static final int GATT_KEY_FIELD_NUMBER = 1;
+    private volatile java.lang.Object gattKey_;
     /**
-     * <code>int32 gatt_id = 1;</code>
-     * @return The gattId.
+     * <code>string gatt_key = 1;</code>
+     * @return The gattKey.
      */
     @java.lang.Override
-    public int getGattId() {
-      return gattId_;
+    public java.lang.String getGattKey() {
+      java.lang.Object ref = gattKey_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        gattKey_ = s;
+        return s;
+      }
     }
-
-    public static final int ID_FIELD_NUMBER = 2;
-    private int id_;
     /**
-     * <code>int32 id = 2;</code>
-     * @return The id.
+     * <code>string gatt_key = 1;</code>
+     * @return The bytes for gattKey.
      */
     @java.lang.Override
-    public int getId() {
-      return id_;
+    public com.google.protobuf.ByteString
+        getGattKeyBytes() {
+      java.lang.Object ref = gattKey_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        gattKey_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
-    public static final int STATE_FIELD_NUMBER = 3;
+    public static final int SERVICE_KEY_FIELD_NUMBER = 2;
+    private volatile java.lang.Object serviceKey_;
+    /**
+     * <code>string service_key = 2;</code>
+     * @return The serviceKey.
+     */
+    @java.lang.Override
+    public java.lang.String getServiceKey() {
+      java.lang.Object ref = serviceKey_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        serviceKey_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string service_key = 2;</code>
+     * @return The bytes for serviceKey.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getServiceKeyBytes() {
+      java.lang.Object ref = serviceKey_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        serviceKey_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int KEY_FIELD_NUMBER = 3;
+    private volatile java.lang.Object key_;
+    /**
+     * <code>string key = 3;</code>
+     * @return The key.
+     */
+    @java.lang.Override
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        key_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string key = 3;</code>
+     * @return The bytes for key.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int STATE_FIELD_NUMBER = 4;
     private boolean state_;
     /**
-     * <code>bool state = 3;</code>
+     * <code>bool state = 4;</code>
      * @return The state.
      */
     @java.lang.Override
@@ -12011,14 +13238,17 @@ public final class MessageOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (gattId_ != 0) {
-        output.writeInt32(1, gattId_);
+      if (!getGattKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, gattKey_);
       }
-      if (id_ != 0) {
-        output.writeInt32(2, id_);
+      if (!getServiceKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, serviceKey_);
+      }
+      if (!getKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, key_);
       }
       if (state_ != false) {
-        output.writeBool(3, state_);
+        output.writeBool(4, state_);
       }
       unknownFields.writeTo(output);
     }
@@ -12029,17 +13259,18 @@ public final class MessageOuterClass {
       if (size != -1) return size;
 
       size = 0;
-      if (gattId_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, gattId_);
+      if (!getGattKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, gattKey_);
       }
-      if (id_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(2, id_);
+      if (!getServiceKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, serviceKey_);
+      }
+      if (!getKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, key_);
       }
       if (state_ != false) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(3, state_);
+          .computeBoolSize(4, state_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -12056,10 +13287,12 @@ public final class MessageOuterClass {
       }
       dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicNotifyArguments other = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicNotifyArguments) obj;
 
-      if (getGattId()
-          != other.getGattId()) return false;
-      if (getId()
-          != other.getId()) return false;
+      if (!getGattKey()
+          .equals(other.getGattKey())) return false;
+      if (!getServiceKey()
+          .equals(other.getServiceKey())) return false;
+      if (!getKey()
+          .equals(other.getKey())) return false;
       if (getState()
           != other.getState()) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
@@ -12073,10 +13306,12 @@ public final class MessageOuterClass {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + GATT_ID_FIELD_NUMBER;
-      hash = (53 * hash) + getGattId();
-      hash = (37 * hash) + ID_FIELD_NUMBER;
-      hash = (53 * hash) + getId();
+      hash = (37 * hash) + GATT_KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getGattKey().hashCode();
+      hash = (37 * hash) + SERVICE_KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getServiceKey().hashCode();
+      hash = (37 * hash) + KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getKey().hashCode();
       hash = (37 * hash) + STATE_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getState());
@@ -12213,9 +13448,11 @@ public final class MessageOuterClass {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        gattId_ = 0;
+        gattKey_ = "";
 
-        id_ = 0;
+        serviceKey_ = "";
+
+        key_ = "";
 
         state_ = false;
 
@@ -12245,8 +13482,9 @@ public final class MessageOuterClass {
       @java.lang.Override
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicNotifyArguments buildPartial() {
         dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicNotifyArguments result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicNotifyArguments(this);
-        result.gattId_ = gattId_;
-        result.id_ = id_;
+        result.gattKey_ = gattKey_;
+        result.serviceKey_ = serviceKey_;
+        result.key_ = key_;
         result.state_ = state_;
         onBuilt();
         return result;
@@ -12296,11 +13534,17 @@ public final class MessageOuterClass {
 
       public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicNotifyArguments other) {
         if (other == dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicNotifyArguments.getDefaultInstance()) return this;
-        if (other.getGattId() != 0) {
-          setGattId(other.getGattId());
+        if (!other.getGattKey().isEmpty()) {
+          gattKey_ = other.gattKey_;
+          onChanged();
         }
-        if (other.getId() != 0) {
-          setId(other.getId());
+        if (!other.getServiceKey().isEmpty()) {
+          serviceKey_ = other.serviceKey_;
+          onChanged();
+        }
+        if (!other.getKey().isEmpty()) {
+          key_ = other.key_;
+          onChanged();
         }
         if (other.getState() != false) {
           setState(other.getState());
@@ -12334,71 +13578,237 @@ public final class MessageOuterClass {
         return this;
       }
 
-      private int gattId_ ;
+      private java.lang.Object gattKey_ = "";
       /**
-       * <code>int32 gatt_id = 1;</code>
-       * @return The gattId.
+       * <code>string gatt_key = 1;</code>
+       * @return The gattKey.
        */
-      @java.lang.Override
-      public int getGattId() {
-        return gattId_;
+      public java.lang.String getGattKey() {
+        java.lang.Object ref = gattKey_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          gattKey_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>int32 gatt_id = 1;</code>
-       * @param value The gattId to set.
+       * <code>string gatt_key = 1;</code>
+       * @return The bytes for gattKey.
+       */
+      public com.google.protobuf.ByteString
+          getGattKeyBytes() {
+        java.lang.Object ref = gattKey_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          gattKey_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string gatt_key = 1;</code>
+       * @param value The gattKey to set.
        * @return This builder for chaining.
        */
-      public Builder setGattId(int value) {
-        
-        gattId_ = value;
+      public Builder setGattKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        gattKey_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 gatt_id = 1;</code>
+       * <code>string gatt_key = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearGattId() {
+      public Builder clearGattKey() {
         
-        gattId_ = 0;
+        gattKey_ = getDefaultInstance().getGattKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string gatt_key = 1;</code>
+       * @param value The bytes for gattKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setGattKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        gattKey_ = value;
         onChanged();
         return this;
       }
 
-      private int id_ ;
+      private java.lang.Object serviceKey_ = "";
       /**
-       * <code>int32 id = 2;</code>
-       * @return The id.
+       * <code>string service_key = 2;</code>
+       * @return The serviceKey.
        */
-      @java.lang.Override
-      public int getId() {
-        return id_;
+      public java.lang.String getServiceKey() {
+        java.lang.Object ref = serviceKey_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          serviceKey_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>int32 id = 2;</code>
-       * @param value The id to set.
+       * <code>string service_key = 2;</code>
+       * @return The bytes for serviceKey.
+       */
+      public com.google.protobuf.ByteString
+          getServiceKeyBytes() {
+        java.lang.Object ref = serviceKey_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          serviceKey_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string service_key = 2;</code>
+       * @param value The serviceKey to set.
        * @return This builder for chaining.
        */
-      public Builder setId(int value) {
-        
-        id_ = value;
+      public Builder setServiceKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        serviceKey_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 id = 2;</code>
+       * <code>string service_key = 2;</code>
        * @return This builder for chaining.
        */
-      public Builder clearId() {
+      public Builder clearServiceKey() {
         
-        id_ = 0;
+        serviceKey_ = getDefaultInstance().getServiceKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string service_key = 2;</code>
+       * @param value The bytes for serviceKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setServiceKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        serviceKey_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object key_ = "";
+      /**
+       * <code>string key = 3;</code>
+       * @return The key.
+       */
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          key_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string key = 3;</code>
+       * @return The bytes for key.
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string key = 3;</code>
+       * @param value The key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        key_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearKey() {
+        
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 3;</code>
+       * @param value The bytes for key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        key_ = value;
         onChanged();
         return this;
       }
 
       private boolean state_ ;
       /**
-       * <code>bool state = 3;</code>
+       * <code>bool state = 4;</code>
        * @return The state.
        */
       @java.lang.Override
@@ -12406,7 +13816,7 @@ public final class MessageOuterClass {
         return state_;
       }
       /**
-       * <code>bool state = 3;</code>
+       * <code>bool state = 4;</code>
        * @param value The state to set.
        * @return This builder for chaining.
        */
@@ -12417,7 +13827,7 @@ public final class MessageOuterClass {
         return this;
       }
       /**
-       * <code>bool state = 3;</code>
+       * <code>bool state = 4;</code>
        * @return This builder for chaining.
        */
       public Builder clearState() {
@@ -12484,13 +13894,43 @@ public final class MessageOuterClass {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>int32 id = 1;</code>
-     * @return The id.
+     * <code>string gatt_key = 1;</code>
+     * @return The gattKey.
      */
-    int getId();
+    java.lang.String getGattKey();
+    /**
+     * <code>string gatt_key = 1;</code>
+     * @return The bytes for gattKey.
+     */
+    com.google.protobuf.ByteString
+        getGattKeyBytes();
 
     /**
-     * <code>bytes value = 2;</code>
+     * <code>string service_key = 2;</code>
+     * @return The serviceKey.
+     */
+    java.lang.String getServiceKey();
+    /**
+     * <code>string service_key = 2;</code>
+     * @return The bytes for serviceKey.
+     */
+    com.google.protobuf.ByteString
+        getServiceKeyBytes();
+
+    /**
+     * <code>string key = 3;</code>
+     * @return The key.
+     */
+    java.lang.String getKey();
+    /**
+     * <code>string key = 3;</code>
+     * @return The bytes for key.
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
+
+    /**
+     * <code>bytes value = 4;</code>
      * @return The value.
      */
     com.google.protobuf.ByteString getValue();
@@ -12508,6 +13948,9 @@ public final class MessageOuterClass {
       super(builder);
     }
     private GattCharacteristicValue() {
+      gattKey_ = "";
+      serviceKey_ = "";
+      key_ = "";
       value_ = com.google.protobuf.ByteString.EMPTY;
     }
 
@@ -12541,12 +13984,25 @@ public final class MessageOuterClass {
             case 0:
               done = true;
               break;
-            case 8: {
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              id_ = input.readInt32();
+              gattKey_ = s;
               break;
             }
             case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              serviceKey_ = s;
+              break;
+            }
+            case 26: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              key_ = s;
+              break;
+            }
+            case 34: {
 
               value_ = input.readBytes();
               break;
@@ -12583,21 +14039,124 @@ public final class MessageOuterClass {
               dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicValue.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicValue.Builder.class);
     }
 
-    public static final int ID_FIELD_NUMBER = 1;
-    private int id_;
+    public static final int GATT_KEY_FIELD_NUMBER = 1;
+    private volatile java.lang.Object gattKey_;
     /**
-     * <code>int32 id = 1;</code>
-     * @return The id.
+     * <code>string gatt_key = 1;</code>
+     * @return The gattKey.
      */
     @java.lang.Override
-    public int getId() {
-      return id_;
+    public java.lang.String getGattKey() {
+      java.lang.Object ref = gattKey_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        gattKey_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string gatt_key = 1;</code>
+     * @return The bytes for gattKey.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getGattKeyBytes() {
+      java.lang.Object ref = gattKey_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        gattKey_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
-    public static final int VALUE_FIELD_NUMBER = 2;
+    public static final int SERVICE_KEY_FIELD_NUMBER = 2;
+    private volatile java.lang.Object serviceKey_;
+    /**
+     * <code>string service_key = 2;</code>
+     * @return The serviceKey.
+     */
+    @java.lang.Override
+    public java.lang.String getServiceKey() {
+      java.lang.Object ref = serviceKey_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        serviceKey_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string service_key = 2;</code>
+     * @return The bytes for serviceKey.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getServiceKeyBytes() {
+      java.lang.Object ref = serviceKey_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        serviceKey_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int KEY_FIELD_NUMBER = 3;
+    private volatile java.lang.Object key_;
+    /**
+     * <code>string key = 3;</code>
+     * @return The key.
+     */
+    @java.lang.Override
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        key_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string key = 3;</code>
+     * @return The bytes for key.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int VALUE_FIELD_NUMBER = 4;
     private com.google.protobuf.ByteString value_;
     /**
-     * <code>bytes value = 2;</code>
+     * <code>bytes value = 4;</code>
      * @return The value.
      */
     @java.lang.Override
@@ -12619,11 +14178,17 @@ public final class MessageOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (id_ != 0) {
-        output.writeInt32(1, id_);
+      if (!getGattKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, gattKey_);
+      }
+      if (!getServiceKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, serviceKey_);
+      }
+      if (!getKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, key_);
       }
       if (!value_.isEmpty()) {
-        output.writeBytes(2, value_);
+        output.writeBytes(4, value_);
       }
       unknownFields.writeTo(output);
     }
@@ -12634,13 +14199,18 @@ public final class MessageOuterClass {
       if (size != -1) return size;
 
       size = 0;
-      if (id_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, id_);
+      if (!getGattKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, gattKey_);
+      }
+      if (!getServiceKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, serviceKey_);
+      }
+      if (!getKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, key_);
       }
       if (!value_.isEmpty()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, value_);
+          .computeBytesSize(4, value_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -12657,8 +14227,12 @@ public final class MessageOuterClass {
       }
       dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicValue other = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicValue) obj;
 
-      if (getId()
-          != other.getId()) return false;
+      if (!getGattKey()
+          .equals(other.getGattKey())) return false;
+      if (!getServiceKey()
+          .equals(other.getServiceKey())) return false;
+      if (!getKey()
+          .equals(other.getKey())) return false;
       if (!getValue()
           .equals(other.getValue())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
@@ -12672,8 +14246,12 @@ public final class MessageOuterClass {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + ID_FIELD_NUMBER;
-      hash = (53 * hash) + getId();
+      hash = (37 * hash) + GATT_KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getGattKey().hashCode();
+      hash = (37 * hash) + SERVICE_KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getServiceKey().hashCode();
+      hash = (37 * hash) + KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getKey().hashCode();
       hash = (37 * hash) + VALUE_FIELD_NUMBER;
       hash = (53 * hash) + getValue().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
@@ -12809,7 +14387,11 @@ public final class MessageOuterClass {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        id_ = 0;
+        gattKey_ = "";
+
+        serviceKey_ = "";
+
+        key_ = "";
 
         value_ = com.google.protobuf.ByteString.EMPTY;
 
@@ -12839,7 +14421,9 @@ public final class MessageOuterClass {
       @java.lang.Override
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicValue buildPartial() {
         dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicValue result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicValue(this);
-        result.id_ = id_;
+        result.gattKey_ = gattKey_;
+        result.serviceKey_ = serviceKey_;
+        result.key_ = key_;
         result.value_ = value_;
         onBuilt();
         return result;
@@ -12889,8 +14473,17 @@ public final class MessageOuterClass {
 
       public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicValue other) {
         if (other == dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristicValue.getDefaultInstance()) return this;
-        if (other.getId() != 0) {
-          setId(other.getId());
+        if (!other.getGattKey().isEmpty()) {
+          gattKey_ = other.gattKey_;
+          onChanged();
+        }
+        if (!other.getServiceKey().isEmpty()) {
+          serviceKey_ = other.serviceKey_;
+          onChanged();
+        }
+        if (!other.getKey().isEmpty()) {
+          key_ = other.key_;
+          onChanged();
         }
         if (other.getValue() != com.google.protobuf.ByteString.EMPTY) {
           setValue(other.getValue());
@@ -12924,40 +14517,237 @@ public final class MessageOuterClass {
         return this;
       }
 
-      private int id_ ;
+      private java.lang.Object gattKey_ = "";
       /**
-       * <code>int32 id = 1;</code>
-       * @return The id.
+       * <code>string gatt_key = 1;</code>
+       * @return The gattKey.
        */
-      @java.lang.Override
-      public int getId() {
-        return id_;
+      public java.lang.String getGattKey() {
+        java.lang.Object ref = gattKey_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          gattKey_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>int32 id = 1;</code>
-       * @param value The id to set.
+       * <code>string gatt_key = 1;</code>
+       * @return The bytes for gattKey.
+       */
+      public com.google.protobuf.ByteString
+          getGattKeyBytes() {
+        java.lang.Object ref = gattKey_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          gattKey_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string gatt_key = 1;</code>
+       * @param value The gattKey to set.
        * @return This builder for chaining.
        */
-      public Builder setId(int value) {
-        
-        id_ = value;
+      public Builder setGattKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        gattKey_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 id = 1;</code>
+       * <code>string gatt_key = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearId() {
+      public Builder clearGattKey() {
         
-        id_ = 0;
+        gattKey_ = getDefaultInstance().getGattKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string gatt_key = 1;</code>
+       * @param value The bytes for gattKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setGattKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        gattKey_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object serviceKey_ = "";
+      /**
+       * <code>string service_key = 2;</code>
+       * @return The serviceKey.
+       */
+      public java.lang.String getServiceKey() {
+        java.lang.Object ref = serviceKey_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          serviceKey_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string service_key = 2;</code>
+       * @return The bytes for serviceKey.
+       */
+      public com.google.protobuf.ByteString
+          getServiceKeyBytes() {
+        java.lang.Object ref = serviceKey_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          serviceKey_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string service_key = 2;</code>
+       * @param value The serviceKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setServiceKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        serviceKey_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string service_key = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearServiceKey() {
+        
+        serviceKey_ = getDefaultInstance().getServiceKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string service_key = 2;</code>
+       * @param value The bytes for serviceKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setServiceKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        serviceKey_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object key_ = "";
+      /**
+       * <code>string key = 3;</code>
+       * @return The key.
+       */
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          key_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string key = 3;</code>
+       * @return The bytes for key.
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string key = 3;</code>
+       * @param value The key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        key_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearKey() {
+        
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 3;</code>
+       * @param value The bytes for key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        key_ = value;
         onChanged();
         return this;
       }
 
       private com.google.protobuf.ByteString value_ = com.google.protobuf.ByteString.EMPTY;
       /**
-       * <code>bytes value = 2;</code>
+       * <code>bytes value = 4;</code>
        * @return The value.
        */
       @java.lang.Override
@@ -12965,7 +14755,7 @@ public final class MessageOuterClass {
         return value_;
       }
       /**
-       * <code>bytes value = 2;</code>
+       * <code>bytes value = 4;</code>
        * @param value The value to set.
        * @return This builder for chaining.
        */
@@ -12979,7 +14769,7 @@ public final class MessageOuterClass {
         return this;
       }
       /**
-       * <code>bytes value = 2;</code>
+       * <code>bytes value = 4;</code>
        * @return This builder for chaining.
        */
       public Builder clearValue() {
@@ -13046,16 +14836,52 @@ public final class MessageOuterClass {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>int32 gatt_id = 1;</code>
-     * @return The gattId.
+     * <code>string gatt_key = 1;</code>
+     * @return The gattKey.
      */
-    int getGattId();
+    java.lang.String getGattKey();
+    /**
+     * <code>string gatt_key = 1;</code>
+     * @return The bytes for gattKey.
+     */
+    com.google.protobuf.ByteString
+        getGattKeyBytes();
 
     /**
-     * <code>int32 id = 2;</code>
-     * @return The id.
+     * <code>string service_key = 2;</code>
+     * @return The serviceKey.
      */
-    int getId();
+    java.lang.String getServiceKey();
+    /**
+     * <code>string service_key = 2;</code>
+     * @return The bytes for serviceKey.
+     */
+    com.google.protobuf.ByteString
+        getServiceKeyBytes();
+
+    /**
+     * <code>string characteristic_key = 3;</code>
+     * @return The characteristicKey.
+     */
+    java.lang.String getCharacteristicKey();
+    /**
+     * <code>string characteristic_key = 3;</code>
+     * @return The bytes for characteristicKey.
+     */
+    com.google.protobuf.ByteString
+        getCharacteristicKeyBytes();
+
+    /**
+     * <code>string key = 4;</code>
+     * @return The key.
+     */
+    java.lang.String getKey();
+    /**
+     * <code>string key = 4;</code>
+     * @return The bytes for key.
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
   }
   /**
    * Protobuf type {@code dev.yanshouwang.bluetooth_low_energy.GattDescriptorReadArguments}
@@ -13070,6 +14896,10 @@ public final class MessageOuterClass {
       super(builder);
     }
     private GattDescriptorReadArguments() {
+      gattKey_ = "";
+      serviceKey_ = "";
+      characteristicKey_ = "";
+      key_ = "";
     }
 
     @java.lang.Override
@@ -13102,14 +14932,28 @@ public final class MessageOuterClass {
             case 0:
               done = true;
               break;
-            case 8: {
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              gattId_ = input.readInt32();
+              gattKey_ = s;
               break;
             }
-            case 16: {
+            case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              id_ = input.readInt32();
+              serviceKey_ = s;
+              break;
+            }
+            case 26: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              characteristicKey_ = s;
+              break;
+            }
+            case 34: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              key_ = s;
               break;
             }
             default: {
@@ -13144,26 +14988,156 @@ public final class MessageOuterClass {
               dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorReadArguments.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorReadArguments.Builder.class);
     }
 
-    public static final int GATT_ID_FIELD_NUMBER = 1;
-    private int gattId_;
+    public static final int GATT_KEY_FIELD_NUMBER = 1;
+    private volatile java.lang.Object gattKey_;
     /**
-     * <code>int32 gatt_id = 1;</code>
-     * @return The gattId.
+     * <code>string gatt_key = 1;</code>
+     * @return The gattKey.
      */
     @java.lang.Override
-    public int getGattId() {
-      return gattId_;
+    public java.lang.String getGattKey() {
+      java.lang.Object ref = gattKey_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        gattKey_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string gatt_key = 1;</code>
+     * @return The bytes for gattKey.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getGattKeyBytes() {
+      java.lang.Object ref = gattKey_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        gattKey_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
-    public static final int ID_FIELD_NUMBER = 2;
-    private int id_;
+    public static final int SERVICE_KEY_FIELD_NUMBER = 2;
+    private volatile java.lang.Object serviceKey_;
     /**
-     * <code>int32 id = 2;</code>
-     * @return The id.
+     * <code>string service_key = 2;</code>
+     * @return The serviceKey.
      */
     @java.lang.Override
-    public int getId() {
-      return id_;
+    public java.lang.String getServiceKey() {
+      java.lang.Object ref = serviceKey_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        serviceKey_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string service_key = 2;</code>
+     * @return The bytes for serviceKey.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getServiceKeyBytes() {
+      java.lang.Object ref = serviceKey_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        serviceKey_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int CHARACTERISTIC_KEY_FIELD_NUMBER = 3;
+    private volatile java.lang.Object characteristicKey_;
+    /**
+     * <code>string characteristic_key = 3;</code>
+     * @return The characteristicKey.
+     */
+    @java.lang.Override
+    public java.lang.String getCharacteristicKey() {
+      java.lang.Object ref = characteristicKey_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        characteristicKey_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string characteristic_key = 3;</code>
+     * @return The bytes for characteristicKey.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getCharacteristicKeyBytes() {
+      java.lang.Object ref = characteristicKey_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        characteristicKey_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int KEY_FIELD_NUMBER = 4;
+    private volatile java.lang.Object key_;
+    /**
+     * <code>string key = 4;</code>
+     * @return The key.
+     */
+    @java.lang.Override
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        key_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string key = 4;</code>
+     * @return The bytes for key.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     private byte memoizedIsInitialized = -1;
@@ -13180,11 +15154,17 @@ public final class MessageOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (gattId_ != 0) {
-        output.writeInt32(1, gattId_);
+      if (!getGattKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, gattKey_);
       }
-      if (id_ != 0) {
-        output.writeInt32(2, id_);
+      if (!getServiceKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, serviceKey_);
+      }
+      if (!getCharacteristicKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, characteristicKey_);
+      }
+      if (!getKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, key_);
       }
       unknownFields.writeTo(output);
     }
@@ -13195,13 +15175,17 @@ public final class MessageOuterClass {
       if (size != -1) return size;
 
       size = 0;
-      if (gattId_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, gattId_);
+      if (!getGattKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, gattKey_);
       }
-      if (id_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(2, id_);
+      if (!getServiceKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, serviceKey_);
+      }
+      if (!getCharacteristicKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, characteristicKey_);
+      }
+      if (!getKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, key_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -13218,10 +15202,14 @@ public final class MessageOuterClass {
       }
       dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorReadArguments other = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorReadArguments) obj;
 
-      if (getGattId()
-          != other.getGattId()) return false;
-      if (getId()
-          != other.getId()) return false;
+      if (!getGattKey()
+          .equals(other.getGattKey())) return false;
+      if (!getServiceKey()
+          .equals(other.getServiceKey())) return false;
+      if (!getCharacteristicKey()
+          .equals(other.getCharacteristicKey())) return false;
+      if (!getKey()
+          .equals(other.getKey())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -13233,10 +15221,14 @@ public final class MessageOuterClass {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + GATT_ID_FIELD_NUMBER;
-      hash = (53 * hash) + getGattId();
-      hash = (37 * hash) + ID_FIELD_NUMBER;
-      hash = (53 * hash) + getId();
+      hash = (37 * hash) + GATT_KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getGattKey().hashCode();
+      hash = (37 * hash) + SERVICE_KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getServiceKey().hashCode();
+      hash = (37 * hash) + CHARACTERISTIC_KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getCharacteristicKey().hashCode();
+      hash = (37 * hash) + KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getKey().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -13370,9 +15362,13 @@ public final class MessageOuterClass {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        gattId_ = 0;
+        gattKey_ = "";
 
-        id_ = 0;
+        serviceKey_ = "";
+
+        characteristicKey_ = "";
+
+        key_ = "";
 
         return this;
       }
@@ -13400,8 +15396,10 @@ public final class MessageOuterClass {
       @java.lang.Override
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorReadArguments buildPartial() {
         dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorReadArguments result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorReadArguments(this);
-        result.gattId_ = gattId_;
-        result.id_ = id_;
+        result.gattKey_ = gattKey_;
+        result.serviceKey_ = serviceKey_;
+        result.characteristicKey_ = characteristicKey_;
+        result.key_ = key_;
         onBuilt();
         return result;
       }
@@ -13450,11 +15448,21 @@ public final class MessageOuterClass {
 
       public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorReadArguments other) {
         if (other == dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorReadArguments.getDefaultInstance()) return this;
-        if (other.getGattId() != 0) {
-          setGattId(other.getGattId());
+        if (!other.getGattKey().isEmpty()) {
+          gattKey_ = other.gattKey_;
+          onChanged();
         }
-        if (other.getId() != 0) {
-          setId(other.getId());
+        if (!other.getServiceKey().isEmpty()) {
+          serviceKey_ = other.serviceKey_;
+          onChanged();
+        }
+        if (!other.getCharacteristicKey().isEmpty()) {
+          characteristicKey_ = other.characteristicKey_;
+          onChanged();
+        }
+        if (!other.getKey().isEmpty()) {
+          key_ = other.key_;
+          onChanged();
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -13485,64 +15493,306 @@ public final class MessageOuterClass {
         return this;
       }
 
-      private int gattId_ ;
+      private java.lang.Object gattKey_ = "";
       /**
-       * <code>int32 gatt_id = 1;</code>
-       * @return The gattId.
+       * <code>string gatt_key = 1;</code>
+       * @return The gattKey.
        */
-      @java.lang.Override
-      public int getGattId() {
-        return gattId_;
+      public java.lang.String getGattKey() {
+        java.lang.Object ref = gattKey_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          gattKey_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>int32 gatt_id = 1;</code>
-       * @param value The gattId to set.
+       * <code>string gatt_key = 1;</code>
+       * @return The bytes for gattKey.
+       */
+      public com.google.protobuf.ByteString
+          getGattKeyBytes() {
+        java.lang.Object ref = gattKey_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          gattKey_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string gatt_key = 1;</code>
+       * @param value The gattKey to set.
        * @return This builder for chaining.
        */
-      public Builder setGattId(int value) {
-        
-        gattId_ = value;
+      public Builder setGattKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        gattKey_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 gatt_id = 1;</code>
+       * <code>string gatt_key = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearGattId() {
+      public Builder clearGattKey() {
         
-        gattId_ = 0;
+        gattKey_ = getDefaultInstance().getGattKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string gatt_key = 1;</code>
+       * @param value The bytes for gattKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setGattKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        gattKey_ = value;
         onChanged();
         return this;
       }
 
-      private int id_ ;
+      private java.lang.Object serviceKey_ = "";
       /**
-       * <code>int32 id = 2;</code>
-       * @return The id.
+       * <code>string service_key = 2;</code>
+       * @return The serviceKey.
        */
-      @java.lang.Override
-      public int getId() {
-        return id_;
+      public java.lang.String getServiceKey() {
+        java.lang.Object ref = serviceKey_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          serviceKey_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>int32 id = 2;</code>
-       * @param value The id to set.
+       * <code>string service_key = 2;</code>
+       * @return The bytes for serviceKey.
+       */
+      public com.google.protobuf.ByteString
+          getServiceKeyBytes() {
+        java.lang.Object ref = serviceKey_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          serviceKey_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string service_key = 2;</code>
+       * @param value The serviceKey to set.
        * @return This builder for chaining.
        */
-      public Builder setId(int value) {
-        
-        id_ = value;
+      public Builder setServiceKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        serviceKey_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 id = 2;</code>
+       * <code>string service_key = 2;</code>
        * @return This builder for chaining.
        */
-      public Builder clearId() {
+      public Builder clearServiceKey() {
         
-        id_ = 0;
+        serviceKey_ = getDefaultInstance().getServiceKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string service_key = 2;</code>
+       * @param value The bytes for serviceKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setServiceKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        serviceKey_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object characteristicKey_ = "";
+      /**
+       * <code>string characteristic_key = 3;</code>
+       * @return The characteristicKey.
+       */
+      public java.lang.String getCharacteristicKey() {
+        java.lang.Object ref = characteristicKey_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          characteristicKey_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string characteristic_key = 3;</code>
+       * @return The bytes for characteristicKey.
+       */
+      public com.google.protobuf.ByteString
+          getCharacteristicKeyBytes() {
+        java.lang.Object ref = characteristicKey_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          characteristicKey_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string characteristic_key = 3;</code>
+       * @param value The characteristicKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCharacteristicKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        characteristicKey_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string characteristic_key = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearCharacteristicKey() {
+        
+        characteristicKey_ = getDefaultInstance().getCharacteristicKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string characteristic_key = 3;</code>
+       * @param value The bytes for characteristicKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCharacteristicKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        characteristicKey_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object key_ = "";
+      /**
+       * <code>string key = 4;</code>
+       * @return The key.
+       */
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          key_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string key = 4;</code>
+       * @return The bytes for key.
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string key = 4;</code>
+       * @param value The key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        key_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearKey() {
+        
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 4;</code>
+       * @param value The bytes for key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        key_ = value;
         onChanged();
         return this;
       }
@@ -13604,19 +15854,55 @@ public final class MessageOuterClass {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>int32 gatt_id = 1;</code>
-     * @return The gattId.
+     * <code>string gatt_key = 1;</code>
+     * @return The gattKey.
      */
-    int getGattId();
+    java.lang.String getGattKey();
+    /**
+     * <code>string gatt_key = 1;</code>
+     * @return The bytes for gattKey.
+     */
+    com.google.protobuf.ByteString
+        getGattKeyBytes();
 
     /**
-     * <code>int32 id = 2;</code>
-     * @return The id.
+     * <code>string service_key = 2;</code>
+     * @return The serviceKey.
      */
-    int getId();
+    java.lang.String getServiceKey();
+    /**
+     * <code>string service_key = 2;</code>
+     * @return The bytes for serviceKey.
+     */
+    com.google.protobuf.ByteString
+        getServiceKeyBytes();
 
     /**
-     * <code>bytes value = 3;</code>
+     * <code>string characteristic_key = 3;</code>
+     * @return The characteristicKey.
+     */
+    java.lang.String getCharacteristicKey();
+    /**
+     * <code>string characteristic_key = 3;</code>
+     * @return The bytes for characteristicKey.
+     */
+    com.google.protobuf.ByteString
+        getCharacteristicKeyBytes();
+
+    /**
+     * <code>string key = 4;</code>
+     * @return The key.
+     */
+    java.lang.String getKey();
+    /**
+     * <code>string key = 4;</code>
+     * @return The bytes for key.
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
+
+    /**
+     * <code>bytes value = 5;</code>
      * @return The value.
      */
     com.google.protobuf.ByteString getValue();
@@ -13634,6 +15920,10 @@ public final class MessageOuterClass {
       super(builder);
     }
     private GattDescriptorWriteArguments() {
+      gattKey_ = "";
+      serviceKey_ = "";
+      characteristicKey_ = "";
+      key_ = "";
       value_ = com.google.protobuf.ByteString.EMPTY;
     }
 
@@ -13667,17 +15957,31 @@ public final class MessageOuterClass {
             case 0:
               done = true;
               break;
-            case 8: {
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              gattId_ = input.readInt32();
+              gattKey_ = s;
               break;
             }
-            case 16: {
+            case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
 
-              id_ = input.readInt32();
+              serviceKey_ = s;
               break;
             }
             case 26: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              characteristicKey_ = s;
+              break;
+            }
+            case 34: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              key_ = s;
+              break;
+            }
+            case 42: {
 
               value_ = input.readBytes();
               break;
@@ -13714,32 +16018,162 @@ public final class MessageOuterClass {
               dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorWriteArguments.class, dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorWriteArguments.Builder.class);
     }
 
-    public static final int GATT_ID_FIELD_NUMBER = 1;
-    private int gattId_;
+    public static final int GATT_KEY_FIELD_NUMBER = 1;
+    private volatile java.lang.Object gattKey_;
     /**
-     * <code>int32 gatt_id = 1;</code>
-     * @return The gattId.
+     * <code>string gatt_key = 1;</code>
+     * @return The gattKey.
      */
     @java.lang.Override
-    public int getGattId() {
-      return gattId_;
+    public java.lang.String getGattKey() {
+      java.lang.Object ref = gattKey_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        gattKey_ = s;
+        return s;
+      }
     }
-
-    public static final int ID_FIELD_NUMBER = 2;
-    private int id_;
     /**
-     * <code>int32 id = 2;</code>
-     * @return The id.
+     * <code>string gatt_key = 1;</code>
+     * @return The bytes for gattKey.
      */
     @java.lang.Override
-    public int getId() {
-      return id_;
+    public com.google.protobuf.ByteString
+        getGattKeyBytes() {
+      java.lang.Object ref = gattKey_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        gattKey_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
-    public static final int VALUE_FIELD_NUMBER = 3;
+    public static final int SERVICE_KEY_FIELD_NUMBER = 2;
+    private volatile java.lang.Object serviceKey_;
+    /**
+     * <code>string service_key = 2;</code>
+     * @return The serviceKey.
+     */
+    @java.lang.Override
+    public java.lang.String getServiceKey() {
+      java.lang.Object ref = serviceKey_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        serviceKey_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string service_key = 2;</code>
+     * @return The bytes for serviceKey.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getServiceKeyBytes() {
+      java.lang.Object ref = serviceKey_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        serviceKey_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int CHARACTERISTIC_KEY_FIELD_NUMBER = 3;
+    private volatile java.lang.Object characteristicKey_;
+    /**
+     * <code>string characteristic_key = 3;</code>
+     * @return The characteristicKey.
+     */
+    @java.lang.Override
+    public java.lang.String getCharacteristicKey() {
+      java.lang.Object ref = characteristicKey_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        characteristicKey_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string characteristic_key = 3;</code>
+     * @return The bytes for characteristicKey.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getCharacteristicKeyBytes() {
+      java.lang.Object ref = characteristicKey_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        characteristicKey_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int KEY_FIELD_NUMBER = 4;
+    private volatile java.lang.Object key_;
+    /**
+     * <code>string key = 4;</code>
+     * @return The key.
+     */
+    @java.lang.Override
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        key_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string key = 4;</code>
+     * @return The bytes for key.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int VALUE_FIELD_NUMBER = 5;
     private com.google.protobuf.ByteString value_;
     /**
-     * <code>bytes value = 3;</code>
+     * <code>bytes value = 5;</code>
      * @return The value.
      */
     @java.lang.Override
@@ -13761,14 +16195,20 @@ public final class MessageOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (gattId_ != 0) {
-        output.writeInt32(1, gattId_);
+      if (!getGattKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, gattKey_);
       }
-      if (id_ != 0) {
-        output.writeInt32(2, id_);
+      if (!getServiceKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, serviceKey_);
+      }
+      if (!getCharacteristicKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, characteristicKey_);
+      }
+      if (!getKeyBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, key_);
       }
       if (!value_.isEmpty()) {
-        output.writeBytes(3, value_);
+        output.writeBytes(5, value_);
       }
       unknownFields.writeTo(output);
     }
@@ -13779,17 +16219,21 @@ public final class MessageOuterClass {
       if (size != -1) return size;
 
       size = 0;
-      if (gattId_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, gattId_);
+      if (!getGattKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, gattKey_);
       }
-      if (id_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(2, id_);
+      if (!getServiceKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, serviceKey_);
+      }
+      if (!getCharacteristicKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, characteristicKey_);
+      }
+      if (!getKeyBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, key_);
       }
       if (!value_.isEmpty()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(3, value_);
+          .computeBytesSize(5, value_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -13806,10 +16250,14 @@ public final class MessageOuterClass {
       }
       dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorWriteArguments other = (dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorWriteArguments) obj;
 
-      if (getGattId()
-          != other.getGattId()) return false;
-      if (getId()
-          != other.getId()) return false;
+      if (!getGattKey()
+          .equals(other.getGattKey())) return false;
+      if (!getServiceKey()
+          .equals(other.getServiceKey())) return false;
+      if (!getCharacteristicKey()
+          .equals(other.getCharacteristicKey())) return false;
+      if (!getKey()
+          .equals(other.getKey())) return false;
       if (!getValue()
           .equals(other.getValue())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
@@ -13823,10 +16271,14 @@ public final class MessageOuterClass {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + GATT_ID_FIELD_NUMBER;
-      hash = (53 * hash) + getGattId();
-      hash = (37 * hash) + ID_FIELD_NUMBER;
-      hash = (53 * hash) + getId();
+      hash = (37 * hash) + GATT_KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getGattKey().hashCode();
+      hash = (37 * hash) + SERVICE_KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getServiceKey().hashCode();
+      hash = (37 * hash) + CHARACTERISTIC_KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getCharacteristicKey().hashCode();
+      hash = (37 * hash) + KEY_FIELD_NUMBER;
+      hash = (53 * hash) + getKey().hashCode();
       hash = (37 * hash) + VALUE_FIELD_NUMBER;
       hash = (53 * hash) + getValue().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
@@ -13962,9 +16414,13 @@ public final class MessageOuterClass {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        gattId_ = 0;
+        gattKey_ = "";
 
-        id_ = 0;
+        serviceKey_ = "";
+
+        characteristicKey_ = "";
+
+        key_ = "";
 
         value_ = com.google.protobuf.ByteString.EMPTY;
 
@@ -13994,8 +16450,10 @@ public final class MessageOuterClass {
       @java.lang.Override
       public dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorWriteArguments buildPartial() {
         dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorWriteArguments result = new dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorWriteArguments(this);
-        result.gattId_ = gattId_;
-        result.id_ = id_;
+        result.gattKey_ = gattKey_;
+        result.serviceKey_ = serviceKey_;
+        result.characteristicKey_ = characteristicKey_;
+        result.key_ = key_;
         result.value_ = value_;
         onBuilt();
         return result;
@@ -14045,11 +16503,21 @@ public final class MessageOuterClass {
 
       public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorWriteArguments other) {
         if (other == dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptorWriteArguments.getDefaultInstance()) return this;
-        if (other.getGattId() != 0) {
-          setGattId(other.getGattId());
+        if (!other.getGattKey().isEmpty()) {
+          gattKey_ = other.gattKey_;
+          onChanged();
         }
-        if (other.getId() != 0) {
-          setId(other.getId());
+        if (!other.getServiceKey().isEmpty()) {
+          serviceKey_ = other.serviceKey_;
+          onChanged();
+        }
+        if (!other.getCharacteristicKey().isEmpty()) {
+          characteristicKey_ = other.characteristicKey_;
+          onChanged();
+        }
+        if (!other.getKey().isEmpty()) {
+          key_ = other.key_;
+          onChanged();
         }
         if (other.getValue() != com.google.protobuf.ByteString.EMPTY) {
           setValue(other.getValue());
@@ -14083,71 +16551,313 @@ public final class MessageOuterClass {
         return this;
       }
 
-      private int gattId_ ;
+      private java.lang.Object gattKey_ = "";
       /**
-       * <code>int32 gatt_id = 1;</code>
-       * @return The gattId.
+       * <code>string gatt_key = 1;</code>
+       * @return The gattKey.
        */
-      @java.lang.Override
-      public int getGattId() {
-        return gattId_;
+      public java.lang.String getGattKey() {
+        java.lang.Object ref = gattKey_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          gattKey_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>int32 gatt_id = 1;</code>
-       * @param value The gattId to set.
+       * <code>string gatt_key = 1;</code>
+       * @return The bytes for gattKey.
+       */
+      public com.google.protobuf.ByteString
+          getGattKeyBytes() {
+        java.lang.Object ref = gattKey_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          gattKey_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string gatt_key = 1;</code>
+       * @param value The gattKey to set.
        * @return This builder for chaining.
        */
-      public Builder setGattId(int value) {
-        
-        gattId_ = value;
+      public Builder setGattKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        gattKey_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 gatt_id = 1;</code>
+       * <code>string gatt_key = 1;</code>
        * @return This builder for chaining.
        */
-      public Builder clearGattId() {
+      public Builder clearGattKey() {
         
-        gattId_ = 0;
+        gattKey_ = getDefaultInstance().getGattKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string gatt_key = 1;</code>
+       * @param value The bytes for gattKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setGattKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        gattKey_ = value;
         onChanged();
         return this;
       }
 
-      private int id_ ;
+      private java.lang.Object serviceKey_ = "";
       /**
-       * <code>int32 id = 2;</code>
-       * @return The id.
+       * <code>string service_key = 2;</code>
+       * @return The serviceKey.
        */
-      @java.lang.Override
-      public int getId() {
-        return id_;
+      public java.lang.String getServiceKey() {
+        java.lang.Object ref = serviceKey_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          serviceKey_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>int32 id = 2;</code>
-       * @param value The id to set.
+       * <code>string service_key = 2;</code>
+       * @return The bytes for serviceKey.
+       */
+      public com.google.protobuf.ByteString
+          getServiceKeyBytes() {
+        java.lang.Object ref = serviceKey_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          serviceKey_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string service_key = 2;</code>
+       * @param value The serviceKey to set.
        * @return This builder for chaining.
        */
-      public Builder setId(int value) {
-        
-        id_ = value;
+      public Builder setServiceKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        serviceKey_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 id = 2;</code>
+       * <code>string service_key = 2;</code>
        * @return This builder for chaining.
        */
-      public Builder clearId() {
+      public Builder clearServiceKey() {
         
-        id_ = 0;
+        serviceKey_ = getDefaultInstance().getServiceKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string service_key = 2;</code>
+       * @param value The bytes for serviceKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setServiceKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        serviceKey_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object characteristicKey_ = "";
+      /**
+       * <code>string characteristic_key = 3;</code>
+       * @return The characteristicKey.
+       */
+      public java.lang.String getCharacteristicKey() {
+        java.lang.Object ref = characteristicKey_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          characteristicKey_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string characteristic_key = 3;</code>
+       * @return The bytes for characteristicKey.
+       */
+      public com.google.protobuf.ByteString
+          getCharacteristicKeyBytes() {
+        java.lang.Object ref = characteristicKey_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          characteristicKey_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string characteristic_key = 3;</code>
+       * @param value The characteristicKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCharacteristicKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        characteristicKey_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string characteristic_key = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearCharacteristicKey() {
+        
+        characteristicKey_ = getDefaultInstance().getCharacteristicKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string characteristic_key = 3;</code>
+       * @param value The bytes for characteristicKey to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCharacteristicKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        characteristicKey_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object key_ = "";
+      /**
+       * <code>string key = 4;</code>
+       * @return The key.
+       */
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          key_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string key = 4;</code>
+       * @return The bytes for key.
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string key = 4;</code>
+       * @param value The key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        key_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearKey() {
+        
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string key = 4;</code>
+       * @param value The bytes for key to set.
+       * @return This builder for chaining.
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        key_ = value;
         onChanged();
         return this;
       }
 
       private com.google.protobuf.ByteString value_ = com.google.protobuf.ByteString.EMPTY;
       /**
-       * <code>bytes value = 3;</code>
+       * <code>bytes value = 5;</code>
        * @return The value.
        */
       @java.lang.Override
@@ -14155,7 +16865,7 @@ public final class MessageOuterClass {
         return value_;
       }
       /**
-       * <code>bytes value = 3;</code>
+       * <code>bytes value = 5;</code>
        * @param value The value to set.
        * @return This builder for chaining.
        */
@@ -14169,7 +16879,7 @@ public final class MessageOuterClass {
         return this;
       }
       /**
-       * <code>bytes value = 3;</code>
+       * <code>bytes value = 5;</code>
        * @return This builder for chaining.
        */
       public Builder clearValue() {
@@ -14356,43 +17066,48 @@ public final class MessageOuterClass {
       "ces\030\001 \003(\t\"T\n\tDiscovery\022\014\n\004uuid\030\001 \001(\t\022\014\n\004" +
       "rssi\030\002 \001(\021\022\026\n\016advertisements\030\003 \001(\014\022\023\n\013co" +
       "nnectable\030\004 \001(\010\" \n\020ConnectArguments\022\014\n\004u" +
-      "uid\030\001 \001(\t\"s\n\004GATT\022\n\n\002id\030\001 \001(\005\022\032\n\022maximum" +
-      "WriteLength\030\002 \001(\005\022C\n\010services\030\003 \003(\01321.de" +
-      "v.yanshouwang.bluetooth_low_energy.GattS" +
-      "ervice\"z\n\013GattService\022\n\n\002id\030\001 \001(\005\022\014\n\004uui" +
-      "d\030\002 \001(\t\022Q\n\017characteristics\030\003 \003(\01328.dev.y" +
-      "anshouwang.bluetooth_low_energy.GattChar" +
-      "acteristic\"\320\001\n\022GattCharacteristic\022\n\n\002id\030" +
-      "\001 \001(\005\022\014\n\004uuid\030\002 \001(\t\022I\n\013descriptors\030\003 \003(\013" +
-      "24.dev.yanshouwang.bluetooth_low_energy." +
-      "GattDescriptor\022\017\n\007canRead\030\004 \001(\010\022\020\n\010canWr" +
-      "ite\030\005 \001(\010\022\037\n\027canWriteWithoutResponse\030\006 \001" +
-      "(\010\022\021\n\tcanNotify\030\007 \001(\010\"*\n\016GattDescriptor\022" +
-      "\n\n\002id\030\001 \001(\005\022\014\n\004uuid\030\002 \001(\t\"%\n\027GattDisconn" +
-      "ectArguments\022\n\n\002id\030\001 \001(\005\"/\n\022GattConnecti" +
-      "onLost\022\n\n\002id\030\001 \001(\005\022\r\n\005error\030\002 \001(\t\">\n\037Gat" +
-      "tCharacteristicReadArguments\022\017\n\007gatt_id\030" +
-      "\001 \001(\005\022\n\n\002id\030\002 \001(\005\"g\n GattCharacteristicW" +
-      "riteArguments\022\017\n\007gatt_id\030\001 \001(\005\022\n\n\002id\030\002 \001" +
-      "(\005\022\r\n\005value\030\003 \001(\014\022\027\n\017withoutResponse\030\004 \001" +
-      "(\010\"O\n!GattCharacteristicNotifyArguments\022" +
-      "\017\n\007gatt_id\030\001 \001(\005\022\n\n\002id\030\002 \001(\005\022\r\n\005state\030\003 " +
-      "\001(\010\"4\n\027GattCharacteristicValue\022\n\n\002id\030\001 \001" +
-      "(\005\022\r\n\005value\030\002 \001(\014\":\n\033GattDescriptorReadA" +
-      "rguments\022\017\n\007gatt_id\030\001 \001(\005\022\n\n\002id\030\002 \001(\005\"J\n" +
-      "\034GattDescriptorWriteArguments\022\017\n\007gatt_id" +
-      "\030\001 \001(\005\022\n\n\002id\030\002 \001(\005\022\r\n\005value\030\003 \001(\014*\315\002\n\017Me" +
-      "ssageCategory\022\023\n\017BLUETOOTH_STATE\020\000\022\033\n\027CE" +
-      "NTRAL_START_DISCOVERY\020\001\022\032\n\026CENTRAL_STOP_" +
-      "DISCOVERY\020\002\022\026\n\022CENTRAL_DISCOVERED\020\003\022\023\n\017C" +
-      "ENTRAL_CONNECT\020\004\022\023\n\017GATT_DISCONNECT\020\005\022\030\n" +
-      "\024GATT_CONNECTION_LOST\020\006\022\034\n\030GATT_CHARACTE" +
-      "RISTIC_READ\020\007\022\035\n\031GATT_CHARACTERISTIC_WRI" +
-      "TE\020\010\022\036\n\032GATT_CHARACTERISTIC_NOTIFY\020\t\022\030\n\024" +
-      "GATT_DESCRIPTOR_READ\020\n\022\031\n\025GATT_DESCRIPTO" +
-      "R_WRITE\020\013*B\n\016BluetoothState\022\017\n\013UNSUPPORT" +
-      "ED\020\000\022\017\n\013POWERED_OFF\020\001\022\016\n\nPOWERED_ON\020\002b\006p" +
-      "roto3"
+      "uid\030\001 \001(\t\"t\n\004GATT\022\013\n\003key\030\001 \001(\t\022\032\n\022maximu" +
+      "mWriteLength\030\002 \001(\005\022C\n\010services\030\003 \003(\01321.d" +
+      "ev.yanshouwang.bluetooth_low_energy.Gatt" +
+      "Service\"{\n\013GattService\022\013\n\003key\030\001 \001(\t\022\014\n\004u" +
+      "uid\030\002 \001(\t\022Q\n\017characteristics\030\003 \003(\01328.dev" +
+      ".yanshouwang.bluetooth_low_energy.GattCh" +
+      "aracteristic\"\321\001\n\022GattCharacteristic\022\013\n\003k" +
+      "ey\030\001 \001(\t\022\014\n\004uuid\030\002 \001(\t\022\017\n\007canRead\030\003 \001(\010\022" +
+      "\020\n\010canWrite\030\004 \001(\010\022\037\n\027canWriteWithoutResp" +
+      "onse\030\005 \001(\010\022\021\n\tcanNotify\030\006 \001(\010\022I\n\013descrip" +
+      "tors\030\007 \003(\01324.dev.yanshouwang.bluetooth_l" +
+      "ow_energy.GattDescriptor\"+\n\016GattDescript" +
+      "or\022\013\n\003key\030\001 \001(\t\022\014\n\004uuid\030\002 \001(\t\"&\n\027GattDis" +
+      "connectArguments\022\013\n\003key\030\001 \001(\t\"0\n\022GattCon" +
+      "nectionLost\022\013\n\003key\030\001 \001(\t\022\r\n\005error\030\002 \001(\t\"" +
+      "U\n\037GattCharacteristicReadArguments\022\020\n\010ga" +
+      "tt_key\030\001 \001(\t\022\023\n\013service_key\030\002 \001(\t\022\013\n\003key" +
+      "\030\003 \001(\t\"~\n GattCharacteristicWriteArgumen" +
+      "ts\022\020\n\010gatt_key\030\001 \001(\t\022\023\n\013service_key\030\002 \001(" +
+      "\t\022\013\n\003key\030\003 \001(\t\022\r\n\005value\030\004 \001(\014\022\027\n\017without" +
+      "Response\030\005 \001(\010\"f\n!GattCharacteristicNoti" +
+      "fyArguments\022\020\n\010gatt_key\030\001 \001(\t\022\023\n\013service" +
+      "_key\030\002 \001(\t\022\013\n\003key\030\003 \001(\t\022\r\n\005state\030\004 \001(\010\"\\" +
+      "\n\027GattCharacteristicValue\022\020\n\010gatt_key\030\001 " +
+      "\001(\t\022\023\n\013service_key\030\002 \001(\t\022\013\n\003key\030\003 \001(\t\022\r\n" +
+      "\005value\030\004 \001(\014\"m\n\033GattDescriptorReadArgume" +
+      "nts\022\020\n\010gatt_key\030\001 \001(\t\022\023\n\013service_key\030\002 \001" +
+      "(\t\022\032\n\022characteristic_key\030\003 \001(\t\022\013\n\003key\030\004 " +
+      "\001(\t\"}\n\034GattDescriptorWriteArguments\022\020\n\010g" +
+      "att_key\030\001 \001(\t\022\023\n\013service_key\030\002 \001(\t\022\032\n\022ch" +
+      "aracteristic_key\030\003 \001(\t\022\013\n\003key\030\004 \001(\t\022\r\n\005v" +
+      "alue\030\005 \001(\014*\315\002\n\017MessageCategory\022\023\n\017BLUETO" +
+      "OTH_STATE\020\000\022\033\n\027CENTRAL_START_DISCOVERY\020\001" +
+      "\022\032\n\026CENTRAL_STOP_DISCOVERY\020\002\022\026\n\022CENTRAL_" +
+      "DISCOVERED\020\003\022\023\n\017CENTRAL_CONNECT\020\004\022\023\n\017GAT" +
+      "T_DISCONNECT\020\005\022\030\n\024GATT_CONNECTION_LOST\020\006" +
+      "\022\034\n\030GATT_CHARACTERISTIC_READ\020\007\022\035\n\031GATT_C" +
+      "HARACTERISTIC_WRITE\020\010\022\036\n\032GATT_CHARACTERI" +
+      "STIC_NOTIFY\020\t\022\030\n\024GATT_DESCRIPTOR_READ\020\n\022" +
+      "\031\n\025GATT_DESCRIPTOR_WRITE\020\013*B\n\016BluetoothS" +
+      "tate\022\017\n\013UNSUPPORTED\020\000\022\017\n\013POWERED_OFF\020\001\022\016" +
+      "\n\nPOWERED_ON\020\002b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -14427,73 +17142,73 @@ public final class MessageOuterClass {
     internal_static_dev_yanshouwang_bluetooth_low_energy_GATT_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_dev_yanshouwang_bluetooth_low_energy_GATT_descriptor,
-        new java.lang.String[] { "Id", "MaximumWriteLength", "Services", });
+        new java.lang.String[] { "Key", "MaximumWriteLength", "Services", });
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattService_descriptor =
       getDescriptor().getMessageTypes().get(5);
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattService_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_dev_yanshouwang_bluetooth_low_energy_GattService_descriptor,
-        new java.lang.String[] { "Id", "Uuid", "Characteristics", });
+        new java.lang.String[] { "Key", "Uuid", "Characteristics", });
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristic_descriptor =
       getDescriptor().getMessageTypes().get(6);
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristic_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristic_descriptor,
-        new java.lang.String[] { "Id", "Uuid", "Descriptors", "CanRead", "CanWrite", "CanWriteWithoutResponse", "CanNotify", });
+        new java.lang.String[] { "Key", "Uuid", "CanRead", "CanWrite", "CanWriteWithoutResponse", "CanNotify", "Descriptors", });
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptor_descriptor =
       getDescriptor().getMessageTypes().get(7);
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptor_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptor_descriptor,
-        new java.lang.String[] { "Id", "Uuid", });
+        new java.lang.String[] { "Key", "Uuid", });
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattDisconnectArguments_descriptor =
       getDescriptor().getMessageTypes().get(8);
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattDisconnectArguments_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_dev_yanshouwang_bluetooth_low_energy_GattDisconnectArguments_descriptor,
-        new java.lang.String[] { "Id", });
+        new java.lang.String[] { "Key", });
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattConnectionLost_descriptor =
       getDescriptor().getMessageTypes().get(9);
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattConnectionLost_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_dev_yanshouwang_bluetooth_low_energy_GattConnectionLost_descriptor,
-        new java.lang.String[] { "Id", "Error", });
+        new java.lang.String[] { "Key", "Error", });
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristicReadArguments_descriptor =
       getDescriptor().getMessageTypes().get(10);
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristicReadArguments_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristicReadArguments_descriptor,
-        new java.lang.String[] { "GattId", "Id", });
+        new java.lang.String[] { "GattKey", "ServiceKey", "Key", });
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristicWriteArguments_descriptor =
       getDescriptor().getMessageTypes().get(11);
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristicWriteArguments_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristicWriteArguments_descriptor,
-        new java.lang.String[] { "GattId", "Id", "Value", "WithoutResponse", });
+        new java.lang.String[] { "GattKey", "ServiceKey", "Key", "Value", "WithoutResponse", });
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristicNotifyArguments_descriptor =
       getDescriptor().getMessageTypes().get(12);
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristicNotifyArguments_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristicNotifyArguments_descriptor,
-        new java.lang.String[] { "GattId", "Id", "State", });
+        new java.lang.String[] { "GattKey", "ServiceKey", "Key", "State", });
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristicValue_descriptor =
       getDescriptor().getMessageTypes().get(13);
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristicValue_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_dev_yanshouwang_bluetooth_low_energy_GattCharacteristicValue_descriptor,
-        new java.lang.String[] { "Id", "Value", });
+        new java.lang.String[] { "GattKey", "ServiceKey", "Key", "Value", });
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptorReadArguments_descriptor =
       getDescriptor().getMessageTypes().get(14);
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptorReadArguments_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptorReadArguments_descriptor,
-        new java.lang.String[] { "GattId", "Id", });
+        new java.lang.String[] { "GattKey", "ServiceKey", "CharacteristicKey", "Key", });
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptorWriteArguments_descriptor =
       getDescriptor().getMessageTypes().get(15);
     internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptorWriteArguments_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_dev_yanshouwang_bluetooth_low_energy_GattDescriptorWriteArguments_descriptor,
-        new java.lang.String[] { "GattId", "Id", "Value", });
+        new java.lang.String[] { "GattKey", "ServiceKey", "CharacteristicKey", "Key", "Value", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

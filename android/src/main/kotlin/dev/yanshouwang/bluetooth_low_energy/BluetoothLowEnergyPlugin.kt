@@ -151,10 +151,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
         }
     }
 
-    private val bluetoothGATTs by lazy { mutableMapOf<Int, BluetoothGatt>() }
-    private val services by lazy { mutableMapOf<Int, BluetoothGattService>() }
-    private val characteristics by lazy { mutableMapOf<Int, BluetoothGattCharacteristic>() }
-    private val descriptors by lazy { mutableMapOf<Int, BluetoothGattDescriptor>() }
+    private val nativeGATTs by lazy { mutableMapOf<String, NativeGATT>() }
 
     private val connects by lazy { mutableMapOf<BluetoothGatt, Result>() }
     private val maximumWriteLengths by lazy { mutableMapOf<BluetoothGatt, Int>() }
@@ -177,21 +174,13 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                                 val connect = connects.remove(gatt)
                                 if (connect != null) handler.post { connect.error("GATT error with status: $status.", null, null) }
                                 else {
-                                    for (service in gatt.services) {
-                                        services.remove(service)
-                                        for (characteristic in service.characteristics) {
-                                            characteristics.remove(characteristic)
-                                            for (descriptor in characteristic.descriptors) {
-                                                descriptors.remove(descriptor)
-                                            }
-                                        }
-                                    }
-                                    val key = bluetoothGATTs.remove(gatt)
+                                    val nativeGATT = nativeGATTs.entries.first { entry -> entry.value.value === gatt }
+                                    nativeGATTs.remove(nativeGATT.key)
                                     val disconnect = disconnects.remove(gatt)
                                     if (disconnect != null) handler.post { disconnect.success() }
                                     else {
                                         val connectionLost = GattConnectionLost.newBuilder()
-                                                .setId(key)
+                                                .setKey(nativeGATT.key)
                                                 .setError("GATT error with status: $status")
                                                 .build()
                                         val event = Message.newBuilder()
@@ -217,21 +206,13 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                         val connect = connects.remove(gatt)
                         if (connect != null) handler.post { connect.error("GATT error with status: $status", null, null) }
                         else {
-                            for (service in gatt.services) {
-                                services.remove(service)
-                                for (characteristic in service.characteristics) {
-                                    characteristics.remove(characteristic)
-                                    for (descriptor in characteristic.descriptors) {
-                                        descriptors.remove(descriptor)
-                                    }
-                                }
-                            }
-                            val key = bluetoothGATTs.remove(gatt)
+                            val nativeGATT = nativeGATTs.entries.first { entry -> entry.value.value === gatt }
+                            nativeGATTs.remove(nativeGATT.key)
                             val disconnect = disconnects.remove(gatt)
                             if (disconnect != null) handler.post { disconnect.error("GATT error with status: $status", null, null) }
                             else {
                                 val connectionLost = GattConnectionLost.newBuilder()
-                                        .setId(key)
+                                        .setKey(nativeGATT.key)
                                         .setError("GATT error with status: $status")
                                         .build()
                                 val event = Message.newBuilder()
@@ -263,31 +244,37 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 val maximumWriteLength = maximumWriteLengths.remove(gatt)!!
                 when (status) {
                     BluetoothGatt.GATT_SUCCESS -> {
-                        val gattKey = bluetoothGATTs.add(gatt!!)
+                        val nativeServices = mutableMapOf<String, NativeGattService>()
                         val messageServices = mutableListOf<GattService>()
-                        for (service in gatt.services) {
-                            val serviceKey = services.add(service)
-                            val serviceUUID = service.uuid.toString()
+                        for (service in gatt!!.services) {
+                            val nativeCharacteristics = mutableMapOf<String, NativeGattCharacteristic>()
                             val messageCharacteristics = mutableListOf<GattCharacteristic>()
                             for (characteristic in service.characteristics) {
-                                val characteristicKey = characteristics.add(characteristic)
+                                val nativeDescriptors = mutableMapOf<String, NativeGattDescriptor>()
+                                val messageDescriptors = mutableListOf<GattDescriptor>()
+                                for (descriptor in characteristic.descriptors) {
+                                    // Add native descriptor.
+                                    val nativeDescriptor = NativeGattDescriptor(descriptor)
+                                    nativeDescriptors[nativeDescriptor.key] = nativeDescriptor
+                                    // Add message descriptor.
+                                    val descriptorUUID = descriptor.uuid.toString()
+                                    val messageDescriptor = GattDescriptor.newBuilder()
+                                            .setKey(nativeDescriptor.key)
+                                            .setUuid(descriptorUUID)
+                                            .build()
+                                    messageDescriptors.add(messageDescriptor)
+                                }
+                                // Add native characteristic.
+                                val nativeCharacteristic = NativeGattCharacteristic(characteristic, nativeDescriptors)
+                                nativeCharacteristics[nativeCharacteristic.key] = nativeCharacteristic
+                                // Add message characteristic.
                                 val characteristicUUID = characteristic.uuid.toString()
                                 val canRead = characteristic.properties and BluetoothGattCharacteristic.PROPERTY_READ != 0
                                 val canWrite = characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE != 0
                                 val canWriteWithoutResponse = characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE != 0
                                 val canNotify = characteristic.properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY != 0
-                                val messageDescriptors = mutableListOf<GattDescriptor>()
-                                for (descriptor in characteristic.descriptors) {
-                                    val descriptorKey = descriptors.add(descriptor)
-                                    val descriptorUUID = descriptor.uuid.toString()
-                                    val messageDescriptor = GattDescriptor.newBuilder()
-                                            .setId(descriptorKey)
-                                            .setUuid(descriptorUUID)
-                                            .build()
-                                    messageDescriptors.add(messageDescriptor)
-                                }
                                 val messageCharacteristic = GattCharacteristic.newBuilder()
-                                        .setId(characteristicKey)
+                                        .setKey(nativeCharacteristic.key)
                                         .setUuid(characteristicUUID)
                                         .setCanRead(canRead)
                                         .setCanWrite(canWrite)
@@ -297,15 +284,24 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                                         .build()
                                 messageCharacteristics.add(messageCharacteristic)
                             }
+                            // Add native service.
+                            val nativeService = NativeGattService(service, nativeCharacteristics)
+                            nativeServices[nativeService.key] = nativeService
+                            // Add message service.
+                            val serviceUUID = service.uuid.toString()
                             val messageService = GattService.newBuilder()
-                                    .setId(serviceKey)
+                                    .setKey(nativeService.key)
                                     .setUuid(serviceUUID)
                                     .addAllCharacteristics(messageCharacteristics)
                                     .build()
                             messageServices.add(messageService)
                         }
+                        // Add native gatt.
+                        val nativeGATT = NativeGATT(gatt, nativeServices)
+                        nativeGATTs[nativeGATT.key] = nativeGATT
+                        // Add message gatt.
                         val reply = GATT.newBuilder()
-                                .setId(gattKey)
+                                .setKey(nativeGATT.key)
                                 .setMaximumWriteLength(maximumWriteLength)
                                 .addAllServices(messageServices)
                                 .build()
@@ -337,10 +333,14 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
 
             override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
                 super.onCharacteristicChanged(gatt, characteristic)
-                val key = characteristics.entries.first { entry -> entry.value === characteristic }.key
+                val nativeGATT = nativeGATTs.values.first { entry -> entry.value === gatt }
+                val nativeService = nativeGATT.services.values.first { entry -> entry.value === characteristic!!.service }
+                val nativeCharacteristic = nativeService.characteristics.values.first { entry -> entry.value === characteristic }
                 val value = ByteString.copyFrom(characteristic!!.value)
                 val characteristicValue = GattCharacteristicValue.newBuilder()
-                        .setId(key)
+                        .setGattKey(nativeGATT.key)
+                        .setServiceKey(nativeService.key)
+                        .setKey(nativeCharacteristic.key)
                         .setValue(value)
                         .build()
                 val event = Message.newBuilder()
@@ -411,8 +411,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         // Clear connections.
-        for (gatt in bluetoothGATTs.values) gatt.close()
-        bluetoothGATTs.clear()
+        for (nativeGATT in nativeGATTs.values) nativeGATT.value.disconnect()
         // Stop scan.
         if (scanning) stopScan()
         // Unregister bluetooth adapter state receiver.
@@ -463,56 +462,63 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 connects[gatt] = result
             }
             GATT_DISCONNECT -> {
-                val gatt = bluetoothGATTs[command.disconnectArguments.id]!!
-                disconnects[gatt] = result
-                gatt.disconnect()
+                val nativeGATT = nativeGATTs[command.disconnectArguments.key]!!
+                disconnects[nativeGATT.value] = result
+                nativeGATT.value.disconnect()
             }
             GATT_CHARACTERISTIC_READ -> {
-                val gatt = bluetoothGATTs[command.characteristicReadArguments.gattId]!!
-                val characteristic = characteristics[command.characteristicReadArguments.id]!!
-                val read = gatt.readCharacteristic(characteristic)
-                if (read) characteristicReads[characteristic] = result
+                val nativeGATT = nativeGATTs[command.characteristicReadArguments.gattKey]!!
+                val nativeService = nativeGATT.services[command.characteristicReadArguments.serviceKey]!!
+                val nativeCharacteristic = nativeService.characteristics[command.characteristicReadArguments.key]!!
+                val read = nativeGATT.value.readCharacteristic(nativeCharacteristic.value)
+                if (read) characteristicReads[nativeCharacteristic.value] = result
                 else result.error("Characteristic read failed.", null, null)
             }
             GATT_CHARACTERISTIC_WRITE -> {
-                val gatt = bluetoothGATTs[command.characteristicWriteArguments.gattId]!!
-                val characteristic = characteristics[command.characteristicWriteArguments.id]!!
-                characteristic.writeType =
+                val nativeGATT = nativeGATTs[command.characteristicWriteArguments.gattKey]!!
+                val nativeService = nativeGATT.services[command.characteristicWriteArguments.serviceKey]!!
+                val nativeCharacteristic = nativeService.characteristics[command.characteristicWriteArguments.key]!!
+                nativeCharacteristic.value.writeType =
                         if (command.characteristicWriteArguments.withoutResponse) BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
                         else BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-                characteristic.value = command.characteristicWriteArguments.value.toByteArray()
-                val written = gatt.writeCharacteristic(characteristic)
-                if (written) characteristicWrites[characteristic] = result
+                nativeCharacteristic.value.value = command.characteristicWriteArguments.value.toByteArray()
+                val written = nativeGATT.value.writeCharacteristic(nativeCharacteristic.value)
+                if (written) characteristicWrites[nativeCharacteristic.value] = result
                 else result.error("Characteristic write failed.", null, null)
             }
             GATT_CHARACTERISTIC_NOTIFY -> {
-                val gatt = bluetoothGATTs[command.characteristicNotifyArguments.gattId]!!
-                val characteristic = characteristics[command.characteristicNotifyArguments.id]!!
+                val nativeGATT = nativeGATTs[command.characteristicNotifyArguments.gattKey]!!
+                val nativeService = nativeGATT.services[command.characteristicNotifyArguments.serviceKey]!!
+                val nativeCharacteristic = nativeService.characteristics[command.characteristicNotifyArguments.key]!!
                 val descriptorUUID = UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG)
-                val descriptor = characteristic.getDescriptor(descriptorUUID)
-                val notified = gatt.setCharacteristicNotification(characteristic, command.characteristicNotifyArguments.state)
+                val descriptor = nativeCharacteristic.value.getDescriptor(descriptorUUID)
+                val notified = nativeGATT.value.setCharacteristicNotification(nativeCharacteristic.value, command.characteristicNotifyArguments.state)
                 if (notified) {
                     descriptor.value =
                             if (command.characteristicNotifyArguments.state) BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
                             else BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
-                    val written = gatt.writeDescriptor(descriptor)
+                    val written = nativeGATT.value.writeDescriptor(descriptor)
                     if (written) descriptorWrites[descriptor] = result
                     else result.error("Client characteristic config descriptor write failed.", null, null)
                 } else result.error("Characteristic Notify failed.", null, null)
             }
             GATT_DESCRIPTOR_READ -> {
-                val gatt = bluetoothGATTs[command.descriptorReadArguments.gattId]!!
-                val descriptor = descriptors[command.descriptorReadArguments.id]!!
-                val read = gatt.readDescriptor(descriptor)
-                if (read) descriptorReads[descriptor] = result
+                val nativeGATT = nativeGATTs[command.descriptorReadArguments.gattKey]!!
+                val nativeService = nativeGATT.services[command.descriptorReadArguments.serviceKey]!!
+                val nativeCharacteristic = nativeService.characteristics[command.descriptorReadArguments.characteristicKey]!!
+                val nativeDescriptor = nativeCharacteristic.descriptors[command.descriptorReadArguments.key]!!
+                val read = nativeGATT.value.readDescriptor(nativeDescriptor.value)
+                if (read) descriptorReads[nativeDescriptor.value] = result
                 else result.error("Descriptor read failed.", null, null)
             }
             GATT_DESCRIPTOR_WRITE -> {
-                val gatt = bluetoothGATTs[command.descriptorWriteArguments.gattId]!!
-                val descriptor = descriptors[command.descriptorWriteArguments.id]!!
-                descriptor.value = command.descriptorWriteArguments.value.toByteArray()
-                val written = gatt.writeDescriptor(descriptor)
-                if (written) descriptorWrites[descriptor] = result
+                val nativeGATT = nativeGATTs[command.descriptorWriteArguments.gattKey]!!
+                val nativeService = nativeGATT.services[command.descriptorWriteArguments.serviceKey]!!
+                val nativeCharacteristic = nativeService.characteristics[command.descriptorWriteArguments.characteristicKey]!!
+                val nativeDescriptor = nativeCharacteristic.descriptors[command.descriptorWriteArguments.key]!!
+                nativeDescriptor.value.value = command.descriptorWriteArguments.value.toByteArray()
+                val written = nativeGATT.value.writeDescriptor(nativeDescriptor.value)
+                if (written) descriptorWrites[nativeDescriptor.value] = result
                 else result.error("Descriptor write failed.", null, null)
             }
             else -> result.notImplemented()
@@ -528,8 +534,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
         Log.d(TAG, "onCancel")
         // This must be a hot reload for now, clear all status here.
         // Clear connections.
-        for (gatt in bluetoothGATTs.values) gatt.close()
-        bluetoothGATTs.clear()
+        for (nativeGATT in nativeGATTs.values) nativeGATT.value.disconnect()
         // Stop scan.
         if (scanning) stopScan()
         events = null
@@ -592,21 +597,3 @@ val BluetoothDevice.uuid: String
 
 val String.address: String
     get() = takeLast(12).chunked(2).joinToString(":").uppercase()
-
-fun <V> MutableMap<Int, V>.add(value: V): Int {
-    for (key in 0..Int.MAX_VALUE) {
-        val contains = contains(key)
-        if (contains) {
-            continue
-        }
-        this[key] = value
-        return key
-    }
-    throw OutOfMemoryError("Memory leak when add value.")
-}
-
-fun <V> MutableMap<Int, V>.remove(value: V): Int {
-    val key = entries.first { entry -> entry.value === value }.key
-    remove(key)
-    return key
-}

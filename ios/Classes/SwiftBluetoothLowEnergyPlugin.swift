@@ -36,19 +36,15 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
     
     var events: FlutterEventSink? = nil
     
-    let central: CBCentralManager
+    var central: CBCentralManager!
     var oldState: BluetoothState? = nil
     
     public override init() {
-        central = CBCentralManager()
         super.init()
-        central.delegate = self
+        central = CBCentralManager(delegate: self, queue: nil)
     }
     
-    lazy var peripherals = [Int32: CBPeripheral]()
-    lazy var services = [Int32: CBService]()
-    lazy var characteristics = [Int32: CBCharacteristic]()
-    lazy var descriptors = [Int32: CBDescriptor]()
+    lazy var nativeGATTs = [String: NativeGATT]()
     
     lazy var connects = [CBPeripheral: FlutterResult]()
     lazy var disconnects = [CBPeripheral: FlutterResult]()
@@ -59,6 +55,7 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
     lazy var descriptorWrites = [CBDescriptor: FlutterResult]()
     
     public static func register(with registrar: FlutterPluginRegistrar) {
+        debugPrint("SwiftBluetoothLowEnergyPlugin: register")
         let instance = SwiftBluetoothLowEnergyPlugin()
         let messenger = registrar.messenger()
         let method = FlutterMethodChannel(name: "\(NAMESAPCE)/method", binaryMessenger: messenger)
@@ -68,7 +65,15 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
     }
     
     public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
-        debugPrint("on detach from engine.")
+        debugPrint("SwiftBluetoothLowEnergyPlugin: detachFromEngine")
+        // Clear connections.
+        for nativeGATT in nativeGATTs.values {
+            central.cancelPeripheralConnection(nativeGATT.value)
+        }
+        // Stop scan.
+        if central.isScanning {
+            central.stopScan()
+        }
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -91,52 +96,48 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
             connects[peripheral] = result
             central.connect(peripheral, options: nil)
         case .gattDisconnect:
-            let id = command.disconnectArguments.id
-            let peripheral = peripherals[id]!
-            disconnects[peripheral] = result
-            central.cancelPeripheralConnection(peripheral)
+            let nativeGATT = nativeGATTs[command.disconnectArguments.key]!
+            disconnects[nativeGATT.value] = result
+            central.cancelPeripheralConnection(nativeGATT.value)
         case .gattCharacteristicRead:
-            let gattId = command.characteristicReadArguments.gattID
-            let id = command.characteristicReadArguments.id
-            let peripheral = peripherals[gattId]!
-            let characteristic = characteristics[id]!
-            characteristicReads[characteristic] = result
-            peripheral.readValue(for: characteristic)
+            let nativeGATT = nativeGATTs[command.characteristicReadArguments.gattKey]!
+            let nativeService = nativeGATT.services[command.characteristicReadArguments.serviceKey]!
+            let nativeCharacteristic = nativeService.characteristics[command.characteristicReadArguments.key]!
+            characteristicReads[nativeCharacteristic.value] = result
+            nativeGATT.value.readValue(for: nativeCharacteristic.value)
         case .gattCharacteristicWrite:
-            let gattId = command.characteristicWriteArguments.gattID
-            let id = command.characteristicWriteArguments.id
+            let nativeGATT = nativeGATTs[command.characteristicWriteArguments.gattKey]!
+            let nativeService = nativeGATT.services[command.characteristicWriteArguments.serviceKey]!
+            let nativeCharacteristic = nativeService.characteristics[command.characteristicWriteArguments.key]!
             let value = command.characteristicWriteArguments.value
             let type: CBCharacteristicWriteType = command.characteristicWriteArguments.withoutResponse ? .withoutResponse : .withResponse
-            let peripheral = peripherals[gattId]!
-            let characteristic = characteristics[id]!
-            characteristicWrites[characteristic] = result
-            peripheral.writeValue(value, for: characteristic, type: type)
+            characteristicWrites[nativeCharacteristic.value] = result
+            nativeGATT.value.writeValue(value, for: nativeCharacteristic.value, type: type)
             break
         case .gattCharacteristicNotify:
-            let gattId = command.characteristicNotifyArguments.gattID
-            let id = command.characteristicNotifyArguments.id
+            let nativeGATT = nativeGATTs[command.characteristicNotifyArguments.gattKey]!
+            let nativeService = nativeGATT.services[command.characteristicNotifyArguments.serviceKey]!
+            let nativeCharacteristic = nativeService.characteristics[command.characteristicNotifyArguments.key]!
             let state = command.characteristicNotifyArguments.state
-            let peripheral = peripherals[gattId]!
-            let characteristic = characteristics[id]!
-            characteristicNotifies[characteristic] = result
-            peripheral.setNotifyValue(state, for: characteristic)
+            characteristicNotifies[nativeCharacteristic.value] = result
+            nativeGATT.value.setNotifyValue(state, for: nativeCharacteristic.value)
             break
         case .gattDescriptorRead:
-            let gattId = command.descriptorReadArguments.gattID
-            let id = command.descriptorReadArguments.id
-            let peripheral = peripherals[gattId]!
-            let descriptor = descriptors[id]!
-            descriptorReads[descriptor] = result
-            peripheral.readValue(for: descriptor)
+            let nativeGATT = nativeGATTs[command.descriptorReadArguments.gattKey]!
+            let nativeService = nativeGATT.services[command.descriptorReadArguments.serviceKey]!
+            let nativeCharacteristic = nativeService.characteristics[command.descriptorReadArguments.characteristicKey]!
+            let nativeDescriptor = nativeCharacteristic.descriptors[command.descriptorReadArguments.key]!
+            descriptorReads[nativeDescriptor.value] = result
+            nativeGATT.value.readValue(for: nativeDescriptor.value)
             break
         case .gattDescriptorWrite:
-            let gattId = command.descriptorWriteArguments.gattID
-            let id = command.descriptorWriteArguments.id
+            let nativeGATT = nativeGATTs[command.descriptorReadArguments.gattKey]!
+            let nativeService = nativeGATT.services[command.descriptorReadArguments.serviceKey]!
+            let nativeCharacteristic = nativeService.characteristics[command.descriptorReadArguments.characteristicKey]!
+            let nativeDescriptor = nativeCharacteristic.descriptors[command.descriptorReadArguments.key]!
             let value = command.descriptorWriteArguments.value
-            let peripheral = peripherals[gattId]!
-            let descriptor = descriptors[id]!
-            descriptorWrites[descriptor] = result
-            peripheral.writeValue(value, for: descriptor)
+            descriptorWrites[nativeDescriptor.value] = result
+            nativeGATT.value.writeValue(value, for: nativeDescriptor.value)
             break
         default:
             result(FlutterMethodNotImplemented)
@@ -144,11 +145,22 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
     }
     
     public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        debugPrint("SwiftBluetoothLowEnergyPlugin: onListen")
         self.events = events
         return nil
     }
     
     public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        debugPrint("SwiftBluetoothLowEnergyPlugin: onCancel")
+        // This must be a hot reload for now, clear all status here.
+        // Clear connections.
+        for nativeGATT in nativeGATTs.values {
+            central.cancelPeripheralConnection(nativeGATT.value)
+        }
+        // Stop scan.
+        if central.isScanning {
+            central.stopScan()
+        }
         events = nil
         return nil
     }
@@ -166,6 +178,21 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
                 $0.state = newState
             }.serializedData()
             events?(event)
+            // Send connection lost event and remove all nativeGATTs after central closed, same behaior with Android.
+            if newState != .poweredOn {
+                for nativeGATT in nativeGATTs {
+                    let connectionLost = GattConnectionLost.with {
+                        $0.key = nativeGATT.key
+                        $0.error = "Central closed."
+                    }
+                    let event = try! Message.with {
+                        $0.category = .gattConnectionLost
+                        $0.connectionLost = connectionLost
+                    }.serializedData()
+                    events?(event)
+                }
+                nativeGATTs.removeAll()
+            }
         }
     }
     
@@ -275,23 +302,14 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
             let error = FlutterError(code: "GATT disconnected.", message: nil, details: nil)
             connect(error)
         } else {
-            // TODO: services can't reach after disconnected.
-            for service in peripheral.services! {
-                for characteristic in service.characteristics! {
-                    for descriptor in characteristic.descriptors! {
-                        _ = descriptors.remove(value: descriptor)
-                    }
-                    _ = characteristics.remove(value: characteristic)
-                }
-                _ = services.remove(value: service)
-            }
-            let key = peripherals.remove(value: peripheral)
+            let nativeGATT = nativeGATTs.first(where: { $1.value === peripheral })!
+            nativeGATTs.removeValue(forKey: nativeGATT.key)
             if disconnects.keys.contains(peripheral) {
                 let disconnect = disconnects.removeValue(forKey: peripheral)!
                 disconnect(nil)
             } else {
                 let connectionLost = GattConnectionLost.with {
-                    $0.id = key
+                    $0.key = nativeGATT.key
                     $0.error = error!.localizedDescription
                 }
                 let event = try! Message.with {
@@ -329,24 +347,31 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
             if nextCharacteristic == nil {
                 let nextService = peripheral.services?.first(where: { $0.characteristics == nil })
                 if nextService == nil {
-                    let peripheralKey = peripherals.add(value: peripheral)
+                    var nativeServices = [String: NativeGattService]()
                     var messageServices = [GattService]()
                     for service in peripheral.services! {
-                        let serviceKey = self.services.add(value: service)
+                        var nativeCharacteristics = [String: NativeGattCharacteristic]()
                         var messageCharacteristics = [GattCharacteristic]()
                         for characteristic in service.characteristics! {
-                            let characteristicKey = characteristics.add(value: characteristic)
+                            var nativeDescriptors = [String: NativeGattDescriptor]()
                             var messageDescriptors = [GattDescriptor]()
                             for descriptor in characteristic.descriptors! {
-                                let descriptorKey = descriptors.add(value: descriptor)
+                                // Add native descriptor.
+                                let nativeDescriptor = NativeGattDescriptor(descriptor)
+                                nativeDescriptors[nativeDescriptor.key] = nativeDescriptor
+                                // Add message descriptor.
                                 let messageDescriptor = GattDescriptor.with {
-                                    $0.id = descriptorKey
+                                    $0.key = nativeDescriptor.key
                                     $0.uuid = descriptor.uuid.uuidString
                                 }
                                 messageDescriptors.append(messageDescriptor)
                             }
+                            // Add native characteristic.
+                            let nativeCharacteristic = NativeGattCharacteristic(characteristic, nativeDescriptors)
+                            nativeCharacteristics[nativeCharacteristic.key] = nativeCharacteristic
+                            // Add message characteristic.
                             let messageCharacteristic = GattCharacteristic.with {
-                                $0.id = characteristicKey
+                                $0.key = nativeCharacteristic.key
                                 $0.uuid = characteristic.uuid.uuidString
                                 $0.canRead = characteristic.properties.contains(.read)
                                 $0.canWrite = characteristic.properties.contains(.write)
@@ -356,15 +381,23 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
                             }
                             messageCharacteristics.append(messageCharacteristic)
                         }
+                        // Add native service.
+                        let nativeService = NativeGattService(service, nativeCharacteristics)
+                        nativeServices[nativeService.key] = nativeService
+                        // Add message service.
                         let messageService = GattService.with {
-                            $0.id = serviceKey
+                            $0.key = nativeService.key
                             $0.uuid = service.uuid.uuidString
                             $0.characteristics = messageCharacteristics
                         }
                         messageServices.append(messageService)
                     }
+                    // Add native gatt.
+                    let nativeGATT = NativeGATT(peripheral, nativeServices)
+                    nativeGATTs[nativeGATT.key] = nativeGATT
+                    // Add message gatt.
                     let reply = try! GATT.with {
-                        $0.id = peripheralKey
+                        $0.key = nativeGATT.key
                         $0.maximumWriteLength = peripheral.maximumWriteLength
                         $0.services = messageServices
                     }.serializedData()
@@ -384,9 +417,13 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin, FlutterStre
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         let read = characteristicReads.removeValue(forKey: characteristic)
         if read == nil {
-            let key = characteristics.first(where: { $1 === characteristic })!.key
+            let nativeGATT = nativeGATTs.values.first(where: { $0.value === peripheral })!
+            let nativeService = nativeGATT.services.values.first(where: { $0.value === characteristic.service })!
+            let nativeCharacteristic = nativeService.characteristics.values.first(where: { $0.value === characteristic })!
             let characteristicValue = GattCharacteristicValue.with {
-                $0.id = key
+                $0.gattKey = nativeGATT.key
+                $0.serviceKey = nativeService.key
+                $0.key = nativeCharacteristic.key
                 $0.value = characteristic.value!
             }
             let event = try! Message.with {
@@ -471,24 +508,5 @@ extension CBPeripheral {
         // TODO: Is this two length the same value?
         let maximumWriteLength = min(maximumWriteLengthWithResponse, maximumWriteLengthWithoutResponse)
         return Int32(maximumWriteLength)
-    }
-}
-
-extension Dictionary where Key == Int32, Value : AnyObject {
-    mutating func add(value: Value) -> Int32 {
-        for key in 0...Int32.max {
-            if keys.contains(key) {
-                continue
-            }
-            self[key] = value
-            return key
-        }
-        fatalError("Memory leak when add value.")
-    }
-    
-    mutating func remove(value: Value) -> Int32 {
-        let key = first(where: { $1 === value })!.key
-        removeValue(forKey: key)
-        return key
     }
 }

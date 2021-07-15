@@ -35,73 +35,82 @@ message ConnectArguments {
 }
 
 message GATT {
-  int32 id = 1;
+  string key = 1;
   int32 maximumWriteLength = 2;
   repeated GattService services = 3;
 }
 
 message GattService {
-  int32 id = 1;
+  string key = 1;
   string uuid = 2;
   repeated GattCharacteristic characteristics = 3;
 }
 
 message GattCharacteristic {
-  int32 id = 1;
+  string key = 1;
   string uuid = 2;
-  repeated GattDescriptor descriptors = 3;
-  bool canRead = 4;
-  bool canWrite = 5;
-  bool canWriteWithoutResponse = 6;
-  bool canNotify = 7;
+  bool canRead = 3;
+  bool canWrite = 4;
+  bool canWriteWithoutResponse = 5;
+  bool canNotify = 6;
+  repeated GattDescriptor descriptors = 7;
 }
 
 message GattDescriptor {
-  int32 id = 1;
+  string key = 1;
   string uuid = 2;
 }
 
 message GattDisconnectArguments{
-  int32 id = 1;
+  string key = 1;
 }
 
 message GattConnectionLost {
-  int32 id = 1;
+  string key = 1;
   string error = 2;
 }
 
 message GattCharacteristicReadArguments {
-  int32 gatt_id = 1;
-  int32 id = 2;
+  string gatt_key = 1;
+  string service_key = 2;
+  string key = 3;
 }
 
 message GattCharacteristicWriteArguments {
-  int32 gatt_id = 1;
-  int32 id = 2;
-  bytes value = 3;
-  bool withoutResponse = 4;
+  string gatt_key = 1;
+  string service_key = 2;
+  string key = 3;
+  bytes value = 4;
+  bool withoutResponse = 5;
 }
 
 message GattCharacteristicNotifyArguments{
-  int32 gatt_id = 1;
-  int32 id = 2;
-  bool state = 3;
+  string gatt_key = 1;
+  string service_key = 2;
+  string key = 3;
+  bool state = 4;
 }
 
 message GattCharacteristicValue {
-  int32 id = 1;
-  bytes value = 2;
+  string gatt_key = 1;
+  string service_key = 2;
+  string key = 3;
+  bytes value = 4;
 }
 
 message GattDescriptorReadArguments {
-  int32 gatt_id = 1;
-  int32 id = 2;
+  string gatt_key = 1;
+  string service_key = 2;
+  string characteristic_key = 3;
+  string key = 4;
 }
 
 message GattDescriptorWriteArguments {
-  int32 gatt_id = 1;
-  int32 id = 2;
-  bytes value = 3;
+  string gatt_key = 1;
+  string service_key = 2;
+  string characteristic_key = 3;
+  string key = 4;
+  bytes value = 5;
 }
 
 enum MessageCategory {

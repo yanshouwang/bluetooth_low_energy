@@ -25,13 +25,13 @@ void main() {
         case proto.MessageCategory.CENTRAL_CONNECT:
           final descriptors = [
             proto.GattDescriptor(
-              id: 4000,
+              key: '0',
               uuid: '2900',
             ),
           ];
           final characteristics = [
             proto.GattCharacteristic(
-              id: 3000,
+              key: '0',
               uuid: '2A00',
               descriptors: descriptors,
               canRead: true,
@@ -42,13 +42,13 @@ void main() {
           ];
           final services = [
             proto.GattService(
-              id: 2000,
+              key: '0',
               uuid: '1800',
               characteristics: characteristics,
             ),
           ];
           final gatt = proto.GATT(
-            id: 1000,
+            key: '0',
             maximumWriteLength: 20,
             services: services,
           );
@@ -99,7 +99,7 @@ void main() {
           final connectionLost = proto.Message(
             category: proto.MessageCategory.GATT_CONNECTION_LOST,
             connectionLost: proto.GattConnectionLost(
-              id: 1000,
+              key: '0',
               error: 'Connection lost.',
             ),
           ).writeToBuffer();
@@ -112,7 +112,9 @@ void main() {
           final characteristicValue = proto.Message(
             category: proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY,
             characteristicValue: proto.GattCharacteristicValue(
-              id: 3000,
+              gattKey: '0',
+              serviceKey: '0',
+              key: '0',
               value: [0x0A, 0x0B, 0x0C, 0x0D, 0x0E],
             ),
           ).writeToBuffer();
@@ -269,7 +271,7 @@ void main() {
             '',
             arguments: proto.Message(
               category: proto.MessageCategory.GATT_DISCONNECT,
-              disconnectArguments: proto.GattDisconnectArguments(id: 1000),
+              disconnectArguments: proto.GattDisconnectArguments(key: '0'),
             ).writeToBuffer(),
           ),
         ],
@@ -326,7 +328,11 @@ void main() {
             arguments: proto.Message(
               category: proto.MessageCategory.GATT_CHARACTERISTIC_READ,
               characteristicReadArguments:
-                  proto.GattCharacteristicReadArguments(gattId: 1000, id: 3000),
+                  proto.GattCharacteristicReadArguments(
+                gattKey: '0',
+                serviceKey: '0',
+                key: '0',
+              ),
             ).writeToBuffer(),
           ),
         ],
@@ -360,8 +366,9 @@ void main() {
               category: proto.MessageCategory.GATT_CHARACTERISTIC_WRITE,
               characteristicWriteArguments:
                   proto.GattCharacteristicWriteArguments(
-                gattId: 1000,
-                id: 3000,
+                gattKey: '0',
+                serviceKey: '0',
+                key: '0',
                 value: value,
                 withoutResponse: true,
               ),
@@ -397,8 +404,9 @@ void main() {
               category: proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY,
               characteristicNotifyArguments:
                   proto.GattCharacteristicNotifyArguments(
-                gattId: 1000,
-                id: 3000,
+                gattKey: '0',
+                serviceKey: '0',
+                key: '0',
                 state: true,
               ),
             ).writeToBuffer(),
@@ -458,8 +466,12 @@ void main() {
             '',
             arguments: proto.Message(
               category: proto.MessageCategory.GATT_DESCRIPTOR_READ,
-              descriptorReadArguments:
-                  proto.GattDescriptorReadArguments(gattId: 1000, id: 4000),
+              descriptorReadArguments: proto.GattDescriptorReadArguments(
+                gattKey: '0',
+                serviceKey: '0',
+                characteristicKey: '0',
+                key: '0',
+              ),
             ).writeToBuffer(),
           ),
         ],
@@ -493,8 +505,10 @@ void main() {
             arguments: proto.Message(
               category: proto.MessageCategory.GATT_DESCRIPTOR_WRITE,
               descriptorWriteArguments: proto.GattDescriptorWriteArguments(
-                gattId: 1000,
-                id: 4000,
+                gattKey: '0',
+                serviceKey: '0',
+                characteristicKey: '0',
+                key: '0',
                 value: value,
               ),
             ).writeToBuffer(),

@@ -56,47 +56,59 @@ extension on proto.GATT {
   GATT toGATT() {
     final services = {
       for (var service in this.services)
-        service.uuid.uuid: service.toGattService(id)
+        service.uuid.uuid: service.toGattService(key)
     };
-    return _GATT(id, maximumWriteLength, services);
+    return _GATT(key, maximumWriteLength, services);
   }
 }
 
 extension on proto.GattService {
-  GattService toGattService(int gattId) {
+  GattService toGattService(String gattKey) {
     final uuid = this.uuid.uuid;
     final characteristics = {
       for (var characteristic in this.characteristics)
-        characteristic.uuid.uuid: characteristic.toGattCharacteristic(gattId)
+        characteristic.uuid.uuid: characteristic.toGattCharacteristic(
+          gattKey,
+          key,
+        )
     };
-    return _GattService(id, uuid, characteristics);
+    return _GattService(gattKey, key, uuid, characteristics);
   }
 }
 
 extension on proto.GattCharacteristic {
-  GattCharacteristic toGattCharacteristic(int gattId) {
+  GattCharacteristic toGattCharacteristic(String gattKey, String serviceKey) {
     final uuid = this.uuid.uuid;
     final descriptors = {
       for (var descriptor in this.descriptors)
-        descriptor.uuid.uuid: descriptor.toGattDescriptor(gattId)
+        descriptor.uuid.uuid: descriptor.toGattDescriptor(
+          gattKey,
+          serviceKey,
+          key,
+        )
     };
     return _GattCharacteristic(
-      gattId,
-      id,
+      gattKey,
+      serviceKey,
+      key,
       uuid,
-      descriptors,
       canRead,
       canWrite,
       canWriteWithoutResponse,
       canNotify,
+      descriptors,
     );
   }
 }
 
 extension on proto.GattDescriptor {
-  GattDescriptor toGattDescriptor(int gattId) {
+  GattDescriptor toGattDescriptor(
+    String gattKey,
+    String serviceKey,
+    String characteristicKey,
+  ) {
     final uuid = this.uuid.uuid;
-    return _GattDescriptor(gattId, id, uuid);
+    return _GattDescriptor(gattKey, serviceKey, characteristicKey, key, uuid);
   }
 }
 

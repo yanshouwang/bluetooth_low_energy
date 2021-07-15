@@ -23,20 +23,20 @@ object GattCharacteristicKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic = _builder.build()
 
     /**
-     * <code>int32 id = 1;</code>
+     * <code>string key = 1;</code>
      */
-    var id: kotlin.Int
-      @JvmName("getId")
-      get() = _builder.getId()
-      @JvmName("setId")
+    var key: kotlin.String
+      @JvmName("getKey")
+      get() = _builder.getKey()
+      @JvmName("setKey")
       set(value) {
-        _builder.setId(value)
+        _builder.setKey(value)
       }
     /**
-     * <code>int32 id = 1;</code>
+     * <code>string key = 1;</code>
      */
-    fun clearId() {
-      _builder.clearId()
+    fun clearKey() {
+      _builder.clearKey()
     }
 
     /**
@@ -57,70 +57,7 @@ object GattCharacteristicKt {
     }
 
     /**
-     * An uninstantiable, behaviorless type to represent the field in
-     * generics.
-     */
-    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
-    class DescriptorsProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
-    /**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
-     */
-     val descriptors: com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, DescriptorsProxy>
-      @kotlin.jvm.JvmSynthetic
-      get() = com.google.protobuf.kotlin.DslList(
-        _builder.getDescriptorsList()
-      )
-    /**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
-     * @param value The descriptors to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("addDescriptors")
-    fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, DescriptorsProxy>.add(value: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor) {
-      _builder.addDescriptors(value)
-    }/**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
-     * @param value The descriptors to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("plusAssignDescriptors")
-    inline operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, DescriptorsProxy>.plusAssign(value: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor) {
-      add(value)
-    }/**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
-     * @param values The descriptors to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("addAllDescriptors")
-    fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, DescriptorsProxy>.addAll(values: kotlin.collections.Iterable<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor>) {
-      _builder.addAllDescriptors(values)
-    }/**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
-     * @param values The descriptors to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("plusAssignAllDescriptors")
-    inline operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, DescriptorsProxy>.plusAssign(values: kotlin.collections.Iterable<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor>) {
-      addAll(values)
-    }/**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
-     * @param index The index to set the value at.
-     * @param value The descriptors to set.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("setDescriptors")
-    operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, DescriptorsProxy>.set(index: kotlin.Int, value: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor) {
-      _builder.setDescriptors(index, value)
-    }/**
-     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 3;</code>
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("clearDescriptors")
-    fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, DescriptorsProxy>.clear() {
-      _builder.clearDescriptors()
-    }
-    /**
-     * <code>bool canRead = 4;</code>
+     * <code>bool canRead = 3;</code>
      */
     var canRead: kotlin.Boolean
       @JvmName("getCanRead")
@@ -130,14 +67,14 @@ object GattCharacteristicKt {
         _builder.setCanRead(value)
       }
     /**
-     * <code>bool canRead = 4;</code>
+     * <code>bool canRead = 3;</code>
      */
     fun clearCanRead() {
       _builder.clearCanRead()
     }
 
     /**
-     * <code>bool canWrite = 5;</code>
+     * <code>bool canWrite = 4;</code>
      */
     var canWrite: kotlin.Boolean
       @JvmName("getCanWrite")
@@ -147,14 +84,14 @@ object GattCharacteristicKt {
         _builder.setCanWrite(value)
       }
     /**
-     * <code>bool canWrite = 5;</code>
+     * <code>bool canWrite = 4;</code>
      */
     fun clearCanWrite() {
       _builder.clearCanWrite()
     }
 
     /**
-     * <code>bool canWriteWithoutResponse = 6;</code>
+     * <code>bool canWriteWithoutResponse = 5;</code>
      */
     var canWriteWithoutResponse: kotlin.Boolean
       @JvmName("getCanWriteWithoutResponse")
@@ -164,14 +101,14 @@ object GattCharacteristicKt {
         _builder.setCanWriteWithoutResponse(value)
       }
     /**
-     * <code>bool canWriteWithoutResponse = 6;</code>
+     * <code>bool canWriteWithoutResponse = 5;</code>
      */
     fun clearCanWriteWithoutResponse() {
       _builder.clearCanWriteWithoutResponse()
     }
 
     /**
-     * <code>bool canNotify = 7;</code>
+     * <code>bool canNotify = 6;</code>
      */
     var canNotify: kotlin.Boolean
       @JvmName("getCanNotify")
@@ -181,12 +118,75 @@ object GattCharacteristicKt {
         _builder.setCanNotify(value)
       }
     /**
-     * <code>bool canNotify = 7;</code>
+     * <code>bool canNotify = 6;</code>
      */
     fun clearCanNotify() {
       _builder.clearCanNotify()
     }
-  }
+
+    /**
+     * An uninstantiable, behaviorless type to represent the field in
+     * generics.
+     */
+    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
+    class DescriptorsProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
+     */
+     val descriptors: com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, DescriptorsProxy>
+      @kotlin.jvm.JvmSynthetic
+      get() = com.google.protobuf.kotlin.DslList(
+        _builder.getDescriptorsList()
+      )
+    /**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
+     * @param value The descriptors to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addDescriptors")
+    fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, DescriptorsProxy>.add(value: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor) {
+      _builder.addDescriptors(value)
+    }/**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
+     * @param value The descriptors to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignDescriptors")
+    inline operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, DescriptorsProxy>.plusAssign(value: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor) {
+      add(value)
+    }/**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
+     * @param values The descriptors to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addAllDescriptors")
+    fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, DescriptorsProxy>.addAll(values: kotlin.collections.Iterable<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor>) {
+      _builder.addAllDescriptors(values)
+    }/**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
+     * @param values The descriptors to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignAllDescriptors")
+    inline operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, DescriptorsProxy>.plusAssign(values: kotlin.collections.Iterable<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor>) {
+      addAll(values)
+    }/**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
+     * @param index The index to set the value at.
+     * @param value The descriptors to set.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("setDescriptors")
+    operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, DescriptorsProxy>.set(index: kotlin.Int, value: dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor) {
+      _builder.setDescriptors(index, value)
+    }/**
+     * <code>repeated .dev.yanshouwang.bluetooth_low_energy.GattDescriptor descriptors = 7;</code>
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("clearDescriptors")
+    fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattDescriptor, DescriptorsProxy>.clear() {
+      _builder.clearDescriptors()
+    }}
 }
 @kotlin.jvm.JvmSynthetic
 inline fun dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic.copy(block: dev.yanshouwang.bluetooth_low_energy.GattCharacteristicKt.Dsl.() -> Unit): dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.GattCharacteristic =

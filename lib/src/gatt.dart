@@ -16,9 +16,9 @@ abstract class GATT {
 }
 
 class _GATT implements GATT {
-  _GATT(this.id, this.maximumWriteLength, this.services);
+  _GATT(this.key, this.maximumWriteLength, this.services);
 
-  final int id;
+  final String key;
   @override
   final int maximumWriteLength;
   @override
@@ -28,14 +28,14 @@ class _GATT implements GATT {
   Stream<Exception> get connectionLost => stream
       .where((message) =>
           message.category == proto.MessageCategory.GATT_CONNECTION_LOST &&
-          message.connectionLost.id == id)
+          message.connectionLost.key == key)
       .map((message) => message.connectionLost.error.exceptoin);
 
   @override
   Future disconnect() {
     final message = proto.Message(
       category: proto.MessageCategory.GATT_DISCONNECT,
-      disconnectArguments: proto.GattDisconnectArguments(id: id),
+      disconnectArguments: proto.GattDisconnectArguments(key: key),
     ).writeToBuffer();
     return method.invokeMethod('', message);
   }

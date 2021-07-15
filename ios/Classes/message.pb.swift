@@ -375,7 +375,7 @@ struct Dev_Yanshouwang_BluetoothLowEnergy_GATT {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var id: Int32 = 0
+  var key: String = String()
 
   var maximumWriteLength: Int32 = 0
 
@@ -391,7 +391,7 @@ struct Dev_Yanshouwang_BluetoothLowEnergy_GattService {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var id: Int32 = 0
+  var key: String = String()
 
   var uuid: String = String()
 
@@ -407,11 +407,9 @@ struct Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristic {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var id: Int32 = 0
+  var key: String = String()
 
   var uuid: String = String()
-
-  var descriptors: [Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptor] = []
 
   var canRead: Bool = false
 
@@ -420,6 +418,8 @@ struct Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristic {
   var canWriteWithoutResponse: Bool = false
 
   var canNotify: Bool = false
+
+  var descriptors: [Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptor] = []
 
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -431,7 +431,7 @@ struct Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptor {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var id: Int32 = 0
+  var key: String = String()
 
   var uuid: String = String()
 
@@ -445,7 +445,7 @@ struct Dev_Yanshouwang_BluetoothLowEnergy_GattDisconnectArguments {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var id: Int32 = 0
+  var key: String = String()
 
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -457,7 +457,7 @@ struct Dev_Yanshouwang_BluetoothLowEnergy_GattConnectionLost {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var id: Int32 = 0
+  var key: String = String()
 
   var error: String = String()
 
@@ -471,9 +471,11 @@ struct Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicReadArguments {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var gattID: Int32 = 0
+  var gattKey: String = String()
 
-  var id: Int32 = 0
+  var serviceKey: String = String()
+
+  var key: String = String()
 
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -485,9 +487,11 @@ struct Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicWriteArguments {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var gattID: Int32 = 0
+  var gattKey: String = String()
 
-  var id: Int32 = 0
+  var serviceKey: String = String()
+
+  var key: String = String()
 
   var value: Data = Data()
 
@@ -503,9 +507,11 @@ struct Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicNotifyArguments {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var gattID: Int32 = 0
+  var gattKey: String = String()
 
-  var id: Int32 = 0
+  var serviceKey: String = String()
+
+  var key: String = String()
 
   var state: Bool = false
 
@@ -519,7 +525,11 @@ struct Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicValue {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var id: Int32 = 0
+  var gattKey: String = String()
+
+  var serviceKey: String = String()
+
+  var key: String = String()
 
   var value: Data = Data()
 
@@ -533,9 +543,13 @@ struct Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptorReadArguments {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var gattID: Int32 = 0
+  var gattKey: String = String()
 
-  var id: Int32 = 0
+  var serviceKey: String = String()
+
+  var characteristicKey: String = String()
+
+  var key: String = String()
 
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -547,9 +561,13 @@ struct Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptorWriteArguments {
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var gattID: Int32 = 0
+  var gattKey: String = String()
 
-  var id: Int32 = 0
+  var serviceKey: String = String()
+
+  var characteristicKey: String = String()
+
+  var key: String = String()
 
   var value: Data = Data()
 
@@ -954,7 +972,7 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_ConnectArguments: SwiftProtobuf.Mes
 extension Dev_Yanshouwang_BluetoothLowEnergy_GATT: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".GATT"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
+    1: .same(proto: "key"),
     2: .same(proto: "maximumWriteLength"),
     3: .same(proto: "services"),
   ]
@@ -965,7 +983,7 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GATT: SwiftProtobuf.Message, SwiftP
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularInt32Field(value: &self.id) }()
+      case 1: try { try decoder.decodeSingularStringField(value: &self.key) }()
       case 2: try { try decoder.decodeSingularInt32Field(value: &self.maximumWriteLength) }()
       case 3: try { try decoder.decodeRepeatedMessageField(value: &self.services) }()
       default: break
@@ -974,8 +992,8 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GATT: SwiftProtobuf.Message, SwiftP
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if self.id != 0 {
-      try visitor.visitSingularInt32Field(value: self.id, fieldNumber: 1)
+    if !self.key.isEmpty {
+      try visitor.visitSingularStringField(value: self.key, fieldNumber: 1)
     }
     if self.maximumWriteLength != 0 {
       try visitor.visitSingularInt32Field(value: self.maximumWriteLength, fieldNumber: 2)
@@ -987,7 +1005,7 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GATT: SwiftProtobuf.Message, SwiftP
   }
 
   static func ==(lhs: Dev_Yanshouwang_BluetoothLowEnergy_GATT, rhs: Dev_Yanshouwang_BluetoothLowEnergy_GATT) -> Bool {
-    if lhs.id != rhs.id {return false}
+    if lhs.key != rhs.key {return false}
     if lhs.maximumWriteLength != rhs.maximumWriteLength {return false}
     if lhs.services != rhs.services {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
@@ -998,7 +1016,7 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GATT: SwiftProtobuf.Message, SwiftP
 extension Dev_Yanshouwang_BluetoothLowEnergy_GattService: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".GattService"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
+    1: .same(proto: "key"),
     2: .same(proto: "uuid"),
     3: .same(proto: "characteristics"),
   ]
@@ -1009,7 +1027,7 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattService: SwiftProtobuf.Message,
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularInt32Field(value: &self.id) }()
+      case 1: try { try decoder.decodeSingularStringField(value: &self.key) }()
       case 2: try { try decoder.decodeSingularStringField(value: &self.uuid) }()
       case 3: try { try decoder.decodeRepeatedMessageField(value: &self.characteristics) }()
       default: break
@@ -1018,8 +1036,8 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattService: SwiftProtobuf.Message,
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if self.id != 0 {
-      try visitor.visitSingularInt32Field(value: self.id, fieldNumber: 1)
+    if !self.key.isEmpty {
+      try visitor.visitSingularStringField(value: self.key, fieldNumber: 1)
     }
     if !self.uuid.isEmpty {
       try visitor.visitSingularStringField(value: self.uuid, fieldNumber: 2)
@@ -1031,7 +1049,7 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattService: SwiftProtobuf.Message,
   }
 
   static func ==(lhs: Dev_Yanshouwang_BluetoothLowEnergy_GattService, rhs: Dev_Yanshouwang_BluetoothLowEnergy_GattService) -> Bool {
-    if lhs.id != rhs.id {return false}
+    if lhs.key != rhs.key {return false}
     if lhs.uuid != rhs.uuid {return false}
     if lhs.characteristics != rhs.characteristics {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
@@ -1042,13 +1060,13 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattService: SwiftProtobuf.Message,
 extension Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristic: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".GattCharacteristic"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
+    1: .same(proto: "key"),
     2: .same(proto: "uuid"),
-    3: .same(proto: "descriptors"),
-    4: .same(proto: "canRead"),
-    5: .same(proto: "canWrite"),
-    6: .same(proto: "canWriteWithoutResponse"),
-    7: .same(proto: "canNotify"),
+    3: .same(proto: "canRead"),
+    4: .same(proto: "canWrite"),
+    5: .same(proto: "canWriteWithoutResponse"),
+    6: .same(proto: "canNotify"),
+    7: .same(proto: "descriptors"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1057,51 +1075,51 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristic: SwiftProtobuf.M
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularInt32Field(value: &self.id) }()
+      case 1: try { try decoder.decodeSingularStringField(value: &self.key) }()
       case 2: try { try decoder.decodeSingularStringField(value: &self.uuid) }()
-      case 3: try { try decoder.decodeRepeatedMessageField(value: &self.descriptors) }()
-      case 4: try { try decoder.decodeSingularBoolField(value: &self.canRead) }()
-      case 5: try { try decoder.decodeSingularBoolField(value: &self.canWrite) }()
-      case 6: try { try decoder.decodeSingularBoolField(value: &self.canWriteWithoutResponse) }()
-      case 7: try { try decoder.decodeSingularBoolField(value: &self.canNotify) }()
+      case 3: try { try decoder.decodeSingularBoolField(value: &self.canRead) }()
+      case 4: try { try decoder.decodeSingularBoolField(value: &self.canWrite) }()
+      case 5: try { try decoder.decodeSingularBoolField(value: &self.canWriteWithoutResponse) }()
+      case 6: try { try decoder.decodeSingularBoolField(value: &self.canNotify) }()
+      case 7: try { try decoder.decodeRepeatedMessageField(value: &self.descriptors) }()
       default: break
       }
     }
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if self.id != 0 {
-      try visitor.visitSingularInt32Field(value: self.id, fieldNumber: 1)
+    if !self.key.isEmpty {
+      try visitor.visitSingularStringField(value: self.key, fieldNumber: 1)
     }
     if !self.uuid.isEmpty {
       try visitor.visitSingularStringField(value: self.uuid, fieldNumber: 2)
     }
-    if !self.descriptors.isEmpty {
-      try visitor.visitRepeatedMessageField(value: self.descriptors, fieldNumber: 3)
-    }
     if self.canRead != false {
-      try visitor.visitSingularBoolField(value: self.canRead, fieldNumber: 4)
+      try visitor.visitSingularBoolField(value: self.canRead, fieldNumber: 3)
     }
     if self.canWrite != false {
-      try visitor.visitSingularBoolField(value: self.canWrite, fieldNumber: 5)
+      try visitor.visitSingularBoolField(value: self.canWrite, fieldNumber: 4)
     }
     if self.canWriteWithoutResponse != false {
-      try visitor.visitSingularBoolField(value: self.canWriteWithoutResponse, fieldNumber: 6)
+      try visitor.visitSingularBoolField(value: self.canWriteWithoutResponse, fieldNumber: 5)
     }
     if self.canNotify != false {
-      try visitor.visitSingularBoolField(value: self.canNotify, fieldNumber: 7)
+      try visitor.visitSingularBoolField(value: self.canNotify, fieldNumber: 6)
+    }
+    if !self.descriptors.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.descriptors, fieldNumber: 7)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristic, rhs: Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristic) -> Bool {
-    if lhs.id != rhs.id {return false}
+    if lhs.key != rhs.key {return false}
     if lhs.uuid != rhs.uuid {return false}
-    if lhs.descriptors != rhs.descriptors {return false}
     if lhs.canRead != rhs.canRead {return false}
     if lhs.canWrite != rhs.canWrite {return false}
     if lhs.canWriteWithoutResponse != rhs.canWriteWithoutResponse {return false}
     if lhs.canNotify != rhs.canNotify {return false}
+    if lhs.descriptors != rhs.descriptors {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -1110,7 +1128,7 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristic: SwiftProtobuf.M
 extension Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptor: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".GattDescriptor"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
+    1: .same(proto: "key"),
     2: .same(proto: "uuid"),
   ]
 
@@ -1120,7 +1138,7 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptor: SwiftProtobuf.Messa
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularInt32Field(value: &self.id) }()
+      case 1: try { try decoder.decodeSingularStringField(value: &self.key) }()
       case 2: try { try decoder.decodeSingularStringField(value: &self.uuid) }()
       default: break
       }
@@ -1128,8 +1146,8 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptor: SwiftProtobuf.Messa
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if self.id != 0 {
-      try visitor.visitSingularInt32Field(value: self.id, fieldNumber: 1)
+    if !self.key.isEmpty {
+      try visitor.visitSingularStringField(value: self.key, fieldNumber: 1)
     }
     if !self.uuid.isEmpty {
       try visitor.visitSingularStringField(value: self.uuid, fieldNumber: 2)
@@ -1138,7 +1156,7 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptor: SwiftProtobuf.Messa
   }
 
   static func ==(lhs: Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptor, rhs: Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptor) -> Bool {
-    if lhs.id != rhs.id {return false}
+    if lhs.key != rhs.key {return false}
     if lhs.uuid != rhs.uuid {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
@@ -1148,7 +1166,7 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptor: SwiftProtobuf.Messa
 extension Dev_Yanshouwang_BluetoothLowEnergy_GattDisconnectArguments: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".GattDisconnectArguments"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
+    1: .same(proto: "key"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1157,21 +1175,21 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattDisconnectArguments: SwiftProto
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularInt32Field(value: &self.id) }()
+      case 1: try { try decoder.decodeSingularStringField(value: &self.key) }()
       default: break
       }
     }
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if self.id != 0 {
-      try visitor.visitSingularInt32Field(value: self.id, fieldNumber: 1)
+    if !self.key.isEmpty {
+      try visitor.visitSingularStringField(value: self.key, fieldNumber: 1)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Dev_Yanshouwang_BluetoothLowEnergy_GattDisconnectArguments, rhs: Dev_Yanshouwang_BluetoothLowEnergy_GattDisconnectArguments) -> Bool {
-    if lhs.id != rhs.id {return false}
+    if lhs.key != rhs.key {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -1180,7 +1198,7 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattDisconnectArguments: SwiftProto
 extension Dev_Yanshouwang_BluetoothLowEnergy_GattConnectionLost: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".GattConnectionLost"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
+    1: .same(proto: "key"),
     2: .same(proto: "error"),
   ]
 
@@ -1190,7 +1208,7 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattConnectionLost: SwiftProtobuf.M
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularInt32Field(value: &self.id) }()
+      case 1: try { try decoder.decodeSingularStringField(value: &self.key) }()
       case 2: try { try decoder.decodeSingularStringField(value: &self.error) }()
       default: break
       }
@@ -1198,8 +1216,8 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattConnectionLost: SwiftProtobuf.M
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if self.id != 0 {
-      try visitor.visitSingularInt32Field(value: self.id, fieldNumber: 1)
+    if !self.key.isEmpty {
+      try visitor.visitSingularStringField(value: self.key, fieldNumber: 1)
     }
     if !self.error.isEmpty {
       try visitor.visitSingularStringField(value: self.error, fieldNumber: 2)
@@ -1208,7 +1226,7 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattConnectionLost: SwiftProtobuf.M
   }
 
   static func ==(lhs: Dev_Yanshouwang_BluetoothLowEnergy_GattConnectionLost, rhs: Dev_Yanshouwang_BluetoothLowEnergy_GattConnectionLost) -> Bool {
-    if lhs.id != rhs.id {return false}
+    if lhs.key != rhs.key {return false}
     if lhs.error != rhs.error {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
@@ -1218,8 +1236,9 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattConnectionLost: SwiftProtobuf.M
 extension Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicReadArguments: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".GattCharacteristicReadArguments"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .standard(proto: "gatt_id"),
-    2: .same(proto: "id"),
+    1: .standard(proto: "gatt_key"),
+    2: .standard(proto: "service_key"),
+    3: .same(proto: "key"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1228,26 +1247,31 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicReadArguments: Sw
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularInt32Field(value: &self.gattID) }()
-      case 2: try { try decoder.decodeSingularInt32Field(value: &self.id) }()
+      case 1: try { try decoder.decodeSingularStringField(value: &self.gattKey) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.serviceKey) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self.key) }()
       default: break
       }
     }
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if self.gattID != 0 {
-      try visitor.visitSingularInt32Field(value: self.gattID, fieldNumber: 1)
+    if !self.gattKey.isEmpty {
+      try visitor.visitSingularStringField(value: self.gattKey, fieldNumber: 1)
     }
-    if self.id != 0 {
-      try visitor.visitSingularInt32Field(value: self.id, fieldNumber: 2)
+    if !self.serviceKey.isEmpty {
+      try visitor.visitSingularStringField(value: self.serviceKey, fieldNumber: 2)
+    }
+    if !self.key.isEmpty {
+      try visitor.visitSingularStringField(value: self.key, fieldNumber: 3)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicReadArguments, rhs: Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicReadArguments) -> Bool {
-    if lhs.gattID != rhs.gattID {return false}
-    if lhs.id != rhs.id {return false}
+    if lhs.gattKey != rhs.gattKey {return false}
+    if lhs.serviceKey != rhs.serviceKey {return false}
+    if lhs.key != rhs.key {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -1256,10 +1280,11 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicReadArguments: Sw
 extension Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicWriteArguments: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".GattCharacteristicWriteArguments"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .standard(proto: "gatt_id"),
-    2: .same(proto: "id"),
-    3: .same(proto: "value"),
-    4: .same(proto: "withoutResponse"),
+    1: .standard(proto: "gatt_key"),
+    2: .standard(proto: "service_key"),
+    3: .same(proto: "key"),
+    4: .same(proto: "value"),
+    5: .same(proto: "withoutResponse"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1268,34 +1293,39 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicWriteArguments: S
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularInt32Field(value: &self.gattID) }()
-      case 2: try { try decoder.decodeSingularInt32Field(value: &self.id) }()
-      case 3: try { try decoder.decodeSingularBytesField(value: &self.value) }()
-      case 4: try { try decoder.decodeSingularBoolField(value: &self.withoutResponse) }()
+      case 1: try { try decoder.decodeSingularStringField(value: &self.gattKey) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.serviceKey) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self.key) }()
+      case 4: try { try decoder.decodeSingularBytesField(value: &self.value) }()
+      case 5: try { try decoder.decodeSingularBoolField(value: &self.withoutResponse) }()
       default: break
       }
     }
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if self.gattID != 0 {
-      try visitor.visitSingularInt32Field(value: self.gattID, fieldNumber: 1)
+    if !self.gattKey.isEmpty {
+      try visitor.visitSingularStringField(value: self.gattKey, fieldNumber: 1)
     }
-    if self.id != 0 {
-      try visitor.visitSingularInt32Field(value: self.id, fieldNumber: 2)
+    if !self.serviceKey.isEmpty {
+      try visitor.visitSingularStringField(value: self.serviceKey, fieldNumber: 2)
+    }
+    if !self.key.isEmpty {
+      try visitor.visitSingularStringField(value: self.key, fieldNumber: 3)
     }
     if !self.value.isEmpty {
-      try visitor.visitSingularBytesField(value: self.value, fieldNumber: 3)
+      try visitor.visitSingularBytesField(value: self.value, fieldNumber: 4)
     }
     if self.withoutResponse != false {
-      try visitor.visitSingularBoolField(value: self.withoutResponse, fieldNumber: 4)
+      try visitor.visitSingularBoolField(value: self.withoutResponse, fieldNumber: 5)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicWriteArguments, rhs: Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicWriteArguments) -> Bool {
-    if lhs.gattID != rhs.gattID {return false}
-    if lhs.id != rhs.id {return false}
+    if lhs.gattKey != rhs.gattKey {return false}
+    if lhs.serviceKey != rhs.serviceKey {return false}
+    if lhs.key != rhs.key {return false}
     if lhs.value != rhs.value {return false}
     if lhs.withoutResponse != rhs.withoutResponse {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
@@ -1306,9 +1336,10 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicWriteArguments: S
 extension Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicNotifyArguments: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".GattCharacteristicNotifyArguments"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .standard(proto: "gatt_id"),
-    2: .same(proto: "id"),
-    3: .same(proto: "state"),
+    1: .standard(proto: "gatt_key"),
+    2: .standard(proto: "service_key"),
+    3: .same(proto: "key"),
+    4: .same(proto: "state"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1317,30 +1348,35 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicNotifyArguments: 
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularInt32Field(value: &self.gattID) }()
-      case 2: try { try decoder.decodeSingularInt32Field(value: &self.id) }()
-      case 3: try { try decoder.decodeSingularBoolField(value: &self.state) }()
+      case 1: try { try decoder.decodeSingularStringField(value: &self.gattKey) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.serviceKey) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self.key) }()
+      case 4: try { try decoder.decodeSingularBoolField(value: &self.state) }()
       default: break
       }
     }
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if self.gattID != 0 {
-      try visitor.visitSingularInt32Field(value: self.gattID, fieldNumber: 1)
+    if !self.gattKey.isEmpty {
+      try visitor.visitSingularStringField(value: self.gattKey, fieldNumber: 1)
     }
-    if self.id != 0 {
-      try visitor.visitSingularInt32Field(value: self.id, fieldNumber: 2)
+    if !self.serviceKey.isEmpty {
+      try visitor.visitSingularStringField(value: self.serviceKey, fieldNumber: 2)
+    }
+    if !self.key.isEmpty {
+      try visitor.visitSingularStringField(value: self.key, fieldNumber: 3)
     }
     if self.state != false {
-      try visitor.visitSingularBoolField(value: self.state, fieldNumber: 3)
+      try visitor.visitSingularBoolField(value: self.state, fieldNumber: 4)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicNotifyArguments, rhs: Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicNotifyArguments) -> Bool {
-    if lhs.gattID != rhs.gattID {return false}
-    if lhs.id != rhs.id {return false}
+    if lhs.gattKey != rhs.gattKey {return false}
+    if lhs.serviceKey != rhs.serviceKey {return false}
+    if lhs.key != rhs.key {return false}
     if lhs.state != rhs.state {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
@@ -1350,8 +1386,10 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicNotifyArguments: 
 extension Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicValue: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".GattCharacteristicValue"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
-    2: .same(proto: "value"),
+    1: .standard(proto: "gatt_key"),
+    2: .standard(proto: "service_key"),
+    3: .same(proto: "key"),
+    4: .same(proto: "value"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1360,25 +1398,35 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicValue: SwiftProto
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularInt32Field(value: &self.id) }()
-      case 2: try { try decoder.decodeSingularBytesField(value: &self.value) }()
+      case 1: try { try decoder.decodeSingularStringField(value: &self.gattKey) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.serviceKey) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self.key) }()
+      case 4: try { try decoder.decodeSingularBytesField(value: &self.value) }()
       default: break
       }
     }
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if self.id != 0 {
-      try visitor.visitSingularInt32Field(value: self.id, fieldNumber: 1)
+    if !self.gattKey.isEmpty {
+      try visitor.visitSingularStringField(value: self.gattKey, fieldNumber: 1)
+    }
+    if !self.serviceKey.isEmpty {
+      try visitor.visitSingularStringField(value: self.serviceKey, fieldNumber: 2)
+    }
+    if !self.key.isEmpty {
+      try visitor.visitSingularStringField(value: self.key, fieldNumber: 3)
     }
     if !self.value.isEmpty {
-      try visitor.visitSingularBytesField(value: self.value, fieldNumber: 2)
+      try visitor.visitSingularBytesField(value: self.value, fieldNumber: 4)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicValue, rhs: Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicValue) -> Bool {
-    if lhs.id != rhs.id {return false}
+    if lhs.gattKey != rhs.gattKey {return false}
+    if lhs.serviceKey != rhs.serviceKey {return false}
+    if lhs.key != rhs.key {return false}
     if lhs.value != rhs.value {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
@@ -1388,8 +1436,10 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattCharacteristicValue: SwiftProto
 extension Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptorReadArguments: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".GattDescriptorReadArguments"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .standard(proto: "gatt_id"),
-    2: .same(proto: "id"),
+    1: .standard(proto: "gatt_key"),
+    2: .standard(proto: "service_key"),
+    3: .standard(proto: "characteristic_key"),
+    4: .same(proto: "key"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1398,26 +1448,36 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptorReadArguments: SwiftP
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularInt32Field(value: &self.gattID) }()
-      case 2: try { try decoder.decodeSingularInt32Field(value: &self.id) }()
+      case 1: try { try decoder.decodeSingularStringField(value: &self.gattKey) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.serviceKey) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self.characteristicKey) }()
+      case 4: try { try decoder.decodeSingularStringField(value: &self.key) }()
       default: break
       }
     }
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if self.gattID != 0 {
-      try visitor.visitSingularInt32Field(value: self.gattID, fieldNumber: 1)
+    if !self.gattKey.isEmpty {
+      try visitor.visitSingularStringField(value: self.gattKey, fieldNumber: 1)
     }
-    if self.id != 0 {
-      try visitor.visitSingularInt32Field(value: self.id, fieldNumber: 2)
+    if !self.serviceKey.isEmpty {
+      try visitor.visitSingularStringField(value: self.serviceKey, fieldNumber: 2)
+    }
+    if !self.characteristicKey.isEmpty {
+      try visitor.visitSingularStringField(value: self.characteristicKey, fieldNumber: 3)
+    }
+    if !self.key.isEmpty {
+      try visitor.visitSingularStringField(value: self.key, fieldNumber: 4)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptorReadArguments, rhs: Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptorReadArguments) -> Bool {
-    if lhs.gattID != rhs.gattID {return false}
-    if lhs.id != rhs.id {return false}
+    if lhs.gattKey != rhs.gattKey {return false}
+    if lhs.serviceKey != rhs.serviceKey {return false}
+    if lhs.characteristicKey != rhs.characteristicKey {return false}
+    if lhs.key != rhs.key {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -1426,9 +1486,11 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptorReadArguments: SwiftP
 extension Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptorWriteArguments: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = _protobuf_package + ".GattDescriptorWriteArguments"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .standard(proto: "gatt_id"),
-    2: .same(proto: "id"),
-    3: .same(proto: "value"),
+    1: .standard(proto: "gatt_key"),
+    2: .standard(proto: "service_key"),
+    3: .standard(proto: "characteristic_key"),
+    4: .same(proto: "key"),
+    5: .same(proto: "value"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1437,30 +1499,40 @@ extension Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptorWriteArguments: Swift
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularInt32Field(value: &self.gattID) }()
-      case 2: try { try decoder.decodeSingularInt32Field(value: &self.id) }()
-      case 3: try { try decoder.decodeSingularBytesField(value: &self.value) }()
+      case 1: try { try decoder.decodeSingularStringField(value: &self.gattKey) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.serviceKey) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self.characteristicKey) }()
+      case 4: try { try decoder.decodeSingularStringField(value: &self.key) }()
+      case 5: try { try decoder.decodeSingularBytesField(value: &self.value) }()
       default: break
       }
     }
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if self.gattID != 0 {
-      try visitor.visitSingularInt32Field(value: self.gattID, fieldNumber: 1)
+    if !self.gattKey.isEmpty {
+      try visitor.visitSingularStringField(value: self.gattKey, fieldNumber: 1)
     }
-    if self.id != 0 {
-      try visitor.visitSingularInt32Field(value: self.id, fieldNumber: 2)
+    if !self.serviceKey.isEmpty {
+      try visitor.visitSingularStringField(value: self.serviceKey, fieldNumber: 2)
+    }
+    if !self.characteristicKey.isEmpty {
+      try visitor.visitSingularStringField(value: self.characteristicKey, fieldNumber: 3)
+    }
+    if !self.key.isEmpty {
+      try visitor.visitSingularStringField(value: self.key, fieldNumber: 4)
     }
     if !self.value.isEmpty {
-      try visitor.visitSingularBytesField(value: self.value, fieldNumber: 3)
+      try visitor.visitSingularBytesField(value: self.value, fieldNumber: 5)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptorWriteArguments, rhs: Dev_Yanshouwang_BluetoothLowEnergy_GattDescriptorWriteArguments) -> Bool {
-    if lhs.gattID != rhs.gattID {return false}
-    if lhs.id != rhs.id {return false}
+    if lhs.gattKey != rhs.gattKey {return false}
+    if lhs.serviceKey != rhs.serviceKey {return false}
+    if lhs.characteristicKey != rhs.characteristicKey {return false}
+    if lhs.key != rhs.key {return false}
     if lhs.value != rhs.value {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true

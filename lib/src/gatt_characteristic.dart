@@ -6,9 +6,6 @@ abstract class GattCharacteristic {
   UUID get uuid;
 
   /// TO BE DONE.
-  Map<UUID, GattDescriptor> get descriptors;
-
-  /// TO BE DONE.
   bool get canRead;
 
   /// TO BE DONE.
@@ -19,6 +16,9 @@ abstract class GattCharacteristic {
 
   /// TO BE DONE.
   bool get canNotify;
+
+  /// TO BE DONE.
+  Map<UUID, GattDescriptor> get descriptors;
 
   /// TO BE DONE.
   Stream<List<int>> get valueChanged;
@@ -35,22 +35,22 @@ abstract class GattCharacteristic {
 
 class _GattCharacteristic implements GattCharacteristic {
   _GattCharacteristic(
-    this.gattId,
-    this.id,
+    this.gattKey,
+    this.serviceKey,
+    this.key,
     this.uuid,
-    this.descriptors,
     this.canRead,
     this.canWrite,
     this.canWriteWithoutResponse,
     this.canNotify,
+    this.descriptors,
   );
 
-  final int gattId;
-  final int id;
+  final String gattKey;
+  final String serviceKey;
+  final String key;
   @override
   final UUID uuid;
-  @override
-  final Map<UUID, GattDescriptor> descriptors;
   @override
   final bool canRead;
   @override
@@ -59,13 +59,17 @@ class _GattCharacteristic implements GattCharacteristic {
   final bool canWriteWithoutResponse;
   @override
   final bool canNotify;
+  @override
+  final Map<UUID, GattDescriptor> descriptors;
 
   @override
   Stream<List<int>> get valueChanged => stream
       .where((message) =>
           message.category ==
               proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY &&
-          message.characteristicValue.id == id)
+          message.characteristicValue.gattKey == gattKey &&
+          message.characteristicValue.serviceKey == serviceKey &&
+          message.characteristicValue.key == key)
       .map((message) => message.characteristicValue.value);
 
   @override
@@ -73,8 +77,9 @@ class _GattCharacteristic implements GattCharacteristic {
     final message = proto.Message(
       category: proto.MessageCategory.GATT_CHARACTERISTIC_READ,
       characteristicReadArguments: proto.GattCharacteristicReadArguments(
-        gattId: gattId,
-        id: id,
+        gattKey: gattKey,
+        serviceKey: serviceKey,
+        key: key,
       ),
     ).writeToBuffer();
     return method.invokeListMethod<int>('', message).then((value) => value!);
@@ -85,8 +90,9 @@ class _GattCharacteristic implements GattCharacteristic {
     final message = proto.Message(
       category: proto.MessageCategory.GATT_CHARACTERISTIC_WRITE,
       characteristicWriteArguments: proto.GattCharacteristicWriteArguments(
-        gattId: gattId,
-        id: id,
+        gattKey: gattKey,
+        serviceKey: serviceKey,
+        key: key,
         value: value,
         withoutResponse: withoutResponse,
       ),
@@ -99,8 +105,9 @@ class _GattCharacteristic implements GattCharacteristic {
     final message = proto.Message(
       category: proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY,
       characteristicNotifyArguments: proto.GattCharacteristicNotifyArguments(
-        gattId: gattId,
-        id: id,
+        gattKey: gattKey,
+        serviceKey: serviceKey,
+        key: key,
         state: state,
       ),
     ).writeToBuffer();
