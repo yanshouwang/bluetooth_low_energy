@@ -30,12 +30,14 @@ dependencies:
 
 ### Android
 
-Make sure you have a `miniSdkVersion` with 21 or higher in your `android/app/build.gradle` file, now we only support Android 5.0 or above.
+Make sure you have a `miniSdkVersion` with 21 or higher in your `android/app/build.gradle` file.
 
 ### iOS
 
 Make sure you have a minimum deployment target of 9.0 or above, you can uncomment the first line `platform :ios, '9.0'` in your iOS project's `Podfile`.
 
+*Note*: According to Apple's [documents](https://developer.apple.com/documentation/corebluetooth/), you must include the [`NSBluetoothAlwaysUsageDescription`](https://developer.apple.com/documentation/bundleresources/information_property_list/nsbluetoothalwaysusagedescription) on or after iOS 13, and include the [`NSBluetoothPeripheralUsageDescription`](https://developer.apple.com/documentation/bundleresources/information_property_list/nsbluetoothperipheralusagedescription) key before iOS 13.
+
 ## Issues
 
-- Not support peripheral APIs for now.
+- Peripheral APIs are not implemented yet.
