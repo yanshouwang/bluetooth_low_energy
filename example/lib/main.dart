@@ -6,6 +6,8 @@ import 'package:convert/convert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'widgets.dart';
+
 void main() {
   final app = MaterialApp(
     theme: ThemeData(
@@ -92,7 +94,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: Text('蓝牙调试助手'),
       ),
       body: bodyView,
     );
@@ -124,7 +126,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     stopDiscovery();
     await Navigator.of(context).pushNamed(
       'gatt',
-      arguments: discovery.uuid,
+      arguments: discovery,
     );
     startDiscovery();
   }
@@ -283,9 +285,10 @@ class _GattViewState extends State<GattView> {
   final ValueNotifier<GattCharacteristic?> characteristic;
   final TextEditingController writeController;
   final ValueNotifier<Map<GattCharacteristic, StreamSubscription>> notifies;
-  final ValueNotifier<List<String>> logs;
+  final ValueNotifier<List<Log>> logs;
+  final ValueNotifier<Encoding> encoding;
 
-  late UUID uuid;
+  late Discovery discovery;
 
   _GattViewState()
       : state = ValueNotifier(ConnectionState.disconnected),
@@ -293,7 +296,8 @@ class _GattViewState extends State<GattView> {
         characteristic = ValueNotifier(null),
         writeController = TextEditingController(),
         notifies = ValueNotifier({}),
-        logs = ValueNotifier([]);
+        logs = ValueNotifier([]),
+        encoding = ValueNotifier(Encoding.utf8);
 
   @override
   void initState() {
@@ -302,10 +306,10 @@ class _GattViewState extends State<GattView> {
 
   @override
   Widget build(BuildContext context) {
-    uuid = ModalRoute.of(context)!.settings.arguments as UUID;
+    discovery = ModalRoute.of(context)!.settings.arguments as Discovery;
     return Scaffold(
       appBar: AppBar(
-        title: Text(uuid.name),
+        title: Text(discovery.name ?? discovery.uuid.name),
         actions: [
           changeStateView,
         ],
@@ -356,7 +360,7 @@ class _GattViewState extends State<GattView> {
   void connect() async {
     try {
       state.value = ConnectionState.connecting;
-      gatt = await central.connect(uuid);
+      gatt = await central.connect(discovery.uuid);
       state.value = ConnectionState.connected;
       connectionLostSubscription = gatt!.connectionLost.listen(
         (errorCode) async {
@@ -512,6 +516,16 @@ extension on _GattViewState {
                   characteristicValue != null && characteristicValue.canRead;
               final canNotify =
                   characteristicValue != null && characteristicValue.canNotify;
+              final encodings = Encoding.values;
+              final encodingsView = ValueListenableBuilder(
+                  valueListenable: encoding,
+                  builder: (context, Encoding value, child) {
+                    return TabSwitch(
+                      values: encodings,
+                      value: value,
+                      onChanged: (Encoding e) => encoding.value = e,
+                    );
+                  });
               final readAndNotifyView = Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -519,8 +533,7 @@ extension on _GattViewState {
                     onPressed: canRead
                         ? () async {
                             final value = await characteristicValue!.read();
-                            final time = DateTime.now().display;
-                            final log = '[$time][READ] ${hex.encode(value)}';
+                            final log = Log.read(value);
                             logs.value = [...logs.value, log];
                           }
                         : null,
@@ -547,9 +560,7 @@ extension on _GattViewState {
                                     notifiesValue[characteristicValue] =
                                         characteristicValue.valueChanged
                                             .listen((value) {
-                                      final time = DateTime.now().display;
-                                      final log =
-                                          '[$time][NOTIFY] ${hex.encode(value)}';
+                                      final log = Log.notify(value);
                                       logs.value = [...logs.value, log];
                                     });
                                   }
@@ -564,23 +575,49 @@ extension on _GattViewState {
                       }),
                 ],
               );
-              final controllerView = TextField(
+              final writeView = TextField(
+                enabled: canWrite,
                 controller: writeController,
                 decoration: InputDecoration(
-                  hintText: 'MTU: ${gatt!.maximumWriteLength}',
+                  contentPadding: EdgeInsets.zero,
+                  labelText: 'MTU: ${gatt!.maximumWriteLength}',
                   suffixIcon: IconButton(
                     onPressed: canWrite
-                        ? () {
-                            final value = utf8.encode(writeController.text);
+                        ? () async {
+                            List<int> value;
+                            switch (encoding.value) {
+                              case Encoding.utf8:
+                                value = utf8.encode(writeController.text);
+                                break;
+                              case Encoding.hex:
+                                value = hex.decode(writeController.text);
+                                break;
+                              default:
+                                throw ArgumentError.value(encoding.value);
+                            }
                             final withoutResponse =
                                 !characteristicValue!.canWrite;
-                            characteristicValue.write(value,
-                                withoutResponse: withoutResponse);
+                            await characteristicValue.write(
+                              value,
+                              withoutResponse: withoutResponse,
+                            );
+                            final log = Log.write(value);
+                            logs.value = [...logs.value, log];
                           }
                         : null,
                     icon: Icon(Icons.send),
                   ),
                 ),
+              );
+              final controllerView = Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  encodingsView,
+                  IconButton(
+                    onPressed: () => logs.value = [],
+                    icon: Icon(Icons.format_clear),
+                  ),
+                ],
               );
               return Column(
                 children: [
@@ -593,6 +630,7 @@ extension on _GattViewState {
                   ),
                   readAndNotifyView,
                   controllerView,
+                  writeView,
                 ],
               );
             },
@@ -600,24 +638,42 @@ extension on _GattViewState {
           views.add(characteristicView);
         }
         final loggerView = Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12.0),
-            child: ValueListenableBuilder(
+          child: ValueListenableBuilder(
+            valueListenable: encoding,
+            builder: (context, Encoding encodingValue, child) {
+              return ValueListenableBuilder(
                 valueListenable: logs,
-                builder: (context, List<String> logsValue, child) {
+                builder: (context, List<Log> logsValue, child) {
                   return ListView.builder(
                     itemCount: logsValue.length,
                     itemBuilder: (context, i) {
                       final log = logsValue[i];
-                      return Text(log);
+                      final logTime = log.time.display;
+                      final logType = log.type.display;
+                      String logValue;
+                      switch (encodingValue) {
+                        case Encoding.utf8:
+                          logValue = utf8.decode(log.value);
+                          break;
+                        case Encoding.hex:
+                          logValue = hex.encode(log.value);
+                          break;
+                        default:
+                          throw ArgumentError.value(encodingValue);
+                      }
+                      final logDisplay = '[$logTime][$logType] $logValue';
+                      return Text(logDisplay);
                     },
                   );
-                }),
+                },
+              );
+            },
           ),
         );
+        views.add(Container(height: 12.0));
         views.add(loggerView);
         return Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.0),
+          padding: EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: views,
@@ -634,6 +690,23 @@ extension on _GattViewState {
   }
 }
 
+class Log {
+  final DateTime time;
+  final LogType type;
+  final List<int> value;
+
+  Log(this.time, this.type, this.value);
+
+  factory Log.typeValue(LogType type, List<int> value) {
+    final time = DateTime.now();
+    return Log(time, type, value);
+  }
+
+  factory Log.read(List<int> value) => Log.typeValue(LogType.read, value);
+  factory Log.write(List<int> value) => Log.typeValue(LogType.write, value);
+  factory Log.notify(List<int> value) => Log.typeValue(LogType.notify, value);
+}
+
 extension on DateTime {
   String get display {
     final hh = hour.toString().padLeft(2, '0');
@@ -643,9 +716,35 @@ extension on DateTime {
   }
 }
 
+extension on LogType {
+  String get display {
+    switch (this) {
+      case LogType.read:
+        return '读取';
+      case LogType.write:
+        return '写入';
+      case LogType.notify:
+        return '通知';
+      default:
+        throw ArgumentError.value(this);
+    }
+  }
+}
+
 enum ConnectionState {
   disconnected,
   connecting,
   connected,
   disconnecting,
+}
+
+enum Encoding {
+  utf8,
+  hex,
+}
+
+enum LogType {
+  read,
+  write,
+  notify,
 }

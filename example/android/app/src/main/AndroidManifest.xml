@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="dev.yanshouwang.bluetooth_low_energy_example">
    <application
-        android:label="bluetooth_low_energy_example"
+        android:label="蓝牙调试助手"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
