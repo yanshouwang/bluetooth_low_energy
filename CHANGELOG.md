@@ -1,6 +1,6 @@
 ## 0.1.0
 
-- Add implements on iOS.
+- Add implementations on iOS.
 - Combine available and state for Bluetooth.
 - Add connectable for Discovery.
 - Add maximumWriteLength for GATT.
@@ -14,6 +14,6 @@
 ## 0.0.1
 
 - Add central APIs.
-- Add implements on Android.
+- Add implementations on Android.
 - Add example.
 - Add test.
