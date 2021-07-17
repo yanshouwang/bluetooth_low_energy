@@ -297,7 +297,7 @@ class _GattViewState extends State<GattView> {
         writeController = TextEditingController(),
         notifies = ValueNotifier({}),
         logs = ValueNotifier([]),
-        encoding = ValueNotifier(Encoding.utf8);
+        encoding = ValueNotifier(Encoding.hex);
 
   @override
   void initState() {
@@ -739,8 +739,8 @@ enum ConnectionState {
 }
 
 enum Encoding {
-  utf8,
   hex,
+  utf8,
 }
 
 enum LogType {
