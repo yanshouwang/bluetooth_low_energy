@@ -83,13 +83,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_simple_treeview:
-    dependency: "direct main"
-    description:
-      name: flutter_simple_treeview
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.0.0-nullsafety.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
