@@ -3,13 +3,13 @@ import 'dart:convert';
 
 import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
 import 'package:bluetooth_low_energy_example/models.dart';
+import 'package:bluetooth_low_energy_example/widgets.dart';
 import 'package:convert/convert.dart';
 import 'package:flutter/material.dart' hide ConnectionState;
 import 'package:flutter/services.dart';
 
 import 'list_notifier.dart';
 import 'map_notifier.dart';
-import '../widgets/tab_switch.dart';
 import 'util.dart';
 
 class GattView extends StatefulWidget {
