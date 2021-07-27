@@ -1,9 +1,10 @@
 import 'dart:async';
 
 import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
-import 'package:bluetooth_low_energy_example/states/map_notifier.dart';
 import 'package:convert/convert.dart';
 import 'package:flutter/material.dart';
+
+import 'map_notifier.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);

@@ -20,18 +20,3 @@ enum LogType {
   write,
   notify,
 }
-
-extension LogX on LogType {
-  String get display {
-    switch (this) {
-      case LogType.read:
-        return '读取';
-      case LogType.write:
-        return '写入';
-      case LogType.notify:
-        return '通知';
-      default:
-        throw ArgumentError.value(this);
-    }
-  }
-}

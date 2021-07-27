@@ -1,5 +1,3 @@
-import 'dart:js';
-
 import 'package:flutter/material.dart';
 
 import 'views.dart';
@@ -9,7 +7,6 @@ void main() {
     theme: ThemeData(
       fontFamily: 'IBM Plex Mono',
     ),
-    home: HomeView(),
     routes: {
       'home': (context) => HomeView(),
       'gatt': (context) => GattView(),
