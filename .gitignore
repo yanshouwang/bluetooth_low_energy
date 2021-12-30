@@ -5,3 +5,9 @@
 .pub/
 
 build/
+
+pubspec.lock
+.idea/
+.vscode/
+
+*.iml
