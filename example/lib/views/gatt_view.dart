@@ -153,12 +153,12 @@ class _GattViewState extends State<GattView> {
       await characteristic.notify(false);
       await notifies.value.remove(characteristic)!.cancel();
     } else {
-      await characteristic.notify(true);
       notifies.value[characteristic] =
           characteristic.valueChanged.listen((value) {
         final log = Log.notify(value);
         logs.value = [...logs.value, log];
       });
+      await characteristic.notify(true);
     }
     notifies.value = {...notifies.value};
   }
