@@ -110,7 +110,7 @@ class _HomeViewState extends State<HomeView> {
 extension on _HomeViewState {
   Widget get view => Scaffold(
         appBar: AppBar(
-          title: Text('蓝牙调试助手'),
+          title: const Text('蓝牙调试助手'),
         ),
         body: ValueListenableBuilder(
           valueListenable: state,
@@ -119,7 +119,7 @@ extension on _HomeViewState {
         ),
       );
 
-  Widget get closedView => Center(
+  Widget get closedView => const Center(
         child: Text('蓝牙未开启'),
       );
 
@@ -129,19 +129,19 @@ extension on _HomeViewState {
           valueListenable: discoveries,
           builder: (context, Map<UUID, Discovery> discoveries, child) {
             return ListView.builder(
-              padding: EdgeInsets.all(6.0),
+              padding: const EdgeInsets.all(6.0),
               itemCount: discoveries.length,
               itemBuilder: (context, i) {
                 final discovery = discoveries.values.elementAt(i);
                 return Card(
                   color: discovery.connectable ? Colors.amber : Colors.grey,
                   clipBehavior: Clip.antiAlias,
-                  shape: BeveledRectangleBorder(
+                  shape: const BeveledRectangleBorder(
                     borderRadius: BorderRadius.only(
                         topRight: Radius.circular(12.0),
                         bottomLeft: Radius.circular(12.0)),
                   ),
-                  margin: EdgeInsets.all(6.0),
+                  margin: const EdgeInsets.all(6.0),
                   key: Key(discovery.uuid.name),
                   child: InkWell(
                     splashColor: Colors.purple,
@@ -151,7 +151,7 @@ extension on _HomeViewState {
                     onLongPress: () => showAdvertisements(discovery),
                     child: Container(
                       height: 100.0,
-                      padding: EdgeInsets.all(12.0),
+                      padding: const EdgeInsets.all(12.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
@@ -191,7 +191,7 @@ extension on Discovery {
   Widget get view {
     final widgets = <Widget>[
       Row(
-        children: [
+        children: const [
           Text('Type'),
           Expanded(
             child: Center(
@@ -200,7 +200,7 @@ extension on Discovery {
           ),
         ],
       ),
-      Divider(),
+      const Divider(),
     ];
     for (final entry in advertisements.entries) {
       final key = entry.key.toRadixString(16).padLeft(2, '0');
@@ -211,7 +211,7 @@ extension on Discovery {
           Container(width: 12.0),
           Expanded(
             child: Text(
-              '$value',
+              value,
               softWrap: true,
             ),
           ),
@@ -219,7 +219,7 @@ extension on Discovery {
       );
       widgets.add(widget);
       if (entry.key != advertisements.entries.last.key) {
-        final divider = Divider();
+        const divider = Divider();
         widgets.add(divider);
       }
     }
@@ -227,7 +227,7 @@ extension on Discovery {
       margin: const EdgeInsets.all(12.0),
       child: Material(
         elevation: 1.0,
-        shape: BeveledRectangleBorder(
+        shape: const BeveledRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(12.0),
             bottomRight: Radius.circular(12.0),

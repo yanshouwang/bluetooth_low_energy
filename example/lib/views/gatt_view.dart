@@ -251,17 +251,17 @@ extension on _GattViewState {
         },
       );
 
-  Widget get disconnectedView => Center(
+  Widget get disconnectedView => const Center(
         child: Text('未连接'),
       );
 
-  Widget get connectingView => Center(
+  Widget get connectingView => const Center(
         child: Text('正在建立连接'),
       );
 
   Widget get connectedView {
     return Padding(
-      padding: EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(12.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -287,7 +287,7 @@ extension on _GattViewState {
           children: [
             DropdownButton<GattService>(
               isExpanded: true,
-              hint: Text('选择服务'),
+              hint: const Text('选择服务'),
               value: serviceValue,
               items: services,
               onChanged: changeService,
@@ -314,7 +314,7 @@ extension on _GattViewState {
           children: [
             DropdownButton<GattCharacteristic>(
               isExpanded: true,
-              hint: Text('选择特征值'),
+              hint: const Text('选择特征值'),
               value: characteristicValue,
               items: characteristics,
               onChanged: changeCharacterisitc,
@@ -324,7 +324,7 @@ extension on _GattViewState {
               children: [
                 IconButton(
                   onPressed: canRead ? () async => await read() : null,
-                  icon: Icon(Icons.archive),
+                  icon: const Icon(Icons.archive),
                 ),
                 ValueListenableBuilder(
                     valueListenable: notifies,
@@ -353,7 +353,7 @@ extension on _GattViewState {
                 labelText: 'MTU: ${gatt!.maximumWriteLength}',
                 suffixIcon: IconButton(
                   onPressed: canWrite ? () async => await write() : null,
-                  icon: Icon(Icons.send),
+                  icon: const Icon(Icons.send),
                 ),
               ),
             ),
@@ -399,14 +399,14 @@ extension on _GattViewState {
               alignment: Alignment.topRight,
               child: IconButton(
                 onPressed: () => logs.value = [],
-                icon: Icon(Icons.format_clear),
+                icon: const Icon(Icons.format_clear),
               ),
             )
           ],
         ),
       );
 
-  Widget get disconnectingView => Center(
+  Widget get disconnectingView => const Center(
         child: Text('正在断开连接'),
       );
 }

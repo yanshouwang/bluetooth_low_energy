@@ -8,8 +8,8 @@ void main() {
       fontFamily: 'IBM Plex Mono',
     ),
     routes: {
-      'home': (context) => HomeView(),
-      'gatt': (context) => GattView(),
+      'home': (context) => const HomeView(),
+      'gatt': (context) => const GattView(),
     },
     initialRoute: 'home',
   );

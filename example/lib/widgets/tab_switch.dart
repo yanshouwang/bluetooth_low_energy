@@ -18,7 +18,10 @@ class TabSwitch<T> extends StatelessWidget {
         ?.map((e) => GestureDetector(
               onTap: () => onChanged?.call(e),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                  vertical: 4.0,
+                ),
                 color: e == value ? Colors.blue : Colors.grey[300],
                 child: Text('$e'.split('.').last),
               ),

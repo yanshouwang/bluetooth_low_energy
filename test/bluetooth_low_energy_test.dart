@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  final method = MethodChannel('${util.method.name}');
-  final event = MethodChannel('${util.event.name}');
+  final method = MethodChannel(util.method.name);
+  final event = MethodChannel(util.event.name);
   final calls = <MethodCall>[];
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -206,7 +206,7 @@ void main() {
       final actual = await central.discovered.first;
       final uuid = UUID('AABB');
       expect(actual.uuid, uuid);
-      final rssi = -50;
+      const rssi = -50;
       expect(actual.rssi, rssi);
       final advertisements = {
         0xff: [0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa],
