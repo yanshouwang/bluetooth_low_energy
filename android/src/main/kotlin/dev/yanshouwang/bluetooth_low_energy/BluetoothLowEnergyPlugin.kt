@@ -9,16 +9,13 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.Handler
 import android.os.ParcelUuid
-import android.util.Log
 import androidx.annotation.NonNull
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.protobuf.ByteString
-import dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.*
-import dev.yanshouwang.bluetooth_low_energy.MessageOuterClass.MessageCategory.*
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.EventChannel
@@ -29,15 +26,13 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener
-import java.util.*
 
 const val NAMESPACE = "yanshouwang.dev/bluetooth_low_energy"
 
 typealias StartScanHandler = (code: Int) -> Unit
-typealias RequestPermissionsHandler = (granted: Boolean) -> Unit
 
 /** BluetoothLowEnergyPlugin */
-class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler, ActivityAware, RequestPermissionsResultListener {
+class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
     companion object {
         private const val CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
         private const val BLUETOOTH_ADAPTER_STATE_UNKNOWN = -1
@@ -45,48 +40,250 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
         private const val REQUEST_CODE = 443
     }
 
-    private lateinit var method: MethodChannel
-    private lateinit var event: EventChannel
-    private lateinit var context: Context
+    private lateinit var binding: ActivityPluginBinding
 
-    private var binding: ActivityPluginBinding? = null
-    private var events: EventSink? = null
+    private var eventSink: EventSink? = null
 
-    private val bluetoothAvailable by lazy { context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) }
-    private val bluetoothManager by lazy { context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager }
+    private val methodCallHandler by lazy {
+        MethodCallHandler { call, result ->
+            val command = call.command
+            when (command.category!!) {
+                Messages.CommandCategory.COMMAND_CATEGORY_BLUETOOTH_GET_STATE -> {
+                    result.success(bluetoothState.number)
+                }
+                Messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_START_DISCOVERY -> {
+                    val startDiscovery = Runnable {
+                        val services = command.startDiscoveryArguments.servicesList
+                        val startScanHandler: StartScanHandler = { code ->
+                            when (code) {
+                                NO_ERROR -> result.success()
+                                else -> result.error(
+                                    "Discovery start failed with code: $code",
+                                    null,
+                                    null
+                                )
+                            }
+                        }
+                        startScan(services, startScanHandler)
+                    }
+                    when {
+                        hasPermission -> startDiscovery.run()
+                        else -> {
+                            requestPermissionsHandler = { granted ->
+                                if (granted) startDiscovery.run()
+                                else result.error(
+                                    "Discovery start failed because `ACCESS_FINE_LOCATION` was denied by user.",
+                                    null,
+                                    null
+                                )
+                            }
+                            val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+                            ActivityCompat.requestPermissions(
+                                binding!!.activity,
+                                permissions,
+                                REQUEST_CODE
+                            )
+                        }
+                    }
+                }
+                Messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY -> {
+                    stopScan()
+                    result.success()
+                }
+                Messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT -> {
+                    val device =
+                        bluetoothAdapter.getRemoteDevice(command.connectArguments.uuid.address)
+                    val gatt = when {
+                        // Use TRANSPORT_LE to avoid none flag device on Android 23 or later.
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> device.connectGatt(
+                            context,
+                            false,
+                            bluetoothGattCallback,
+                            BluetoothDevice.TRANSPORT_LE
+                        )
+                        else -> device.connectGatt(context, false, bluetoothGattCallback)
+                    }
+                    connects[gatt] = result
+                }
+                Messages.CommandCategory.COMMAND_CATEGORY_GATT_DISCONNECT -> {
+                    val nativeGATT = indexedGATTs[command.disconnectArguments.key]!!
+                    disconnects[nativeGATT.value] = result
+                    nativeGATT.value.disconnect()
+                }
+                Messages.CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_READ -> {
+                    val nativeGATT = indexedGATTs[command.characteristicReadArguments.gattKey]!!
+                    val nativeService =
+                        nativeGATT.services[command.characteristicReadArguments.serviceKey]!!
+                    val nativeCharacteristic =
+                        nativeService.characteristics[command.characteristicReadArguments.key]!!
+                    val read = nativeGATT.value.readCharacteristic(nativeCharacteristic.value)
+                    if (read) characteristicReads[nativeCharacteristic.value] = result
+                    else result.error("Characteristic read failed.", null, null)
+                }
+                Messages.CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_WRITE -> {
+                    val nativeGATT = indexedGATTs[command.characteristicWriteArguments.gattKey]!!
+                    val nativeService =
+                        nativeGATT.services[command.characteristicWriteArguments.serviceKey]!!
+                    val nativeCharacteristic =
+                        nativeService.characteristics[command.characteristicWriteArguments.key]!!
+                    nativeCharacteristic.value.writeType =
+                        if (command.characteristicWriteArguments.withoutResponse) BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+                        else BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                    nativeCharacteristic.value.value =
+                        command.characteristicWriteArguments.value.toByteArray()
+                    val written = nativeGATT.value.writeCharacteristic(nativeCharacteristic.value)
+                    if (written) characteristicWrites[nativeCharacteristic.value] = result
+                    else result.error("Characteristic write failed.", null, null)
+                }
+                Messages.CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_NOTIFY -> {
+                    val nativeGATT = indexedGATTs[command.characteristicNotifyArguments.gattKey]!!
+                    val nativeService =
+                        nativeGATT.services[command.characteristicNotifyArguments.serviceKey]!!
+                    val nativeCharacteristic =
+                        nativeService.characteristics[command.characteristicNotifyArguments.key]!!
+                    val descriptorUUID = UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG)
+                    val descriptor = nativeCharacteristic.value.getDescriptor(descriptorUUID)
+                    val notified = nativeGATT.value.setCharacteristicNotification(
+                        nativeCharacteristic.value,
+                        command.characteristicNotifyArguments.state
+                    )
+                    if (notified) {
+                        descriptor.value =
+                            if (command.characteristicNotifyArguments.state) BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                            else BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
+                        val written = nativeGATT.value.writeDescriptor(descriptor)
+                        if (written) descriptorWrites[descriptor] = result
+                        else result.error(
+                            "Client characteristic config descriptor write failed.",
+                            null,
+                            null
+                        )
+                    } else result.error("Characteristic Notify failed.", null, null)
+                }
+                Messages.CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_READ -> {
+                    val nativeGATT = indexedGATTs[command.descriptorReadArguments.gattKey]!!
+                    val nativeService =
+                        nativeGATT.services[command.descriptorReadArguments.serviceKey]!!
+                    val nativeCharacteristic =
+                        nativeService.characteristics[command.descriptorReadArguments.characteristicKey]!!
+                    val nativeDescriptor =
+                        nativeCharacteristic.descriptors[command.descriptorReadArguments.key]!!
+                    val read = nativeGATT.value.readDescriptor(nativeDescriptor.value)
+                    if (read) descriptorReads[nativeDescriptor.value] = result
+                    else result.error("Descriptor read failed.", null, null)
+                }
+                Messages.CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_WRITE -> {
+                    val nativeGATT = indexedGATTs[command.descriptorWriteArguments.gattKey]!!
+                    val nativeService =
+                        nativeGATT.services[command.descriptorWriteArguments.serviceKey]!!
+                    val nativeCharacteristic =
+                        nativeService.characteristics[command.descriptorWriteArguments.characteristicKey]!!
+                    val nativeDescriptor =
+                        nativeCharacteristic.descriptors[command.descriptorWriteArguments.key]!!
+                    nativeDescriptor.value.value =
+                        command.descriptorWriteArguments.value.toByteArray()
+                    val written = nativeGATT.value.writeDescriptor(nativeDescriptor.value)
+                    if (written) descriptorWrites[nativeDescriptor.value] = result
+                    else result.error("Descriptor write failed.", null, null)
+                }
+                Messages.CommandCategory.UNRECOGNIZED -> result.notImplemented()
+            }
+        }
+    }
+
+    private val streamHandler by lazy {
+        object : StreamHandler {
+            override fun onListen(arguments: Any?, events: EventSink?) {
+                eventSink = events
+            }
+
+            override fun onCancel(arguments: Any?) {
+                // This must be a hot reload for now, clear all status here.
+                // Clear connections.
+                for (nativeGATT in indexedGATTs.values) nativeGATT.value.disconnect()
+                // Stop scan.
+                if (scanning) stopScan()
+                eventSink = null
+            }
+        }
+    }
+
+    private val requestPermissionsResultListener by lazy {
+        RequestPermissionsResultListener { requestCode, permissions, grantResults ->
+            return@RequestPermissionsResultListener if (requestCode != REQUEST_CODE) false
+            else {
+                val granted = grantResults.all { result ->
+                    result == PackageManager.PERMISSION_GRANTED
+                }
+                for (listener in requestPermissionResultListeners) {
+                    listener(granted)
+                }
+                requestPermissionResultListeners.clear()
+                true
+            }
+        }
+    }
+
+    private val requestPermissionResultListeners by lazy { mutableListOf<(granted: Boolean) -> Unit>() }
+
+    private val bluetoothAvailable by lazy {
+        binding.activity.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
+    }
+    private val bluetoothManager by lazy {
+        binding.activity.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+    }
     private val bluetoothAdapter by lazy { bluetoothManager.adapter }
-    private val handler by lazy { Handler(context.mainLooper) }
 
-    private val bluetoothState: BluetoothState
+    private val bluetoothState: Messages.BluetoothState
         get() {
-            return if (bluetoothAvailable) bluetoothAdapter.state.messageState
-            else BluetoothState.UNSUPPORTED
+            return if (bluetoothAvailable) toProtoBluetoothState(bluetoothAdapter.state)
+            else Messages.BluetoothState.BLUETOOTH_STATE_UNSUPPORTED
         }
 
     private val bluetoothStateReceiver by lazy {
         object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                val oldState = intent!!.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_STATE, BLUETOOTH_ADAPTER_STATE_UNKNOWN).messageState
-                val newState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BLUETOOTH_ADAPTER_STATE_UNKNOWN).messageState
+                val oldState = intent!!.getIntExtra(
+                    BluetoothAdapter.EXTRA_PREVIOUS_STATE,
+                    BLUETOOTH_ADAPTER_STATE_UNKNOWN
+                )
+                val newState = intent.getIntExtra(
+                    BluetoothAdapter.EXTRA_STATE,
+                    BLUETOOTH_ADAPTER_STATE_UNKNOWN
+                )
                 if (newState == oldState) return
-                if (newState != BluetoothState.POWERED_ON && scanning) scanning = false
-                val event = Message.newBuilder()
-                        .setCategory(BLUETOOTH_STATE)
-                        .setState(newState)
-                        .build()
-                        .toByteArray()
-                events?.success(event)
+                val state = toProtoBluetoothState(newState)
+                if (state != Messages.BluetoothState.BLUETOOTH_STATE_POWERED_ON && scanning) {
+                    scanning = false
+                }
+                val event = event {
+                    this.category = Messages.EventCategory.EVENT_CATEGORY_BLUETOOTH_STATE_CHANGED
+                    this.bluetoothStateChangedEvent = bluetoothStateChangedEvent {
+                        this.state = state
+                    }
+                }.toByteArray()
+                eventSink?.success(event)
             }
         }
     }
 
     private val hasPermission
-        get() = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-
-    private var requestPermissionsHandler: RequestPermissionsHandler? = null
+        get() = ContextCompat.checkSelfPermission(
+            binding.activity,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
 
     private var scanCode = NO_ERROR
     private var scanning = false
+
+    private val indexedGATTs by lazy { mutableMapOf<String, IndexedGATT>() }
+    private val connects by lazy { mutableMapOf<BluetoothGatt, Result>() }
+    private val maximumWriteLengths by lazy { mutableMapOf<BluetoothGatt, Int>() }
+    private val disconnects by lazy { mutableMapOf<BluetoothGatt, Result>() }
+    private val characteristicReads by lazy { mutableMapOf<BluetoothGattCharacteristic, Result>() }
+    private val characteristicWrites by lazy { mutableMapOf<BluetoothGattCharacteristic, Result>() }
+    private val descriptorReads by lazy { mutableMapOf<BluetoothGattDescriptor, Result>() }
+    private val descriptorWrites by lazy { mutableMapOf<BluetoothGattDescriptor, Result>() }
 
     private val scanCallback by lazy {
         object : ScanCallback() {
@@ -100,25 +297,25 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 if (result == null) return
                 val record = result.scanRecord
                 val advertisements =
-                        if (record == null) ByteString.EMPTY
-                        else ByteString.copyFrom(record.bytes)
+                    if (record == null) ByteString.EMPTY
+                    else ByteString.copyFrom(record.bytes)
                 // TODO: We can't get connectable value before Android 8.0, here we just return true
                 //  remove this useless code after the minSdkVersion set to 26 or later.
                 val connectable =
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) result.isConnectable
-                        else true
-                val builder = Discovery.newBuilder()
-                        .setUuid(result.device.uuid)
-                        .setRssi(result.rssi)
-                        .setAdvertisements(advertisements)
-                        .setConnectable(connectable)
-                val discovery = builder.build()
-                val event = Message.newBuilder()
-                        .setCategory(CENTRAL_DISCOVERED)
-                        .setDiscovery(discovery)
-                        .build()
-                        .toByteArray()
-                events?.success(event)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) result.isConnectable
+                    else true
+                val event = event {
+                    this.category = Messages.EventCategory.EVENT_CATEGORY_CENTRAL_DISCOVERED
+                    this.centralDiscoveredEvent = centralDiscoveredEvent {
+                        this.peripheralDiscovery = peripheralDiscovery {
+                            this.uuid = result.device.uuid
+                            this.rssi = result.rssi
+                            this.advertisements = advertisements
+                            this.connectable = connectable
+                        }
+                    }
+                }.toByteArray()
+                eventSink?.success(event)
             }
 
             override fun onBatchScanResults(results: MutableList<ScanResult>?) {
@@ -127,43 +324,36 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 for (result in results) {
                     val record = result.scanRecord
                     val advertisements =
-                            if (record == null) ByteString.EMPTY
-                            else ByteString.copyFrom(record.bytes)
+                        if (record == null) ByteString.EMPTY
+                        else ByteString.copyFrom(record.bytes)
                     // TODO: We can't get connectable value before Android 8.0, here we just return true
                     //  remove this useless code after the minSdkVersion set to 26 or later.
                     val connectable =
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) result.isConnectable
-                            else true
-                    val builder = Discovery.newBuilder()
-                            .setUuid(result.device.uuid)
-                            .setRssi(result.rssi)
-                            .setAdvertisements(advertisements)
-                            .setConnectable(connectable)
-                    val discovery = builder.build()
-                    val event = Message.newBuilder()
-                            .setCategory(CENTRAL_DISCOVERED)
-                            .setDiscovery(discovery)
-                            .build()
-                            .toByteArray()
-                    events?.success(event)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) result.isConnectable
+                        else true
+                    val event = event {
+                        this.category = Messages.EventCategory.EVENT_CATEGORY_CENTRAL_DISCOVERED
+                        this.centralDiscoveredEvent = centralDiscoveredEvent {
+                            this.peripheralDiscovery = peripheralDiscovery {
+                                this.uuid = result.device.uuid
+                                this.rssi = result.rssi
+                                this.advertisements = advertisements
+                                this.connectable = connectable
+                            }
+                        }
+                    }.toByteArray()
+                    eventSink?.success(event)
                 }
             }
         }
     }
-
-    private val nativeGATTs by lazy { mutableMapOf<String, NativeGATT>() }
-
-    private val connects by lazy { mutableMapOf<BluetoothGatt, Result>() }
-    private val maximumWriteLengths by lazy { mutableMapOf<BluetoothGatt, Int>() }
-    private val disconnects by lazy { mutableMapOf<BluetoothGatt, Result>() }
-    private val characteristicReads by lazy { mutableMapOf<BluetoothGattCharacteristic, Result>() }
-    private val characteristicWrites by lazy { mutableMapOf<BluetoothGattCharacteristic, Result>() }
-    private val descriptorReads by lazy { mutableMapOf<BluetoothGattDescriptor, Result>() }
-    private val descriptorWrites by lazy { mutableMapOf<BluetoothGattDescriptor, Result>() }
-
     private val bluetoothGattCallback by lazy {
         object : BluetoothGattCallback() {
-            override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
+            override fun onConnectionStateChange(
+                gatt: BluetoothGatt?,
+                status: Int,
+                newState: Int
+            ) {
                 super.onConnectionStateChange(gatt, status, newState)
                 when (status) {
                     BluetoothGatt.GATT_SUCCESS -> {
@@ -172,30 +362,31 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                                 // Maybe disconnect succeed, connect failed, or connection lost when an adaptor closed event triggered.
                                 gatt!!.close()
                                 val connect = connects.remove(gatt)
-                                if (connect != null) handler.post { connect.error("GATT error with status: $status.", null, null) }
-                                else {
-                                    val nativeGATT = nativeGATTs.entries.first { entry -> entry.value.value === gatt }
-                                    nativeGATTs.remove(nativeGATT.key)
+                                if (connect == null) {
+                                    val nativeGATT =
+                                        indexedGATTs.entries.first { entry -> entry.value.value === gatt }
+                                    indexedGATTs.remove(nativeGATT.key)
                                     val disconnect = disconnects.remove(gatt)
-                                    if (disconnect != null) handler.post { disconnect.success() }
-                                    else {
+                                    if (disconnect == null) {
                                         val connectionLost = GattConnectionLost.newBuilder()
-                                                .setKey(nativeGATT.key)
-                                                .setError("GATT error with status: $status")
-                                                .build()
+                                            .setKey(nativeGATT.key)
+                                            .setError("GATT error with status: $status")
+                                            .build()
                                         val event = Message.newBuilder()
-                                                .setCategory(GATT_CONNECTION_LOST)
-                                                .setConnectionLost(connectionLost)
-                                                .build()
-                                                .toByteArray()
-                                        handler.post { events?.success(event) }
-                                    }
+                                            .setCategory(GATT_CONNECTION_LOST)
+                                            .setConnectionLost(connectionLost)
+                                            .build()
+                                            .toByteArray()
+                                        invokeOnMainThread { eventSink?.success(event) }
+                                    } else invokeOnMainThread { disconnect.success() }
+                                } else invokeOnMainThread {
+                                    connect.error(TAG, "GATT error with status: $status.")
                                 }
                             }
                             BluetoothProfile.STATE_CONNECTED -> {
                                 // Must be connect succeed.
-                                val requested = gatt!!.requestMtu(512)
-                                if (!requested) gatt.disconnect()
+                                val requestMtuSuccessfully = gatt!!.requestMtu(512)
+                                if (!requestMtuSuccessfully) gatt.disconnect()
                             }
                             else -> throw NotImplementedError() // should never be called.
                         }
@@ -204,23 +395,27 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                         // Maybe connect failed, disconnect failed or connection lost.
                         gatt!!.close()
                         val connect = connects.remove(gatt)
-                        if (connect != null) handler.post { connect.error("GATT error with status: $status", null, null) }
+                        if (connect != null) invokeOnMainThread {
+                            connect.error(TAG, "GATT error with status: $status")
+                        }
                         else {
-                            val nativeGATT = nativeGATTs.entries.first { entry -> entry.value.value === gatt }
-                            nativeGATTs.remove(nativeGATT.key)
+                            val nativeGATT =
+                                indexedGATTs.entries.first { entry -> entry.value.value === gatt }
+                            indexedGATTs.remove(nativeGATT.key)
                             val disconnect = disconnects.remove(gatt)
-                            if (disconnect != null) handler.post { disconnect.error("GATT error with status: $status", null, null) }
-                            else {
+                            if (disconnect == null) {
                                 val connectionLost = GattConnectionLost.newBuilder()
-                                        .setKey(nativeGATT.key)
-                                        .setError("GATT error with status: $status")
-                                        .build()
+                                    .setKey(nativeGATT.key)
+                                    .setError("GATT error with status: $status")
+                                    .build()
                                 val event = Message.newBuilder()
-                                        .setCategory(GATT_CONNECTION_LOST)
-                                        .setConnectionLost(connectionLost)
-                                        .build()
-                                        .toByteArray()
-                                handler.post { events?.success(event) }
+                                    .setCategory(GATT_CONNECTION_LOST)
+                                    .setConnectionLost(connectionLost)
+                                    .build()
+                                    .toByteArray()
+                                invokeOnMainThread { eventSink?.success(event) }
+                            } else invokeOnMainThread {
+                                disconnect.error(TAG, "GATT error with status: $status")
                             }
                         }
                     }
@@ -244,146 +439,226 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 val maximumWriteLength = maximumWriteLengths.remove(gatt)!!
                 when (status) {
                     BluetoothGatt.GATT_SUCCESS -> {
-                        val nativeServices = mutableMapOf<String, NativeGattService>()
+                        val nativeServices = mutableMapOf<String, IndexedGattService>()
                         val messageServices = mutableListOf<GattService>()
                         for (service in gatt!!.services) {
-                            val nativeCharacteristics = mutableMapOf<String, NativeGattCharacteristic>()
+                            val nativeCharacteristics =
+                                mutableMapOf<String, IndexedGattCharacteristic>()
                             val messageCharacteristics = mutableListOf<GattCharacteristic>()
                             for (characteristic in service.characteristics) {
-                                val nativeDescriptors = mutableMapOf<String, NativeGattDescriptor>()
+                                val nativeDescriptors =
+                                    mutableMapOf<String, IndexedGattDescriptor>()
                                 val messageDescriptors = mutableListOf<GattDescriptor>()
                                 for (descriptor in characteristic.descriptors) {
                                     // Add native descriptor.
-                                    val nativeDescriptor = NativeGattDescriptor(descriptor)
-                                    nativeDescriptors[nativeDescriptor.key] = nativeDescriptor
+                                    val nativeDescriptor = IndexedGattDescriptor(descriptor)
+                                    nativeDescriptors[nativeDescriptor.indexedUUID] =
+                                        nativeDescriptor
                                     // Add message descriptor.
                                     val descriptorUUID = descriptor.uuid.toString()
                                     val messageDescriptor = GattDescriptor.newBuilder()
-                                            .setKey(nativeDescriptor.key)
-                                            .setUuid(descriptorUUID)
-                                            .build()
+                                        .setKey(nativeDescriptor.indexedUUID)
+                                        .setUuid(descriptorUUID)
+                                        .build()
                                     messageDescriptors.add(messageDescriptor)
                                 }
                                 // Add native characteristic.
-                                val nativeCharacteristic = NativeGattCharacteristic(characteristic, nativeDescriptors)
-                                nativeCharacteristics[nativeCharacteristic.key] = nativeCharacteristic
+                                val nativeCharacteristic =
+                                    IndexedGattCharacteristic(
+                                        characteristic,
+                                        nativeDescriptors
+                                    )
+                                nativeCharacteristics[nativeCharacteristic.indexedUUID] =
+                                    nativeCharacteristic
                                 // Add message characteristic.
                                 val characteristicUUID = characteristic.uuid.toString()
-                                val canRead = characteristic.properties and BluetoothGattCharacteristic.PROPERTY_READ != 0
-                                val canWrite = characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE != 0
-                                val canWriteWithoutResponse = characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE != 0
-                                val canNotify = characteristic.properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY != 0
+                                val canRead =
+                                    characteristic.properties and BluetoothGattCharacteristic.PROPERTY_READ != 0
+                                val canWrite =
+                                    characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE != 0
+                                val canWriteWithoutResponse =
+                                    characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE != 0
+                                val canNotify =
+                                    characteristic.properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY != 0
                                 val messageCharacteristic = GattCharacteristic.newBuilder()
-                                        .setKey(nativeCharacteristic.key)
-                                        .setUuid(characteristicUUID)
-                                        .setCanRead(canRead)
-                                        .setCanWrite(canWrite)
-                                        .setCanWriteWithoutResponse(canWriteWithoutResponse)
-                                        .setCanNotify(canNotify)
-                                        .addAllDescriptors(messageDescriptors)
-                                        .build()
+                                    .setKey(nativeCharacteristic.indexedUUID)
+                                    .setUuid(characteristicUUID)
+                                    .setCanRead(canRead)
+                                    .setCanWrite(canWrite)
+                                    .setCanWriteWithoutResponse(canWriteWithoutResponse)
+                                    .setCanNotify(canNotify)
+                                    .addAllDescriptors(messageDescriptors)
+                                    .build()
                                 messageCharacteristics.add(messageCharacteristic)
                             }
                             // Add native service.
-                            val nativeService = NativeGattService(service, nativeCharacteristics)
-                            nativeServices[nativeService.key] = nativeService
+                            val nativeService =
+                                IndexedGattService(service, nativeCharacteristics)
+                            nativeServices[nativeService.indexedUUID] = nativeService
                             // Add message service.
                             val serviceUUID = service.uuid.toString()
                             val messageService = GattService.newBuilder()
-                                    .setKey(nativeService.key)
-                                    .setUuid(serviceUUID)
-                                    .addAllCharacteristics(messageCharacteristics)
-                                    .build()
+                                .setKey(nativeService.indexedUUID)
+                                .setUuid(serviceUUID)
+                                .addAllCharacteristics(messageCharacteristics)
+                                .build()
                             messageServices.add(messageService)
                         }
                         // Add native gatt.
-                        val nativeGATT = NativeGATT(gatt, nativeServices)
-                        nativeGATTs[nativeGATT.key] = nativeGATT
+                        val nativeGATT = IndexedGATT(gatt, nativeServices)
+                        indexedGATTs[nativeGATT.indexedUUID] = nativeGATT
                         // Add message gatt.
                         val reply = GATT.newBuilder()
-                                .setKey(nativeGATT.key)
-                                .setMaximumWriteLength(maximumWriteLength)
-                                .addAllServices(messageServices)
-                                .build()
-                                .toByteArray()
+                            .setKey(nativeGATT.indexedUUID)
+                            .setMaximumWriteLength(maximumWriteLength)
+                            .addAllServices(messageServices)
+                            .build()
+                            .toByteArray()
                         val connect = connects.remove(gatt)!!
-                        handler.post { connect.success(reply) }
+                        invokeOnMainThread { connect.success(reply) }
                     }
                     else -> gatt!!.disconnect()
                 }
             }
 
-            override fun onCharacteristicRead(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
+            override fun onCharacteristicRead(
+                gatt: BluetoothGatt?,
+                characteristic: BluetoothGattCharacteristic?,
+                status: Int
+            ) {
                 super.onCharacteristicRead(gatt, characteristic, status)
                 val read = characteristicReads.remove(characteristic)!!
                 when (status) {
-                    BluetoothGatt.GATT_SUCCESS -> handler.post { read.success(characteristic!!.value) }
-                    else -> handler.post { read.error("GATT error with status: $status", null, null) }
+                    BluetoothGatt.GATT_SUCCESS -> invokeOnMainThread {
+                        read.success(characteristic!!.value)
+                    }
+                    else -> invokeOnMainThread {
+                        read.error(TAG, "GATT error with status: $status")
+                    }
                 }
             }
 
-            override fun onCharacteristicWrite(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
+            override fun onCharacteristicWrite(
+                gatt: BluetoothGatt?,
+                characteristic: BluetoothGattCharacteristic?,
+                status: Int
+            ) {
                 super.onCharacteristicWrite(gatt, characteristic, status)
                 val write = characteristicWrites.remove(characteristic)!!
                 when (status) {
-                    BluetoothGatt.GATT_SUCCESS -> handler.post { write.success() }
-                    else -> handler.post { write.error("GATT error with status: $status", null, null) }
+                    BluetoothGatt.GATT_SUCCESS -> invokeOnMainThread { write.success() }
+                    else -> invokeOnMainThread {
+                        write.error(TAG, "GATT error with status: $status")
+                    }
                 }
             }
 
-            override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
+            override fun onCharacteristicChanged(
+                gatt: BluetoothGatt?,
+                characteristic: BluetoothGattCharacteristic?
+            ) {
                 super.onCharacteristicChanged(gatt, characteristic)
-                val nativeGATT = nativeGATTs.values.first { entry -> entry.value === gatt }
-                val nativeService = nativeGATT.services.values.first { entry -> entry.value === characteristic!!.service }
-                val nativeCharacteristic = nativeService.characteristics.values.first { entry -> entry.value === characteristic }
+                val nativeGATT = indexedGATTs.values.first { entry -> entry.value === gatt }
+                val nativeService =
+                    nativeGATT.services.values.first { entry -> entry.value === characteristic!!.service }
+                val nativeCharacteristic =
+                    nativeService.characteristics.values.first { entry -> entry.value === characteristic }
                 val value = ByteString.copyFrom(characteristic!!.value)
                 val characteristicValue = GattCharacteristicValue.newBuilder()
-                        .setGattKey(nativeGATT.key)
-                        .setServiceKey(nativeService.key)
-                        .setKey(nativeCharacteristic.key)
-                        .setValue(value)
-                        .build()
+                    .setGattKey(nativeGATT.indexedUUID)
+                    .setServiceKey(nativeService.indexedUUID)
+                    .setKey(nativeCharacteristic.indexedUUID)
+                    .setValue(value)
+                    .build()
                 val event = Message.newBuilder()
-                        .setCategory(GATT_CHARACTERISTIC_NOTIFY)
-                        .setCharacteristicValue(characteristicValue)
-                        .build()
-                        .toByteArray()
-                handler.post { events?.success(event) }
+                    .setCategory(GATT_CHARACTERISTIC_NOTIFY)
+                    .setCharacteristicValue(characteristicValue)
+                    .build()
+                    .toByteArray()
+                invokeOnMainThread { eventSink?.success(event) }
             }
 
-            override fun onDescriptorRead(gatt: BluetoothGatt?, descriptor: BluetoothGattDescriptor?, status: Int) {
+            override fun onDescriptorRead(
+                gatt: BluetoothGatt?,
+                descriptor: BluetoothGattDescriptor?,
+                status: Int
+            ) {
                 super.onDescriptorRead(gatt, descriptor, status)
                 val read = descriptorReads.remove(descriptor)!!
                 when (status) {
-                    BluetoothGatt.GATT_SUCCESS -> handler.post { read.success(descriptor!!.value) }
-                    else -> handler.post { read.error("GATT error with status: $status", null, null) }
+                    BluetoothGatt.GATT_SUCCESS -> invokeOnMainThread {
+                        read.success(descriptor!!.value)
+                    }
+                    else -> invokeOnMainThread {
+                        read.error(TAG, "GATT error with status: $status")
+                    }
                 }
             }
 
-            override fun onDescriptorWrite(gatt: BluetoothGatt?, descriptor: BluetoothGattDescriptor?, status: Int) {
+            override fun onDescriptorWrite(
+                gatt: BluetoothGatt?,
+                descriptor: BluetoothGattDescriptor?,
+                status: Int
+            ) {
                 super.onDescriptorWrite(gatt, descriptor, status)
                 val write = descriptorWrites.remove(descriptor)!!
                 when (status) {
-                    BluetoothGatt.GATT_SUCCESS -> handler.post { write.success() }
-                    else -> handler.post { write.error("GATT error with status: $status", null, null) }
+                    BluetoothGatt.GATT_SUCCESS -> invokeOnMainThread { write.success() }
+                    else -> invokeOnMainThread {
+                        write.error(TAG, "GATT error with status: $status")
+                    }
                 }
             }
         }
+    }
+
+    override fun onAttachedToEngine(@NonNull binding: FlutterPluginBinding) {
+        val messenger = binding.binaryMessenger
+        MethodChannel(messenger, "$NAMESPACE/method").setMethodCallHandler(methodCallHandler)
+        EventChannel(messenger, "$NAMESPACE/event").setStreamHandler(streamHandler)
+    }
+
+    override fun onDetachedFromEngine(@NonNull binding: FlutterPluginBinding) {}
+
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        this.binding = binding
+        binding.addRequestPermissionsResultListener(requestPermissionsResultListener)
+        // Register bluetooth adapter state receiver.
+        val bluetoothStateFilter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+        binding.activity.registerReceiver(bluetoothStateReceiver, bluetoothStateFilter)
+    }
+
+    override fun onDetachedFromActivity() {
+        // Clear connections.
+        for (nativeGATT in indexedGATTs.values) nativeGATT.value.disconnect()
+        // Stop scan.
+        if (scanning) stopScan()
+        // Unregister bluetooth adapter state receiver.
+        binding.activity.unregisterReceiver(bluetoothStateReceiver)
+        binding.removeRequestPermissionsResultListener(requestPermissionsResultListener)
+    }
+
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        onAttachedToActivity(binding)
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() {
+        onDetachedFromActivity()
     }
 
     private fun startScan(services: List<String>, startScanHandler: StartScanHandler) {
         val filters = services.map { service ->
             val serviceUUID = ParcelUuid.fromString(service)
             ScanFilter.Builder()
-                    .setServiceUuid(serviceUUID)
-                    .build()
+                .setServiceUuid(serviceUUID)
+                .build()
         }
         val settings = ScanSettings.Builder()
-                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                .build()
+            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+            .build()
         bluetoothAdapter.bluetoothLeScanner.startScan(filters, settings, scanCallback)
-        // use handler.post to delay until #onScanFailed executed.
-        handler.post {
+        // use invokeOnMainThread to delay until #onScanFailed executed.
+        invokeOnMainThread {
             val code = scanCode
             when (code) {
                 NO_ERROR -> scanning = true
@@ -398,195 +673,59 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
         scanning = false
     }
 
-    override fun onAttachedToEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-        method = MethodChannel(binding.binaryMessenger, "$NAMESPACE/method")
-        method.setMethodCallHandler(this)
-        event = EventChannel(binding.binaryMessenger, "$NAMESPACE/event")
-        event.setStreamHandler(this)
-        context = binding.applicationContext
-        // Register bluetooth adapter state receiver.
-        val adapterStateFilter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-        context.registerReceiver(bluetoothStateReceiver, adapterStateFilter)
+    private fun invokeOnMainThread(action: Runnable) {
+        binding.activity.runOnUiThread(action)
     }
 
-    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-        // Clear connections.
-        for (nativeGATT in nativeGATTs.values) nativeGATT.value.disconnect()
-        // Stop scan.
-        if (scanning) stopScan()
-        // Unregister bluetooth adapter state receiver.
-        context.unregisterReceiver(bluetoothStateReceiver)
-        event.setStreamHandler(null)
-        method.setMethodCallHandler(null)
-    }
-
-    override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-        val data = call.arguments<ByteArray>()
-        val command = Message.parseFrom(data)
-        when (command.category!!) {
-            BLUETOOTH_STATE -> result.success(bluetoothState.number)
-            CENTRAL_START_DISCOVERY -> {
-                val startDiscovery = Runnable {
-                    val services = command.startDiscoveryArguments.servicesList
-                    val startScanHandler: StartScanHandler = { code ->
-                        when (code) {
-                            NO_ERROR -> result.success()
-                            else -> result.error("Discovery start failed with code: $code", null, null)
-                        }
-                    }
-                    startScan(services, startScanHandler)
-                }
-                when {
-                    hasPermission -> startDiscovery.run()
-                    else -> {
-                        requestPermissionsHandler = { granted ->
-                            if (granted) startDiscovery.run()
-                            else result.error("Discovery start failed because `ACCESS_FINE_LOCATION` was denied by user.", null, null)
-                        }
-                        val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-                        ActivityCompat.requestPermissions(binding!!.activity, permissions, REQUEST_CODE)
-                    }
-                }
-            }
-            CENTRAL_STOP_DISCOVERY -> {
-                stopScan()
-                result.success()
-            }
-            CENTRAL_CONNECT -> {
-                val device = bluetoothAdapter.getRemoteDevice(command.connectArguments.uuid.address)
-                val gatt = when {
-                    // Use TRANSPORT_LE to avoid none flag device on Android 23 or later.
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> device.connectGatt(context, false, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE)
-                    else -> device.connectGatt(context, false, bluetoothGattCallback)
-                }
-                connects[gatt] = result
-            }
-            GATT_DISCONNECT -> {
-                val nativeGATT = nativeGATTs[command.disconnectArguments.key]!!
-                disconnects[nativeGATT.value] = result
-                nativeGATT.value.disconnect()
-            }
-            GATT_CHARACTERISTIC_READ -> {
-                val nativeGATT = nativeGATTs[command.characteristicReadArguments.gattKey]!!
-                val nativeService = nativeGATT.services[command.characteristicReadArguments.serviceKey]!!
-                val nativeCharacteristic = nativeService.characteristics[command.characteristicReadArguments.key]!!
-                val read = nativeGATT.value.readCharacteristic(nativeCharacteristic.value)
-                if (read) characteristicReads[nativeCharacteristic.value] = result
-                else result.error("Characteristic read failed.", null, null)
-            }
-            GATT_CHARACTERISTIC_WRITE -> {
-                val nativeGATT = nativeGATTs[command.characteristicWriteArguments.gattKey]!!
-                val nativeService = nativeGATT.services[command.characteristicWriteArguments.serviceKey]!!
-                val nativeCharacteristic = nativeService.characteristics[command.characteristicWriteArguments.key]!!
-                nativeCharacteristic.value.writeType =
-                        if (command.characteristicWriteArguments.withoutResponse) BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
-                        else BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-                nativeCharacteristic.value.value = command.characteristicWriteArguments.value.toByteArray()
-                val written = nativeGATT.value.writeCharacteristic(nativeCharacteristic.value)
-                if (written) characteristicWrites[nativeCharacteristic.value] = result
-                else result.error("Characteristic write failed.", null, null)
-            }
-            GATT_CHARACTERISTIC_NOTIFY -> {
-                val nativeGATT = nativeGATTs[command.characteristicNotifyArguments.gattKey]!!
-                val nativeService = nativeGATT.services[command.characteristicNotifyArguments.serviceKey]!!
-                val nativeCharacteristic = nativeService.characteristics[command.characteristicNotifyArguments.key]!!
-                val descriptorUUID = UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG)
-                val descriptor = nativeCharacteristic.value.getDescriptor(descriptorUUID)
-                val notified = nativeGATT.value.setCharacteristicNotification(nativeCharacteristic.value, command.characteristicNotifyArguments.state)
-                if (notified) {
-                    descriptor.value =
-                            if (command.characteristicNotifyArguments.state) BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                            else BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
-                    val written = nativeGATT.value.writeDescriptor(descriptor)
-                    if (written) descriptorWrites[descriptor] = result
-                    else result.error("Client characteristic config descriptor write failed.", null, null)
-                } else result.error("Characteristic Notify failed.", null, null)
-            }
-            GATT_DESCRIPTOR_READ -> {
-                val nativeGATT = nativeGATTs[command.descriptorReadArguments.gattKey]!!
-                val nativeService = nativeGATT.services[command.descriptorReadArguments.serviceKey]!!
-                val nativeCharacteristic = nativeService.characteristics[command.descriptorReadArguments.characteristicKey]!!
-                val nativeDescriptor = nativeCharacteristic.descriptors[command.descriptorReadArguments.key]!!
-                val read = nativeGATT.value.readDescriptor(nativeDescriptor.value)
-                if (read) descriptorReads[nativeDescriptor.value] = result
-                else result.error("Descriptor read failed.", null, null)
-            }
-            GATT_DESCRIPTOR_WRITE -> {
-                val nativeGATT = nativeGATTs[command.descriptorWriteArguments.gattKey]!!
-                val nativeService = nativeGATT.services[command.descriptorWriteArguments.serviceKey]!!
-                val nativeCharacteristic = nativeService.characteristics[command.descriptorWriteArguments.characteristicKey]!!
-                val nativeDescriptor = nativeCharacteristic.descriptors[command.descriptorWriteArguments.key]!!
-                nativeDescriptor.value.value = command.descriptorWriteArguments.value.toByteArray()
-                val written = nativeGATT.value.writeDescriptor(nativeDescriptor.value)
-                if (written) descriptorWrites[nativeDescriptor.value] = result
-                else result.error("Descriptor write failed.", null, null)
-            }
-            else -> result.notImplemented()
+    private fun toProtoBluetoothState(bluetoothState: Int): Messages.BluetoothState {
+        return when (bluetoothState) {
+            BluetoothAdapter.STATE_OFF -> Messages.BluetoothState.BLUETOOTH_STATE_POWERED_OFF
+            BluetoothAdapter.STATE_TURNING_ON -> Messages.BluetoothState.BLUETOOTH_STATE_POWERED_OFF
+            BluetoothAdapter.STATE_ON -> Messages.BluetoothState.BLUETOOTH_STATE_POWERED_ON
+            BluetoothAdapter.STATE_TURNING_OFF -> Messages.BluetoothState.BLUETOOTH_STATE_POWERED_ON
+            else -> Messages.BluetoothState.UNRECOGNIZED
         }
     }
 
-    override fun onListen(arguments: Any?, events: EventSink?) {
-        Log.d(TAG, "onListen")
-        this.events = events
-    }
-
-    override fun onCancel(arguments: Any?) {
-        Log.d(TAG, "onCancel")
-        // This must be a hot reload for now, clear all status here.
-        // Clear connections.
-        for (nativeGATT in nativeGATTs.values) nativeGATT.value.disconnect()
-        // Stop scan.
-        if (scanning) stopScan()
-        events = null
-    }
-
-    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        this.binding = binding
-        this.binding!!.addRequestPermissionsResultListener(this)
-    }
-
-    override fun onDetachedFromActivity() {
-        binding!!.removeRequestPermissionsResultListener(this)
-        binding = null
-    }
-
-    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-        onAttachedToActivity(binding)
-    }
-
-    override fun onDetachedFromActivityForConfigChanges() {
-        onDetachedFromActivity()
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>?, grantResults: IntArray?): Boolean {
-        return when {
-            requestCode != REQUEST_CODE || requestPermissionsHandler == null -> false
-            else -> {
-                val granted =
-                        grantResults != null && grantResults.all { result -> result == PackageManager.PERMISSION_GRANTED }
-                requestPermissionsHandler!!.invoke(granted)
-                requestPermissionsHandler = null
-                true
-            }
-        }
+    private fun toAddress(address: String): String {
+        return address.takeLast(12).chunked(2).joinToString(":").uppercase()
     }
 }
 
 val Any.TAG: String
     get() = this::class.java.simpleName
 
+val MethodCall.command: Messages.Command
+    get() {
+        val data = arguments<ByteArray>()
+        return Messages.Command.parseFrom(data)
+    }
+
 fun Result.success() {
     success(null)
 }
 
-val Int.messageState: BluetoothState
-    get() = when (this) {
-        BluetoothAdapter.STATE_OFF -> BluetoothState.POWERED_OFF
-        BluetoothAdapter.STATE_TURNING_ON -> BluetoothState.POWERED_OFF
-        BluetoothAdapter.STATE_ON -> BluetoothState.POWERED_ON
-        BluetoothAdapter.STATE_TURNING_OFF -> BluetoothState.POWERED_ON
-        else -> BluetoothState.UNRECOGNIZED
-    }
+fun Result.error(errorCode: String, errorMessage: String) {
+    error(errorCode, errorMessage, null)
+}
+
+fun Result.error(e: Exception) {
+    val errorCode = e.TAG
+    val errorMessage = e.localizedMessage
+    val errorDetails = e.stackTraceToString()
+    error(errorCode, errorMessage, errorDetails)
+}
+
+fun EventSink.error(errorCode: String, errorMessage: String) {
+    error(errorCode, errorMessage, null)
+}
+
+fun EventSink.error(e: Exception) {
+    val errorCode = e.TAG
+    val errorMessage = e.localizedMessage
+    val errorDetails = e.stackTraceToString()
+    error(errorCode, errorMessage, errorDetails)
+}
 
 val BluetoothDevice.uuid: String
     get() {
@@ -594,6 +733,3 @@ val BluetoothDevice.uuid: String
         // We don't known the timestamp of the bluetooth device, use nil UUID as prefix.
         return "00000000-0000-0000-0000-$node"
     }
-
-val String.address: String
-    get() = takeLast(12).chunked(2).joinToString(":").uppercase()

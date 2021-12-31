@@ -1,0 +1,158 @@
+syntax = "proto3";
+package dev.yanshouwang.bluetooth_low_energy;
+
+message Command {
+  CommandCategory category = 1;
+  oneof stub {
+    CentralStartDiscoveryCommand central_start_discovery_command = 2;
+    CentralConnectCommand central_connect_command = 3;
+    GattDisconnectCommand gatt_disconnect_command = 4;
+    GattCharacteristicReadCommand gatt_characteristic_read_command = 5;
+    GattCharacteristicWriteCommand gatt_characteristic_write_command = 6;
+    GattCharacteristicNotifyCommand gatt_characteristic_notify_command = 7;
+    GattDescriptorReadCommand gatt_descriptor_read_command = 8;
+    GattDescriptorWriteCommand gatt_descriptor_write_command = 9;
+  }
+}
+
+enum CommandCategory {
+  COMMAND_CATEGORY_BLUETOOTH_GET_STATE = 0;
+  COMMAND_CATEGORY_CENTRAL_START_DISCOVERY = 1;
+  COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY = 2;
+  COMMAND_CATEGORY_CENTRAL_CONNECT = 3;
+  COMMAND_CATEGORY_GATT_DISCONNECT = 4;
+  COMMAND_CATEGORY_GATT_CHARACTERISTIC_READ = 5;
+  COMMAND_CATEGORY_GATT_CHARACTERISTIC_WRITE = 6;
+  COMMAND_CATEGORY_GATT_CHARACTERISTIC_NOTIFY = 7;
+  COMMAND_CATEGORY_GATT_DESCRIPTOR_READ = 8;
+  COMMAND_CATEGORY_GATT_DESCRIPTOR_WRITE = 9;
+}
+
+message CentralStartDiscoveryCommand {
+  repeated string uuids = 1;
+}
+
+message CentralConnectCommand {
+  string uuid = 1;
+}
+
+message GattDisconnectCommand{
+  string hash_uuid = 1;
+}
+
+message GattCharacteristicReadCommand {
+  string gatt_hash_uuid = 1;
+  string gatt_service_hash_uuid = 2;
+  string hash_uuid = 3;
+}
+
+message GattCharacteristicWriteCommand {
+  string gatt_hash_uuid = 1;
+  string gatt_service_hash_uuid = 2;
+  string hash_uuid = 3;
+  bytes value = 4;
+  bool without_response = 5;
+}
+
+message GattCharacteristicNotifyCommand{
+  string gatt_hash_uuid = 1;
+  string gatt_service_hash_uuid = 2;
+  string hash_uuid = 3;
+  bool state = 4;
+}
+
+message GattDescriptorReadCommand {
+  string gatt_hash_uuid = 1;
+  string gatt_service_hash_uuid = 2;
+  string gatt_characteristic_hash_uuid = 3;
+  string hash_uuid = 4;
+}
+
+message GattDescriptorWriteCommand {
+  string gatt_hash_uuid = 1;
+  string gatt_service_hash_uuid = 2;
+  string gatt_characteristic_hash_uuid = 3;
+  string hash_uuid = 4;
+  bytes value = 5;
+}
+
+message CentralConnectReply {
+  GATT gatt = 1;
+}
+
+message Event {
+  EventCategory category = 1;
+  oneof stub {
+    BluetoothStateChangedEvent bluetooth_state_changed_event = 2;
+    CentralDiscoveredEvent central_discovered_event = 3;
+    GattConnectionLostEvent gatt_connection_lost_event = 4;
+    GattCharacteristicValueChangedEvent gatt_characteristic_value_changed_event = 5;
+  }
+}
+
+enum EventCategory {
+  EVENT_CATEGORY_BLUETOOTH_STATE_CHANGED = 0;
+  EVENT_CATEGORY_CENTRAL_DISCOVERED = 1;
+  EVENT_CATEGORY_GATT_CONNECTION_LOST = 2;
+  EVENT_CATEGORY_GATT_CHARACTERISTIC_VALUE_CHANGED = 3;
+}
+
+message BluetoothStateChangedEvent {
+  BluetoothState state = 1;
+}
+
+message CentralDiscoveredEvent {
+  PeripheralDiscovery peripheral_discovery = 1;
+}
+
+message GattConnectionLostEvent {
+  string hash_uuid = 1;
+  string error = 2;
+}
+
+message GattCharacteristicValueChangedEvent {
+  string gatt_hash_uuid = 1;
+  string gatt_service_hash_uuid = 2;
+  string hash_uuid = 3;
+  bytes value = 4;
+}
+
+enum BluetoothState {
+  BLUETOOTH_STATE_UNSUPPORTED = 0;
+  BLUETOOTH_STATE_POWERED_OFF = 1;
+  BLUETOOTH_STATE_POWERED_ON = 2;
+}
+
+message GATT {
+  string hash_uuid = 1;
+  int32 maximum_write_length = 2;
+  repeated GattService services = 3;
+}
+
+message GattService {
+  string hash_uuid = 1;
+  string uuid = 2;
+  repeated GattCharacteristic characteristics = 3;
+}
+
+message GattCharacteristic {
+  string hash_uuid = 1;
+  string uuid = 2;
+  bool can_read = 3;
+  bool can_write = 4;
+  bool can_write_without_response = 5;
+  bool can_notify = 6;
+  repeated GattDescriptor descriptors = 7;
+}
+
+message GattDescriptor {
+  string hash_uuid = 1;
+  string uuid = 2;
+}
+
+message PeripheralDiscovery {
+  string uuid = 1;
+  sint32 rssi = 2;
+  bytes advertisements = 3;
+  bool connectable = 4;
+}
