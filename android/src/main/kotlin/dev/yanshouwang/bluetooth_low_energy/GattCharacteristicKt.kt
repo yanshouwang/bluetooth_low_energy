@@ -23,20 +23,20 @@ public object GattCharacteristicKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.Messages.GattCharacteristic = _builder.build()
 
     /**
-     * <code>string hash_uuid = 1;</code>
+     * <code>string indexed_uuid = 1;</code>
      */
-    public var hashUuid: kotlin.String
-      @JvmName("getHashUuid")
-      get() = _builder.getHashUuid()
-      @JvmName("setHashUuid")
+    public var indexedUuid: kotlin.String
+      @JvmName("getIndexedUuid")
+      get() = _builder.getIndexedUuid()
+      @JvmName("setIndexedUuid")
       set(value) {
-        _builder.setHashUuid(value)
+        _builder.setIndexedUuid(value)
       }
     /**
-     * <code>string hash_uuid = 1;</code>
+     * <code>string indexed_uuid = 1;</code>
      */
-    public fun clearHashUuid() {
-      _builder.clearHashUuid()
+    public fun clearIndexedUuid() {
+      _builder.clearIndexedUuid()
     }
 
     /**

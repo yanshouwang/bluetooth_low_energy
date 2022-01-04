@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
 import 'package:bluetooth_low_energy_example/models.dart';
@@ -28,7 +29,7 @@ class _GattViewState extends State<GattView> {
   final ListNotifier<Log> logs;
   final ValueNotifier<Encoding> encoding;
 
-  late Discovery discovery;
+  late PeripheralDiscovery discovery;
 
   GATT? gatt;
   StreamSubscription<Exception>? connectionLostSubscription;
@@ -58,7 +59,7 @@ class _GattViewState extends State<GattView> {
 
   @override
   Widget build(BuildContext context) {
-    discovery = context.arguments<Discovery>();
+    discovery = context.arguments<PeripheralDiscovery>();
     return view;
   }
 
@@ -129,13 +130,15 @@ class _GattViewState extends State<GattView> {
 
   Future<void> write() async {
     final characteristic = this.characteristic.value!;
-    List<int> value;
+    Uint8List value;
     switch (encoding.value) {
       case Encoding.utf8:
-        value = utf8.encode(writeController.text);
+        final elements = utf8.encode(writeController.text);
+        value = Uint8List.fromList(elements);
         break;
       case Encoding.hex:
-        value = hex.decode(writeController.text);
+        final elements = hex.decode(writeController.text);
+        value = Uint8List.fromList(elements);
         break;
       default:
         throw ArgumentError.value(encoding.value);

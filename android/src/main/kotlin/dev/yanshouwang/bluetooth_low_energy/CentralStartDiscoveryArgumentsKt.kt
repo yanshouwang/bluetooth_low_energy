@@ -4,23 +4,23 @@
 package dev.yanshouwang.bluetooth_low_energy;
 
 @kotlin.jvm.JvmSynthetic
-public inline fun centralStartDiscoveryCommand(block: dev.yanshouwang.bluetooth_low_energy.CentralStartDiscoveryCommandKt.Dsl.() -> kotlin.Unit): dev.yanshouwang.bluetooth_low_energy.Messages.CentralStartDiscoveryCommand =
-  dev.yanshouwang.bluetooth_low_energy.CentralStartDiscoveryCommandKt.Dsl._create(dev.yanshouwang.bluetooth_low_energy.Messages.CentralStartDiscoveryCommand.newBuilder()).apply { block() }._build()
-public object CentralStartDiscoveryCommandKt {
+public inline fun centralStartDiscoveryArguments(block: dev.yanshouwang.bluetooth_low_energy.CentralStartDiscoveryArgumentsKt.Dsl.() -> kotlin.Unit): dev.yanshouwang.bluetooth_low_energy.Messages.CentralStartDiscoveryArguments =
+  dev.yanshouwang.bluetooth_low_energy.CentralStartDiscoveryArgumentsKt.Dsl._create(dev.yanshouwang.bluetooth_low_energy.Messages.CentralStartDiscoveryArguments.newBuilder()).apply { block() }._build()
+public object CentralStartDiscoveryArgumentsKt {
   @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
   @com.google.protobuf.kotlin.ProtoDslMarker
   public class Dsl private constructor(
-    private val _builder: dev.yanshouwang.bluetooth_low_energy.Messages.CentralStartDiscoveryCommand.Builder
+    private val _builder: dev.yanshouwang.bluetooth_low_energy.Messages.CentralStartDiscoveryArguments.Builder
   ) {
     public companion object {
       @kotlin.jvm.JvmSynthetic
       @kotlin.PublishedApi
-      internal fun _create(builder: dev.yanshouwang.bluetooth_low_energy.Messages.CentralStartDiscoveryCommand.Builder): Dsl = Dsl(builder)
+      internal fun _create(builder: dev.yanshouwang.bluetooth_low_energy.Messages.CentralStartDiscoveryArguments.Builder): Dsl = Dsl(builder)
     }
 
     @kotlin.jvm.JvmSynthetic
     @kotlin.PublishedApi
-    internal fun _build(): dev.yanshouwang.bluetooth_low_energy.Messages.CentralStartDiscoveryCommand = _builder.build()
+    internal fun _build(): dev.yanshouwang.bluetooth_low_energy.Messages.CentralStartDiscoveryArguments = _builder.build()
 
     /**
      * An uninstantiable, behaviorless type to represent the field in
@@ -94,5 +94,5 @@ public object CentralStartDiscoveryCommandKt {
     }}
 }
 @kotlin.jvm.JvmSynthetic
-public inline fun dev.yanshouwang.bluetooth_low_energy.Messages.CentralStartDiscoveryCommand.copy(block: dev.yanshouwang.bluetooth_low_energy.CentralStartDiscoveryCommandKt.Dsl.() -> kotlin.Unit): dev.yanshouwang.bluetooth_low_energy.Messages.CentralStartDiscoveryCommand =
-  dev.yanshouwang.bluetooth_low_energy.CentralStartDiscoveryCommandKt.Dsl._create(this.toBuilder()).apply { block() }._build()
+public inline fun dev.yanshouwang.bluetooth_low_energy.Messages.CentralStartDiscoveryArguments.copy(block: dev.yanshouwang.bluetooth_low_energy.CentralStartDiscoveryArgumentsKt.Dsl.() -> kotlin.Unit): dev.yanshouwang.bluetooth_low_energy.Messages.CentralStartDiscoveryArguments =
+  dev.yanshouwang.bluetooth_low_energy.CentralStartDiscoveryArgumentsKt.Dsl._create(this.toBuilder()).apply { block() }._build()

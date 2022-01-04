@@ -16,9 +16,9 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   final ValueNotifier<bool> state;
   final ValueNotifier<bool> discovering;
-  final MapNotifier<UUID, Discovery> discoveries;
+  final MapNotifier<UUID, PeripheralDiscovery> discoveries;
   late StreamSubscription<BluetoothState> stateSubscription;
-  late StreamSubscription<Discovery> discoverySubscription;
+  late StreamSubscription<PeripheralDiscovery> discoverySubscription;
 
   _HomeViewState()
       : state = ValueNotifier(false),
@@ -46,7 +46,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> setup() async {
-    final state = await central.state;
+    final state = await central.getState();
     this.state.value = state == BluetoothState.poweredOn;
     stateSubscription = central.stateChanged.listen(
       (state) {
@@ -88,7 +88,7 @@ class _HomeViewState extends State<HomeView> {
     discoveries.value = {};
   }
 
-  Future<void> showAdvertisements(Discovery discovery) async {
+  Future<void> showAdvertisements(PeripheralDiscovery discovery) async {
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -97,7 +97,7 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Future<void> showGattView(Discovery discovery) async {
+  Future<void> showGattView(PeripheralDiscovery discovery) async {
     await stopDiscovery();
     await Navigator.of(context).pushNamed(
       'gatt',
@@ -125,9 +125,9 @@ extension on _HomeViewState {
 
   Widget get discoveriesView => RefreshIndicator(
         onRefresh: () async => await updateDiscoveries(),
-        child: ValueListenableBuilder(
+        child: ValueListenableBuilder<Map<UUID, PeripheralDiscovery>>(
           valueListenable: discoveries,
-          builder: (context, Map<UUID, Discovery> discoveries, child) {
+          builder: (context, discoveries, child) {
             return ListView.builder(
               padding: const EdgeInsets.all(6.0),
               itemCount: discoveries.length,
@@ -187,7 +187,7 @@ extension on _HomeViewState {
       );
 }
 
-extension on Discovery {
+extension on PeripheralDiscovery {
   Widget get view {
     final widgets = <Widget>[
       Row(

@@ -1,116 +1,37 @@
-part of bluetooth_low_energy;
+import 'dart:typed_data';
 
-/// TO BE DONE.
+import 'gatt_descriptor.dart';
+import 'uuid.dart';
+
+/// The GATT characteristic.
 abstract class GattCharacteristic {
-  /// TO BE DONE.
+  /// The [UUID] of this [GattCharacteristic].
   UUID get uuid;
 
-  /// TO BE DONE.
+  /// Indicate whether this [GattCharacteristic] can read.
   bool get canRead;
 
-  /// TO BE DONE.
+  /// Indicate whether this [GattCharacteristic] can write.
   bool get canWrite;
 
-  /// TO BE DONE.
+  /// Indicate whether this [GattCharacteristic] can write without response.
   bool get canWriteWithoutResponse;
 
-  /// TO BE DONE.
+  /// Indicate whether this [GattCharacteristic] can notify.
   bool get canNotify;
 
-  /// TO BE DONE.
+  /// The descriptors of this [GattCharacteristic].
   Map<UUID, GattDescriptor> get descriptors;
 
-  /// TO BE DONE.
-  Stream<List<int>> get valueChanged;
+  /// A stream for this [GattCharacteristic]'s value changed event.
+  Stream<Uint8List> get valueChanged;
 
   /// TO BE DONE.
-  Future<List<int>> read();
+  Future<Uint8List> read();
 
   /// TO BE DONE.
-  Future write(List<int> value, {bool withoutResponse = false});
+  Future<void> write(Uint8List value, {bool withoutResponse = false});
 
   /// TO BE DONE.
-  Future notify(bool state);
-}
-
-class _GattCharacteristic implements GattCharacteristic {
-  _GattCharacteristic(
-    this.gattKey,
-    this.serviceKey,
-    this.key,
-    this.uuid,
-    this.canRead,
-    this.canWrite,
-    this.canWriteWithoutResponse,
-    this.canNotify,
-    this.descriptors,
-  );
-
-  final String gattKey;
-  final String serviceKey;
-  final String key;
-  @override
-  final UUID uuid;
-  @override
-  final bool canRead;
-  @override
-  final bool canWrite;
-  @override
-  final bool canWriteWithoutResponse;
-  @override
-  final bool canNotify;
-  @override
-  final Map<UUID, GattDescriptor> descriptors;
-
-  @override
-  Stream<List<int>> get valueChanged => stream
-      .where((message) =>
-          message.category ==
-              proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY &&
-          message.characteristicValue.gattKey == gattKey &&
-          message.characteristicValue.serviceKey == serviceKey &&
-          message.characteristicValue.key == key)
-      .map((message) => message.characteristicValue.value);
-
-  @override
-  Future<List<int>> read() {
-    final message = proto.Message(
-      category: proto.MessageCategory.GATT_CHARACTERISTIC_READ,
-      characteristicReadArguments: proto.GattCharacteristicReadArguments(
-        gattKey: gattKey,
-        serviceKey: serviceKey,
-        key: key,
-      ),
-    ).writeToBuffer();
-    return method.invokeListMethod<int>('', message).then((value) => value!);
-  }
-
-  @override
-  Future write(List<int> value, {bool withoutResponse = false}) {
-    final message = proto.Message(
-      category: proto.MessageCategory.GATT_CHARACTERISTIC_WRITE,
-      characteristicWriteArguments: proto.GattCharacteristicWriteArguments(
-        gattKey: gattKey,
-        serviceKey: serviceKey,
-        key: key,
-        value: value,
-        withoutResponse: withoutResponse,
-      ),
-    ).writeToBuffer();
-    return method.invokeMethod('', message);
-  }
-
-  @override
-  Future notify(bool state) {
-    final message = proto.Message(
-      category: proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY,
-      characteristicNotifyArguments: proto.GattCharacteristicNotifyArguments(
-        gattKey: gattKey,
-        serviceKey: serviceKey,
-        key: key,
-        state: state,
-      ),
-    ).writeToBuffer();
-    return method.invokeMethod('', message);
-  }
+  Future<void> notify(bool state);
 }

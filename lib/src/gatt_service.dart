@@ -1,21 +1,11 @@
-part of bluetooth_low_energy;
+import 'gatt_characteristic.dart';
+import 'uuid.dart';
 
-/// TO BE DONE.
+/// The GATT service.
 abstract class GattService {
-  /// TO BE DONE.
+  /// The uuid of this [GattService].
   UUID get uuid;
 
-  /// TO BE DONE.
+  /// The characteristics of this [GattService].
   Map<UUID, GattCharacteristic> get characteristics;
-}
-
-class _GattService implements GattService {
-  _GattService(this.gattKey, this.key, this.uuid, this.characteristics);
-
-  final String gattKey;
-  final String key;
-  @override
-  final UUID uuid;
-  @override
-  final Map<UUID, GattCharacteristic> characteristics;
 }

@@ -26,14 +26,12 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener
-
-const val NAMESPACE = "yanshouwang.dev/bluetooth_low_energy"
-
-typealias StartScanHandler = (code: Int) -> Unit
+import java.util.*
 
 /** BluetoothLowEnergyPlugin */
 class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
     companion object {
+        private const val NAMESPACE = "yanshouwang.dev/bluetooth_low_energy"
         private const val CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
         private const val BLUETOOTH_ADAPTER_STATE_UNKNOWN = -1
         private const val NO_ERROR = 0
@@ -49,142 +47,206 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
             val command = call.command
             when (command.category!!) {
                 Messages.CommandCategory.COMMAND_CATEGORY_BLUETOOTH_GET_STATE -> {
-                    result.success(bluetoothState.number)
+                    val state = bluetoothState.number
+                    result.success(state)
                 }
                 Messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_START_DISCOVERY -> {
                     val startDiscovery = Runnable {
-                        val services = command.startDiscoveryArguments.servicesList
-                        val startScanHandler: StartScanHandler = { code ->
-                            when (code) {
-                                NO_ERROR -> result.success()
-                                else -> result.error(
-                                    "Discovery start failed with code: $code",
-                                    null,
-                                    null
-                                )
+                        val arguments = command.centralStartDiscoveryArguments
+                        val uuids = arguments.uuidsList
+                        val filters = uuids.map { uuid ->
+                            val serviceUUID = ParcelUuid.fromString(uuid)
+                            ScanFilter.Builder()
+                                .setServiceUuid(serviceUUID)
+                                .build()
+                        }
+                        val settings = ScanSettings.Builder()
+                            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                            .build()
+                        bluetoothAdapter.bluetoothLeScanner.startScan(
+                            filters,
+                            settings,
+                            scanCallback
+                        )
+                        // use invokeOnMainThread to delay until #onScanFailed executed.
+                        invokeOnMainThread {
+                            when (val code = scanCode) {
+                                NO_ERROR -> {
+                                    result.success()
+                                    scanning = true
+                                }
+                                else -> {
+                                    result.error(TAG, "Start discovery failed with code: $code")
+                                    scanCode = NO_ERROR
+                                }
                             }
                         }
-                        startScan(services, startScanHandler)
                     }
-                    when {
-                        hasPermission -> startDiscovery.run()
-                        else -> {
-                            requestPermissionsHandler = { granted ->
-                                if (granted) startDiscovery.run()
-                                else result.error(
-                                    "Discovery start failed because `ACCESS_FINE_LOCATION` was denied by user.",
-                                    null,
-                                    null
-                                )
-                            }
-                            val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-                            ActivityCompat.requestPermissions(
-                                binding!!.activity,
-                                permissions,
-                                REQUEST_CODE
+                    val hasPermission = ContextCompat.checkSelfPermission(
+                        binding.activity,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                    if (hasPermission) startDiscovery.run()
+                    else {
+                        requestPermissionResultListeners.add { granted ->
+                            if (granted) startDiscovery.run()
+                            else result.error(
+                                TAG,
+                                "Start discovery failed: Permissions request was denied by user."
                             )
                         }
+                        val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+                        ActivityCompat.requestPermissions(
+                            binding.activity,
+                            permissions,
+                            REQUEST_CODE
+                        )
                     }
                 }
                 Messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY -> {
-                    stopScan()
+                    bluetoothAdapter.bluetoothLeScanner.stopScan(scanCallback)
+                    scanning = false
                     result.success()
                 }
                 Messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT -> {
-                    val device =
-                        bluetoothAdapter.getRemoteDevice(command.connectArguments.uuid.address)
+                    val arguments = command.centralConnectArguments
+                    val uuid = arguments.uuid
+                    val address = toAddress(uuid)
+                    val device = bluetoothAdapter.getRemoteDevice(address)
+                    val context = binding.activity
+                    val autoConnect = false
                     val gatt = when {
                         // Use TRANSPORT_LE to avoid none flag device on Android 23 or later.
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> device.connectGatt(
                             context,
-                            false,
+                            autoConnect,
                             bluetoothGattCallback,
                             BluetoothDevice.TRANSPORT_LE
                         )
-                        else -> device.connectGatt(context, false, bluetoothGattCallback)
+                        else -> device.connectGatt(
+                            binding.activity,
+                            autoConnect,
+                            bluetoothGattCallback
+                        )
                     }
                     connects[gatt] = result
                 }
                 Messages.CommandCategory.COMMAND_CATEGORY_GATT_DISCONNECT -> {
-                    val nativeGATT = indexedGATTs[command.disconnectArguments.key]!!
-                    disconnects[nativeGATT.value] = result
-                    nativeGATT.value.disconnect()
+                    val arguments = command.gattDisconnectArguments
+                    val indexedUUID = arguments.indexedUuid
+                    val indexedGATT = indexedGATTs[indexedUUID]!!
+                    val gatt = indexedGATT.`object`
+                    disconnects[gatt] = result
+                    gatt.disconnect()
                 }
                 Messages.CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_READ -> {
-                    val nativeGATT = indexedGATTs[command.characteristicReadArguments.gattKey]!!
-                    val nativeService =
-                        nativeGATT.services[command.characteristicReadArguments.serviceKey]!!
-                    val nativeCharacteristic =
-                        nativeService.characteristics[command.characteristicReadArguments.key]!!
-                    val read = nativeGATT.value.readCharacteristic(nativeCharacteristic.value)
-                    if (read) characteristicReads[nativeCharacteristic.value] = result
-                    else result.error("Characteristic read failed.", null, null)
+                    val arguments = command.characteristicReadArguments
+                    val indexedGattUUID = arguments.indexedGattUuid
+                    val indexedServiceUUID = arguments.indexedServiceUuid
+                    val indexedUUID = arguments.indexedUuid
+                    val indexedGATT = indexedGATTs[indexedGattUUID]!!
+                    val indexedServices = indexedGATT.indexedServices
+                    val indexedService = indexedServices[indexedServiceUUID]!!
+                    val indexedCharacteristics = indexedService.indexedCharacteristics
+                    val indexedCharacteristic = indexedCharacteristics[indexedUUID]!!
+                    val gatt = indexedGATT.`object`
+                    val characteristic = indexedCharacteristic.`object`
+                    val readSuccessfully = gatt.readCharacteristic(characteristic)
+                    if (readSuccessfully) characteristicReads[characteristic] = result
+                    else result.error(TAG, "Read characteristic failed.")
                 }
                 Messages.CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_WRITE -> {
-                    val nativeGATT = indexedGATTs[command.characteristicWriteArguments.gattKey]!!
-                    val nativeService =
-                        nativeGATT.services[command.characteristicWriteArguments.serviceKey]!!
-                    val nativeCharacteristic =
-                        nativeService.characteristics[command.characteristicWriteArguments.key]!!
-                    nativeCharacteristic.value.writeType =
-                        if (command.characteristicWriteArguments.withoutResponse) BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+                    val arguments = command.characteristicWriteArguments
+                    val indexedGattUUID = arguments.indexedGattUuid
+                    val indexedServiceUUID = arguments.indexedServiceUuid
+                    val indexedUUID = arguments.indexedUuid
+                    val withoutResponse = arguments.withoutResponse
+                    val value = arguments.value.toByteArray()
+                    val indexedGATT = indexedGATTs[indexedGattUUID]!!
+                    val indexedServices = indexedGATT.indexedServices
+                    val indexedService = indexedServices[indexedServiceUUID]!!
+                    val indexedCharacteristics = indexedService.indexedCharacteristics
+                    val indexedCharacteristic = indexedCharacteristics[indexedUUID]!!
+                    val gatt = indexedGATT.`object`
+                    val characteristic = indexedCharacteristic.`object`
+                    characteristic.writeType =
+                        if (withoutResponse) BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
                         else BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-                    nativeCharacteristic.value.value =
-                        command.characteristicWriteArguments.value.toByteArray()
-                    val written = nativeGATT.value.writeCharacteristic(nativeCharacteristic.value)
-                    if (written) characteristicWrites[nativeCharacteristic.value] = result
-                    else result.error("Characteristic write failed.", null, null)
+                    characteristic.value = value
+                    val writeSuccessfully = gatt.writeCharacteristic(characteristic)
+                    if (writeSuccessfully) characteristicWrites[characteristic] = result
+                    else result.error(TAG, "Write characteristic failed.")
                 }
                 Messages.CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_NOTIFY -> {
-                    val nativeGATT = indexedGATTs[command.characteristicNotifyArguments.gattKey]!!
-                    val nativeService =
-                        nativeGATT.services[command.characteristicNotifyArguments.serviceKey]!!
-                    val nativeCharacteristic =
-                        nativeService.characteristics[command.characteristicNotifyArguments.key]!!
+                    val arguments = command.characteristicNotifyArguments
+                    val indexedGattUUID = arguments.indexedGattUuid
+                    val indexedServiceUUID = arguments.indexedServiceUuid
+                    val indexedUUID = arguments.indexedUuid
+                    val state = arguments.state
+                    val indexedGATT = indexedGATTs[indexedGattUUID]!!
+                    val indexedServices = indexedGATT.indexedServices
+                    val indexedService = indexedServices[indexedServiceUUID]!!
+                    val indexedCharacteristics = indexedService.indexedCharacteristics
+                    val indexedCharacteristic = indexedCharacteristics[indexedUUID]!!
+                    val gatt = indexedGATT.`object`
+                    val characteristic = indexedCharacteristic.`object`
                     val descriptorUUID = UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG)
-                    val descriptor = nativeCharacteristic.value.getDescriptor(descriptorUUID)
-                    val notified = nativeGATT.value.setCharacteristicNotification(
-                        nativeCharacteristic.value,
-                        command.characteristicNotifyArguments.state
-                    )
-                    if (notified) {
+                    val descriptor = characteristic.getDescriptor(descriptorUUID)
+                    val notifySuccessfully =
+                        gatt.setCharacteristicNotification(characteristic, state)
+                    if (notifySuccessfully) {
                         descriptor.value =
-                            if (command.characteristicNotifyArguments.state) BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                            if (state) BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
                             else BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
-                        val written = nativeGATT.value.writeDescriptor(descriptor)
-                        if (written) descriptorWrites[descriptor] = result
+                        val writeSuccessfully = gatt.writeDescriptor(descriptor)
+                        if (writeSuccessfully) descriptorWrites[descriptor] = result
                         else result.error(
-                            "Client characteristic config descriptor write failed.",
-                            null,
-                            null
+                            TAG,
+                            "Write client characteristic config descriptor failed."
                         )
-                    } else result.error("Characteristic Notify failed.", null, null)
+                    } else {
+                        result.error(TAG, "Notify characteristic failed.")
+                    }
                 }
                 Messages.CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_READ -> {
-                    val nativeGATT = indexedGATTs[command.descriptorReadArguments.gattKey]!!
-                    val nativeService =
-                        nativeGATT.services[command.descriptorReadArguments.serviceKey]!!
-                    val nativeCharacteristic =
-                        nativeService.characteristics[command.descriptorReadArguments.characteristicKey]!!
-                    val nativeDescriptor =
-                        nativeCharacteristic.descriptors[command.descriptorReadArguments.key]!!
-                    val read = nativeGATT.value.readDescriptor(nativeDescriptor.value)
-                    if (read) descriptorReads[nativeDescriptor.value] = result
-                    else result.error("Descriptor read failed.", null, null)
+                    val arguments = command.descriptorReadArguments
+                    val indexedGattUUID = arguments.indexedGattUuid
+                    val indexedServiceUUID = arguments.indexedServiceUuid
+                    val indexedCharacteristicUUID = arguments.indexedCharacteristicUuid
+                    val indexedUUID = arguments.indexedUuid
+                    val indexedGATT = indexedGATTs[indexedGattUUID]!!
+                    val indexedServices = indexedGATT.indexedServices
+                    val indexedService = indexedServices[indexedServiceUUID]!!
+                    val indexedCharacteristics = indexedService.indexedCharacteristics
+                    val indexedCharacteristic = indexedCharacteristics[indexedCharacteristicUUID]!!
+                    val indexedDescriptors = indexedCharacteristic.indexedDescriptors
+                    val indexedDescriptor = indexedDescriptors[indexedUUID]!!
+                    val gatt = indexedGATT.`object`
+                    val descriptor = indexedDescriptor.`object`
+                    val readSuccessfully = gatt.readDescriptor(descriptor)
+                    if (readSuccessfully) descriptorReads[descriptor] = result
+                    else result.error(TAG, "Read descriptor failed.")
                 }
                 Messages.CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_WRITE -> {
-                    val nativeGATT = indexedGATTs[command.descriptorWriteArguments.gattKey]!!
-                    val nativeService =
-                        nativeGATT.services[command.descriptorWriteArguments.serviceKey]!!
-                    val nativeCharacteristic =
-                        nativeService.characteristics[command.descriptorWriteArguments.characteristicKey]!!
-                    val nativeDescriptor =
-                        nativeCharacteristic.descriptors[command.descriptorWriteArguments.key]!!
-                    nativeDescriptor.value.value =
-                        command.descriptorWriteArguments.value.toByteArray()
-                    val written = nativeGATT.value.writeDescriptor(nativeDescriptor.value)
-                    if (written) descriptorWrites[nativeDescriptor.value] = result
-                    else result.error("Descriptor write failed.", null, null)
+                    val arguments = command.descriptorWriteArguments
+                    val indexedGattUUID = arguments.indexedGattUuid
+                    val indexedServiceUUID = arguments.indexedServiceUuid
+                    val indexedCharacteristicUUID = arguments.indexedCharacteristicUuid
+                    val indexedUUID = arguments.indexedUuid
+                    val value = arguments.value.toByteArray()
+                    val indexedGATT = indexedGATTs[indexedGattUUID]!!
+                    val indexedServices = indexedGATT.indexedServices
+                    val indexedService = indexedServices[indexedServiceUUID]!!
+                    val indexedCharacteristics = indexedService.indexedCharacteristics
+                    val indexedCharacteristic = indexedCharacteristics[indexedCharacteristicUUID]!!
+                    val indexedDescriptors = indexedCharacteristic.indexedDescriptors
+                    val indexedDescriptor = indexedDescriptors[indexedUUID]!!
+                    val gatt = indexedGATT.`object`
+                    val descriptor = indexedDescriptor.`object`
+                    descriptor.value = value
+                    val writeSuccessfully = gatt.writeDescriptor(descriptor)
+                    if (writeSuccessfully) descriptorWrites[descriptor] = result
+                    else result.error(TAG, "Write descriptor failed.")
                 }
                 Messages.CommandCategory.UNRECOGNIZED -> result.notImplemented()
             }
@@ -199,17 +261,14 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
 
             override fun onCancel(arguments: Any?) {
                 // This must be a hot reload for now, clear all status here.
-                // Clear connections.
-                for (nativeGATT in indexedGATTs.values) nativeGATT.value.disconnect()
-                // Stop scan.
-                if (scanning) stopScan()
+                clear()
                 eventSink = null
             }
         }
     }
 
     private val requestPermissionsResultListener by lazy {
-        RequestPermissionsResultListener { requestCode, permissions, grantResults ->
+        RequestPermissionsResultListener { requestCode, _, grantResults ->
             return@RequestPermissionsResultListener if (requestCode != REQUEST_CODE) false
             else {
                 val granted = grantResults.all { result ->
@@ -258,7 +317,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                 }
                 val event = event {
                     this.category = Messages.EventCategory.EVENT_CATEGORY_BLUETOOTH_STATE_CHANGED
-                    this.bluetoothStateChangedEvent = bluetoothStateChangedEvent {
+                    this.bluetoothStateChangedArguments = bluetoothStateChangedArguments {
                         this.state = state
                     }
                 }.toByteArray()
@@ -266,12 +325,6 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
             }
         }
     }
-
-    private val hasPermission
-        get() = ContextCompat.checkSelfPermission(
-            binding.activity,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
 
     private var scanCode = NO_ERROR
     private var scanning = false
@@ -306,8 +359,8 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                     else true
                 val event = event {
                     this.category = Messages.EventCategory.EVENT_CATEGORY_CENTRAL_DISCOVERED
-                    this.centralDiscoveredEvent = centralDiscoveredEvent {
-                        this.peripheralDiscovery = peripheralDiscovery {
+                    this.centralDiscoveredArguments = centralDiscoveredArguments {
+                        this.discovery = peripheralDiscovery {
                             this.uuid = result.device.uuid
                             this.rssi = result.rssi
                             this.advertisements = advertisements
@@ -333,8 +386,8 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                         else true
                     val event = event {
                         this.category = Messages.EventCategory.EVENT_CATEGORY_CENTRAL_DISCOVERED
-                        this.centralDiscoveredEvent = centralDiscoveredEvent {
-                            this.peripheralDiscovery = peripheralDiscovery {
+                        this.centralDiscoveredArguments = centralDiscoveredArguments {
+                            this.discovery = peripheralDiscovery {
                                 this.uuid = result.device.uuid
                                 this.rssi = result.rssi
                                 this.advertisements = advertisements
@@ -349,11 +402,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
     }
     private val bluetoothGattCallback by lazy {
         object : BluetoothGattCallback() {
-            override fun onConnectionStateChange(
-                gatt: BluetoothGatt?,
-                status: Int,
-                newState: Int
-            ) {
+            override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
                 super.onConnectionStateChange(gatt, status, newState)
                 when (status) {
                     BluetoothGatt.GATT_SUCCESS -> {
@@ -363,20 +412,21 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                                 gatt!!.close()
                                 val connect = connects.remove(gatt)
                                 if (connect == null) {
-                                    val nativeGATT =
-                                        indexedGATTs.entries.first { entry -> entry.value.value === gatt }
-                                    indexedGATTs.remove(nativeGATT.key)
+                                    val indexedGATT = indexedGATTs.entries.first { entry ->
+                                        entry.value.`object` === gatt
+                                    }
+                                    indexedGATTs.remove(indexedGATT.key)
                                     val disconnect = disconnects.remove(gatt)
                                     if (disconnect == null) {
-                                        val connectionLost = GattConnectionLost.newBuilder()
-                                            .setKey(nativeGATT.key)
-                                            .setError("GATT error with status: $status")
-                                            .build()
-                                        val event = Message.newBuilder()
-                                            .setCategory(GATT_CONNECTION_LOST)
-                                            .setConnectionLost(connectionLost)
-                                            .build()
-                                            .toByteArray()
+                                        val event = event {
+                                            this.category =
+                                                Messages.EventCategory.EVENT_CATEGORY_GATT_CONNECTION_LOST
+                                            this.gattConnectionLostArguments =
+                                                gattConnectionLostArguments {
+                                                    this.indexedUuid = indexedGATT.key
+                                                    this.error = "GATT error with status: $status"
+                                                }
+                                        }.toByteArray()
                                         invokeOnMainThread { eventSink?.success(event) }
                                     } else invokeOnMainThread { disconnect.success() }
                                 } else invokeOnMainThread {
@@ -395,28 +445,27 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                         // Maybe connect failed, disconnect failed or connection lost.
                         gatt!!.close()
                         val connect = connects.remove(gatt)
-                        if (connect != null) invokeOnMainThread {
-                            connect.error(TAG, "GATT error with status: $status")
-                        }
-                        else {
-                            val nativeGATT =
-                                indexedGATTs.entries.first { entry -> entry.value.value === gatt }
-                            indexedGATTs.remove(nativeGATT.key)
+                        if (connect == null) {
+                            val indexedGATT = indexedGATTs.entries.first { entry ->
+                                entry.value.`object` === gatt
+                            }
+                            indexedGATTs.remove(indexedGATT.key)
                             val disconnect = disconnects.remove(gatt)
                             if (disconnect == null) {
-                                val connectionLost = GattConnectionLost.newBuilder()
-                                    .setKey(nativeGATT.key)
-                                    .setError("GATT error with status: $status")
-                                    .build()
-                                val event = Message.newBuilder()
-                                    .setCategory(GATT_CONNECTION_LOST)
-                                    .setConnectionLost(connectionLost)
-                                    .build()
-                                    .toByteArray()
+                                val event = event {
+                                    this.category =
+                                        Messages.EventCategory.EVENT_CATEGORY_GATT_CONNECTION_LOST
+                                    this.gattConnectionLostArguments = gattConnectionLostArguments {
+                                        this.indexedUuid = indexedGATT.key
+                                        this.error = "GATT error with status: $status"
+                                    }
+                                }.toByteArray()
                                 invokeOnMainThread { eventSink?.success(event) }
                             } else invokeOnMainThread {
                                 disconnect.error(TAG, "GATT error with status: $status")
                             }
+                        } else invokeOnMainThread {
+                            connect.error(TAG, "GATT error with status: $status")
                         }
                     }
                 }
@@ -439,83 +488,70 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                 val maximumWriteLength = maximumWriteLengths.remove(gatt)!!
                 when (status) {
                     BluetoothGatt.GATT_SUCCESS -> {
-                        val nativeServices = mutableMapOf<String, IndexedGattService>()
-                        val messageServices = mutableListOf<GattService>()
+                        val indexedServices = mutableMapOf<String, IndexedGattService>()
+                        val replyServices = mutableListOf<Messages.GattService>()
                         for (service in gatt!!.services) {
-                            val nativeCharacteristics =
+                            val indexedCharacteristics =
                                 mutableMapOf<String, IndexedGattCharacteristic>()
-                            val messageCharacteristics = mutableListOf<GattCharacteristic>()
+                            val replyCharacteristics = mutableListOf<Messages.GattCharacteristic>()
                             for (characteristic in service.characteristics) {
-                                val nativeDescriptors =
+                                val indexedDescriptors =
                                     mutableMapOf<String, IndexedGattDescriptor>()
-                                val messageDescriptors = mutableListOf<GattDescriptor>()
+                                val replyDescriptors = mutableListOf<Messages.GattDescriptor>()
                                 for (descriptor in characteristic.descriptors) {
-                                    // Add native descriptor.
-                                    val nativeDescriptor = IndexedGattDescriptor(descriptor)
-                                    nativeDescriptors[nativeDescriptor.indexedUUID] =
-                                        nativeDescriptor
-                                    // Add message descriptor.
-                                    val descriptorUUID = descriptor.uuid.toString()
-                                    val messageDescriptor = GattDescriptor.newBuilder()
-                                        .setKey(nativeDescriptor.indexedUUID)
-                                        .setUuid(descriptorUUID)
-                                        .build()
-                                    messageDescriptors.add(messageDescriptor)
+                                    // Add indexed descriptor.
+                                    val indexedDescriptor = IndexedGattDescriptor(descriptor)
+                                    indexedDescriptors[indexedDescriptor.uuid] = indexedDescriptor
+                                    // Add reply descriptor.
+                                    val replyDescriptor = gattDescriptor {
+                                        this.indexedUuid = indexedDescriptor.uuid
+                                        this.uuid = descriptor.uuid.toString()
+                                    }
+                                    replyDescriptors.add(replyDescriptor)
                                 }
-                                // Add native characteristic.
-                                val nativeCharacteristic =
-                                    IndexedGattCharacteristic(
-                                        characteristic,
-                                        nativeDescriptors
-                                    )
-                                nativeCharacteristics[nativeCharacteristic.indexedUUID] =
-                                    nativeCharacteristic
-                                // Add message characteristic.
-                                val characteristicUUID = characteristic.uuid.toString()
-                                val canRead =
-                                    characteristic.properties and BluetoothGattCharacteristic.PROPERTY_READ != 0
-                                val canWrite =
-                                    characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE != 0
-                                val canWriteWithoutResponse =
-                                    characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE != 0
-                                val canNotify =
-                                    characteristic.properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY != 0
-                                val messageCharacteristic = GattCharacteristic.newBuilder()
-                                    .setKey(nativeCharacteristic.indexedUUID)
-                                    .setUuid(characteristicUUID)
-                                    .setCanRead(canRead)
-                                    .setCanWrite(canWrite)
-                                    .setCanWriteWithoutResponse(canWriteWithoutResponse)
-                                    .setCanNotify(canNotify)
-                                    .addAllDescriptors(messageDescriptors)
-                                    .build()
-                                messageCharacteristics.add(messageCharacteristic)
+                                // Add indexed characteristic.
+                                val indexedCharacteristic =
+                                    IndexedGattCharacteristic(characteristic, indexedDescriptors)
+                                indexedCharacteristics[indexedCharacteristic.uuid] =
+                                    indexedCharacteristic
+                                // Add reply characteristic.
+                                val replyCharacteristic = gattCharacteristic {
+                                    this.indexedUuid = indexedCharacteristic.uuid
+                                    this.uuid = characteristic.uuid.toString()
+                                    this.canRead =
+                                        characteristic.properties and BluetoothGattCharacteristic.PROPERTY_READ != 0
+                                    this.canWrite =
+                                        characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE != 0
+                                    this.canWriteWithoutResponse =
+                                        characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE != 0
+                                    this.canNotify =
+                                        characteristic.properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY != 0
+                                    this.descriptors.addAll(replyDescriptors)
+                                }
+                                replyCharacteristics.add(replyCharacteristic)
                             }
-                            // Add native service.
-                            val nativeService =
-                                IndexedGattService(service, nativeCharacteristics)
-                            nativeServices[nativeService.indexedUUID] = nativeService
-                            // Add message service.
-                            val serviceUUID = service.uuid.toString()
-                            val messageService = GattService.newBuilder()
-                                .setKey(nativeService.indexedUUID)
-                                .setUuid(serviceUUID)
-                                .addAllCharacteristics(messageCharacteristics)
-                                .build()
-                            messageServices.add(messageService)
+                            // Add indexed service.
+                            val indexedService = IndexedGattService(service, indexedCharacteristics)
+                            indexedServices[indexedService.uuid] = indexedService
+                            // Add reply service.
+                            val replyService = gattService {
+                                this.indexedUuid = indexedService.uuid
+                                this.uuid = service.uuid.toString()
+                                this.characteristics.addAll(replyCharacteristics)
+                            }
+                            replyServices.add(replyService)
                         }
-                        // Add native gatt.
-                        val nativeGATT = IndexedGATT(gatt, nativeServices)
-                        indexedGATTs[nativeGATT.indexedUUID] = nativeGATT
-                        // Add message gatt.
-                        val reply = GATT.newBuilder()
-                            .setKey(nativeGATT.indexedUUID)
-                            .setMaximumWriteLength(maximumWriteLength)
-                            .addAllServices(messageServices)
-                            .build()
-                            .toByteArray()
+                        // Add indexed GATT.
+                        val indexedGATT = IndexedGATT(gatt, indexedServices)
+                        indexedGATTs[indexedGATT.uuid] = indexedGATT
+                        // Make connect reply.
+                        val messageGATT = gATT {
+                            this.indexedUuid = indexedGATT.uuid
+                            this.maximumWriteLength = maximumWriteLength
+                            this.services.addAll(replyServices)
+                        }.toByteArray()
                         val connect = connects.remove(gatt)!!
-                        invokeOnMainThread { connect.success(reply) }
+                        invokeOnMainThread { connect.success(messageGATT) }
                     }
                     else -> gatt!!.disconnect()
                 }
@@ -546,7 +582,9 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                 super.onCharacteristicWrite(gatt, characteristic, status)
                 val write = characteristicWrites.remove(characteristic)!!
                 when (status) {
-                    BluetoothGatt.GATT_SUCCESS -> invokeOnMainThread { write.success() }
+                    BluetoothGatt.GATT_SUCCESS -> invokeOnMainThread {
+                        write.success()
+                    }
                     else -> invokeOnMainThread {
                         write.error(TAG, "GATT error with status: $status")
                     }
@@ -558,23 +596,28 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                 characteristic: BluetoothGattCharacteristic?
             ) {
                 super.onCharacteristicChanged(gatt, characteristic)
-                val nativeGATT = indexedGATTs.values.first { entry -> entry.value === gatt }
-                val nativeService =
-                    nativeGATT.services.values.first { entry -> entry.value === characteristic!!.service }
-                val nativeCharacteristic =
-                    nativeService.characteristics.values.first { entry -> entry.value === characteristic }
-                val value = ByteString.copyFrom(characteristic!!.value)
-                val characteristicValue = GattCharacteristicValue.newBuilder()
-                    .setGattKey(nativeGATT.indexedUUID)
-                    .setServiceKey(nativeService.indexedUUID)
-                    .setKey(nativeCharacteristic.indexedUUID)
-                    .setValue(value)
-                    .build()
-                val event = Message.newBuilder()
-                    .setCategory(GATT_CHARACTERISTIC_NOTIFY)
-                    .setCharacteristicValue(characteristicValue)
-                    .build()
-                    .toByteArray()
+                val indexedGATT = indexedGATTs.values.first { entry ->
+                    entry.`object` === gatt
+                }
+                val indexedServices = indexedGATT.indexedServices
+                val indexedService = indexedServices.values.first { entry ->
+                    entry.`object` === characteristic!!.service
+                }
+                val indexedCharacteristics = indexedService.indexedCharacteristics
+                val indexedCharacteristic = indexedCharacteristics.values.first { entry ->
+                    entry.`object` === characteristic
+                }
+                val event = event {
+                    this.category =
+                        Messages.EventCategory.EVENT_CATEGORY_GATT_CHARACTERISTIC_VALUE_CHANGED
+                    this.characteristicValueChangedArguments =
+                        gattCharacteristicValueChangedArguments {
+                            this.indexedGattUuid = indexedGATT.uuid
+                            this.indexedServiceUuid = indexedService.uuid
+                            this.indexedUuid = indexedCharacteristic.uuid
+                            this.value = ByteString.copyFrom(characteristic!!.value)
+                        }
+                }.toByteArray()
                 invokeOnMainThread { eventSink?.success(event) }
             }
 
@@ -603,7 +646,9 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                 super.onDescriptorWrite(gatt, descriptor, status)
                 val write = descriptorWrites.remove(descriptor)!!
                 when (status) {
-                    BluetoothGatt.GATT_SUCCESS -> invokeOnMainThread { write.success() }
+                    BluetoothGatt.GATT_SUCCESS -> invokeOnMainThread {
+                        write.success()
+                    }
                     else -> invokeOnMainThread {
                         write.error(TAG, "GATT error with status: $status")
                     }
@@ -629,10 +674,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
     }
 
     override fun onDetachedFromActivity() {
-        // Clear connections.
-        for (nativeGATT in indexedGATTs.values) nativeGATT.value.disconnect()
-        // Stop scan.
-        if (scanning) stopScan()
+        clear()
         // Unregister bluetooth adapter state receiver.
         binding.activity.unregisterReceiver(bluetoothStateReceiver)
         binding.removeRequestPermissionsResultListener(requestPermissionsResultListener)
@@ -646,31 +688,17 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
         onDetachedFromActivity()
     }
 
-    private fun startScan(services: List<String>, startScanHandler: StartScanHandler) {
-        val filters = services.map { service ->
-            val serviceUUID = ParcelUuid.fromString(service)
-            ScanFilter.Builder()
-                .setServiceUuid(serviceUUID)
-                .build()
+    private fun clear() {
+        // Clear connections.
+        for (indexedGATT in indexedGATTs.values) {
+            val gatt = indexedGATT.`object`
+            gatt.disconnect()
         }
-        val settings = ScanSettings.Builder()
-            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-            .build()
-        bluetoothAdapter.bluetoothLeScanner.startScan(filters, settings, scanCallback)
-        // use invokeOnMainThread to delay until #onScanFailed executed.
-        invokeOnMainThread {
-            val code = scanCode
-            when (code) {
-                NO_ERROR -> scanning = true
-                else -> scanCode = NO_ERROR
-            }
-            startScanHandler.invoke(code)
+        // Stop scan.
+        if (scanning) {
+            bluetoothAdapter.bluetoothLeScanner.stopScan(scanCallback)
+            scanning = false
         }
-    }
-
-    private fun stopScan() {
-        bluetoothAdapter.bluetoothLeScanner.stopScan(scanCallback)
-        scanning = false
     }
 
     private fun invokeOnMainThread(action: Runnable) {

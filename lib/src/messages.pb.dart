@@ -13,83 +13,83 @@ import 'messages.pbenum.dart';
 
 export 'messages.pbenum.dart';
 
-enum Command_Stub {
-  centralStartDiscoveryCommand, 
-  centralConnectCommand, 
-  gattDisconnectCommand, 
-  gattCharacteristicReadCommand, 
-  gattCharacteristicWriteCommand, 
-  gattCharacteristicNotifyCommand, 
-  gattDescriptorReadCommand, 
-  gattDescriptorWriteCommand, 
+enum Command_Arguments {
+  centralStartDiscoveryArguments, 
+  centralConnectArguments, 
+  gattDisconnectArguments, 
+  characteristicReadArguments, 
+  characteristicWriteArguments, 
+  characteristicNotifyArguments, 
+  descriptorReadArguments, 
+  descriptorWriteArguments, 
   notSet
 }
 
 class Command extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, Command_Stub> _Command_StubByTag = {
-    2 : Command_Stub.centralStartDiscoveryCommand,
-    3 : Command_Stub.centralConnectCommand,
-    4 : Command_Stub.gattDisconnectCommand,
-    5 : Command_Stub.gattCharacteristicReadCommand,
-    6 : Command_Stub.gattCharacteristicWriteCommand,
-    7 : Command_Stub.gattCharacteristicNotifyCommand,
-    8 : Command_Stub.gattDescriptorReadCommand,
-    9 : Command_Stub.gattDescriptorWriteCommand,
-    0 : Command_Stub.notSet
+  static const $core.Map<$core.int, Command_Arguments> _Command_ArgumentsByTag = {
+    2 : Command_Arguments.centralStartDiscoveryArguments,
+    3 : Command_Arguments.centralConnectArguments,
+    4 : Command_Arguments.gattDisconnectArguments,
+    5 : Command_Arguments.characteristicReadArguments,
+    6 : Command_Arguments.characteristicWriteArguments,
+    7 : Command_Arguments.characteristicNotifyArguments,
+    8 : Command_Arguments.descriptorReadArguments,
+    9 : Command_Arguments.descriptorWriteArguments,
+    0 : Command_Arguments.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Command', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
     ..oo(0, [2, 3, 4, 5, 6, 7, 8, 9])
     ..e<CommandCategory>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'category', $pb.PbFieldType.OE, defaultOrMaker: CommandCategory.COMMAND_CATEGORY_BLUETOOTH_GET_STATE, valueOf: CommandCategory.valueOf, enumValues: CommandCategory.values)
-    ..aOM<CentralStartDiscoveryCommand>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'centralStartDiscoveryCommand', subBuilder: CentralStartDiscoveryCommand.create)
-    ..aOM<CentralConnectCommand>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'centralConnectCommand', subBuilder: CentralConnectCommand.create)
-    ..aOM<GattDisconnectCommand>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattDisconnectCommand', subBuilder: GattDisconnectCommand.create)
-    ..aOM<GattCharacteristicReadCommand>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattCharacteristicReadCommand', subBuilder: GattCharacteristicReadCommand.create)
-    ..aOM<GattCharacteristicWriteCommand>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattCharacteristicWriteCommand', subBuilder: GattCharacteristicWriteCommand.create)
-    ..aOM<GattCharacteristicNotifyCommand>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattCharacteristicNotifyCommand', subBuilder: GattCharacteristicNotifyCommand.create)
-    ..aOM<GattDescriptorReadCommand>(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattDescriptorReadCommand', subBuilder: GattDescriptorReadCommand.create)
-    ..aOM<GattDescriptorWriteCommand>(9, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattDescriptorWriteCommand', subBuilder: GattDescriptorWriteCommand.create)
+    ..aOM<CentralStartDiscoveryArguments>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'centralStartDiscoveryArguments', subBuilder: CentralStartDiscoveryArguments.create)
+    ..aOM<CentralConnectArguments>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'centralConnectArguments', subBuilder: CentralConnectArguments.create)
+    ..aOM<GattDisconnectArguments>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattDisconnectArguments', subBuilder: GattDisconnectArguments.create)
+    ..aOM<GattCharacteristicReadArguments>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'characteristicReadArguments', subBuilder: GattCharacteristicReadArguments.create)
+    ..aOM<GattCharacteristicWriteArguments>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'characteristicWriteArguments', subBuilder: GattCharacteristicWriteArguments.create)
+    ..aOM<GattCharacteristicNotifyArguments>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'characteristicNotifyArguments', subBuilder: GattCharacteristicNotifyArguments.create)
+    ..aOM<GattDescriptorReadArguments>(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'descriptorReadArguments', subBuilder: GattDescriptorReadArguments.create)
+    ..aOM<GattDescriptorWriteArguments>(9, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'descriptorWriteArguments', subBuilder: GattDescriptorWriteArguments.create)
     ..hasRequiredFields = false
   ;
 
   Command._() : super();
   factory Command({
     CommandCategory? category,
-    CentralStartDiscoveryCommand? centralStartDiscoveryCommand,
-    CentralConnectCommand? centralConnectCommand,
-    GattDisconnectCommand? gattDisconnectCommand,
-    GattCharacteristicReadCommand? gattCharacteristicReadCommand,
-    GattCharacteristicWriteCommand? gattCharacteristicWriteCommand,
-    GattCharacteristicNotifyCommand? gattCharacteristicNotifyCommand,
-    GattDescriptorReadCommand? gattDescriptorReadCommand,
-    GattDescriptorWriteCommand? gattDescriptorWriteCommand,
+    CentralStartDiscoveryArguments? centralStartDiscoveryArguments,
+    CentralConnectArguments? centralConnectArguments,
+    GattDisconnectArguments? gattDisconnectArguments,
+    GattCharacteristicReadArguments? characteristicReadArguments,
+    GattCharacteristicWriteArguments? characteristicWriteArguments,
+    GattCharacteristicNotifyArguments? characteristicNotifyArguments,
+    GattDescriptorReadArguments? descriptorReadArguments,
+    GattDescriptorWriteArguments? descriptorWriteArguments,
   }) {
     final _result = create();
     if (category != null) {
       _result.category = category;
     }
-    if (centralStartDiscoveryCommand != null) {
-      _result.centralStartDiscoveryCommand = centralStartDiscoveryCommand;
+    if (centralStartDiscoveryArguments != null) {
+      _result.centralStartDiscoveryArguments = centralStartDiscoveryArguments;
     }
-    if (centralConnectCommand != null) {
-      _result.centralConnectCommand = centralConnectCommand;
+    if (centralConnectArguments != null) {
+      _result.centralConnectArguments = centralConnectArguments;
     }
-    if (gattDisconnectCommand != null) {
-      _result.gattDisconnectCommand = gattDisconnectCommand;
+    if (gattDisconnectArguments != null) {
+      _result.gattDisconnectArguments = gattDisconnectArguments;
     }
-    if (gattCharacteristicReadCommand != null) {
-      _result.gattCharacteristicReadCommand = gattCharacteristicReadCommand;
+    if (characteristicReadArguments != null) {
+      _result.characteristicReadArguments = characteristicReadArguments;
     }
-    if (gattCharacteristicWriteCommand != null) {
-      _result.gattCharacteristicWriteCommand = gattCharacteristicWriteCommand;
+    if (characteristicWriteArguments != null) {
+      _result.characteristicWriteArguments = characteristicWriteArguments;
     }
-    if (gattCharacteristicNotifyCommand != null) {
-      _result.gattCharacteristicNotifyCommand = gattCharacteristicNotifyCommand;
+    if (characteristicNotifyArguments != null) {
+      _result.characteristicNotifyArguments = characteristicNotifyArguments;
     }
-    if (gattDescriptorReadCommand != null) {
-      _result.gattDescriptorReadCommand = gattDescriptorReadCommand;
+    if (descriptorReadArguments != null) {
+      _result.descriptorReadArguments = descriptorReadArguments;
     }
-    if (gattDescriptorWriteCommand != null) {
-      _result.gattDescriptorWriteCommand = gattDescriptorWriteCommand;
+    if (descriptorWriteArguments != null) {
+      _result.descriptorWriteArguments = descriptorWriteArguments;
     }
     return _result;
   }
@@ -114,8 +114,8 @@ class Command extends $pb.GeneratedMessage {
   static Command getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Command>(create);
   static Command? _defaultInstance;
 
-  Command_Stub whichStub() => _Command_StubByTag[$_whichOneof(0)]!;
-  void clearStub() => clearField($_whichOneof(0));
+  Command_Arguments whichArguments() => _Command_ArgumentsByTag[$_whichOneof(0)]!;
+  void clearArguments() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   CommandCategory get category => $_getN(0);
@@ -127,102 +127,102 @@ class Command extends $pb.GeneratedMessage {
   void clearCategory() => clearField(1);
 
   @$pb.TagNumber(2)
-  CentralStartDiscoveryCommand get centralStartDiscoveryCommand => $_getN(1);
+  CentralStartDiscoveryArguments get centralStartDiscoveryArguments => $_getN(1);
   @$pb.TagNumber(2)
-  set centralStartDiscoveryCommand(CentralStartDiscoveryCommand v) { setField(2, v); }
+  set centralStartDiscoveryArguments(CentralStartDiscoveryArguments v) { setField(2, v); }
   @$pb.TagNumber(2)
-  $core.bool hasCentralStartDiscoveryCommand() => $_has(1);
+  $core.bool hasCentralStartDiscoveryArguments() => $_has(1);
   @$pb.TagNumber(2)
-  void clearCentralStartDiscoveryCommand() => clearField(2);
+  void clearCentralStartDiscoveryArguments() => clearField(2);
   @$pb.TagNumber(2)
-  CentralStartDiscoveryCommand ensureCentralStartDiscoveryCommand() => $_ensure(1);
+  CentralStartDiscoveryArguments ensureCentralStartDiscoveryArguments() => $_ensure(1);
 
   @$pb.TagNumber(3)
-  CentralConnectCommand get centralConnectCommand => $_getN(2);
+  CentralConnectArguments get centralConnectArguments => $_getN(2);
   @$pb.TagNumber(3)
-  set centralConnectCommand(CentralConnectCommand v) { setField(3, v); }
+  set centralConnectArguments(CentralConnectArguments v) { setField(3, v); }
   @$pb.TagNumber(3)
-  $core.bool hasCentralConnectCommand() => $_has(2);
+  $core.bool hasCentralConnectArguments() => $_has(2);
   @$pb.TagNumber(3)
-  void clearCentralConnectCommand() => clearField(3);
+  void clearCentralConnectArguments() => clearField(3);
   @$pb.TagNumber(3)
-  CentralConnectCommand ensureCentralConnectCommand() => $_ensure(2);
+  CentralConnectArguments ensureCentralConnectArguments() => $_ensure(2);
 
   @$pb.TagNumber(4)
-  GattDisconnectCommand get gattDisconnectCommand => $_getN(3);
+  GattDisconnectArguments get gattDisconnectArguments => $_getN(3);
   @$pb.TagNumber(4)
-  set gattDisconnectCommand(GattDisconnectCommand v) { setField(4, v); }
+  set gattDisconnectArguments(GattDisconnectArguments v) { setField(4, v); }
   @$pb.TagNumber(4)
-  $core.bool hasGattDisconnectCommand() => $_has(3);
+  $core.bool hasGattDisconnectArguments() => $_has(3);
   @$pb.TagNumber(4)
-  void clearGattDisconnectCommand() => clearField(4);
+  void clearGattDisconnectArguments() => clearField(4);
   @$pb.TagNumber(4)
-  GattDisconnectCommand ensureGattDisconnectCommand() => $_ensure(3);
+  GattDisconnectArguments ensureGattDisconnectArguments() => $_ensure(3);
 
   @$pb.TagNumber(5)
-  GattCharacteristicReadCommand get gattCharacteristicReadCommand => $_getN(4);
+  GattCharacteristicReadArguments get characteristicReadArguments => $_getN(4);
   @$pb.TagNumber(5)
-  set gattCharacteristicReadCommand(GattCharacteristicReadCommand v) { setField(5, v); }
+  set characteristicReadArguments(GattCharacteristicReadArguments v) { setField(5, v); }
   @$pb.TagNumber(5)
-  $core.bool hasGattCharacteristicReadCommand() => $_has(4);
+  $core.bool hasCharacteristicReadArguments() => $_has(4);
   @$pb.TagNumber(5)
-  void clearGattCharacteristicReadCommand() => clearField(5);
+  void clearCharacteristicReadArguments() => clearField(5);
   @$pb.TagNumber(5)
-  GattCharacteristicReadCommand ensureGattCharacteristicReadCommand() => $_ensure(4);
+  GattCharacteristicReadArguments ensureCharacteristicReadArguments() => $_ensure(4);
 
   @$pb.TagNumber(6)
-  GattCharacteristicWriteCommand get gattCharacteristicWriteCommand => $_getN(5);
+  GattCharacteristicWriteArguments get characteristicWriteArguments => $_getN(5);
   @$pb.TagNumber(6)
-  set gattCharacteristicWriteCommand(GattCharacteristicWriteCommand v) { setField(6, v); }
+  set characteristicWriteArguments(GattCharacteristicWriteArguments v) { setField(6, v); }
   @$pb.TagNumber(6)
-  $core.bool hasGattCharacteristicWriteCommand() => $_has(5);
+  $core.bool hasCharacteristicWriteArguments() => $_has(5);
   @$pb.TagNumber(6)
-  void clearGattCharacteristicWriteCommand() => clearField(6);
+  void clearCharacteristicWriteArguments() => clearField(6);
   @$pb.TagNumber(6)
-  GattCharacteristicWriteCommand ensureGattCharacteristicWriteCommand() => $_ensure(5);
+  GattCharacteristicWriteArguments ensureCharacteristicWriteArguments() => $_ensure(5);
 
   @$pb.TagNumber(7)
-  GattCharacteristicNotifyCommand get gattCharacteristicNotifyCommand => $_getN(6);
+  GattCharacteristicNotifyArguments get characteristicNotifyArguments => $_getN(6);
   @$pb.TagNumber(7)
-  set gattCharacteristicNotifyCommand(GattCharacteristicNotifyCommand v) { setField(7, v); }
+  set characteristicNotifyArguments(GattCharacteristicNotifyArguments v) { setField(7, v); }
   @$pb.TagNumber(7)
-  $core.bool hasGattCharacteristicNotifyCommand() => $_has(6);
+  $core.bool hasCharacteristicNotifyArguments() => $_has(6);
   @$pb.TagNumber(7)
-  void clearGattCharacteristicNotifyCommand() => clearField(7);
+  void clearCharacteristicNotifyArguments() => clearField(7);
   @$pb.TagNumber(7)
-  GattCharacteristicNotifyCommand ensureGattCharacteristicNotifyCommand() => $_ensure(6);
+  GattCharacteristicNotifyArguments ensureCharacteristicNotifyArguments() => $_ensure(6);
 
   @$pb.TagNumber(8)
-  GattDescriptorReadCommand get gattDescriptorReadCommand => $_getN(7);
+  GattDescriptorReadArguments get descriptorReadArguments => $_getN(7);
   @$pb.TagNumber(8)
-  set gattDescriptorReadCommand(GattDescriptorReadCommand v) { setField(8, v); }
+  set descriptorReadArguments(GattDescriptorReadArguments v) { setField(8, v); }
   @$pb.TagNumber(8)
-  $core.bool hasGattDescriptorReadCommand() => $_has(7);
+  $core.bool hasDescriptorReadArguments() => $_has(7);
   @$pb.TagNumber(8)
-  void clearGattDescriptorReadCommand() => clearField(8);
+  void clearDescriptorReadArguments() => clearField(8);
   @$pb.TagNumber(8)
-  GattDescriptorReadCommand ensureGattDescriptorReadCommand() => $_ensure(7);
+  GattDescriptorReadArguments ensureDescriptorReadArguments() => $_ensure(7);
 
   @$pb.TagNumber(9)
-  GattDescriptorWriteCommand get gattDescriptorWriteCommand => $_getN(8);
+  GattDescriptorWriteArguments get descriptorWriteArguments => $_getN(8);
   @$pb.TagNumber(9)
-  set gattDescriptorWriteCommand(GattDescriptorWriteCommand v) { setField(9, v); }
+  set descriptorWriteArguments(GattDescriptorWriteArguments v) { setField(9, v); }
   @$pb.TagNumber(9)
-  $core.bool hasGattDescriptorWriteCommand() => $_has(8);
+  $core.bool hasDescriptorWriteArguments() => $_has(8);
   @$pb.TagNumber(9)
-  void clearGattDescriptorWriteCommand() => clearField(9);
+  void clearDescriptorWriteArguments() => clearField(9);
   @$pb.TagNumber(9)
-  GattDescriptorWriteCommand ensureGattDescriptorWriteCommand() => $_ensure(8);
+  GattDescriptorWriteArguments ensureDescriptorWriteArguments() => $_ensure(8);
 }
 
-class CentralStartDiscoveryCommand extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CentralStartDiscoveryCommand', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
+class CentralStartDiscoveryArguments extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CentralStartDiscoveryArguments', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
     ..pPS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uuids')
     ..hasRequiredFields = false
   ;
 
-  CentralStartDiscoveryCommand._() : super();
-  factory CentralStartDiscoveryCommand({
+  CentralStartDiscoveryArguments._() : super();
+  factory CentralStartDiscoveryArguments({
     $core.Iterable<$core.String>? uuids,
   }) {
     final _result = create();
@@ -231,39 +231,39 @@ class CentralStartDiscoveryCommand extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory CentralStartDiscoveryCommand.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory CentralStartDiscoveryCommand.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory CentralStartDiscoveryArguments.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CentralStartDiscoveryArguments.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  CentralStartDiscoveryCommand clone() => CentralStartDiscoveryCommand()..mergeFromMessage(this);
+  CentralStartDiscoveryArguments clone() => CentralStartDiscoveryArguments()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  CentralStartDiscoveryCommand copyWith(void Function(CentralStartDiscoveryCommand) updates) => super.copyWith((message) => updates(message as CentralStartDiscoveryCommand)) as CentralStartDiscoveryCommand; // ignore: deprecated_member_use
+  CentralStartDiscoveryArguments copyWith(void Function(CentralStartDiscoveryArguments) updates) => super.copyWith((message) => updates(message as CentralStartDiscoveryArguments)) as CentralStartDiscoveryArguments; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static CentralStartDiscoveryCommand create() => CentralStartDiscoveryCommand._();
-  CentralStartDiscoveryCommand createEmptyInstance() => create();
-  static $pb.PbList<CentralStartDiscoveryCommand> createRepeated() => $pb.PbList<CentralStartDiscoveryCommand>();
+  static CentralStartDiscoveryArguments create() => CentralStartDiscoveryArguments._();
+  CentralStartDiscoveryArguments createEmptyInstance() => create();
+  static $pb.PbList<CentralStartDiscoveryArguments> createRepeated() => $pb.PbList<CentralStartDiscoveryArguments>();
   @$core.pragma('dart2js:noInline')
-  static CentralStartDiscoveryCommand getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CentralStartDiscoveryCommand>(create);
-  static CentralStartDiscoveryCommand? _defaultInstance;
+  static CentralStartDiscoveryArguments getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CentralStartDiscoveryArguments>(create);
+  static CentralStartDiscoveryArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.List<$core.String> get uuids => $_getList(0);
 }
 
-class CentralConnectCommand extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CentralConnectCommand', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
+class CentralConnectArguments extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CentralConnectArguments', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uuid')
     ..hasRequiredFields = false
   ;
 
-  CentralConnectCommand._() : super();
-  factory CentralConnectCommand({
+  CentralConnectArguments._() : super();
+  factory CentralConnectArguments({
     $core.String? uuid,
   }) {
     final _result = create();
@@ -272,26 +272,26 @@ class CentralConnectCommand extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory CentralConnectCommand.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory CentralConnectCommand.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory CentralConnectArguments.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CentralConnectArguments.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  CentralConnectCommand clone() => CentralConnectCommand()..mergeFromMessage(this);
+  CentralConnectArguments clone() => CentralConnectArguments()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  CentralConnectCommand copyWith(void Function(CentralConnectCommand) updates) => super.copyWith((message) => updates(message as CentralConnectCommand)) as CentralConnectCommand; // ignore: deprecated_member_use
+  CentralConnectArguments copyWith(void Function(CentralConnectArguments) updates) => super.copyWith((message) => updates(message as CentralConnectArguments)) as CentralConnectArguments; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static CentralConnectCommand create() => CentralConnectCommand._();
-  CentralConnectCommand createEmptyInstance() => create();
-  static $pb.PbList<CentralConnectCommand> createRepeated() => $pb.PbList<CentralConnectCommand>();
+  static CentralConnectArguments create() => CentralConnectArguments._();
+  CentralConnectArguments createEmptyInstance() => create();
+  static $pb.PbList<CentralConnectArguments> createRepeated() => $pb.PbList<CentralConnectArguments>();
   @$core.pragma('dart2js:noInline')
-  static CentralConnectCommand getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CentralConnectCommand>(create);
-  static CentralConnectCommand? _defaultInstance;
+  static CentralConnectArguments getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CentralConnectArguments>(create);
+  static CentralConnectArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get uuid => $_getSZ(0);
@@ -303,155 +303,155 @@ class CentralConnectCommand extends $pb.GeneratedMessage {
   void clearUuid() => clearField(1);
 }
 
-class GattDisconnectCommand extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattDisconnectCommand', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'hashUuid')
+class GattDisconnectArguments extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattDisconnectArguments', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedUuid')
     ..hasRequiredFields = false
   ;
 
-  GattDisconnectCommand._() : super();
-  factory GattDisconnectCommand({
-    $core.String? hashUuid,
+  GattDisconnectArguments._() : super();
+  factory GattDisconnectArguments({
+    $core.String? indexedUuid,
   }) {
     final _result = create();
-    if (hashUuid != null) {
-      _result.hashUuid = hashUuid;
+    if (indexedUuid != null) {
+      _result.indexedUuid = indexedUuid;
     }
     return _result;
   }
-  factory GattDisconnectCommand.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory GattDisconnectCommand.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory GattDisconnectArguments.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GattDisconnectArguments.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  GattDisconnectCommand clone() => GattDisconnectCommand()..mergeFromMessage(this);
+  GattDisconnectArguments clone() => GattDisconnectArguments()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  GattDisconnectCommand copyWith(void Function(GattDisconnectCommand) updates) => super.copyWith((message) => updates(message as GattDisconnectCommand)) as GattDisconnectCommand; // ignore: deprecated_member_use
+  GattDisconnectArguments copyWith(void Function(GattDisconnectArguments) updates) => super.copyWith((message) => updates(message as GattDisconnectArguments)) as GattDisconnectArguments; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static GattDisconnectCommand create() => GattDisconnectCommand._();
-  GattDisconnectCommand createEmptyInstance() => create();
-  static $pb.PbList<GattDisconnectCommand> createRepeated() => $pb.PbList<GattDisconnectCommand>();
+  static GattDisconnectArguments create() => GattDisconnectArguments._();
+  GattDisconnectArguments createEmptyInstance() => create();
+  static $pb.PbList<GattDisconnectArguments> createRepeated() => $pb.PbList<GattDisconnectArguments>();
   @$core.pragma('dart2js:noInline')
-  static GattDisconnectCommand getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GattDisconnectCommand>(create);
-  static GattDisconnectCommand? _defaultInstance;
+  static GattDisconnectArguments getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GattDisconnectArguments>(create);
+  static GattDisconnectArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get hashUuid => $_getSZ(0);
+  $core.String get indexedUuid => $_getSZ(0);
   @$pb.TagNumber(1)
-  set hashUuid($core.String v) { $_setString(0, v); }
+  set indexedUuid($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasHashUuid() => $_has(0);
+  $core.bool hasIndexedUuid() => $_has(0);
   @$pb.TagNumber(1)
-  void clearHashUuid() => clearField(1);
+  void clearIndexedUuid() => clearField(1);
 }
 
-class GattCharacteristicReadCommand extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattCharacteristicReadCommand', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattHashUuid')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattServiceHashUuid')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'hashUuid')
+class GattCharacteristicReadArguments extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattCharacteristicReadArguments', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedGattUuid')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedServiceUuid')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedUuid')
     ..hasRequiredFields = false
   ;
 
-  GattCharacteristicReadCommand._() : super();
-  factory GattCharacteristicReadCommand({
-    $core.String? gattHashUuid,
-    $core.String? gattServiceHashUuid,
-    $core.String? hashUuid,
+  GattCharacteristicReadArguments._() : super();
+  factory GattCharacteristicReadArguments({
+    $core.String? indexedGattUuid,
+    $core.String? indexedServiceUuid,
+    $core.String? indexedUuid,
   }) {
     final _result = create();
-    if (gattHashUuid != null) {
-      _result.gattHashUuid = gattHashUuid;
+    if (indexedGattUuid != null) {
+      _result.indexedGattUuid = indexedGattUuid;
     }
-    if (gattServiceHashUuid != null) {
-      _result.gattServiceHashUuid = gattServiceHashUuid;
+    if (indexedServiceUuid != null) {
+      _result.indexedServiceUuid = indexedServiceUuid;
     }
-    if (hashUuid != null) {
-      _result.hashUuid = hashUuid;
+    if (indexedUuid != null) {
+      _result.indexedUuid = indexedUuid;
     }
     return _result;
   }
-  factory GattCharacteristicReadCommand.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory GattCharacteristicReadCommand.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory GattCharacteristicReadArguments.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GattCharacteristicReadArguments.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  GattCharacteristicReadCommand clone() => GattCharacteristicReadCommand()..mergeFromMessage(this);
+  GattCharacteristicReadArguments clone() => GattCharacteristicReadArguments()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  GattCharacteristicReadCommand copyWith(void Function(GattCharacteristicReadCommand) updates) => super.copyWith((message) => updates(message as GattCharacteristicReadCommand)) as GattCharacteristicReadCommand; // ignore: deprecated_member_use
+  GattCharacteristicReadArguments copyWith(void Function(GattCharacteristicReadArguments) updates) => super.copyWith((message) => updates(message as GattCharacteristicReadArguments)) as GattCharacteristicReadArguments; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static GattCharacteristicReadCommand create() => GattCharacteristicReadCommand._();
-  GattCharacteristicReadCommand createEmptyInstance() => create();
-  static $pb.PbList<GattCharacteristicReadCommand> createRepeated() => $pb.PbList<GattCharacteristicReadCommand>();
+  static GattCharacteristicReadArguments create() => GattCharacteristicReadArguments._();
+  GattCharacteristicReadArguments createEmptyInstance() => create();
+  static $pb.PbList<GattCharacteristicReadArguments> createRepeated() => $pb.PbList<GattCharacteristicReadArguments>();
   @$core.pragma('dart2js:noInline')
-  static GattCharacteristicReadCommand getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GattCharacteristicReadCommand>(create);
-  static GattCharacteristicReadCommand? _defaultInstance;
+  static GattCharacteristicReadArguments getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GattCharacteristicReadArguments>(create);
+  static GattCharacteristicReadArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get gattHashUuid => $_getSZ(0);
+  $core.String get indexedGattUuid => $_getSZ(0);
   @$pb.TagNumber(1)
-  set gattHashUuid($core.String v) { $_setString(0, v); }
+  set indexedGattUuid($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasGattHashUuid() => $_has(0);
+  $core.bool hasIndexedGattUuid() => $_has(0);
   @$pb.TagNumber(1)
-  void clearGattHashUuid() => clearField(1);
+  void clearIndexedGattUuid() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get gattServiceHashUuid => $_getSZ(1);
+  $core.String get indexedServiceUuid => $_getSZ(1);
   @$pb.TagNumber(2)
-  set gattServiceHashUuid($core.String v) { $_setString(1, v); }
+  set indexedServiceUuid($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasGattServiceHashUuid() => $_has(1);
+  $core.bool hasIndexedServiceUuid() => $_has(1);
   @$pb.TagNumber(2)
-  void clearGattServiceHashUuid() => clearField(2);
+  void clearIndexedServiceUuid() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get hashUuid => $_getSZ(2);
+  $core.String get indexedUuid => $_getSZ(2);
   @$pb.TagNumber(3)
-  set hashUuid($core.String v) { $_setString(2, v); }
+  set indexedUuid($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasHashUuid() => $_has(2);
+  $core.bool hasIndexedUuid() => $_has(2);
   @$pb.TagNumber(3)
-  void clearHashUuid() => clearField(3);
+  void clearIndexedUuid() => clearField(3);
 }
 
-class GattCharacteristicWriteCommand extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattCharacteristicWriteCommand', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattHashUuid')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattServiceHashUuid')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'hashUuid')
+class GattCharacteristicWriteArguments extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattCharacteristicWriteArguments', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedGattUuid')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedServiceUuid')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedUuid')
     ..a<$core.List<$core.int>>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value', $pb.PbFieldType.OY)
     ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'withoutResponse')
     ..hasRequiredFields = false
   ;
 
-  GattCharacteristicWriteCommand._() : super();
-  factory GattCharacteristicWriteCommand({
-    $core.String? gattHashUuid,
-    $core.String? gattServiceHashUuid,
-    $core.String? hashUuid,
+  GattCharacteristicWriteArguments._() : super();
+  factory GattCharacteristicWriteArguments({
+    $core.String? indexedGattUuid,
+    $core.String? indexedServiceUuid,
+    $core.String? indexedUuid,
     $core.List<$core.int>? value,
     $core.bool? withoutResponse,
   }) {
     final _result = create();
-    if (gattHashUuid != null) {
-      _result.gattHashUuid = gattHashUuid;
+    if (indexedGattUuid != null) {
+      _result.indexedGattUuid = indexedGattUuid;
     }
-    if (gattServiceHashUuid != null) {
-      _result.gattServiceHashUuid = gattServiceHashUuid;
+    if (indexedServiceUuid != null) {
+      _result.indexedServiceUuid = indexedServiceUuid;
     }
-    if (hashUuid != null) {
-      _result.hashUuid = hashUuid;
+    if (indexedUuid != null) {
+      _result.indexedUuid = indexedUuid;
     }
     if (value != null) {
       _result.value = value;
@@ -461,53 +461,53 @@ class GattCharacteristicWriteCommand extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory GattCharacteristicWriteCommand.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory GattCharacteristicWriteCommand.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory GattCharacteristicWriteArguments.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GattCharacteristicWriteArguments.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  GattCharacteristicWriteCommand clone() => GattCharacteristicWriteCommand()..mergeFromMessage(this);
+  GattCharacteristicWriteArguments clone() => GattCharacteristicWriteArguments()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  GattCharacteristicWriteCommand copyWith(void Function(GattCharacteristicWriteCommand) updates) => super.copyWith((message) => updates(message as GattCharacteristicWriteCommand)) as GattCharacteristicWriteCommand; // ignore: deprecated_member_use
+  GattCharacteristicWriteArguments copyWith(void Function(GattCharacteristicWriteArguments) updates) => super.copyWith((message) => updates(message as GattCharacteristicWriteArguments)) as GattCharacteristicWriteArguments; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static GattCharacteristicWriteCommand create() => GattCharacteristicWriteCommand._();
-  GattCharacteristicWriteCommand createEmptyInstance() => create();
-  static $pb.PbList<GattCharacteristicWriteCommand> createRepeated() => $pb.PbList<GattCharacteristicWriteCommand>();
+  static GattCharacteristicWriteArguments create() => GattCharacteristicWriteArguments._();
+  GattCharacteristicWriteArguments createEmptyInstance() => create();
+  static $pb.PbList<GattCharacteristicWriteArguments> createRepeated() => $pb.PbList<GattCharacteristicWriteArguments>();
   @$core.pragma('dart2js:noInline')
-  static GattCharacteristicWriteCommand getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GattCharacteristicWriteCommand>(create);
-  static GattCharacteristicWriteCommand? _defaultInstance;
+  static GattCharacteristicWriteArguments getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GattCharacteristicWriteArguments>(create);
+  static GattCharacteristicWriteArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get gattHashUuid => $_getSZ(0);
+  $core.String get indexedGattUuid => $_getSZ(0);
   @$pb.TagNumber(1)
-  set gattHashUuid($core.String v) { $_setString(0, v); }
+  set indexedGattUuid($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasGattHashUuid() => $_has(0);
+  $core.bool hasIndexedGattUuid() => $_has(0);
   @$pb.TagNumber(1)
-  void clearGattHashUuid() => clearField(1);
+  void clearIndexedGattUuid() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get gattServiceHashUuid => $_getSZ(1);
+  $core.String get indexedServiceUuid => $_getSZ(1);
   @$pb.TagNumber(2)
-  set gattServiceHashUuid($core.String v) { $_setString(1, v); }
+  set indexedServiceUuid($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasGattServiceHashUuid() => $_has(1);
+  $core.bool hasIndexedServiceUuid() => $_has(1);
   @$pb.TagNumber(2)
-  void clearGattServiceHashUuid() => clearField(2);
+  void clearIndexedServiceUuid() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get hashUuid => $_getSZ(2);
+  $core.String get indexedUuid => $_getSZ(2);
   @$pb.TagNumber(3)
-  set hashUuid($core.String v) { $_setString(2, v); }
+  set indexedUuid($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasHashUuid() => $_has(2);
+  $core.bool hasIndexedUuid() => $_has(2);
   @$pb.TagNumber(3)
-  void clearHashUuid() => clearField(3);
+  void clearIndexedUuid() => clearField(3);
 
   @$pb.TagNumber(4)
   $core.List<$core.int> get value => $_getN(3);
@@ -528,84 +528,84 @@ class GattCharacteristicWriteCommand extends $pb.GeneratedMessage {
   void clearWithoutResponse() => clearField(5);
 }
 
-class GattCharacteristicNotifyCommand extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattCharacteristicNotifyCommand', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattHashUuid')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattServiceHashUuid')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'hashUuid')
+class GattCharacteristicNotifyArguments extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattCharacteristicNotifyArguments', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedGattUuid')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedServiceUuid')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedUuid')
     ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'state')
     ..hasRequiredFields = false
   ;
 
-  GattCharacteristicNotifyCommand._() : super();
-  factory GattCharacteristicNotifyCommand({
-    $core.String? gattHashUuid,
-    $core.String? gattServiceHashUuid,
-    $core.String? hashUuid,
+  GattCharacteristicNotifyArguments._() : super();
+  factory GattCharacteristicNotifyArguments({
+    $core.String? indexedGattUuid,
+    $core.String? indexedServiceUuid,
+    $core.String? indexedUuid,
     $core.bool? state,
   }) {
     final _result = create();
-    if (gattHashUuid != null) {
-      _result.gattHashUuid = gattHashUuid;
+    if (indexedGattUuid != null) {
+      _result.indexedGattUuid = indexedGattUuid;
     }
-    if (gattServiceHashUuid != null) {
-      _result.gattServiceHashUuid = gattServiceHashUuid;
+    if (indexedServiceUuid != null) {
+      _result.indexedServiceUuid = indexedServiceUuid;
     }
-    if (hashUuid != null) {
-      _result.hashUuid = hashUuid;
+    if (indexedUuid != null) {
+      _result.indexedUuid = indexedUuid;
     }
     if (state != null) {
       _result.state = state;
     }
     return _result;
   }
-  factory GattCharacteristicNotifyCommand.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory GattCharacteristicNotifyCommand.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory GattCharacteristicNotifyArguments.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GattCharacteristicNotifyArguments.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  GattCharacteristicNotifyCommand clone() => GattCharacteristicNotifyCommand()..mergeFromMessage(this);
+  GattCharacteristicNotifyArguments clone() => GattCharacteristicNotifyArguments()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  GattCharacteristicNotifyCommand copyWith(void Function(GattCharacteristicNotifyCommand) updates) => super.copyWith((message) => updates(message as GattCharacteristicNotifyCommand)) as GattCharacteristicNotifyCommand; // ignore: deprecated_member_use
+  GattCharacteristicNotifyArguments copyWith(void Function(GattCharacteristicNotifyArguments) updates) => super.copyWith((message) => updates(message as GattCharacteristicNotifyArguments)) as GattCharacteristicNotifyArguments; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static GattCharacteristicNotifyCommand create() => GattCharacteristicNotifyCommand._();
-  GattCharacteristicNotifyCommand createEmptyInstance() => create();
-  static $pb.PbList<GattCharacteristicNotifyCommand> createRepeated() => $pb.PbList<GattCharacteristicNotifyCommand>();
+  static GattCharacteristicNotifyArguments create() => GattCharacteristicNotifyArguments._();
+  GattCharacteristicNotifyArguments createEmptyInstance() => create();
+  static $pb.PbList<GattCharacteristicNotifyArguments> createRepeated() => $pb.PbList<GattCharacteristicNotifyArguments>();
   @$core.pragma('dart2js:noInline')
-  static GattCharacteristicNotifyCommand getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GattCharacteristicNotifyCommand>(create);
-  static GattCharacteristicNotifyCommand? _defaultInstance;
+  static GattCharacteristicNotifyArguments getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GattCharacteristicNotifyArguments>(create);
+  static GattCharacteristicNotifyArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get gattHashUuid => $_getSZ(0);
+  $core.String get indexedGattUuid => $_getSZ(0);
   @$pb.TagNumber(1)
-  set gattHashUuid($core.String v) { $_setString(0, v); }
+  set indexedGattUuid($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasGattHashUuid() => $_has(0);
+  $core.bool hasIndexedGattUuid() => $_has(0);
   @$pb.TagNumber(1)
-  void clearGattHashUuid() => clearField(1);
+  void clearIndexedGattUuid() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get gattServiceHashUuid => $_getSZ(1);
+  $core.String get indexedServiceUuid => $_getSZ(1);
   @$pb.TagNumber(2)
-  set gattServiceHashUuid($core.String v) { $_setString(1, v); }
+  set indexedServiceUuid($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasGattServiceHashUuid() => $_has(1);
+  $core.bool hasIndexedServiceUuid() => $_has(1);
   @$pb.TagNumber(2)
-  void clearGattServiceHashUuid() => clearField(2);
+  void clearIndexedServiceUuid() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get hashUuid => $_getSZ(2);
+  $core.String get indexedUuid => $_getSZ(2);
   @$pb.TagNumber(3)
-  set hashUuid($core.String v) { $_setString(2, v); }
+  set indexedUuid($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasHashUuid() => $_has(2);
+  $core.bool hasIndexedUuid() => $_has(2);
   @$pb.TagNumber(3)
-  void clearHashUuid() => clearField(3);
+  void clearIndexedUuid() => clearField(3);
 
   @$pb.TagNumber(4)
   $core.bool get state => $_getBF(3);
@@ -617,187 +617,187 @@ class GattCharacteristicNotifyCommand extends $pb.GeneratedMessage {
   void clearState() => clearField(4);
 }
 
-class GattDescriptorReadCommand extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattDescriptorReadCommand', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattHashUuid')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattServiceHashUuid')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattCharacteristicHashUuid')
-    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'hashUuid')
+class GattDescriptorReadArguments extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattDescriptorReadArguments', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedGattUuid')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedServiceUuid')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedCharacteristicUuid')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedUuid')
     ..hasRequiredFields = false
   ;
 
-  GattDescriptorReadCommand._() : super();
-  factory GattDescriptorReadCommand({
-    $core.String? gattHashUuid,
-    $core.String? gattServiceHashUuid,
-    $core.String? gattCharacteristicHashUuid,
-    $core.String? hashUuid,
+  GattDescriptorReadArguments._() : super();
+  factory GattDescriptorReadArguments({
+    $core.String? indexedGattUuid,
+    $core.String? indexedServiceUuid,
+    $core.String? indexedCharacteristicUuid,
+    $core.String? indexedUuid,
   }) {
     final _result = create();
-    if (gattHashUuid != null) {
-      _result.gattHashUuid = gattHashUuid;
+    if (indexedGattUuid != null) {
+      _result.indexedGattUuid = indexedGattUuid;
     }
-    if (gattServiceHashUuid != null) {
-      _result.gattServiceHashUuid = gattServiceHashUuid;
+    if (indexedServiceUuid != null) {
+      _result.indexedServiceUuid = indexedServiceUuid;
     }
-    if (gattCharacteristicHashUuid != null) {
-      _result.gattCharacteristicHashUuid = gattCharacteristicHashUuid;
+    if (indexedCharacteristicUuid != null) {
+      _result.indexedCharacteristicUuid = indexedCharacteristicUuid;
     }
-    if (hashUuid != null) {
-      _result.hashUuid = hashUuid;
+    if (indexedUuid != null) {
+      _result.indexedUuid = indexedUuid;
     }
     return _result;
   }
-  factory GattDescriptorReadCommand.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory GattDescriptorReadCommand.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory GattDescriptorReadArguments.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GattDescriptorReadArguments.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  GattDescriptorReadCommand clone() => GattDescriptorReadCommand()..mergeFromMessage(this);
+  GattDescriptorReadArguments clone() => GattDescriptorReadArguments()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  GattDescriptorReadCommand copyWith(void Function(GattDescriptorReadCommand) updates) => super.copyWith((message) => updates(message as GattDescriptorReadCommand)) as GattDescriptorReadCommand; // ignore: deprecated_member_use
+  GattDescriptorReadArguments copyWith(void Function(GattDescriptorReadArguments) updates) => super.copyWith((message) => updates(message as GattDescriptorReadArguments)) as GattDescriptorReadArguments; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static GattDescriptorReadCommand create() => GattDescriptorReadCommand._();
-  GattDescriptorReadCommand createEmptyInstance() => create();
-  static $pb.PbList<GattDescriptorReadCommand> createRepeated() => $pb.PbList<GattDescriptorReadCommand>();
+  static GattDescriptorReadArguments create() => GattDescriptorReadArguments._();
+  GattDescriptorReadArguments createEmptyInstance() => create();
+  static $pb.PbList<GattDescriptorReadArguments> createRepeated() => $pb.PbList<GattDescriptorReadArguments>();
   @$core.pragma('dart2js:noInline')
-  static GattDescriptorReadCommand getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GattDescriptorReadCommand>(create);
-  static GattDescriptorReadCommand? _defaultInstance;
+  static GattDescriptorReadArguments getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GattDescriptorReadArguments>(create);
+  static GattDescriptorReadArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get gattHashUuid => $_getSZ(0);
+  $core.String get indexedGattUuid => $_getSZ(0);
   @$pb.TagNumber(1)
-  set gattHashUuid($core.String v) { $_setString(0, v); }
+  set indexedGattUuid($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasGattHashUuid() => $_has(0);
+  $core.bool hasIndexedGattUuid() => $_has(0);
   @$pb.TagNumber(1)
-  void clearGattHashUuid() => clearField(1);
+  void clearIndexedGattUuid() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get gattServiceHashUuid => $_getSZ(1);
+  $core.String get indexedServiceUuid => $_getSZ(1);
   @$pb.TagNumber(2)
-  set gattServiceHashUuid($core.String v) { $_setString(1, v); }
+  set indexedServiceUuid($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasGattServiceHashUuid() => $_has(1);
+  $core.bool hasIndexedServiceUuid() => $_has(1);
   @$pb.TagNumber(2)
-  void clearGattServiceHashUuid() => clearField(2);
+  void clearIndexedServiceUuid() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get gattCharacteristicHashUuid => $_getSZ(2);
+  $core.String get indexedCharacteristicUuid => $_getSZ(2);
   @$pb.TagNumber(3)
-  set gattCharacteristicHashUuid($core.String v) { $_setString(2, v); }
+  set indexedCharacteristicUuid($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasGattCharacteristicHashUuid() => $_has(2);
+  $core.bool hasIndexedCharacteristicUuid() => $_has(2);
   @$pb.TagNumber(3)
-  void clearGattCharacteristicHashUuid() => clearField(3);
+  void clearIndexedCharacteristicUuid() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get hashUuid => $_getSZ(3);
+  $core.String get indexedUuid => $_getSZ(3);
   @$pb.TagNumber(4)
-  set hashUuid($core.String v) { $_setString(3, v); }
+  set indexedUuid($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasHashUuid() => $_has(3);
+  $core.bool hasIndexedUuid() => $_has(3);
   @$pb.TagNumber(4)
-  void clearHashUuid() => clearField(4);
+  void clearIndexedUuid() => clearField(4);
 }
 
-class GattDescriptorWriteCommand extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattDescriptorWriteCommand', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattHashUuid')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattServiceHashUuid')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattCharacteristicHashUuid')
-    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'hashUuid')
+class GattDescriptorWriteArguments extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattDescriptorWriteArguments', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedGattUuid')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedServiceUuid')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedCharacteristicUuid')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedUuid')
     ..a<$core.List<$core.int>>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
-  GattDescriptorWriteCommand._() : super();
-  factory GattDescriptorWriteCommand({
-    $core.String? gattHashUuid,
-    $core.String? gattServiceHashUuid,
-    $core.String? gattCharacteristicHashUuid,
-    $core.String? hashUuid,
+  GattDescriptorWriteArguments._() : super();
+  factory GattDescriptorWriteArguments({
+    $core.String? indexedGattUuid,
+    $core.String? indexedServiceUuid,
+    $core.String? indexedCharacteristicUuid,
+    $core.String? indexedUuid,
     $core.List<$core.int>? value,
   }) {
     final _result = create();
-    if (gattHashUuid != null) {
-      _result.gattHashUuid = gattHashUuid;
+    if (indexedGattUuid != null) {
+      _result.indexedGattUuid = indexedGattUuid;
     }
-    if (gattServiceHashUuid != null) {
-      _result.gattServiceHashUuid = gattServiceHashUuid;
+    if (indexedServiceUuid != null) {
+      _result.indexedServiceUuid = indexedServiceUuid;
     }
-    if (gattCharacteristicHashUuid != null) {
-      _result.gattCharacteristicHashUuid = gattCharacteristicHashUuid;
+    if (indexedCharacteristicUuid != null) {
+      _result.indexedCharacteristicUuid = indexedCharacteristicUuid;
     }
-    if (hashUuid != null) {
-      _result.hashUuid = hashUuid;
+    if (indexedUuid != null) {
+      _result.indexedUuid = indexedUuid;
     }
     if (value != null) {
       _result.value = value;
     }
     return _result;
   }
-  factory GattDescriptorWriteCommand.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory GattDescriptorWriteCommand.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory GattDescriptorWriteArguments.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GattDescriptorWriteArguments.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  GattDescriptorWriteCommand clone() => GattDescriptorWriteCommand()..mergeFromMessage(this);
+  GattDescriptorWriteArguments clone() => GattDescriptorWriteArguments()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  GattDescriptorWriteCommand copyWith(void Function(GattDescriptorWriteCommand) updates) => super.copyWith((message) => updates(message as GattDescriptorWriteCommand)) as GattDescriptorWriteCommand; // ignore: deprecated_member_use
+  GattDescriptorWriteArguments copyWith(void Function(GattDescriptorWriteArguments) updates) => super.copyWith((message) => updates(message as GattDescriptorWriteArguments)) as GattDescriptorWriteArguments; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static GattDescriptorWriteCommand create() => GattDescriptorWriteCommand._();
-  GattDescriptorWriteCommand createEmptyInstance() => create();
-  static $pb.PbList<GattDescriptorWriteCommand> createRepeated() => $pb.PbList<GattDescriptorWriteCommand>();
+  static GattDescriptorWriteArguments create() => GattDescriptorWriteArguments._();
+  GattDescriptorWriteArguments createEmptyInstance() => create();
+  static $pb.PbList<GattDescriptorWriteArguments> createRepeated() => $pb.PbList<GattDescriptorWriteArguments>();
   @$core.pragma('dart2js:noInline')
-  static GattDescriptorWriteCommand getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GattDescriptorWriteCommand>(create);
-  static GattDescriptorWriteCommand? _defaultInstance;
+  static GattDescriptorWriteArguments getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GattDescriptorWriteArguments>(create);
+  static GattDescriptorWriteArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get gattHashUuid => $_getSZ(0);
+  $core.String get indexedGattUuid => $_getSZ(0);
   @$pb.TagNumber(1)
-  set gattHashUuid($core.String v) { $_setString(0, v); }
+  set indexedGattUuid($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasGattHashUuid() => $_has(0);
+  $core.bool hasIndexedGattUuid() => $_has(0);
   @$pb.TagNumber(1)
-  void clearGattHashUuid() => clearField(1);
+  void clearIndexedGattUuid() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get gattServiceHashUuid => $_getSZ(1);
+  $core.String get indexedServiceUuid => $_getSZ(1);
   @$pb.TagNumber(2)
-  set gattServiceHashUuid($core.String v) { $_setString(1, v); }
+  set indexedServiceUuid($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasGattServiceHashUuid() => $_has(1);
+  $core.bool hasIndexedServiceUuid() => $_has(1);
   @$pb.TagNumber(2)
-  void clearGattServiceHashUuid() => clearField(2);
+  void clearIndexedServiceUuid() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get gattCharacteristicHashUuid => $_getSZ(2);
+  $core.String get indexedCharacteristicUuid => $_getSZ(2);
   @$pb.TagNumber(3)
-  set gattCharacteristicHashUuid($core.String v) { $_setString(2, v); }
+  set indexedCharacteristicUuid($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasGattCharacteristicHashUuid() => $_has(2);
+  $core.bool hasIndexedCharacteristicUuid() => $_has(2);
   @$pb.TagNumber(3)
-  void clearGattCharacteristicHashUuid() => clearField(3);
+  void clearIndexedCharacteristicUuid() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get hashUuid => $_getSZ(3);
+  $core.String get indexedUuid => $_getSZ(3);
   @$pb.TagNumber(4)
-  set hashUuid($core.String v) { $_setString(3, v); }
+  set indexedUuid($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasHashUuid() => $_has(3);
+  $core.bool hasIndexedUuid() => $_has(3);
   @$pb.TagNumber(4)
-  void clearHashUuid() => clearField(4);
+  void clearIndexedUuid() => clearField(4);
 
   @$pb.TagNumber(5)
   $core.List<$core.int> get value => $_getN(4);
@@ -809,104 +809,55 @@ class GattDescriptorWriteCommand extends $pb.GeneratedMessage {
   void clearValue() => clearField(5);
 }
 
-class CentralConnectReply extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CentralConnectReply', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
-    ..aOM<GATT>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gatt', subBuilder: GATT.create)
-    ..hasRequiredFields = false
-  ;
-
-  CentralConnectReply._() : super();
-  factory CentralConnectReply({
-    GATT? gatt,
-  }) {
-    final _result = create();
-    if (gatt != null) {
-      _result.gatt = gatt;
-    }
-    return _result;
-  }
-  factory CentralConnectReply.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory CentralConnectReply.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  CentralConnectReply clone() => CentralConnectReply()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  CentralConnectReply copyWith(void Function(CentralConnectReply) updates) => super.copyWith((message) => updates(message as CentralConnectReply)) as CentralConnectReply; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static CentralConnectReply create() => CentralConnectReply._();
-  CentralConnectReply createEmptyInstance() => create();
-  static $pb.PbList<CentralConnectReply> createRepeated() => $pb.PbList<CentralConnectReply>();
-  @$core.pragma('dart2js:noInline')
-  static CentralConnectReply getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CentralConnectReply>(create);
-  static CentralConnectReply? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  GATT get gatt => $_getN(0);
-  @$pb.TagNumber(1)
-  set gatt(GATT v) { setField(1, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasGatt() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearGatt() => clearField(1);
-  @$pb.TagNumber(1)
-  GATT ensureGatt() => $_ensure(0);
-}
-
-enum Event_Stub {
-  bluetoothStateChangedEvent, 
-  centralDiscoveredEvent, 
-  gattConnectionLostEvent, 
-  gattCharacteristicValueChangedEvent, 
+enum Event_Arguments {
+  bluetoothStateChangedArguments, 
+  centralDiscoveredArguments, 
+  gattConnectionLostArguments, 
+  characteristicValueChangedArguments, 
   notSet
 }
 
 class Event extends $pb.GeneratedMessage {
-  static const $core.Map<$core.int, Event_Stub> _Event_StubByTag = {
-    2 : Event_Stub.bluetoothStateChangedEvent,
-    3 : Event_Stub.centralDiscoveredEvent,
-    4 : Event_Stub.gattConnectionLostEvent,
-    5 : Event_Stub.gattCharacteristicValueChangedEvent,
-    0 : Event_Stub.notSet
+  static const $core.Map<$core.int, Event_Arguments> _Event_ArgumentsByTag = {
+    2 : Event_Arguments.bluetoothStateChangedArguments,
+    3 : Event_Arguments.centralDiscoveredArguments,
+    4 : Event_Arguments.gattConnectionLostArguments,
+    5 : Event_Arguments.characteristicValueChangedArguments,
+    0 : Event_Arguments.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Event', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
     ..oo(0, [2, 3, 4, 5])
     ..e<EventCategory>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'category', $pb.PbFieldType.OE, defaultOrMaker: EventCategory.EVENT_CATEGORY_BLUETOOTH_STATE_CHANGED, valueOf: EventCategory.valueOf, enumValues: EventCategory.values)
-    ..aOM<BluetoothStateChangedEvent>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'bluetoothStateChangedEvent', subBuilder: BluetoothStateChangedEvent.create)
-    ..aOM<CentralDiscoveredEvent>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'centralDiscoveredEvent', subBuilder: CentralDiscoveredEvent.create)
-    ..aOM<GattConnectionLostEvent>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattConnectionLostEvent', subBuilder: GattConnectionLostEvent.create)
-    ..aOM<GattCharacteristicValueChangedEvent>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattCharacteristicValueChangedEvent', subBuilder: GattCharacteristicValueChangedEvent.create)
+    ..aOM<BluetoothStateChangedArguments>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'bluetoothStateChangedArguments', subBuilder: BluetoothStateChangedArguments.create)
+    ..aOM<CentralDiscoveredArguments>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'centralDiscoveredArguments', subBuilder: CentralDiscoveredArguments.create)
+    ..aOM<GattConnectionLostArguments>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattConnectionLostArguments', subBuilder: GattConnectionLostArguments.create)
+    ..aOM<GattCharacteristicValueChangedArguments>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'characteristicValueChangedArguments', subBuilder: GattCharacteristicValueChangedArguments.create)
     ..hasRequiredFields = false
   ;
 
   Event._() : super();
   factory Event({
     EventCategory? category,
-    BluetoothStateChangedEvent? bluetoothStateChangedEvent,
-    CentralDiscoveredEvent? centralDiscoveredEvent,
-    GattConnectionLostEvent? gattConnectionLostEvent,
-    GattCharacteristicValueChangedEvent? gattCharacteristicValueChangedEvent,
+    BluetoothStateChangedArguments? bluetoothStateChangedArguments,
+    CentralDiscoveredArguments? centralDiscoveredArguments,
+    GattConnectionLostArguments? gattConnectionLostArguments,
+    GattCharacteristicValueChangedArguments? characteristicValueChangedArguments,
   }) {
     final _result = create();
     if (category != null) {
       _result.category = category;
     }
-    if (bluetoothStateChangedEvent != null) {
-      _result.bluetoothStateChangedEvent = bluetoothStateChangedEvent;
+    if (bluetoothStateChangedArguments != null) {
+      _result.bluetoothStateChangedArguments = bluetoothStateChangedArguments;
     }
-    if (centralDiscoveredEvent != null) {
-      _result.centralDiscoveredEvent = centralDiscoveredEvent;
+    if (centralDiscoveredArguments != null) {
+      _result.centralDiscoveredArguments = centralDiscoveredArguments;
     }
-    if (gattConnectionLostEvent != null) {
-      _result.gattConnectionLostEvent = gattConnectionLostEvent;
+    if (gattConnectionLostArguments != null) {
+      _result.gattConnectionLostArguments = gattConnectionLostArguments;
     }
-    if (gattCharacteristicValueChangedEvent != null) {
-      _result.gattCharacteristicValueChangedEvent = gattCharacteristicValueChangedEvent;
+    if (characteristicValueChangedArguments != null) {
+      _result.characteristicValueChangedArguments = characteristicValueChangedArguments;
     }
     return _result;
   }
@@ -931,8 +882,8 @@ class Event extends $pb.GeneratedMessage {
   static Event getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Event>(create);
   static Event? _defaultInstance;
 
-  Event_Stub whichStub() => _Event_StubByTag[$_whichOneof(0)]!;
-  void clearStub() => clearField($_whichOneof(0));
+  Event_Arguments whichArguments() => _Event_ArgumentsByTag[$_whichOneof(0)]!;
+  void clearArguments() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
   EventCategory get category => $_getN(0);
@@ -944,58 +895,58 @@ class Event extends $pb.GeneratedMessage {
   void clearCategory() => clearField(1);
 
   @$pb.TagNumber(2)
-  BluetoothStateChangedEvent get bluetoothStateChangedEvent => $_getN(1);
+  BluetoothStateChangedArguments get bluetoothStateChangedArguments => $_getN(1);
   @$pb.TagNumber(2)
-  set bluetoothStateChangedEvent(BluetoothStateChangedEvent v) { setField(2, v); }
+  set bluetoothStateChangedArguments(BluetoothStateChangedArguments v) { setField(2, v); }
   @$pb.TagNumber(2)
-  $core.bool hasBluetoothStateChangedEvent() => $_has(1);
+  $core.bool hasBluetoothStateChangedArguments() => $_has(1);
   @$pb.TagNumber(2)
-  void clearBluetoothStateChangedEvent() => clearField(2);
+  void clearBluetoothStateChangedArguments() => clearField(2);
   @$pb.TagNumber(2)
-  BluetoothStateChangedEvent ensureBluetoothStateChangedEvent() => $_ensure(1);
+  BluetoothStateChangedArguments ensureBluetoothStateChangedArguments() => $_ensure(1);
 
   @$pb.TagNumber(3)
-  CentralDiscoveredEvent get centralDiscoveredEvent => $_getN(2);
+  CentralDiscoveredArguments get centralDiscoveredArguments => $_getN(2);
   @$pb.TagNumber(3)
-  set centralDiscoveredEvent(CentralDiscoveredEvent v) { setField(3, v); }
+  set centralDiscoveredArguments(CentralDiscoveredArguments v) { setField(3, v); }
   @$pb.TagNumber(3)
-  $core.bool hasCentralDiscoveredEvent() => $_has(2);
+  $core.bool hasCentralDiscoveredArguments() => $_has(2);
   @$pb.TagNumber(3)
-  void clearCentralDiscoveredEvent() => clearField(3);
+  void clearCentralDiscoveredArguments() => clearField(3);
   @$pb.TagNumber(3)
-  CentralDiscoveredEvent ensureCentralDiscoveredEvent() => $_ensure(2);
+  CentralDiscoveredArguments ensureCentralDiscoveredArguments() => $_ensure(2);
 
   @$pb.TagNumber(4)
-  GattConnectionLostEvent get gattConnectionLostEvent => $_getN(3);
+  GattConnectionLostArguments get gattConnectionLostArguments => $_getN(3);
   @$pb.TagNumber(4)
-  set gattConnectionLostEvent(GattConnectionLostEvent v) { setField(4, v); }
+  set gattConnectionLostArguments(GattConnectionLostArguments v) { setField(4, v); }
   @$pb.TagNumber(4)
-  $core.bool hasGattConnectionLostEvent() => $_has(3);
+  $core.bool hasGattConnectionLostArguments() => $_has(3);
   @$pb.TagNumber(4)
-  void clearGattConnectionLostEvent() => clearField(4);
+  void clearGattConnectionLostArguments() => clearField(4);
   @$pb.TagNumber(4)
-  GattConnectionLostEvent ensureGattConnectionLostEvent() => $_ensure(3);
+  GattConnectionLostArguments ensureGattConnectionLostArguments() => $_ensure(3);
 
   @$pb.TagNumber(5)
-  GattCharacteristicValueChangedEvent get gattCharacteristicValueChangedEvent => $_getN(4);
+  GattCharacteristicValueChangedArguments get characteristicValueChangedArguments => $_getN(4);
   @$pb.TagNumber(5)
-  set gattCharacteristicValueChangedEvent(GattCharacteristicValueChangedEvent v) { setField(5, v); }
+  set characteristicValueChangedArguments(GattCharacteristicValueChangedArguments v) { setField(5, v); }
   @$pb.TagNumber(5)
-  $core.bool hasGattCharacteristicValueChangedEvent() => $_has(4);
+  $core.bool hasCharacteristicValueChangedArguments() => $_has(4);
   @$pb.TagNumber(5)
-  void clearGattCharacteristicValueChangedEvent() => clearField(5);
+  void clearCharacteristicValueChangedArguments() => clearField(5);
   @$pb.TagNumber(5)
-  GattCharacteristicValueChangedEvent ensureGattCharacteristicValueChangedEvent() => $_ensure(4);
+  GattCharacteristicValueChangedArguments ensureCharacteristicValueChangedArguments() => $_ensure(4);
 }
 
-class BluetoothStateChangedEvent extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'BluetoothStateChangedEvent', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
+class BluetoothStateChangedArguments extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'BluetoothStateChangedArguments', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
     ..e<BluetoothState>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'state', $pb.PbFieldType.OE, defaultOrMaker: BluetoothState.BLUETOOTH_STATE_UNSUPPORTED, valueOf: BluetoothState.valueOf, enumValues: BluetoothState.values)
     ..hasRequiredFields = false
   ;
 
-  BluetoothStateChangedEvent._() : super();
-  factory BluetoothStateChangedEvent({
+  BluetoothStateChangedArguments._() : super();
+  factory BluetoothStateChangedArguments({
     BluetoothState? state,
   }) {
     final _result = create();
@@ -1004,26 +955,26 @@ class BluetoothStateChangedEvent extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory BluetoothStateChangedEvent.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory BluetoothStateChangedEvent.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory BluetoothStateChangedArguments.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory BluetoothStateChangedArguments.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  BluetoothStateChangedEvent clone() => BluetoothStateChangedEvent()..mergeFromMessage(this);
+  BluetoothStateChangedArguments clone() => BluetoothStateChangedArguments()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  BluetoothStateChangedEvent copyWith(void Function(BluetoothStateChangedEvent) updates) => super.copyWith((message) => updates(message as BluetoothStateChangedEvent)) as BluetoothStateChangedEvent; // ignore: deprecated_member_use
+  BluetoothStateChangedArguments copyWith(void Function(BluetoothStateChangedArguments) updates) => super.copyWith((message) => updates(message as BluetoothStateChangedArguments)) as BluetoothStateChangedArguments; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static BluetoothStateChangedEvent create() => BluetoothStateChangedEvent._();
-  BluetoothStateChangedEvent createEmptyInstance() => create();
-  static $pb.PbList<BluetoothStateChangedEvent> createRepeated() => $pb.PbList<BluetoothStateChangedEvent>();
+  static BluetoothStateChangedArguments create() => BluetoothStateChangedArguments._();
+  BluetoothStateChangedArguments createEmptyInstance() => create();
+  static $pb.PbList<BluetoothStateChangedArguments> createRepeated() => $pb.PbList<BluetoothStateChangedArguments>();
   @$core.pragma('dart2js:noInline')
-  static BluetoothStateChangedEvent getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BluetoothStateChangedEvent>(create);
-  static BluetoothStateChangedEvent? _defaultInstance;
+  static BluetoothStateChangedArguments getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BluetoothStateChangedArguments>(create);
+  static BluetoothStateChangedArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
   BluetoothState get state => $_getN(0);
@@ -1035,105 +986,105 @@ class BluetoothStateChangedEvent extends $pb.GeneratedMessage {
   void clearState() => clearField(1);
 }
 
-class CentralDiscoveredEvent extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CentralDiscoveredEvent', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
-    ..aOM<PeripheralDiscovery>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'peripheralDiscovery', subBuilder: PeripheralDiscovery.create)
+class CentralDiscoveredArguments extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CentralDiscoveredArguments', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
+    ..aOM<PeripheralDiscovery>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'discovery', subBuilder: PeripheralDiscovery.create)
     ..hasRequiredFields = false
   ;
 
-  CentralDiscoveredEvent._() : super();
-  factory CentralDiscoveredEvent({
-    PeripheralDiscovery? peripheralDiscovery,
+  CentralDiscoveredArguments._() : super();
+  factory CentralDiscoveredArguments({
+    PeripheralDiscovery? discovery,
   }) {
     final _result = create();
-    if (peripheralDiscovery != null) {
-      _result.peripheralDiscovery = peripheralDiscovery;
+    if (discovery != null) {
+      _result.discovery = discovery;
     }
     return _result;
   }
-  factory CentralDiscoveredEvent.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory CentralDiscoveredEvent.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory CentralDiscoveredArguments.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CentralDiscoveredArguments.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  CentralDiscoveredEvent clone() => CentralDiscoveredEvent()..mergeFromMessage(this);
+  CentralDiscoveredArguments clone() => CentralDiscoveredArguments()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  CentralDiscoveredEvent copyWith(void Function(CentralDiscoveredEvent) updates) => super.copyWith((message) => updates(message as CentralDiscoveredEvent)) as CentralDiscoveredEvent; // ignore: deprecated_member_use
+  CentralDiscoveredArguments copyWith(void Function(CentralDiscoveredArguments) updates) => super.copyWith((message) => updates(message as CentralDiscoveredArguments)) as CentralDiscoveredArguments; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static CentralDiscoveredEvent create() => CentralDiscoveredEvent._();
-  CentralDiscoveredEvent createEmptyInstance() => create();
-  static $pb.PbList<CentralDiscoveredEvent> createRepeated() => $pb.PbList<CentralDiscoveredEvent>();
+  static CentralDiscoveredArguments create() => CentralDiscoveredArguments._();
+  CentralDiscoveredArguments createEmptyInstance() => create();
+  static $pb.PbList<CentralDiscoveredArguments> createRepeated() => $pb.PbList<CentralDiscoveredArguments>();
   @$core.pragma('dart2js:noInline')
-  static CentralDiscoveredEvent getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CentralDiscoveredEvent>(create);
-  static CentralDiscoveredEvent? _defaultInstance;
+  static CentralDiscoveredArguments getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CentralDiscoveredArguments>(create);
+  static CentralDiscoveredArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  PeripheralDiscovery get peripheralDiscovery => $_getN(0);
+  PeripheralDiscovery get discovery => $_getN(0);
   @$pb.TagNumber(1)
-  set peripheralDiscovery(PeripheralDiscovery v) { setField(1, v); }
+  set discovery(PeripheralDiscovery v) { setField(1, v); }
   @$pb.TagNumber(1)
-  $core.bool hasPeripheralDiscovery() => $_has(0);
+  $core.bool hasDiscovery() => $_has(0);
   @$pb.TagNumber(1)
-  void clearPeripheralDiscovery() => clearField(1);
+  void clearDiscovery() => clearField(1);
   @$pb.TagNumber(1)
-  PeripheralDiscovery ensurePeripheralDiscovery() => $_ensure(0);
+  PeripheralDiscovery ensureDiscovery() => $_ensure(0);
 }
 
-class GattConnectionLostEvent extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattConnectionLostEvent', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'hashUuid')
+class GattConnectionLostArguments extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattConnectionLostArguments', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedUuid')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'error')
     ..hasRequiredFields = false
   ;
 
-  GattConnectionLostEvent._() : super();
-  factory GattConnectionLostEvent({
-    $core.String? hashUuid,
+  GattConnectionLostArguments._() : super();
+  factory GattConnectionLostArguments({
+    $core.String? indexedUuid,
     $core.String? error,
   }) {
     final _result = create();
-    if (hashUuid != null) {
-      _result.hashUuid = hashUuid;
+    if (indexedUuid != null) {
+      _result.indexedUuid = indexedUuid;
     }
     if (error != null) {
       _result.error = error;
     }
     return _result;
   }
-  factory GattConnectionLostEvent.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory GattConnectionLostEvent.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory GattConnectionLostArguments.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GattConnectionLostArguments.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  GattConnectionLostEvent clone() => GattConnectionLostEvent()..mergeFromMessage(this);
+  GattConnectionLostArguments clone() => GattConnectionLostArguments()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  GattConnectionLostEvent copyWith(void Function(GattConnectionLostEvent) updates) => super.copyWith((message) => updates(message as GattConnectionLostEvent)) as GattConnectionLostEvent; // ignore: deprecated_member_use
+  GattConnectionLostArguments copyWith(void Function(GattConnectionLostArguments) updates) => super.copyWith((message) => updates(message as GattConnectionLostArguments)) as GattConnectionLostArguments; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static GattConnectionLostEvent create() => GattConnectionLostEvent._();
-  GattConnectionLostEvent createEmptyInstance() => create();
-  static $pb.PbList<GattConnectionLostEvent> createRepeated() => $pb.PbList<GattConnectionLostEvent>();
+  static GattConnectionLostArguments create() => GattConnectionLostArguments._();
+  GattConnectionLostArguments createEmptyInstance() => create();
+  static $pb.PbList<GattConnectionLostArguments> createRepeated() => $pb.PbList<GattConnectionLostArguments>();
   @$core.pragma('dart2js:noInline')
-  static GattConnectionLostEvent getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GattConnectionLostEvent>(create);
-  static GattConnectionLostEvent? _defaultInstance;
+  static GattConnectionLostArguments getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GattConnectionLostArguments>(create);
+  static GattConnectionLostArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get hashUuid => $_getSZ(0);
+  $core.String get indexedUuid => $_getSZ(0);
   @$pb.TagNumber(1)
-  set hashUuid($core.String v) { $_setString(0, v); }
+  set indexedUuid($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasHashUuid() => $_has(0);
+  $core.bool hasIndexedUuid() => $_has(0);
   @$pb.TagNumber(1)
-  void clearHashUuid() => clearField(1);
+  void clearIndexedUuid() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.String get error => $_getSZ(1);
@@ -1145,84 +1096,84 @@ class GattConnectionLostEvent extends $pb.GeneratedMessage {
   void clearError() => clearField(2);
 }
 
-class GattCharacteristicValueChangedEvent extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattCharacteristicValueChangedEvent', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattHashUuid')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattServiceHashUuid')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'hashUuid')
+class GattCharacteristicValueChangedArguments extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattCharacteristicValueChangedArguments', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedGattUuid')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedServiceUuid')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedUuid')
     ..a<$core.List<$core.int>>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'value', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
-  GattCharacteristicValueChangedEvent._() : super();
-  factory GattCharacteristicValueChangedEvent({
-    $core.String? gattHashUuid,
-    $core.String? gattServiceHashUuid,
-    $core.String? hashUuid,
+  GattCharacteristicValueChangedArguments._() : super();
+  factory GattCharacteristicValueChangedArguments({
+    $core.String? indexedGattUuid,
+    $core.String? indexedServiceUuid,
+    $core.String? indexedUuid,
     $core.List<$core.int>? value,
   }) {
     final _result = create();
-    if (gattHashUuid != null) {
-      _result.gattHashUuid = gattHashUuid;
+    if (indexedGattUuid != null) {
+      _result.indexedGattUuid = indexedGattUuid;
     }
-    if (gattServiceHashUuid != null) {
-      _result.gattServiceHashUuid = gattServiceHashUuid;
+    if (indexedServiceUuid != null) {
+      _result.indexedServiceUuid = indexedServiceUuid;
     }
-    if (hashUuid != null) {
-      _result.hashUuid = hashUuid;
+    if (indexedUuid != null) {
+      _result.indexedUuid = indexedUuid;
     }
     if (value != null) {
       _result.value = value;
     }
     return _result;
   }
-  factory GattCharacteristicValueChangedEvent.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory GattCharacteristicValueChangedEvent.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory GattCharacteristicValueChangedArguments.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GattCharacteristicValueChangedArguments.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  GattCharacteristicValueChangedEvent clone() => GattCharacteristicValueChangedEvent()..mergeFromMessage(this);
+  GattCharacteristicValueChangedArguments clone() => GattCharacteristicValueChangedArguments()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  GattCharacteristicValueChangedEvent copyWith(void Function(GattCharacteristicValueChangedEvent) updates) => super.copyWith((message) => updates(message as GattCharacteristicValueChangedEvent)) as GattCharacteristicValueChangedEvent; // ignore: deprecated_member_use
+  GattCharacteristicValueChangedArguments copyWith(void Function(GattCharacteristicValueChangedArguments) updates) => super.copyWith((message) => updates(message as GattCharacteristicValueChangedArguments)) as GattCharacteristicValueChangedArguments; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static GattCharacteristicValueChangedEvent create() => GattCharacteristicValueChangedEvent._();
-  GattCharacteristicValueChangedEvent createEmptyInstance() => create();
-  static $pb.PbList<GattCharacteristicValueChangedEvent> createRepeated() => $pb.PbList<GattCharacteristicValueChangedEvent>();
+  static GattCharacteristicValueChangedArguments create() => GattCharacteristicValueChangedArguments._();
+  GattCharacteristicValueChangedArguments createEmptyInstance() => create();
+  static $pb.PbList<GattCharacteristicValueChangedArguments> createRepeated() => $pb.PbList<GattCharacteristicValueChangedArguments>();
   @$core.pragma('dart2js:noInline')
-  static GattCharacteristicValueChangedEvent getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GattCharacteristicValueChangedEvent>(create);
-  static GattCharacteristicValueChangedEvent? _defaultInstance;
+  static GattCharacteristicValueChangedArguments getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GattCharacteristicValueChangedArguments>(create);
+  static GattCharacteristicValueChangedArguments? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get gattHashUuid => $_getSZ(0);
+  $core.String get indexedGattUuid => $_getSZ(0);
   @$pb.TagNumber(1)
-  set gattHashUuid($core.String v) { $_setString(0, v); }
+  set indexedGattUuid($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasGattHashUuid() => $_has(0);
+  $core.bool hasIndexedGattUuid() => $_has(0);
   @$pb.TagNumber(1)
-  void clearGattHashUuid() => clearField(1);
+  void clearIndexedGattUuid() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get gattServiceHashUuid => $_getSZ(1);
+  $core.String get indexedServiceUuid => $_getSZ(1);
   @$pb.TagNumber(2)
-  set gattServiceHashUuid($core.String v) { $_setString(1, v); }
+  set indexedServiceUuid($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasGattServiceHashUuid() => $_has(1);
+  $core.bool hasIndexedServiceUuid() => $_has(1);
   @$pb.TagNumber(2)
-  void clearGattServiceHashUuid() => clearField(2);
+  void clearIndexedServiceUuid() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get hashUuid => $_getSZ(2);
+  $core.String get indexedUuid => $_getSZ(2);
   @$pb.TagNumber(3)
-  set hashUuid($core.String v) { $_setString(2, v); }
+  set indexedUuid($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasHashUuid() => $_has(2);
+  $core.bool hasIndexedUuid() => $_has(2);
   @$pb.TagNumber(3)
-  void clearHashUuid() => clearField(3);
+  void clearIndexedUuid() => clearField(3);
 
   @$pb.TagNumber(4)
   $core.List<$core.int> get value => $_getN(3);
@@ -1236,7 +1187,7 @@ class GattCharacteristicValueChangedEvent extends $pb.GeneratedMessage {
 
 class GATT extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GATT', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'hashUuid')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedUuid')
     ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'maximumWriteLength', $pb.PbFieldType.O3)
     ..pc<GattService>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'services', $pb.PbFieldType.PM, subBuilder: GattService.create)
     ..hasRequiredFields = false
@@ -1244,13 +1195,13 @@ class GATT extends $pb.GeneratedMessage {
 
   GATT._() : super();
   factory GATT({
-    $core.String? hashUuid,
+    $core.String? indexedUuid,
     $core.int? maximumWriteLength,
     $core.Iterable<GattService>? services,
   }) {
     final _result = create();
-    if (hashUuid != null) {
-      _result.hashUuid = hashUuid;
+    if (indexedUuid != null) {
+      _result.indexedUuid = indexedUuid;
     }
     if (maximumWriteLength != null) {
       _result.maximumWriteLength = maximumWriteLength;
@@ -1282,13 +1233,13 @@ class GATT extends $pb.GeneratedMessage {
   static GATT? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get hashUuid => $_getSZ(0);
+  $core.String get indexedUuid => $_getSZ(0);
   @$pb.TagNumber(1)
-  set hashUuid($core.String v) { $_setString(0, v); }
+  set indexedUuid($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasHashUuid() => $_has(0);
+  $core.bool hasIndexedUuid() => $_has(0);
   @$pb.TagNumber(1)
-  void clearHashUuid() => clearField(1);
+  void clearIndexedUuid() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.int get maximumWriteLength => $_getIZ(1);
@@ -1305,7 +1256,7 @@ class GATT extends $pb.GeneratedMessage {
 
 class GattService extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattService', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'hashUuid')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedUuid')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uuid')
     ..pc<GattCharacteristic>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'characteristics', $pb.PbFieldType.PM, subBuilder: GattCharacteristic.create)
     ..hasRequiredFields = false
@@ -1313,13 +1264,13 @@ class GattService extends $pb.GeneratedMessage {
 
   GattService._() : super();
   factory GattService({
-    $core.String? hashUuid,
+    $core.String? indexedUuid,
     $core.String? uuid,
     $core.Iterable<GattCharacteristic>? characteristics,
   }) {
     final _result = create();
-    if (hashUuid != null) {
-      _result.hashUuid = hashUuid;
+    if (indexedUuid != null) {
+      _result.indexedUuid = indexedUuid;
     }
     if (uuid != null) {
       _result.uuid = uuid;
@@ -1351,13 +1302,13 @@ class GattService extends $pb.GeneratedMessage {
   static GattService? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get hashUuid => $_getSZ(0);
+  $core.String get indexedUuid => $_getSZ(0);
   @$pb.TagNumber(1)
-  set hashUuid($core.String v) { $_setString(0, v); }
+  set indexedUuid($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasHashUuid() => $_has(0);
+  $core.bool hasIndexedUuid() => $_has(0);
   @$pb.TagNumber(1)
-  void clearHashUuid() => clearField(1);
+  void clearIndexedUuid() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.String get uuid => $_getSZ(1);
@@ -1374,7 +1325,7 @@ class GattService extends $pb.GeneratedMessage {
 
 class GattCharacteristic extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattCharacteristic', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'hashUuid')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedUuid')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uuid')
     ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'canRead')
     ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'canWrite')
@@ -1386,7 +1337,7 @@ class GattCharacteristic extends $pb.GeneratedMessage {
 
   GattCharacteristic._() : super();
   factory GattCharacteristic({
-    $core.String? hashUuid,
+    $core.String? indexedUuid,
     $core.String? uuid,
     $core.bool? canRead,
     $core.bool? canWrite,
@@ -1395,8 +1346,8 @@ class GattCharacteristic extends $pb.GeneratedMessage {
     $core.Iterable<GattDescriptor>? descriptors,
   }) {
     final _result = create();
-    if (hashUuid != null) {
-      _result.hashUuid = hashUuid;
+    if (indexedUuid != null) {
+      _result.indexedUuid = indexedUuid;
     }
     if (uuid != null) {
       _result.uuid = uuid;
@@ -1440,13 +1391,13 @@ class GattCharacteristic extends $pb.GeneratedMessage {
   static GattCharacteristic? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get hashUuid => $_getSZ(0);
+  $core.String get indexedUuid => $_getSZ(0);
   @$pb.TagNumber(1)
-  set hashUuid($core.String v) { $_setString(0, v); }
+  set indexedUuid($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasHashUuid() => $_has(0);
+  $core.bool hasIndexedUuid() => $_has(0);
   @$pb.TagNumber(1)
-  void clearHashUuid() => clearField(1);
+  void clearIndexedUuid() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.String get uuid => $_getSZ(1);
@@ -1499,19 +1450,19 @@ class GattCharacteristic extends $pb.GeneratedMessage {
 
 class GattDescriptor extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattDescriptor', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy'), createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'hashUuid')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'indexedUuid')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uuid')
     ..hasRequiredFields = false
   ;
 
   GattDescriptor._() : super();
   factory GattDescriptor({
-    $core.String? hashUuid,
+    $core.String? indexedUuid,
     $core.String? uuid,
   }) {
     final _result = create();
-    if (hashUuid != null) {
-      _result.hashUuid = hashUuid;
+    if (indexedUuid != null) {
+      _result.indexedUuid = indexedUuid;
     }
     if (uuid != null) {
       _result.uuid = uuid;
@@ -1540,13 +1491,13 @@ class GattDescriptor extends $pb.GeneratedMessage {
   static GattDescriptor? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get hashUuid => $_getSZ(0);
+  $core.String get indexedUuid => $_getSZ(0);
   @$pb.TagNumber(1)
-  set hashUuid($core.String v) { $_setString(0, v); }
+  set indexedUuid($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasHashUuid() => $_has(0);
+  $core.bool hasIndexedUuid() => $_has(0);
   @$pb.TagNumber(1)
-  void clearHashUuid() => clearField(1);
+  void clearIndexedUuid() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.String get uuid => $_getSZ(1);

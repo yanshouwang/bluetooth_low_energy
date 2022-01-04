@@ -40,106 +40,106 @@ public object EventKt {
     }
 
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothStateChangedEvent bluetooth_state_changed_event = 2;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothStateChangedArguments bluetooth_state_changed_arguments = 2;</code>
      */
-    public var bluetoothStateChangedEvent: dev.yanshouwang.bluetooth_low_energy.Messages.BluetoothStateChangedEvent
-      @JvmName("getBluetoothStateChangedEvent")
-      get() = _builder.getBluetoothStateChangedEvent()
-      @JvmName("setBluetoothStateChangedEvent")
+    public var bluetoothStateChangedArguments: dev.yanshouwang.bluetooth_low_energy.Messages.BluetoothStateChangedArguments
+      @JvmName("getBluetoothStateChangedArguments")
+      get() = _builder.getBluetoothStateChangedArguments()
+      @JvmName("setBluetoothStateChangedArguments")
       set(value) {
-        _builder.setBluetoothStateChangedEvent(value)
+        _builder.setBluetoothStateChangedArguments(value)
       }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothStateChangedEvent bluetooth_state_changed_event = 2;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothStateChangedArguments bluetooth_state_changed_arguments = 2;</code>
      */
-    public fun clearBluetoothStateChangedEvent() {
-      _builder.clearBluetoothStateChangedEvent()
+    public fun clearBluetoothStateChangedArguments() {
+      _builder.clearBluetoothStateChangedArguments()
     }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothStateChangedEvent bluetooth_state_changed_event = 2;</code>
-     * @return Whether the bluetoothStateChangedEvent field is set.
+     * <code>.dev.yanshouwang.bluetooth_low_energy.BluetoothStateChangedArguments bluetooth_state_changed_arguments = 2;</code>
+     * @return Whether the bluetoothStateChangedArguments field is set.
      */
-    public fun hasBluetoothStateChangedEvent(): kotlin.Boolean {
-      return _builder.hasBluetoothStateChangedEvent()
+    public fun hasBluetoothStateChangedArguments(): kotlin.Boolean {
+      return _builder.hasBluetoothStateChangedArguments()
     }
 
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.CentralDiscoveredEvent central_discovered_event = 3;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.CentralDiscoveredArguments central_discovered_arguments = 3;</code>
      */
-    public var centralDiscoveredEvent: dev.yanshouwang.bluetooth_low_energy.Messages.CentralDiscoveredEvent
-      @JvmName("getCentralDiscoveredEvent")
-      get() = _builder.getCentralDiscoveredEvent()
-      @JvmName("setCentralDiscoveredEvent")
+    public var centralDiscoveredArguments: dev.yanshouwang.bluetooth_low_energy.Messages.CentralDiscoveredArguments
+      @JvmName("getCentralDiscoveredArguments")
+      get() = _builder.getCentralDiscoveredArguments()
+      @JvmName("setCentralDiscoveredArguments")
       set(value) {
-        _builder.setCentralDiscoveredEvent(value)
+        _builder.setCentralDiscoveredArguments(value)
       }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.CentralDiscoveredEvent central_discovered_event = 3;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.CentralDiscoveredArguments central_discovered_arguments = 3;</code>
      */
-    public fun clearCentralDiscoveredEvent() {
-      _builder.clearCentralDiscoveredEvent()
+    public fun clearCentralDiscoveredArguments() {
+      _builder.clearCentralDiscoveredArguments()
     }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.CentralDiscoveredEvent central_discovered_event = 3;</code>
-     * @return Whether the centralDiscoveredEvent field is set.
+     * <code>.dev.yanshouwang.bluetooth_low_energy.CentralDiscoveredArguments central_discovered_arguments = 3;</code>
+     * @return Whether the centralDiscoveredArguments field is set.
      */
-    public fun hasCentralDiscoveredEvent(): kotlin.Boolean {
-      return _builder.hasCentralDiscoveredEvent()
+    public fun hasCentralDiscoveredArguments(): kotlin.Boolean {
+      return _builder.hasCentralDiscoveredArguments()
     }
 
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.GattConnectionLostEvent gatt_connection_lost_event = 4;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattConnectionLostArguments gatt_connection_lost_arguments = 4;</code>
      */
-    public var gattConnectionLostEvent: dev.yanshouwang.bluetooth_low_energy.Messages.GattConnectionLostEvent
-      @JvmName("getGattConnectionLostEvent")
-      get() = _builder.getGattConnectionLostEvent()
-      @JvmName("setGattConnectionLostEvent")
+    public var gattConnectionLostArguments: dev.yanshouwang.bluetooth_low_energy.Messages.GattConnectionLostArguments
+      @JvmName("getGattConnectionLostArguments")
+      get() = _builder.getGattConnectionLostArguments()
+      @JvmName("setGattConnectionLostArguments")
       set(value) {
-        _builder.setGattConnectionLostEvent(value)
+        _builder.setGattConnectionLostArguments(value)
       }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.GattConnectionLostEvent gatt_connection_lost_event = 4;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattConnectionLostArguments gatt_connection_lost_arguments = 4;</code>
      */
-    public fun clearGattConnectionLostEvent() {
-      _builder.clearGattConnectionLostEvent()
+    public fun clearGattConnectionLostArguments() {
+      _builder.clearGattConnectionLostArguments()
     }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.GattConnectionLostEvent gatt_connection_lost_event = 4;</code>
-     * @return Whether the gattConnectionLostEvent field is set.
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattConnectionLostArguments gatt_connection_lost_arguments = 4;</code>
+     * @return Whether the gattConnectionLostArguments field is set.
      */
-    public fun hasGattConnectionLostEvent(): kotlin.Boolean {
-      return _builder.hasGattConnectionLostEvent()
+    public fun hasGattConnectionLostArguments(): kotlin.Boolean {
+      return _builder.hasGattConnectionLostArguments()
     }
 
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicValueChangedEvent gatt_characteristic_value_changed_event = 5;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicValueChangedArguments characteristic_value_changed_arguments = 5;</code>
      */
-    public var gattCharacteristicValueChangedEvent: dev.yanshouwang.bluetooth_low_energy.Messages.GattCharacteristicValueChangedEvent
-      @JvmName("getGattCharacteristicValueChangedEvent")
-      get() = _builder.getGattCharacteristicValueChangedEvent()
-      @JvmName("setGattCharacteristicValueChangedEvent")
+    public var characteristicValueChangedArguments: dev.yanshouwang.bluetooth_low_energy.Messages.GattCharacteristicValueChangedArguments
+      @JvmName("getCharacteristicValueChangedArguments")
+      get() = _builder.getCharacteristicValueChangedArguments()
+      @JvmName("setCharacteristicValueChangedArguments")
       set(value) {
-        _builder.setGattCharacteristicValueChangedEvent(value)
+        _builder.setCharacteristicValueChangedArguments(value)
       }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicValueChangedEvent gatt_characteristic_value_changed_event = 5;</code>
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicValueChangedArguments characteristic_value_changed_arguments = 5;</code>
      */
-    public fun clearGattCharacteristicValueChangedEvent() {
-      _builder.clearGattCharacteristicValueChangedEvent()
+    public fun clearCharacteristicValueChangedArguments() {
+      _builder.clearCharacteristicValueChangedArguments()
     }
     /**
-     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicValueChangedEvent gatt_characteristic_value_changed_event = 5;</code>
-     * @return Whether the gattCharacteristicValueChangedEvent field is set.
+     * <code>.dev.yanshouwang.bluetooth_low_energy.GattCharacteristicValueChangedArguments characteristic_value_changed_arguments = 5;</code>
+     * @return Whether the characteristicValueChangedArguments field is set.
      */
-    public fun hasGattCharacteristicValueChangedEvent(): kotlin.Boolean {
-      return _builder.hasGattCharacteristicValueChangedEvent()
+    public fun hasCharacteristicValueChangedArguments(): kotlin.Boolean {
+      return _builder.hasCharacteristicValueChangedArguments()
     }
-    public val stubCase: dev.yanshouwang.bluetooth_low_energy.Messages.Event.StubCase
-      @JvmName("getStubCase")
-      get() = _builder.getStubCase()
+    public val argumentsCase: dev.yanshouwang.bluetooth_low_energy.Messages.Event.ArgumentsCase
+      @JvmName("getArgumentsCase")
+      get() = _builder.getArgumentsCase()
 
-    public fun clearStub() {
-      _builder.clearStub()
+    public fun clearArguments() {
+      _builder.clearArguments()
     }
   }
 }

@@ -1,12 +1,14 @@
+import 'dart:typed_data';
+
 import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
-import 'package:bluetooth_low_energy/src/util.dart' as util;
-import 'package:bluetooth_low_energy/src/message.pb.dart' as proto;
+import 'package:bluetooth_low_energy/src/channels.dart' as util;
+import 'package:bluetooth_low_energy/src/messages.dart' as messages;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  final method = MethodChannel(util.method.name);
-  final event = MethodChannel(util.event.name);
+  final method = MethodChannel(util.methodChannel.name);
+  final event = MethodChannel(util.eventChannel.name);
   final calls = <MethodCall>[];
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -14,24 +16,24 @@ void main() {
     calls.clear();
     method.setMockMethodCallHandler((call) async {
       calls.add(call);
-      final message = proto.Message.fromBuffer(call.arguments);
-      switch (message.category) {
-        case proto.MessageCategory.BLUETOOTH_STATE:
-          return proto.BluetoothState.POWERED_ON.value;
-        case proto.MessageCategory.CENTRAL_START_DISCOVERY:
+      final command = messages.Command.fromBuffer(call.arguments);
+      switch (command.category) {
+        case messages.CommandCategory.COMMAND_CATEGORY_BLUETOOTH_GET_STATE:
+          return messages.BluetoothState.BLUETOOTH_STATE_POWERED_ON.value;
+        case messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_START_DISCOVERY:
           return null;
-        case proto.MessageCategory.CENTRAL_STOP_DISCOVERY:
+        case messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY:
           return null;
-        case proto.MessageCategory.CENTRAL_CONNECT:
+        case messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT:
           final descriptors = [
-            proto.GattDescriptor(
-              key: '0',
+            messages.GattDescriptor(
+              indexedUuid: '0',
               uuid: '2900',
             ),
           ];
           final characteristics = [
-            proto.GattCharacteristic(
-              key: '0',
+            messages.GattCharacteristic(
+              indexedUuid: '0',
               uuid: '2A00',
               descriptors: descriptors,
               canRead: true,
@@ -41,29 +43,31 @@ void main() {
             ),
           ];
           final services = [
-            proto.GattService(
-              key: '0',
+            messages.GattService(
+              indexedUuid: '0',
               uuid: '1800',
               characteristics: characteristics,
             ),
           ];
-          final gatt = proto.GATT(
-            key: '0',
+          final gatt = messages.GATT(
+            indexedUuid: '0',
             maximumWriteLength: 20,
             services: services,
           );
           return gatt.writeToBuffer();
-        case proto.MessageCategory.GATT_DISCONNECT:
+        case messages.CommandCategory.COMMAND_CATEGORY_GATT_DISCONNECT:
           return null;
-        case proto.MessageCategory.GATT_CHARACTERISTIC_READ:
+        case messages.CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_READ:
           return [0x01, 0x02, 0x03, 0x04, 0x05];
-        case proto.MessageCategory.GATT_CHARACTERISTIC_WRITE:
+        case messages
+            .CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_WRITE:
           return null;
-        case proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY:
+        case messages
+            .CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_NOTIFY:
           return null;
-        case proto.MessageCategory.GATT_DESCRIPTOR_READ:
+        case messages.CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_READ:
           return [0x05, 0x04, 0x03, 0x02, 0x01];
-        case proto.MessageCategory.GATT_DESCRIPTOR_WRITE:
+        case messages.CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_WRITE:
           return null;
         default:
           throw UnimplementedError();
@@ -72,9 +76,13 @@ void main() {
     event.setMockMethodCallHandler((call) async {
       switch (call.method) {
         case 'listen':
-          final state = proto.Message(
-            category: proto.MessageCategory.BLUETOOTH_STATE,
-            state: proto.BluetoothState.POWERED_OFF,
+          final state = messages.Event(
+            category:
+                messages.EventCategory.EVENT_CATEGORY_BLUETOOTH_STATE_CHANGED,
+            bluetoothStateChangedArguments:
+                messages.BluetoothStateChangedArguments(
+              state: messages.BluetoothState.BLUETOOTH_STATE_POWERED_OFF,
+            ),
           ).writeToBuffer();
           await ServicesBinding.instance!.defaultBinaryMessenger
               .handlePlatformMessage(
@@ -82,12 +90,24 @@ void main() {
             event.codec.encodeSuccessEnvelope(state),
             (data) {},
           );
-          final discovery = proto.Message(
-            category: proto.MessageCategory.CENTRAL_DISCOVERED,
-            discovery: proto.Discovery(
-              uuid: 'AABB',
-              rssi: -50,
-              advertisements: [0x07, 0xff, 0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa],
+          final discovery = messages.Event(
+            category: messages.EventCategory.EVENT_CATEGORY_CENTRAL_DISCOVERED,
+            centralDiscoveredArguments: messages.CentralDiscoveredArguments(
+              discovery: messages.PeripheralDiscovery(
+                uuid: 'AABB',
+                rssi: -50,
+                advertisements: [
+                  0x07,
+                  0xff,
+                  0xff,
+                  0xee,
+                  0xdd,
+                  0xcc,
+                  0xbb,
+                  0xaa,
+                ],
+                connectable: true,
+              ),
             ),
           ).writeToBuffer();
           await ServicesBinding.instance!.defaultBinaryMessenger
@@ -96,10 +116,11 @@ void main() {
             event.codec.encodeSuccessEnvelope(discovery),
             (data) {},
           );
-          final connectionLost = proto.Message(
-            category: proto.MessageCategory.GATT_CONNECTION_LOST,
-            connectionLost: proto.GattConnectionLost(
-              key: '0',
+          final connectionLost = messages.Event(
+            category:
+                messages.EventCategory.EVENT_CATEGORY_GATT_CONNECTION_LOST,
+            gattConnectionLostArguments: messages.GattConnectionLostArguments(
+              indexedUuid: '0',
               error: 'Connection lost.',
             ),
           ).writeToBuffer();
@@ -109,12 +130,14 @@ void main() {
             event.codec.encodeSuccessEnvelope(connectionLost),
             (data) {},
           );
-          final characteristicValue = proto.Message(
-            category: proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY,
-            characteristicValue: proto.GattCharacteristicValue(
-              gattKey: '0',
-              serviceKey: '0',
-              key: '0',
+          final characteristicValue = messages.Event(
+            category: messages
+                .EventCategory.EVENT_CATEGORY_GATT_CHARACTERISTIC_VALUE_CHANGED,
+            characteristicValueChangedArguments:
+                messages.GattCharacteristicValueChangedArguments(
+              indexedGattUuid: '0',
+              indexedServiceUuid: '0',
+              indexedUuid: '0',
               value: [0x0A, 0x0B, 0x0C, 0x0D, 0x0E],
             ),
           ).writeToBuffer();
@@ -138,17 +161,18 @@ void main() {
   });
 
   test(
-    '${proto.MessageCategory.BLUETOOTH_STATE}',
+    '${messages.CommandCategory.COMMAND_CATEGORY_BLUETOOTH_GET_STATE}',
     () async {
-      final actual = await central.state;
+      final actual = await central.getState();
       expect(actual, BluetoothState.poweredOn);
       expect(
         calls,
         [
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.BLUETOOTH_STATE,
+            arguments: messages.Command(
+              category:
+                  messages.CommandCategory.COMMAND_CATEGORY_BLUETOOTH_GET_STATE,
             ).writeToBuffer(),
           ),
         ],
@@ -156,26 +180,28 @@ void main() {
     },
   );
   test(
-    '${proto.MessageCategory.BLUETOOTH_STATE} EVENT',
+    '${messages.EventCategory.EVENT_CATEGORY_BLUETOOTH_STATE_CHANGED}',
     () async {
       final actual = await central.stateChanged.first;
       expect(actual, BluetoothState.poweredOff);
     },
   );
   test(
-    '${proto.MessageCategory.CENTRAL_START_DISCOVERY}',
+    '${messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_START_DISCOVERY}',
     () async {
       final services = [UUID('1800'), UUID('1801')];
-      await central.startDiscovery(services: services);
+      await central.startDiscovery(uuids: services);
       expect(
         calls,
         [
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.CENTRAL_START_DISCOVERY,
-              startDiscoveryArguments: proto.StartDiscoveryArguments(
-                services: services.map((uuid) => uuid.name),
+            arguments: messages.Command(
+              category: messages
+                  .CommandCategory.COMMAND_CATEGORY_CENTRAL_START_DISCOVERY,
+              centralStartDiscoveryArguments:
+                  messages.CentralStartDiscoveryArguments(
+                uuids: services.map((uuid) => uuid.name),
               ),
             ).writeToBuffer(),
           ),
@@ -184,7 +210,7 @@ void main() {
     },
   );
   test(
-    '${proto.MessageCategory.CENTRAL_STOP_DISCOVERY}',
+    '${messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY}',
     () async {
       await central.stopDiscovery();
       expect(
@@ -192,8 +218,9 @@ void main() {
         [
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.CENTRAL_STOP_DISCOVERY,
+            arguments: messages.Command(
+              category: messages
+                  .CommandCategory.COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY,
             ).writeToBuffer(),
           ),
         ],
@@ -201,21 +228,23 @@ void main() {
     },
   );
   test(
-    '${proto.MessageCategory.CENTRAL_DISCOVERED} EVENT',
+    '${messages.EventCategory.EVENT_CATEGORY_CENTRAL_DISCOVERED}',
     () async {
-      final actual = await central.discovered.first;
+      final discovery = await central.discovered.first;
       final uuid = UUID('AABB');
-      expect(actual.uuid, uuid);
+      expect(discovery.uuid, uuid);
       const rssi = -50;
-      expect(actual.rssi, rssi);
+      expect(discovery.rssi, rssi);
       final advertisements = {
         0xff: [0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa],
       };
-      expect(actual.advertisements, advertisements);
+      expect(discovery.advertisements, advertisements);
+      const connectable = true;
+      expect(discovery.connectable, connectable);
     },
   );
   test(
-    '${proto.MessageCategory.CENTRAL_CONNECT}',
+    '${messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT}',
     () async {
       final uuid = UUID('AABB');
       final actual = await central.connect(uuid);
@@ -238,9 +267,10 @@ void main() {
         [
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.CENTRAL_CONNECT,
-              connectArguments: proto.ConnectArguments(
+            arguments: messages.Command(
+              category:
+                  messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
+              centralConnectArguments: messages.CentralConnectArguments(
                 uuid: uuid.name,
               ),
             ).writeToBuffer(),
@@ -250,7 +280,7 @@ void main() {
     },
   );
   test(
-    '${proto.MessageCategory.GATT_DISCONNECT}',
+    '${messages.CommandCategory.COMMAND_CATEGORY_GATT_DISCONNECT}',
     () async {
       final uuid = UUID('AABB');
       final gatt = await central.connect(uuid);
@@ -260,18 +290,22 @@ void main() {
         [
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.CENTRAL_CONNECT,
-              connectArguments: proto.ConnectArguments(
+            arguments: messages.Command(
+              category:
+                  messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
+              centralConnectArguments: messages.CentralConnectArguments(
                 uuid: uuid.name,
               ),
             ).writeToBuffer(),
           ),
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.GATT_DISCONNECT,
-              disconnectArguments: proto.GattDisconnectArguments(key: '0'),
+            arguments: messages.Command(
+              category:
+                  messages.CommandCategory.COMMAND_CATEGORY_GATT_DISCONNECT,
+              gattDisconnectArguments: messages.GattDisconnectArguments(
+                indexedUuid: '0',
+              ),
             ).writeToBuffer(),
           ),
         ],
@@ -279,7 +313,7 @@ void main() {
     },
   );
   test(
-    '${proto.MessageCategory.GATT_CONNECTION_LOST}',
+    '${messages.EventCategory.EVENT_CATEGORY_GATT_CONNECTION_LOST}',
     () async {
       final uuid = UUID('AABB');
       final gatt = await central.connect(uuid);
@@ -291,9 +325,10 @@ void main() {
         [
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.CENTRAL_CONNECT,
-              connectArguments: proto.ConnectArguments(
+            arguments: messages.Command(
+              category:
+                  messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
+              centralConnectArguments: messages.CentralConnectArguments(
                 uuid: uuid.name,
               ),
             ).writeToBuffer(),
@@ -303,7 +338,7 @@ void main() {
     },
   );
   test(
-    '${proto.MessageCategory.GATT_CHARACTERISTIC_READ}',
+    '${messages.CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_READ}',
     () async {
       final uuid = UUID('AABB');
       final gatt = await central.connect(uuid);
@@ -316,22 +351,24 @@ void main() {
         [
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.CENTRAL_CONNECT,
-              connectArguments: proto.ConnectArguments(
+            arguments: messages.Command(
+              category:
+                  messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
+              centralConnectArguments: messages.CentralConnectArguments(
                 uuid: uuid.name,
               ),
             ).writeToBuffer(),
           ),
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.GATT_CHARACTERISTIC_READ,
+            arguments: messages.Command(
+              category: messages
+                  .CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_READ,
               characteristicReadArguments:
-                  proto.GattCharacteristicReadArguments(
-                gattKey: '0',
-                serviceKey: '0',
-                key: '0',
+                  messages.GattCharacteristicReadArguments(
+                indexedGattUuid: '0',
+                indexedServiceUuid: '0',
+                indexedUuid: '0',
               ),
             ).writeToBuffer(),
           ),
@@ -340,35 +377,37 @@ void main() {
     },
   );
   test(
-    '${proto.MessageCategory.GATT_CHARACTERISTIC_WRITE}',
+    '${messages.CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_WRITE}',
     () async {
       final uuid = UUID('AABB');
       final gatt = await central.connect(uuid);
       final service = gatt.services.values.first;
       final characteristic = service.characteristics.values.first;
-      final value = [0x01, 0x02, 0x03, 0x04, 0x05];
+      final value = Uint8List.fromList([0x01, 0x02, 0x03, 0x04, 0x05]);
       await characteristic.write(value, withoutResponse: true);
       expect(
         calls,
         [
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.CENTRAL_CONNECT,
-              connectArguments: proto.ConnectArguments(
+            arguments: messages.Command(
+              category:
+                  messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
+              centralConnectArguments: messages.CentralConnectArguments(
                 uuid: uuid.name,
               ),
             ).writeToBuffer(),
           ),
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.GATT_CHARACTERISTIC_WRITE,
+            arguments: messages.Command(
+              category: messages
+                  .CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_WRITE,
               characteristicWriteArguments:
-                  proto.GattCharacteristicWriteArguments(
-                gattKey: '0',
-                serviceKey: '0',
-                key: '0',
+                  messages.GattCharacteristicWriteArguments(
+                indexedGattUuid: '0',
+                indexedServiceUuid: '0',
+                indexedUuid: '0',
                 value: value,
                 withoutResponse: true,
               ),
@@ -379,7 +418,7 @@ void main() {
     },
   );
   test(
-    '${proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY}',
+    '${messages.CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_NOTIFY}',
     () async {
       final uuid = UUID('AABB');
       final gatt = await central.connect(uuid);
@@ -391,22 +430,24 @@ void main() {
         [
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.CENTRAL_CONNECT,
-              connectArguments: proto.ConnectArguments(
+            arguments: messages.Command(
+              category:
+                  messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
+              centralConnectArguments: messages.CentralConnectArguments(
                 uuid: uuid.name,
               ),
             ).writeToBuffer(),
           ),
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY,
+            arguments: messages.Command(
+              category: messages
+                  .CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_NOTIFY,
               characteristicNotifyArguments:
-                  proto.GattCharacteristicNotifyArguments(
-                gattKey: '0',
-                serviceKey: '0',
-                key: '0',
+                  messages.GattCharacteristicNotifyArguments(
+                indexedGattUuid: '0',
+                indexedServiceUuid: '0',
+                indexedUuid: '0',
                 state: true,
               ),
             ).writeToBuffer(),
@@ -416,7 +457,7 @@ void main() {
     },
   );
   test(
-    '${proto.MessageCategory.GATT_CHARACTERISTIC_NOTIFY} EVENT',
+    '${messages.EventCategory.EVENT_CATEGORY_GATT_CHARACTERISTIC_VALUE_CHANGED}',
     () async {
       final uuid = UUID('AABB');
       final gatt = await central.connect(uuid);
@@ -429,9 +470,10 @@ void main() {
         [
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.CENTRAL_CONNECT,
-              connectArguments: proto.ConnectArguments(
+            arguments: messages.Command(
+              category:
+                  messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
+              centralConnectArguments: messages.CentralConnectArguments(
                 uuid: uuid.name,
               ),
             ).writeToBuffer(),
@@ -441,7 +483,7 @@ void main() {
     },
   );
   test(
-    '${proto.MessageCategory.GATT_DESCRIPTOR_READ}',
+    '${messages.CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_READ}',
     () async {
       final uuid = UUID('AABB');
       final gatt = await central.connect(uuid);
@@ -455,22 +497,24 @@ void main() {
         [
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.CENTRAL_CONNECT,
-              connectArguments: proto.ConnectArguments(
+            arguments: messages.Command(
+              category:
+                  messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
+              centralConnectArguments: messages.CentralConnectArguments(
                 uuid: uuid.name,
               ),
             ).writeToBuffer(),
           ),
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.GATT_DESCRIPTOR_READ,
-              descriptorReadArguments: proto.GattDescriptorReadArguments(
-                gattKey: '0',
-                serviceKey: '0',
-                characteristicKey: '0',
-                key: '0',
+            arguments: messages.Command(
+              category: messages
+                  .CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_READ,
+              descriptorReadArguments: messages.GattDescriptorReadArguments(
+                indexedGattUuid: '0',
+                indexedServiceUuid: '0',
+                indexedCharacteristicUuid: '0',
+                indexedUuid: '0',
               ),
             ).writeToBuffer(),
           ),
@@ -479,36 +523,38 @@ void main() {
     },
   );
   test(
-    '${proto.MessageCategory.GATT_DESCRIPTOR_WRITE}',
+    '${messages.CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_WRITE}',
     () async {
       final uuid = UUID('AABB');
       final gatt = await central.connect(uuid);
       final service = gatt.services.values.first;
       final characteristic = service.characteristics.values.first;
       final descriptor = characteristic.descriptors.values.first;
-      final value = [0x01, 0x02, 0x03, 0x04, 0x05];
+      final value = Uint8List.fromList([0x01, 0x02, 0x03, 0x04, 0x05]);
       await descriptor.write(value);
       expect(
         calls,
         [
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.CENTRAL_CONNECT,
-              connectArguments: proto.ConnectArguments(
+            arguments: messages.Command(
+              category:
+                  messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
+              centralConnectArguments: messages.CentralConnectArguments(
                 uuid: uuid.name,
               ),
             ).writeToBuffer(),
           ),
           isMethodCall(
             '',
-            arguments: proto.Message(
-              category: proto.MessageCategory.GATT_DESCRIPTOR_WRITE,
-              descriptorWriteArguments: proto.GattDescriptorWriteArguments(
-                gattKey: '0',
-                serviceKey: '0',
-                characteristicKey: '0',
-                key: '0',
+            arguments: messages.Command(
+              category: messages
+                  .CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_WRITE,
+              descriptorWriteArguments: messages.GattDescriptorWriteArguments(
+                indexedGattUuid: '0',
+                indexedServiceUuid: '0',
+                indexedCharacteristicUuid: '0',
+                indexedUuid: '0',
                 value: value,
               ),
             ).writeToBuffer(),

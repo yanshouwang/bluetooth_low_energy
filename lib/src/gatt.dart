@@ -1,42 +1,17 @@
-part of bluetooth_low_energy;
+import 'gatt_service.dart';
+import 'uuid.dart';
 
-/// TO BE DONE.
+/// Bluetooth GATT.
 abstract class GATT {
-  /// TO BE DONE.
+  /// The size of MTU.
   int get maximumWriteLength;
 
-  /// TO BE DONE.
+  /// A stream for connection lost event.
   Stream<Exception> get connectionLost;
 
-  /// TO BE DONE.
+  /// The services of this [GATT].
   Map<UUID, GattService> get services;
 
-  /// TO BE DONE.
-  Future disconnect();
-}
-
-class _GATT implements GATT {
-  _GATT(this.key, this.maximumWriteLength, this.services);
-
-  final String key;
-  @override
-  final int maximumWriteLength;
-  @override
-  final Map<UUID, GattService> services;
-
-  @override
-  Stream<Exception> get connectionLost => stream
-      .where((message) =>
-          message.category == proto.MessageCategory.GATT_CONNECTION_LOST &&
-          message.connectionLost.key == key)
-      .map((message) => message.connectionLost.error.exceptoin);
-
-  @override
-  Future disconnect() {
-    final message = proto.Message(
-      category: proto.MessageCategory.GATT_DISCONNECT,
-      disconnectArguments: proto.GattDisconnectArguments(key: key),
-    ).writeToBuffer();
-    return method.invokeMethod('', message);
-  }
+  /// Disconnect this [GATT].
+  Future<void> disconnect();
 }

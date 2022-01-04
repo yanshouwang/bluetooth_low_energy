@@ -1,34 +1,15 @@
-part of bluetooth_low_energy;
+import 'dart:typed_data';
+
+import 'bluetooth_implementation.dart';
 
 /// A universally unique identifier, as defined by bluetooth standards.
 abstract class UUID {
-  /// TO BE DONE.
-  List<int> get value;
+  /// The value of this [UUID].
+  Uint8List get value;
 
-  /// TO BE DONE.
+  /// The name of this [UUID].
   String get name;
 
-  /// TO BE DONE.
-  factory UUID(String str) => _UUID(str);
-}
-
-class _UUID implements UUID {
-  @override
-  final List<int> value;
-  @override
-  final String name;
-  @override
-  final int hashCode;
-
-  _UUID(String str) : this.name(str.uuidName);
-
-  _UUID.name(String name) : this.nameValue(name, name.uuidVaue);
-
-  _UUID.nameValue(this.name, this.value) : hashCode = equality.hash(value);
-
-  @override
-  String toString() => name;
-
-  @override
-  bool operator ==(other) => other is UUID && other.hashCode == hashCode;
+  /// Create an [UUID] from a [String].
+  factory UUID(String uuidString) => $UUID(uuidString);
 }
