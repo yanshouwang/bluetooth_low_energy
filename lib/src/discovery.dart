@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'uuid.dart';
 
 /// Peripheral discovery.
-abstract class PeripheralDiscovery {
+abstract class Discovery {
   /// The [UUID] of the discovered peripheral.
   UUID get uuid;
 
@@ -18,8 +18,8 @@ abstract class PeripheralDiscovery {
   bool get connectable;
 }
 
-/// [PeripheralDiscovery] extensions.
-extension PeripheralDiscoveryX on PeripheralDiscovery {
+/// [Discovery] extensions.
+extension DiscoveryX on Discovery {
   /// The name extract form the [advertisements].
   String? get name {
     if (advertisements.containsKey(0x08)) {

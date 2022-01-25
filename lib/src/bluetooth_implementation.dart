@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
@@ -12,10 +13,10 @@ import 'gatt_service.dart';
 import 'gatt_characteristic.dart';
 import 'gatt_descriptor.dart';
 import 'messages.dart' as messages;
-import 'peripheral_discovery.dart';
+import 'discovery.dart';
 import 'uuid.dart';
 
-const uuidEquality = ListEquality<int>();
+const equality = ListEquality<int>();
 
 class $Bluetooth implements Bluetooth {
   @override
@@ -23,68 +24,131 @@ class $Bluetooth implements Bluetooth {
     final command = messages.Command(
       category: messages.CommandCategory.COMMAND_CATEGORY_BLUETOOTH_GET_STATE,
     );
-    return methodChannel
-        .invokeCommand<int>(command)
-        .then((value) => BluetoothState.values[value!]);
+    return methodChannel.invoke(command).then((reply) {
+      final state = reply!.bluetoothGetStateArguments.state;
+      return BluetoothState.values[state.value];
+    });
   }
+
+  StreamController<BluetoothState>? stateChangedController;
 
   @override
   Stream<BluetoothState> get stateChanged {
-    return eventStream
-        .where((event) =>
-            event.category ==
-            messages.EventCategory.EVENT_CATEGORY_BLUETOOTH_STATE_CHANGED)
-        .map((event) => event.bluetoothStateChangedArguments.state.toState());
+    late StreamController<BluetoothState> controller;
+    late StreamSubscription<BluetoothState> subscription;
+    final stateChangedController = this.stateChangedController;
+    if (stateChangedController == null) {
+      controller = StreamController<BluetoothState>.broadcast(
+        onListen: () {
+          subscription = eventStream.where((event) {
+            return event.category ==
+                messages.EventCategory.EVENT_CATEGORY_BLUETOOTH_STATE_CHANGED;
+          }).map((event) {
+            final value = event.bluetoothStateChangedArguments.state.value;
+            return BluetoothState.values[value];
+          }).listen(
+            (state) => controller.add(state),
+            onError: (error, stack) => controller.addError(error, stack),
+            onDone: () => controller.close(),
+          );
+          final command = messages.Command(
+            category: messages.CommandCategory
+                .COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED,
+          );
+          methodChannel.invoke(command).catchError((error, stack) {
+            controller.addError(error, stack);
+          });
+        },
+        onCancel: () {
+          final command = messages.Command(
+            category: messages.CommandCategory
+                .COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED,
+          );
+          methodChannel
+              .invoke(command)
+              .whenComplete(() => subscription.cancel());
+        },
+      );
+      this.stateChangedController = controller;
+    } else {
+      controller = stateChangedController;
+    }
+    return controller.stream;
   }
 }
 
 class $Central extends $Bluetooth implements Central {
   @override
-  Stream<PeripheralDiscovery> get discovered {
-    return eventStream
-        .where((event) =>
-            event.category ==
-            messages.EventCategory.EVENT_CATEGORY_CENTRAL_DISCOVERED)
-        .map((event) =>
-            event.centralDiscoveredArguments.discovery.toDiscovery());
-  }
-
-  @override
-  Future<void> startDiscovery({List<UUID>? uuids}) {
-    final command = messages.Command(
-      category:
-          messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_START_DISCOVERY,
-      centralStartDiscoveryArguments: messages.CentralStartDiscoveryArguments(
-        uuids: uuids?.map((uuid) => uuid.name),
-      ),
+  Stream<Discovery> discover({List<UUID>? uuids}) {
+    late StreamController<Discovery> controller;
+    late StreamSubscription<Discovery> subscription;
+    controller = StreamController<Discovery>.broadcast(
+      onListen: () {
+        subscription = eventStream.where((event) {
+          return event.category ==
+              messages.EventCategory.EVENT_CATEGORY_CENTRAL_DISCOVERED;
+        }).map((event) {
+          final discovery = event.centralDiscoveredArguments.discovery;
+          return $Discovery.fromMessage(discovery);
+        }).listen(
+          (discovery) => controller.add(discovery),
+          onError: (error, stack) => controller.addError(error, stack),
+          onDone: () => controller.close(),
+        );
+        final command = messages.Command(
+          category:
+              messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_START_DISCOVERY,
+          centralStartDiscoveryArguments:
+              messages.CentralStartDiscoveryCommandArguments(
+            uuids: uuids?.map((uuid) => uuid.name),
+          ),
+        );
+        methodChannel.invoke(command).catchError((error, stack) {
+          controller.addError(error, stack);
+        });
+      },
+      onCancel: () {
+        final command = messages.Command(
+          category:
+              messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY,
+        );
+        methodChannel.invoke(command).catchError((error, stack) {
+          controller.addError(error, stack);
+        });
+        subscription.cancel();
+      },
     );
-    return methodChannel.invokeCommand<void>(command);
+    return controller.stream;
   }
 
   @override
-  Future<void> stopDiscovery() {
-    final command = messages.Command(
-      category:
-          messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY,
-    );
-    return methodChannel.invokeCommand<void>(command);
-  }
-
-  @override
-  Future<GATT> connect(UUID uuid) {
+  Future<GATT> connect(
+    UUID uuid, {
+    required void Function(int errorCode) onConnectionLost,
+  }) {
     final command = messages.Command(
       category: messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
-      centralConnectArguments: messages.CentralConnectArguments(
+      centralConnectArguments: messages.CentralConnectCommandArguments(
         uuid: uuid.name,
       ),
     );
-    return methodChannel
-        .invokeListCommand<int>(command)
-        .then((elements) => messages.GATT.fromBuffer(elements!).toGATT());
+    return methodChannel.invoke(command).then((reply) {
+      final gatt = reply!.centralConnectArguments.gatt;
+      final subscription = eventStream
+          .where((event) {
+            return event.category ==
+                    messages
+                        .EventCategory.EVENT_CATEGORY_GATT_CONNECTION_LOST &&
+                event.gattConnectionLostArguments.id == gatt.id;
+          })
+          .map((event) => event.gattConnectionLostArguments.errorCode)
+          .listen((errorCode) => onConnectionLost(errorCode));
+      return $GATT.fromMessage(gatt, subscription);
+    });
   }
 }
 
-class $PeripheralDiscovery implements PeripheralDiscovery {
+class $Discovery implements Discovery {
   @override
   final UUID uuid;
   @override
@@ -94,12 +158,31 @@ class $PeripheralDiscovery implements PeripheralDiscovery {
   @override
   final bool connectable;
 
-  $PeripheralDiscovery(
+  $Discovery(
     this.uuid,
     this.rssi,
     this.advertisements,
     this.connectable,
   );
+
+  factory $Discovery.fromMessage(messages.Discovery discovery) {
+    final uuid = $UUID.fromString(discovery.uuid);
+    final rssi = discovery.rssi;
+    final advertisements = <int, Uint8List>{};
+    var start = 0;
+    while (start < discovery.advertisements.length) {
+      final length = discovery.advertisements[start++];
+      if (length == 0) break;
+      final end = start + length;
+      final key = discovery.advertisements[start++];
+      final elements = discovery.advertisements.sublist(start, end);
+      final value = Uint8List.fromList(elements);
+      start = end;
+      advertisements[key] = value;
+    }
+    final connectable = discovery.connectable;
+    return $Discovery(uuid, rssi, advertisements, connectable);
+  }
 }
 
 class $UUID implements UUID {
@@ -110,68 +193,91 @@ class $UUID implements UUID {
   @override
   final int hashCode;
 
-  $UUID(String uuidString) : this.name(uuidString.toUuidName());
+  $UUID(this.name, this.value) : hashCode = equality.hash(value);
 
-  $UUID.name(String name) : this.nameValue(name, name.toUuidValue());
+  $UUID.fromName(String name) : this(name, name.value);
 
-  $UUID.nameValue(this.name, this.value) : hashCode = uuidEquality.hash(value);
+  $UUID.fromString(String uuidString) : this.fromName(uuidString.name);
 
   @override
   String toString() => name;
 
   @override
-  bool operator ==(other) => other is UUID && other.hashCode == hashCode;
+  bool operator ==(other) {
+    return other is UUID && equality.equals(other.value, value);
+  }
 }
 
 class $GATT implements GATT {
-  final String indexedUUID;
+  final String id;
   @override
   final int maximumWriteLength;
   @override
   final Map<UUID, GattService> services;
+  final StreamSubscription<int> subscription;
 
-  $GATT(this.indexedUUID, this.maximumWriteLength, this.services);
+  $GATT(this.id, this.maximumWriteLength, this.services, this.subscription);
 
-  @override
-  Stream<Exception> get connectionLost => eventStream
-      .where((event) =>
-          event.category ==
-              messages.EventCategory.EVENT_CATEGORY_GATT_CONNECTION_LOST &&
-          event.gattConnectionLostArguments.indexedUuid == indexedUUID)
-      .map((event) => Exception(event.gattConnectionLostArguments.error));
+  factory $GATT.fromMessage(
+    messages.GATT gatt,
+    StreamSubscription<int> subscription,
+  ) {
+    final id = gatt.id;
+    final maximumWriteLength = gatt.maximumWriteLength;
+    final services = <UUID, GattService>{
+      for (var service in gatt.services)
+        $UUID.fromString(service.uuid): $GattService.fromMessage(id, service)
+    };
+    return $GATT(id, maximumWriteLength, services, subscription);
+  }
 
   @override
   Future<void> disconnect() {
+    subscription.cancel();
     final command = messages.Command(
       category: messages.CommandCategory.COMMAND_CATEGORY_GATT_DISCONNECT,
-      gattDisconnectArguments: messages.GattDisconnectArguments(
-        indexedUuid: indexedUUID,
+      gattDisconnectArguments: messages.GattDisconnectCommandArguments(
+        id: id,
       ),
     );
-    return methodChannel.invokeCommand<void>(command);
+    return methodChannel.invoke(command);
   }
 }
 
 class $GattService implements GattService {
-  final String indexedGattUUID;
-  final String indexedUUID;
+  final String gattId;
+  final String id;
   @override
   final UUID uuid;
   @override
   final Map<UUID, GattCharacteristic> characteristics;
 
   $GattService(
-    this.indexedGattUUID,
-    this.indexedUUID,
+    this.gattId,
+    this.id,
     this.uuid,
     this.characteristics,
   );
+
+  factory $GattService.fromMessage(
+    String gattId,
+    messages.GattService service,
+  ) {
+    final id = service.id;
+    final uuid = $UUID.fromString(service.uuid);
+    final characteristics = {
+      for (var characteristic in service.characteristics)
+        $UUID.fromString(characteristic.uuid):
+            $GattCharacteristic.fromMessage(gattId, id, characteristic)
+    };
+    return $GattService(gattId, id, uuid, characteristics);
+  }
 }
 
 class $GattCharacteristic implements GattCharacteristic {
-  final String indexedGattUUID;
-  final String indexedServiceUUID;
-  final String indexedUUID;
+  final String gattId;
+  final String serviceId;
+  final String id;
   @override
   final UUID uuid;
   @override
@@ -186,9 +292,9 @@ class $GattCharacteristic implements GattCharacteristic {
   final Map<UUID, GattDescriptor> descriptors;
 
   $GattCharacteristic(
-    this.indexedGattUUID,
-    this.indexedServiceUUID,
-    this.indexedUUID,
+    this.gattId,
+    this.serviceId,
+    this.id,
     this.uuid,
     this.canRead,
     this.canWrite,
@@ -197,181 +303,30 @@ class $GattCharacteristic implements GattCharacteristic {
     this.descriptors,
   );
 
-  @override
-  Stream<Uint8List> get valueChanged => eventStream
-      .where((event) =>
-          event.category ==
-              messages.EventCategory
-                  .EVENT_CATEGORY_GATT_CHARACTERISTIC_VALUE_CHANGED &&
-          event.characteristicValueChangedArguments.indexedGattUuid ==
-              indexedGattUUID &&
-          event.characteristicValueChangedArguments.indexedServiceUuid ==
-              indexedServiceUUID &&
-          event.characteristicValueChangedArguments.indexedUuid == indexedUUID)
-      .map((event) =>
-          Uint8List.fromList(event.characteristicValueChangedArguments.value));
-
-  @override
-  Future<Uint8List> read() {
-    final command = messages.Command(
-      category:
-          messages.CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_READ,
-      characteristicReadArguments: messages.GattCharacteristicReadArguments(
-        indexedGattUuid: indexedGattUUID,
-        indexedServiceUuid: indexedServiceUUID,
-        indexedUuid: indexedUUID,
-      ),
-    );
-    return methodChannel
-        .invokeListCommand<int>(command)
-        .then((elements) => Uint8List.fromList(elements!));
-  }
-
-  @override
-  Future<void> write(Uint8List value, {bool withoutResponse = false}) {
-    final command = messages.Command(
-      category:
-          messages.CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_WRITE,
-      characteristicWriteArguments: messages.GattCharacteristicWriteArguments(
-        indexedGattUuid: indexedGattUUID,
-        indexedServiceUuid: indexedServiceUUID,
-        indexedUuid: indexedUUID,
-        value: value,
-        withoutResponse: withoutResponse,
-      ),
-    );
-    return methodChannel.invokeCommand<void>(command);
-  }
-
-  @override
-  Future<void> notify(bool state) {
-    final command = messages.Command(
-      category:
-          messages.CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_NOTIFY,
-      characteristicNotifyArguments: messages.GattCharacteristicNotifyArguments(
-        indexedGattUuid: indexedGattUUID,
-        indexedServiceUuid: indexedServiceUUID,
-        indexedUuid: indexedUUID,
-        state: state,
-      ),
-    );
-    return methodChannel.invokeCommand<void>(command);
-  }
-}
-
-class $GattDescriptor implements GattDescriptor {
-  final String indexedGattUUID;
-  final String indexedServiceUUID;
-  final String indexedCharacteristicUUID;
-  final String indexedUUID;
-  @override
-  final UUID uuid;
-
-  $GattDescriptor(
-    this.indexedGattUUID,
-    this.indexedServiceUUID,
-    this.indexedCharacteristicUUID,
-    this.indexedUUID,
-    this.uuid,
-  );
-
-  @override
-  Future<Uint8List> read() {
-    final command = messages.Command(
-      category: messages.CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_READ,
-      descriptorReadArguments: messages.GattDescriptorReadArguments(
-        indexedGattUuid: indexedGattUUID,
-        indexedServiceUuid: indexedServiceUUID,
-        indexedCharacteristicUuid: indexedCharacteristicUUID,
-        indexedUuid: indexedUUID,
-      ),
-    );
-    return methodChannel
-        .invokeListCommand<int>(command)
-        .then((elements) => Uint8List.fromList(elements!));
-  }
-
-  @override
-  Future<void> write(Uint8List value) {
-    final command = messages.Command(
-      category: messages.CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_WRITE,
-      descriptorWriteArguments: messages.GattDescriptorWriteArguments(
-        indexedGattUuid: indexedGattUUID,
-        indexedServiceUuid: indexedServiceUUID,
-        indexedCharacteristicUuid: indexedCharacteristicUUID,
-        indexedUuid: indexedUUID,
-        value: value,
-      ),
-    );
-    return methodChannel.invokeCommand<void>(command);
-  }
-}
-
-extension on messages.BluetoothState {
-  BluetoothState toState() => BluetoothState.values[value];
-}
-
-extension on messages.PeripheralDiscovery {
-  PeripheralDiscovery toDiscovery() {
-    final uuid = $UUID(this.uuid);
-    final advertisements = <int, Uint8List>{};
-    var start = 0;
-    while (start < this.advertisements.length) {
-      final length = this.advertisements[start++];
-      if (length == 0) break;
-      final end = start + length;
-      final key = this.advertisements[start++];
-      final elements = this.advertisements.sublist(start, end);
-      final value = Uint8List.fromList(elements);
-      start = end;
-      advertisements[key] = value;
-    }
-    return $PeripheralDiscovery(uuid, rssi, advertisements, connectable);
-  }
-}
-
-extension on messages.GATT {
-  GATT toGATT() {
-    final services = <UUID, GattService>{
-      for (var service in this.services)
-        $UUID(service.uuid): service.toGattService(indexedUuid)
-    };
-    return $GATT(indexedUuid, maximumWriteLength, services);
-  }
-}
-
-extension on messages.GattService {
-  GattService toGattService(String gattIndexedUUID) {
-    final uuid = $UUID(this.uuid);
-    final characteristics = {
-      for (var characteristic in this.characteristics)
-        $UUID(characteristic.uuid): characteristic.toGattCharacteristic(
-          gattIndexedUUID,
-          indexedUuid,
-        )
-    };
-    return $GattService(gattIndexedUUID, indexedUuid, uuid, characteristics);
-  }
-}
-
-extension on messages.GattCharacteristic {
-  GattCharacteristic toGattCharacteristic(
-    String gattIndexedUUID,
-    String gattServiceIndexedUUID,
+  factory $GattCharacteristic.fromMessage(
+    String gattId,
+    String serviceId,
+    messages.GattCharacteristic characteristic,
   ) {
-    final uuid = $UUID(this.uuid);
+    final id = characteristic.id;
+    final uuid = $UUID.fromString(characteristic.uuid);
+    final canRead = characteristic.canRead;
+    final canWrite = characteristic.canWrite;
+    final canWriteWithoutResponse = characteristic.canWriteWithoutResponse;
+    final canNotify = characteristic.canNotify;
     final descriptors = {
-      for (var descriptor in this.descriptors)
-        $UUID(descriptor.uuid): descriptor.toGattDescriptor(
-          gattIndexedUUID,
-          gattServiceIndexedUUID,
-          indexedUuid,
+      for (var descriptor in characteristic.descriptors)
+        $UUID.fromString(descriptor.uuid): $GattDescriptor.fromMessage(
+          gattId,
+          serviceId,
+          id,
+          descriptor,
         )
     };
     return $GattCharacteristic(
-      gattIndexedUUID,
-      gattServiceIndexedUUID,
-      indexedUuid,
+      gattId,
+      serviceId,
+      id,
       uuid,
       canRead,
       canWrite,
@@ -380,27 +335,170 @@ extension on messages.GattCharacteristic {
       descriptors,
     );
   }
+
+  @override
+  Future<Uint8List> read() {
+    final command = messages.Command(
+      category: messages.CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_READ,
+      characteristicReadArguments: messages.CharacteristicReadCommandArguments(
+        gattId: gattId,
+        serviceId: serviceId,
+        id: id,
+      ),
+    );
+    return methodChannel.invoke(command).then((reply) {
+      final elements = reply!.characteristicReadArguments.value;
+      return Uint8List.fromList(elements);
+    });
+  }
+
+  @override
+  Future<void> write(Uint8List value, {bool withoutResponse = false}) {
+    final command = messages.Command(
+      category: messages.CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_WRITE,
+      characteristicWriteArguments:
+          messages.CharacteristicWriteCommandArguments(
+        gattId: gattId,
+        serviceId: serviceId,
+        id: id,
+        value: value,
+        withoutResponse: withoutResponse,
+      ),
+    );
+    return methodChannel.invoke(command);
+  }
+
+  StreamController<Uint8List>? notifiedController;
+
+  @override
+  Stream<Uint8List> get notified {
+    late StreamController<Uint8List> controller;
+    late StreamSubscription<Uint8List> subscription;
+    final notifiedController = this.notifiedController;
+    if (notifiedController == null) {
+      controller = StreamController<Uint8List>.broadcast(
+        onListen: () {
+          subscription = eventStream.where((event) {
+            return event.category ==
+                    messages
+                        .EventCategory.EVENT_CATEGORY_CHARACTERISTIC_NOTIFIED &&
+                event.characteristicNotifiedArguments.gattId == gattId &&
+                event.characteristicNotifiedArguments.serviceId == serviceId &&
+                event.characteristicNotifiedArguments.id == id;
+          }).map((event) {
+            final elements = event.characteristicNotifiedArguments.value;
+            return Uint8List.fromList(elements);
+          }).listen(
+            (value) => controller.add(value),
+            onError: (error, stack) => controller.addError(error, stack),
+            onDone: () => controller.close(),
+          );
+          final command = messages.Command(
+            category:
+                messages.CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY,
+            characteristicNotifyArguments:
+                messages.CharacteristicNotifyCommandArguments(
+              gattId: gattId,
+              serviceId: serviceId,
+              id: id,
+            ),
+          );
+          methodChannel.invoke(command).catchError((error, stack) {
+            controller.addError(error, stack);
+          });
+        },
+        onCancel: () {
+          final command = messages.Command(
+            category: messages
+                .CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY,
+            characteristicCancelNotifyArguments:
+                messages.CharacteristicCancelNotifyCommandArguments(
+              gattId: gattId,
+              serviceId: serviceId,
+              id: id,
+            ),
+          );
+          methodChannel
+              .invoke(command)
+              .whenComplete(() => subscription.cancel());
+        },
+      );
+      this.notifiedController = controller;
+    } else {
+      controller = notifiedController;
+    }
+    return controller.stream;
+  }
 }
 
-extension on messages.GattDescriptor {
-  GattDescriptor toGattDescriptor(
-    String gattIndexedUUID,
-    String gattServiceIndexedUUID,
-    String gattCharacteristicIndexedUUID,
+class $GattDescriptor implements GattDescriptor {
+  final String gattId;
+  final String serviceId;
+  final String characteristicId;
+  final String id;
+  @override
+  final UUID uuid;
+
+  $GattDescriptor(
+    this.gattId,
+    this.serviceId,
+    this.characteristicId,
+    this.id,
+    this.uuid,
+  );
+
+  factory $GattDescriptor.fromMessage(
+    String gattId,
+    String serviceId,
+    String characteristicId,
+    messages.GattDescriptor descriptor,
   ) {
-    final uuid = $UUID(this.uuid);
+    final id = descriptor.id;
+    final uuid = $UUID.fromString(descriptor.uuid);
     return $GattDescriptor(
-      gattIndexedUUID,
-      gattServiceIndexedUUID,
-      gattCharacteristicIndexedUUID,
-      indexedUuid,
+      gattId,
+      serviceId,
+      characteristicId,
+      id,
       uuid,
     );
+  }
+
+  @override
+  Future<Uint8List> read() {
+    final command = messages.Command(
+      category: messages.CommandCategory.COMMAND_CATEGORY_DESCRIPTOR_READ,
+      descriptorReadArguments: messages.DescriptorReadCommandArguments(
+        gattId: gattId,
+        serviceId: serviceId,
+        characteristicId: characteristicId,
+        id: id,
+      ),
+    );
+    return methodChannel.invoke(command).then((reply) {
+      final elements = reply!.descriptorReadArguments.value;
+      return Uint8List.fromList(elements);
+    });
+  }
+
+  @override
+  Future<void> write(Uint8List value) {
+    final command = messages.Command(
+      category: messages.CommandCategory.COMMAND_CATEGORY_DESCRIPTOR_WRITE,
+      descriptorWriteArguments: messages.DescriptorWriteCommandArguments(
+        gattId: gattId,
+        serviceId: serviceId,
+        characteristicId: characteristicId,
+        id: id,
+        value: value,
+      ),
+    );
+    return methodChannel.invoke(command);
   }
 }
 
 extension on String {
-  String toUuidName() {
+  String get name {
     final lowerCase = toLowerCase();
     final exp0 = RegExp(
       r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
@@ -419,7 +517,7 @@ extension on String {
     throw ArgumentError.value(this);
   }
 
-  Uint8List toUuidValue() {
+  Uint8List get value {
     final from = RegExp(r'-');
     final encoded = replaceAll(from, '');
     final elements = hex.decode(encoded);

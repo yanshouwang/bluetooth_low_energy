@@ -11,5 +11,5 @@ abstract class UUID {
   String get name;
 
   /// Create an [UUID] from a [String].
-  factory UUID(String uuidString) => $UUID(uuidString);
+  factory UUID(String uuidString) => $UUID.fromString(uuidString);
 }

@@ -1,88 +1,122 @@
 syntax = "proto3";
-package dev.yanshouwang.bluetooth_low_energy;
+package dev.yanshouwang.bluetooth_low_energy.messages;
 
 message Command {
   CommandCategory category = 1;
-  oneof arguments {
-    CentralStartDiscoveryArguments central_start_discovery_arguments = 2;
-    CentralConnectArguments central_connect_arguments = 3;
-    GattDisconnectArguments gatt_disconnect_arguments = 4;
-    GattCharacteristicReadArguments characteristic_read_arguments = 5;
-    GattCharacteristicWriteArguments characteristic_write_arguments = 6;
-    GattCharacteristicNotifyArguments characteristic_notify_arguments = 7;
-    GattDescriptorReadArguments descriptor_read_arguments = 8;
-    GattDescriptorWriteArguments descriptor_write_arguments = 9;
+  oneof command {
+    CentralStartDiscoveryCommandArguments central_start_discovery_arguments = 2;
+    CentralConnectCommandArguments central_connect_arguments = 3;
+    GattDisconnectCommandArguments gatt_disconnect_arguments = 4;
+    CharacteristicReadCommandArguments characteristic_read_arguments = 5;
+    CharacteristicWriteCommandArguments characteristic_write_arguments = 6;
+    CharacteristicNotifyCommandArguments characteristic_notify_arguments = 7;
+    CharacteristicCancelNotifyCommandArguments characteristic_cancel_notify_arguments = 8;
+    DescriptorReadCommandArguments descriptor_read_arguments = 9;
+    DescriptorWriteCommandArguments descriptor_write_arguments = 10;
   }
 }
 
 enum CommandCategory {
   COMMAND_CATEGORY_BLUETOOTH_GET_STATE = 0;
-  COMMAND_CATEGORY_CENTRAL_START_DISCOVERY = 1;
-  COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY = 2;
-  COMMAND_CATEGORY_CENTRAL_CONNECT = 3;
-  COMMAND_CATEGORY_GATT_DISCONNECT = 4;
-  COMMAND_CATEGORY_GATT_CHARACTERISTIC_READ = 5;
-  COMMAND_CATEGORY_GATT_CHARACTERISTIC_WRITE = 6;
-  COMMAND_CATEGORY_GATT_CHARACTERISTIC_NOTIFY = 7;
-  COMMAND_CATEGORY_GATT_DESCRIPTOR_READ = 8;
-  COMMAND_CATEGORY_GATT_DESCRIPTOR_WRITE = 9;
+  COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED = 1;
+  COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED = 2;
+  COMMAND_CATEGORY_CENTRAL_START_DISCOVERY = 3;
+  COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY = 4;
+  COMMAND_CATEGORY_CENTRAL_CONNECT = 5;
+  COMMAND_CATEGORY_GATT_DISCONNECT = 6;
+  COMMAND_CATEGORY_CHARACTERISTIC_READ = 7;
+  COMMAND_CATEGORY_CHARACTERISTIC_WRITE = 8;
+  COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY = 9;
+  COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY = 10;
+  COMMAND_CATEGORY_DESCRIPTOR_READ = 11;
+  COMMAND_CATEGORY_DESCRIPTOR_WRITE = 12;
 }
 
-message CentralStartDiscoveryArguments {
+message CentralStartDiscoveryCommandArguments {
   repeated string uuids = 1;
 }
 
-message CentralConnectArguments {
+message CentralConnectCommandArguments {
   string uuid = 1;
 }
 
-message GattDisconnectArguments {
-  string indexed_uuid = 1;
+message GattDisconnectCommandArguments {
+  string id = 1;
 }
 
-message GattCharacteristicReadArguments {
-  string indexed_gatt_uuid = 1;
-  string indexed_service_uuid = 2;
-  string indexed_uuid = 3;
+message CharacteristicReadCommandArguments {
+  string gatt_id = 1;
+  string service_id = 2;
+  string id = 3;
 }
 
-message GattCharacteristicWriteArguments {
-  string indexed_gatt_uuid = 1;
-  string indexed_service_uuid = 2;
-  string indexed_uuid = 3;
+message CharacteristicWriteCommandArguments {
+  string gatt_id = 1;
+  string service_id = 2;
+  string id = 3;
   bytes value = 4;
   bool without_response = 5;
 }
 
-message GattCharacteristicNotifyArguments {
-  string indexed_gatt_uuid = 1;
-  string indexed_service_uuid = 2;
-  string indexed_uuid = 3;
-  bool state = 4;
+message CharacteristicNotifyCommandArguments {
+  string gatt_id = 1;
+  string service_id = 2;
+  string id = 3;
 }
 
-message GattDescriptorReadArguments {
-  string indexed_gatt_uuid = 1;
-  string indexed_service_uuid = 2;
-  string indexed_characteristic_uuid = 3;
-  string indexed_uuid = 4;
+message CharacteristicCancelNotifyCommandArguments {
+  string gatt_id = 1;
+  string service_id = 2;
+  string id = 3;
 }
 
-message GattDescriptorWriteArguments {
-  string indexed_gatt_uuid = 1;
-  string indexed_service_uuid = 2;
-  string indexed_characteristic_uuid = 3;
-  string indexed_uuid = 4;
+message DescriptorReadCommandArguments {
+  string gatt_id = 1;
+  string service_id = 2;
+  string characteristic_id = 3;
+  string id = 4;
+}
+
+message DescriptorWriteCommandArguments {
+  string gatt_id = 1;
+  string service_id = 2;
+  string characteristic_id = 3;
+  string id = 4;
   bytes value = 5;
+}
+
+message Reply {
+  oneof arguments {
+    BluetoothGetStateReplyArguments bluetooth_get_state_arguments = 1;
+    CentralConnectReplyArguments central_connect_arguments = 2;
+    CharacteristicReadReplyArguments characteristic_read_arguments = 3;
+    DescriptorReadReplyArguments descriptor_read_arguments = 4;
+  }
+}
+
+message BluetoothGetStateReplyArguments {
+  BluetoothState state = 1;
+}
+
+message CentralConnectReplyArguments {
+  GATT gatt = 1;
+}
+
+message CharacteristicReadReplyArguments {
+  bytes value = 1;
+}
+
+message DescriptorReadReplyArguments {
+  bytes value = 1;
 }
 
 message Event {
   EventCategory category = 1;
-  oneof arguments {
-    BluetoothStateChangedArguments bluetooth_state_changed_arguments = 2;
-    CentralDiscoveredArguments central_discovered_arguments = 3;
-    GattConnectionLostArguments gatt_connection_lost_arguments = 4;
-    GattCharacteristicValueChangedArguments characteristic_value_changed_arguments = 5;
+  oneof event {
+    BluetoothStateChangedEventArguments bluetooth_state_changed_arguments = 2;
+    CentralDiscoveredEventArguments central_discovered_arguments = 3;
+    GattConnectionLostEventArguments gatt_connection_lost_arguments = 4;
+    CharacteristicNotifiedEventArguments characteristic_notified_arguments = 5;
   }
 }
 
@@ -90,26 +124,26 @@ enum EventCategory {
   EVENT_CATEGORY_BLUETOOTH_STATE_CHANGED = 0;
   EVENT_CATEGORY_CENTRAL_DISCOVERED = 1;
   EVENT_CATEGORY_GATT_CONNECTION_LOST = 2;
-  EVENT_CATEGORY_GATT_CHARACTERISTIC_VALUE_CHANGED = 3;
+  EVENT_CATEGORY_CHARACTERISTIC_NOTIFIED = 3;
 }
 
-message BluetoothStateChangedArguments {
+message BluetoothStateChangedEventArguments {
   BluetoothState state = 1;
 }
 
-message CentralDiscoveredArguments {
-  PeripheralDiscovery discovery = 1;
+message CentralDiscoveredEventArguments {
+  Discovery discovery = 1;
 }
 
-message GattConnectionLostArguments {
-  string indexed_uuid = 1;
-  string error = 2;
+message GattConnectionLostEventArguments {
+  string id = 1;
+  int32 error_code = 2;
 }
 
-message GattCharacteristicValueChangedArguments {
-  string indexed_gatt_uuid = 1;
-  string indexed_service_uuid = 2;
-  string indexed_uuid = 3;
+message CharacteristicNotifiedEventArguments {
+  string gatt_id = 1;
+  string service_id = 2;
+  string id = 3;
   bytes value = 4;
 }
 
@@ -119,20 +153,27 @@ enum BluetoothState {
   BLUETOOTH_STATE_POWERED_ON = 2;
 }
 
+message Discovery {
+  string uuid = 1;
+  sint32 rssi = 2;
+  bytes advertisements = 3;
+  bool connectable = 4;
+}
+
 message GATT {
-  string indexed_uuid = 1;
+  string id = 1;
   int32 maximum_write_length = 2;
   repeated GattService services = 3;
 }
 
 message GattService {
-  string indexed_uuid = 1;
+  string id = 1;
   string uuid = 2;
   repeated GattCharacteristic characteristics = 3;
 }
 
 message GattCharacteristic {
-  string indexed_uuid = 1;
+  string id = 1;
   string uuid = 2;
   bool can_read = 3;
   bool can_write = 4;
@@ -142,13 +183,6 @@ message GattCharacteristic {
 }
 
 message GattDescriptor {
-  string indexed_uuid = 1;
+  string id = 1;
   string uuid = 2;
-}
-
-message PeripheralDiscovery {
-  string uuid = 1;
-  sint32 rssi = 2;
-  bytes advertisements = 3;
-  bool connectable = 4;
 }

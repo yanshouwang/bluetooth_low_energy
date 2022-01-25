@@ -7,93 +7,49 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  final method = MethodChannel(util.methodChannel.name);
-  final event = MethodChannel(util.eventChannel.name);
+  final methodChannel = MethodChannel(util.methodChannel.name);
+  final eventChannel = MethodChannel(util.eventChannel.name);
   final calls = <MethodCall>[];
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    calls.clear();
-    method.setMockMethodCallHandler((call) async {
+    methodChannel.setMockMethodCallHandler((call) async {
       calls.add(call);
       final command = messages.Command.fromBuffer(call.arguments);
       switch (command.category) {
         case messages.CommandCategory.COMMAND_CATEGORY_BLUETOOTH_GET_STATE:
-          return messages.BluetoothState.BLUETOOTH_STATE_POWERED_ON.value;
-        case messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_START_DISCOVERY:
-          return null;
-        case messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY:
-          return null;
-        case messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT:
-          final descriptors = [
-            messages.GattDescriptor(
-              indexedUuid: '0',
-              uuid: '2900',
+          return messages.Reply(
+            bluetoothGetStateArguments:
+                messages.BluetoothGetStateReplyArguments(
+              state: messages.BluetoothState.BLUETOOTH_STATE_POWERED_ON,
             ),
-          ];
-          final characteristics = [
-            messages.GattCharacteristic(
-              indexedUuid: '0',
-              uuid: '2A00',
-              descriptors: descriptors,
-              canRead: true,
-              canWrite: true,
-              canWriteWithoutResponse: true,
-              canNotify: true,
-            ),
-          ];
-          final services = [
-            messages.GattService(
-              indexedUuid: '0',
-              uuid: '1800',
-              characteristics: characteristics,
-            ),
-          ];
-          final gatt = messages.GATT(
-            indexedUuid: '0',
-            maximumWriteLength: 20,
-            services: services,
-          );
-          return gatt.writeToBuffer();
-        case messages.CommandCategory.COMMAND_CATEGORY_GATT_DISCONNECT:
-          return null;
-        case messages.CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_READ:
-          return [0x01, 0x02, 0x03, 0x04, 0x05];
+          ).writeToBuffer();
         case messages
-            .CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_WRITE:
-          return null;
-        case messages
-            .CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_NOTIFY:
-          return null;
-        case messages.CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_READ:
-          return [0x05, 0x04, 0x03, 0x02, 0x01];
-        case messages.CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_WRITE:
-          return null;
-        default:
-          throw UnimplementedError();
-      }
-    });
-    event.setMockMethodCallHandler((call) async {
-      switch (call.method) {
-        case 'listen':
-          final state = messages.Event(
+            .CommandCategory.COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED:
+          final event = messages.Event(
             category:
                 messages.EventCategory.EVENT_CATEGORY_BLUETOOTH_STATE_CHANGED,
             bluetoothStateChangedArguments:
-                messages.BluetoothStateChangedArguments(
+                messages.BluetoothStateChangedEventArguments(
               state: messages.BluetoothState.BLUETOOTH_STATE_POWERED_OFF,
             ),
           ).writeToBuffer();
           await ServicesBinding.instance!.defaultBinaryMessenger
               .handlePlatformMessage(
-            event.name,
-            event.codec.encodeSuccessEnvelope(state),
+            eventChannel.name,
+            eventChannel.codec.encodeSuccessEnvelope(event),
             (data) {},
           );
-          final discovery = messages.Event(
+          return null;
+        case messages
+            .CommandCategory.COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED:
+          return null;
+        case messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_START_DISCOVERY:
+          final event = messages.Event(
             category: messages.EventCategory.EVENT_CATEGORY_CENTRAL_DISCOVERED,
-            centralDiscoveredArguments: messages.CentralDiscoveredArguments(
-              discovery: messages.PeripheralDiscovery(
+            centralDiscoveredArguments:
+                messages.CentralDiscoveredEventArguments(
+              discovery: messages.Discovery(
                 uuid: 'AABB',
                 rssi: -50,
                 advertisements: [
@@ -112,56 +68,108 @@ void main() {
           ).writeToBuffer();
           await ServicesBinding.instance!.defaultBinaryMessenger
               .handlePlatformMessage(
-            event.name,
-            event.codec.encodeSuccessEnvelope(discovery),
+            eventChannel.name,
+            eventChannel.codec.encodeSuccessEnvelope(event),
             (data) {},
           );
-          final connectionLost = messages.Event(
-            category:
-                messages.EventCategory.EVENT_CATEGORY_GATT_CONNECTION_LOST,
-            gattConnectionLostArguments: messages.GattConnectionLostArguments(
-              indexedUuid: '0',
-              error: 'Connection lost.',
+          return null;
+        case messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY:
+          return null;
+        case messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT:
+          final descriptors = [
+            messages.GattDescriptor(
+              id: '0',
+              uuid: '2900',
+            ),
+          ];
+          final characteristics = [
+            messages.GattCharacteristic(
+              id: '0',
+              uuid: '2A00',
+              descriptors: descriptors,
+              canRead: true,
+              canWrite: true,
+              canWriteWithoutResponse: true,
+              canNotify: true,
+            ),
+          ];
+          final services = [
+            messages.GattService(
+              id: '0',
+              uuid: '1800',
+              characteristics: characteristics,
+            ),
+          ];
+          final gatt = messages.GATT(
+            id: '0',
+            maximumWriteLength: 20,
+            services: services,
+          );
+          return messages.Reply(
+            centralConnectArguments: messages.CentralConnectReplyArguments(
+              gatt: gatt,
             ),
           ).writeToBuffer();
-          await ServicesBinding.instance!.defaultBinaryMessenger
-              .handlePlatformMessage(
-            event.name,
-            event.codec.encodeSuccessEnvelope(connectionLost),
-            (data) {},
-          );
-          final characteristicValue = messages.Event(
-            category: messages
-                .EventCategory.EVENT_CATEGORY_GATT_CHARACTERISTIC_VALUE_CHANGED,
-            characteristicValueChangedArguments:
-                messages.GattCharacteristicValueChangedArguments(
-              indexedGattUuid: '0',
-              indexedServiceUuid: '0',
-              indexedUuid: '0',
+        case messages.CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_READ:
+          return messages.Reply(
+            characteristicReadArguments:
+                messages.CharacteristicReadReplyArguments(
+              value: [0x01, 0x02, 0x03, 0x04, 0x05],
+            ),
+          ).writeToBuffer();
+        case messages.CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_WRITE:
+          return null;
+        case messages.CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY:
+          final event = messages.Event(
+            category:
+                messages.EventCategory.EVENT_CATEGORY_CHARACTERISTIC_NOTIFIED,
+            characteristicNotifiedArguments:
+                messages.CharacteristicNotifiedEventArguments(
+              gattId: '0',
+              serviceId: '0',
+              id: '0',
               value: [0x0A, 0x0B, 0x0C, 0x0D, 0x0E],
             ),
           ).writeToBuffer();
           await ServicesBinding.instance!.defaultBinaryMessenger
               .handlePlatformMessage(
-            event.name,
-            event.codec.encodeSuccessEnvelope(characteristicValue),
+            eventChannel.name,
+            eventChannel.codec.encodeSuccessEnvelope(event),
             (data) {},
           );
-          break;
-        case 'cancel':
+          return null;
+        case messages
+            .CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY:
+          return null;
+        case messages.CommandCategory.COMMAND_CATEGORY_DESCRIPTOR_READ:
+          return messages.Reply(
+            descriptorReadArguments: messages.DescriptorReadReplyArguments(
+              value: [0x05, 0x04, 0x03, 0x02, 0x01],
+            ),
+          ).writeToBuffer();
+        case messages.CommandCategory.COMMAND_CATEGORY_DESCRIPTOR_WRITE:
           return null;
         default:
           throw UnimplementedError();
       }
     });
+    eventChannel.setMockMethodCallHandler((call) {
+      switch (call.method) {
+        case 'listen':
+        case 'cancel':
+        default:
+          return null;
+      }
+    });
   });
   tearDown(() {
-    method.setMockMethodCallHandler(null);
-    event.setMockMethodCallHandler(null);
+    methodChannel.setMockMethodCallHandler(null);
+    eventChannel.setMockMethodCallHandler(null);
+    calls.clear();
   });
 
   test(
-    '${messages.CommandCategory.COMMAND_CATEGORY_BLUETOOTH_GET_STATE}',
+    'Bluetooth#getState',
     () async {
       final actual = await central.getState();
       expect(actual, BluetoothState.poweredOn);
@@ -180,17 +188,46 @@ void main() {
     },
   );
   test(
-    '${messages.EventCategory.EVENT_CATEGORY_BLUETOOTH_STATE_CHANGED}',
+    'Bluetooth#stateChanged',
     () async {
       final actual = await central.stateChanged.first;
       expect(actual, BluetoothState.poweredOff);
+      expect(
+        calls,
+        [
+          isMethodCall(
+            '',
+            arguments: messages.Command(
+              category: messages.CommandCategory
+                  .COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED,
+            ).writeToBuffer(),
+          ),
+          isMethodCall(
+            '',
+            arguments: messages.Command(
+              category: messages.CommandCategory
+                  .COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED,
+            ).writeToBuffer(),
+          ),
+        ],
+      );
     },
   );
   test(
-    '${messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_START_DISCOVERY}',
+    'Central#discover',
     () async {
       final services = [UUID('1800'), UUID('1801')];
-      await central.startDiscovery(uuids: services);
+      final discovery = await central.discover(uuids: services).first;
+      final uuid = UUID('AABB');
+      expect(discovery.uuid, uuid);
+      const rssi = -50;
+      expect(discovery.rssi, rssi);
+      final advertisements = {
+        0xff: [0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa],
+      };
+      expect(discovery.advertisements, advertisements);
+      const connectable = true;
+      expect(discovery.connectable, connectable);
       expect(
         calls,
         [
@@ -200,22 +237,11 @@ void main() {
               category: messages
                   .CommandCategory.COMMAND_CATEGORY_CENTRAL_START_DISCOVERY,
               centralStartDiscoveryArguments:
-                  messages.CentralStartDiscoveryArguments(
+                  messages.CentralStartDiscoveryCommandArguments(
                 uuids: services.map((uuid) => uuid.name),
               ),
             ).writeToBuffer(),
           ),
-        ],
-      );
-    },
-  );
-  test(
-    '${messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY}',
-    () async {
-      await central.stopDiscovery();
-      expect(
-        calls,
-        [
           isMethodCall(
             '',
             arguments: messages.Command(
@@ -228,29 +254,16 @@ void main() {
     },
   );
   test(
-    '${messages.EventCategory.EVENT_CATEGORY_CENTRAL_DISCOVERED}',
-    () async {
-      final discovery = await central.discovered.first;
-      final uuid = UUID('AABB');
-      expect(discovery.uuid, uuid);
-      const rssi = -50;
-      expect(discovery.rssi, rssi);
-      final advertisements = {
-        0xff: [0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa],
-      };
-      expect(discovery.advertisements, advertisements);
-      const connectable = true;
-      expect(discovery.connectable, connectable);
-    },
-  );
-  test(
-    '${messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT}',
+    'Central#connect',
     () async {
       final uuid = UUID('AABB');
-      final actual = await central.connect(uuid);
-      expect(actual.maximumWriteLength, 20);
-      expect(actual.services.length, 1);
-      final service = actual.services.values.first;
+      final gatt = await central.connect(
+        uuid,
+        onConnectionLost: (errorCode) {},
+      );
+      expect(gatt.maximumWriteLength, 20);
+      expect(gatt.services.length, 1);
+      final service = gatt.services.values.first;
       expect(service.uuid, UUID('1800'));
       expect(service.characteristics.length, 1);
       final characteristic = service.characteristics.values.first;
@@ -270,7 +283,7 @@ void main() {
             arguments: messages.Command(
               category:
                   messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
-              centralConnectArguments: messages.CentralConnectArguments(
+              centralConnectArguments: messages.CentralConnectCommandArguments(
                 uuid: uuid.name,
               ),
             ).writeToBuffer(),
@@ -280,68 +293,13 @@ void main() {
     },
   );
   test(
-    '${messages.CommandCategory.COMMAND_CATEGORY_GATT_DISCONNECT}',
+    'GattCharacteritsic#read',
     () async {
       final uuid = UUID('AABB');
-      final gatt = await central.connect(uuid);
-      await gatt.disconnect();
-      expect(
-        calls,
-        [
-          isMethodCall(
-            '',
-            arguments: messages.Command(
-              category:
-                  messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
-              centralConnectArguments: messages.CentralConnectArguments(
-                uuid: uuid.name,
-              ),
-            ).writeToBuffer(),
-          ),
-          isMethodCall(
-            '',
-            arguments: messages.Command(
-              category:
-                  messages.CommandCategory.COMMAND_CATEGORY_GATT_DISCONNECT,
-              gattDisconnectArguments: messages.GattDisconnectArguments(
-                indexedUuid: '0',
-              ),
-            ).writeToBuffer(),
-          ),
-        ],
+      final gatt = await central.connect(
+        uuid,
+        onConnectionLost: (errorCode) {},
       );
-    },
-  );
-  test(
-    '${messages.EventCategory.EVENT_CATEGORY_GATT_CONNECTION_LOST}',
-    () async {
-      final uuid = UUID('AABB');
-      final gatt = await central.connect(uuid);
-      final actual = await gatt.connectionLost.first;
-      final matcher = Exception('Connection lost.');
-      expect('$actual', '$matcher');
-      expect(
-        calls,
-        [
-          isMethodCall(
-            '',
-            arguments: messages.Command(
-              category:
-                  messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
-              centralConnectArguments: messages.CentralConnectArguments(
-                uuid: uuid.name,
-              ),
-            ).writeToBuffer(),
-          ),
-        ],
-      );
-    },
-  );
-  test(
-    '${messages.CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_READ}',
-    () async {
-      final uuid = UUID('AABB');
-      final gatt = await central.connect(uuid);
       final service = gatt.services.values.first;
       final characteristic = service.characteristics.values.first;
       final actual = await characteristic.read();
@@ -354,7 +312,7 @@ void main() {
             arguments: messages.Command(
               category:
                   messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
-              centralConnectArguments: messages.CentralConnectArguments(
+              centralConnectArguments: messages.CentralConnectCommandArguments(
                 uuid: uuid.name,
               ),
             ).writeToBuffer(),
@@ -362,13 +320,13 @@ void main() {
           isMethodCall(
             '',
             arguments: messages.Command(
-              category: messages
-                  .CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_READ,
+              category:
+                  messages.CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_READ,
               characteristicReadArguments:
-                  messages.GattCharacteristicReadArguments(
-                indexedGattUuid: '0',
-                indexedServiceUuid: '0',
-                indexedUuid: '0',
+                  messages.CharacteristicReadCommandArguments(
+                gattId: '0',
+                serviceId: '0',
+                id: '0',
               ),
             ).writeToBuffer(),
           ),
@@ -377,10 +335,13 @@ void main() {
     },
   );
   test(
-    '${messages.CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_WRITE}',
+    'GattCharacteritsic#write',
     () async {
       final uuid = UUID('AABB');
-      final gatt = await central.connect(uuid);
+      final gatt = await central.connect(
+        uuid,
+        onConnectionLost: (errorCode) {},
+      );
       final service = gatt.services.values.first;
       final characteristic = service.characteristics.values.first;
       final value = Uint8List.fromList([0x01, 0x02, 0x03, 0x04, 0x05]);
@@ -393,7 +354,7 @@ void main() {
             arguments: messages.Command(
               category:
                   messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
-              centralConnectArguments: messages.CentralConnectArguments(
+              centralConnectArguments: messages.CentralConnectCommandArguments(
                 uuid: uuid.name,
               ),
             ).writeToBuffer(),
@@ -402,12 +363,12 @@ void main() {
             '',
             arguments: messages.Command(
               category: messages
-                  .CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_WRITE,
+                  .CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_WRITE,
               characteristicWriteArguments:
-                  messages.GattCharacteristicWriteArguments(
-                indexedGattUuid: '0',
-                indexedServiceUuid: '0',
-                indexedUuid: '0',
+                  messages.CharacteristicWriteCommandArguments(
+                gattId: '0',
+                serviceId: '0',
+                id: '0',
                 value: value,
                 withoutResponse: true,
               ),
@@ -418,52 +379,16 @@ void main() {
     },
   );
   test(
-    '${messages.CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_NOTIFY}',
+    'GattCharacteritsic#notified',
     () async {
       final uuid = UUID('AABB');
-      final gatt = await central.connect(uuid);
-      final service = gatt.services.values.first;
-      final characteristic = service.characteristics.values.first;
-      await characteristic.notify(true);
-      expect(
-        calls,
-        [
-          isMethodCall(
-            '',
-            arguments: messages.Command(
-              category:
-                  messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
-              centralConnectArguments: messages.CentralConnectArguments(
-                uuid: uuid.name,
-              ),
-            ).writeToBuffer(),
-          ),
-          isMethodCall(
-            '',
-            arguments: messages.Command(
-              category: messages
-                  .CommandCategory.COMMAND_CATEGORY_GATT_CHARACTERISTIC_NOTIFY,
-              characteristicNotifyArguments:
-                  messages.GattCharacteristicNotifyArguments(
-                indexedGattUuid: '0',
-                indexedServiceUuid: '0',
-                indexedUuid: '0',
-                state: true,
-              ),
-            ).writeToBuffer(),
-          ),
-        ],
+      final gatt = await central.connect(
+        uuid,
+        onConnectionLost: (errorCode) {},
       );
-    },
-  );
-  test(
-    '${messages.EventCategory.EVENT_CATEGORY_GATT_CHARACTERISTIC_VALUE_CHANGED}',
-    () async {
-      final uuid = UUID('AABB');
-      final gatt = await central.connect(uuid);
       final service = gatt.services.values.first;
       final characteristic = service.characteristics.values.first;
-      final value = await characteristic.valueChanged.first;
+      final value = await characteristic.notified.first;
       expect(value, [0x0A, 0x0B, 0x0C, 0x0D, 0x0E]);
       expect(
         calls,
@@ -473,8 +398,34 @@ void main() {
             arguments: messages.Command(
               category:
                   messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
-              centralConnectArguments: messages.CentralConnectArguments(
+              centralConnectArguments: messages.CentralConnectCommandArguments(
                 uuid: uuid.name,
+              ),
+            ).writeToBuffer(),
+          ),
+          isMethodCall(
+            '',
+            arguments: messages.Command(
+              category: messages
+                  .CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY,
+              characteristicNotifyArguments:
+                  messages.CharacteristicNotifyCommandArguments(
+                gattId: '0',
+                serviceId: '0',
+                id: '0',
+              ),
+            ).writeToBuffer(),
+          ),
+          isMethodCall(
+            '',
+            arguments: messages.Command(
+              category: messages.CommandCategory
+                  .COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY,
+              characteristicCancelNotifyArguments:
+                  messages.CharacteristicCancelNotifyCommandArguments(
+                gattId: '0',
+                serviceId: '0',
+                id: '0',
               ),
             ).writeToBuffer(),
           ),
@@ -483,10 +434,13 @@ void main() {
     },
   );
   test(
-    '${messages.CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_READ}',
+    'GattDescriptor#read',
     () async {
       final uuid = UUID('AABB');
-      final gatt = await central.connect(uuid);
+      final gatt = await central.connect(
+        uuid,
+        onConnectionLost: (errorCode) {},
+      );
       final service = gatt.services.values.first;
       final characteristic = service.characteristics.values.first;
       final descriptor = characteristic.descriptors.values.first;
@@ -500,7 +454,7 @@ void main() {
             arguments: messages.Command(
               category:
                   messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
-              centralConnectArguments: messages.CentralConnectArguments(
+              centralConnectArguments: messages.CentralConnectCommandArguments(
                 uuid: uuid.name,
               ),
             ).writeToBuffer(),
@@ -508,13 +462,13 @@ void main() {
           isMethodCall(
             '',
             arguments: messages.Command(
-              category: messages
-                  .CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_READ,
-              descriptorReadArguments: messages.GattDescriptorReadArguments(
-                indexedGattUuid: '0',
-                indexedServiceUuid: '0',
-                indexedCharacteristicUuid: '0',
-                indexedUuid: '0',
+              category:
+                  messages.CommandCategory.COMMAND_CATEGORY_DESCRIPTOR_READ,
+              descriptorReadArguments: messages.DescriptorReadCommandArguments(
+                gattId: '0',
+                serviceId: '0',
+                characteristicId: '0',
+                id: '0',
               ),
             ).writeToBuffer(),
           ),
@@ -523,10 +477,13 @@ void main() {
     },
   );
   test(
-    '${messages.CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_WRITE}',
+    'GattDescriptor#write',
     () async {
       final uuid = UUID('AABB');
-      final gatt = await central.connect(uuid);
+      final gatt = await central.connect(
+        uuid,
+        onConnectionLost: (errorCode) {},
+      );
       final service = gatt.services.values.first;
       final characteristic = service.characteristics.values.first;
       final descriptor = characteristic.descriptors.values.first;
@@ -540,7 +497,7 @@ void main() {
             arguments: messages.Command(
               category:
                   messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT,
-              centralConnectArguments: messages.CentralConnectArguments(
+              centralConnectArguments: messages.CentralConnectCommandArguments(
                 uuid: uuid.name,
               ),
             ).writeToBuffer(),
@@ -548,13 +505,14 @@ void main() {
           isMethodCall(
             '',
             arguments: messages.Command(
-              category: messages
-                  .CommandCategory.COMMAND_CATEGORY_GATT_DESCRIPTOR_WRITE,
-              descriptorWriteArguments: messages.GattDescriptorWriteArguments(
-                indexedGattUuid: '0',
-                indexedServiceUuid: '0',
-                indexedCharacteristicUuid: '0',
-                indexedUuid: '0',
+              category:
+                  messages.CommandCategory.COMMAND_CATEGORY_DESCRIPTOR_WRITE,
+              descriptorWriteArguments:
+                  messages.DescriptorWriteCommandArguments(
+                gattId: '0',
+                serviceId: '0',
+                characteristicId: '0',
+                id: '0',
                 value: value,
               ),
             ).writeToBuffer(),

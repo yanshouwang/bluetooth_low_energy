@@ -1,1 +1,1 @@
-export 'messages.pb.dart';
+export 'messages/messages.pb.dart';

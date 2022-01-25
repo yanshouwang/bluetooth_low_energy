@@ -7,7 +7,6 @@ import 'package:bluetooth_low_energy_example/models.dart';
 import 'package:bluetooth_low_energy_example/widgets.dart';
 import 'package:convert/convert.dart';
 import 'package:flutter/material.dart' hide ConnectionState;
-import 'package:flutter/services.dart';
 
 import 'list_notifier.dart';
 import 'map_notifier.dart';
@@ -25,21 +24,22 @@ class _GattViewState extends State<GattView> {
   final ValueNotifier<GattService?> service;
   final ValueNotifier<GattCharacteristic?> characteristic;
   final TextEditingController writeController;
-  final MapNotifier<GattCharacteristic, StreamSubscription<List<int>>> notifies;
+  final MapNotifier<GattCharacteristic, StreamSubscription<Uint8List>>
+      notifiedSubscriptions;
   final ListNotifier<Log> logs;
   final ValueNotifier<Encoding> encoding;
 
-  late PeripheralDiscovery discovery;
-
+  late Discovery discovery;
   GATT? gatt;
-  StreamSubscription<Exception>? connectionLostSubscription;
 
   bool get canRead =>
       characteristic.value != null && characteristic.value!.canRead;
+
   bool get canWrite =>
       characteristic.value != null &&
       (characteristic.value!.canWrite ||
           characteristic.value!.canWriteWithoutResponse);
+
   bool get canNotify =>
       characteristic.value != null && characteristic.value!.canNotify;
 
@@ -48,7 +48,7 @@ class _GattViewState extends State<GattView> {
         service = ValueNotifier(null),
         characteristic = ValueNotifier(null),
         writeController = TextEditingController(),
-        notifies = MapNotifier({}),
+        notifiedSubscriptions = MapNotifier({}),
         logs = ListNotifier([]),
         encoding = ValueNotifier(Encoding.hex);
 
@@ -59,7 +59,7 @@ class _GattViewState extends State<GattView> {
 
   @override
   Widget build(BuildContext context) {
-    discovery = context.arguments<PeripheralDiscovery>();
+    discovery = context.arguments<Discovery>();
     return view;
   }
 
@@ -92,22 +92,22 @@ class _GattViewState extends State<GattView> {
     state.dispose();
     service.dispose();
     characteristic.dispose();
-    notifies.dispose();
+    notifiedSubscriptions.dispose();
     logs.dispose();
   }
 
   Future<void> connect() async {
     try {
       state.value = ConnectionState.connecting;
-      gatt = await central.connect(discovery.uuid);
-      state.value = ConnectionState.connected;
-      connectionLostSubscription = gatt!.connectionLost.listen(
-        (errorCode) async {
-          await cleanConnection();
+      gatt = await central.connect(
+        discovery.uuid,
+        onConnectionLost: (errorCode) {
+          clean();
           state.value = ConnectionState.disconnected;
         },
       );
-    } on PlatformException {
+      state.value = ConnectionState.connected;
+    } catch (e) {
       state.value = ConnectionState.disconnected;
     }
   }
@@ -151,42 +151,37 @@ class _GattViewState extends State<GattView> {
 
   Future<void> notify() async {
     final characteristic = this.characteristic.value!;
-    final notifying = notifies.value.containsKey(characteristic);
-    if (notifying) {
-      await characteristic.notify(false);
-      await notifies.value.remove(characteristic)!.cancel();
+    final subscription = notifiedSubscriptions.value.remove(characteristic);
+    if (subscription != null) {
+      await subscription.cancel();
     } else {
-      notifies.value[characteristic] =
-          characteristic.valueChanged.listen((value) {
+      notifiedSubscriptions.value[characteristic] =
+          characteristic.notified.listen((value) {
         final log = Log.notify(value);
         logs.value = [...logs.value, log];
       });
-      await characteristic.notify(true);
     }
-    notifies.value = {...notifies.value};
+    notifiedSubscriptions.value = {...notifiedSubscriptions.value};
   }
 
   Future<void> disconnect() async {
     try {
       state.value = ConnectionState.disconnecting;
       await gatt!.disconnect();
-      await cleanConnection();
+      await clean();
       state.value = ConnectionState.disconnected;
-    } on PlatformException {
+    } catch (e) {
       state.value = ConnectionState.connected;
     }
   }
 
-  Future<void> cleanConnection() async {
-    for (var subscription in notifies.value.values) {
+  Future<void> clean() async {
+    for (var subscription in notifiedSubscriptions.value.values) {
       await subscription.cancel();
     }
-    await connectionLostSubscription!.cancel();
-    gatt = null;
-    connectionLostSubscription = null;
     service.value = null;
     characteristic.value = null;
-    notifies.value.clear();
+    notifiedSubscriptions.value.clear();
     logs.value.clear();
   }
 }
@@ -330,7 +325,7 @@ extension on _GattViewState {
                   icon: const Icon(Icons.archive),
                 ),
                 ValueListenableBuilder(
-                    valueListenable: notifies,
+                    valueListenable: notifiedSubscriptions,
                     builder: (context,
                         Map<GattCharacteristic, StreamSubscription<List<int>>>
                             notifiesValue,

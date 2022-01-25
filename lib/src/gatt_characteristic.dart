@@ -23,15 +23,9 @@ abstract class GattCharacteristic {
   /// The descriptors of this [GattCharacteristic].
   Map<UUID, GattDescriptor> get descriptors;
 
-  /// A stream for this [GattCharacteristic]'s value changed event.
-  Stream<Uint8List> get valueChanged;
-
-  /// TO BE DONE.
   Future<Uint8List> read();
 
-  /// TO BE DONE.
   Future<void> write(Uint8List value, {bool withoutResponse = false});
 
-  /// TO BE DONE.
-  Future<void> notify(bool state);
+  Stream<Uint8List> get notified;
 }

@@ -16,9 +16,9 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   final ValueNotifier<bool> state;
   final ValueNotifier<bool> discovering;
-  final MapNotifier<UUID, PeripheralDiscovery> discoveries;
-  late StreamSubscription<BluetoothState> stateSubscription;
-  late StreamSubscription<PeripheralDiscovery> discoverySubscription;
+  final MapNotifier<UUID, Discovery> discoveries;
+  late StreamSubscription<BluetoothState> stateChangedSubscription;
+  StreamSubscription<Discovery>? discoveredSubscription;
 
   _HomeViewState()
       : state = ValueNotifier(false),
@@ -40,15 +40,15 @@ class _HomeViewState extends State<HomeView> {
     state.dispose();
     discovering.dispose();
     discovering.dispose();
-    stateSubscription.cancel();
-    discoverySubscription.cancel();
+    stateChangedSubscription.cancel();
+    discoveredSubscription?.cancel();
     super.dispose();
   }
 
   Future<void> setup() async {
     final state = await central.getState();
     this.state.value = state == BluetoothState.poweredOn;
-    stateSubscription = central.stateChanged.listen(
+    stateChangedSubscription = central.stateChanged.listen(
       (state) {
         this.state.value = state == BluetoothState.poweredOn;
         final invisible = !ModalRoute.of(context)!.isCurrent;
@@ -60,12 +60,6 @@ class _HomeViewState extends State<HomeView> {
         }
       },
     );
-    discoverySubscription = central.discovered.listen(
-      (discovery) {
-        discoveries.value[discovery.uuid] = discovery;
-        discoveries.value = {...discoveries.value};
-      },
-    );
     if (this.state.value) {
       startDiscovery();
     }
@@ -73,13 +67,19 @@ class _HomeViewState extends State<HomeView> {
 
   Future<void> startDiscovery() async {
     if (discovering.value || !state.value) return;
-    await central.startDiscovery();
+    final discovered = central.discover();
+    discoveredSubscription = discovered.listen(
+      (discovery) {
+        discoveries.value[discovery.uuid] = discovery;
+        discoveries.value = {...discoveries.value};
+      },
+    );
     discovering.value = true;
   }
 
   Future<void> stopDiscovery() async {
     if (!discovering.value || !state.value) return;
-    await central.stopDiscovery();
+    await discoveredSubscription!.cancel();
     discoveries.value = {};
     discovering.value = false;
   }
@@ -88,7 +88,7 @@ class _HomeViewState extends State<HomeView> {
     discoveries.value = {};
   }
 
-  Future<void> showAdvertisements(PeripheralDiscovery discovery) async {
+  Future<void> showAdvertisements(Discovery discovery) async {
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -97,7 +97,7 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Future<void> showGattView(PeripheralDiscovery discovery) async {
+  Future<void> showGattView(Discovery discovery) async {
     await stopDiscovery();
     await Navigator.of(context).pushNamed(
       'gatt',
@@ -125,7 +125,7 @@ extension on _HomeViewState {
 
   Widget get discoveriesView => RefreshIndicator(
         onRefresh: () async => await updateDiscoveries(),
-        child: ValueListenableBuilder<Map<UUID, PeripheralDiscovery>>(
+        child: ValueListenableBuilder<Map<UUID, Discovery>>(
           valueListenable: discoveries,
           builder: (context, discoveries, child) {
             return ListView.builder(
@@ -187,7 +187,7 @@ extension on _HomeViewState {
       );
 }
 
-extension on PeripheralDiscovery {
+extension on Discovery {
   Widget get view {
     final widgets = <Widget>[
       Row(
