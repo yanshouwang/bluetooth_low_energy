@@ -46,6 +46,23 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
         MethodChannel.MethodCallHandler { call, result ->
             val command = call.command
             when (command.category!!) {
+                Messages.CommandCategory.COMMAND_CATEGORY_BLUETOOTH_AUTHORIZE -> {
+                    val oldState = bluetoothState
+                    requestPermissionResultListeners.add {
+                        val newState = bluetoothState
+                        if (newState != oldState) {
+                            val event = event {
+                                this.category = Messages.EventCategory.EVENT_CATEGORY_BLUETOOTH_STATE_CHANGED
+                                this.bluetoothStateChangedArguments = bluetoothStateChangedEventArguments {
+                                    this.state = newState
+                                }
+                            }.toByteArray()
+                            eventSink?.success(event)
+                        }
+                        result.success()
+                    }
+                    ActivityCompat.requestPermissions(activity, runtimePermissions, REQUEST_CODE)
+                }
                 Messages.CommandCategory.COMMAND_CATEGORY_BLUETOOTH_GET_STATE -> {
                     val reply = reply {
                         this.bluetoothGetStateArguments = bluetoothGetStateReplyArguments {
@@ -66,50 +83,25 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                 Messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_START_DISCOVERY -> {
                     val arguments = command.centralStartDiscoveryArguments
                     val uuids = arguments.uuidsList
-                    val startDiscovery = Runnable {
-                        val filters = uuids.map { uuid ->
-                            val serviceUUID = ParcelUuid.fromString(uuid)
-                            ScanFilter.Builder()
-                                .setServiceUuid(serviceUUID)
-                                .build()
-                        }
-                        val settings = ScanSettings.Builder()
-                            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                            .build()
-                        bluetoothAdapter.bluetoothLeScanner.startScan(
-                            filters,
-                            settings,
-                            scanCallback
-                        )
-                        // use invokeOnMainThread to delay until #onScanFailed executed.
-                        activity.invokeOnMainThread {
-                            when (val code = scanCode) {
-                                NO_ERROR -> result.success()
-                                else -> {
-                                    result.error(
-                                        TAG,
-                                        "Start discovery failed with code: $code"
-                                    )
-                                    scanCode = NO_ERROR
-                                }
+                    val filters = uuids.map { uuid ->
+                        val serviceUUID = ParcelUuid.fromString(uuid)
+                        ScanFilter.Builder().setServiceUuid(serviceUUID).build()
+                    }
+                    val settings = ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
+                    bluetoothAdapter.bluetoothLeScanner.startScan(
+                        filters, settings, scanCallback
+                    )
+                    // use invokeOnMainThread to delay until #onScanFailed executed.
+                    activity.invokeOnMainThread {
+                        when (val code = scanCode) {
+                            NO_ERROR -> result.success()
+                            else -> {
+                                result.error(
+                                    TAG, "Start discovery failed with code: $code"
+                                )
+                                scanCode = NO_ERROR
                             }
                         }
-                    }
-                    val hasPermission = ContextCompat.checkSelfPermission(
-                        activity,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) == PackageManager.PERMISSION_GRANTED
-                    if (hasPermission) startDiscovery.run()
-                    else {
-                        requestPermissionResultListeners.add { granted ->
-                            if (granted) startDiscovery.run()
-                            else result.error(
-                                TAG,
-                                "Start discovery failed: Permissions request was denied by user."
-                            )
-                        }
-                        val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-                        ActivityCompat.requestPermissions(activity, permissions, REQUEST_CODE)
                     }
                 }
                 Messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY -> {
@@ -125,10 +117,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                     val gatt = when {
                         // Use TRANSPORT_LE to avoid none flag device on Android 23 or later.
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> device.connectGatt(
-                            activity,
-                            autoConnect,
-                            bluetoothGattCallback,
-                            BluetoothDevice.TRANSPORT_LE
+                            activity, autoConnect, bluetoothGattCallback, BluetoothDevice.TRANSPORT_LE
                         )
                         else -> device.connectGatt(activity, autoConnect, bluetoothGattCallback)
                     }
@@ -163,9 +152,8 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                     val gatt = bluetoothGATTs.first { it.id == gattId }
                     val service = gatt.services.first { it.id == serviceId }
                     val characteristic = service.characteristics.first { it.id == id }
-                    characteristic.writeType =
-                        if (withoutResponse) BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
-                        else BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                    characteristic.writeType = if (withoutResponse) BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+                    else BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
                     characteristic.value = value
                     val writeSuccessfully = gatt.writeCharacteristic(characteristic)
                     if (writeSuccessfully) characteristicWrites[characteristic] = result
@@ -181,15 +169,13 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                     val characteristic = service.characteristics.first { it.id == id }
                     val descriptorUUID = UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG)
                     val descriptor = characteristic.getDescriptor(descriptorUUID)
-                    val notifySuccessfully =
-                        gatt.setCharacteristicNotification(characteristic, true)
+                    val notifySuccessfully = gatt.setCharacteristicNotification(characteristic, true)
                     if (notifySuccessfully) {
                         descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
                         val writeSuccessfully = gatt.writeDescriptor(descriptor)
                         if (writeSuccessfully) descriptorWrites[descriptor] = result
                         else result.error(
-                            TAG,
-                            "Write client characteristic config descriptor failed."
+                            TAG, "Write client characteristic config descriptor failed."
                         )
                     } else {
                         result.error(TAG, "Notify characteristic failed.")
@@ -205,15 +191,13 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                     val characteristic = service.characteristics.first { it.id == id }
                     val descriptorUUID = UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG)
                     val descriptor = characteristic.getDescriptor(descriptorUUID)
-                    val notifySuccessfully =
-                        gatt.setCharacteristicNotification(characteristic, false)
+                    val notifySuccessfully = gatt.setCharacteristicNotification(characteristic, false)
                     if (notifySuccessfully) {
                         descriptor.value = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
                         val writeSuccessfully = gatt.writeDescriptor(descriptor)
                         if (writeSuccessfully) descriptorWrites[descriptor] = result
                         else result.error(
-                            TAG,
-                            "Write client characteristic config descriptor failed."
+                            TAG, "Write client characteristic config descriptor failed."
                         )
                     } else {
                         result.error(TAG, "Notify characteristic failed.")
@@ -288,22 +272,45 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
     private val bluetoothAdapter by lazy {
         (activity.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
     }
-
+    private val runtimePermissions by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            arrayOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT)
+        } else {
+            arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+    }
+    private val authorized
+        get() = runtimePermissions.all { permission ->
+            ContextCompat.checkSelfPermission(
+                activity, permission
+            ) == PackageManager.PERMISSION_GRANTED
+        }
     private val bluetoothState: Messages.BluetoothState
         get() {
-            return if (bluetoothAvailable) toProtoBluetoothState(bluetoothAdapter.state)
-            else Messages.BluetoothState.BLUETOOTH_STATE_UNSUPPORTED
+            return if (bluetoothAvailable) {
+                if (authorized) {
+                    toProtoBluetoothState(bluetoothAdapter.state)
+                } else {
+                    Messages.BluetoothState.BLUETOOTH_STATE_UNAUTHORIZED
+                }
+            } else {
+                Messages.BluetoothState.BLUETOOTH_STATE_UNSUPPORTED
+            }
         }
+
     private val bluetoothStateChangedReceiver by lazy {
         object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
+                // 在 UNSUPPORTED 和 UNAUTHORIZED 状态时不处理
+                val bluetoothState = this@BluetoothLowEnergyPlugin.bluetoothState
+                if (bluetoothState == Messages.BluetoothState.BLUETOOTH_STATE_UNSUPPORTED || bluetoothState == Messages.BluetoothState.BLUETOOTH_STATE_UNAUTHORIZED) {
+                    return
+                }
                 val oldState = intent!!.getIntExtra(
-                    BluetoothAdapter.EXTRA_PREVIOUS_STATE,
-                    BLUETOOTH_ADAPTER_STATE_UNKNOWN
+                    BluetoothAdapter.EXTRA_PREVIOUS_STATE, BLUETOOTH_ADAPTER_STATE_UNKNOWN
                 )
                 val newState = intent.getIntExtra(
-                    BluetoothAdapter.EXTRA_STATE,
-                    BLUETOOTH_ADAPTER_STATE_UNKNOWN
+                    BluetoothAdapter.EXTRA_STATE, BLUETOOTH_ADAPTER_STATE_UNKNOWN
                 )
                 if (newState == oldState) return
                 val state = toProtoBluetoothState(newState)
@@ -341,14 +348,12 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                 super.onScanResult(callbackType, result)
                 if (result == null) return
                 val record = result.scanRecord
-                val advertisements =
-                    if (record == null) ByteString.EMPTY
-                    else ByteString.copyFrom(record.bytes)
+                val advertisements = if (record == null) ByteString.EMPTY
+                else ByteString.copyFrom(record.bytes)
                 // TODO: We can't get connectable value before Android 8.0, here we just return true
                 //  remove this useless code after the minSdkVersion set to 26 or later.
-                val connectable =
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) result.isConnectable
-                    else true
+                val connectable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) result.isConnectable
+                else true
                 val event = event {
                     this.category = Messages.EventCategory.EVENT_CATEGORY_CENTRAL_DISCOVERED
                     this.centralDiscoveredArguments = centralDiscoveredEventArguments {
@@ -388,22 +393,19 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                                     val disconnect = disconnects.remove(gatt)
                                     if (disconnect == null) {
                                         val event = event {
-                                            this.category =
-                                                Messages.EventCategory.EVENT_CATEGORY_GATT_CONNECTION_LOST
-                                            this.gattConnectionLostArguments =
-                                                gattConnectionLostEventArguments {
-                                                    this.id = gatt.id
-                                                    this.errorCode = status
-                                                }
+                                            this.category = Messages.EventCategory.EVENT_CATEGORY_GATT_CONNECTION_LOST
+                                            this.gattConnectionLostArguments = gattConnectionLostEventArguments {
+                                                this.id = gatt.id
+                                                this.errorCode = BluetoothGatt.GATT_SUCCESS
+                                            }
                                         }.toByteArray()
                                         activity.invokeOnMainThread { eventSink?.success(event) }
                                     } else activity.invokeOnMainThread { disconnect.success() }
                                 } else activity.invokeOnMainThread {
-                                    connect.error(TAG, "GATT error with status: $status.")
+                                    connect.error(TAG, "GATT error with status: ${BluetoothGatt.GATT_SUCCESS}.")
                                 }
                             }
                             BluetoothProfile.STATE_CONNECTED -> {
-                                // Must be connect succeed.
                                 val requestMtuSuccessfully = gatt.requestMtu(512)
                                 if (!requestMtuSuccessfully) gatt.disconnect()
                             }
@@ -419,13 +421,11 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                             val disconnect = disconnects.remove(gatt)
                             if (disconnect == null) {
                                 val event = event {
-                                    this.category =
-                                        Messages.EventCategory.EVENT_CATEGORY_GATT_CONNECTION_LOST
-                                    this.gattConnectionLostArguments =
-                                        gattConnectionLostEventArguments {
-                                            this.id = gatt.id
-                                            this.errorCode = status
-                                        }
+                                    this.category = Messages.EventCategory.EVENT_CATEGORY_GATT_CONNECTION_LOST
+                                    this.gattConnectionLostArguments = gattConnectionLostEventArguments {
+                                        this.id = gatt.id
+                                        this.errorCode = status
+                                    }
                                 }.toByteArray()
                                 activity.invokeOnMainThread { eventSink?.success(event) }
                             } else activity.invokeOnMainThread {
@@ -501,19 +501,16 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
             }
 
             override fun onCharacteristicRead(
-                gatt: BluetoothGatt,
-                characteristic: BluetoothGattCharacteristic,
-                status: Int
+                gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int
             ) {
                 super.onCharacteristicRead(gatt, characteristic, status)
                 val read = characteristicReads.remove(characteristic)!!
                 when (status) {
                     BluetoothGatt.GATT_SUCCESS -> activity.invokeOnMainThread {
                         val reply = reply {
-                            this.characteristicReadArguments =
-                                characteristicReadReplyArguments {
-                                    this.value = characteristic.value.toByteString()
-                                }
+                            this.characteristicReadArguments = characteristicReadReplyArguments {
+                                this.value = characteristic.value.toByteString()
+                            }
                         }.toByteArray()
                         read.success(reply)
                     }
@@ -524,9 +521,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
             }
 
             override fun onCharacteristicWrite(
-                gatt: BluetoothGatt,
-                characteristic: BluetoothGattCharacteristic,
-                status: Int
+                gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int
             ) {
                 super.onCharacteristicWrite(gatt, characteristic, status)
                 val write = characteristicWrites.remove(characteristic)!!
@@ -541,8 +536,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
             }
 
             override fun onCharacteristicChanged(
-                gatt: BluetoothGatt,
-                characteristic: BluetoothGattCharacteristic
+                gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic
             ) {
                 super.onCharacteristicChanged(gatt, characteristic)
                 val event = event {
@@ -558,9 +552,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
             }
 
             override fun onDescriptorRead(
-                gatt: BluetoothGatt,
-                descriptor: BluetoothGattDescriptor,
-                status: Int
+                gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int
             ) {
                 super.onDescriptorRead(gatt, descriptor, status)
                 val read = descriptorReads.remove(descriptor)!!
@@ -580,9 +572,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
             }
 
             override fun onDescriptorWrite(
-                gatt: BluetoothGatt,
-                descriptor: BluetoothGattDescriptor,
-                status: Int
+                gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int
             ) {
                 super.onDescriptorWrite(gatt, descriptor, status)
                 val write = descriptorWrites.remove(descriptor)!!
@@ -685,6 +675,6 @@ fun EventChannel.EventSink.error(e: Exception) {
 val BluetoothDevice.uuid: String
     get() {
         val node = address.filter { char -> char != ':' }.lowercase()
-        // We don't known the timestamp of the bluetooth device, use nil UUID as prefix.
+        // We don't know the timestamp of the bluetooth device, use nil UUID as prefix.
         return "00000000-0000-0000-0000-$node"
     }

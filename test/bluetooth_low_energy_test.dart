@@ -217,7 +217,7 @@ void main() {
     'Central#discover',
     () async {
       final services = [UUID('1800'), UUID('1801')];
-      final discovery = await central.discover(uuids: services).first;
+      final discovery = await central.startDiscovery(uuids: services).first;
       final uuid = UUID('AABB');
       expect(discovery.uuid, uuid);
       const rssi = -50;
@@ -388,7 +388,7 @@ void main() {
       );
       final service = gatt.services.values.first;
       final characteristic = service.characteristics.values.first;
-      final value = await characteristic.notified.first;
+      final value = await characteristic.notify.first;
       expect(value, [0x0A, 0x0B, 0x0C, 0x0D, 0x0E]);
       expect(
         calls,

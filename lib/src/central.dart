@@ -10,7 +10,7 @@ final central = Central._();
 abstract class Central extends Bluetooth {
   factory Central._() => $Central();
 
-  Stream<Discovery> discover({List<UUID>? uuids});
+  Stream<Discovery> startDiscovery({List<UUID>? uuids});
 
   Future<GATT> connect(
     UUID uuid, {

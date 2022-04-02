@@ -20,112 +20,120 @@ public final class Messages {
   public enum CommandCategory
       implements com.google.protobuf.ProtocolMessageEnum {
     /**
-     * <code>COMMAND_CATEGORY_BLUETOOTH_GET_STATE = 0;</code>
+     * <code>COMMAND_CATEGORY_BLUETOOTH_AUTHORIZE = 0;</code>
      */
-    COMMAND_CATEGORY_BLUETOOTH_GET_STATE(0),
+    COMMAND_CATEGORY_BLUETOOTH_AUTHORIZE(0),
     /**
-     * <code>COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED = 1;</code>
+     * <code>COMMAND_CATEGORY_BLUETOOTH_GET_STATE = 1;</code>
      */
-    COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED(1),
+    COMMAND_CATEGORY_BLUETOOTH_GET_STATE(1),
     /**
-     * <code>COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED = 2;</code>
+     * <code>COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED = 2;</code>
      */
-    COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED(2),
+    COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED(2),
     /**
-     * <code>COMMAND_CATEGORY_CENTRAL_START_DISCOVERY = 3;</code>
+     * <code>COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED = 3;</code>
      */
-    COMMAND_CATEGORY_CENTRAL_START_DISCOVERY(3),
+    COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED(3),
     /**
-     * <code>COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY = 4;</code>
+     * <code>COMMAND_CATEGORY_CENTRAL_START_DISCOVERY = 4;</code>
      */
-    COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY(4),
+    COMMAND_CATEGORY_CENTRAL_START_DISCOVERY(4),
     /**
-     * <code>COMMAND_CATEGORY_CENTRAL_CONNECT = 5;</code>
+     * <code>COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY = 5;</code>
      */
-    COMMAND_CATEGORY_CENTRAL_CONNECT(5),
+    COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY(5),
     /**
-     * <code>COMMAND_CATEGORY_GATT_DISCONNECT = 6;</code>
+     * <code>COMMAND_CATEGORY_CENTRAL_CONNECT = 6;</code>
      */
-    COMMAND_CATEGORY_GATT_DISCONNECT(6),
+    COMMAND_CATEGORY_CENTRAL_CONNECT(6),
     /**
-     * <code>COMMAND_CATEGORY_CHARACTERISTIC_READ = 7;</code>
+     * <code>COMMAND_CATEGORY_GATT_DISCONNECT = 7;</code>
      */
-    COMMAND_CATEGORY_CHARACTERISTIC_READ(7),
+    COMMAND_CATEGORY_GATT_DISCONNECT(7),
     /**
-     * <code>COMMAND_CATEGORY_CHARACTERISTIC_WRITE = 8;</code>
+     * <code>COMMAND_CATEGORY_CHARACTERISTIC_READ = 8;</code>
      */
-    COMMAND_CATEGORY_CHARACTERISTIC_WRITE(8),
+    COMMAND_CATEGORY_CHARACTERISTIC_READ(8),
     /**
-     * <code>COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY = 9;</code>
+     * <code>COMMAND_CATEGORY_CHARACTERISTIC_WRITE = 9;</code>
      */
-    COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY(9),
+    COMMAND_CATEGORY_CHARACTERISTIC_WRITE(9),
     /**
-     * <code>COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY = 10;</code>
+     * <code>COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY = 10;</code>
      */
-    COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY(10),
+    COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY(10),
     /**
-     * <code>COMMAND_CATEGORY_DESCRIPTOR_READ = 11;</code>
+     * <code>COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY = 11;</code>
      */
-    COMMAND_CATEGORY_DESCRIPTOR_READ(11),
+    COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY(11),
     /**
-     * <code>COMMAND_CATEGORY_DESCRIPTOR_WRITE = 12;</code>
+     * <code>COMMAND_CATEGORY_DESCRIPTOR_READ = 12;</code>
      */
-    COMMAND_CATEGORY_DESCRIPTOR_WRITE(12),
+    COMMAND_CATEGORY_DESCRIPTOR_READ(12),
+    /**
+     * <code>COMMAND_CATEGORY_DESCRIPTOR_WRITE = 13;</code>
+     */
+    COMMAND_CATEGORY_DESCRIPTOR_WRITE(13),
     UNRECOGNIZED(-1),
     ;
 
     /**
-     * <code>COMMAND_CATEGORY_BLUETOOTH_GET_STATE = 0;</code>
+     * <code>COMMAND_CATEGORY_BLUETOOTH_AUTHORIZE = 0;</code>
      */
-    public static final int COMMAND_CATEGORY_BLUETOOTH_GET_STATE_VALUE = 0;
+    public static final int COMMAND_CATEGORY_BLUETOOTH_AUTHORIZE_VALUE = 0;
     /**
-     * <code>COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED = 1;</code>
+     * <code>COMMAND_CATEGORY_BLUETOOTH_GET_STATE = 1;</code>
      */
-    public static final int COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED_VALUE = 1;
+    public static final int COMMAND_CATEGORY_BLUETOOTH_GET_STATE_VALUE = 1;
     /**
-     * <code>COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED = 2;</code>
+     * <code>COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED = 2;</code>
      */
-    public static final int COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED_VALUE = 2;
+    public static final int COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED_VALUE = 2;
     /**
-     * <code>COMMAND_CATEGORY_CENTRAL_START_DISCOVERY = 3;</code>
+     * <code>COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED = 3;</code>
      */
-    public static final int COMMAND_CATEGORY_CENTRAL_START_DISCOVERY_VALUE = 3;
+    public static final int COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED_VALUE = 3;
     /**
-     * <code>COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY = 4;</code>
+     * <code>COMMAND_CATEGORY_CENTRAL_START_DISCOVERY = 4;</code>
      */
-    public static final int COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY_VALUE = 4;
+    public static final int COMMAND_CATEGORY_CENTRAL_START_DISCOVERY_VALUE = 4;
     /**
-     * <code>COMMAND_CATEGORY_CENTRAL_CONNECT = 5;</code>
+     * <code>COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY = 5;</code>
      */
-    public static final int COMMAND_CATEGORY_CENTRAL_CONNECT_VALUE = 5;
+    public static final int COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY_VALUE = 5;
     /**
-     * <code>COMMAND_CATEGORY_GATT_DISCONNECT = 6;</code>
+     * <code>COMMAND_CATEGORY_CENTRAL_CONNECT = 6;</code>
      */
-    public static final int COMMAND_CATEGORY_GATT_DISCONNECT_VALUE = 6;
+    public static final int COMMAND_CATEGORY_CENTRAL_CONNECT_VALUE = 6;
     /**
-     * <code>COMMAND_CATEGORY_CHARACTERISTIC_READ = 7;</code>
+     * <code>COMMAND_CATEGORY_GATT_DISCONNECT = 7;</code>
      */
-    public static final int COMMAND_CATEGORY_CHARACTERISTIC_READ_VALUE = 7;
+    public static final int COMMAND_CATEGORY_GATT_DISCONNECT_VALUE = 7;
     /**
-     * <code>COMMAND_CATEGORY_CHARACTERISTIC_WRITE = 8;</code>
+     * <code>COMMAND_CATEGORY_CHARACTERISTIC_READ = 8;</code>
      */
-    public static final int COMMAND_CATEGORY_CHARACTERISTIC_WRITE_VALUE = 8;
+    public static final int COMMAND_CATEGORY_CHARACTERISTIC_READ_VALUE = 8;
     /**
-     * <code>COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY = 9;</code>
+     * <code>COMMAND_CATEGORY_CHARACTERISTIC_WRITE = 9;</code>
      */
-    public static final int COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY_VALUE = 9;
+    public static final int COMMAND_CATEGORY_CHARACTERISTIC_WRITE_VALUE = 9;
     /**
-     * <code>COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY = 10;</code>
+     * <code>COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY = 10;</code>
      */
-    public static final int COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY_VALUE = 10;
+    public static final int COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY_VALUE = 10;
     /**
-     * <code>COMMAND_CATEGORY_DESCRIPTOR_READ = 11;</code>
+     * <code>COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY = 11;</code>
      */
-    public static final int COMMAND_CATEGORY_DESCRIPTOR_READ_VALUE = 11;
+    public static final int COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY_VALUE = 11;
     /**
-     * <code>COMMAND_CATEGORY_DESCRIPTOR_WRITE = 12;</code>
+     * <code>COMMAND_CATEGORY_DESCRIPTOR_READ = 12;</code>
      */
-    public static final int COMMAND_CATEGORY_DESCRIPTOR_WRITE_VALUE = 12;
+    public static final int COMMAND_CATEGORY_DESCRIPTOR_READ_VALUE = 12;
+    /**
+     * <code>COMMAND_CATEGORY_DESCRIPTOR_WRITE = 13;</code>
+     */
+    public static final int COMMAND_CATEGORY_DESCRIPTOR_WRITE_VALUE = 13;
 
 
     public final int getNumber() {
@@ -152,19 +160,20 @@ public final class Messages {
      */
     public static CommandCategory forNumber(int value) {
       switch (value) {
-        case 0: return COMMAND_CATEGORY_BLUETOOTH_GET_STATE;
-        case 1: return COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED;
-        case 2: return COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED;
-        case 3: return COMMAND_CATEGORY_CENTRAL_START_DISCOVERY;
-        case 4: return COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY;
-        case 5: return COMMAND_CATEGORY_CENTRAL_CONNECT;
-        case 6: return COMMAND_CATEGORY_GATT_DISCONNECT;
-        case 7: return COMMAND_CATEGORY_CHARACTERISTIC_READ;
-        case 8: return COMMAND_CATEGORY_CHARACTERISTIC_WRITE;
-        case 9: return COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY;
-        case 10: return COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY;
-        case 11: return COMMAND_CATEGORY_DESCRIPTOR_READ;
-        case 12: return COMMAND_CATEGORY_DESCRIPTOR_WRITE;
+        case 0: return COMMAND_CATEGORY_BLUETOOTH_AUTHORIZE;
+        case 1: return COMMAND_CATEGORY_BLUETOOTH_GET_STATE;
+        case 2: return COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED;
+        case 3: return COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED;
+        case 4: return COMMAND_CATEGORY_CENTRAL_START_DISCOVERY;
+        case 5: return COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY;
+        case 6: return COMMAND_CATEGORY_CENTRAL_CONNECT;
+        case 7: return COMMAND_CATEGORY_GATT_DISCONNECT;
+        case 8: return COMMAND_CATEGORY_CHARACTERISTIC_READ;
+        case 9: return COMMAND_CATEGORY_CHARACTERISTIC_WRITE;
+        case 10: return COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY;
+        case 11: return COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY;
+        case 12: return COMMAND_CATEGORY_DESCRIPTOR_READ;
+        case 13: return COMMAND_CATEGORY_DESCRIPTOR_WRITE;
         default: return null;
       }
     }
@@ -357,13 +366,17 @@ public final class Messages {
      */
     BLUETOOTH_STATE_UNSUPPORTED(0),
     /**
-     * <code>BLUETOOTH_STATE_POWERED_OFF = 1;</code>
+     * <code>BLUETOOTH_STATE_UNAUTHORIZED = 1;</code>
      */
-    BLUETOOTH_STATE_POWERED_OFF(1),
+    BLUETOOTH_STATE_UNAUTHORIZED(1),
     /**
-     * <code>BLUETOOTH_STATE_POWERED_ON = 2;</code>
+     * <code>BLUETOOTH_STATE_POWERED_OFF = 2;</code>
      */
-    BLUETOOTH_STATE_POWERED_ON(2),
+    BLUETOOTH_STATE_POWERED_OFF(2),
+    /**
+     * <code>BLUETOOTH_STATE_POWERED_ON = 3;</code>
+     */
+    BLUETOOTH_STATE_POWERED_ON(3),
     UNRECOGNIZED(-1),
     ;
 
@@ -372,13 +385,17 @@ public final class Messages {
      */
     public static final int BLUETOOTH_STATE_UNSUPPORTED_VALUE = 0;
     /**
-     * <code>BLUETOOTH_STATE_POWERED_OFF = 1;</code>
+     * <code>BLUETOOTH_STATE_UNAUTHORIZED = 1;</code>
      */
-    public static final int BLUETOOTH_STATE_POWERED_OFF_VALUE = 1;
+    public static final int BLUETOOTH_STATE_UNAUTHORIZED_VALUE = 1;
     /**
-     * <code>BLUETOOTH_STATE_POWERED_ON = 2;</code>
+     * <code>BLUETOOTH_STATE_POWERED_OFF = 2;</code>
      */
-    public static final int BLUETOOTH_STATE_POWERED_ON_VALUE = 2;
+    public static final int BLUETOOTH_STATE_POWERED_OFF_VALUE = 2;
+    /**
+     * <code>BLUETOOTH_STATE_POWERED_ON = 3;</code>
+     */
+    public static final int BLUETOOTH_STATE_POWERED_ON_VALUE = 3;
 
 
     public final int getNumber() {
@@ -406,8 +423,9 @@ public final class Messages {
     public static BluetoothState forNumber(int value) {
       switch (value) {
         case 0: return BLUETOOTH_STATE_UNSUPPORTED;
-        case 1: return BLUETOOTH_STATE_POWERED_OFF;
-        case 2: return BLUETOOTH_STATE_POWERED_ON;
+        case 1: return BLUETOOTH_STATE_UNAUTHORIZED;
+        case 2: return BLUETOOTH_STATE_POWERED_OFF;
+        case 3: return BLUETOOTH_STATE_POWERED_ON;
         default: return null;
       }
     }
@@ -1193,7 +1211,7 @@ public final class Messages {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (category_ != dev.yanshouwang.bluetooth_low_energy.messages.Messages.CommandCategory.COMMAND_CATEGORY_BLUETOOTH_GET_STATE.getNumber()) {
+      if (category_ != dev.yanshouwang.bluetooth_low_energy.messages.Messages.CommandCategory.COMMAND_CATEGORY_BLUETOOTH_AUTHORIZE.getNumber()) {
         output.writeEnum(1, category_);
       }
       if (commandCase_ == 2) {
@@ -1232,7 +1250,7 @@ public final class Messages {
       if (size != -1) return size;
 
       size = 0;
-      if (category_ != dev.yanshouwang.bluetooth_low_energy.messages.Messages.CommandCategory.COMMAND_CATEGORY_BLUETOOTH_GET_STATE.getNumber()) {
+      if (category_ != dev.yanshouwang.bluetooth_low_energy.messages.Messages.CommandCategory.COMMAND_CATEGORY_BLUETOOTH_AUTHORIZE.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(1, category_);
       }
@@ -23625,29 +23643,31 @@ public final class Messages {
       "ify\030\006 \001(\010\022R\n\013descriptors\030\007 \003(\0132=.dev.yan" +
       "shouwang.bluetooth_low_energy.messages.G" +
       "attDescriptor\"*\n\016GattDescriptor\022\n\n\002id\030\001 " +
-      "\001(\t\022\014\n\004uuid\030\002 \001(\t*\315\004\n\017CommandCategory\022(\n" +
-      "$COMMAND_CATEGORY_BLUETOOTH_GET_STATE\020\000\022" +
-      "3\n/COMMAND_CATEGORY_BLUETOOTH_LISTEN_STA" +
-      "TE_CHANGED\020\001\0223\n/COMMAND_CATEGORY_BLUETOO" +
-      "TH_CANCEL_STATE_CHANGED\020\002\022,\n(COMMAND_CAT" +
-      "EGORY_CENTRAL_START_DISCOVERY\020\003\022+\n\'COMMA" +
-      "ND_CATEGORY_CENTRAL_STOP_DISCOVERY\020\004\022$\n " +
-      "COMMAND_CATEGORY_CENTRAL_CONNECT\020\005\022$\n CO" +
-      "MMAND_CATEGORY_GATT_DISCONNECT\020\006\022(\n$COMM" +
-      "AND_CATEGORY_CHARACTERISTIC_READ\020\007\022)\n%CO" +
-      "MMAND_CATEGORY_CHARACTERISTIC_WRITE\020\010\022*\n" +
-      "&COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY\020" +
-      "\t\0221\n-COMMAND_CATEGORY_CHARACTERISTIC_CAN" +
-      "CEL_NOTIFY\020\n\022$\n COMMAND_CATEGORY_DESCRIP" +
-      "TOR_READ\020\013\022%\n!COMMAND_CATEGORY_DESCRIPTO" +
-      "R_WRITE\020\014*\267\001\n\rEventCategory\022*\n&EVENT_CAT" +
-      "EGORY_BLUETOOTH_STATE_CHANGED\020\000\022%\n!EVENT" +
-      "_CATEGORY_CENTRAL_DISCOVERED\020\001\022\'\n#EVENT_" +
-      "CATEGORY_GATT_CONNECTION_LOST\020\002\022*\n&EVENT" +
-      "_CATEGORY_CHARACTERISTIC_NOTIFIED\020\003*r\n\016B" +
-      "luetoothState\022\037\n\033BLUETOOTH_STATE_UNSUPPO" +
-      "RTED\020\000\022\037\n\033BLUETOOTH_STATE_POWERED_OFF\020\001\022" +
-      "\036\n\032BLUETOOTH_STATE_POWERED_ON\020\002b\006proto3"
+      "\001(\t\022\014\n\004uuid\030\002 \001(\t*\367\004\n\017CommandCategory\022(\n" +
+      "$COMMAND_CATEGORY_BLUETOOTH_AUTHORIZE\020\000\022" +
+      "(\n$COMMAND_CATEGORY_BLUETOOTH_GET_STATE\020" +
+      "\001\0223\n/COMMAND_CATEGORY_BLUETOOTH_LISTEN_S" +
+      "TATE_CHANGED\020\002\0223\n/COMMAND_CATEGORY_BLUET" +
+      "OOTH_CANCEL_STATE_CHANGED\020\003\022,\n(COMMAND_C" +
+      "ATEGORY_CENTRAL_START_DISCOVERY\020\004\022+\n\'COM" +
+      "MAND_CATEGORY_CENTRAL_STOP_DISCOVERY\020\005\022$" +
+      "\n COMMAND_CATEGORY_CENTRAL_CONNECT\020\006\022$\n " +
+      "COMMAND_CATEGORY_GATT_DISCONNECT\020\007\022(\n$CO" +
+      "MMAND_CATEGORY_CHARACTERISTIC_READ\020\010\022)\n%" +
+      "COMMAND_CATEGORY_CHARACTERISTIC_WRITE\020\t\022" +
+      "*\n&COMMAND_CATEGORY_CHARACTERISTIC_NOTIF" +
+      "Y\020\n\0221\n-COMMAND_CATEGORY_CHARACTERISTIC_C" +
+      "ANCEL_NOTIFY\020\013\022$\n COMMAND_CATEGORY_DESCR" +
+      "IPTOR_READ\020\014\022%\n!COMMAND_CATEGORY_DESCRIP" +
+      "TOR_WRITE\020\r*\267\001\n\rEventCategory\022*\n&EVENT_C" +
+      "ATEGORY_BLUETOOTH_STATE_CHANGED\020\000\022%\n!EVE" +
+      "NT_CATEGORY_CENTRAL_DISCOVERED\020\001\022\'\n#EVEN" +
+      "T_CATEGORY_GATT_CONNECTION_LOST\020\002\022*\n&EVE" +
+      "NT_CATEGORY_CHARACTERISTIC_NOTIFIED\020\003*\224\001" +
+      "\n\016BluetoothState\022\037\n\033BLUETOOTH_STATE_UNSU" +
+      "PPORTED\020\000\022 \n\034BLUETOOTH_STATE_UNAUTHORIZE" +
+      "D\020\001\022\037\n\033BLUETOOTH_STATE_POWERED_OFF\020\002\022\036\n\032" +
+      "BLUETOOTH_STATE_POWERED_ON\020\003b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,

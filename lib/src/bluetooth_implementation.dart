@@ -19,6 +19,52 @@ import 'uuid.dart';
 const equality = ListEquality<int>();
 
 class $Bluetooth implements Bluetooth {
+  late final StreamController<BluetoothState> stateChangedController;
+  late StreamSubscription<BluetoothState>? stateChangedSubscription;
+
+  $Bluetooth() {
+    stateChangedController = StreamController<BluetoothState>.broadcast(
+      onListen: () {
+        stateChangedSubscription = eventStream.where((event) {
+          return event.category ==
+              messages.EventCategory.EVENT_CATEGORY_BLUETOOTH_STATE_CHANGED;
+        }).map((event) {
+          final value = event.bluetoothStateChangedArguments.state.value;
+          return BluetoothState.values[value];
+        }).listen(
+          (state) => stateChangedController.add(state),
+          onError: (error, stack) =>
+              stateChangedController.addError(error, stack),
+          onDone: () => stateChangedController.close(),
+        );
+        final command = messages.Command(
+          category: messages
+              .CommandCategory.COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED,
+        );
+        methodChannel.invoke(command).catchError((error, stack) {
+          stateChangedController.addError(error, stack);
+        });
+      },
+      onCancel: () {
+        final command = messages.Command(
+          category: messages
+              .CommandCategory.COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED,
+        );
+        methodChannel
+            .invoke(command)
+            .whenComplete(() => stateChangedSubscription?.cancel());
+      },
+    );
+  }
+
+  @override
+  Future<void> authorize() {
+    final command = messages.Command(
+      category: messages.CommandCategory.COMMAND_CATEGORY_BLUETOOTH_AUTHORIZE,
+    );
+    return methodChannel.invoke(command);
+  }
+
   @override
   Future<BluetoothState> getState() {
     final command = messages.Command(
@@ -30,58 +76,15 @@ class $Bluetooth implements Bluetooth {
     });
   }
 
-  StreamController<BluetoothState>? stateChangedController;
-
   @override
-  Stream<BluetoothState> get stateChanged {
-    late StreamController<BluetoothState> controller;
-    late StreamSubscription<BluetoothState> subscription;
-    final stateChangedController = this.stateChangedController;
-    if (stateChangedController == null) {
-      controller = StreamController<BluetoothState>.broadcast(
-        onListen: () {
-          subscription = eventStream.where((event) {
-            return event.category ==
-                messages.EventCategory.EVENT_CATEGORY_BLUETOOTH_STATE_CHANGED;
-          }).map((event) {
-            final value = event.bluetoothStateChangedArguments.state.value;
-            return BluetoothState.values[value];
-          }).listen(
-            (state) => controller.add(state),
-            onError: (error, stack) => controller.addError(error, stack),
-            onDone: () => controller.close(),
-          );
-          final command = messages.Command(
-            category: messages.CommandCategory
-                .COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED,
-          );
-          methodChannel.invoke(command).catchError((error, stack) {
-            controller.addError(error, stack);
-          });
-        },
-        onCancel: () {
-          final command = messages.Command(
-            category: messages.CommandCategory
-                .COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED,
-          );
-          methodChannel
-              .invoke(command)
-              .whenComplete(() => subscription.cancel());
-        },
-      );
-      this.stateChangedController = controller;
-    } else {
-      controller = stateChangedController;
-    }
-    return controller.stream;
-  }
+  Stream<BluetoothState> get stateChanged => stateChangedController.stream;
 }
 
 class $Central extends $Bluetooth implements Central {
   @override
-  Stream<Discovery> discover({List<UUID>? uuids}) {
-    late StreamController<Discovery> controller;
-    late StreamSubscription<Discovery> subscription;
+  Stream<Discovery> startDiscovery({List<UUID>? uuids}) {
+    late final StreamController<Discovery> controller;
+    late final StreamSubscription<Discovery> subscription;
     controller = StreamController<Discovery>.broadcast(
       onListen: () {
         subscription = eventStream.where((event) {
@@ -371,9 +374,9 @@ class $GattCharacteristic implements GattCharacteristic {
   StreamController<Uint8List>? notifiedController;
 
   @override
-  Stream<Uint8List> get notified {
-    late StreamController<Uint8List> controller;
-    late StreamSubscription<Uint8List> subscription;
+  Stream<Uint8List> get notify {
+    late final StreamController<Uint8List> controller;
+    late final StreamSubscription<Uint8List> subscription;
     final notifiedController = this.notifiedController;
     if (notifiedController == null) {
       controller = StreamController<Uint8List>.broadcast(

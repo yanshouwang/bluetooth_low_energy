@@ -1,8 +1,7 @@
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
-    localPropertiesFile.withReader('UTF-8') { reader ->
-        localProperties.load(reader)
+    localPropertiesFile.withReader('UTF-8') { reader -> localProperties.load(reader)
     }
 }
 
@@ -24,8 +23,7 @@ if (flutterVersionName == null) {
 def keyProperties = new Properties()
 def keyPropertiesFile = rootProject.file('key.properties')
 if (keyPropertiesFile.exists()) {
-    keyPropertiesFile.withReader('UTF-8') { reader ->
-        keyProperties.load(reader)
+    keyPropertiesFile.withReader('UTF-8') { reader -> keyProperties.load(reader)
     }
 }
 
@@ -34,7 +32,7 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion flutter.compileSdkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -52,7 +50,7 @@ android {
     defaultConfig {
         applicationId "dev.yanshouwang.bluetooth_low_energy_example"
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -79,5 +77,5 @@ flutter {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
 }

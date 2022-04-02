@@ -1,7 +1,10 @@
 /// Bluetooth state.
 enum BluetoothState {
-  /// The bluetooth is unsupported on this device.
+  /// The bluetooth is unsupported.
   unsupported,
+
+  /// The bluetooth is unauthorized.
+  unauthorized,
 
   /// The bluetooth has powered off.
   poweredOff,

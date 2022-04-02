@@ -41,7 +41,7 @@ class Command extends $pb.GeneratedMessage {
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Command', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'dev.yanshouwang.bluetooth_low_energy.messages'), createEmptyInstance: create)
     ..oo(0, [2, 3, 4, 5, 6, 7, 8, 9, 10])
-    ..e<CommandCategory>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'category', $pb.PbFieldType.OE, defaultOrMaker: CommandCategory.COMMAND_CATEGORY_BLUETOOTH_GET_STATE, valueOf: CommandCategory.valueOf, enumValues: CommandCategory.values)
+    ..e<CommandCategory>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'category', $pb.PbFieldType.OE, defaultOrMaker: CommandCategory.COMMAND_CATEGORY_BLUETOOTH_AUTHORIZE, valueOf: CommandCategory.valueOf, enumValues: CommandCategory.values)
     ..aOM<CentralStartDiscoveryCommandArguments>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'centralStartDiscoveryArguments', subBuilder: CentralStartDiscoveryCommandArguments.create)
     ..aOM<CentralConnectCommandArguments>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'centralConnectArguments', subBuilder: CentralConnectCommandArguments.create)
     ..aOM<GattDisconnectCommandArguments>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gattDisconnectArguments', subBuilder: GattDisconnectCommandArguments.create)

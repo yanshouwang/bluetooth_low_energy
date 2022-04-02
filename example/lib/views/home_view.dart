@@ -4,7 +4,7 @@ import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
 import 'package:convert/convert.dart';
 import 'package:flutter/material.dart';
 
-import 'map_notifier.dart';
+import 'util.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -14,78 +14,77 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  final ValueNotifier<bool> state;
-  final ValueNotifier<bool> discovering;
-  final MapNotifier<UUID, Discovery> discoveries;
-  late StreamSubscription<BluetoothState> stateChangedSubscription;
+  late final ValueNotifier<BluetoothState> stateNotifier;
+  late final ValueNotifier<bool> discoveringNotifier;
+  late final MapNotifier<UUID, Discovery> discoveriesNotifier;
+  late final StreamSubscription<BluetoothState> stateChangedSubscription;
   StreamSubscription<Discovery>? discoveredSubscription;
-
-  _HomeViewState()
-      : state = ValueNotifier(false),
-        discovering = ValueNotifier(false),
-        discoveries = MapNotifier({});
 
   @override
   void initState() {
     super.initState();
-    setup();
+    stateNotifier = ValueNotifier(BluetoothState.unsupported);
+    discoveringNotifier = ValueNotifier(false);
+    discoveriesNotifier = MapNotifier({});
+    runAsync();
   }
 
-  @override
-  Widget build(BuildContext context) => view;
-
-  @override
-  void dispose() {
-    stopDiscovery();
-    state.dispose();
-    discovering.dispose();
-    discovering.dispose();
-    stateChangedSubscription.cancel();
-    discoveredSubscription?.cancel();
-    super.dispose();
-  }
-
-  Future<void> setup() async {
+  Future<void> runAsync() async {
+    // Make sure this app has bluetooth permissions.
+    await central.authorize();
     final state = await central.getState();
-    this.state.value = state == BluetoothState.poweredOn;
+    stateNotifier.value = state;
     stateChangedSubscription = central.stateChanged.listen(
       (state) {
-        this.state.value = state == BluetoothState.poweredOn;
+        stateNotifier.value = state;
         final invisible = !ModalRoute.of(context)!.isCurrent;
         if (invisible) return;
-        if (this.state.value) {
+        if (stateNotifier.value == BluetoothState.poweredOn) {
           startDiscovery();
         } else {
-          discovering.value = false;
+          discoveringNotifier.value = false;
         }
       },
     );
-    if (this.state.value) {
+    if (stateNotifier.value == BluetoothState.poweredOn) {
       startDiscovery();
     }
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return buildHomeView(context);
+  }
+
+  @override
+  void dispose() async {
+    await discoveredSubscription?.cancel();
+    await stateChangedSubscription.cancel();
+    stateNotifier.dispose();
+    discoveringNotifier.dispose();
+    discoveringNotifier.dispose();
+    super.dispose();
+  }
+
   Future<void> startDiscovery() async {
-    if (discovering.value || !state.value) return;
-    final discovered = central.discover();
+    final discovered = central.startDiscovery();
     discoveredSubscription = discovered.listen(
       (discovery) {
-        discoveries.value[discovery.uuid] = discovery;
-        discoveries.value = {...discoveries.value};
+        discoveriesNotifier.value[discovery.uuid] = discovery;
+        discoveriesNotifier.value = {...discoveriesNotifier.value};
       },
     );
-    discovering.value = true;
+    discoveringNotifier.value = true;
   }
 
   Future<void> stopDiscovery() async {
-    if (!discovering.value || !state.value) return;
-    await discoveredSubscription!.cancel();
-    discoveries.value = {};
-    discovering.value = false;
+    await discoveredSubscription?.cancel();
+    discoveriesNotifier.value = {};
+    discoveringNotifier.value = false;
   }
 
   Future<void> updateDiscoveries() async {
-    discoveries.value = {};
+    discoveriesNotifier.value = {};
   }
 
   Future<void> showAdvertisements(Discovery discovery) async {
@@ -108,83 +107,112 @@ class _HomeViewState extends State<HomeView> {
 }
 
 extension on _HomeViewState {
-  Widget get view => Scaffold(
-        appBar: AppBar(
-          title: const Text('蓝牙调试助手'),
-        ),
-        body: ValueListenableBuilder(
-          valueListenable: state,
-          builder: (context, bool state, child) =>
-              state ? discoveriesView : closedView,
-        ),
-      );
+  Widget buildHomeView(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('蓝牙调试助手'),
+      ),
+      body: ValueListenableBuilder<BluetoothState>(
+        valueListenable: stateNotifier,
+        builder: (context, state, child) {
+          switch (state) {
+            case BluetoothState.unauthorized:
+              return buildUnauthorizedView(context);
+            case BluetoothState.poweredOff:
+              return buildPoweredOffView(context);
+            case BluetoothState.poweredOn:
+              return buildDiscoveriesView(context);
+            case BluetoothState.unsupported:
+            default:
+              return buildUnsupportedView(context);
+          }
+        },
+      ),
+    );
+  }
 
-  Widget get closedView => const Center(
-        child: Text('蓝牙未开启'),
-      );
+  Widget buildUnsupportedView(BuildContext context) {
+    return const Center(
+      child: Text('Unsupported.'),
+    );
+  }
 
-  Widget get discoveriesView => RefreshIndicator(
-        onRefresh: () async => await updateDiscoveries(),
-        child: ValueListenableBuilder<Map<UUID, Discovery>>(
-          valueListenable: discoveries,
-          builder: (context, discoveries, child) {
-            return ListView.builder(
-              padding: const EdgeInsets.all(6.0),
-              itemCount: discoveries.length,
-              itemBuilder: (context, i) {
-                final discovery = discoveries.values.elementAt(i);
-                return Card(
-                  color: discovery.connectable ? Colors.amber : Colors.grey,
-                  clipBehavior: Clip.antiAlias,
-                  shape: const BeveledRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(12.0),
-                        bottomLeft: Radius.circular(12.0)),
-                  ),
-                  margin: const EdgeInsets.all(6.0),
-                  key: Key(discovery.uuid.name),
-                  child: InkWell(
-                    splashColor: Colors.purple,
-                    onTap: discovery.connectable
-                        ? () => showGattView(discovery)
-                        : null,
-                    onLongPress: () => showAdvertisements(discovery),
-                    child: Container(
-                      height: 100.0,
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(discovery.name ?? 'NaN'),
-                                Text(
-                                  discovery.uuid.name,
-                                  softWrap: true,
-                                ),
-                              ],
-                            ),
+  Widget buildUnauthorizedView(BuildContext context) {
+    return const Center(
+      child: Text('Unauthorized.'),
+    );
+  }
+
+  Widget buildPoweredOffView(BuildContext context) {
+    return const Center(
+      child: Text('Powered Off.'),
+    );
+  }
+
+  Widget buildDiscoveriesView(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: () async => await updateDiscoveries(),
+      child: ValueListenableBuilder<Map<UUID, Discovery>>(
+        valueListenable: discoveriesNotifier,
+        builder: (context, discoveries, child) {
+          return ListView.builder(
+            padding: const EdgeInsets.all(6.0),
+            itemCount: discoveries.length,
+            itemBuilder: (context, i) {
+              final discovery = discoveries.values.elementAt(i);
+              return Card(
+                color: discovery.connectable ? Colors.amber : Colors.grey,
+                clipBehavior: Clip.antiAlias,
+                shape: const BeveledRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(12.0),
+                      bottomLeft: Radius.circular(12.0)),
+                ),
+                margin: const EdgeInsets.all(6.0),
+                key: Key(discovery.uuid.name),
+                child: InkWell(
+                  splashColor: Colors.purple,
+                  onTap: discovery.connectable
+                      ? () => showGattView(discovery)
+                      : null,
+                  onLongPress: () => showAdvertisements(discovery),
+                  child: Container(
+                    height: 100.0,
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(discovery.name ?? 'NaN'),
+                              Text(
+                                discovery.uuid.name,
+                                softWrap: true,
+                              ),
+                            ],
                           ),
-                          Expanded(
-                            flex: 1,
-                            child: Text(
-                              discovery.rssi.toString(),
-                              textAlign: TextAlign.center,
-                            ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Text(
+                            discovery.rssi.toString(),
+                            textAlign: TextAlign.center,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                );
-              },
-            );
-          },
-        ),
-      );
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
 }
 
 extension on Discovery {

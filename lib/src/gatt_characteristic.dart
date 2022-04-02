@@ -27,5 +27,5 @@ abstract class GattCharacteristic {
 
   Future<void> write(Uint8List value, {bool withoutResponse = false});
 
-  Stream<Uint8List> get notified;
+  Stream<Uint8List> get notify;
 }

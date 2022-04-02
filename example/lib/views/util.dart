@@ -1,5 +1,8 @@
 import 'package:flutter/widgets.dart';
 
+typedef ListNotifier<T> = ValueNotifier<List<T>>;
+typedef MapNotifier<K, V> = ValueNotifier<Map<K, V>>;
+
 extension DateTimeX on DateTime {
   String get shortName {
     final hh = hour.toString().padLeft(2, '0');
