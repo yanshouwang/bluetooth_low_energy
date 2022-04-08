@@ -34,6 +34,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
         private const val BLUETOOTH_ADAPTER_STATE_UNKNOWN = -1
         private const val NO_ERROR = 0
         private const val REQUEST_CODE = 443
+        private const val MAX_MTU = 517
     }
 
     private lateinit var binding: ActivityPluginBinding
@@ -406,7 +407,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                                 }
                             }
                             BluetoothProfile.STATE_CONNECTED -> {
-                                val requestMtuSuccessfully = gatt.requestMtu(512)
+                                val requestMtuSuccessfully = gatt.requestMtu(MAX_MTU)
                                 if (!requestMtuSuccessfully) gatt.disconnect()
                             }
                             else -> throw NotImplementedError() // should never be called.

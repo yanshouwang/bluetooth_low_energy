@@ -50,9 +50,10 @@ class $Bluetooth implements Bluetooth {
           category: messages
               .CommandCategory.COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED,
         );
-        methodChannel
-            .invoke(command)
-            .whenComplete(() => stateChangedSubscription?.cancel());
+        methodChannel.invoke(command).whenComplete(() {
+          stateChangedSubscription?.cancel();
+          stateChangedSubscription = null;
+        });
       },
     );
   }
@@ -294,6 +295,9 @@ class $GattCharacteristic implements GattCharacteristic {
   @override
   final Map<UUID, GattDescriptor> descriptors;
 
+  late final StreamController<Uint8List> notifyController;
+  late StreamSubscription<Uint8List>? notifySubscription;
+
   $GattCharacteristic(
     this.gattId,
     this.serviceId,
@@ -304,7 +308,56 @@ class $GattCharacteristic implements GattCharacteristic {
     this.canWriteWithoutResponse,
     this.canNotify,
     this.descriptors,
-  );
+  ) {
+    notifyController = StreamController<Uint8List>.broadcast(
+      onListen: () {
+        notifySubscription = eventStream.where((event) {
+          return event.category ==
+                  messages
+                      .EventCategory.EVENT_CATEGORY_CHARACTERISTIC_NOTIFIED &&
+              event.characteristicNotifiedArguments.gattId == gattId &&
+              event.characteristicNotifiedArguments.serviceId == serviceId &&
+              event.characteristicNotifiedArguments.id == id;
+        }).map((event) {
+          final elements = event.characteristicNotifiedArguments.value;
+          return Uint8List.fromList(elements);
+        }).listen(
+          (value) => notifyController.add(value),
+          onError: (error, stack) => notifyController.addError(error, stack),
+          onDone: () => notifyController.close(),
+        );
+        final command = messages.Command(
+          category:
+              messages.CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY,
+          characteristicNotifyArguments:
+              messages.CharacteristicNotifyCommandArguments(
+            gattId: gattId,
+            serviceId: serviceId,
+            id: id,
+          ),
+        );
+        methodChannel.invoke(command).catchError((error, stack) {
+          notifyController.addError(error, stack);
+        });
+      },
+      onCancel: () {
+        final command = messages.Command(
+          category: messages
+              .CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY,
+          characteristicCancelNotifyArguments:
+              messages.CharacteristicCancelNotifyCommandArguments(
+            gattId: gattId,
+            serviceId: serviceId,
+            id: id,
+          ),
+        );
+        methodChannel.invoke(command).whenComplete(() {
+          notifySubscription?.cancel();
+          notifySubscription = null;
+        });
+      },
+    );
+  }
 
   factory $GattCharacteristic.fromMessage(
     String gattId,
@@ -371,67 +424,8 @@ class $GattCharacteristic implements GattCharacteristic {
     return methodChannel.invoke(command);
   }
 
-  StreamController<Uint8List>? notifiedController;
-
   @override
-  Stream<Uint8List> get notify {
-    late final StreamController<Uint8List> controller;
-    late final StreamSubscription<Uint8List> subscription;
-    final notifiedController = this.notifiedController;
-    if (notifiedController == null) {
-      controller = StreamController<Uint8List>.broadcast(
-        onListen: () {
-          subscription = eventStream.where((event) {
-            return event.category ==
-                    messages
-                        .EventCategory.EVENT_CATEGORY_CHARACTERISTIC_NOTIFIED &&
-                event.characteristicNotifiedArguments.gattId == gattId &&
-                event.characteristicNotifiedArguments.serviceId == serviceId &&
-                event.characteristicNotifiedArguments.id == id;
-          }).map((event) {
-            final elements = event.characteristicNotifiedArguments.value;
-            return Uint8List.fromList(elements);
-          }).listen(
-            (value) => controller.add(value),
-            onError: (error, stack) => controller.addError(error, stack),
-            onDone: () => controller.close(),
-          );
-          final command = messages.Command(
-            category:
-                messages.CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY,
-            characteristicNotifyArguments:
-                messages.CharacteristicNotifyCommandArguments(
-              gattId: gattId,
-              serviceId: serviceId,
-              id: id,
-            ),
-          );
-          methodChannel.invoke(command).catchError((error, stack) {
-            controller.addError(error, stack);
-          });
-        },
-        onCancel: () {
-          final command = messages.Command(
-            category: messages
-                .CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY,
-            characteristicCancelNotifyArguments:
-                messages.CharacteristicCancelNotifyCommandArguments(
-              gattId: gattId,
-              serviceId: serviceId,
-              id: id,
-            ),
-          );
-          methodChannel
-              .invoke(command)
-              .whenComplete(() => subscription.cancel());
-        },
-      );
-      this.notifiedController = controller;
-    } else {
-      controller = notifiedController;
-    }
-    return controller.stream;
-  }
+  Stream<Uint8List> get notify => notifyController.stream;
 }
 
 class $GattDescriptor implements GattDescriptor {

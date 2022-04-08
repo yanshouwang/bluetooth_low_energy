@@ -373,7 +373,7 @@ extension on _GattViewState {
               controller: writeController,
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-                labelText: 'MTU: ${gatt!.maximumWriteLength}',
+                labelText: 'MTU: ${gatt!.maximumWriteLength + 3}',
                 suffixIcon: IconButton(
                   onPressed: canWrite ? () async => await write() : null,
                   icon: const Icon(Icons.send),
