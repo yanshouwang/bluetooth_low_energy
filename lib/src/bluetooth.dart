@@ -1,4 +1,5 @@
 import 'bluetooth_state.dart';
+import 'event_subscription.dart';
 
 /// The abstract base class that manages central and peripheral objects.
 abstract class Bluetooth {
@@ -8,6 +9,8 @@ abstract class Bluetooth {
   /// Get the bluetooth state.
   Future<BluetoothState> getState();
 
-  /// A stream for bluetooth state changed event.
-  Stream<BluetoothState> get stateChanged;
+  /// Listen bluetooth state changed event.
+  Future<EventSubscription> subscribeStateChanged({
+    required void Function(BluetoothState state) onStateChanged,
+  });
 }

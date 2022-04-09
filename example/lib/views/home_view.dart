@@ -15,16 +15,16 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   late final ValueNotifier<BluetoothState> stateNotifier;
-  late final ValueNotifier<bool> discoveringNotifier;
+  late final ValueNotifier<bool> scanningNotifier;
   late final MapNotifier<UUID, Discovery> discoveriesNotifier;
-  late final StreamSubscription<BluetoothState> stateChangedSubscription;
-  StreamSubscription<Discovery>? discoveredSubscription;
+  late final EventSubscription stateChangedSubscription;
+  late EventSubscription? scanSubscription;
 
   @override
   void initState() {
     super.initState();
     stateNotifier = ValueNotifier(BluetoothState.unsupported);
-    discoveringNotifier = ValueNotifier(false);
+    scanningNotifier = ValueNotifier(false);
     discoveriesNotifier = MapNotifier({});
     runAsync();
   }
@@ -34,20 +34,20 @@ class _HomeViewState extends State<HomeView> {
     await central.authorize();
     final state = await central.getState();
     stateNotifier.value = state;
-    stateChangedSubscription = central.stateChanged.listen(
-      (state) {
+    stateChangedSubscription = await central.subscribeStateChanged(
+      onStateChanged: (state) {
         stateNotifier.value = state;
         final invisible = !ModalRoute.of(context)!.isCurrent;
         if (invisible) return;
         if (stateNotifier.value == BluetoothState.poweredOn) {
-          startDiscovery();
+          startScan();
         } else {
-          discoveringNotifier.value = false;
+          stopScan();
         }
       },
     );
     if (stateNotifier.value == BluetoothState.poweredOn) {
-      startDiscovery();
+      startScan();
     }
   }
 
@@ -58,29 +58,32 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   void dispose() async {
-    await discoveredSubscription?.cancel();
+    await scanSubscription?.cancel();
     await stateChangedSubscription.cancel();
     stateNotifier.dispose();
-    discoveringNotifier.dispose();
-    discoveringNotifier.dispose();
+    scanningNotifier.dispose();
+    scanningNotifier.dispose();
     super.dispose();
   }
 
-  Future<void> startDiscovery() async {
-    final discovered = central.startDiscovery();
-    discoveredSubscription = discovered.listen(
-      (discovery) {
+  Future<void> startScan() async {
+    // final uuids = [
+    //   UUID("0000ff11-0000-1000-8000-00805f9b34fb"),
+    // ];
+    scanSubscription = await central.scan(
+      // uuids: uuids,
+      onScanned: (discovery) {
         discoveriesNotifier.value[discovery.uuid] = discovery;
         discoveriesNotifier.value = {...discoveriesNotifier.value};
       },
     );
-    discoveringNotifier.value = true;
+    scanningNotifier.value = true;
   }
 
-  Future<void> stopDiscovery() async {
-    await discoveredSubscription?.cancel();
+  Future<void> stopScan() async {
+    await scanSubscription?.cancel();
     discoveriesNotifier.value = {};
-    discoveringNotifier.value = false;
+    scanningNotifier.value = false;
   }
 
   Future<void> updateDiscoveries() async {
@@ -97,12 +100,12 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> showGattView(Discovery discovery) async {
-    await stopDiscovery();
+    await stopScan();
     await Navigator.of(context).pushNamed(
       'gatt',
       arguments: discovery,
     );
-    await startDiscovery();
+    await startScan();
   }
 }
 

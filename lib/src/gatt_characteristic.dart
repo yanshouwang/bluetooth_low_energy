@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:bluetooth_low_energy/src/event_subscription.dart';
+
 import 'gatt_descriptor.dart';
 import 'uuid.dart';
 
@@ -27,5 +29,7 @@ abstract class GattCharacteristic {
 
   Future<void> write(Uint8List value, {bool withoutResponse = false});
 
-  Stream<Uint8List> get notify;
+  Future<EventSubscription> notify({
+    required void Function(Uint8List value) onValueChanged,
+  });
 }

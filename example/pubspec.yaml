@@ -85,10 +85,40 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
   fonts:
-    - family: IBM Plex Mono
+    - family: NeverMind
       fonts:
-        - asset: fonts/IBMPlexMono-Regular.ttf
-        - asset: fonts/IBMPlexMono-Italic.ttf
+        - asset: fonts/NeverMind/NeverMind-Thin.ttf
+          weight: 100
+        - asset: fonts/NeverMind/NeverMind-ThinItalic.ttf
+          weight: 100
           style: italic
-        - asset: fonts/IBMPlexMono-Bold.ttf
+        - asset: fonts/NeverMind/NeverMind-ExtraLight.ttf
+          weight: 200
+        - asset: fonts/NeverMind/NeverMind-ExtraLightItalic.ttf
+          weight: 200
+          style: italic
+        - asset: fonts/NeverMind/NeverMind-Light.ttf
+          weight: 300
+        - asset: fonts/NeverMind/NeverMind-LightItalic.ttf
+          weight: 300
+          style: italic
+        - asset: fonts/NeverMind/NeverMind-Regular.ttf
+          weight: 400
+        - asset: fonts/NeverMind/NeverMind-RegularItalic.ttf
+          weight: 400
+          style: italic
+        - asset: fonts/NeverMind/NeverMind-Medium.ttf
+          weight: 500
+        - asset: fonts/NeverMind/NeverMind-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: fonts/NeverMind/NeverMind-DemiBold.ttf
+          weight: 600
+        - asset: fonts/NeverMind/NeverMind-DemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: fonts/NeverMind/NeverMind-Bold.ttf
           weight: 700
+        - asset: fonts/NeverMind/NeverMind-BoldItalic.ttf
+          weight: 700
+          style: italic

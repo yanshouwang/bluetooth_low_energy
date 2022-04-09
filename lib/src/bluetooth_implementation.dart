@@ -14,50 +14,12 @@ import 'gatt_characteristic.dart';
 import 'gatt_descriptor.dart';
 import 'messages.dart' as messages;
 import 'discovery.dart';
+import 'event_subscription.dart';
 import 'uuid.dart';
 
 const equality = ListEquality<int>();
 
 class $Bluetooth implements Bluetooth {
-  late final StreamController<BluetoothState> stateChangedController;
-  late StreamSubscription<BluetoothState>? stateChangedSubscription;
-
-  $Bluetooth() {
-    stateChangedController = StreamController<BluetoothState>.broadcast(
-      onListen: () {
-        stateChangedSubscription = eventStream.where((event) {
-          return event.category ==
-              messages.EventCategory.EVENT_CATEGORY_BLUETOOTH_STATE_CHANGED;
-        }).map((event) {
-          final value = event.bluetoothStateChangedArguments.state.value;
-          return BluetoothState.values[value];
-        }).listen(
-          (state) => stateChangedController.add(state),
-          onError: (error, stack) =>
-              stateChangedController.addError(error, stack),
-          onDone: () => stateChangedController.close(),
-        );
-        final command = messages.Command(
-          category: messages
-              .CommandCategory.COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED,
-        );
-        methodChannel.invoke(command).catchError((error, stack) {
-          stateChangedController.addError(error, stack);
-        });
-      },
-      onCancel: () {
-        final command = messages.Command(
-          category: messages
-              .CommandCategory.COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED,
-        );
-        methodChannel.invoke(command).whenComplete(() {
-          stateChangedSubscription?.cancel();
-          stateChangedSubscription = null;
-        });
-      },
-    );
-  }
-
   @override
   Future<void> authorize() {
     final command = messages.Command(
@@ -78,56 +40,79 @@ class $Bluetooth implements Bluetooth {
   }
 
   @override
-  Stream<BluetoothState> get stateChanged => stateChangedController.stream;
+  Future<EventSubscription> subscribeStateChanged({
+    required void Function(BluetoothState state) onStateChanged,
+  }) {
+    final subscription = eventStream
+        .where((event) =>
+            event.category ==
+            messages.EventCategory.EVENT_CATEGORY_BLUETOOTH_STATE_CHANGED)
+        .map((event) => BluetoothState
+            .values[event.bluetoothStateChangedArguments.state.value])
+        .listen(onStateChanged);
+    final command = messages.Command(
+      category: messages
+          .CommandCategory.COMMAND_CATEGORY_BLUETOOTH_LISTEN_STATE_CHANGED,
+    );
+    return methodChannel.invoke(command).then(
+      (reply) {
+        return $EventSubscription(execute: () {
+          final cancelCommand = messages.Command(
+            category: messages.CommandCategory
+                .COMMAND_CATEGORY_BLUETOOTH_CANCEL_STATE_CHANGED,
+          );
+          return methodChannel
+              .invoke(cancelCommand)
+              .then((reply) => subscription.cancel());
+        });
+      },
+      onError: (error, stack) => subscription.cancel().then((_) => throw error),
+    );
+  }
 }
 
 class $Central extends $Bluetooth implements Central {
   @override
-  Stream<Discovery> startDiscovery({List<UUID>? uuids}) {
-    late final StreamController<Discovery> controller;
-    late final StreamSubscription<Discovery> subscription;
-    controller = StreamController<Discovery>.broadcast(
-      onListen: () {
-        subscription = eventStream.where((event) {
-          return event.category ==
-              messages.EventCategory.EVENT_CATEGORY_CENTRAL_DISCOVERED;
-        }).map((event) {
-          final discovery = event.centralDiscoveredArguments.discovery;
-          return $Discovery.fromMessage(discovery);
-        }).listen(
-          (discovery) => controller.add(discovery),
-          onError: (error, stack) => controller.addError(error, stack),
-          onDone: () => controller.close(),
-        );
-        final command = messages.Command(
-          category:
-              messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_START_DISCOVERY,
-          centralStartDiscoveryArguments:
-              messages.CentralStartDiscoveryCommandArguments(
-            uuids: uuids?.map((uuid) => uuid.name),
-          ),
-        );
-        methodChannel.invoke(command).catchError((error, stack) {
-          controller.addError(error, stack);
-        });
-      },
-      onCancel: () {
-        final command = messages.Command(
-          category:
-              messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY,
-        );
-        methodChannel.invoke(command).catchError((error, stack) {
-          controller.addError(error, stack);
-        });
-        subscription.cancel();
-      },
+  Future<EventSubscription> scan({
+    List<UUID>? uuids,
+    required void Function(Discovery discovery) onScanned,
+  }) {
+    final subscription = eventStream
+        .where((event) =>
+            event.category ==
+            messages.EventCategory.EVENT_CATEGORY_CENTRAL_DISCOVERED)
+        .map((event) =>
+            $Discovery.fromMessage(event.centralDiscoveredArguments.discovery))
+        .listen(onScanned);
+    final command = messages.Command(
+      category:
+          messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_START_DISCOVERY,
+      centralStartDiscoveryArguments:
+          messages.CentralStartDiscoveryCommandArguments(
+        uuids: uuids?.map((uuid) => uuid.name),
+      ),
     );
-    return controller.stream;
+    return methodChannel.invoke(command).then(
+      (reply) {
+        return $EventSubscription(
+          execute: () {
+            final cancelCommand = messages.Command(
+              category: messages
+                  .CommandCategory.COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY,
+            );
+            return methodChannel
+                .invoke(cancelCommand)
+                .then((reply) => subscription.cancel());
+          },
+        );
+      },
+      onError: (error, stack) => subscription.cancel().then((_) => throw error),
+    );
   }
 
   @override
-  Future<GATT> connect(
-    UUID uuid, {
+  Future<GATT> connect({
+    required UUID uuid,
     required void Function(int errorCode) onConnectionLost,
   }) {
     final command = messages.Command(
@@ -139,14 +124,12 @@ class $Central extends $Bluetooth implements Central {
     return methodChannel.invoke(command).then((reply) {
       final gatt = reply!.centralConnectArguments.gatt;
       final subscription = eventStream
-          .where((event) {
-            return event.category ==
-                    messages
-                        .EventCategory.EVENT_CATEGORY_GATT_CONNECTION_LOST &&
-                event.gattConnectionLostArguments.id == gatt.id;
-          })
+          .where((event) =>
+              event.category ==
+                  messages.EventCategory.EVENT_CATEGORY_GATT_CONNECTION_LOST &&
+              event.gattConnectionLostArguments.id == gatt.id)
           .map((event) => event.gattConnectionLostArguments.errorCode)
-          .listen((errorCode) => onConnectionLost(errorCode));
+          .listen(onConnectionLost);
       return $GATT.fromMessage(gatt, subscription);
     });
   }
@@ -186,29 +169,6 @@ class $Discovery implements Discovery {
     }
     final connectable = discovery.connectable;
     return $Discovery(uuid, rssi, advertisements, connectable);
-  }
-}
-
-class $UUID implements UUID {
-  @override
-  final Uint8List value;
-  @override
-  final String name;
-  @override
-  final int hashCode;
-
-  $UUID(this.name, this.value) : hashCode = equality.hash(value);
-
-  $UUID.fromName(String name) : this(name, name.value);
-
-  $UUID.fromString(String uuidString) : this.fromName(uuidString.name);
-
-  @override
-  String toString() => name;
-
-  @override
-  bool operator ==(other) {
-    return other is UUID && equality.equals(other.value, value);
   }
 }
 
@@ -295,9 +255,6 @@ class $GattCharacteristic implements GattCharacteristic {
   @override
   final Map<UUID, GattDescriptor> descriptors;
 
-  late final StreamController<Uint8List> notifyController;
-  late StreamSubscription<Uint8List>? notifySubscription;
-
   $GattCharacteristic(
     this.gattId,
     this.serviceId,
@@ -308,56 +265,7 @@ class $GattCharacteristic implements GattCharacteristic {
     this.canWriteWithoutResponse,
     this.canNotify,
     this.descriptors,
-  ) {
-    notifyController = StreamController<Uint8List>.broadcast(
-      onListen: () {
-        notifySubscription = eventStream.where((event) {
-          return event.category ==
-                  messages
-                      .EventCategory.EVENT_CATEGORY_CHARACTERISTIC_NOTIFIED &&
-              event.characteristicNotifiedArguments.gattId == gattId &&
-              event.characteristicNotifiedArguments.serviceId == serviceId &&
-              event.characteristicNotifiedArguments.id == id;
-        }).map((event) {
-          final elements = event.characteristicNotifiedArguments.value;
-          return Uint8List.fromList(elements);
-        }).listen(
-          (value) => notifyController.add(value),
-          onError: (error, stack) => notifyController.addError(error, stack),
-          onDone: () => notifyController.close(),
-        );
-        final command = messages.Command(
-          category:
-              messages.CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY,
-          characteristicNotifyArguments:
-              messages.CharacteristicNotifyCommandArguments(
-            gattId: gattId,
-            serviceId: serviceId,
-            id: id,
-          ),
-        );
-        methodChannel.invoke(command).catchError((error, stack) {
-          notifyController.addError(error, stack);
-        });
-      },
-      onCancel: () {
-        final command = messages.Command(
-          category: messages
-              .CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY,
-          characteristicCancelNotifyArguments:
-              messages.CharacteristicCancelNotifyCommandArguments(
-            gattId: gattId,
-            serviceId: serviceId,
-            id: id,
-          ),
-        );
-        methodChannel.invoke(command).whenComplete(() {
-          notifySubscription?.cancel();
-          notifySubscription = null;
-        });
-      },
-    );
-  }
+  );
 
   factory $GattCharacteristic.fromMessage(
     String gattId,
@@ -425,7 +333,51 @@ class $GattCharacteristic implements GattCharacteristic {
   }
 
   @override
-  Stream<Uint8List> get notify => notifyController.stream;
+  Future<EventSubscription> notify({
+    required void Function(Uint8List value) onValueChanged,
+  }) {
+    final subscription = eventStream
+        .where((event) =>
+            event.category ==
+                messages.EventCategory.EVENT_CATEGORY_CHARACTERISTIC_NOTIFIED &&
+            event.characteristicNotifiedArguments.gattId == gattId &&
+            event.characteristicNotifiedArguments.serviceId == serviceId &&
+            event.characteristicNotifiedArguments.id == id)
+        .map((event) =>
+            Uint8List.fromList(event.characteristicNotifiedArguments.value))
+        .listen(onValueChanged);
+    final command = messages.Command(
+      category: messages.CommandCategory.COMMAND_CATEGORY_CHARACTERISTIC_NOTIFY,
+      characteristicNotifyArguments:
+          messages.CharacteristicNotifyCommandArguments(
+        gattId: gattId,
+        serviceId: serviceId,
+        id: id,
+      ),
+    );
+    return methodChannel.invoke(command).then(
+      (reply) {
+        return $EventSubscription(
+          execute: () {
+            final cancelCommand = messages.Command(
+              category: messages.CommandCategory
+                  .COMMAND_CATEGORY_CHARACTERISTIC_CANCEL_NOTIFY,
+              characteristicCancelNotifyArguments:
+                  messages.CharacteristicCancelNotifyCommandArguments(
+                gattId: gattId,
+                serviceId: serviceId,
+                id: id,
+              ),
+            );
+            return methodChannel
+                .invoke(cancelCommand)
+                .then((reply) => subscription.cancel());
+          },
+        );
+      },
+      onError: (error, stack) => subscription.cancel().then((_) => throw error),
+    );
+  }
 }
 
 class $GattDescriptor implements GattDescriptor {
@@ -491,6 +443,38 @@ class $GattDescriptor implements GattDescriptor {
       ),
     );
     return methodChannel.invoke(command);
+  }
+}
+
+class $EventSubscription implements EventSubscription {
+  final Future<void> Function() execute;
+
+  $EventSubscription({required this.execute});
+
+  @override
+  Future<void> cancel() => execute();
+}
+
+class $UUID implements UUID {
+  @override
+  final Uint8List value;
+  @override
+  final String name;
+  @override
+  final int hashCode;
+
+  $UUID(this.name, this.value) : hashCode = equality.hash(value);
+
+  $UUID.fromName(String name) : this(name, name.value);
+
+  $UUID.fromString(String uuidString) : this.fromName(uuidString.name);
+
+  @override
+  String toString() => name;
+
+  @override
+  bool operator ==(other) {
+    return other is UUID && equality.equals(other.value, value);
   }
 }
 

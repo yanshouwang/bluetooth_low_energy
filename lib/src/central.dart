@@ -1,3 +1,5 @@
+import 'package:bluetooth_low_energy/src/event_subscription.dart';
+
 import 'bluetooth.dart';
 import 'bluetooth_implementation.dart';
 import 'gatt.dart';
@@ -10,10 +12,13 @@ final central = Central._();
 abstract class Central extends Bluetooth {
   factory Central._() => $Central();
 
-  Stream<Discovery> startDiscovery({List<UUID>? uuids});
+  Future<EventSubscription> scan({
+    List<UUID>? uuids,
+    required void Function(Discovery discovery) onScanned,
+  });
 
-  Future<GATT> connect(
-    UUID uuid, {
+  Future<GATT> connect({
+    required UUID uuid,
     required void Function(int errorCode) onConnectionLost,
   });
 }

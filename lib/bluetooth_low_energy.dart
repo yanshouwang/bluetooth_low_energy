@@ -1,4 +1,5 @@
 export 'src/bluetooth.dart';
+export 'src/event_subscription.dart';
 export 'src/bluetooth_state.dart';
 export 'src/central.dart';
 export 'src/discovery.dart';

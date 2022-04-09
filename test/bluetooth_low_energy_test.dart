@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
@@ -188,9 +189,16 @@ void main() {
     },
   );
   test(
-    'Bluetooth#stateChanged',
+    'Bluetooth#listenStateChanged',
     () async {
-      final actual = await central.stateChanged.first;
+      final completer = Completer<BluetoothState>();
+      final subscription = await central.subscribeStateChanged(
+        onStateChanged: (state) {
+          completer.complete(state);
+        },
+      );
+      final actual = await completer.future;
+      await subscription.cancel();
       expect(actual, BluetoothState.poweredOff);
       expect(
         calls,
@@ -214,10 +222,18 @@ void main() {
     },
   );
   test(
-    'Central#discover',
+    'Central#scan',
     () async {
       final services = [UUID('1800'), UUID('1801')];
-      final discovery = await central.startDiscovery(uuids: services).first;
+      final completer = Completer<Discovery>();
+      final subscription = await central.scan(
+        uuids: services,
+        onScanned: (discovery) {
+          completer.complete(discovery);
+        },
+      );
+      final discovery = await completer.future;
+      await subscription.cancel();
       final uuid = UUID('AABB');
       expect(discovery.uuid, uuid);
       const rssi = -50;
@@ -258,7 +274,7 @@ void main() {
     () async {
       final uuid = UUID('AABB');
       final gatt = await central.connect(
-        uuid,
+        uuid: uuid,
         onConnectionLost: (errorCode) {},
       );
       expect(gatt.maximumWriteLength, 20);
@@ -293,11 +309,11 @@ void main() {
     },
   );
   test(
-    'GattCharacteritsic#read',
+    'GattCharacteristic#read',
     () async {
       final uuid = UUID('AABB');
       final gatt = await central.connect(
-        uuid,
+        uuid: uuid,
         onConnectionLost: (errorCode) {},
       );
       final service = gatt.services.values.first;
@@ -335,11 +351,11 @@ void main() {
     },
   );
   test(
-    'GattCharacteritsic#write',
+    'GattCharacteristic#write',
     () async {
       final uuid = UUID('AABB');
       final gatt = await central.connect(
-        uuid,
+        uuid: uuid,
         onConnectionLost: (errorCode) {},
       );
       final service = gatt.services.values.first;
@@ -379,16 +395,23 @@ void main() {
     },
   );
   test(
-    'GattCharacteritsic#notified',
+    'GattCharacteristic#notify',
     () async {
       final uuid = UUID('AABB');
       final gatt = await central.connect(
-        uuid,
+        uuid: uuid,
         onConnectionLost: (errorCode) {},
       );
       final service = gatt.services.values.first;
       final characteristic = service.characteristics.values.first;
-      final value = await characteristic.notify.first;
+      final completer = Completer<Uint8List>();
+      final subscription = await characteristic.notify(
+        onValueChanged: (value) {
+          completer.complete(value);
+        },
+      );
+      final value = await completer.future;
+      await subscription.cancel();
       expect(value, [0x0A, 0x0B, 0x0C, 0x0D, 0x0E]);
       expect(
         calls,
@@ -438,7 +461,7 @@ void main() {
     () async {
       final uuid = UUID('AABB');
       final gatt = await central.connect(
-        uuid,
+        uuid: uuid,
         onConnectionLost: (errorCode) {},
       );
       final service = gatt.services.values.first;
@@ -481,7 +504,7 @@ void main() {
     () async {
       final uuid = UUID('AABB');
       final gatt = await central.connect(
-        uuid,
+        uuid: uuid,
         onConnectionLost: (errorCode) {},
       );
       final service = gatt.services.values.first;

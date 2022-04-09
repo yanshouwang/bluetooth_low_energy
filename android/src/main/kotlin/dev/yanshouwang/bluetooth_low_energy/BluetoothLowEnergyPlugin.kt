@@ -106,7 +106,8 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                     }
                 }
                 Messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_STOP_DISCOVERY -> {
-                    bluetoothAdapter.bluetoothLeScanner.stopScan(scanCallback)
+                    // Will be null when bluetooth was powered off.
+                    bluetoothAdapter.bluetoothLeScanner?.stopScan(scanCallback)
                     result.success()
                 }
                 Messages.CommandCategory.COMMAND_CATEGORY_CENTRAL_CONNECT -> {
@@ -267,11 +268,9 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
         }
     }
 
-    private val bluetoothAvailable by lazy {
-        activity.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
-    }
+    private val bluetoothAvailable by lazy { activity.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) }
     private val bluetoothAdapter by lazy {
-        (activity.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
+        ContextCompat.getSystemService(activity, BluetoothManager::class.java)!!.adapter
     }
     private val runtimePermissions by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -282,9 +281,7 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
     }
     private val authorized
         get() = runtimePermissions.all { permission ->
-            ContextCompat.checkSelfPermission(
-                activity, permission
-            ) == PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_GRANTED
         }
     private val bluetoothState: Messages.BluetoothState
         get() {
@@ -307,18 +304,19 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
                 if (bluetoothState == Messages.BluetoothState.BLUETOOTH_STATE_UNSUPPORTED || bluetoothState == Messages.BluetoothState.BLUETOOTH_STATE_UNAUTHORIZED) {
                     return
                 }
-                val oldState = intent!!.getIntExtra(
+                val oldValue = intent!!.getIntExtra(
                     BluetoothAdapter.EXTRA_PREVIOUS_STATE, BLUETOOTH_ADAPTER_STATE_UNKNOWN
                 )
-                val newState = intent.getIntExtra(
+                val newValue = intent.getIntExtra(
                     BluetoothAdapter.EXTRA_STATE, BLUETOOTH_ADAPTER_STATE_UNKNOWN
                 )
+                val oldState = toProtoBluetoothState(oldValue)
+                val newState = toProtoBluetoothState(newValue)
                 if (newState == oldState) return
-                val state = toProtoBluetoothState(newState)
                 val event = event {
                     this.category = Messages.EventCategory.EVENT_CATEGORY_BLUETOOTH_STATE_CHANGED
                     this.bluetoothStateChangedArguments = bluetoothStateChangedEventArguments {
-                        this.state = state
+                        this.state = newState
                     }
                 }.toByteArray()
                 eventSink?.success(event)

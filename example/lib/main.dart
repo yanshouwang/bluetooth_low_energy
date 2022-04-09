@@ -5,7 +5,7 @@ import 'views.dart';
 void main() {
   final app = MaterialApp(
     theme: ThemeData(
-      fontFamily: 'IBM Plex Mono',
+      fontFamily: 'NeverMind',
     ),
     routes: {
       'home': (context) => const HomeView(),

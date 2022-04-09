@@ -21,7 +21,7 @@ class _GattViewState extends State<GattView> {
   late final ValueNotifier<GattService?> serviceNotifier;
   late final ValueNotifier<GattCharacteristic?> characteristicNotifier;
   late final TextEditingController writeController;
-  late final MapNotifier<GattCharacteristic, StreamSubscription<Uint8List>>
+  late final MapNotifier<GattCharacteristic, EventSubscription>
       notifySubscriptions;
   late final ListNotifier<Log> logsNotifier;
   late final ValueNotifier<Encoding> encodingNotifier;
@@ -102,7 +102,7 @@ class _GattViewState extends State<GattView> {
     try {
       stateNotifier.value = ConnectionState.connecting;
       gatt = await central.connect(
-        discovery.uuid,
+        uuid: discovery.uuid,
         onConnectionLost: (errorCode) {
           clean();
           stateNotifier.value = ConnectionState.disconnected;
@@ -174,11 +174,12 @@ class _GattViewState extends State<GattView> {
     if (subscription != null) {
       await subscription.cancel();
     } else {
-      notifySubscriptions.value[characteristic] =
-          characteristic.notify.listen((value) {
-        final log = Log.notify(value);
-        logsNotifier.value = [...logsNotifier.value, log];
-      });
+      notifySubscriptions.value[characteristic] = await characteristic.notify(
+        onValueChanged: (value) {
+          final log = Log.notify(value);
+          logsNotifier.value = [...logsNotifier.value, log];
+        },
+      );
     }
     notifySubscriptions.value = {...notifySubscriptions.value};
   }
@@ -352,7 +353,7 @@ extension on _GattViewState {
                   icon: const Icon(Icons.archive),
                 ),
                 ValueListenableBuilder<
-                        Map<GattCharacteristic, StreamSubscription<List<int>>>>(
+                        Map<GattCharacteristic, EventSubscription>>(
                     valueListenable: notifySubscriptions,
                     builder: (context, notifies, child) {
                       return IconButton(
