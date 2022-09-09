@@ -1,0 +1,4 @@
+enum BluetoothState {
+  poweredOff,
+  poweredOn,
+}

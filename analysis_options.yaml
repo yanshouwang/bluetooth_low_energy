@@ -2,3 +2,17 @@ include: package:flutter_lints/flutter.yaml
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
+
+analyzer:
+  exclude: 
+    - "**/*.g.dart"
+    - "**/*.pb.dart"
+    - "**/*.pbenum.dart"
+    - "**/*.pbjson.dart"
+    - "**/*.pbserver.dart"
+    - "**/*.mocks.dart"
+
+linter:
+  rules:
+    prefer_single_quotes: true
+    require_trailing_commas: true

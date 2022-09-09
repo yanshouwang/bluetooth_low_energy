@@ -10,7 +10,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  pigeon: ^4.0.2
   plugin_platform_interface: ^2.0.2
+  protobuf: ^2.1.0
+  tuple: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -35,9 +38,11 @@ flutter:
   plugin:
     platforms:
       android:
+        dartPluginClass: BluetoothLowEnergyPluginAndroid
         package: dev.yanshouwang.bluetooth_low_energy
         pluginClass: BluetoothLowEnergyPlugin
       ios:
+        dartPluginClass: BluetoothLowEnergyPluginIOS
         pluginClass: BluetoothLowEnergyPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
