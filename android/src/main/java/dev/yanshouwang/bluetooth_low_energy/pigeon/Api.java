@@ -26,65 +26,35 @@ public class Api {
     void success(T result);
     void error(Throwable error);
   }
-  private static class CentralControllerHostApiCodec extends StandardMessageCodec {
-    public static final CentralControllerHostApiCodec INSTANCE = new CentralControllerHostApiCodec();
-    private CentralControllerHostApiCodec() {}
+  private static class CentralManagerHostApiCodec extends StandardMessageCodec {
+    public static final CentralManagerHostApiCodec INSTANCE = new CentralManagerHostApiCodec();
+    private CentralManagerHostApiCodec() {}
   }
 
   /** Generated interface from Pigeon that represents a handler of messages from Flutter.*/
-  public interface CentralControllerHostApi {
-    void create(@NonNull String id);
-    @NonNull Long getState(@NonNull String id);
-    void addStateObserver(@NonNull String id);
-    void removeStateObserver(@NonNull String id);
-    void startDiscovery(@NonNull String id, @Nullable List<String> uuids);
-    void stopDiscovery(@NonNull String id);
-    void destroy(@NonNull String id);
+  public interface CentralManagerHostApi {
+    @NonNull byte[] getState();
+    void addStateObserver();
+    void removeStateObserver();
+    void startScan(@Nullable List<String> uuids, Result<Void> result);
+    void stopScan();
+    void connect(@NonNull String uuid, Result<byte[]> result);
 
-    /** The codec used by CentralControllerHostApi. */
+    /** The codec used by CentralManagerHostApi. */
     static MessageCodec<Object> getCodec() {
-      return CentralControllerHostApiCodec.INSTANCE;
+      return CentralManagerHostApiCodec.INSTANCE;
     }
 
-    /** Sets up an instance of `CentralControllerHostApi` to handle messages through the `binaryMessenger`. */
-    static void setup(BinaryMessenger binaryMessenger, CentralControllerHostApi api) {
+    /** Sets up an instance of `CentralManagerHostApi` to handle messages through the `binaryMessenger`. */
+    static void setup(BinaryMessenger binaryMessenger, CentralManagerHostApi api) {
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CentralControllerHostApi.create", getCodec());
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CentralManagerHostApi.getState", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
             try {
-              ArrayList<Object> args = (ArrayList<Object>)message;
-              String idArg = (String)args.get(0);
-              if (idArg == null) {
-                throw new NullPointerException("idArg unexpectedly null.");
-              }
-              api.create(idArg);
-              wrapped.put("result", null);
-            }
-            catch (Error | RuntimeException exception) {
-              wrapped.put("error", wrapError(exception));
-            }
-            reply.reply(wrapped);
-          });
-        } else {
-          channel.setMessageHandler(null);
-        }
-      }
-      {
-        BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CentralControllerHostApi.getState", getCodec());
-        if (api != null) {
-          channel.setMessageHandler((message, reply) -> {
-            Map<String, Object> wrapped = new HashMap<>();
-            try {
-              ArrayList<Object> args = (ArrayList<Object>)message;
-              String idArg = (String)args.get(0);
-              if (idArg == null) {
-                throw new NullPointerException("idArg unexpectedly null.");
-              }
-              Long output = api.getState(idArg);
+              byte[] output = api.getState();
               wrapped.put("result", output);
             }
             catch (Error | RuntimeException exception) {
@@ -98,17 +68,12 @@ public class Api {
       }
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CentralControllerHostApi.addStateObserver", getCodec());
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CentralManagerHostApi.addStateObserver", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
             try {
-              ArrayList<Object> args = (ArrayList<Object>)message;
-              String idArg = (String)args.get(0);
-              if (idArg == null) {
-                throw new NullPointerException("idArg unexpectedly null.");
-              }
-              api.addStateObserver(idArg);
+              api.addStateObserver();
               wrapped.put("result", null);
             }
             catch (Error | RuntimeException exception) {
@@ -122,17 +87,12 @@ public class Api {
       }
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CentralControllerHostApi.removeStateObserver", getCodec());
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CentralManagerHostApi.removeStateObserver", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
             try {
-              ArrayList<Object> args = (ArrayList<Object>)message;
-              String idArg = (String)args.get(0);
-              if (idArg == null) {
-                throw new NullPointerException("idArg unexpectedly null.");
-              }
-              api.removeStateObserver(idArg);
+              api.removeStateObserver();
               wrapped.put("result", null);
             }
             catch (Error | RuntimeException exception) {
@@ -146,18 +106,43 @@ public class Api {
       }
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CentralControllerHostApi.startDiscovery", getCodec());
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CentralManagerHostApi.startScan", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
             try {
               ArrayList<Object> args = (ArrayList<Object>)message;
-              String idArg = (String)args.get(0);
-              if (idArg == null) {
-                throw new NullPointerException("idArg unexpectedly null.");
-              }
-              List<String> uuidsArg = (List<String>)args.get(1);
-              api.startDiscovery(idArg, uuidsArg);
+              List<String> uuidsArg = (List<String>)args.get(0);
+              Result<Void> resultCallback = new Result<Void>() {
+                public void success(Void result) {
+                  wrapped.put("result", null);
+                  reply.reply(wrapped);
+                }
+                public void error(Throwable error) {
+                  wrapped.put("error", wrapError(error));
+                  reply.reply(wrapped);
+                }
+              };
+
+              api.startScan(uuidsArg, resultCallback);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+              reply.reply(wrapped);
+            }
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CentralManagerHostApi.stopScan", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              api.stopScan();
               wrapped.put("result", null);
             }
             catch (Error | RuntimeException exception) {
@@ -171,47 +156,33 @@ public class Api {
       }
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CentralControllerHostApi.stopDiscovery", getCodec());
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CentralManagerHostApi.connect", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
             try {
               ArrayList<Object> args = (ArrayList<Object>)message;
-              String idArg = (String)args.get(0);
-              if (idArg == null) {
-                throw new NullPointerException("idArg unexpectedly null.");
+              String uuidArg = (String)args.get(0);
+              if (uuidArg == null) {
+                throw new NullPointerException("uuidArg unexpectedly null.");
               }
-              api.stopDiscovery(idArg);
-              wrapped.put("result", null);
+              Result<byte[]> resultCallback = new Result<byte[]>() {
+                public void success(byte[] result) {
+                  wrapped.put("result", result);
+                  reply.reply(wrapped);
+                }
+                public void error(Throwable error) {
+                  wrapped.put("error", wrapError(error));
+                  reply.reply(wrapped);
+                }
+              };
+
+              api.connect(uuidArg, resultCallback);
             }
             catch (Error | RuntimeException exception) {
               wrapped.put("error", wrapError(exception));
+              reply.reply(wrapped);
             }
-            reply.reply(wrapped);
-          });
-        } else {
-          channel.setMessageHandler(null);
-        }
-      }
-      {
-        BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CentralControllerHostApi.destroy", getCodec());
-        if (api != null) {
-          channel.setMessageHandler((message, reply) -> {
-            Map<String, Object> wrapped = new HashMap<>();
-            try {
-              ArrayList<Object> args = (ArrayList<Object>)message;
-              String idArg = (String)args.get(0);
-              if (idArg == null) {
-                throw new NullPointerException("idArg unexpectedly null.");
-              }
-              api.destroy(idArg);
-              wrapped.put("result", null);
-            }
-            catch (Error | RuntimeException exception) {
-              wrapped.put("error", wrapError(exception));
-            }
-            reply.reply(wrapped);
           });
         } else {
           channel.setMessageHandler(null);
@@ -219,35 +190,35 @@ public class Api {
       }
     }
   }
-  private static class CentralControllerFlutterApiCodec extends StandardMessageCodec {
-    public static final CentralControllerFlutterApiCodec INSTANCE = new CentralControllerFlutterApiCodec();
-    private CentralControllerFlutterApiCodec() {}
+  private static class CentralManagerFlutterApiCodec extends StandardMessageCodec {
+    public static final CentralManagerFlutterApiCodec INSTANCE = new CentralManagerFlutterApiCodec();
+    private CentralManagerFlutterApiCodec() {}
   }
 
   /** Generated class from Pigeon that represents Flutter messages that can be called from Java.*/
-  public static class CentralControllerFlutterApi {
+  public static class CentralManagerFlutterApi {
     private final BinaryMessenger binaryMessenger;
-    public CentralControllerFlutterApi(BinaryMessenger argBinaryMessenger){
+    public CentralManagerFlutterApi(BinaryMessenger argBinaryMessenger){
       this.binaryMessenger = argBinaryMessenger;
     }
     public interface Reply<T> {
       void reply(T reply);
     }
     static MessageCodec<Object> getCodec() {
-      return CentralControllerFlutterApiCodec.INSTANCE;
+      return CentralManagerFlutterApiCodec.INSTANCE;
     }
 
-    public void notifyState(@NonNull String idArg, @NonNull Long stateArg, Reply<Void> callback) {
+    public void notifyState(@NonNull byte[] stateArg, Reply<Void> callback) {
       BasicMessageChannel<Object> channel =
-          new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CentralControllerFlutterApi.notifyState", getCodec());
-      channel.send(new ArrayList<Object>(Arrays.asList(idArg, stateArg)), channelReply -> {
+          new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CentralManagerFlutterApi.notifyState", getCodec());
+      channel.send(new ArrayList<Object>(Arrays.asList(stateArg)), channelReply -> {
         callback.reply(null);
       });
     }
-    public void notifyAdvertisement(@NonNull String idArg, @NonNull byte[] advertisementArg, Reply<Void> callback) {
+    public void notifyAdvertisement(@NonNull byte[] advertisementArg, Reply<Void> callback) {
       BasicMessageChannel<Object> channel =
-          new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CentralControllerFlutterApi.notifyAdvertisement", getCodec());
-      channel.send(new ArrayList<Object>(Arrays.asList(idArg, advertisementArg)), channelReply -> {
+          new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.CentralManagerFlutterApi.notifyAdvertisement", getCodec());
+      channel.send(new ArrayList<Object>(Arrays.asList(advertisementArg)), channelReply -> {
         callback.reply(null);
       });
     }
@@ -259,7 +230,8 @@ public class Api {
 
   /** Generated interface from Pigeon that represents a handler of messages from Flutter.*/
   public interface PeripheralHostApi {
-    void connect(@NonNull String id, Result<Void> result);
+    void allocate(@NonNull String newId, @NonNull String oldId);
+    void free(@NonNull String id);
     void disconnect(@NonNull String id, Result<Void> result);
     void discoverServices(@NonNull String id, Result<List<byte[]>> result);
 
@@ -272,7 +244,35 @@ public class Api {
     static void setup(BinaryMessenger binaryMessenger, PeripheralHostApi api) {
       {
         BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.PeripheralHostApi.connect", getCodec());
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.PeripheralHostApi.allocate", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              ArrayList<Object> args = (ArrayList<Object>)message;
+              String newIdArg = (String)args.get(0);
+              if (newIdArg == null) {
+                throw new NullPointerException("newIdArg unexpectedly null.");
+              }
+              String oldIdArg = (String)args.get(1);
+              if (oldIdArg == null) {
+                throw new NullPointerException("oldIdArg unexpectedly null.");
+              }
+              api.allocate(newIdArg, oldIdArg);
+              wrapped.put("result", null);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+            }
+            reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.PeripheralHostApi.free", getCodec());
         if (api != null) {
           channel.setMessageHandler((message, reply) -> {
             Map<String, Object> wrapped = new HashMap<>();
@@ -282,23 +282,13 @@ public class Api {
               if (idArg == null) {
                 throw new NullPointerException("idArg unexpectedly null.");
               }
-              Result<Void> resultCallback = new Result<Void>() {
-                public void success(Void result) {
-                  wrapped.put("result", null);
-                  reply.reply(wrapped);
-                }
-                public void error(Throwable error) {
-                  wrapped.put("error", wrapError(error));
-                  reply.reply(wrapped);
-                }
-              };
-
-              api.connect(idArg, resultCallback);
+              api.free(idArg);
+              wrapped.put("result", null);
             }
             catch (Error | RuntimeException exception) {
               wrapped.put("error", wrapError(exception));
-              reply.reply(wrapped);
             }
+            reply.reply(wrapped);
           });
         } else {
           channel.setMessageHandler(null);
@@ -392,10 +382,10 @@ public class Api {
       return PeripheralFlutterApiCodec.INSTANCE;
     }
 
-    public void notifyConnectionLost(@NonNull String idArg, @NonNull String errorMessageArg, Reply<Void> callback) {
+    public void notifyConnectionLost(@NonNull String idArg, @NonNull String errorArg, Reply<Void> callback) {
       BasicMessageChannel<Object> channel =
           new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.PeripheralFlutterApi.notifyConnectionLost", getCodec());
-      channel.send(new ArrayList<Object>(Arrays.asList(idArg, errorMessageArg)), channelReply -> {
+      channel.send(new ArrayList<Object>(Arrays.asList(idArg, errorArg)), channelReply -> {
         callback.reply(null);
       });
     }
@@ -407,6 +397,8 @@ public class Api {
 
   /** Generated interface from Pigeon that represents a handler of messages from Flutter.*/
   public interface GattServiceHostApi {
+    void allocate(@NonNull String newId, @NonNull String oldId);
+    void free(@NonNull String id);
     void discoverCharacteristics(@NonNull String id, Result<List<byte[]>> result);
 
     /** The codec used by GattServiceHostApi. */
@@ -416,6 +408,58 @@ public class Api {
 
     /** Sets up an instance of `GattServiceHostApi` to handle messages through the `binaryMessenger`. */
     static void setup(BinaryMessenger binaryMessenger, GattServiceHostApi api) {
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.GattServiceHostApi.allocate", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              ArrayList<Object> args = (ArrayList<Object>)message;
+              String newIdArg = (String)args.get(0);
+              if (newIdArg == null) {
+                throw new NullPointerException("newIdArg unexpectedly null.");
+              }
+              String oldIdArg = (String)args.get(1);
+              if (oldIdArg == null) {
+                throw new NullPointerException("oldIdArg unexpectedly null.");
+              }
+              api.allocate(newIdArg, oldIdArg);
+              wrapped.put("result", null);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+            }
+            reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.GattServiceHostApi.free", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              ArrayList<Object> args = (ArrayList<Object>)message;
+              String idArg = (String)args.get(0);
+              if (idArg == null) {
+                throw new NullPointerException("idArg unexpectedly null.");
+              }
+              api.free(idArg);
+              wrapped.put("result", null);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+            }
+            reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
       {
         BasicMessageChannel<Object> channel =
             new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.GattServiceHostApi.discoverCharacteristics", getCodec());
@@ -459,6 +503,8 @@ public class Api {
 
   /** Generated interface from Pigeon that represents a handler of messages from Flutter.*/
   public interface GattCharacteristicHostApi {
+    void allocate(@NonNull String newId, @NonNull String oldId);
+    void free(@NonNull String id);
     void discoverDescriptors(@NonNull String id, Result<List<byte[]>> result);
     void read(@NonNull String id, Result<byte[]> result);
     void write(@NonNull String id, @NonNull byte[] value, Result<Void> result);
@@ -471,6 +517,58 @@ public class Api {
 
     /** Sets up an instance of `GattCharacteristicHostApi` to handle messages through the `binaryMessenger`. */
     static void setup(BinaryMessenger binaryMessenger, GattCharacteristicHostApi api) {
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.GattCharacteristicHostApi.allocate", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              ArrayList<Object> args = (ArrayList<Object>)message;
+              String newIdArg = (String)args.get(0);
+              if (newIdArg == null) {
+                throw new NullPointerException("newIdArg unexpectedly null.");
+              }
+              String oldIdArg = (String)args.get(1);
+              if (oldIdArg == null) {
+                throw new NullPointerException("oldIdArg unexpectedly null.");
+              }
+              api.allocate(newIdArg, oldIdArg);
+              wrapped.put("result", null);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+            }
+            reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.GattCharacteristicHostApi.free", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              ArrayList<Object> args = (ArrayList<Object>)message;
+              String idArg = (String)args.get(0);
+              if (idArg == null) {
+                throw new NullPointerException("idArg unexpectedly null.");
+              }
+              api.free(idArg);
+              wrapped.put("result", null);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+            }
+            reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
       {
         BasicMessageChannel<Object> channel =
             new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.GattCharacteristicHostApi.discoverDescriptors", getCodec());
@@ -650,6 +748,8 @@ public class Api {
 
   /** Generated interface from Pigeon that represents a handler of messages from Flutter.*/
   public interface GattDescriptorHostApi {
+    void allocate(@NonNull String newId, @NonNull String oldId);
+    void free(@NonNull String id);
     void read(@NonNull String id, Result<byte[]> result);
     void write(@NonNull String id, @NonNull byte[] value, Result<Void> result);
 
@@ -660,6 +760,58 @@ public class Api {
 
     /** Sets up an instance of `GattDescriptorHostApi` to handle messages through the `binaryMessenger`. */
     static void setup(BinaryMessenger binaryMessenger, GattDescriptorHostApi api) {
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.GattDescriptorHostApi.allocate", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              ArrayList<Object> args = (ArrayList<Object>)message;
+              String newIdArg = (String)args.get(0);
+              if (newIdArg == null) {
+                throw new NullPointerException("newIdArg unexpectedly null.");
+              }
+              String oldIdArg = (String)args.get(1);
+              if (oldIdArg == null) {
+                throw new NullPointerException("oldIdArg unexpectedly null.");
+              }
+              api.allocate(newIdArg, oldIdArg);
+              wrapped.put("result", null);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+            }
+            reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.GattDescriptorHostApi.free", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              ArrayList<Object> args = (ArrayList<Object>)message;
+              String idArg = (String)args.get(0);
+              if (idArg == null) {
+                throw new NullPointerException("idArg unexpectedly null.");
+              }
+              api.free(idArg);
+              wrapped.put("result", null);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+            }
+            reply.reply(wrapped);
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
       {
         BasicMessageChannel<Object> channel =
             new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.GattDescriptorHostApi.read", getCodec());

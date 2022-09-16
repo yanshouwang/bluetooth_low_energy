@@ -23,27 +23,20 @@ object AdvertisementKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.proto.Advertisement = _builder.build()
 
     /**
-     * <code>.proto.Peripheral peripheral = 1;</code>
+     * <code>string uuid = 1;</code>
      */
-    var peripheral: dev.yanshouwang.bluetooth_low_energy.proto.Peripheral
-      @JvmName("getPeripheral")
-      get() = _builder.getPeripheral()
-      @JvmName("setPeripheral")
+    var uuid: kotlin.String
+      @JvmName("getUuid")
+      get() = _builder.getUuid()
+      @JvmName("setUuid")
       set(value) {
-        _builder.setPeripheral(value)
+        _builder.setUuid(value)
       }
     /**
-     * <code>.proto.Peripheral peripheral = 1;</code>
+     * <code>string uuid = 1;</code>
      */
-    fun clearPeripheral() {
-      _builder.clearPeripheral()
-    }
-    /**
-     * <code>.proto.Peripheral peripheral = 1;</code>
-     * @return Whether the peripheral field is set.
-     */
-    fun hasPeripheral(): kotlin.Boolean {
-      return _builder.hasPeripheral()
+    fun clearUuid() {
+      _builder.clearUuid()
     }
 
     /**
@@ -123,12 +116,26 @@ object AdvertisementKt {
     fun clearRssi() {
       _builder.clearRssi()
     }
+
+    /**
+     * <code>bool connectable = 4;</code>
+     */
+    var connectable: kotlin.Boolean
+      @JvmName("getConnectable")
+      get() = _builder.getConnectable()
+      @JvmName("setConnectable")
+      set(value) {
+        _builder.setConnectable(value)
+      }
+    /**
+     * <code>bool connectable = 4;</code>
+     */
+    fun clearConnectable() {
+      _builder.clearConnectable()
+    }
   }
 }
 @kotlin.jvm.JvmSynthetic
 inline fun dev.yanshouwang.bluetooth_low_energy.proto.Advertisement.copy(block: dev.yanshouwang.bluetooth_low_energy.proto.AdvertisementKt.Dsl.() -> kotlin.Unit): dev.yanshouwang.bluetooth_low_energy.proto.Advertisement =
   dev.yanshouwang.bluetooth_low_energy.proto.AdvertisementKt.Dsl._create(this.toBuilder()).apply { block() }._build()
-
-val dev.yanshouwang.bluetooth_low_energy.proto.AdvertisementOrBuilder.peripheralOrNull: dev.yanshouwang.bluetooth_low_energy.proto.Peripheral?
-  get() = if (hasPeripheral()) getPeripheral() else null
 

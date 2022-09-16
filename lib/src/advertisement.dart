@@ -1,9 +1,10 @@
 import 'package:pigeon/pigeon.dart';
 
-import 'peripheral.dart';
+import 'uuid.dart';
 
 abstract class Advertisement {
-  Peripheral get peripheral;
+  UUID get uuid;
   Map<int, Uint8List> get data;
   int get rssi;
+  bool get connectable;
 }

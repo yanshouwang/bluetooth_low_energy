@@ -4,16 +4,20 @@ package proto;
 option java_package = "dev.yanshouwang.bluetooth_low_energy.proto";
 option java_multiple_files = true;
 
+message BluetoothState {
+  int32 number = 1;
+}
+
 message Advertisement {
-  Peripheral peripheral = 1;
+  string uuid = 1;
   map<int32, bytes> data = 2;
   int32 rssi = 3;
+  bool connectable = 4;
 }
 
 message Peripheral {
   string id = 1;
-  string uuid = 2;
-  bool connectable = 4;
+  int32 maximum_write_length = 2;
 }
 
 message GattService {

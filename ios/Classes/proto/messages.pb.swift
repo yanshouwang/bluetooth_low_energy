@@ -20,29 +20,34 @@ fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAP
   typealias Version = _2
 }
 
+struct Proto_BluetoothState {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var number: Int32 = 0
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+}
+
 struct Proto_Advertisement {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var peripheral: Proto_Peripheral {
-    get {return _peripheral ?? Proto_Peripheral()}
-    set {_peripheral = newValue}
-  }
-  /// Returns true if `peripheral` has been explicitly set.
-  var hasPeripheral: Bool {return self._peripheral != nil}
-  /// Clears the value of `peripheral`. Subsequent reads from it will return its default value.
-  mutating func clearPeripheral() {self._peripheral = nil}
+  var uuid: String = String()
 
   var data: Dictionary<Int32,Data> = [:]
 
   var rssi: Int32 = 0
 
+  var connectable: Bool = false
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
-
-  fileprivate var _peripheral: Proto_Peripheral? = nil
 }
 
 struct Proto_Peripheral {
@@ -52,9 +57,7 @@ struct Proto_Peripheral {
 
   var id: String = String()
 
-  var uuid: String = String()
-
-  var connectable: Bool = false
+  var maximumWriteLength: Int32 = 0
 
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -112,6 +115,7 @@ struct Proto_GattDescriptor {
 }
 
 #if swift(>=5.5) && canImport(_Concurrency)
+extension Proto_BluetoothState: @unchecked Sendable {}
 extension Proto_Advertisement: @unchecked Sendable {}
 extension Proto_Peripheral: @unchecked Sendable {}
 extension Proto_GattService: @unchecked Sendable {}
@@ -123,12 +127,10 @@ extension Proto_GattDescriptor: @unchecked Sendable {}
 
 fileprivate let _protobuf_package = "proto"
 
-extension Proto_Advertisement: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".Advertisement"
+extension Proto_BluetoothState: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".BluetoothState"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "peripheral"),
-    2: .same(proto: "data"),
-    3: .same(proto: "rssi"),
+    1: .same(proto: "number"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -137,45 +139,32 @@ extension Proto_Advertisement: SwiftProtobuf.Message, SwiftProtobuf._MessageImpl
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularMessageField(value: &self._peripheral) }()
-      case 2: try { try decoder.decodeMapField(fieldType: SwiftProtobuf._ProtobufMap<SwiftProtobuf.ProtobufInt32,SwiftProtobuf.ProtobufBytes>.self, value: &self.data) }()
-      case 3: try { try decoder.decodeSingularInt32Field(value: &self.rssi) }()
+      case 1: try { try decoder.decodeSingularInt32Field(value: &self.number) }()
       default: break
       }
     }
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every if/case branch local when no optimizations
-    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
-    // https://github.com/apple/swift-protobuf/issues/1182
-    try { if let v = self._peripheral {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
-    } }()
-    if !self.data.isEmpty {
-      try visitor.visitMapField(fieldType: SwiftProtobuf._ProtobufMap<SwiftProtobuf.ProtobufInt32,SwiftProtobuf.ProtobufBytes>.self, value: self.data, fieldNumber: 2)
-    }
-    if self.rssi != 0 {
-      try visitor.visitSingularInt32Field(value: self.rssi, fieldNumber: 3)
+    if self.number != 0 {
+      try visitor.visitSingularInt32Field(value: self.number, fieldNumber: 1)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: Proto_Advertisement, rhs: Proto_Advertisement) -> Bool {
-    if lhs._peripheral != rhs._peripheral {return false}
-    if lhs.data != rhs.data {return false}
-    if lhs.rssi != rhs.rssi {return false}
+  static func ==(lhs: Proto_BluetoothState, rhs: Proto_BluetoothState) -> Bool {
+    if lhs.number != rhs.number {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
 }
 
-extension Proto_Peripheral: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".Peripheral"
+extension Proto_Advertisement: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".Advertisement"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "id"),
-    2: .same(proto: "uuid"),
+    1: .same(proto: "uuid"),
+    2: .same(proto: "data"),
+    3: .same(proto: "rssi"),
     4: .same(proto: "connectable"),
   ]
 
@@ -185,9 +174,56 @@ extension Proto_Peripheral: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularStringField(value: &self.id) }()
-      case 2: try { try decoder.decodeSingularStringField(value: &self.uuid) }()
+      case 1: try { try decoder.decodeSingularStringField(value: &self.uuid) }()
+      case 2: try { try decoder.decodeMapField(fieldType: SwiftProtobuf._ProtobufMap<SwiftProtobuf.ProtobufInt32,SwiftProtobuf.ProtobufBytes>.self, value: &self.data) }()
+      case 3: try { try decoder.decodeSingularInt32Field(value: &self.rssi) }()
       case 4: try { try decoder.decodeSingularBoolField(value: &self.connectable) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.uuid.isEmpty {
+      try visitor.visitSingularStringField(value: self.uuid, fieldNumber: 1)
+    }
+    if !self.data.isEmpty {
+      try visitor.visitMapField(fieldType: SwiftProtobuf._ProtobufMap<SwiftProtobuf.ProtobufInt32,SwiftProtobuf.ProtobufBytes>.self, value: self.data, fieldNumber: 2)
+    }
+    if self.rssi != 0 {
+      try visitor.visitSingularInt32Field(value: self.rssi, fieldNumber: 3)
+    }
+    if self.connectable != false {
+      try visitor.visitSingularBoolField(value: self.connectable, fieldNumber: 4)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Proto_Advertisement, rhs: Proto_Advertisement) -> Bool {
+    if lhs.uuid != rhs.uuid {return false}
+    if lhs.data != rhs.data {return false}
+    if lhs.rssi != rhs.rssi {return false}
+    if lhs.connectable != rhs.connectable {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension Proto_Peripheral: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = _protobuf_package + ".Peripheral"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "id"),
+    2: .standard(proto: "maximum_write_length"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.id) }()
+      case 2: try { try decoder.decodeSingularInt32Field(value: &self.maximumWriteLength) }()
       default: break
       }
     }
@@ -197,19 +233,15 @@ extension Proto_Peripheral: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     if !self.id.isEmpty {
       try visitor.visitSingularStringField(value: self.id, fieldNumber: 1)
     }
-    if !self.uuid.isEmpty {
-      try visitor.visitSingularStringField(value: self.uuid, fieldNumber: 2)
-    }
-    if self.connectable != false {
-      try visitor.visitSingularBoolField(value: self.connectable, fieldNumber: 4)
+    if self.maximumWriteLength != 0 {
+      try visitor.visitSingularInt32Field(value: self.maximumWriteLength, fieldNumber: 2)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Proto_Peripheral, rhs: Proto_Peripheral) -> Bool {
     if lhs.id != rhs.id {return false}
-    if lhs.uuid != rhs.uuid {return false}
-    if lhs.connectable != rhs.connectable {return false}
+    if lhs.maximumWriteLength != rhs.maximumWriteLength {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

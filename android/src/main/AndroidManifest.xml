@@ -1,3 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="dev.yanshouwang.bluetooth_low_energy">
+    package="dev.yanshouwang.bluetooth_low_energy">
+
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 </manifest>

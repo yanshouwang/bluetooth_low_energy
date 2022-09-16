@@ -9,29 +9,81 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
+class BluetoothState extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'BluetoothState', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'proto'), createEmptyInstance: create)
+    ..a<$core.int>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'number', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  BluetoothState._() : super();
+  factory BluetoothState({
+    $core.int? number,
+  }) {
+    final _result = create();
+    if (number != null) {
+      _result.number = number;
+    }
+    return _result;
+  }
+  factory BluetoothState.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory BluetoothState.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  BluetoothState clone() => BluetoothState()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  BluetoothState copyWith(void Function(BluetoothState) updates) => super.copyWith((message) => updates(message as BluetoothState)) as BluetoothState; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static BluetoothState create() => BluetoothState._();
+  BluetoothState createEmptyInstance() => create();
+  static $pb.PbList<BluetoothState> createRepeated() => $pb.PbList<BluetoothState>();
+  @$core.pragma('dart2js:noInline')
+  static BluetoothState getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BluetoothState>(create);
+  static BluetoothState? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get number => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set number($core.int v) { $_setSignedInt32(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasNumber() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearNumber() => clearField(1);
+}
+
 class Advertisement extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Advertisement', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'proto'), createEmptyInstance: create)
-    ..aOM<Peripheral>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'peripheral', subBuilder: Peripheral.create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uuid')
     ..m<$core.int, $core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', entryClassName: 'Advertisement.DataEntry', keyFieldType: $pb.PbFieldType.O3, valueFieldType: $pb.PbFieldType.OY, packageName: const $pb.PackageName('proto'))
     ..a<$core.int>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rssi', $pb.PbFieldType.O3)
+    ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'connectable')
     ..hasRequiredFields = false
   ;
 
   Advertisement._() : super();
   factory Advertisement({
-    Peripheral? peripheral,
+    $core.String? uuid,
     $core.Map<$core.int, $core.List<$core.int>>? data,
     $core.int? rssi,
+    $core.bool? connectable,
   }) {
     final _result = create();
-    if (peripheral != null) {
-      _result.peripheral = peripheral;
+    if (uuid != null) {
+      _result.uuid = uuid;
     }
     if (data != null) {
       _result.data.addAll(data);
     }
     if (rssi != null) {
       _result.rssi = rssi;
+    }
+    if (connectable != null) {
+      _result.connectable = connectable;
     }
     return _result;
   }
@@ -57,15 +109,13 @@ class Advertisement extends $pb.GeneratedMessage {
   static Advertisement? _defaultInstance;
 
   @$pb.TagNumber(1)
-  Peripheral get peripheral => $_getN(0);
+  $core.String get uuid => $_getSZ(0);
   @$pb.TagNumber(1)
-  set peripheral(Peripheral v) { setField(1, v); }
+  set uuid($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasPeripheral() => $_has(0);
+  $core.bool hasUuid() => $_has(0);
   @$pb.TagNumber(1)
-  void clearPeripheral() => clearField(1);
-  @$pb.TagNumber(1)
-  Peripheral ensurePeripheral() => $_ensure(0);
+  void clearUuid() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.Map<$core.int, $core.List<$core.int>> get data => $_getMap(1);
@@ -78,31 +128,35 @@ class Advertisement extends $pb.GeneratedMessage {
   $core.bool hasRssi() => $_has(2);
   @$pb.TagNumber(3)
   void clearRssi() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.bool get connectable => $_getBF(3);
+  @$pb.TagNumber(4)
+  set connectable($core.bool v) { $_setBool(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasConnectable() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearConnectable() => clearField(4);
 }
 
 class Peripheral extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Peripheral', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'proto'), createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uuid')
-    ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'connectable')
+    ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'maximumWriteLength', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
   ;
 
   Peripheral._() : super();
   factory Peripheral({
     $core.String? id,
-    $core.String? uuid,
-    $core.bool? connectable,
+    $core.int? maximumWriteLength,
   }) {
     final _result = create();
     if (id != null) {
       _result.id = id;
     }
-    if (uuid != null) {
-      _result.uuid = uuid;
-    }
-    if (connectable != null) {
-      _result.connectable = connectable;
+    if (maximumWriteLength != null) {
+      _result.maximumWriteLength = maximumWriteLength;
     }
     return _result;
   }
@@ -137,22 +191,13 @@ class Peripheral extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get uuid => $_getSZ(1);
+  $core.int get maximumWriteLength => $_getIZ(1);
   @$pb.TagNumber(2)
-  set uuid($core.String v) { $_setString(1, v); }
+  set maximumWriteLength($core.int v) { $_setSignedInt32(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasUuid() => $_has(1);
+  $core.bool hasMaximumWriteLength() => $_has(1);
   @$pb.TagNumber(2)
-  void clearUuid() => clearField(2);
-
-  @$pb.TagNumber(4)
-  $core.bool get connectable => $_getBF(2);
-  @$pb.TagNumber(4)
-  set connectable($core.bool v) { $_setBool(2, v); }
-  @$pb.TagNumber(4)
-  $core.bool hasConnectable() => $_has(2);
-  @$pb.TagNumber(4)
-  void clearConnectable() => clearField(4);
+  void clearMaximumWriteLength() => clearField(2);
 }
 
 class GattService extends $pb.GeneratedMessage {

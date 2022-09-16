@@ -1,13 +1,27 @@
-import 'package:bluetooth_low_energy/src/pigeon.dart';
-
 import 'bluetooth_low_energy_impl.dart';
-import 'central_controller_api.dart';
+import 'api.dart';
+import 'pigeon.dart';
 
 class BluetoothLowEnergyPlugin {
   static void registerWith() {
-    final centralControllerApi = MyCentralControllerApi();
-    CentralControllerFlutterApi.setup(centralControllerApi);
-    CentralControllerApi.instance = centralControllerApi;
+    // Registers the central manager API.
+    final centralManagerApi = MyCentralManagerApi();
+    CentralManagerFlutterApi.setup(centralManagerApi);
+    CentralManagerApi.instance = centralManagerApi;
+    // Registers the peripheral API.
+    final peripheralApi = MyPeripheralApi();
+    PeripheralFlutterApi.setup(peripheralApi);
+    PeripheralApi.instance = peripheralApi;
+    // Registers the GATT service API.
+    final gattServiceApi = MyGattServiceApi();
+    GattServiceApi.instance = gattServiceApi;
+    // Registers the GATT characteristic API.
+    final gattCharacteristicApi = MyGattCharacteristicApi();
+    GattCharacteristicFlutterApi.setup(gattCharacteristicApi);
+    GattCharacteristicApi.instance = MyGattCharacteristicApi();
+    // Registers the GATT descriptor API.
+    final gattDescriptorApi = MyGattDescriptorApi();
+    GattDescriptorApi.instance = gattDescriptorApi;
   }
 }
 

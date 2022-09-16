@@ -6,159 +6,140 @@ import Flutter
 
 /// Generated class from Pigeon.
 
-private class CentralControllerHostApiCodecReader: FlutterStandardReader {
+private class CentralManagerHostApiCodecReader: FlutterStandardReader {
 }
-private class CentralControllerHostApiCodecWriter: FlutterStandardWriter {
+private class CentralManagerHostApiCodecWriter: FlutterStandardWriter {
 }
 
-private class CentralControllerHostApiCodecReaderWriter: FlutterStandardReaderWriter {
+private class CentralManagerHostApiCodecReaderWriter: FlutterStandardReaderWriter {
   override func reader(with data: Data) -> FlutterStandardReader {
-    return CentralControllerHostApiCodecReader(data: data)
+    return CentralManagerHostApiCodecReader(data: data)
   }
 
   override func writer(with data: NSMutableData) -> FlutterStandardWriter {
-    return CentralControllerHostApiCodecWriter(data: data)
+    return CentralManagerHostApiCodecWriter(data: data)
   }
 }
 
-class CentralControllerHostApiCodec: FlutterStandardMessageCodec {
-  static let shared = CentralControllerHostApiCodec(readerWriter: CentralControllerHostApiCodecReaderWriter())
+class CentralManagerHostApiCodec: FlutterStandardMessageCodec {
+  static let shared = CentralManagerHostApiCodec(readerWriter: CentralManagerHostApiCodecReaderWriter())
 }
 
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
-protocol CentralControllerHostApi {
-  func create(id: String)
-  func getState(id: String) -> Int32
-  func addStateObserver(id: String)
-  func removeStateObserver(id: String)
-  func startDiscovery(id: String, uuids: [String]?)
-  func stopDiscovery(id: String)
-  func destroy(id: String)
+protocol CentralManagerHostApi {
+  func getState() -> [UInt8]
+  func addStateObserver()
+  func removeStateObserver()
+  func startScan(uuids: [String]?, completion: @escaping () -> Void)
+  func stopScan()
+  func connect(uuid: String, completion: @escaping ([UInt8]) -> Void)
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
-class CentralControllerHostApiSetup {
-  /// The codec used by CentralControllerHostApi.
-  static var codec: FlutterStandardMessageCodec { CentralControllerHostApiCodec.shared }
-  /// Sets up an instance of `CentralControllerHostApi` to handle messages through the `binaryMessenger`.
-  static func setUp(binaryMessenger: FlutterBinaryMessenger, api: CentralControllerHostApi?) {
-    let createChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.CentralControllerHostApi.create", binaryMessenger: binaryMessenger, codec: codec)
+class CentralManagerHostApiSetup {
+  /// The codec used by CentralManagerHostApi.
+  static var codec: FlutterStandardMessageCodec { CentralManagerHostApiCodec.shared }
+  /// Sets up an instance of `CentralManagerHostApi` to handle messages through the `binaryMessenger`.
+  static func setUp(binaryMessenger: FlutterBinaryMessenger, api: CentralManagerHostApi?) {
+    let getStateChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.CentralManagerHostApi.getState", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
-      createChannel.setMessageHandler { message, reply in
-        let args = message as! [Any?]
-        let idArg = args[0] as! String
-        api.create(id: idArg)
-        reply(nil)
-      }
-    } else {
-      createChannel.setMessageHandler(nil)
-    }
-    let getStateChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.CentralControllerHostApi.getState", binaryMessenger: binaryMessenger, codec: codec)
-    if let api = api {
-      getStateChannel.setMessageHandler { message, reply in
-        let args = message as! [Any?]
-        let idArg = args[0] as! String
-        let result = api.getState(id: idArg)
+      getStateChannel.setMessageHandler { _, reply in
+        let result = api.getState()
         reply(wrapResult(result))
       }
     } else {
       getStateChannel.setMessageHandler(nil)
     }
-    let addStateObserverChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.CentralControllerHostApi.addStateObserver", binaryMessenger: binaryMessenger, codec: codec)
+    let addStateObserverChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.CentralManagerHostApi.addStateObserver", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
-      addStateObserverChannel.setMessageHandler { message, reply in
-        let args = message as! [Any?]
-        let idArg = args[0] as! String
-        api.addStateObserver(id: idArg)
+      addStateObserverChannel.setMessageHandler { _, reply in
+        api.addStateObserver()
         reply(nil)
       }
     } else {
       addStateObserverChannel.setMessageHandler(nil)
     }
-    let removeStateObserverChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.CentralControllerHostApi.removeStateObserver", binaryMessenger: binaryMessenger, codec: codec)
+    let removeStateObserverChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.CentralManagerHostApi.removeStateObserver", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
-      removeStateObserverChannel.setMessageHandler { message, reply in
-        let args = message as! [Any?]
-        let idArg = args[0] as! String
-        api.removeStateObserver(id: idArg)
+      removeStateObserverChannel.setMessageHandler { _, reply in
+        api.removeStateObserver()
         reply(nil)
       }
     } else {
       removeStateObserverChannel.setMessageHandler(nil)
     }
-    let startDiscoveryChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.CentralControllerHostApi.startDiscovery", binaryMessenger: binaryMessenger, codec: codec)
+    let startScanChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.CentralManagerHostApi.startScan", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
-      startDiscoveryChannel.setMessageHandler { message, reply in
+      startScanChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let idArg = args[0] as! String
-        let uuidsArg = args[1] as? [String]
-        api.startDiscovery(id: idArg, uuids: uuidsArg)
-        reply(nil)
+        let uuidsArg = args[0] as? [String]
+        api.startScan(uuids: uuidsArg) {
+          reply(nil)
+        }
       }
     } else {
-      startDiscoveryChannel.setMessageHandler(nil)
+      startScanChannel.setMessageHandler(nil)
     }
-    let stopDiscoveryChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.CentralControllerHostApi.stopDiscovery", binaryMessenger: binaryMessenger, codec: codec)
+    let stopScanChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.CentralManagerHostApi.stopScan", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
-      stopDiscoveryChannel.setMessageHandler { message, reply in
-        let args = message as! [Any?]
-        let idArg = args[0] as! String
-        api.stopDiscovery(id: idArg)
+      stopScanChannel.setMessageHandler { _, reply in
+        api.stopScan()
         reply(nil)
       }
     } else {
-      stopDiscoveryChannel.setMessageHandler(nil)
+      stopScanChannel.setMessageHandler(nil)
     }
-    let destroyChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.CentralControllerHostApi.destroy", binaryMessenger: binaryMessenger, codec: codec)
+    let connectChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.CentralManagerHostApi.connect", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
-      destroyChannel.setMessageHandler { message, reply in
+      connectChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let idArg = args[0] as! String
-        api.destroy(id: idArg)
-        reply(nil)
+        let uuidArg = args[0] as! String
+        api.connect(uuid: uuidArg) { result in
+          reply(wrapResult(result))
+        }
       }
     } else {
-      destroyChannel.setMessageHandler(nil)
+      connectChannel.setMessageHandler(nil)
     }
   }
 }
-private class CentralControllerFlutterApiCodecReader: FlutterStandardReader {
+private class CentralManagerFlutterApiCodecReader: FlutterStandardReader {
 }
-private class CentralControllerFlutterApiCodecWriter: FlutterStandardWriter {
+private class CentralManagerFlutterApiCodecWriter: FlutterStandardWriter {
 }
 
-private class CentralControllerFlutterApiCodecReaderWriter: FlutterStandardReaderWriter {
+private class CentralManagerFlutterApiCodecReaderWriter: FlutterStandardReaderWriter {
   override func reader(with data: Data) -> FlutterStandardReader {
-    return CentralControllerFlutterApiCodecReader(data: data)
+    return CentralManagerFlutterApiCodecReader(data: data)
   }
 
   override func writer(with data: NSMutableData) -> FlutterStandardWriter {
-    return CentralControllerFlutterApiCodecWriter(data: data)
+    return CentralManagerFlutterApiCodecWriter(data: data)
   }
 }
 
-class CentralControllerFlutterApiCodec: FlutterStandardMessageCodec {
-  static let shared = CentralControllerFlutterApiCodec(readerWriter: CentralControllerFlutterApiCodecReaderWriter())
+class CentralManagerFlutterApiCodec: FlutterStandardMessageCodec {
+  static let shared = CentralManagerFlutterApiCodec(readerWriter: CentralManagerFlutterApiCodecReaderWriter())
 }
 
 /// Generated class from Pigeon that represents Flutter messages that can be called from Swift.
-class CentralControllerFlutterApi {
+class CentralManagerFlutterApi {
   private let binaryMessenger: FlutterBinaryMessenger
   init(binaryMessenger: FlutterBinaryMessenger){
     self.binaryMessenger = binaryMessenger
   }
   var codec: FlutterStandardMessageCodec {
-    return CentralControllerFlutterApiCodec.shared
+    return CentralManagerFlutterApiCodec.shared
   }
-  func notifyState(id idArg: String, state stateArg: Int32, completion: @escaping () -> Void) {
-    let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.CentralControllerFlutterApi.notifyState", binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([idArg, stateArg]) { _ in
+  func notifyState(state stateArg: [UInt8], completion: @escaping () -> Void) {
+    let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.CentralManagerFlutterApi.notifyState", binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([stateArg]) { _ in
       completion()
     }
   }
-  func notifyAdvertisement(id idArg: String, advertisement advertisementArg: [UInt8], completion: @escaping () -> Void) {
-    let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.CentralControllerFlutterApi.notifyAdvertisement", binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([idArg, advertisementArg]) { _ in
+  func notifyAdvertisement(advertisement advertisementArg: [UInt8], completion: @escaping () -> Void) {
+    let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.CentralManagerFlutterApi.notifyAdvertisement", binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([advertisementArg]) { _ in
       completion()
     }
   }
@@ -184,7 +165,8 @@ class PeripheralHostApiCodec: FlutterStandardMessageCodec {
 
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol PeripheralHostApi {
-  func connect(id: String, completion: @escaping () -> Void)
+  func allocate(newId: String, oldId: String)
+  func free(id: String)
   func disconnect(id: String, completion: @escaping () -> Void)
   func discoverServices(id: String, completion: @escaping ([[UInt8]]) -> Void)
 }
@@ -195,17 +177,28 @@ class PeripheralHostApiSetup {
   static var codec: FlutterStandardMessageCodec { PeripheralHostApiCodec.shared }
   /// Sets up an instance of `PeripheralHostApi` to handle messages through the `binaryMessenger`.
   static func setUp(binaryMessenger: FlutterBinaryMessenger, api: PeripheralHostApi?) {
-    let connectChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.PeripheralHostApi.connect", binaryMessenger: binaryMessenger, codec: codec)
+    let allocateChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.PeripheralHostApi.allocate", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
-      connectChannel.setMessageHandler { message, reply in
+      allocateChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let idArg = args[0] as! String
-        api.connect(id: idArg) {
-          reply(nil)
-        }
+        let newIdArg = args[0] as! String
+        let oldIdArg = args[1] as! String
+        api.allocate(newId: newIdArg, oldId: oldIdArg)
+        reply(nil)
       }
     } else {
-      connectChannel.setMessageHandler(nil)
+      allocateChannel.setMessageHandler(nil)
+    }
+    let freeChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.PeripheralHostApi.free", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      freeChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let idArg = args[0] as! String
+        api.free(id: idArg)
+        reply(nil)
+      }
+    } else {
+      freeChannel.setMessageHandler(nil)
     }
     let disconnectChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.PeripheralHostApi.disconnect", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
@@ -261,9 +254,9 @@ class PeripheralFlutterApi {
   var codec: FlutterStandardMessageCodec {
     return PeripheralFlutterApiCodec.shared
   }
-  func notifyConnectionLost(id idArg: String, errorMessage errorMessageArg: String, completion: @escaping () -> Void) {
+  func notifyConnectionLost(id idArg: String, error errorArg: String, completion: @escaping () -> Void) {
     let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.PeripheralFlutterApi.notifyConnectionLost", binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([idArg, errorMessageArg]) { _ in
+    channel.sendMessage([idArg, errorArg]) { _ in
       completion()
     }
   }
@@ -289,6 +282,8 @@ class GattServiceHostApiCodec: FlutterStandardMessageCodec {
 
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol GattServiceHostApi {
+  func allocate(newId: String, oldId: String)
+  func free(id: String)
   func discoverCharacteristics(id: String, completion: @escaping ([[UInt8]]) -> Void)
 }
 
@@ -298,6 +293,29 @@ class GattServiceHostApiSetup {
   static var codec: FlutterStandardMessageCodec { GattServiceHostApiCodec.shared }
   /// Sets up an instance of `GattServiceHostApi` to handle messages through the `binaryMessenger`.
   static func setUp(binaryMessenger: FlutterBinaryMessenger, api: GattServiceHostApi?) {
+    let allocateChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.GattServiceHostApi.allocate", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      allocateChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let newIdArg = args[0] as! String
+        let oldIdArg = args[1] as! String
+        api.allocate(newId: newIdArg, oldId: oldIdArg)
+        reply(nil)
+      }
+    } else {
+      allocateChannel.setMessageHandler(nil)
+    }
+    let freeChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.GattServiceHostApi.free", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      freeChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let idArg = args[0] as! String
+        api.free(id: idArg)
+        reply(nil)
+      }
+    } else {
+      freeChannel.setMessageHandler(nil)
+    }
     let discoverCharacteristicsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.GattServiceHostApi.discoverCharacteristics", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       discoverCharacteristicsChannel.setMessageHandler { message, reply in
@@ -333,6 +351,8 @@ class GattCharacteristicHostApiCodec: FlutterStandardMessageCodec {
 
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol GattCharacteristicHostApi {
+  func allocate(newId: String, oldId: String)
+  func free(id: String)
   func discoverDescriptors(id: String, completion: @escaping ([[UInt8]]) -> Void)
   func read(id: String, completion: @escaping ([UInt8]) -> Void)
   func write(id: String, value: [UInt8], completion: @escaping () -> Void)
@@ -345,6 +365,29 @@ class GattCharacteristicHostApiSetup {
   static var codec: FlutterStandardMessageCodec { GattCharacteristicHostApiCodec.shared }
   /// Sets up an instance of `GattCharacteristicHostApi` to handle messages through the `binaryMessenger`.
   static func setUp(binaryMessenger: FlutterBinaryMessenger, api: GattCharacteristicHostApi?) {
+    let allocateChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.GattCharacteristicHostApi.allocate", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      allocateChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let newIdArg = args[0] as! String
+        let oldIdArg = args[1] as! String
+        api.allocate(newId: newIdArg, oldId: oldIdArg)
+        reply(nil)
+      }
+    } else {
+      allocateChannel.setMessageHandler(nil)
+    }
+    let freeChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.GattCharacteristicHostApi.free", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      freeChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let idArg = args[0] as! String
+        api.free(id: idArg)
+        reply(nil)
+      }
+    } else {
+      freeChannel.setMessageHandler(nil)
+    }
     let discoverDescriptorsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.GattCharacteristicHostApi.discoverDescriptors", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       discoverDescriptorsChannel.setMessageHandler { message, reply in
@@ -453,6 +496,8 @@ class GattDescriptorHostApiCodec: FlutterStandardMessageCodec {
 
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol GattDescriptorHostApi {
+  func allocate(newId: String, oldId: String)
+  func free(id: String)
   func read(id: String, completion: @escaping ([UInt8]) -> Void)
   func write(id: String, value: [UInt8], completion: @escaping () -> Void)
 }
@@ -463,6 +508,29 @@ class GattDescriptorHostApiSetup {
   static var codec: FlutterStandardMessageCodec { GattDescriptorHostApiCodec.shared }
   /// Sets up an instance of `GattDescriptorHostApi` to handle messages through the `binaryMessenger`.
   static func setUp(binaryMessenger: FlutterBinaryMessenger, api: GattDescriptorHostApi?) {
+    let allocateChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.GattDescriptorHostApi.allocate", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      allocateChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let newIdArg = args[0] as! String
+        let oldIdArg = args[1] as! String
+        api.allocate(newId: newIdArg, oldId: oldIdArg)
+        reply(nil)
+      }
+    } else {
+      allocateChannel.setMessageHandler(nil)
+    }
+    let freeChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.GattDescriptorHostApi.free", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      freeChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let idArg = args[0] as! String
+        api.free(id: idArg)
+        reply(nil)
+      }
+    } else {
+      freeChannel.setMessageHandler(nil)
+    }
     let readChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.GattDescriptorHostApi.read", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       readChannel.setMessageHandler { message, reply in

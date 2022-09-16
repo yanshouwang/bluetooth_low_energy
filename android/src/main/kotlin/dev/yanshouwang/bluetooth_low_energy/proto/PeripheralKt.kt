@@ -40,37 +40,20 @@ object PeripheralKt {
     }
 
     /**
-     * <code>string uuid = 2;</code>
+     * <code>int32 maximum_write_length = 2;</code>
      */
-    var uuid: kotlin.String
-      @JvmName("getUuid")
-      get() = _builder.getUuid()
-      @JvmName("setUuid")
+    var maximumWriteLength: kotlin.Int
+      @JvmName("getMaximumWriteLength")
+      get() = _builder.getMaximumWriteLength()
+      @JvmName("setMaximumWriteLength")
       set(value) {
-        _builder.setUuid(value)
+        _builder.setMaximumWriteLength(value)
       }
     /**
-     * <code>string uuid = 2;</code>
+     * <code>int32 maximum_write_length = 2;</code>
      */
-    fun clearUuid() {
-      _builder.clearUuid()
-    }
-
-    /**
-     * <code>bool connectable = 4;</code>
-     */
-    var connectable: kotlin.Boolean
-      @JvmName("getConnectable")
-      get() = _builder.getConnectable()
-      @JvmName("setConnectable")
-      set(value) {
-        _builder.setConnectable(value)
-      }
-    /**
-     * <code>bool connectable = 4;</code>
-     */
-    fun clearConnectable() {
-      _builder.clearConnectable()
+    fun clearMaximumWriteLength() {
+      _builder.clearMaximumWriteLength()
     }
   }
 }

@@ -20,20 +20,8 @@ public interface PeripheralOrBuilder extends
       getIdBytes();
 
   /**
-   * <code>string uuid = 2;</code>
-   * @return The uuid.
+   * <code>int32 maximum_write_length = 2;</code>
+   * @return The maximumWriteLength.
    */
-  java.lang.String getUuid();
-  /**
-   * <code>string uuid = 2;</code>
-   * @return The bytes for uuid.
-   */
-  com.google.protobuf.ByteString
-      getUuidBytes();
-
-  /**
-   * <code>bool connectable = 4;</code>
-   * @return The connectable.
-   */
-  boolean getConnectable();
+  int getMaximumWriteLength();
 }

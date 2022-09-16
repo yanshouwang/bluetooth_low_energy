@@ -41,10 +41,12 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 21
     }
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.google.protobuf:protobuf-kotlin:3.19.4'
+    implementation 'com.google.guava:guava:31.1-android'
 }

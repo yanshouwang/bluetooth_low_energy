@@ -8,19 +8,16 @@ public interface AdvertisementOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>.proto.Peripheral peripheral = 1;</code>
-   * @return Whether the peripheral field is set.
+   * <code>string uuid = 1;</code>
+   * @return The uuid.
    */
-  boolean hasPeripheral();
+  java.lang.String getUuid();
   /**
-   * <code>.proto.Peripheral peripheral = 1;</code>
-   * @return The peripheral.
+   * <code>string uuid = 1;</code>
+   * @return The bytes for uuid.
    */
-  dev.yanshouwang.bluetooth_low_energy.proto.Peripheral getPeripheral();
-  /**
-   * <code>.proto.Peripheral peripheral = 1;</code>
-   */
-  dev.yanshouwang.bluetooth_low_energy.proto.PeripheralOrBuilder getPeripheralOrBuilder();
+  com.google.protobuf.ByteString
+      getUuidBytes();
 
   /**
    * <code>map&lt;int32, bytes&gt; data = 2;</code>
@@ -63,4 +60,10 @@ com.google.protobuf.ByteString defaultValue);
    * @return The rssi.
    */
   int getRssi();
+
+  /**
+   * <code>bool connectable = 4;</code>
+   * @return The connectable.
+   */
+  boolean getConnectable();
 }

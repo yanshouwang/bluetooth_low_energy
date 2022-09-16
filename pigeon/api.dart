@@ -13,26 +13,27 @@ import 'package:pigeon/pigeon.dart';
   ),
 )
 @HostApi(dartHostTestHandler: 'TestCentralControllerHostApi')
-abstract class CentralControllerHostApi {
-  void create(String id);
-  int getState(String id);
-  void addStateObserver(String id);
-  void removeStateObserver(String id);
-  void startDiscovery(String id, List<String>? uuids);
-  void stopDiscovery(String id);
-  void destroy(String id);
+abstract class CentralManagerHostApi {
+  Uint8List getState();
+  void addStateObserver();
+  void removeStateObserver();
+  @async
+  void startScan(List<String>? uuids);
+  void stopScan();
+  @async
+  Uint8List connect(String uuid);
 }
 
 @FlutterApi()
-abstract class CentralControllerFlutterApi {
-  void notifyState(String id, int state);
-  void notifyAdvertisement(String id, Uint8List advertisement);
+abstract class CentralManagerFlutterApi {
+  void notifyState(Uint8List state);
+  void notifyAdvertisement(Uint8List advertisement);
 }
 
 @HostApi(dartHostTestHandler: 'TestPeripheralHostApi')
 abstract class PeripheralHostApi {
-  @async
-  void connect(String id);
+  void allocate(String newId, String oldId);
+  void free(String id);
   @async
   void disconnect(String id);
   @async
@@ -41,17 +42,21 @@ abstract class PeripheralHostApi {
 
 @FlutterApi()
 abstract class PeripheralFlutterApi {
-  void notifyConnectionLost(String id, String errorMessage);
+  void notifyConnectionLost(String id, String error);
 }
 
 @HostApi(dartHostTestHandler: 'TestGattServiceHostApi')
 abstract class GattServiceHostApi {
+  void allocate(String newId, String oldId);
+  void free(String id);
   @async
   List<Uint8List> discoverCharacteristics(String id);
 }
 
 @HostApi(dartHostTestHandler: 'TestGattCharacteristicHostApi')
 abstract class GattCharacteristicHostApi {
+  void allocate(String newId, String oldId);
+  void free(String id);
   @async
   List<Uint8List> discoverDescriptors(String id);
   @async
@@ -69,6 +74,8 @@ abstract class GattCharacteristicFlutterApi {
 
 @HostApi(dartHostTestHandler: 'TestGattDescriptorHostApi')
 abstract class GattDescriptorHostApi {
+  void allocate(String newId, String oldId);
+  void free(String id);
   @async
   Uint8List read(String id);
   @async

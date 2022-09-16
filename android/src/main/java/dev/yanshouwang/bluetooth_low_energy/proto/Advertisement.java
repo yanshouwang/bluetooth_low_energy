@@ -16,6 +16,7 @@ private static final long serialVersionUID = 0L;
     super(builder);
   }
   private Advertisement() {
+    uuid_ = "";
   }
 
   @java.lang.Override
@@ -50,16 +51,9 @@ private static final long serialVersionUID = 0L;
             done = true;
             break;
           case 10: {
-            dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.Builder subBuilder = null;
-            if (peripheral_ != null) {
-              subBuilder = peripheral_.toBuilder();
-            }
-            peripheral_ = input.readMessage(dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.parser(), extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom(peripheral_);
-              peripheral_ = subBuilder.buildPartial();
-            }
+            java.lang.String s = input.readStringRequireUtf8();
 
+            uuid_ = s;
             break;
           }
           case 18: {
@@ -78,6 +72,11 @@ private static final long serialVersionUID = 0L;
           case 24: {
 
             rssi_ = input.readInt32();
+            break;
+          }
+          case 32: {
+
+            connectable_ = input.readBool();
             break;
           }
           default: {
@@ -126,30 +125,42 @@ private static final long serialVersionUID = 0L;
             dev.yanshouwang.bluetooth_low_energy.proto.Advertisement.class, dev.yanshouwang.bluetooth_low_energy.proto.Advertisement.Builder.class);
   }
 
-  public static final int PERIPHERAL_FIELD_NUMBER = 1;
-  private dev.yanshouwang.bluetooth_low_energy.proto.Peripheral peripheral_;
+  public static final int UUID_FIELD_NUMBER = 1;
+  private volatile java.lang.Object uuid_;
   /**
-   * <code>.proto.Peripheral peripheral = 1;</code>
-   * @return Whether the peripheral field is set.
+   * <code>string uuid = 1;</code>
+   * @return The uuid.
    */
   @java.lang.Override
-  public boolean hasPeripheral() {
-    return peripheral_ != null;
+  public java.lang.String getUuid() {
+    java.lang.Object ref = uuid_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      uuid_ = s;
+      return s;
+    }
   }
   /**
-   * <code>.proto.Peripheral peripheral = 1;</code>
-   * @return The peripheral.
+   * <code>string uuid = 1;</code>
+   * @return The bytes for uuid.
    */
   @java.lang.Override
-  public dev.yanshouwang.bluetooth_low_energy.proto.Peripheral getPeripheral() {
-    return peripheral_ == null ? dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.getDefaultInstance() : peripheral_;
-  }
-  /**
-   * <code>.proto.Peripheral peripheral = 1;</code>
-   */
-  @java.lang.Override
-  public dev.yanshouwang.bluetooth_low_energy.proto.PeripheralOrBuilder getPeripheralOrBuilder() {
-    return getPeripheral();
+  public com.google.protobuf.ByteString
+      getUuidBytes() {
+    java.lang.Object ref = uuid_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      uuid_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
   }
 
   public static final int DATA_FIELD_NUMBER = 2;
@@ -244,6 +255,17 @@ private static final long serialVersionUID = 0L;
     return rssi_;
   }
 
+  public static final int CONNECTABLE_FIELD_NUMBER = 4;
+  private boolean connectable_;
+  /**
+   * <code>bool connectable = 4;</code>
+   * @return The connectable.
+   */
+  @java.lang.Override
+  public boolean getConnectable() {
+    return connectable_;
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -258,8 +280,8 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (peripheral_ != null) {
-      output.writeMessage(1, getPeripheral());
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(uuid_)) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 1, uuid_);
     }
     com.google.protobuf.GeneratedMessageV3
       .serializeIntegerMapTo(
@@ -270,6 +292,9 @@ private static final long serialVersionUID = 0L;
     if (rssi_ != 0) {
       output.writeInt32(3, rssi_);
     }
+    if (connectable_ != false) {
+      output.writeBool(4, connectable_);
+    }
     unknownFields.writeTo(output);
   }
 
@@ -279,9 +304,8 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (peripheral_ != null) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(1, getPeripheral());
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(uuid_)) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, uuid_);
     }
     for (java.util.Map.Entry<java.lang.Integer, com.google.protobuf.ByteString> entry
          : internalGetData().getMap().entrySet()) {
@@ -296,6 +320,10 @@ private static final long serialVersionUID = 0L;
     if (rssi_ != 0) {
       size += com.google.protobuf.CodedOutputStream
         .computeInt32Size(3, rssi_);
+    }
+    if (connectable_ != false) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBoolSize(4, connectable_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -312,15 +340,14 @@ private static final long serialVersionUID = 0L;
     }
     dev.yanshouwang.bluetooth_low_energy.proto.Advertisement other = (dev.yanshouwang.bluetooth_low_energy.proto.Advertisement) obj;
 
-    if (hasPeripheral() != other.hasPeripheral()) return false;
-    if (hasPeripheral()) {
-      if (!getPeripheral()
-          .equals(other.getPeripheral())) return false;
-    }
+    if (!getUuid()
+        .equals(other.getUuid())) return false;
     if (!internalGetData().equals(
         other.internalGetData())) return false;
     if (getRssi()
         != other.getRssi()) return false;
+    if (getConnectable()
+        != other.getConnectable()) return false;
     if (!unknownFields.equals(other.unknownFields)) return false;
     return true;
   }
@@ -332,16 +359,17 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    if (hasPeripheral()) {
-      hash = (37 * hash) + PERIPHERAL_FIELD_NUMBER;
-      hash = (53 * hash) + getPeripheral().hashCode();
-    }
+    hash = (37 * hash) + UUID_FIELD_NUMBER;
+    hash = (53 * hash) + getUuid().hashCode();
     if (!internalGetData().getMap().isEmpty()) {
       hash = (37 * hash) + DATA_FIELD_NUMBER;
       hash = (53 * hash) + internalGetData().hashCode();
     }
     hash = (37 * hash) + RSSI_FIELD_NUMBER;
     hash = (53 * hash) + getRssi();
+    hash = (37 * hash) + CONNECTABLE_FIELD_NUMBER;
+    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+        getConnectable());
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -497,14 +525,12 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public Builder clear() {
       super.clear();
-      if (peripheralBuilder_ == null) {
-        peripheral_ = null;
-      } else {
-        peripheral_ = null;
-        peripheralBuilder_ = null;
-      }
+      uuid_ = "";
+
       internalGetMutableData().clear();
       rssi_ = 0;
+
+      connectable_ = false;
 
       return this;
     }
@@ -533,14 +559,11 @@ private static final long serialVersionUID = 0L;
     public dev.yanshouwang.bluetooth_low_energy.proto.Advertisement buildPartial() {
       dev.yanshouwang.bluetooth_low_energy.proto.Advertisement result = new dev.yanshouwang.bluetooth_low_energy.proto.Advertisement(this);
       int from_bitField0_ = bitField0_;
-      if (peripheralBuilder_ == null) {
-        result.peripheral_ = peripheral_;
-      } else {
-        result.peripheral_ = peripheralBuilder_.build();
-      }
+      result.uuid_ = uuid_;
       result.data_ = internalGetData();
       result.data_.makeImmutable();
       result.rssi_ = rssi_;
+      result.connectable_ = connectable_;
       onBuilt();
       return result;
     }
@@ -589,13 +612,17 @@ private static final long serialVersionUID = 0L;
 
     public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.proto.Advertisement other) {
       if (other == dev.yanshouwang.bluetooth_low_energy.proto.Advertisement.getDefaultInstance()) return this;
-      if (other.hasPeripheral()) {
-        mergePeripheral(other.getPeripheral());
+      if (!other.getUuid().isEmpty()) {
+        uuid_ = other.uuid_;
+        onChanged();
       }
       internalGetMutableData().mergeFrom(
           other.internalGetData());
       if (other.getRssi() != 0) {
         setRssi(other.getRssi());
+      }
+      if (other.getConnectable() != false) {
+        setConnectable(other.getConnectable());
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -627,123 +654,80 @@ private static final long serialVersionUID = 0L;
     }
     private int bitField0_;
 
-    private dev.yanshouwang.bluetooth_low_energy.proto.Peripheral peripheral_;
-    private com.google.protobuf.SingleFieldBuilderV3<
-        dev.yanshouwang.bluetooth_low_energy.proto.Peripheral, dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.Builder, dev.yanshouwang.bluetooth_low_energy.proto.PeripheralOrBuilder> peripheralBuilder_;
+    private java.lang.Object uuid_ = "";
     /**
-     * <code>.proto.Peripheral peripheral = 1;</code>
-     * @return Whether the peripheral field is set.
+     * <code>string uuid = 1;</code>
+     * @return The uuid.
      */
-    public boolean hasPeripheral() {
-      return peripheralBuilder_ != null || peripheral_ != null;
-    }
-    /**
-     * <code>.proto.Peripheral peripheral = 1;</code>
-     * @return The peripheral.
-     */
-    public dev.yanshouwang.bluetooth_low_energy.proto.Peripheral getPeripheral() {
-      if (peripheralBuilder_ == null) {
-        return peripheral_ == null ? dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.getDefaultInstance() : peripheral_;
+    public java.lang.String getUuid() {
+      java.lang.Object ref = uuid_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        uuid_ = s;
+        return s;
       } else {
-        return peripheralBuilder_.getMessage();
+        return (java.lang.String) ref;
       }
     }
     /**
-     * <code>.proto.Peripheral peripheral = 1;</code>
+     * <code>string uuid = 1;</code>
+     * @return The bytes for uuid.
      */
-    public Builder setPeripheral(dev.yanshouwang.bluetooth_low_energy.proto.Peripheral value) {
-      if (peripheralBuilder_ == null) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        peripheral_ = value;
-        onChanged();
+    public com.google.protobuf.ByteString
+        getUuidBytes() {
+      java.lang.Object ref = uuid_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        uuid_ = b;
+        return b;
       } else {
-        peripheralBuilder_.setMessage(value);
+        return (com.google.protobuf.ByteString) ref;
       }
-
-      return this;
     }
     /**
-     * <code>.proto.Peripheral peripheral = 1;</code>
+     * <code>string uuid = 1;</code>
+     * @param value The uuid to set.
+     * @return This builder for chaining.
      */
-    public Builder setPeripheral(
-        dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.Builder builderForValue) {
-      if (peripheralBuilder_ == null) {
-        peripheral_ = builderForValue.build();
-        onChanged();
-      } else {
-        peripheralBuilder_.setMessage(builderForValue.build());
-      }
-
-      return this;
-    }
-    /**
-     * <code>.proto.Peripheral peripheral = 1;</code>
-     */
-    public Builder mergePeripheral(dev.yanshouwang.bluetooth_low_energy.proto.Peripheral value) {
-      if (peripheralBuilder_ == null) {
-        if (peripheral_ != null) {
-          peripheral_ =
-            dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.newBuilder(peripheral_).mergeFrom(value).buildPartial();
-        } else {
-          peripheral_ = value;
-        }
-        onChanged();
-      } else {
-        peripheralBuilder_.mergeFrom(value);
-      }
-
-      return this;
-    }
-    /**
-     * <code>.proto.Peripheral peripheral = 1;</code>
-     */
-    public Builder clearPeripheral() {
-      if (peripheralBuilder_ == null) {
-        peripheral_ = null;
-        onChanged();
-      } else {
-        peripheral_ = null;
-        peripheralBuilder_ = null;
-      }
-
-      return this;
-    }
-    /**
-     * <code>.proto.Peripheral peripheral = 1;</code>
-     */
-    public dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.Builder getPeripheralBuilder() {
-      
+    public Builder setUuid(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      uuid_ = value;
       onChanged();
-      return getPeripheralFieldBuilder().getBuilder();
+      return this;
     }
     /**
-     * <code>.proto.Peripheral peripheral = 1;</code>
+     * <code>string uuid = 1;</code>
+     * @return This builder for chaining.
      */
-    public dev.yanshouwang.bluetooth_low_energy.proto.PeripheralOrBuilder getPeripheralOrBuilder() {
-      if (peripheralBuilder_ != null) {
-        return peripheralBuilder_.getMessageOrBuilder();
-      } else {
-        return peripheral_ == null ?
-            dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.getDefaultInstance() : peripheral_;
-      }
+    public Builder clearUuid() {
+      
+      uuid_ = getDefaultInstance().getUuid();
+      onChanged();
+      return this;
     }
     /**
-     * <code>.proto.Peripheral peripheral = 1;</code>
+     * <code>string uuid = 1;</code>
+     * @param value The bytes for uuid to set.
+     * @return This builder for chaining.
      */
-    private com.google.protobuf.SingleFieldBuilderV3<
-        dev.yanshouwang.bluetooth_low_energy.proto.Peripheral, dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.Builder, dev.yanshouwang.bluetooth_low_energy.proto.PeripheralOrBuilder> 
-        getPeripheralFieldBuilder() {
-      if (peripheralBuilder_ == null) {
-        peripheralBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-            dev.yanshouwang.bluetooth_low_energy.proto.Peripheral, dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.Builder, dev.yanshouwang.bluetooth_low_energy.proto.PeripheralOrBuilder>(
-                getPeripheral(),
-                getParentForChildren(),
-                isClean());
-        peripheral_ = null;
-      }
-      return peripheralBuilder_;
+    public Builder setUuidBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+      
+      uuid_ = value;
+      onChanged();
+      return this;
     }
 
     private com.google.protobuf.MapField<
@@ -904,6 +888,37 @@ private static final long serialVersionUID = 0L;
     public Builder clearRssi() {
       
       rssi_ = 0;
+      onChanged();
+      return this;
+    }
+
+    private boolean connectable_ ;
+    /**
+     * <code>bool connectable = 4;</code>
+     * @return The connectable.
+     */
+    @java.lang.Override
+    public boolean getConnectable() {
+      return connectable_;
+    }
+    /**
+     * <code>bool connectable = 4;</code>
+     * @param value The connectable to set.
+     * @return This builder for chaining.
+     */
+    public Builder setConnectable(boolean value) {
+      
+      connectable_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>bool connectable = 4;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearConnectable() {
+      
+      connectable_ = false;
       onChanged();
       return this;
     }

@@ -8,13 +8,24 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
+@$core.Deprecated('Use bluetoothStateDescriptor instead')
+const BluetoothState$json = const {
+  '1': 'BluetoothState',
+  '2': const [
+    const {'1': 'number', '3': 1, '4': 1, '5': 5, '10': 'number'},
+  ],
+};
+
+/// Descriptor for `BluetoothState`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List bluetoothStateDescriptor = $convert.base64Decode('Cg5CbHVldG9vdGhTdGF0ZRIWCgZudW1iZXIYASABKAVSBm51bWJlcg==');
 @$core.Deprecated('Use advertisementDescriptor instead')
 const Advertisement$json = const {
   '1': 'Advertisement',
   '2': const [
-    const {'1': 'peripheral', '3': 1, '4': 1, '5': 11, '6': '.proto.Peripheral', '10': 'peripheral'},
+    const {'1': 'uuid', '3': 1, '4': 1, '5': 9, '10': 'uuid'},
     const {'1': 'data', '3': 2, '4': 3, '5': 11, '6': '.proto.Advertisement.DataEntry', '10': 'data'},
     const {'1': 'rssi', '3': 3, '4': 1, '5': 5, '10': 'rssi'},
+    const {'1': 'connectable', '3': 4, '4': 1, '5': 8, '10': 'connectable'},
   ],
   '3': const [Advertisement_DataEntry$json],
 };
@@ -30,19 +41,18 @@ const Advertisement_DataEntry$json = const {
 };
 
 /// Descriptor for `Advertisement`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List advertisementDescriptor = $convert.base64Decode('Cg1BZHZlcnRpc2VtZW50EjEKCnBlcmlwaGVyYWwYASABKAsyES5wcm90by5QZXJpcGhlcmFsUgpwZXJpcGhlcmFsEjIKBGRhdGEYAiADKAsyHi5wcm90by5BZHZlcnRpc2VtZW50LkRhdGFFbnRyeVIEZGF0YRISCgRyc3NpGAMgASgFUgRyc3NpGjcKCURhdGFFbnRyeRIQCgNrZXkYASABKAVSA2tleRIUCgV2YWx1ZRgCIAEoDFIFdmFsdWU6AjgB');
+final $typed_data.Uint8List advertisementDescriptor = $convert.base64Decode('Cg1BZHZlcnRpc2VtZW50EhIKBHV1aWQYASABKAlSBHV1aWQSMgoEZGF0YRgCIAMoCzIeLnByb3RvLkFkdmVydGlzZW1lbnQuRGF0YUVudHJ5UgRkYXRhEhIKBHJzc2kYAyABKAVSBHJzc2kSIAoLY29ubmVjdGFibGUYBCABKAhSC2Nvbm5lY3RhYmxlGjcKCURhdGFFbnRyeRIQCgNrZXkYASABKAVSA2tleRIUCgV2YWx1ZRgCIAEoDFIFdmFsdWU6AjgB');
 @$core.Deprecated('Use peripheralDescriptor instead')
 const Peripheral$json = const {
   '1': 'Peripheral',
   '2': const [
     const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
-    const {'1': 'uuid', '3': 2, '4': 1, '5': 9, '10': 'uuid'},
-    const {'1': 'connectable', '3': 4, '4': 1, '5': 8, '10': 'connectable'},
+    const {'1': 'maximum_write_length', '3': 2, '4': 1, '5': 5, '10': 'maximumWriteLength'},
   ],
 };
 
 /// Descriptor for `Peripheral`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List peripheralDescriptor = $convert.base64Decode('CgpQZXJpcGhlcmFsEg4KAmlkGAEgASgJUgJpZBISCgR1dWlkGAIgASgJUgR1dWlkEiAKC2Nvbm5lY3RhYmxlGAQgASgIUgtjb25uZWN0YWJsZQ==');
+final $typed_data.Uint8List peripheralDescriptor = $convert.base64Decode('CgpQZXJpcGhlcmFsEg4KAmlkGAEgASgJUgJpZBIwChRtYXhpbXVtX3dyaXRlX2xlbmd0aBgCIAEoBVISbWF4aW11bVdyaXRlTGVuZ3Ro');
 @$core.Deprecated('Use gattServiceDescriptor instead')
 const GattService$json = const {
   '1': 'GattService',
