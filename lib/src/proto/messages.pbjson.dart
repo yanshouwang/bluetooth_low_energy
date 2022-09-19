@@ -3,45 +3,24 @@
 //  source: proto/messages.proto
 //
 // @dart = 2.12
-// ignore_for_file: annotate_overrides,camel_case_types,constant_identifier_names,deprecated_member_use_from_same_package,directives_ordering,library_prefixes,non_constant_identifier_names,prefer_final_fields,return_of_invalid_type,unnecessary_const,unnecessary_import,unnecessary_this,unused_import,unused_shown_name
+// ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields,deprecated_member_use_from_same_package
 
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
-@$core.Deprecated('Use bluetoothStateDescriptor instead')
-const BluetoothState$json = const {
-  '1': 'BluetoothState',
-  '2': const [
-    const {'1': 'number', '3': 1, '4': 1, '5': 5, '10': 'number'},
-  ],
-};
-
-/// Descriptor for `BluetoothState`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List bluetoothStateDescriptor = $convert.base64Decode('Cg5CbHVldG9vdGhTdGF0ZRIWCgZudW1iZXIYASABKAVSBm51bWJlcg==');
 @$core.Deprecated('Use advertisementDescriptor instead')
 const Advertisement$json = const {
   '1': 'Advertisement',
   '2': const [
     const {'1': 'uuid', '3': 1, '4': 1, '5': 9, '10': 'uuid'},
-    const {'1': 'data', '3': 2, '4': 3, '5': 11, '6': '.proto.Advertisement.DataEntry', '10': 'data'},
+    const {'1': 'data', '3': 2, '4': 1, '5': 12, '10': 'data'},
     const {'1': 'rssi', '3': 3, '4': 1, '5': 5, '10': 'rssi'},
     const {'1': 'connectable', '3': 4, '4': 1, '5': 8, '10': 'connectable'},
   ],
-  '3': const [Advertisement_DataEntry$json],
-};
-
-@$core.Deprecated('Use advertisementDescriptor instead')
-const Advertisement_DataEntry$json = const {
-  '1': 'DataEntry',
-  '2': const [
-    const {'1': 'key', '3': 1, '4': 1, '5': 5, '10': 'key'},
-    const {'1': 'value', '3': 2, '4': 1, '5': 12, '10': 'value'},
-  ],
-  '7': const {'7': true},
 };
 
 /// Descriptor for `Advertisement`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List advertisementDescriptor = $convert.base64Decode('Cg1BZHZlcnRpc2VtZW50EhIKBHV1aWQYASABKAlSBHV1aWQSMgoEZGF0YRgCIAMoCzIeLnByb3RvLkFkdmVydGlzZW1lbnQuRGF0YUVudHJ5UgRkYXRhEhIKBHJzc2kYAyABKAVSBHJzc2kSIAoLY29ubmVjdGFibGUYBCABKAhSC2Nvbm5lY3RhYmxlGjcKCURhdGFFbnRyeRIQCgNrZXkYASABKAVSA2tleRIUCgV2YWx1ZRgCIAEoDFIFdmFsdWU6AjgB');
+final $typed_data.Uint8List advertisementDescriptor = $convert.base64Decode('Cg1BZHZlcnRpc2VtZW50EhIKBHV1aWQYASABKAlSBHV1aWQSEgoEZGF0YRgCIAEoDFIEZGF0YRISCgRyc3NpGAMgASgFUgRyc3NpEiAKC2Nvbm5lY3RhYmxlGAQgASgIUgtjb25uZWN0YWJsZQ==');
 @$core.Deprecated('Use peripheralDescriptor instead')
 const Peripheral$json = const {
   '1': 'Peripheral',
@@ -90,3 +69,13 @@ const GattDescriptor$json = const {
 
 /// Descriptor for `GattDescriptor`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gattDescriptorDescriptor = $convert.base64Decode('Cg5HYXR0RGVzY3JpcHRvchIOCgJpZBgBIAEoCVICaWQSEgoEdXVpZBgCIAEoCVIEdXVpZA==');
+@$core.Deprecated('Use bluetoothStateDescriptor instead')
+const BluetoothState$json = const {
+  '1': 'BluetoothState',
+  '2': const [
+    const {'1': 'number', '3': 1, '4': 1, '5': 5, '10': 'number'},
+  ],
+};
+
+/// Descriptor for `BluetoothState`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List bluetoothStateDescriptor = $convert.base64Decode('Cg5CbHVldG9vdGhTdGF0ZRIWCgZudW1iZXIYASABKAVSBm51bWJlcg==');

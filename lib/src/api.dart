@@ -26,6 +26,7 @@ abstract class CentralManagerApi extends PlatformInterface {
   Stream<Uint8List> get stateStream;
   Stream<Uint8List> get advertisementStream;
 
+  Future<bool> authorize();
   Future<Uint8List> getState();
   Future<void> addStateObserver();
   Future<void> removeStateObserver();
@@ -110,7 +111,7 @@ abstract class GattCharacteristicApi extends PlatformInterface {
   Future<void> free(String id);
   Future<List<Uint8List>> discoverDescriptors(String id);
   Future<Uint8List> read(String id);
-  Future<void> write(String id, Uint8List value);
+  Future<void> write(String id, Uint8List value, bool withoutResponse);
   Future<void> setNotify(String id, bool value);
 }
 

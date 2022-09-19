@@ -7,6 +7,7 @@ import 'uuid.dart';
 abstract class CentralManager {
   Stream<BluetoothState> get stateStream;
 
+  Future<bool> authorize();
   Future<BluetoothState> getState();
   Stream<Advertisement> createAdvertisementStream({List<UUID>? uuids});
   Future<Peripheral> connect(

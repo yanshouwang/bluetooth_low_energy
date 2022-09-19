@@ -40,65 +40,21 @@ object AdvertisementKt {
     }
 
     /**
-     * An uninstantiable, behaviorless type to represent the field in
-     * generics.
+     * <code>bytes data = 2;</code>
      */
-    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
-    class DataProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
+    var data: com.google.protobuf.ByteString
+      @JvmName("getData")
+      get() = _builder.getData()
+      @JvmName("setData")
+      set(value) {
+        _builder.setData(value)
+      }
     /**
-     * <code>map&lt;int32, bytes&gt; data = 2;</code>
+     * <code>bytes data = 2;</code>
      */
-     val data: com.google.protobuf.kotlin.DslMap<kotlin.Int, com.google.protobuf.ByteString, DataProxy>
-      @kotlin.jvm.JvmSynthetic
-      @JvmName("getDataMap")
-      get() = com.google.protobuf.kotlin.DslMap(
-        _builder.getDataMap()
-      )
-    /**
-     * <code>map&lt;int32, bytes&gt; data = 2;</code>
-     */
-    @JvmName("putData")
-    fun com.google.protobuf.kotlin.DslMap<kotlin.Int, com.google.protobuf.ByteString, DataProxy>
-      .put(key: kotlin.Int, value: com.google.protobuf.ByteString) {
-         _builder.putData(key, value)
-       }
-    /**
-     * <code>map&lt;int32, bytes&gt; data = 2;</code>
-     */
-    @kotlin.jvm.JvmSynthetic
-    @JvmName("setData")
-    @Suppress("NOTHING_TO_INLINE")
-    inline operator fun com.google.protobuf.kotlin.DslMap<kotlin.Int, com.google.protobuf.ByteString, DataProxy>
-      .set(key: kotlin.Int, value: com.google.protobuf.ByteString) {
-         put(key, value)
-       }
-    /**
-     * <code>map&lt;int32, bytes&gt; data = 2;</code>
-     */
-    @kotlin.jvm.JvmSynthetic
-    @JvmName("removeData")
-    fun com.google.protobuf.kotlin.DslMap<kotlin.Int, com.google.protobuf.ByteString, DataProxy>
-      .remove(key: kotlin.Int) {
-         _builder.removeData(key)
-       }
-    /**
-     * <code>map&lt;int32, bytes&gt; data = 2;</code>
-     */
-    @kotlin.jvm.JvmSynthetic
-    @JvmName("putAllData")
-    fun com.google.protobuf.kotlin.DslMap<kotlin.Int, com.google.protobuf.ByteString, DataProxy>
-      .putAll(map: kotlin.collections.Map<kotlin.Int, com.google.protobuf.ByteString>) {
-         _builder.putAllData(map)
-       }
-    /**
-     * <code>map&lt;int32, bytes&gt; data = 2;</code>
-     */
-    @kotlin.jvm.JvmSynthetic
-    @JvmName("clearData")
-    fun com.google.protobuf.kotlin.DslMap<kotlin.Int, com.google.protobuf.ByteString, DataProxy>
-      .clear() {
-         _builder.clearData()
-       }
+    fun clearData() {
+      _builder.clearData()
+    }
 
     /**
      * <code>int32 rssi = 3;</code>

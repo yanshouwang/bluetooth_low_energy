@@ -20,40 +20,10 @@ public interface AdvertisementOrBuilder extends
       getUuidBytes();
 
   /**
-   * <code>map&lt;int32, bytes&gt; data = 2;</code>
+   * <code>bytes data = 2;</code>
+   * @return The data.
    */
-  int getDataCount();
-  /**
-   * <code>map&lt;int32, bytes&gt; data = 2;</code>
-   */
-  boolean containsData(
-      int key);
-  /**
-   * Use {@link #getDataMap()} instead.
-   */
-  @java.lang.Deprecated
-  java.util.Map<java.lang.Integer, com.google.protobuf.ByteString>
-  getData();
-  /**
-   * <code>map&lt;int32, bytes&gt; data = 2;</code>
-   */
-  java.util.Map<java.lang.Integer, com.google.protobuf.ByteString>
-  getDataMap();
-  /**
-   * <code>map&lt;int32, bytes&gt; data = 2;</code>
-   */
-
-  /* nullable */
-com.google.protobuf.ByteString getDataOrDefault(
-      int key,
-      /* nullable */
-com.google.protobuf.ByteString defaultValue);
-  /**
-   * <code>map&lt;int32, bytes&gt; data = 2;</code>
-   */
-
-  com.google.protobuf.ByteString getDataOrThrow(
-      int key);
+  com.google.protobuf.ByteString getData();
 
   /**
    * <code>int32 rssi = 3;</code>

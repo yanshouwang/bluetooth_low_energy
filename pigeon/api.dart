@@ -14,6 +14,8 @@ import 'package:pigeon/pigeon.dart';
 )
 @HostApi(dartHostTestHandler: 'TestCentralControllerHostApi')
 abstract class CentralManagerHostApi {
+  @async
+  bool authorize();
   Uint8List getState();
   void addStateObserver();
   void removeStateObserver();
@@ -62,7 +64,7 @@ abstract class GattCharacteristicHostApi {
   @async
   Uint8List read(String id);
   @async
-  void write(String id, Uint8List value);
+  void write(String id, Uint8List value, bool withoutResponse);
   @async
   void setNotify(String id, bool value);
 }

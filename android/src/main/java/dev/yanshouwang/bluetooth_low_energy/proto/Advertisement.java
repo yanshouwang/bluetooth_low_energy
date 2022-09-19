@@ -17,6 +17,7 @@ private static final long serialVersionUID = 0L;
   }
   private Advertisement() {
     uuid_ = "";
+    data_ = com.google.protobuf.ByteString.EMPTY;
   }
 
   @java.lang.Override
@@ -39,7 +40,6 @@ private static final long serialVersionUID = 0L;
     if (extensionRegistry == null) {
       throw new java.lang.NullPointerException();
     }
-    int mutable_bitField0_ = 0;
     com.google.protobuf.UnknownFieldSet.Builder unknownFields =
         com.google.protobuf.UnknownFieldSet.newBuilder();
     try {
@@ -57,16 +57,8 @@ private static final long serialVersionUID = 0L;
             break;
           }
           case 18: {
-            if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-              data_ = com.google.protobuf.MapField.newMapField(
-                  DataDefaultEntryHolder.defaultEntry);
-              mutable_bitField0_ |= 0x00000001;
-            }
-            com.google.protobuf.MapEntry<java.lang.Integer, com.google.protobuf.ByteString>
-            data__ = input.readMessage(
-                DataDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
-            data_.getMutableMap().put(
-                data__.getKey(), data__.getValue());
+
+            data_ = input.readBytes();
             break;
           }
           case 24: {
@@ -105,18 +97,6 @@ private static final long serialVersionUID = 0L;
     return dev.yanshouwang.bluetooth_low_energy.proto.Messages.internal_static_proto_Advertisement_descriptor;
   }
 
-  @SuppressWarnings({"rawtypes"})
-  @java.lang.Override
-  protected com.google.protobuf.MapField internalGetMapField(
-      int number) {
-    switch (number) {
-      case 2:
-        return internalGetData();
-      default:
-        throw new RuntimeException(
-            "Invalid map field number: " + number);
-    }
-  }
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
@@ -164,84 +144,14 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int DATA_FIELD_NUMBER = 2;
-  private static final class DataDefaultEntryHolder {
-    static final com.google.protobuf.MapEntry<
-        java.lang.Integer, com.google.protobuf.ByteString> defaultEntry =
-            com.google.protobuf.MapEntry
-            .<java.lang.Integer, com.google.protobuf.ByteString>newDefaultInstance(
-                dev.yanshouwang.bluetooth_low_energy.proto.Messages.internal_static_proto_Advertisement_DataEntry_descriptor, 
-                com.google.protobuf.WireFormat.FieldType.INT32,
-                0,
-                com.google.protobuf.WireFormat.FieldType.BYTES,
-                com.google.protobuf.ByteString.EMPTY);
-  }
-  private com.google.protobuf.MapField<
-      java.lang.Integer, com.google.protobuf.ByteString> data_;
-  private com.google.protobuf.MapField<java.lang.Integer, com.google.protobuf.ByteString>
-  internalGetData() {
-    if (data_ == null) {
-      return com.google.protobuf.MapField.emptyMapField(
-          DataDefaultEntryHolder.defaultEntry);
-    }
+  private com.google.protobuf.ByteString data_;
+  /**
+   * <code>bytes data = 2;</code>
+   * @return The data.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString getData() {
     return data_;
-  }
-
-  public int getDataCount() {
-    return internalGetData().getMap().size();
-  }
-  /**
-   * <code>map&lt;int32, bytes&gt; data = 2;</code>
-   */
-
-  @java.lang.Override
-  public boolean containsData(
-      int key) {
-    
-    return internalGetData().getMap().containsKey(key);
-  }
-  /**
-   * Use {@link #getDataMap()} instead.
-   */
-  @java.lang.Override
-  @java.lang.Deprecated
-  public java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> getData() {
-    return getDataMap();
-  }
-  /**
-   * <code>map&lt;int32, bytes&gt; data = 2;</code>
-   */
-  @java.lang.Override
-
-  public java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> getDataMap() {
-    return internalGetData().getMap();
-  }
-  /**
-   * <code>map&lt;int32, bytes&gt; data = 2;</code>
-   */
-  @java.lang.Override
-
-  public com.google.protobuf.ByteString getDataOrDefault(
-      int key,
-      com.google.protobuf.ByteString defaultValue) {
-    
-    java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> map =
-        internalGetData().getMap();
-    return map.containsKey(key) ? map.get(key) : defaultValue;
-  }
-  /**
-   * <code>map&lt;int32, bytes&gt; data = 2;</code>
-   */
-  @java.lang.Override
-
-  public com.google.protobuf.ByteString getDataOrThrow(
-      int key) {
-    
-    java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> map =
-        internalGetData().getMap();
-    if (!map.containsKey(key)) {
-      throw new java.lang.IllegalArgumentException();
-    }
-    return map.get(key);
   }
 
   public static final int RSSI_FIELD_NUMBER = 3;
@@ -283,12 +193,9 @@ private static final long serialVersionUID = 0L;
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(uuid_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 1, uuid_);
     }
-    com.google.protobuf.GeneratedMessageV3
-      .serializeIntegerMapTo(
-        output,
-        internalGetData(),
-        DataDefaultEntryHolder.defaultEntry,
-        2);
+    if (!data_.isEmpty()) {
+      output.writeBytes(2, data_);
+    }
     if (rssi_ != 0) {
       output.writeInt32(3, rssi_);
     }
@@ -307,15 +214,9 @@ private static final long serialVersionUID = 0L;
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(uuid_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, uuid_);
     }
-    for (java.util.Map.Entry<java.lang.Integer, com.google.protobuf.ByteString> entry
-         : internalGetData().getMap().entrySet()) {
-      com.google.protobuf.MapEntry<java.lang.Integer, com.google.protobuf.ByteString>
-      data__ = DataDefaultEntryHolder.defaultEntry.newBuilderForType()
-          .setKey(entry.getKey())
-          .setValue(entry.getValue())
-          .build();
+    if (!data_.isEmpty()) {
       size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, data__);
+        .computeBytesSize(2, data_);
     }
     if (rssi_ != 0) {
       size += com.google.protobuf.CodedOutputStream
@@ -342,8 +243,8 @@ private static final long serialVersionUID = 0L;
 
     if (!getUuid()
         .equals(other.getUuid())) return false;
-    if (!internalGetData().equals(
-        other.internalGetData())) return false;
+    if (!getData()
+        .equals(other.getData())) return false;
     if (getRssi()
         != other.getRssi()) return false;
     if (getConnectable()
@@ -361,10 +262,8 @@ private static final long serialVersionUID = 0L;
     hash = (19 * hash) + getDescriptor().hashCode();
     hash = (37 * hash) + UUID_FIELD_NUMBER;
     hash = (53 * hash) + getUuid().hashCode();
-    if (!internalGetData().getMap().isEmpty()) {
-      hash = (37 * hash) + DATA_FIELD_NUMBER;
-      hash = (53 * hash) + internalGetData().hashCode();
-    }
+    hash = (37 * hash) + DATA_FIELD_NUMBER;
+    hash = (53 * hash) + getData().hashCode();
     hash = (37 * hash) + RSSI_FIELD_NUMBER;
     hash = (53 * hash) + getRssi();
     hash = (37 * hash) + CONNECTABLE_FIELD_NUMBER;
@@ -477,28 +376,6 @@ private static final long serialVersionUID = 0L;
       return dev.yanshouwang.bluetooth_low_energy.proto.Messages.internal_static_proto_Advertisement_descriptor;
     }
 
-    @SuppressWarnings({"rawtypes"})
-    protected com.google.protobuf.MapField internalGetMapField(
-        int number) {
-      switch (number) {
-        case 2:
-          return internalGetData();
-        default:
-          throw new RuntimeException(
-              "Invalid map field number: " + number);
-      }
-    }
-    @SuppressWarnings({"rawtypes"})
-    protected com.google.protobuf.MapField internalGetMutableMapField(
-        int number) {
-      switch (number) {
-        case 2:
-          return internalGetMutableData();
-        default:
-          throw new RuntimeException(
-              "Invalid map field number: " + number);
-      }
-    }
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
@@ -527,7 +404,8 @@ private static final long serialVersionUID = 0L;
       super.clear();
       uuid_ = "";
 
-      internalGetMutableData().clear();
+      data_ = com.google.protobuf.ByteString.EMPTY;
+
       rssi_ = 0;
 
       connectable_ = false;
@@ -558,10 +436,8 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public dev.yanshouwang.bluetooth_low_energy.proto.Advertisement buildPartial() {
       dev.yanshouwang.bluetooth_low_energy.proto.Advertisement result = new dev.yanshouwang.bluetooth_low_energy.proto.Advertisement(this);
-      int from_bitField0_ = bitField0_;
       result.uuid_ = uuid_;
-      result.data_ = internalGetData();
-      result.data_.makeImmutable();
+      result.data_ = data_;
       result.rssi_ = rssi_;
       result.connectable_ = connectable_;
       onBuilt();
@@ -616,8 +492,9 @@ private static final long serialVersionUID = 0L;
         uuid_ = other.uuid_;
         onChanged();
       }
-      internalGetMutableData().mergeFrom(
-          other.internalGetData());
+      if (other.getData() != com.google.protobuf.ByteString.EMPTY) {
+        setData(other.getData());
+      }
       if (other.getRssi() != 0) {
         setRssi(other.getRssi());
       }
@@ -652,7 +529,6 @@ private static final long serialVersionUID = 0L;
       }
       return this;
     }
-    private int bitField0_;
 
     private java.lang.Object uuid_ = "";
     /**
@@ -730,134 +606,37 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
-    private com.google.protobuf.MapField<
-        java.lang.Integer, com.google.protobuf.ByteString> data_;
-    private com.google.protobuf.MapField<java.lang.Integer, com.google.protobuf.ByteString>
-    internalGetData() {
-      if (data_ == null) {
-        return com.google.protobuf.MapField.emptyMapField(
-            DataDefaultEntryHolder.defaultEntry);
-      }
+    private com.google.protobuf.ByteString data_ = com.google.protobuf.ByteString.EMPTY;
+    /**
+     * <code>bytes data = 2;</code>
+     * @return The data.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString getData() {
       return data_;
     }
-    private com.google.protobuf.MapField<java.lang.Integer, com.google.protobuf.ByteString>
-    internalGetMutableData() {
-      onChanged();;
-      if (data_ == null) {
-        data_ = com.google.protobuf.MapField.newMapField(
-            DataDefaultEntryHolder.defaultEntry);
-      }
-      if (!data_.isMutable()) {
-        data_ = data_.copy();
-      }
-      return data_;
-    }
-
-    public int getDataCount() {
-      return internalGetData().getMap().size();
-    }
     /**
-     * <code>map&lt;int32, bytes&gt; data = 2;</code>
+     * <code>bytes data = 2;</code>
+     * @param value The data to set.
+     * @return This builder for chaining.
      */
-
-    @java.lang.Override
-    public boolean containsData(
-        int key) {
-      
-      return internalGetData().getMap().containsKey(key);
-    }
-    /**
-     * Use {@link #getDataMap()} instead.
-     */
-    @java.lang.Override
-    @java.lang.Deprecated
-    public java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> getData() {
-      return getDataMap();
-    }
-    /**
-     * <code>map&lt;int32, bytes&gt; data = 2;</code>
-     */
-    @java.lang.Override
-
-    public java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> getDataMap() {
-      return internalGetData().getMap();
-    }
-    /**
-     * <code>map&lt;int32, bytes&gt; data = 2;</code>
-     */
-    @java.lang.Override
-
-    public com.google.protobuf.ByteString getDataOrDefault(
-        int key,
-        com.google.protobuf.ByteString defaultValue) {
-      
-      java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> map =
-          internalGetData().getMap();
-      return map.containsKey(key) ? map.get(key) : defaultValue;
-    }
-    /**
-     * <code>map&lt;int32, bytes&gt; data = 2;</code>
-     */
-    @java.lang.Override
-
-    public com.google.protobuf.ByteString getDataOrThrow(
-        int key) {
-      
-      java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> map =
-          internalGetData().getMap();
-      if (!map.containsKey(key)) {
-        throw new java.lang.IllegalArgumentException();
-      }
-      return map.get(key);
-    }
-
-    public Builder clearData() {
-      internalGetMutableData().getMutableMap()
-          .clear();
-      return this;
-    }
-    /**
-     * <code>map&lt;int32, bytes&gt; data = 2;</code>
-     */
-
-    public Builder removeData(
-        int key) {
-      
-      internalGetMutableData().getMutableMap()
-          .remove(key);
-      return this;
-    }
-    /**
-     * Use alternate mutation accessors instead.
-     */
-    @java.lang.Deprecated
-    public java.util.Map<java.lang.Integer, com.google.protobuf.ByteString>
-    getMutableData() {
-      return internalGetMutableData().getMutableMap();
-    }
-    /**
-     * <code>map&lt;int32, bytes&gt; data = 2;</code>
-     */
-    public Builder putData(
-        int key,
-        com.google.protobuf.ByteString value) {
-      
+    public Builder setData(com.google.protobuf.ByteString value) {
       if (value == null) {
-  throw new NullPointerException("map value");
-}
-
-      internalGetMutableData().getMutableMap()
-          .put(key, value);
+    throw new NullPointerException();
+  }
+  
+      data_ = value;
+      onChanged();
       return this;
     }
     /**
-     * <code>map&lt;int32, bytes&gt; data = 2;</code>
+     * <code>bytes data = 2;</code>
+     * @return This builder for chaining.
      */
-
-    public Builder putAllData(
-        java.util.Map<java.lang.Integer, com.google.protobuf.ByteString> values) {
-      internalGetMutableData().getMutableMap()
-          .putAll(values);
+    public Builder clearData() {
+      
+      data_ = getDefaultInstance().getData();
+      onChanged();
       return this;
     }
 

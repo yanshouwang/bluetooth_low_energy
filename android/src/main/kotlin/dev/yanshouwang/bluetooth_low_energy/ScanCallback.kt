@@ -1,5 +1,6 @@
 package dev.yanshouwang.bluetooth_low_energy
 
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
@@ -11,12 +12,13 @@ object ScanCallback : ScanCallback() {
     override fun onScanFailed(errorCode: Int) {
         super.onScanFailed(errorCode)
         val error = Throwable("Start scan failed with code: $errorCode")
-        instances[CentralManagerHostApi.KEY_START_SCAN_ERROR] = error
+        InstanceManager[CentralManagerHostApi.KEY_START_SCAN_ERROR] = error
     }
 
     override fun onScanResult(callbackType: Int, result: ScanResult) {
         super.onScanResult(callbackType, result)
         val record = result.scanRecord
+        val uuid = result.device.address.toUUID()
         val data = if (record == null) {
             ByteString.EMPTY
         } else {
@@ -25,10 +27,11 @@ object ScanCallback : ScanCallback() {
         val connectable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             result.isConnectable
         } else {
+            // Just return true before Android 8.0
             true
         }
         val advertisementValue = advertisement {
-            this.uuid = result.device.uuid
+            this.uuid = uuid
             this.data = data
             this.connectable = connectable
             this.rssi = result.rssi
@@ -43,4 +46,20 @@ object ScanCallback : ScanCallback() {
             onScanResult(ScanSettings.CALLBACK_TYPE_ALL_MATCHES, result)
         }
     }
+}
+
+/**
+ * Converts MAC address to UUID.
+ */
+fun String.toUUID(): String {
+    val node = filter { char -> char != ':' }.lowercase()
+    // We don't know the timestamp of the bluetooth device, use nil UUID as prefix.
+    return "00000000-0000-0000-$node"
+}
+
+/**
+ * Converts UUID to MAC address.
+ */
+fun String.toAddress(): String {
+    return takeLast(12).chunked(2).joinToString(":").uppercase()
 }

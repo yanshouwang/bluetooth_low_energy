@@ -1,3 +1,4 @@
+export 'src/bluetooth_low_energy_plugin.dart';
 export 'src/central_manager.dart';
 export 'src/peripheral.dart';
 export 'src/gatt_service.dart';

@@ -31,6 +31,11 @@ class MyCentralManagerApi extends CentralManagerApi
       advertisementStreamController.stream;
 
   @override
+  Future<bool> authorize() {
+    return hostApi.authorize();
+  }
+
+  @override
   Future<Uint8List> getState() {
     return hostApi.getState();
   }
@@ -158,8 +163,8 @@ class MyGattCharacteristicApi extends GattCharacteristicApi
   }
 
   @override
-  Future<void> write(String id, Uint8List value) {
-    return hostApi.write(id, value);
+  Future<void> write(String id, Uint8List value, bool withoutResponse) {
+    return hostApi.write(id, value, withoutResponse);
   }
 
   @override
@@ -218,6 +223,11 @@ class MyCentralManager implements CentralManager {
   }
 
   @override
+  Future<bool> authorize() {
+    return authorize();
+  }
+
+  @override
   Future<BluetoothState> getState() {
     return CentralManagerApi.instance.getState().then((value) {
       final number = proto.BluetoothState.fromBuffer(value).number;
@@ -264,7 +274,7 @@ class MyAdvertisement implements Advertisement {
 
   MyAdvertisement(proto.Advertisement advertisement)
       : uuid = MyUUID(advertisement.uuid),
-        data = advertisement.data.cast(),
+        data = advertisement.data.extract(),
         rssi = advertisement.rssi,
         connectable = advertisement.connectable;
 }
@@ -314,7 +324,10 @@ class MyPeripheral implements Peripheral {
 }
 
 class MyGattService extends GattService {
-  MyGattService(proto.GattService service) {
+  @override
+  final UUID uuid;
+
+  MyGattService(proto.GattService service) : uuid = MyUUID(service.uuid) {
     GattServiceApi.instance.allocate(id, service.id);
     finalizer.attach(
       this,
@@ -335,6 +348,8 @@ class MyGattService extends GattService {
 
 class MyGattCharacteristic extends GattCharacteristic {
   @override
+  final UUID uuid;
+  @override
   final bool canRead;
   @override
   final bool canWrite;
@@ -344,7 +359,8 @@ class MyGattCharacteristic extends GattCharacteristic {
   final bool canNotify;
 
   MyGattCharacteristic(proto.GattCharacteristic characteristic)
-      : canRead = characteristic.canRead,
+      : uuid = MyUUID(characteristic.uuid),
+        canRead = characteristic.canRead,
         canWrite = characteristic.canWrite,
         canWriteWithoutResponse = characteristic.canWriteWithoutResponse,
         canNotify = characteristic.canNotify {
@@ -386,13 +402,17 @@ class MyGattCharacteristic extends GattCharacteristic {
   }
 
   @override
-  Future<void> write(Uint8List value) {
-    return GattCharacteristicApi.instance.write(id, value);
+  Future<void> write(Uint8List value, {bool withoutResponse = false}) {
+    return GattCharacteristicApi.instance.write(id, value, withoutResponse);
   }
 }
 
 class MyGattDescriptor extends GattDescriptor {
-  MyGattDescriptor(proto.GattDescriptor descriptor) {
+  @override
+  final UUID uuid;
+
+  MyGattDescriptor(proto.GattDescriptor descriptor)
+      : uuid = MyUUID(descriptor.uuid) {
     GattDescriptorApi.instance.allocate(id, descriptor.id);
     finalizer.attach(
       this,
@@ -432,4 +452,23 @@ class MyUUID implements UUID {
 
 extension on Object {
   String get id => hashCode.toString();
+}
+
+extension on List<int> {
+  Map<int, Uint8List> extract() {
+    final data = <int, Uint8List>{};
+    var start = 0;
+    while (start < length) {
+      final length = this[start++];
+      if (length == 0) {
+        break;
+      }
+      final end = start + length;
+      final type = this[start++];
+      final elements = sublist(start, end);
+      start = end;
+      data[type] = Uint8List.fromList(elements);
+    }
+    return data;
+  }
 }

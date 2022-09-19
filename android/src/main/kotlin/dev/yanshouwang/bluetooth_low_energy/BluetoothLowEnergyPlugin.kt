@@ -14,11 +14,10 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 
-val instances = mutableMapOf<String, Any>()
-val activity get() = instances[Activity::class.java.simpleName] as Activity
-val centralManagerFlutterApi get() = instances[Api.CentralManagerFlutterApi::class.java.simpleName] as Api.CentralManagerFlutterApi
-val peripheralFlutterApi get() = instances[Api.PeripheralFlutterApi::class.java.simpleName] as Api.PeripheralFlutterApi
-val gattCharacteristicFlutterApi get() = instances[Api.GattCharacteristicFlutterApi::class.java.simpleName] as Api.GattCharacteristicFlutterApi
+val activity get() = InstanceManager.findNotNull<ActivityPluginBinding>(ActivityPluginBinding::class.java.simpleName).activity
+val centralManagerFlutterApi get() = InstanceManager.findNotNull<Api.CentralManagerFlutterApi>(Api.CentralManagerFlutterApi::class.java.simpleName)
+val peripheralFlutterApi get() = InstanceManager.findNotNull<Api.PeripheralFlutterApi>(Api.PeripheralFlutterApi::class.java.simpleName)
+val gattCharacteristicFlutterApi get() = InstanceManager.findNotNull<Api.GattCharacteristicFlutterApi>(Api.GattCharacteristicFlutterApi::class.java.simpleName)
 
 val bluetoothManager get() = activity.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
 val bluetoothAdapter get() = bluetoothManager.adapter as BluetoothAdapter
@@ -28,16 +27,12 @@ val mainExecutor get() = ContextCompat.getMainExecutor(activity)
 
 /** BluetoothLowEnergyPlugin */
 class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
-
     override fun onAttachedToEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         val binaryMessenger = binding.binaryMessenger
 
-        instances[Api.CentralManagerFlutterApi::class.java.simpleName] =
-            Api.CentralManagerFlutterApi(binaryMessenger)
-        instances[Api.PeripheralFlutterApi::class.java.simpleName] =
-            Api.PeripheralFlutterApi(binaryMessenger)
-        instances[Api.GattCharacteristicFlutterApi::class.java.simpleName] =
-            Api.GattCharacteristicFlutterApi(binaryMessenger)
+        InstanceManager[Api.CentralManagerFlutterApi::class.java.simpleName] = Api.CentralManagerFlutterApi(binaryMessenger)
+        InstanceManager[Api.PeripheralFlutterApi::class.java.simpleName] = Api.PeripheralFlutterApi(binaryMessenger)
+        InstanceManager[Api.GattCharacteristicFlutterApi::class.java.simpleName] = Api.GattCharacteristicFlutterApi(binaryMessenger)
 
         Api.CentralManagerHostApi.setup(binaryMessenger, CentralManagerHostApi)
         Api.PeripheralHostApi.setup(binaryMessenger, PeripheralHostApi)
@@ -49,9 +44,9 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         val binaryMessenger = binding.binaryMessenger
 
-        instances.remove(Api.CentralManagerFlutterApi::class.java.simpleName)
-        instances.remove(Api.PeripheralFlutterApi::class.java.simpleName)
-        instances.remove(Api.GattCharacteristicFlutterApi::class.java.simpleName)
+        InstanceManager.remove(Api.CentralManagerFlutterApi::class.java.simpleName)
+        InstanceManager.remove(Api.PeripheralFlutterApi::class.java.simpleName)
+        InstanceManager.remove(Api.GattCharacteristicFlutterApi::class.java.simpleName)
 
         Api.CentralManagerHostApi.setup(binaryMessenger, null)
         Api.PeripheralHostApi.setup(binaryMessenger, null)
@@ -61,26 +56,24 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        instances[Activity::class.java.simpleName] = binding.activity
+        InstanceManager[ActivityPluginBinding::class.java.simpleName] = binding
+        binding.addRequestPermissionsResultListener(RequestPermissionsResultListener)
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
-        instances.remove(Activity::class.java.simpleName)
+        onDetachedFromActivity()
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-        instances[Activity::class.java.simpleName] = binding.activity
+        onAttachedToActivity(binding)
     }
 
     override fun onDetachedFromActivity() {
-        instances.remove(Activity::class.java.simpleName)
+        val binding = InstanceManager.freeNotNull<ActivityPluginBinding>(ActivityPluginBinding::class.java.simpleName)
+        binding.removeRequestPermissionsResultListener(RequestPermissionsResultListener)
     }
 }
 
 val Any.TAG get() = this::class.java.simpleName as String
 
 val Any.id get() = hashCode().toString()
-
-inline fun <reified T> MutableMap<String, Any>.remove(key: String): T? {
-    return this.remove(key) as T?
-}

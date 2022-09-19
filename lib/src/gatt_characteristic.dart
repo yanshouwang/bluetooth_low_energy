@@ -1,8 +1,10 @@
 import 'package:pigeon/pigeon.dart';
 
 import 'gatt_descriptor.dart';
+import 'uuid.dart';
 
 abstract class GattCharacteristic {
+  UUID get uuid;
   bool get canRead;
   bool get canWrite;
   bool get canWriteWithoutResponse;
@@ -11,5 +13,5 @@ abstract class GattCharacteristic {
 
   Future<List<GattDescriptor>> discoverDescriptors();
   Future<Uint8List> read();
-  Future<void> write(Uint8List value);
+  Future<void> write(Uint8List value, {bool withoutResponse = false});
 }
