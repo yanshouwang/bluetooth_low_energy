@@ -8,24 +8,27 @@ object PeripheralHostApi : Api.PeripheralHostApi {
     const val KEY_DISCOVER_SERVICES_RESULT = "DISCOVER_SERVICES_RESULT"
 
     override fun allocate(newId: String, oldId: String) {
-        InstanceManager[newId] = InstanceManager.freeNotNull(oldId)
+        val instance = instances.freeNotNull<Any>(oldId)
+        instances[newId] = instance
+        ids[instance] = newId
     }
 
     override fun free(id: String) {
-        InstanceManager.remove(id)
+        val instance = instances.freeNotNull<Any>(id)
+        ids.remove(instance)
     }
 
     override fun disconnect(id: String, result: Api.Result<Void>) {
-        val gatt = InstanceManager.findNotNull<BluetoothGatt>(id)
+        val gatt = instances.findNotNull<BluetoothGatt>(id)
         gatt.disconnect()
-        InstanceManager["${gatt.id}/$KEY_DISCONNECT_RESULT"] = result
+        instances["${gatt.id}/$KEY_DISCONNECT_RESULT"] = result
     }
 
     override fun discoverServices(id: String, result: Api.Result<MutableList<ByteArray>>) {
-        val gatt = InstanceManager.findNotNull<BluetoothGatt>(id)
+        val gatt = instances.findNotNull<BluetoothGatt>(id)
         val started = gatt.discoverServices()
         if (started) {
-            InstanceManager["${gatt.id}/$KEY_DISCOVER_SERVICES_RESULT"] = result
+            instances["${gatt.id}/$KEY_DISCOVER_SERVICES_RESULT"] = result
         } else {
             val error = Throwable("Start discover services failed.")
             result.error(error)

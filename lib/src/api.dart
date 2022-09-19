@@ -3,14 +3,15 @@ import 'dart:typed_data';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:tuple/tuple.dart';
 
-/// The [CentralManagerApi].
+import 'bluetooth_low_energy_impl.dart';
+
 abstract class CentralManagerApi extends PlatformInterface {
   /// Constructs a [CentralManagerApi].
   CentralManagerApi() : super(token: _token);
 
   static final Object _token = Object();
 
-  static late CentralManagerApi _instance;
+  static CentralManagerApi _instance = MyCentralManagerApi();
 
   /// The default instance of [CentralManagerApi] to use.
   static CentralManagerApi get instance => _instance;
@@ -41,7 +42,7 @@ abstract class PeripheralApi extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static late PeripheralApi _instance;
+  static PeripheralApi _instance = MyPeripheralApi();
 
   /// The default instance of [PeripheralApi] to use.
   static PeripheralApi get instance => _instance;
@@ -68,7 +69,7 @@ abstract class GattServiceApi extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static late GattServiceApi _instance;
+  static GattServiceApi _instance = MyGattServiceApi();
 
   /// The default instance of [GattServiceApi] to use.
   static GattServiceApi get instance => _instance;
@@ -92,7 +93,7 @@ abstract class GattCharacteristicApi extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static late GattCharacteristicApi _instance;
+  static GattCharacteristicApi _instance = MyGattCharacteristicApi();
 
   /// The default instance of [GattCharacteristicApi] to use.
   static GattCharacteristicApi get instance => _instance;
@@ -121,7 +122,7 @@ abstract class GattDescriptorApi extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static late GattDescriptorApi _instance;
+  static GattDescriptorApi _instance = MyGattDescriptorApi();
 
   /// The default instance of [GattDescriptorApi] to use.
   static GattDescriptorApi get instance => _instance;

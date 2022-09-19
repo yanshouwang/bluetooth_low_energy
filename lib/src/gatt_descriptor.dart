@@ -1,4 +1,4 @@
-import 'package:pigeon/pigeon.dart';
+import 'dart:typed_data';
 
 import 'uuid.dart';
 

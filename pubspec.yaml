@@ -38,11 +38,9 @@ flutter:
   plugin:
     platforms:
       android:
-        dartPluginClass: BluetoothLowEnergyPluginAndroid
         package: dev.yanshouwang.bluetooth_low_energy
         pluginClass: BluetoothLowEnergyPlugin
       ios:
-        dartPluginClass: BluetoothLowEnergyPluginIOS
         pluginClass: BluetoothLowEnergyPlugin
 
   # To add assets to your plugin package, add an assets section, like this:

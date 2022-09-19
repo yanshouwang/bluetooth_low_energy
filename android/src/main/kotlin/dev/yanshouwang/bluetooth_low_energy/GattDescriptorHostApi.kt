@@ -9,20 +9,25 @@ object GattDescriptorHostApi : Api.GattDescriptorHostApi {
     const val WRITE_RESULT = "WRITE_RESULT"
 
     override fun allocate(newId: String, oldId: String) {
-        InstanceManager[newId] = InstanceManager.freeNotNull(oldId)
+        val items = instances.freeNotNull<List<Any>>(oldId)
+        val descriptor = items[1]
+        instances[newId] = items
+        ids[descriptor] = newId
     }
 
     override fun free(id: String) {
-        InstanceManager.remove(id)
+        val items = instances.freeNotNull<List<Any>>(id)
+        val descriptor = items[1]
+        ids.remove(descriptor)
     }
 
     override fun read(id: String, result: Api.Result<ByteArray>) {
-        val items = InstanceManager.findNotNull<List<Any>>(id)
+        val items = instances.findNotNull<List<Any>>(id)
         val gatt = items[0] as BluetoothGatt
         val descriptor = items[1] as BluetoothGattDescriptor
         val succeed = gatt.readDescriptor(descriptor)
         if (succeed) {
-            InstanceManager["${descriptor.id}/$READ_RESULT"] = result
+            instances["${descriptor.id}/$READ_RESULT"] = result
         } else {
             val error = Throwable("GATT read descriptor failed.")
             result.error(error)
@@ -30,13 +35,13 @@ object GattDescriptorHostApi : Api.GattDescriptorHostApi {
     }
 
     override fun write(id: String, value: ByteArray, result: Api.Result<Void>) {
-        val items = InstanceManager.findNotNull<List<Any>>(id)
+        val items = instances.findNotNull<List<Any>>(id)
         val gatt = items[0] as BluetoothGatt
         val descriptor = items[1] as BluetoothGattDescriptor
         descriptor.value = value
         val succeed = gatt.writeDescriptor(descriptor)
         if (succeed) {
-            InstanceManager["${descriptor.id}/$WRITE_RESULT"] = result
+            instances["${descriptor.id}/$WRITE_RESULT"] = result
         } else {
             val error = Throwable("GATT write descriptor failed.")
             result.error(error)

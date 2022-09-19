@@ -111,6 +111,12 @@ class _HomeViewState extends State<HomeView> {
     }
     advertisementStreamSubscription = advertisementStream.listen(
       (advertisement) {
+        final index = advertisements.value.indexWhere(
+          (element) => element.uuid == advertisement.uuid,
+        );
+        if (index >= 0) {
+          return;
+        }
         advertisements.value = [...advertisements.value, advertisement];
       },
     );

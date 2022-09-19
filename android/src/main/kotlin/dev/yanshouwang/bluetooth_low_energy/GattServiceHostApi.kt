@@ -8,20 +8,25 @@ import dev.yanshouwang.bluetooth_low_energy.proto.gattCharacteristic
 
 object GattServiceHostApi : Api.GattServiceHostApi {
     override fun allocate(newId: String, oldId: String) {
-        InstanceManager[newId] = InstanceManager.freeNotNull(oldId)
+        val items = instances.freeNotNull<List<Any>>(oldId)
+        val service = items[1]
+        instances[newId] = items
+        ids[service] = newId
     }
 
     override fun free(id: String) {
-        InstanceManager.remove(id)
+        val items = instances.freeNotNull<List<Any>>(id)
+        val service = items[1]
+        ids.remove(service)
     }
 
     override fun discoverCharacteristics(id: String, result: Api.Result<MutableList<ByteArray>>) {
-        val items = InstanceManager.findNotNull<List<Any>>(id)
+        val items = instances.findNotNull<List<Any>>(id)
         val gatt = items[0] as BluetoothGatt
         val service = items[1] as BluetoothGattService
         val characteristicValues = mutableListOf<ByteArray>()
         for (characteristic in service.characteristics) {
-            InstanceManager[characteristic.id] = listOf(gatt, characteristic)
+            instances[characteristic.id] = listOf(gatt, characteristic)
             val characteristicValue = gattCharacteristic {
                 this.id = characteristic.id
                 this.uuid = characteristic.uuid.toString()

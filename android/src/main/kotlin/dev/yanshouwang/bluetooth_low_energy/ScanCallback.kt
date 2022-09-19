@@ -1,6 +1,5 @@
 package dev.yanshouwang.bluetooth_low_energy
 
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
@@ -12,7 +11,7 @@ object ScanCallback : ScanCallback() {
     override fun onScanFailed(errorCode: Int) {
         super.onScanFailed(errorCode)
         val error = Throwable("Start scan failed with code: $errorCode")
-        InstanceManager[CentralManagerHostApi.KEY_START_SCAN_ERROR] = error
+        instances[CentralManagerHostApi.KEY_START_SCAN_ERROR] = error
     }
 
     override fun onScanResult(callbackType: Int, result: ScanResult) {

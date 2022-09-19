@@ -14,20 +14,25 @@ object GattCharacteristicHostApi : Api.GattCharacteristicHostApi {
     const val WRITE_RESULT = "WRITE_RESULT"
 
     override fun allocate(newId: String, oldId: String) {
-        InstanceManager[newId] = InstanceManager.freeNotNull(oldId)
+        val items = instances.freeNotNull<List<Any>>(oldId)
+        val characteristic = items[1]
+        instances[newId] = items
+        ids[characteristic] = newId
     }
 
     override fun free(id: String) {
-        InstanceManager.remove(id)
+        val items = instances.freeNotNull<List<Any>>(id)
+        val characteristic = items[1]
+        ids.remove(characteristic)
     }
 
     override fun discoverDescriptors(id: String, result: Api.Result<MutableList<ByteArray>>) {
-        val items = InstanceManager.freeNotNull<List<Any>>(id)
+        val items = instances.findNotNull<List<Any>>(id)
         val gatt = items[0] as BluetoothGatt
         val characteristic = items[1] as BluetoothGattCharacteristic
         val descriptorValues = mutableListOf<ByteArray>()
         for (descriptor in characteristic.descriptors) {
-            InstanceManager[descriptor.id] = listOf(gatt, descriptor)
+            instances[descriptor.id] = listOf(gatt, descriptor)
             val descriptorValue = gattDescriptor {
                 this.id = descriptor.id
                 this.uuid = descriptor.uuid.toString()
@@ -38,12 +43,12 @@ object GattCharacteristicHostApi : Api.GattCharacteristicHostApi {
     }
 
     override fun read(id: String, result: Api.Result<ByteArray>) {
-        val items = InstanceManager.freeNotNull<List<Any>>(id)
+        val items = instances.findNotNull<List<Any>>(id)
         val gatt = items[0] as BluetoothGatt
         val characteristic = items[1] as BluetoothGattCharacteristic
         val succeed = gatt.readCharacteristic(characteristic)
         if (succeed) {
-            InstanceManager["${characteristic.id}/$READ_RESULT"] = result
+            instances["${characteristic.id}/$READ_RESULT"] = result
         } else {
             val error = Throwable("GATT read characteristic failed.")
             result.error(error)
@@ -51,7 +56,7 @@ object GattCharacteristicHostApi : Api.GattCharacteristicHostApi {
     }
 
     override fun write(id: String, value: ByteArray, withoutResponse: Boolean, result: Api.Result<Void>) {
-        val items = InstanceManager.freeNotNull<List<Any>>(id)
+        val items = instances.findNotNull<List<Any>>(id)
         val gatt = items[0] as BluetoothGatt
         val characteristic = items[1] as BluetoothGattCharacteristic
         characteristic.writeType = if (withoutResponse) {
@@ -62,7 +67,7 @@ object GattCharacteristicHostApi : Api.GattCharacteristicHostApi {
         characteristic.value = value
         val succeed = gatt.writeCharacteristic(characteristic)
         if (succeed) {
-            InstanceManager["${characteristic.id}/$WRITE_RESULT"] = result
+            instances["${characteristic.id}/$WRITE_RESULT"] = result
         } else {
             val error = Throwable("GATT write characteristic failed.")
             result.error(error)
@@ -70,7 +75,7 @@ object GattCharacteristicHostApi : Api.GattCharacteristicHostApi {
     }
 
     override fun setNotify(id: String, value: Boolean, result: Api.Result<Void>) {
-        val items = InstanceManager.freeNotNull<List<Any>>(id)
+        val items = instances.findNotNull<List<Any>>(id)
         val gatt = items[0] as BluetoothGatt
         val characteristic = items[1] as BluetoothGattCharacteristic
         val setSucceed = gatt.setCharacteristicNotification(characteristic, value)
@@ -84,7 +89,7 @@ object GattCharacteristicHostApi : Api.GattCharacteristicHostApi {
             }
             val writeSucceed = gatt.writeDescriptor(descriptor)
             if (writeSucceed) {
-                InstanceManager["${descriptor.id}/${GattDescriptorHostApi.WRITE_RESULT}"] = result
+                instances["${descriptor.id}/${GattDescriptorHostApi.WRITE_RESULT}"] = result
             } else {
                 val error = Throwable("GATT write <client characteristic config> descriptor failed.")
                 result.error(error)

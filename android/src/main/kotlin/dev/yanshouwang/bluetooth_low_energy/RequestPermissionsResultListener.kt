@@ -8,7 +8,7 @@ object RequestPermissionsResultListener : RequestPermissionsResultListener {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray): Boolean {
         return when (requestCode) {
             CentralManagerHostApi.REQUEST_CODE -> {
-                val result = InstanceManager.freeNotNull<Api.Result<Boolean>>(CentralManagerHostApi.KEY_AUTHORIZE_RESULT)
+                val result = instances.freeNotNull<Api.Result<Boolean>>(CentralManagerHostApi.KEY_AUTHORIZE_RESULT)
                 val authorized = grantResults.all { grantResult -> grantResult == PackageManager.PERMISSION_GRANTED }
                 result.success(authorized)
                 true

@@ -20,7 +20,7 @@ object CentralManagerHostApi : Api.CentralManagerHostApi {
     const val KEY_CONNECT_RESULT = "CONNECT_RESULT"
     override fun authorize(result: Api.Result<Boolean>) {
         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            arrayOf(android.Manifest.permission.BLUETOOTH_SCAN, android.Manifest.permission.BLUETOOTH_CONNECT)
+            arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.BLUETOOTH_SCAN, android.Manifest.permission.BLUETOOTH_CONNECT)
         } else {
             arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION)
         }
@@ -31,7 +31,7 @@ object CentralManagerHostApi : Api.CentralManagerHostApi {
             result.success(true)
         } else {
             ActivityCompat.requestPermissions(activity, permissions, REQUEST_CODE)
-            InstanceManager[KEY_AUTHORIZE_RESULT] = result
+            instances[KEY_AUTHORIZE_RESULT] = result
         }
     }
 
@@ -64,7 +64,7 @@ object CentralManagerHostApi : Api.CentralManagerHostApi {
         bluetoothAdapter.bluetoothLeScanner.startScan(filters, settings, ScanCallback)
         // Use main handler.post to delay until ScanCallback.onScanFailed executed.
         mainHandler.post {
-            val error = InstanceManager.free<Throwable>(KEY_START_SCAN_ERROR)
+            val error = instances.free<Throwable>(KEY_START_SCAN_ERROR)
             if (error == null) {
                 result.success(null)
             } else {
@@ -87,7 +87,7 @@ object CentralManagerHostApi : Api.CentralManagerHostApi {
         } else {
             device.connectGatt(activity, autoConnect, BluetoothGattCallback)
         }
-        InstanceManager["${gatt.id}/${KEY_CONNECT_RESULT}"] = result
+        instances["${gatt.id}/${KEY_CONNECT_RESULT}"] = result
     }
 }
 

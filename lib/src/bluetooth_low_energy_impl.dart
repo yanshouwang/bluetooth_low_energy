@@ -23,6 +23,10 @@ class MyCentralManagerApi extends CentralManagerApi
   final stateStreamController = StreamController<Uint8List>.broadcast();
   final advertisementStreamController = StreamController<Uint8List>.broadcast();
 
+  MyCentralManagerApi() {
+    CentralManagerFlutterApi.setup(this);
+  }
+
   @override
   Stream<Uint8List> get stateStream => stateStreamController.stream;
 
@@ -81,6 +85,10 @@ class MyPeripheralApi extends PeripheralApi implements PeripheralFlutterApi {
   final connectionLostStreamController =
       StreamController<Tuple2<String, String>>.broadcast();
 
+  MyPeripheralApi() {
+    PeripheralFlutterApi.setup(this);
+  }
+
   @override
   Stream<Tuple2<String, String>> get connectionLostStream =>
       connectionLostStreamController.stream;
@@ -134,6 +142,10 @@ class MyGattServiceApi extends GattServiceApi {
 class MyGattCharacteristicApi extends GattCharacteristicApi
     implements GattCharacteristicFlutterApi {
   final hostApi = GattCharacteristicHostApi();
+
+  MyGattCharacteristicApi() {
+    GattCharacteristicFlutterApi.setup(this);
+  }
 
   final valueStreamController =
       StreamController<Tuple2<String, Uint8List>>.broadcast();
@@ -211,12 +223,13 @@ class MyCentralManager implements CentralManager {
       return MyAdvertisement(advertisement);
     }).asBroadcastStream(
       onListen: (subscription) {
+        subscription.resume();
         CentralManagerApi.instance.startScan(
           uuids?.map((e) => e.toString()).toList(),
         );
       },
       onCancel: (subscription) {
-        subscription.cancel();
+        subscription.pause();
         CentralManagerApi.instance.stopScan();
       },
     );
@@ -224,7 +237,7 @@ class MyCentralManager implements CentralManager {
 
   @override
   Future<bool> authorize() {
-    return authorize();
+    return CentralManagerApi.instance.authorize();
   }
 
   @override
