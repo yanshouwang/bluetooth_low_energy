@@ -23,9 +23,9 @@ object AdvertisementKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.proto.Advertisement = _builder.build()
 
     /**
-     * <code>string uuid = 1;</code>
+     * <code>.proto.UUID uuid = 1;</code>
      */
-    var uuid: kotlin.String
+    var uuid: dev.yanshouwang.bluetooth_low_energy.proto.UUID
       @JvmName("getUuid")
       get() = _builder.getUuid()
       @JvmName("setUuid")
@@ -33,31 +33,21 @@ object AdvertisementKt {
         _builder.setUuid(value)
       }
     /**
-     * <code>string uuid = 1;</code>
+     * <code>.proto.UUID uuid = 1;</code>
      */
     fun clearUuid() {
       _builder.clearUuid()
     }
-
     /**
-     * <code>bytes data = 2;</code>
+     * <code>.proto.UUID uuid = 1;</code>
+     * @return Whether the uuid field is set.
      */
-    var data: com.google.protobuf.ByteString
-      @JvmName("getData")
-      get() = _builder.getData()
-      @JvmName("setData")
-      set(value) {
-        _builder.setData(value)
-      }
-    /**
-     * <code>bytes data = 2;</code>
-     */
-    fun clearData() {
-      _builder.clearData()
+    fun hasUuid(): kotlin.Boolean {
+      return _builder.hasUuid()
     }
 
     /**
-     * <code>int32 rssi = 3;</code>
+     * <code>int32 rssi = 2;</code>
      */
     var rssi: kotlin.Int
       @JvmName("getRssi")
@@ -67,14 +57,14 @@ object AdvertisementKt {
         _builder.setRssi(value)
       }
     /**
-     * <code>int32 rssi = 3;</code>
+     * <code>int32 rssi = 2;</code>
      */
     fun clearRssi() {
       _builder.clearRssi()
     }
 
     /**
-     * <code>bool connectable = 4;</code>
+     * <code>optional bool connectable = 3;</code>
      */
     var connectable: kotlin.Boolean
       @JvmName("getConnectable")
@@ -84,14 +74,322 @@ object AdvertisementKt {
         _builder.setConnectable(value)
       }
     /**
-     * <code>bool connectable = 4;</code>
+     * <code>optional bool connectable = 3;</code>
      */
     fun clearConnectable() {
       _builder.clearConnectable()
+    }
+    /**
+     * <code>optional bool connectable = 3;</code>
+     * @return Whether the connectable field is set.
+     */
+    fun hasConnectable(): kotlin.Boolean {
+      return _builder.hasConnectable()
+    }
+
+    /**
+     * <code>bytes data = 4;</code>
+     */
+    var data: com.google.protobuf.ByteString
+      @JvmName("getData")
+      get() = _builder.getData()
+      @JvmName("setData")
+      set(value) {
+        _builder.setData(value)
+      }
+    /**
+     * <code>bytes data = 4;</code>
+     */
+    fun clearData() {
+      _builder.clearData()
+    }
+
+    /**
+     * <code>optional string local_name = 5;</code>
+     */
+    var localName: kotlin.String
+      @JvmName("getLocalName")
+      get() = _builder.getLocalName()
+      @JvmName("setLocalName")
+      set(value) {
+        _builder.setLocalName(value)
+      }
+    /**
+     * <code>optional string local_name = 5;</code>
+     */
+    fun clearLocalName() {
+      _builder.clearLocalName()
+    }
+    /**
+     * <code>optional string local_name = 5;</code>
+     * @return Whether the localName field is set.
+     */
+    fun hasLocalName(): kotlin.Boolean {
+      return _builder.hasLocalName()
+    }
+
+    /**
+     * <code>bytes manufacturer_specific_data = 6;</code>
+     */
+    var manufacturerSpecificData: com.google.protobuf.ByteString
+      @JvmName("getManufacturerSpecificData")
+      get() = _builder.getManufacturerSpecificData()
+      @JvmName("setManufacturerSpecificData")
+      set(value) {
+        _builder.setManufacturerSpecificData(value)
+      }
+    /**
+     * <code>bytes manufacturer_specific_data = 6;</code>
+     */
+    fun clearManufacturerSpecificData() {
+      _builder.clearManufacturerSpecificData()
+    }
+
+    /**
+     * An uninstantiable, behaviorless type to represent the field in
+     * generics.
+     */
+    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
+    class ServiceDatasProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+     val serviceDatas: com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.ServiceData, ServiceDatasProxy>
+      @kotlin.jvm.JvmSynthetic
+      get() = com.google.protobuf.kotlin.DslList(
+        _builder.getServiceDatasList()
+      )
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     * @param value The serviceDatas to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addServiceDatas")
+    fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.ServiceData, ServiceDatasProxy>.add(value: dev.yanshouwang.bluetooth_low_energy.proto.ServiceData) {
+      _builder.addServiceDatas(value)
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     * @param value The serviceDatas to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignServiceDatas")
+    @Suppress("NOTHING_TO_INLINE")
+    inline operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.ServiceData, ServiceDatasProxy>.plusAssign(value: dev.yanshouwang.bluetooth_low_energy.proto.ServiceData) {
+      add(value)
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     * @param values The serviceDatas to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addAllServiceDatas")
+    fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.ServiceData, ServiceDatasProxy>.addAll(values: kotlin.collections.Iterable<dev.yanshouwang.bluetooth_low_energy.proto.ServiceData>) {
+      _builder.addAllServiceDatas(values)
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     * @param values The serviceDatas to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignAllServiceDatas")
+    @Suppress("NOTHING_TO_INLINE")
+    inline operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.ServiceData, ServiceDatasProxy>.plusAssign(values: kotlin.collections.Iterable<dev.yanshouwang.bluetooth_low_energy.proto.ServiceData>) {
+      addAll(values)
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     * @param index The index to set the value at.
+     * @param value The serviceDatas to set.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("setServiceDatas")
+    operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.ServiceData, ServiceDatasProxy>.set(index: kotlin.Int, value: dev.yanshouwang.bluetooth_low_energy.proto.ServiceData) {
+      _builder.setServiceDatas(index, value)
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("clearServiceDatas")
+    fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.ServiceData, ServiceDatasProxy>.clear() {
+      _builder.clearServiceDatas()
+    }
+
+
+    /**
+     * An uninstantiable, behaviorless type to represent the field in
+     * generics.
+     */
+    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
+    class ServiceUuidsProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+     val serviceUuids: com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.UUID, ServiceUuidsProxy>
+      @kotlin.jvm.JvmSynthetic
+      get() = com.google.protobuf.kotlin.DslList(
+        _builder.getServiceUuidsList()
+      )
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     * @param value The serviceUuids to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addServiceUuids")
+    fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.UUID, ServiceUuidsProxy>.add(value: dev.yanshouwang.bluetooth_low_energy.proto.UUID) {
+      _builder.addServiceUuids(value)
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     * @param value The serviceUuids to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignServiceUuids")
+    @Suppress("NOTHING_TO_INLINE")
+    inline operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.UUID, ServiceUuidsProxy>.plusAssign(value: dev.yanshouwang.bluetooth_low_energy.proto.UUID) {
+      add(value)
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     * @param values The serviceUuids to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addAllServiceUuids")
+    fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.UUID, ServiceUuidsProxy>.addAll(values: kotlin.collections.Iterable<dev.yanshouwang.bluetooth_low_energy.proto.UUID>) {
+      _builder.addAllServiceUuids(values)
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     * @param values The serviceUuids to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignAllServiceUuids")
+    @Suppress("NOTHING_TO_INLINE")
+    inline operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.UUID, ServiceUuidsProxy>.plusAssign(values: kotlin.collections.Iterable<dev.yanshouwang.bluetooth_low_energy.proto.UUID>) {
+      addAll(values)
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     * @param index The index to set the value at.
+     * @param value The serviceUuids to set.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("setServiceUuids")
+    operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.UUID, ServiceUuidsProxy>.set(index: kotlin.Int, value: dev.yanshouwang.bluetooth_low_energy.proto.UUID) {
+      _builder.setServiceUuids(index, value)
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("clearServiceUuids")
+    fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.UUID, ServiceUuidsProxy>.clear() {
+      _builder.clearServiceUuids()
+    }
+
+
+    /**
+     * An uninstantiable, behaviorless type to represent the field in
+     * generics.
+     */
+    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
+    class SolicitedServiceUuidsProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+     val solicitedServiceUuids: com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.UUID, SolicitedServiceUuidsProxy>
+      @kotlin.jvm.JvmSynthetic
+      get() = com.google.protobuf.kotlin.DslList(
+        _builder.getSolicitedServiceUuidsList()
+      )
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     * @param value The solicitedServiceUuids to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addSolicitedServiceUuids")
+    fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.UUID, SolicitedServiceUuidsProxy>.add(value: dev.yanshouwang.bluetooth_low_energy.proto.UUID) {
+      _builder.addSolicitedServiceUuids(value)
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     * @param value The solicitedServiceUuids to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignSolicitedServiceUuids")
+    @Suppress("NOTHING_TO_INLINE")
+    inline operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.UUID, SolicitedServiceUuidsProxy>.plusAssign(value: dev.yanshouwang.bluetooth_low_energy.proto.UUID) {
+      add(value)
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     * @param values The solicitedServiceUuids to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addAllSolicitedServiceUuids")
+    fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.UUID, SolicitedServiceUuidsProxy>.addAll(values: kotlin.collections.Iterable<dev.yanshouwang.bluetooth_low_energy.proto.UUID>) {
+      _builder.addAllSolicitedServiceUuids(values)
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     * @param values The solicitedServiceUuids to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignAllSolicitedServiceUuids")
+    @Suppress("NOTHING_TO_INLINE")
+    inline operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.UUID, SolicitedServiceUuidsProxy>.plusAssign(values: kotlin.collections.Iterable<dev.yanshouwang.bluetooth_low_energy.proto.UUID>) {
+      addAll(values)
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     * @param index The index to set the value at.
+     * @param value The solicitedServiceUuids to set.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("setSolicitedServiceUuids")
+    operator fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.UUID, SolicitedServiceUuidsProxy>.set(index: kotlin.Int, value: dev.yanshouwang.bluetooth_low_energy.proto.UUID) {
+      _builder.setSolicitedServiceUuids(index, value)
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("clearSolicitedServiceUuids")
+    fun com.google.protobuf.kotlin.DslList<dev.yanshouwang.bluetooth_low_energy.proto.UUID, SolicitedServiceUuidsProxy>.clear() {
+      _builder.clearSolicitedServiceUuids()
+    }
+
+
+    /**
+     * <code>optional int32 tx_power_level = 10;</code>
+     */
+    var txPowerLevel: kotlin.Int
+      @JvmName("getTxPowerLevel")
+      get() = _builder.getTxPowerLevel()
+      @JvmName("setTxPowerLevel")
+      set(value) {
+        _builder.setTxPowerLevel(value)
+      }
+    /**
+     * <code>optional int32 tx_power_level = 10;</code>
+     */
+    fun clearTxPowerLevel() {
+      _builder.clearTxPowerLevel()
+    }
+    /**
+     * <code>optional int32 tx_power_level = 10;</code>
+     * @return Whether the txPowerLevel field is set.
+     */
+    fun hasTxPowerLevel(): kotlin.Boolean {
+      return _builder.hasTxPowerLevel()
     }
   }
 }
 @kotlin.jvm.JvmSynthetic
 inline fun dev.yanshouwang.bluetooth_low_energy.proto.Advertisement.copy(block: dev.yanshouwang.bluetooth_low_energy.proto.AdvertisementKt.Dsl.() -> kotlin.Unit): dev.yanshouwang.bluetooth_low_energy.proto.Advertisement =
   dev.yanshouwang.bluetooth_low_energy.proto.AdvertisementKt.Dsl._create(this.toBuilder()).apply { block() }._build()
+
+val dev.yanshouwang.bluetooth_low_energy.proto.AdvertisementOrBuilder.uuidOrNull: dev.yanshouwang.bluetooth_low_energy.proto.UUID?
+  get() = if (hasUuid()) getUuid() else null
 

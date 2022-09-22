@@ -40,10 +40,20 @@ public final class Messages {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_proto_GattDescriptor_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_proto_BluetoothState_descriptor;
+    internal_static_proto_UUID_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_proto_BluetoothState_fieldAccessorTable;
+      internal_static_proto_UUID_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_proto_ServiceData_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_proto_ServiceData_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_proto_BluetoothLowEnergyException_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_proto_BluetoothLowEnergyException_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -53,19 +63,32 @@ public final class Messages {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\024proto/messages.proto\022\005proto\"N\n\rAdverti" +
-      "sement\022\014\n\004uuid\030\001 \001(\t\022\014\n\004data\030\002 \001(\014\022\014\n\004rs" +
-      "si\030\003 \001(\005\022\023\n\013connectable\030\004 \001(\010\"6\n\nPeriphe" +
-      "ral\022\n\n\002id\030\001 \001(\t\022\034\n\024maximum_write_length\030" +
-      "\002 \001(\005\"\'\n\013GattService\022\n\n\002id\030\001 \001(\t\022\014\n\004uuid" +
-      "\030\002 \001(\t\"\213\001\n\022GattCharacteristic\022\n\n\002id\030\001 \001(" +
-      "\t\022\014\n\004uuid\030\002 \001(\t\022\020\n\010can_read\030\003 \001(\010\022\021\n\tcan" +
-      "_write\030\004 \001(\010\022\"\n\032can_write_without_respon" +
-      "se\030\005 \001(\010\022\022\n\ncan_notify\030\006 \001(\010\"*\n\016GattDesc" +
-      "riptor\022\n\n\002id\030\001 \001(\t\022\014\n\004uuid\030\002 \001(\t\" \n\016Blue" +
-      "toothState\022\016\n\006number\030\001 \001(\005B.\n*dev.yansho" +
-      "uwang.bluetooth_low_energy.protoP\001b\006prot" +
-      "o3"
+      "\n\024proto/messages.proto\022\005proto\"\351\002\n\rAdvert" +
+      "isement\022\031\n\004uuid\030\001 \001(\0132\013.proto.UUID\022\014\n\004rs" +
+      "si\030\002 \001(\005\022\030\n\013connectable\030\003 \001(\010H\000\210\001\001\022\014\n\004da" +
+      "ta\030\004 \001(\014\022\027\n\nlocal_name\030\005 \001(\tH\001\210\001\001\022\"\n\032man" +
+      "ufacturer_specific_data\030\006 \001(\014\022)\n\rservice" +
+      "_datas\030\007 \003(\0132\022.proto.ServiceData\022\"\n\rserv" +
+      "ice_uuids\030\010 \003(\0132\013.proto.UUID\022,\n\027solicite" +
+      "d_service_uuids\030\t \003(\0132\013.proto.UUID\022\033\n\016tx" +
+      "_power_level\030\n \001(\005H\002\210\001\001B\016\n\014_connectableB" +
+      "\r\n\013_local_nameB\021\n\017_tx_power_level\"6\n\nPer" +
+      "ipheral\022\n\n\002id\030\001 \001(\003\022\034\n\024maximum_write_len" +
+      "gth\030\002 \001(\005\"4\n\013GattService\022\n\n\002id\030\001 \001(\003\022\031\n\004" +
+      "uuid\030\002 \001(\0132\013.proto.UUID\"\230\001\n\022GattCharacte" +
+      "ristic\022\n\n\002id\030\001 \001(\003\022\031\n\004uuid\030\002 \001(\0132\013.proto" +
+      ".UUID\022\020\n\010can_read\030\003 \001(\010\022\021\n\tcan_write\030\004 \001" +
+      "(\010\022\"\n\032can_write_without_response\030\005 \001(\010\022\022" +
+      "\n\ncan_notify\030\006 \001(\010\"7\n\016GattDescriptor\022\n\n\002" +
+      "id\030\001 \001(\003\022\031\n\004uuid\030\002 \001(\0132\013.proto.UUID\"\025\n\004U" +
+      "UID\022\r\n\005value\030\001 \001(\t\"6\n\013ServiceData\022\031\n\004uui" +
+      "d\030\001 \001(\0132\013.proto.UUID\022\014\n\004data\030\002 \001(\014\".\n\033Bl" +
+      "uetoothLowEnergyException\022\017\n\007message\030\001 \001" +
+      "(\t*r\n\016BluetoothState\022\037\n\033BLUETOOTH_STATE_" +
+      "UNSUPPORTED\020\000\022\037\n\033BLUETOOTH_STATE_POWERED" +
+      "_OFF\020\001\022\036\n\032BLUETOOTH_STATE_POWERED_ON\020\002B." +
+      "\n*dev.yanshouwang.bluetooth_low_energy.p" +
+      "rotoP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -76,7 +99,7 @@ public final class Messages {
     internal_static_proto_Advertisement_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_proto_Advertisement_descriptor,
-        new java.lang.String[] { "Uuid", "Data", "Rssi", "Connectable", });
+        new java.lang.String[] { "Uuid", "Rssi", "Connectable", "Data", "LocalName", "ManufacturerSpecificData", "ServiceDatas", "ServiceUuids", "SolicitedServiceUuids", "TxPowerLevel", "Connectable", "LocalName", "TxPowerLevel", });
     internal_static_proto_Peripheral_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_proto_Peripheral_fieldAccessorTable = new
@@ -101,12 +124,24 @@ public final class Messages {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_proto_GattDescriptor_descriptor,
         new java.lang.String[] { "Id", "Uuid", });
-    internal_static_proto_BluetoothState_descriptor =
+    internal_static_proto_UUID_descriptor =
       getDescriptor().getMessageTypes().get(5);
-    internal_static_proto_BluetoothState_fieldAccessorTable = new
+    internal_static_proto_UUID_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_proto_BluetoothState_descriptor,
-        new java.lang.String[] { "Number", });
+        internal_static_proto_UUID_descriptor,
+        new java.lang.String[] { "Value", });
+    internal_static_proto_ServiceData_descriptor =
+      getDescriptor().getMessageTypes().get(6);
+    internal_static_proto_ServiceData_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_proto_ServiceData_descriptor,
+        new java.lang.String[] { "Uuid", "Data", });
+    internal_static_proto_BluetoothLowEnergyException_descriptor =
+      getDescriptor().getMessageTypes().get(7);
+    internal_static_proto_BluetoothLowEnergyException_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_proto_BluetoothLowEnergyException_descriptor,
+        new java.lang.String[] { "Message", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

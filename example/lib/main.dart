@@ -180,8 +180,9 @@ extension on _HomeViewState {
             itemCount: advertisements.length,
             itemBuilder: (context, i) {
               final advertisement = advertisements.elementAt(i);
+              final connectable = advertisement.connectable ?? true;
               return Card(
-                color: advertisement.connectable ? Colors.amber : Colors.grey,
+                color: connectable ? Colors.amber : Colors.grey,
                 clipBehavior: Clip.antiAlias,
                 shape: const BeveledRectangleBorder(
                   borderRadius: BorderRadius.only(
@@ -193,7 +194,7 @@ extension on _HomeViewState {
                 key: Key('${advertisement.uuid}'),
                 child: InkWell(
                   splashColor: Colors.purple,
-                  onTap: advertisement.connectable
+                  onTap: connectable
                       ? () => showDeviceView(advertisement.uuid)
                       : null,
                   onLongPress: () => showAdvertisement(advertisement),
@@ -208,7 +209,7 @@ extension on _HomeViewState {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(advertisement.name ?? 'UNKNOWN'),
+                              Text(advertisement.localName ?? 'UNKNOWN'),
                               Text(
                                 advertisement.uuid.toString(),
                                 softWrap: true,
@@ -249,27 +250,27 @@ extension on _HomeViewState {
       ),
       const Divider(),
     ];
-    for (final entry in advertisement.data.entries) {
-      final type = '0x${entry.key.toRadixString(16).padLeft(2, '0')}';
-      final value = hex.encode(entry.value);
-      final widget = Row(
-        children: [
-          Text(type),
-          Container(width: 12.0),
-          Expanded(
-            child: Text(
-              value,
-              softWrap: true,
-            ),
-          ),
-        ],
-      );
-      widgets.add(widget);
-      if (entry.key != advertisement.data.entries.last.key) {
-        const divider = Divider();
-        widgets.add(divider);
-      }
-    }
+    // for (final entry in advertisement.data.entries) {
+    //   final type = '0x${entry.key.toRadixString(16).padLeft(2, '0')}';
+    //   final value = hex.encode(entry.value);
+    //   final widget = Row(
+    //     children: [
+    //       Text(type),
+    //       Container(width: 12.0),
+    //       Expanded(
+    //         child: Text(
+    //           value,
+    //           softWrap: true,
+    //         ),
+    //       ),
+    //     ],
+    //   );
+    //   widgets.add(widget);
+    //   if (entry.key != advertisement.data.entries.last.key) {
+    //     const divider = Divider();
+    //     widgets.add(divider);
+    //   }
+    // }
     return Container(
       margin: const EdgeInsets.all(12.0),
       child: Material(

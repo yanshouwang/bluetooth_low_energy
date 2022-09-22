@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:tuple/tuple.dart';
 
-import 'bluetooth_low_energy_impl.dart';
+import 'impl.dart';
 
 abstract class CentralManagerApi extends PlatformInterface {
   /// Constructs a [CentralManagerApi].
@@ -24,16 +24,16 @@ abstract class CentralManagerApi extends PlatformInterface {
     _instance = instance;
   }
 
-  Stream<Uint8List> get stateStream;
+  Stream<int> get stateStream;
   Stream<Uint8List> get advertisementStream;
 
   Future<bool> authorize();
-  Future<Uint8List> getState();
+  Future<int> getState();
   Future<void> addStateObserver();
   Future<void> removeStateObserver();
-  Future<void> startScan(List<String>? uuids);
+  Future<void> startScan(List<Uint8List>? uuidBuffers);
   Future<void> stopScan();
-  Future<Uint8List> connect(String uuid);
+  Future<Uint8List> connect(Uint8List uuidBuffer);
 }
 
 abstract class PeripheralApi extends PlatformInterface {
@@ -55,12 +55,12 @@ abstract class PeripheralApi extends PlatformInterface {
     _instance = instance;
   }
 
-  Stream<Tuple2<String, String>> get connectionLostStream;
+  Stream<Tuple2<int, Uint8List>> get connectionLostStream;
 
-  Future<void> allocate(String newId, String oldId);
-  Future<void> free(String id);
-  Future<void> disconnect(String id);
-  Future<List<Uint8List>> discoverServices(String id);
+  Future<void> allocate(int id, int instanceId);
+  Future<void> free(int id);
+  Future<void> disconnect(int id);
+  Future<List<Uint8List>> discoverServices(int id);
 }
 
 abstract class GattServiceApi extends PlatformInterface {
@@ -82,9 +82,9 @@ abstract class GattServiceApi extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<void> allocate(String newId, String oldId);
-  Future<void> free(String id);
-  Future<List<Uint8List>> discoverCharacteristics(String id);
+  Future<void> allocate(int id, int instanceId);
+  Future<void> free(int id);
+  Future<List<Uint8List>> discoverCharacteristics(int id);
 }
 
 abstract class GattCharacteristicApi extends PlatformInterface {
@@ -106,14 +106,14 @@ abstract class GattCharacteristicApi extends PlatformInterface {
     _instance = instance;
   }
 
-  Stream<Tuple2<String, Uint8List>> get valueStream;
+  Stream<Tuple2<int, Uint8List>> get valueStream;
 
-  Future<void> allocate(String newId, String oldId);
-  Future<void> free(String id);
-  Future<List<Uint8List>> discoverDescriptors(String id);
-  Future<Uint8List> read(String id);
-  Future<void> write(String id, Uint8List value, bool withoutResponse);
-  Future<void> setNotify(String id, bool value);
+  Future<void> allocate(int id, int instanceId);
+  Future<void> free(int id);
+  Future<List<Uint8List>> discoverDescriptors(int id);
+  Future<Uint8List> read(int id);
+  Future<void> write(int id, Uint8List value, bool withoutResponse);
+  Future<void> setNotify(int id, bool value);
 }
 
 abstract class GattDescriptorApi extends PlatformInterface {
@@ -135,8 +135,8 @@ abstract class GattDescriptorApi extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<void> allocate(String newId, String oldId);
-  Future<void> free(String id);
-  Future<Uint8List> read(String id);
-  Future<void> write(String id, Uint8List value);
+  Future<void> allocate(int id, int instanceId);
+  Future<void> free(int id);
+  Future<Uint8List> read(int id);
+  Future<void> write(int id, Uint8List value);
 }

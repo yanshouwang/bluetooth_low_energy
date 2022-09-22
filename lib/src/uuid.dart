@@ -1,5 +1,9 @@
-import 'bluetooth_low_energy_impl.dart';
+import 'impl.dart';
 
 abstract class UUID {
-  factory UUID(String value) => MyUUID(value);
+  String get value;
+
+  factory UUID(String value) {
+    return MyUUID(value: value);
+  }
 }

@@ -1,0 +1,29 @@
+PODS:
+  - bluetooth_low_energy (0.0.1):
+    - Flutter
+    - SwiftProtobuf (~> 1.20)
+  - Flutter (1.0.0)
+  - SwiftProtobuf (1.20.1)
+
+DEPENDENCIES:
+  - bluetooth_low_energy (from `.symlinks/plugins/bluetooth_low_energy/ios`)
+  - Flutter (from `Flutter`)
+
+SPEC REPOS:
+  trunk:
+    - SwiftProtobuf
+
+EXTERNAL SOURCES:
+  bluetooth_low_energy:
+    :path: ".symlinks/plugins/bluetooth_low_energy/ios"
+  Flutter:
+    :path: Flutter
+
+SPEC CHECKSUMS:
+  bluetooth_low_energy: af34d921ca3a9e085cf6364c500050965acf25f9
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  SwiftProtobuf: e40a7684079620e84ba522dbaeab0cddb0ec7ffd
+
+PODFILE CHECKSUM: ef19549a9bc3046e7bb7d2fab4d021637c0c58a3
+
+COCOAPODS: 1.11.3

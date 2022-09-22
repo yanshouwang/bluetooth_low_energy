@@ -4,25 +4,26 @@
 package dev.yanshouwang.bluetooth_low_energy.proto;
 
 /**
- * Protobuf type {@code proto.Peripheral}
+ * Protobuf type {@code proto.BluetoothLowEnergyException}
  */
-public final class Peripheral extends
+public final class BluetoothLowEnergyException extends
     com.google.protobuf.GeneratedMessageV3 implements
-    // @@protoc_insertion_point(message_implements:proto.Peripheral)
-    PeripheralOrBuilder {
+    // @@protoc_insertion_point(message_implements:proto.BluetoothLowEnergyException)
+    BluetoothLowEnergyExceptionOrBuilder {
 private static final long serialVersionUID = 0L;
-  // Use Peripheral.newBuilder() to construct.
-  private Peripheral(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+  // Use BluetoothLowEnergyException.newBuilder() to construct.
+  private BluetoothLowEnergyException(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
     super(builder);
   }
-  private Peripheral() {
+  private BluetoothLowEnergyException() {
+    message_ = "";
   }
 
   @java.lang.Override
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(
       UnusedPrivateParameter unused) {
-    return new Peripheral();
+    return new BluetoothLowEnergyException();
   }
 
   @java.lang.Override
@@ -30,7 +31,7 @@ private static final long serialVersionUID = 0L;
   getUnknownFields() {
     return this.unknownFields;
   }
-  private Peripheral(
+  private BluetoothLowEnergyException(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
@@ -48,14 +49,10 @@ private static final long serialVersionUID = 0L;
           case 0:
             done = true;
             break;
-          case 8: {
+          case 10: {
+            java.lang.String s = input.readStringRequireUtf8();
 
-            id_ = input.readInt64();
-            break;
-          }
-          case 16: {
-
-            maximumWriteLength_ = input.readInt32();
+            message_ = s;
             break;
           }
           default: {
@@ -81,37 +78,53 @@ private static final long serialVersionUID = 0L;
   }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return dev.yanshouwang.bluetooth_low_energy.proto.Messages.internal_static_proto_Peripheral_descriptor;
+    return dev.yanshouwang.bluetooth_low_energy.proto.Messages.internal_static_proto_BluetoothLowEnergyException_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return dev.yanshouwang.bluetooth_low_energy.proto.Messages.internal_static_proto_Peripheral_fieldAccessorTable
+    return dev.yanshouwang.bluetooth_low_energy.proto.Messages.internal_static_proto_BluetoothLowEnergyException_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.class, dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.Builder.class);
+            dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException.class, dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException.Builder.class);
   }
 
-  public static final int ID_FIELD_NUMBER = 1;
-  private long id_;
+  public static final int MESSAGE_FIELD_NUMBER = 1;
+  private volatile java.lang.Object message_;
   /**
-   * <code>int64 id = 1;</code>
-   * @return The id.
+   * <code>string message = 1;</code>
+   * @return The message.
    */
   @java.lang.Override
-  public long getId() {
-    return id_;
+  public java.lang.String getMessage() {
+    java.lang.Object ref = message_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      message_ = s;
+      return s;
+    }
   }
-
-  public static final int MAXIMUM_WRITE_LENGTH_FIELD_NUMBER = 2;
-  private int maximumWriteLength_;
   /**
-   * <code>int32 maximum_write_length = 2;</code>
-   * @return The maximumWriteLength.
+   * <code>string message = 1;</code>
+   * @return The bytes for message.
    */
   @java.lang.Override
-  public int getMaximumWriteLength() {
-    return maximumWriteLength_;
+  public com.google.protobuf.ByteString
+      getMessageBytes() {
+    java.lang.Object ref = message_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      message_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
   }
 
   private byte memoizedIsInitialized = -1;
@@ -128,11 +141,8 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (id_ != 0L) {
-      output.writeInt64(1, id_);
-    }
-    if (maximumWriteLength_ != 0) {
-      output.writeInt32(2, maximumWriteLength_);
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(message_)) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 1, message_);
     }
     unknownFields.writeTo(output);
   }
@@ -143,13 +153,8 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (id_ != 0L) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeInt64Size(1, id_);
-    }
-    if (maximumWriteLength_ != 0) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(2, maximumWriteLength_);
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(message_)) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, message_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -161,15 +166,13 @@ private static final long serialVersionUID = 0L;
     if (obj == this) {
      return true;
     }
-    if (!(obj instanceof dev.yanshouwang.bluetooth_low_energy.proto.Peripheral)) {
+    if (!(obj instanceof dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException)) {
       return super.equals(obj);
     }
-    dev.yanshouwang.bluetooth_low_energy.proto.Peripheral other = (dev.yanshouwang.bluetooth_low_energy.proto.Peripheral) obj;
+    dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException other = (dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException) obj;
 
-    if (getId()
-        != other.getId()) return false;
-    if (getMaximumWriteLength()
-        != other.getMaximumWriteLength()) return false;
+    if (!getMessage()
+        .equals(other.getMessage())) return false;
     if (!unknownFields.equals(other.unknownFields)) return false;
     return true;
   }
@@ -181,79 +184,76 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + ID_FIELD_NUMBER;
-    hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-        getId());
-    hash = (37 * hash) + MAXIMUM_WRITE_LENGTH_FIELD_NUMBER;
-    hash = (53 * hash) + getMaximumWriteLength();
+    hash = (37 * hash) + MESSAGE_FIELD_NUMBER;
+    hash = (53 * hash) + getMessage().hashCode();
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
   }
 
-  public static dev.yanshouwang.bluetooth_low_energy.proto.Peripheral parseFrom(
+  public static dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static dev.yanshouwang.bluetooth_low_energy.proto.Peripheral parseFrom(
+  public static dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException parseFrom(
       java.nio.ByteBuffer data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static dev.yanshouwang.bluetooth_low_energy.proto.Peripheral parseFrom(
+  public static dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static dev.yanshouwang.bluetooth_low_energy.proto.Peripheral parseFrom(
+  public static dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static dev.yanshouwang.bluetooth_low_energy.proto.Peripheral parseFrom(byte[] data)
+  public static dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static dev.yanshouwang.bluetooth_low_energy.proto.Peripheral parseFrom(
+  public static dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static dev.yanshouwang.bluetooth_low_energy.proto.Peripheral parseFrom(java.io.InputStream input)
+  public static dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static dev.yanshouwang.bluetooth_low_energy.proto.Peripheral parseFrom(
+  public static dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
-  public static dev.yanshouwang.bluetooth_low_energy.proto.Peripheral parseDelimitedFrom(java.io.InputStream input)
+  public static dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input);
   }
-  public static dev.yanshouwang.bluetooth_low_energy.proto.Peripheral parseDelimitedFrom(
+  public static dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-  public static dev.yanshouwang.bluetooth_low_energy.proto.Peripheral parseFrom(
+  public static dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static dev.yanshouwang.bluetooth_low_energy.proto.Peripheral parseFrom(
+  public static dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -266,7 +266,7 @@ private static final long serialVersionUID = 0L;
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-  public static Builder newBuilder(dev.yanshouwang.bluetooth_low_energy.proto.Peripheral prototype) {
+  public static Builder newBuilder(dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
   @java.lang.Override
@@ -282,26 +282,26 @@ private static final long serialVersionUID = 0L;
     return builder;
   }
   /**
-   * Protobuf type {@code proto.Peripheral}
+   * Protobuf type {@code proto.BluetoothLowEnergyException}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:proto.Peripheral)
-      dev.yanshouwang.bluetooth_low_energy.proto.PeripheralOrBuilder {
+      // @@protoc_insertion_point(builder_implements:proto.BluetoothLowEnergyException)
+      dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyExceptionOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return dev.yanshouwang.bluetooth_low_energy.proto.Messages.internal_static_proto_Peripheral_descriptor;
+      return dev.yanshouwang.bluetooth_low_energy.proto.Messages.internal_static_proto_BluetoothLowEnergyException_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return dev.yanshouwang.bluetooth_low_energy.proto.Messages.internal_static_proto_Peripheral_fieldAccessorTable
+      return dev.yanshouwang.bluetooth_low_energy.proto.Messages.internal_static_proto_BluetoothLowEnergyException_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.class, dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.Builder.class);
+              dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException.class, dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException.Builder.class);
     }
 
-    // Construct using dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.newBuilder()
+    // Construct using dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException.newBuilder()
     private Builder() {
       maybeForceBuilderInitialization();
     }
@@ -319,9 +319,7 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public Builder clear() {
       super.clear();
-      id_ = 0L;
-
-      maximumWriteLength_ = 0;
+      message_ = "";
 
       return this;
     }
@@ -329,17 +327,17 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return dev.yanshouwang.bluetooth_low_energy.proto.Messages.internal_static_proto_Peripheral_descriptor;
+      return dev.yanshouwang.bluetooth_low_energy.proto.Messages.internal_static_proto_BluetoothLowEnergyException_descriptor;
     }
 
     @java.lang.Override
-    public dev.yanshouwang.bluetooth_low_energy.proto.Peripheral getDefaultInstanceForType() {
-      return dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.getDefaultInstance();
+    public dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException getDefaultInstanceForType() {
+      return dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException.getDefaultInstance();
     }
 
     @java.lang.Override
-    public dev.yanshouwang.bluetooth_low_energy.proto.Peripheral build() {
-      dev.yanshouwang.bluetooth_low_energy.proto.Peripheral result = buildPartial();
+    public dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException build() {
+      dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
@@ -347,10 +345,9 @@ private static final long serialVersionUID = 0L;
     }
 
     @java.lang.Override
-    public dev.yanshouwang.bluetooth_low_energy.proto.Peripheral buildPartial() {
-      dev.yanshouwang.bluetooth_low_energy.proto.Peripheral result = new dev.yanshouwang.bluetooth_low_energy.proto.Peripheral(this);
-      result.id_ = id_;
-      result.maximumWriteLength_ = maximumWriteLength_;
+    public dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException buildPartial() {
+      dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException result = new dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException(this);
+      result.message_ = message_;
       onBuilt();
       return result;
     }
@@ -389,21 +386,19 @@ private static final long serialVersionUID = 0L;
     }
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof dev.yanshouwang.bluetooth_low_energy.proto.Peripheral) {
-        return mergeFrom((dev.yanshouwang.bluetooth_low_energy.proto.Peripheral)other);
+      if (other instanceof dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException) {
+        return mergeFrom((dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.proto.Peripheral other) {
-      if (other == dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.getDefaultInstance()) return this;
-      if (other.getId() != 0L) {
-        setId(other.getId());
-      }
-      if (other.getMaximumWriteLength() != 0) {
-        setMaximumWriteLength(other.getMaximumWriteLength());
+    public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException other) {
+      if (other == dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException.getDefaultInstance()) return this;
+      if (!other.getMessage().isEmpty()) {
+        message_ = other.message_;
+        onChanged();
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -420,11 +415,11 @@ private static final long serialVersionUID = 0L;
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      dev.yanshouwang.bluetooth_low_energy.proto.Peripheral parsedMessage = null;
+      dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException parsedMessage = null;
       try {
         parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (dev.yanshouwang.bluetooth_low_energy.proto.Peripheral) e.getUnfinishedMessage();
+        parsedMessage = (dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
         if (parsedMessage != null) {
@@ -434,64 +429,78 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
-    private long id_ ;
+    private java.lang.Object message_ = "";
     /**
-     * <code>int64 id = 1;</code>
-     * @return The id.
+     * <code>string message = 1;</code>
+     * @return The message.
      */
-    @java.lang.Override
-    public long getId() {
-      return id_;
+    public java.lang.String getMessage() {
+      java.lang.Object ref = message_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        message_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
     }
     /**
-     * <code>int64 id = 1;</code>
-     * @param value The id to set.
+     * <code>string message = 1;</code>
+     * @return The bytes for message.
+     */
+    public com.google.protobuf.ByteString
+        getMessageBytes() {
+      java.lang.Object ref = message_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        message_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>string message = 1;</code>
+     * @param value The message to set.
      * @return This builder for chaining.
      */
-    public Builder setId(long value) {
-      
-      id_ = value;
+    public Builder setMessage(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      message_ = value;
       onChanged();
       return this;
     }
     /**
-     * <code>int64 id = 1;</code>
+     * <code>string message = 1;</code>
      * @return This builder for chaining.
      */
-    public Builder clearId() {
+    public Builder clearMessage() {
       
-      id_ = 0L;
-      onChanged();
-      return this;
-    }
-
-    private int maximumWriteLength_ ;
-    /**
-     * <code>int32 maximum_write_length = 2;</code>
-     * @return The maximumWriteLength.
-     */
-    @java.lang.Override
-    public int getMaximumWriteLength() {
-      return maximumWriteLength_;
-    }
-    /**
-     * <code>int32 maximum_write_length = 2;</code>
-     * @param value The maximumWriteLength to set.
-     * @return This builder for chaining.
-     */
-    public Builder setMaximumWriteLength(int value) {
-      
-      maximumWriteLength_ = value;
+      message_ = getDefaultInstance().getMessage();
       onChanged();
       return this;
     }
     /**
-     * <code>int32 maximum_write_length = 2;</code>
+     * <code>string message = 1;</code>
+     * @param value The bytes for message to set.
      * @return This builder for chaining.
      */
-    public Builder clearMaximumWriteLength() {
+    public Builder setMessageBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
       
-      maximumWriteLength_ = 0;
+      message_ = value;
       onChanged();
       return this;
     }
@@ -508,41 +517,41 @@ private static final long serialVersionUID = 0L;
     }
 
 
-    // @@protoc_insertion_point(builder_scope:proto.Peripheral)
+    // @@protoc_insertion_point(builder_scope:proto.BluetoothLowEnergyException)
   }
 
-  // @@protoc_insertion_point(class_scope:proto.Peripheral)
-  private static final dev.yanshouwang.bluetooth_low_energy.proto.Peripheral DEFAULT_INSTANCE;
+  // @@protoc_insertion_point(class_scope:proto.BluetoothLowEnergyException)
+  private static final dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException DEFAULT_INSTANCE;
   static {
-    DEFAULT_INSTANCE = new dev.yanshouwang.bluetooth_low_energy.proto.Peripheral();
+    DEFAULT_INSTANCE = new dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException();
   }
 
-  public static dev.yanshouwang.bluetooth_low_energy.proto.Peripheral getDefaultInstance() {
+  public static dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException getDefaultInstance() {
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<Peripheral>
-      PARSER = new com.google.protobuf.AbstractParser<Peripheral>() {
+  private static final com.google.protobuf.Parser<BluetoothLowEnergyException>
+      PARSER = new com.google.protobuf.AbstractParser<BluetoothLowEnergyException>() {
     @java.lang.Override
-    public Peripheral parsePartialFrom(
+    public BluetoothLowEnergyException parsePartialFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      return new Peripheral(input, extensionRegistry);
+      return new BluetoothLowEnergyException(input, extensionRegistry);
     }
   };
 
-  public static com.google.protobuf.Parser<Peripheral> parser() {
+  public static com.google.protobuf.Parser<BluetoothLowEnergyException> parser() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.google.protobuf.Parser<Peripheral> getParserForType() {
+  public com.google.protobuf.Parser<BluetoothLowEnergyException> getParserForType() {
     return PARSER;
   }
 
   @java.lang.Override
-  public dev.yanshouwang.bluetooth_low_energy.proto.Peripheral getDefaultInstanceForType() {
+  public dev.yanshouwang.bluetooth_low_energy.proto.BluetoothLowEnergyException getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 

@@ -23,9 +23,9 @@ object PeripheralKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.proto.Peripheral = _builder.build()
 
     /**
-     * <code>string id = 1;</code>
+     * <code>int64 id = 1;</code>
      */
-    var id: kotlin.String
+    var id: kotlin.Long
       @JvmName("getId")
       get() = _builder.getId()
       @JvmName("setId")
@@ -33,7 +33,7 @@ object PeripheralKt {
         _builder.setId(value)
       }
     /**
-     * <code>string id = 1;</code>
+     * <code>int64 id = 1;</code>
      */
     fun clearId() {
       _builder.clearId()

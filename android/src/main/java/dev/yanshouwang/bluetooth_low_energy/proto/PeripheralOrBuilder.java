@@ -8,16 +8,10 @@ public interface PeripheralOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>string id = 1;</code>
+   * <code>int64 id = 1;</code>
    * @return The id.
    */
-  java.lang.String getId();
-  /**
-   * <code>string id = 1;</code>
-   * @return The bytes for id.
-   */
-  com.google.protobuf.ByteString
-      getIdBytes();
+  long getId();
 
   /**
    * <code>int32 maximum_write_length = 2;</code>

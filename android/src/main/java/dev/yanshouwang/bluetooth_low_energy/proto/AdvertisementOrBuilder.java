@@ -8,32 +8,146 @@ public interface AdvertisementOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>string uuid = 1;</code>
+   * <code>.proto.UUID uuid = 1;</code>
+   * @return Whether the uuid field is set.
+   */
+  boolean hasUuid();
+  /**
+   * <code>.proto.UUID uuid = 1;</code>
    * @return The uuid.
    */
-  java.lang.String getUuid();
+  dev.yanshouwang.bluetooth_low_energy.proto.UUID getUuid();
   /**
-   * <code>string uuid = 1;</code>
-   * @return The bytes for uuid.
+   * <code>.proto.UUID uuid = 1;</code>
    */
-  com.google.protobuf.ByteString
-      getUuidBytes();
+  dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder getUuidOrBuilder();
 
   /**
-   * <code>bytes data = 2;</code>
-   * @return The data.
-   */
-  com.google.protobuf.ByteString getData();
-
-  /**
-   * <code>int32 rssi = 3;</code>
+   * <code>int32 rssi = 2;</code>
    * @return The rssi.
    */
   int getRssi();
 
   /**
-   * <code>bool connectable = 4;</code>
+   * <code>optional bool connectable = 3;</code>
+   * @return Whether the connectable field is set.
+   */
+  boolean hasConnectable();
+  /**
+   * <code>optional bool connectable = 3;</code>
    * @return The connectable.
    */
   boolean getConnectable();
+
+  /**
+   * <code>bytes data = 4;</code>
+   * @return The data.
+   */
+  com.google.protobuf.ByteString getData();
+
+  /**
+   * <code>optional string local_name = 5;</code>
+   * @return Whether the localName field is set.
+   */
+  boolean hasLocalName();
+  /**
+   * <code>optional string local_name = 5;</code>
+   * @return The localName.
+   */
+  java.lang.String getLocalName();
+  /**
+   * <code>optional string local_name = 5;</code>
+   * @return The bytes for localName.
+   */
+  com.google.protobuf.ByteString
+      getLocalNameBytes();
+
+  /**
+   * <code>bytes manufacturer_specific_data = 6;</code>
+   * @return The manufacturerSpecificData.
+   */
+  com.google.protobuf.ByteString getManufacturerSpecificData();
+
+  /**
+   * <code>repeated .proto.ServiceData service_datas = 7;</code>
+   */
+  java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.ServiceData> 
+      getServiceDatasList();
+  /**
+   * <code>repeated .proto.ServiceData service_datas = 7;</code>
+   */
+  dev.yanshouwang.bluetooth_low_energy.proto.ServiceData getServiceDatas(int index);
+  /**
+   * <code>repeated .proto.ServiceData service_datas = 7;</code>
+   */
+  int getServiceDatasCount();
+  /**
+   * <code>repeated .proto.ServiceData service_datas = 7;</code>
+   */
+  java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.proto.ServiceDataOrBuilder> 
+      getServiceDatasOrBuilderList();
+  /**
+   * <code>repeated .proto.ServiceData service_datas = 7;</code>
+   */
+  dev.yanshouwang.bluetooth_low_energy.proto.ServiceDataOrBuilder getServiceDatasOrBuilder(
+      int index);
+
+  /**
+   * <code>repeated .proto.UUID service_uuids = 8;</code>
+   */
+  java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.UUID> 
+      getServiceUuidsList();
+  /**
+   * <code>repeated .proto.UUID service_uuids = 8;</code>
+   */
+  dev.yanshouwang.bluetooth_low_energy.proto.UUID getServiceUuids(int index);
+  /**
+   * <code>repeated .proto.UUID service_uuids = 8;</code>
+   */
+  int getServiceUuidsCount();
+  /**
+   * <code>repeated .proto.UUID service_uuids = 8;</code>
+   */
+  java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder> 
+      getServiceUuidsOrBuilderList();
+  /**
+   * <code>repeated .proto.UUID service_uuids = 8;</code>
+   */
+  dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder getServiceUuidsOrBuilder(
+      int index);
+
+  /**
+   * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+   */
+  java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.UUID> 
+      getSolicitedServiceUuidsList();
+  /**
+   * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+   */
+  dev.yanshouwang.bluetooth_low_energy.proto.UUID getSolicitedServiceUuids(int index);
+  /**
+   * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+   */
+  int getSolicitedServiceUuidsCount();
+  /**
+   * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+   */
+  java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder> 
+      getSolicitedServiceUuidsOrBuilderList();
+  /**
+   * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+   */
+  dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder getSolicitedServiceUuidsOrBuilder(
+      int index);
+
+  /**
+   * <code>optional int32 tx_power_level = 10;</code>
+   * @return Whether the txPowerLevel field is set.
+   */
+  boolean hasTxPowerLevel();
+  /**
+   * <code>optional int32 tx_power_level = 10;</code>
+   * @return The txPowerLevel.
+   */
+  int getTxPowerLevel();
 }

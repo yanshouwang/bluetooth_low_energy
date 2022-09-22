@@ -23,9 +23,9 @@ object GattDescriptorKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.proto.GattDescriptor = _builder.build()
 
     /**
-     * <code>string id = 1;</code>
+     * <code>int64 id = 1;</code>
      */
-    var id: kotlin.String
+    var id: kotlin.Long
       @JvmName("getId")
       get() = _builder.getId()
       @JvmName("setId")
@@ -33,16 +33,16 @@ object GattDescriptorKt {
         _builder.setId(value)
       }
     /**
-     * <code>string id = 1;</code>
+     * <code>int64 id = 1;</code>
      */
     fun clearId() {
       _builder.clearId()
     }
 
     /**
-     * <code>string uuid = 2;</code>
+     * <code>.proto.UUID uuid = 2;</code>
      */
-    var uuid: kotlin.String
+    var uuid: dev.yanshouwang.bluetooth_low_energy.proto.UUID
       @JvmName("getUuid")
       get() = _builder.getUuid()
       @JvmName("setUuid")
@@ -50,14 +50,24 @@ object GattDescriptorKt {
         _builder.setUuid(value)
       }
     /**
-     * <code>string uuid = 2;</code>
+     * <code>.proto.UUID uuid = 2;</code>
      */
     fun clearUuid() {
       _builder.clearUuid()
+    }
+    /**
+     * <code>.proto.UUID uuid = 2;</code>
+     * @return Whether the uuid field is set.
+     */
+    fun hasUuid(): kotlin.Boolean {
+      return _builder.hasUuid()
     }
   }
 }
 @kotlin.jvm.JvmSynthetic
 inline fun dev.yanshouwang.bluetooth_low_energy.proto.GattDescriptor.copy(block: dev.yanshouwang.bluetooth_low_energy.proto.GattDescriptorKt.Dsl.() -> kotlin.Unit): dev.yanshouwang.bluetooth_low_energy.proto.GattDescriptor =
   dev.yanshouwang.bluetooth_low_energy.proto.GattDescriptorKt.Dsl._create(this.toBuilder()).apply { block() }._build()
+
+val dev.yanshouwang.bluetooth_low_energy.proto.GattDescriptorOrBuilder.uuidOrNull: dev.yanshouwang.bluetooth_low_energy.proto.UUID?
+  get() = if (hasUuid()) getUuid() else null
 

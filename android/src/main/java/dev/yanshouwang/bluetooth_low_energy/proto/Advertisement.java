@@ -16,8 +16,12 @@ private static final long serialVersionUID = 0L;
     super(builder);
   }
   private Advertisement() {
-    uuid_ = "";
     data_ = com.google.protobuf.ByteString.EMPTY;
+    localName_ = "";
+    manufacturerSpecificData_ = com.google.protobuf.ByteString.EMPTY;
+    serviceDatas_ = java.util.Collections.emptyList();
+    serviceUuids_ = java.util.Collections.emptyList();
+    solicitedServiceUuids_ = java.util.Collections.emptyList();
   }
 
   @java.lang.Override
@@ -40,6 +44,7 @@ private static final long serialVersionUID = 0L;
     if (extensionRegistry == null) {
       throw new java.lang.NullPointerException();
     }
+    int mutable_bitField0_ = 0;
     com.google.protobuf.UnknownFieldSet.Builder unknownFields =
         com.google.protobuf.UnknownFieldSet.newBuilder();
     try {
@@ -51,24 +56,74 @@ private static final long serialVersionUID = 0L;
             done = true;
             break;
           case 10: {
-            java.lang.String s = input.readStringRequireUtf8();
+            dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder subBuilder = null;
+            if (uuid_ != null) {
+              subBuilder = uuid_.toBuilder();
+            }
+            uuid_ = input.readMessage(dev.yanshouwang.bluetooth_low_energy.proto.UUID.parser(), extensionRegistry);
+            if (subBuilder != null) {
+              subBuilder.mergeFrom(uuid_);
+              uuid_ = subBuilder.buildPartial();
+            }
 
-            uuid_ = s;
             break;
           }
-          case 18: {
-
-            data_ = input.readBytes();
-            break;
-          }
-          case 24: {
+          case 16: {
 
             rssi_ = input.readInt32();
             break;
           }
-          case 32: {
-
+          case 24: {
+            bitField0_ |= 0x00000001;
             connectable_ = input.readBool();
+            break;
+          }
+          case 34: {
+
+            data_ = input.readBytes();
+            break;
+          }
+          case 42: {
+            java.lang.String s = input.readStringRequireUtf8();
+            bitField0_ |= 0x00000002;
+            localName_ = s;
+            break;
+          }
+          case 50: {
+
+            manufacturerSpecificData_ = input.readBytes();
+            break;
+          }
+          case 58: {
+            if (!((mutable_bitField0_ & 0x00000004) != 0)) {
+              serviceDatas_ = new java.util.ArrayList<dev.yanshouwang.bluetooth_low_energy.proto.ServiceData>();
+              mutable_bitField0_ |= 0x00000004;
+            }
+            serviceDatas_.add(
+                input.readMessage(dev.yanshouwang.bluetooth_low_energy.proto.ServiceData.parser(), extensionRegistry));
+            break;
+          }
+          case 66: {
+            if (!((mutable_bitField0_ & 0x00000008) != 0)) {
+              serviceUuids_ = new java.util.ArrayList<dev.yanshouwang.bluetooth_low_energy.proto.UUID>();
+              mutable_bitField0_ |= 0x00000008;
+            }
+            serviceUuids_.add(
+                input.readMessage(dev.yanshouwang.bluetooth_low_energy.proto.UUID.parser(), extensionRegistry));
+            break;
+          }
+          case 74: {
+            if (!((mutable_bitField0_ & 0x00000010) != 0)) {
+              solicitedServiceUuids_ = new java.util.ArrayList<dev.yanshouwang.bluetooth_low_energy.proto.UUID>();
+              mutable_bitField0_ |= 0x00000010;
+            }
+            solicitedServiceUuids_.add(
+                input.readMessage(dev.yanshouwang.bluetooth_low_energy.proto.UUID.parser(), extensionRegistry));
+            break;
+          }
+          case 80: {
+            bitField0_ |= 0x00000004;
+            txPowerLevel_ = input.readInt32();
             break;
           }
           default: {
@@ -88,6 +143,15 @@ private static final long serialVersionUID = 0L;
       throw new com.google.protobuf.InvalidProtocolBufferException(
           e).setUnfinishedMessage(this);
     } finally {
+      if (((mutable_bitField0_ & 0x00000004) != 0)) {
+        serviceDatas_ = java.util.Collections.unmodifiableList(serviceDatas_);
+      }
+      if (((mutable_bitField0_ & 0x00000008) != 0)) {
+        serviceUuids_ = java.util.Collections.unmodifiableList(serviceUuids_);
+      }
+      if (((mutable_bitField0_ & 0x00000010) != 0)) {
+        solicitedServiceUuids_ = java.util.Collections.unmodifiableList(solicitedServiceUuids_);
+      }
       this.unknownFields = unknownFields.build();
       makeExtensionsImmutable();
     }
@@ -105,59 +169,37 @@ private static final long serialVersionUID = 0L;
             dev.yanshouwang.bluetooth_low_energy.proto.Advertisement.class, dev.yanshouwang.bluetooth_low_energy.proto.Advertisement.Builder.class);
   }
 
+  private int bitField0_;
   public static final int UUID_FIELD_NUMBER = 1;
-  private volatile java.lang.Object uuid_;
+  private dev.yanshouwang.bluetooth_low_energy.proto.UUID uuid_;
   /**
-   * <code>string uuid = 1;</code>
+   * <code>.proto.UUID uuid = 1;</code>
+   * @return Whether the uuid field is set.
+   */
+  @java.lang.Override
+  public boolean hasUuid() {
+    return uuid_ != null;
+  }
+  /**
+   * <code>.proto.UUID uuid = 1;</code>
    * @return The uuid.
    */
   @java.lang.Override
-  public java.lang.String getUuid() {
-    java.lang.Object ref = uuid_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      uuid_ = s;
-      return s;
-    }
+  public dev.yanshouwang.bluetooth_low_energy.proto.UUID getUuid() {
+    return uuid_ == null ? dev.yanshouwang.bluetooth_low_energy.proto.UUID.getDefaultInstance() : uuid_;
   }
   /**
-   * <code>string uuid = 1;</code>
-   * @return The bytes for uuid.
+   * <code>.proto.UUID uuid = 1;</code>
    */
   @java.lang.Override
-  public com.google.protobuf.ByteString
-      getUuidBytes() {
-    java.lang.Object ref = uuid_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      uuid_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
+  public dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder getUuidOrBuilder() {
+    return getUuid();
   }
 
-  public static final int DATA_FIELD_NUMBER = 2;
-  private com.google.protobuf.ByteString data_;
-  /**
-   * <code>bytes data = 2;</code>
-   * @return The data.
-   */
-  @java.lang.Override
-  public com.google.protobuf.ByteString getData() {
-    return data_;
-  }
-
-  public static final int RSSI_FIELD_NUMBER = 3;
+  public static final int RSSI_FIELD_NUMBER = 2;
   private int rssi_;
   /**
-   * <code>int32 rssi = 3;</code>
+   * <code>int32 rssi = 2;</code>
    * @return The rssi.
    */
   @java.lang.Override
@@ -165,15 +207,230 @@ private static final long serialVersionUID = 0L;
     return rssi_;
   }
 
-  public static final int CONNECTABLE_FIELD_NUMBER = 4;
+  public static final int CONNECTABLE_FIELD_NUMBER = 3;
   private boolean connectable_;
   /**
-   * <code>bool connectable = 4;</code>
+   * <code>optional bool connectable = 3;</code>
+   * @return Whether the connectable field is set.
+   */
+  @java.lang.Override
+  public boolean hasConnectable() {
+    return ((bitField0_ & 0x00000001) != 0);
+  }
+  /**
+   * <code>optional bool connectable = 3;</code>
    * @return The connectable.
    */
   @java.lang.Override
   public boolean getConnectable() {
     return connectable_;
+  }
+
+  public static final int DATA_FIELD_NUMBER = 4;
+  private com.google.protobuf.ByteString data_;
+  /**
+   * <code>bytes data = 4;</code>
+   * @return The data.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString getData() {
+    return data_;
+  }
+
+  public static final int LOCAL_NAME_FIELD_NUMBER = 5;
+  private volatile java.lang.Object localName_;
+  /**
+   * <code>optional string local_name = 5;</code>
+   * @return Whether the localName field is set.
+   */
+  @java.lang.Override
+  public boolean hasLocalName() {
+    return ((bitField0_ & 0x00000002) != 0);
+  }
+  /**
+   * <code>optional string local_name = 5;</code>
+   * @return The localName.
+   */
+  @java.lang.Override
+  public java.lang.String getLocalName() {
+    java.lang.Object ref = localName_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      localName_ = s;
+      return s;
+    }
+  }
+  /**
+   * <code>optional string local_name = 5;</code>
+   * @return The bytes for localName.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+      getLocalNameBytes() {
+    java.lang.Object ref = localName_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      localName_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  public static final int MANUFACTURER_SPECIFIC_DATA_FIELD_NUMBER = 6;
+  private com.google.protobuf.ByteString manufacturerSpecificData_;
+  /**
+   * <code>bytes manufacturer_specific_data = 6;</code>
+   * @return The manufacturerSpecificData.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString getManufacturerSpecificData() {
+    return manufacturerSpecificData_;
+  }
+
+  public static final int SERVICE_DATAS_FIELD_NUMBER = 7;
+  private java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.ServiceData> serviceDatas_;
+  /**
+   * <code>repeated .proto.ServiceData service_datas = 7;</code>
+   */
+  @java.lang.Override
+  public java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.ServiceData> getServiceDatasList() {
+    return serviceDatas_;
+  }
+  /**
+   * <code>repeated .proto.ServiceData service_datas = 7;</code>
+   */
+  @java.lang.Override
+  public java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.proto.ServiceDataOrBuilder> 
+      getServiceDatasOrBuilderList() {
+    return serviceDatas_;
+  }
+  /**
+   * <code>repeated .proto.ServiceData service_datas = 7;</code>
+   */
+  @java.lang.Override
+  public int getServiceDatasCount() {
+    return serviceDatas_.size();
+  }
+  /**
+   * <code>repeated .proto.ServiceData service_datas = 7;</code>
+   */
+  @java.lang.Override
+  public dev.yanshouwang.bluetooth_low_energy.proto.ServiceData getServiceDatas(int index) {
+    return serviceDatas_.get(index);
+  }
+  /**
+   * <code>repeated .proto.ServiceData service_datas = 7;</code>
+   */
+  @java.lang.Override
+  public dev.yanshouwang.bluetooth_low_energy.proto.ServiceDataOrBuilder getServiceDatasOrBuilder(
+      int index) {
+    return serviceDatas_.get(index);
+  }
+
+  public static final int SERVICE_UUIDS_FIELD_NUMBER = 8;
+  private java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.UUID> serviceUuids_;
+  /**
+   * <code>repeated .proto.UUID service_uuids = 8;</code>
+   */
+  @java.lang.Override
+  public java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.UUID> getServiceUuidsList() {
+    return serviceUuids_;
+  }
+  /**
+   * <code>repeated .proto.UUID service_uuids = 8;</code>
+   */
+  @java.lang.Override
+  public java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder> 
+      getServiceUuidsOrBuilderList() {
+    return serviceUuids_;
+  }
+  /**
+   * <code>repeated .proto.UUID service_uuids = 8;</code>
+   */
+  @java.lang.Override
+  public int getServiceUuidsCount() {
+    return serviceUuids_.size();
+  }
+  /**
+   * <code>repeated .proto.UUID service_uuids = 8;</code>
+   */
+  @java.lang.Override
+  public dev.yanshouwang.bluetooth_low_energy.proto.UUID getServiceUuids(int index) {
+    return serviceUuids_.get(index);
+  }
+  /**
+   * <code>repeated .proto.UUID service_uuids = 8;</code>
+   */
+  @java.lang.Override
+  public dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder getServiceUuidsOrBuilder(
+      int index) {
+    return serviceUuids_.get(index);
+  }
+
+  public static final int SOLICITED_SERVICE_UUIDS_FIELD_NUMBER = 9;
+  private java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.UUID> solicitedServiceUuids_;
+  /**
+   * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+   */
+  @java.lang.Override
+  public java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.UUID> getSolicitedServiceUuidsList() {
+    return solicitedServiceUuids_;
+  }
+  /**
+   * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+   */
+  @java.lang.Override
+  public java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder> 
+      getSolicitedServiceUuidsOrBuilderList() {
+    return solicitedServiceUuids_;
+  }
+  /**
+   * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+   */
+  @java.lang.Override
+  public int getSolicitedServiceUuidsCount() {
+    return solicitedServiceUuids_.size();
+  }
+  /**
+   * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+   */
+  @java.lang.Override
+  public dev.yanshouwang.bluetooth_low_energy.proto.UUID getSolicitedServiceUuids(int index) {
+    return solicitedServiceUuids_.get(index);
+  }
+  /**
+   * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+   */
+  @java.lang.Override
+  public dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder getSolicitedServiceUuidsOrBuilder(
+      int index) {
+    return solicitedServiceUuids_.get(index);
+  }
+
+  public static final int TX_POWER_LEVEL_FIELD_NUMBER = 10;
+  private int txPowerLevel_;
+  /**
+   * <code>optional int32 tx_power_level = 10;</code>
+   * @return Whether the txPowerLevel field is set.
+   */
+  @java.lang.Override
+  public boolean hasTxPowerLevel() {
+    return ((bitField0_ & 0x00000004) != 0);
+  }
+  /**
+   * <code>optional int32 tx_power_level = 10;</code>
+   * @return The txPowerLevel.
+   */
+  @java.lang.Override
+  public int getTxPowerLevel() {
+    return txPowerLevel_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -190,17 +447,35 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(uuid_)) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 1, uuid_);
-    }
-    if (!data_.isEmpty()) {
-      output.writeBytes(2, data_);
+    if (uuid_ != null) {
+      output.writeMessage(1, getUuid());
     }
     if (rssi_ != 0) {
-      output.writeInt32(3, rssi_);
+      output.writeInt32(2, rssi_);
     }
-    if (connectable_ != false) {
-      output.writeBool(4, connectable_);
+    if (((bitField0_ & 0x00000001) != 0)) {
+      output.writeBool(3, connectable_);
+    }
+    if (!data_.isEmpty()) {
+      output.writeBytes(4, data_);
+    }
+    if (((bitField0_ & 0x00000002) != 0)) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 5, localName_);
+    }
+    if (!manufacturerSpecificData_.isEmpty()) {
+      output.writeBytes(6, manufacturerSpecificData_);
+    }
+    for (int i = 0; i < serviceDatas_.size(); i++) {
+      output.writeMessage(7, serviceDatas_.get(i));
+    }
+    for (int i = 0; i < serviceUuids_.size(); i++) {
+      output.writeMessage(8, serviceUuids_.get(i));
+    }
+    for (int i = 0; i < solicitedServiceUuids_.size(); i++) {
+      output.writeMessage(9, solicitedServiceUuids_.get(i));
+    }
+    if (((bitField0_ & 0x00000004) != 0)) {
+      output.writeInt32(10, txPowerLevel_);
     }
     unknownFields.writeTo(output);
   }
@@ -211,20 +486,44 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(uuid_)) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, uuid_);
-    }
-    if (!data_.isEmpty()) {
+    if (uuid_ != null) {
       size += com.google.protobuf.CodedOutputStream
-        .computeBytesSize(2, data_);
+        .computeMessageSize(1, getUuid());
     }
     if (rssi_ != 0) {
       size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(3, rssi_);
+        .computeInt32Size(2, rssi_);
     }
-    if (connectable_ != false) {
+    if (((bitField0_ & 0x00000001) != 0)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeBoolSize(4, connectable_);
+        .computeBoolSize(3, connectable_);
+    }
+    if (!data_.isEmpty()) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(4, data_);
+    }
+    if (((bitField0_ & 0x00000002) != 0)) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, localName_);
+    }
+    if (!manufacturerSpecificData_.isEmpty()) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(6, manufacturerSpecificData_);
+    }
+    for (int i = 0; i < serviceDatas_.size(); i++) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(7, serviceDatas_.get(i));
+    }
+    for (int i = 0; i < serviceUuids_.size(); i++) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(8, serviceUuids_.get(i));
+    }
+    for (int i = 0; i < solicitedServiceUuids_.size(); i++) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(9, solicitedServiceUuids_.get(i));
+    }
+    if (((bitField0_ & 0x00000004) != 0)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeInt32Size(10, txPowerLevel_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -241,14 +540,38 @@ private static final long serialVersionUID = 0L;
     }
     dev.yanshouwang.bluetooth_low_energy.proto.Advertisement other = (dev.yanshouwang.bluetooth_low_energy.proto.Advertisement) obj;
 
-    if (!getUuid()
-        .equals(other.getUuid())) return false;
-    if (!getData()
-        .equals(other.getData())) return false;
+    if (hasUuid() != other.hasUuid()) return false;
+    if (hasUuid()) {
+      if (!getUuid()
+          .equals(other.getUuid())) return false;
+    }
     if (getRssi()
         != other.getRssi()) return false;
-    if (getConnectable()
-        != other.getConnectable()) return false;
+    if (hasConnectable() != other.hasConnectable()) return false;
+    if (hasConnectable()) {
+      if (getConnectable()
+          != other.getConnectable()) return false;
+    }
+    if (!getData()
+        .equals(other.getData())) return false;
+    if (hasLocalName() != other.hasLocalName()) return false;
+    if (hasLocalName()) {
+      if (!getLocalName()
+          .equals(other.getLocalName())) return false;
+    }
+    if (!getManufacturerSpecificData()
+        .equals(other.getManufacturerSpecificData())) return false;
+    if (!getServiceDatasList()
+        .equals(other.getServiceDatasList())) return false;
+    if (!getServiceUuidsList()
+        .equals(other.getServiceUuidsList())) return false;
+    if (!getSolicitedServiceUuidsList()
+        .equals(other.getSolicitedServiceUuidsList())) return false;
+    if (hasTxPowerLevel() != other.hasTxPowerLevel()) return false;
+    if (hasTxPowerLevel()) {
+      if (getTxPowerLevel()
+          != other.getTxPowerLevel()) return false;
+    }
     if (!unknownFields.equals(other.unknownFields)) return false;
     return true;
   }
@@ -260,15 +583,41 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + UUID_FIELD_NUMBER;
-    hash = (53 * hash) + getUuid().hashCode();
-    hash = (37 * hash) + DATA_FIELD_NUMBER;
-    hash = (53 * hash) + getData().hashCode();
+    if (hasUuid()) {
+      hash = (37 * hash) + UUID_FIELD_NUMBER;
+      hash = (53 * hash) + getUuid().hashCode();
+    }
     hash = (37 * hash) + RSSI_FIELD_NUMBER;
     hash = (53 * hash) + getRssi();
-    hash = (37 * hash) + CONNECTABLE_FIELD_NUMBER;
-    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-        getConnectable());
+    if (hasConnectable()) {
+      hash = (37 * hash) + CONNECTABLE_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getConnectable());
+    }
+    hash = (37 * hash) + DATA_FIELD_NUMBER;
+    hash = (53 * hash) + getData().hashCode();
+    if (hasLocalName()) {
+      hash = (37 * hash) + LOCAL_NAME_FIELD_NUMBER;
+      hash = (53 * hash) + getLocalName().hashCode();
+    }
+    hash = (37 * hash) + MANUFACTURER_SPECIFIC_DATA_FIELD_NUMBER;
+    hash = (53 * hash) + getManufacturerSpecificData().hashCode();
+    if (getServiceDatasCount() > 0) {
+      hash = (37 * hash) + SERVICE_DATAS_FIELD_NUMBER;
+      hash = (53 * hash) + getServiceDatasList().hashCode();
+    }
+    if (getServiceUuidsCount() > 0) {
+      hash = (37 * hash) + SERVICE_UUIDS_FIELD_NUMBER;
+      hash = (53 * hash) + getServiceUuidsList().hashCode();
+    }
+    if (getSolicitedServiceUuidsCount() > 0) {
+      hash = (37 * hash) + SOLICITED_SERVICE_UUIDS_FIELD_NUMBER;
+      hash = (53 * hash) + getSolicitedServiceUuidsList().hashCode();
+    }
+    if (hasTxPowerLevel()) {
+      hash = (37 * hash) + TX_POWER_LEVEL_FIELD_NUMBER;
+      hash = (53 * hash) + getTxPowerLevel();
+    }
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -397,19 +746,50 @@ private static final long serialVersionUID = 0L;
     private void maybeForceBuilderInitialization() {
       if (com.google.protobuf.GeneratedMessageV3
               .alwaysUseFieldBuilders) {
+        getServiceDatasFieldBuilder();
+        getServiceUuidsFieldBuilder();
+        getSolicitedServiceUuidsFieldBuilder();
       }
     }
     @java.lang.Override
     public Builder clear() {
       super.clear();
-      uuid_ = "";
-
-      data_ = com.google.protobuf.ByteString.EMPTY;
-
+      if (uuidBuilder_ == null) {
+        uuid_ = null;
+      } else {
+        uuid_ = null;
+        uuidBuilder_ = null;
+      }
       rssi_ = 0;
 
       connectable_ = false;
+      bitField0_ = (bitField0_ & ~0x00000001);
+      data_ = com.google.protobuf.ByteString.EMPTY;
 
+      localName_ = "";
+      bitField0_ = (bitField0_ & ~0x00000002);
+      manufacturerSpecificData_ = com.google.protobuf.ByteString.EMPTY;
+
+      if (serviceDatasBuilder_ == null) {
+        serviceDatas_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
+      } else {
+        serviceDatasBuilder_.clear();
+      }
+      if (serviceUuidsBuilder_ == null) {
+        serviceUuids_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000008);
+      } else {
+        serviceUuidsBuilder_.clear();
+      }
+      if (solicitedServiceUuidsBuilder_ == null) {
+        solicitedServiceUuids_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000010);
+      } else {
+        solicitedServiceUuidsBuilder_.clear();
+      }
+      txPowerLevel_ = 0;
+      bitField0_ = (bitField0_ & ~0x00000020);
       return this;
     }
 
@@ -436,10 +816,56 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public dev.yanshouwang.bluetooth_low_energy.proto.Advertisement buildPartial() {
       dev.yanshouwang.bluetooth_low_energy.proto.Advertisement result = new dev.yanshouwang.bluetooth_low_energy.proto.Advertisement(this);
-      result.uuid_ = uuid_;
-      result.data_ = data_;
+      int from_bitField0_ = bitField0_;
+      int to_bitField0_ = 0;
+      if (uuidBuilder_ == null) {
+        result.uuid_ = uuid_;
+      } else {
+        result.uuid_ = uuidBuilder_.build();
+      }
       result.rssi_ = rssi_;
-      result.connectable_ = connectable_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.connectable_ = connectable_;
+        to_bitField0_ |= 0x00000001;
+      }
+      result.data_ = data_;
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        to_bitField0_ |= 0x00000002;
+      }
+      result.localName_ = localName_;
+      result.manufacturerSpecificData_ = manufacturerSpecificData_;
+      if (serviceDatasBuilder_ == null) {
+        if (((bitField0_ & 0x00000004) != 0)) {
+          serviceDatas_ = java.util.Collections.unmodifiableList(serviceDatas_);
+          bitField0_ = (bitField0_ & ~0x00000004);
+        }
+        result.serviceDatas_ = serviceDatas_;
+      } else {
+        result.serviceDatas_ = serviceDatasBuilder_.build();
+      }
+      if (serviceUuidsBuilder_ == null) {
+        if (((bitField0_ & 0x00000008) != 0)) {
+          serviceUuids_ = java.util.Collections.unmodifiableList(serviceUuids_);
+          bitField0_ = (bitField0_ & ~0x00000008);
+        }
+        result.serviceUuids_ = serviceUuids_;
+      } else {
+        result.serviceUuids_ = serviceUuidsBuilder_.build();
+      }
+      if (solicitedServiceUuidsBuilder_ == null) {
+        if (((bitField0_ & 0x00000010) != 0)) {
+          solicitedServiceUuids_ = java.util.Collections.unmodifiableList(solicitedServiceUuids_);
+          bitField0_ = (bitField0_ & ~0x00000010);
+        }
+        result.solicitedServiceUuids_ = solicitedServiceUuids_;
+      } else {
+        result.solicitedServiceUuids_ = solicitedServiceUuidsBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000020) != 0)) {
+        result.txPowerLevel_ = txPowerLevel_;
+        to_bitField0_ |= 0x00000004;
+      }
+      result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
     }
@@ -488,18 +914,106 @@ private static final long serialVersionUID = 0L;
 
     public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.proto.Advertisement other) {
       if (other == dev.yanshouwang.bluetooth_low_energy.proto.Advertisement.getDefaultInstance()) return this;
-      if (!other.getUuid().isEmpty()) {
-        uuid_ = other.uuid_;
-        onChanged();
-      }
-      if (other.getData() != com.google.protobuf.ByteString.EMPTY) {
-        setData(other.getData());
+      if (other.hasUuid()) {
+        mergeUuid(other.getUuid());
       }
       if (other.getRssi() != 0) {
         setRssi(other.getRssi());
       }
-      if (other.getConnectable() != false) {
+      if (other.hasConnectable()) {
         setConnectable(other.getConnectable());
+      }
+      if (other.getData() != com.google.protobuf.ByteString.EMPTY) {
+        setData(other.getData());
+      }
+      if (other.hasLocalName()) {
+        bitField0_ |= 0x00000002;
+        localName_ = other.localName_;
+        onChanged();
+      }
+      if (other.getManufacturerSpecificData() != com.google.protobuf.ByteString.EMPTY) {
+        setManufacturerSpecificData(other.getManufacturerSpecificData());
+      }
+      if (serviceDatasBuilder_ == null) {
+        if (!other.serviceDatas_.isEmpty()) {
+          if (serviceDatas_.isEmpty()) {
+            serviceDatas_ = other.serviceDatas_;
+            bitField0_ = (bitField0_ & ~0x00000004);
+          } else {
+            ensureServiceDatasIsMutable();
+            serviceDatas_.addAll(other.serviceDatas_);
+          }
+          onChanged();
+        }
+      } else {
+        if (!other.serviceDatas_.isEmpty()) {
+          if (serviceDatasBuilder_.isEmpty()) {
+            serviceDatasBuilder_.dispose();
+            serviceDatasBuilder_ = null;
+            serviceDatas_ = other.serviceDatas_;
+            bitField0_ = (bitField0_ & ~0x00000004);
+            serviceDatasBuilder_ = 
+              com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                 getServiceDatasFieldBuilder() : null;
+          } else {
+            serviceDatasBuilder_.addAllMessages(other.serviceDatas_);
+          }
+        }
+      }
+      if (serviceUuidsBuilder_ == null) {
+        if (!other.serviceUuids_.isEmpty()) {
+          if (serviceUuids_.isEmpty()) {
+            serviceUuids_ = other.serviceUuids_;
+            bitField0_ = (bitField0_ & ~0x00000008);
+          } else {
+            ensureServiceUuidsIsMutable();
+            serviceUuids_.addAll(other.serviceUuids_);
+          }
+          onChanged();
+        }
+      } else {
+        if (!other.serviceUuids_.isEmpty()) {
+          if (serviceUuidsBuilder_.isEmpty()) {
+            serviceUuidsBuilder_.dispose();
+            serviceUuidsBuilder_ = null;
+            serviceUuids_ = other.serviceUuids_;
+            bitField0_ = (bitField0_ & ~0x00000008);
+            serviceUuidsBuilder_ = 
+              com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                 getServiceUuidsFieldBuilder() : null;
+          } else {
+            serviceUuidsBuilder_.addAllMessages(other.serviceUuids_);
+          }
+        }
+      }
+      if (solicitedServiceUuidsBuilder_ == null) {
+        if (!other.solicitedServiceUuids_.isEmpty()) {
+          if (solicitedServiceUuids_.isEmpty()) {
+            solicitedServiceUuids_ = other.solicitedServiceUuids_;
+            bitField0_ = (bitField0_ & ~0x00000010);
+          } else {
+            ensureSolicitedServiceUuidsIsMutable();
+            solicitedServiceUuids_.addAll(other.solicitedServiceUuids_);
+          }
+          onChanged();
+        }
+      } else {
+        if (!other.solicitedServiceUuids_.isEmpty()) {
+          if (solicitedServiceUuidsBuilder_.isEmpty()) {
+            solicitedServiceUuidsBuilder_.dispose();
+            solicitedServiceUuidsBuilder_ = null;
+            solicitedServiceUuids_ = other.solicitedServiceUuids_;
+            bitField0_ = (bitField0_ & ~0x00000010);
+            solicitedServiceUuidsBuilder_ = 
+              com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                 getSolicitedServiceUuidsFieldBuilder() : null;
+          } else {
+            solicitedServiceUuidsBuilder_.addAllMessages(other.solicitedServiceUuids_);
+          }
+        }
+      }
+      if (other.hasTxPowerLevel()) {
+        setTxPowerLevel(other.getTxPowerLevel());
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -529,86 +1043,200 @@ private static final long serialVersionUID = 0L;
       }
       return this;
     }
+    private int bitField0_;
 
-    private java.lang.Object uuid_ = "";
+    private dev.yanshouwang.bluetooth_low_energy.proto.UUID uuid_;
+    private com.google.protobuf.SingleFieldBuilderV3<
+        dev.yanshouwang.bluetooth_low_energy.proto.UUID, dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder, dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder> uuidBuilder_;
     /**
-     * <code>string uuid = 1;</code>
+     * <code>.proto.UUID uuid = 1;</code>
+     * @return Whether the uuid field is set.
+     */
+    public boolean hasUuid() {
+      return uuidBuilder_ != null || uuid_ != null;
+    }
+    /**
+     * <code>.proto.UUID uuid = 1;</code>
      * @return The uuid.
      */
-    public java.lang.String getUuid() {
-      java.lang.Object ref = uuid_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        uuid_ = s;
-        return s;
+    public dev.yanshouwang.bluetooth_low_energy.proto.UUID getUuid() {
+      if (uuidBuilder_ == null) {
+        return uuid_ == null ? dev.yanshouwang.bluetooth_low_energy.proto.UUID.getDefaultInstance() : uuid_;
       } else {
-        return (java.lang.String) ref;
+        return uuidBuilder_.getMessage();
       }
     }
     /**
-     * <code>string uuid = 1;</code>
-     * @return The bytes for uuid.
+     * <code>.proto.UUID uuid = 1;</code>
      */
-    public com.google.protobuf.ByteString
-        getUuidBytes() {
-      java.lang.Object ref = uuid_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        uuid_ = b;
-        return b;
+    public Builder setUuid(dev.yanshouwang.bluetooth_low_energy.proto.UUID value) {
+      if (uuidBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        uuid_ = value;
+        onChanged();
       } else {
-        return (com.google.protobuf.ByteString) ref;
+        uuidBuilder_.setMessage(value);
       }
+
+      return this;
     }
     /**
-     * <code>string uuid = 1;</code>
-     * @param value The uuid to set.
-     * @return This builder for chaining.
+     * <code>.proto.UUID uuid = 1;</code>
      */
     public Builder setUuid(
-        java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
-      uuid_ = value;
-      onChanged();
+        dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder builderForValue) {
+      if (uuidBuilder_ == null) {
+        uuid_ = builderForValue.build();
+        onChanged();
+      } else {
+        uuidBuilder_.setMessage(builderForValue.build());
+      }
+
       return this;
     }
     /**
-     * <code>string uuid = 1;</code>
-     * @return This builder for chaining.
+     * <code>.proto.UUID uuid = 1;</code>
+     */
+    public Builder mergeUuid(dev.yanshouwang.bluetooth_low_energy.proto.UUID value) {
+      if (uuidBuilder_ == null) {
+        if (uuid_ != null) {
+          uuid_ =
+            dev.yanshouwang.bluetooth_low_energy.proto.UUID.newBuilder(uuid_).mergeFrom(value).buildPartial();
+        } else {
+          uuid_ = value;
+        }
+        onChanged();
+      } else {
+        uuidBuilder_.mergeFrom(value);
+      }
+
+      return this;
+    }
+    /**
+     * <code>.proto.UUID uuid = 1;</code>
      */
     public Builder clearUuid() {
+      if (uuidBuilder_ == null) {
+        uuid_ = null;
+        onChanged();
+      } else {
+        uuid_ = null;
+        uuidBuilder_ = null;
+      }
+
+      return this;
+    }
+    /**
+     * <code>.proto.UUID uuid = 1;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder getUuidBuilder() {
       
-      uuid_ = getDefaultInstance().getUuid();
+      onChanged();
+      return getUuidFieldBuilder().getBuilder();
+    }
+    /**
+     * <code>.proto.UUID uuid = 1;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder getUuidOrBuilder() {
+      if (uuidBuilder_ != null) {
+        return uuidBuilder_.getMessageOrBuilder();
+      } else {
+        return uuid_ == null ?
+            dev.yanshouwang.bluetooth_low_energy.proto.UUID.getDefaultInstance() : uuid_;
+      }
+    }
+    /**
+     * <code>.proto.UUID uuid = 1;</code>
+     */
+    private com.google.protobuf.SingleFieldBuilderV3<
+        dev.yanshouwang.bluetooth_low_energy.proto.UUID, dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder, dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder> 
+        getUuidFieldBuilder() {
+      if (uuidBuilder_ == null) {
+        uuidBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+            dev.yanshouwang.bluetooth_low_energy.proto.UUID, dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder, dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder>(
+                getUuid(),
+                getParentForChildren(),
+                isClean());
+        uuid_ = null;
+      }
+      return uuidBuilder_;
+    }
+
+    private int rssi_ ;
+    /**
+     * <code>int32 rssi = 2;</code>
+     * @return The rssi.
+     */
+    @java.lang.Override
+    public int getRssi() {
+      return rssi_;
+    }
+    /**
+     * <code>int32 rssi = 2;</code>
+     * @param value The rssi to set.
+     * @return This builder for chaining.
+     */
+    public Builder setRssi(int value) {
+      
+      rssi_ = value;
       onChanged();
       return this;
     }
     /**
-     * <code>string uuid = 1;</code>
-     * @param value The bytes for uuid to set.
+     * <code>int32 rssi = 2;</code>
      * @return This builder for chaining.
      */
-    public Builder setUuidBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
+    public Builder clearRssi() {
       
-      uuid_ = value;
+      rssi_ = 0;
+      onChanged();
+      return this;
+    }
+
+    private boolean connectable_ ;
+    /**
+     * <code>optional bool connectable = 3;</code>
+     * @return Whether the connectable field is set.
+     */
+    @java.lang.Override
+    public boolean hasConnectable() {
+      return ((bitField0_ & 0x00000001) != 0);
+    }
+    /**
+     * <code>optional bool connectable = 3;</code>
+     * @return The connectable.
+     */
+    @java.lang.Override
+    public boolean getConnectable() {
+      return connectable_;
+    }
+    /**
+     * <code>optional bool connectable = 3;</code>
+     * @param value The connectable to set.
+     * @return This builder for chaining.
+     */
+    public Builder setConnectable(boolean value) {
+      bitField0_ |= 0x00000001;
+      connectable_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>optional bool connectable = 3;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearConnectable() {
+      bitField0_ = (bitField0_ & ~0x00000001);
+      connectable_ = false;
       onChanged();
       return this;
     }
 
     private com.google.protobuf.ByteString data_ = com.google.protobuf.ByteString.EMPTY;
     /**
-     * <code>bytes data = 2;</code>
+     * <code>bytes data = 4;</code>
      * @return The data.
      */
     @java.lang.Override
@@ -616,7 +1244,7 @@ private static final long serialVersionUID = 0L;
       return data_;
     }
     /**
-     * <code>bytes data = 2;</code>
+     * <code>bytes data = 4;</code>
      * @param value The data to set.
      * @return This builder for chaining.
      */
@@ -630,7 +1258,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>bytes data = 2;</code>
+     * <code>bytes data = 4;</code>
      * @return This builder for chaining.
      */
     public Builder clearData() {
@@ -640,64 +1268,878 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
-    private int rssi_ ;
+    private java.lang.Object localName_ = "";
     /**
-     * <code>int32 rssi = 3;</code>
-     * @return The rssi.
+     * <code>optional string local_name = 5;</code>
+     * @return Whether the localName field is set.
      */
-    @java.lang.Override
-    public int getRssi() {
-      return rssi_;
+    public boolean hasLocalName() {
+      return ((bitField0_ & 0x00000002) != 0);
     }
     /**
-     * <code>int32 rssi = 3;</code>
-     * @param value The rssi to set.
+     * <code>optional string local_name = 5;</code>
+     * @return The localName.
+     */
+    public java.lang.String getLocalName() {
+      java.lang.Object ref = localName_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        localName_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <code>optional string local_name = 5;</code>
+     * @return The bytes for localName.
+     */
+    public com.google.protobuf.ByteString
+        getLocalNameBytes() {
+      java.lang.Object ref = localName_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        localName_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>optional string local_name = 5;</code>
+     * @param value The localName to set.
      * @return This builder for chaining.
      */
-    public Builder setRssi(int value) {
-      
-      rssi_ = value;
+    public Builder setLocalName(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+      localName_ = value;
       onChanged();
       return this;
     }
     /**
-     * <code>int32 rssi = 3;</code>
+     * <code>optional string local_name = 5;</code>
      * @return This builder for chaining.
      */
-    public Builder clearRssi() {
-      
-      rssi_ = 0;
+    public Builder clearLocalName() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      localName_ = getDefaultInstance().getLocalName();
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>optional string local_name = 5;</code>
+     * @param value The bytes for localName to set.
+     * @return This builder for chaining.
+     */
+    public Builder setLocalNameBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+      bitField0_ |= 0x00000002;
+      localName_ = value;
       onChanged();
       return this;
     }
 
-    private boolean connectable_ ;
+    private com.google.protobuf.ByteString manufacturerSpecificData_ = com.google.protobuf.ByteString.EMPTY;
     /**
-     * <code>bool connectable = 4;</code>
-     * @return The connectable.
+     * <code>bytes manufacturer_specific_data = 6;</code>
+     * @return The manufacturerSpecificData.
      */
     @java.lang.Override
-    public boolean getConnectable() {
-      return connectable_;
+    public com.google.protobuf.ByteString getManufacturerSpecificData() {
+      return manufacturerSpecificData_;
     }
     /**
-     * <code>bool connectable = 4;</code>
-     * @param value The connectable to set.
+     * <code>bytes manufacturer_specific_data = 6;</code>
+     * @param value The manufacturerSpecificData to set.
      * @return This builder for chaining.
      */
-    public Builder setConnectable(boolean value) {
-      
-      connectable_ = value;
+    public Builder setManufacturerSpecificData(com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      manufacturerSpecificData_ = value;
       onChanged();
       return this;
     }
     /**
-     * <code>bool connectable = 4;</code>
+     * <code>bytes manufacturer_specific_data = 6;</code>
      * @return This builder for chaining.
      */
-    public Builder clearConnectable() {
+    public Builder clearManufacturerSpecificData() {
       
-      connectable_ = false;
+      manufacturerSpecificData_ = getDefaultInstance().getManufacturerSpecificData();
+      onChanged();
+      return this;
+    }
+
+    private java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.ServiceData> serviceDatas_ =
+      java.util.Collections.emptyList();
+    private void ensureServiceDatasIsMutable() {
+      if (!((bitField0_ & 0x00000004) != 0)) {
+        serviceDatas_ = new java.util.ArrayList<dev.yanshouwang.bluetooth_low_energy.proto.ServiceData>(serviceDatas_);
+        bitField0_ |= 0x00000004;
+       }
+    }
+
+    private com.google.protobuf.RepeatedFieldBuilderV3<
+        dev.yanshouwang.bluetooth_low_energy.proto.ServiceData, dev.yanshouwang.bluetooth_low_energy.proto.ServiceData.Builder, dev.yanshouwang.bluetooth_low_energy.proto.ServiceDataOrBuilder> serviceDatasBuilder_;
+
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.ServiceData> getServiceDatasList() {
+      if (serviceDatasBuilder_ == null) {
+        return java.util.Collections.unmodifiableList(serviceDatas_);
+      } else {
+        return serviceDatasBuilder_.getMessageList();
+      }
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public int getServiceDatasCount() {
+      if (serviceDatasBuilder_ == null) {
+        return serviceDatas_.size();
+      } else {
+        return serviceDatasBuilder_.getCount();
+      }
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.ServiceData getServiceDatas(int index) {
+      if (serviceDatasBuilder_ == null) {
+        return serviceDatas_.get(index);
+      } else {
+        return serviceDatasBuilder_.getMessage(index);
+      }
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public Builder setServiceDatas(
+        int index, dev.yanshouwang.bluetooth_low_energy.proto.ServiceData value) {
+      if (serviceDatasBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureServiceDatasIsMutable();
+        serviceDatas_.set(index, value);
+        onChanged();
+      } else {
+        serviceDatasBuilder_.setMessage(index, value);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public Builder setServiceDatas(
+        int index, dev.yanshouwang.bluetooth_low_energy.proto.ServiceData.Builder builderForValue) {
+      if (serviceDatasBuilder_ == null) {
+        ensureServiceDatasIsMutable();
+        serviceDatas_.set(index, builderForValue.build());
+        onChanged();
+      } else {
+        serviceDatasBuilder_.setMessage(index, builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public Builder addServiceDatas(dev.yanshouwang.bluetooth_low_energy.proto.ServiceData value) {
+      if (serviceDatasBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureServiceDatasIsMutable();
+        serviceDatas_.add(value);
+        onChanged();
+      } else {
+        serviceDatasBuilder_.addMessage(value);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public Builder addServiceDatas(
+        int index, dev.yanshouwang.bluetooth_low_energy.proto.ServiceData value) {
+      if (serviceDatasBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureServiceDatasIsMutable();
+        serviceDatas_.add(index, value);
+        onChanged();
+      } else {
+        serviceDatasBuilder_.addMessage(index, value);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public Builder addServiceDatas(
+        dev.yanshouwang.bluetooth_low_energy.proto.ServiceData.Builder builderForValue) {
+      if (serviceDatasBuilder_ == null) {
+        ensureServiceDatasIsMutable();
+        serviceDatas_.add(builderForValue.build());
+        onChanged();
+      } else {
+        serviceDatasBuilder_.addMessage(builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public Builder addServiceDatas(
+        int index, dev.yanshouwang.bluetooth_low_energy.proto.ServiceData.Builder builderForValue) {
+      if (serviceDatasBuilder_ == null) {
+        ensureServiceDatasIsMutable();
+        serviceDatas_.add(index, builderForValue.build());
+        onChanged();
+      } else {
+        serviceDatasBuilder_.addMessage(index, builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public Builder addAllServiceDatas(
+        java.lang.Iterable<? extends dev.yanshouwang.bluetooth_low_energy.proto.ServiceData> values) {
+      if (serviceDatasBuilder_ == null) {
+        ensureServiceDatasIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, serviceDatas_);
+        onChanged();
+      } else {
+        serviceDatasBuilder_.addAllMessages(values);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public Builder clearServiceDatas() {
+      if (serviceDatasBuilder_ == null) {
+        serviceDatas_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
+        onChanged();
+      } else {
+        serviceDatasBuilder_.clear();
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public Builder removeServiceDatas(int index) {
+      if (serviceDatasBuilder_ == null) {
+        ensureServiceDatasIsMutable();
+        serviceDatas_.remove(index);
+        onChanged();
+      } else {
+        serviceDatasBuilder_.remove(index);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.ServiceData.Builder getServiceDatasBuilder(
+        int index) {
+      return getServiceDatasFieldBuilder().getBuilder(index);
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.ServiceDataOrBuilder getServiceDatasOrBuilder(
+        int index) {
+      if (serviceDatasBuilder_ == null) {
+        return serviceDatas_.get(index);  } else {
+        return serviceDatasBuilder_.getMessageOrBuilder(index);
+      }
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.proto.ServiceDataOrBuilder> 
+         getServiceDatasOrBuilderList() {
+      if (serviceDatasBuilder_ != null) {
+        return serviceDatasBuilder_.getMessageOrBuilderList();
+      } else {
+        return java.util.Collections.unmodifiableList(serviceDatas_);
+      }
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.ServiceData.Builder addServiceDatasBuilder() {
+      return getServiceDatasFieldBuilder().addBuilder(
+          dev.yanshouwang.bluetooth_low_energy.proto.ServiceData.getDefaultInstance());
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.ServiceData.Builder addServiceDatasBuilder(
+        int index) {
+      return getServiceDatasFieldBuilder().addBuilder(
+          index, dev.yanshouwang.bluetooth_low_energy.proto.ServiceData.getDefaultInstance());
+    }
+    /**
+     * <code>repeated .proto.ServiceData service_datas = 7;</code>
+     */
+    public java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.ServiceData.Builder> 
+         getServiceDatasBuilderList() {
+      return getServiceDatasFieldBuilder().getBuilderList();
+    }
+    private com.google.protobuf.RepeatedFieldBuilderV3<
+        dev.yanshouwang.bluetooth_low_energy.proto.ServiceData, dev.yanshouwang.bluetooth_low_energy.proto.ServiceData.Builder, dev.yanshouwang.bluetooth_low_energy.proto.ServiceDataOrBuilder> 
+        getServiceDatasFieldBuilder() {
+      if (serviceDatasBuilder_ == null) {
+        serviceDatasBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+            dev.yanshouwang.bluetooth_low_energy.proto.ServiceData, dev.yanshouwang.bluetooth_low_energy.proto.ServiceData.Builder, dev.yanshouwang.bluetooth_low_energy.proto.ServiceDataOrBuilder>(
+                serviceDatas_,
+                ((bitField0_ & 0x00000004) != 0),
+                getParentForChildren(),
+                isClean());
+        serviceDatas_ = null;
+      }
+      return serviceDatasBuilder_;
+    }
+
+    private java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.UUID> serviceUuids_ =
+      java.util.Collections.emptyList();
+    private void ensureServiceUuidsIsMutable() {
+      if (!((bitField0_ & 0x00000008) != 0)) {
+        serviceUuids_ = new java.util.ArrayList<dev.yanshouwang.bluetooth_low_energy.proto.UUID>(serviceUuids_);
+        bitField0_ |= 0x00000008;
+       }
+    }
+
+    private com.google.protobuf.RepeatedFieldBuilderV3<
+        dev.yanshouwang.bluetooth_low_energy.proto.UUID, dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder, dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder> serviceUuidsBuilder_;
+
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.UUID> getServiceUuidsList() {
+      if (serviceUuidsBuilder_ == null) {
+        return java.util.Collections.unmodifiableList(serviceUuids_);
+      } else {
+        return serviceUuidsBuilder_.getMessageList();
+      }
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public int getServiceUuidsCount() {
+      if (serviceUuidsBuilder_ == null) {
+        return serviceUuids_.size();
+      } else {
+        return serviceUuidsBuilder_.getCount();
+      }
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.UUID getServiceUuids(int index) {
+      if (serviceUuidsBuilder_ == null) {
+        return serviceUuids_.get(index);
+      } else {
+        return serviceUuidsBuilder_.getMessage(index);
+      }
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public Builder setServiceUuids(
+        int index, dev.yanshouwang.bluetooth_low_energy.proto.UUID value) {
+      if (serviceUuidsBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureServiceUuidsIsMutable();
+        serviceUuids_.set(index, value);
+        onChanged();
+      } else {
+        serviceUuidsBuilder_.setMessage(index, value);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public Builder setServiceUuids(
+        int index, dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder builderForValue) {
+      if (serviceUuidsBuilder_ == null) {
+        ensureServiceUuidsIsMutable();
+        serviceUuids_.set(index, builderForValue.build());
+        onChanged();
+      } else {
+        serviceUuidsBuilder_.setMessage(index, builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public Builder addServiceUuids(dev.yanshouwang.bluetooth_low_energy.proto.UUID value) {
+      if (serviceUuidsBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureServiceUuidsIsMutable();
+        serviceUuids_.add(value);
+        onChanged();
+      } else {
+        serviceUuidsBuilder_.addMessage(value);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public Builder addServiceUuids(
+        int index, dev.yanshouwang.bluetooth_low_energy.proto.UUID value) {
+      if (serviceUuidsBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureServiceUuidsIsMutable();
+        serviceUuids_.add(index, value);
+        onChanged();
+      } else {
+        serviceUuidsBuilder_.addMessage(index, value);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public Builder addServiceUuids(
+        dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder builderForValue) {
+      if (serviceUuidsBuilder_ == null) {
+        ensureServiceUuidsIsMutable();
+        serviceUuids_.add(builderForValue.build());
+        onChanged();
+      } else {
+        serviceUuidsBuilder_.addMessage(builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public Builder addServiceUuids(
+        int index, dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder builderForValue) {
+      if (serviceUuidsBuilder_ == null) {
+        ensureServiceUuidsIsMutable();
+        serviceUuids_.add(index, builderForValue.build());
+        onChanged();
+      } else {
+        serviceUuidsBuilder_.addMessage(index, builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public Builder addAllServiceUuids(
+        java.lang.Iterable<? extends dev.yanshouwang.bluetooth_low_energy.proto.UUID> values) {
+      if (serviceUuidsBuilder_ == null) {
+        ensureServiceUuidsIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, serviceUuids_);
+        onChanged();
+      } else {
+        serviceUuidsBuilder_.addAllMessages(values);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public Builder clearServiceUuids() {
+      if (serviceUuidsBuilder_ == null) {
+        serviceUuids_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000008);
+        onChanged();
+      } else {
+        serviceUuidsBuilder_.clear();
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public Builder removeServiceUuids(int index) {
+      if (serviceUuidsBuilder_ == null) {
+        ensureServiceUuidsIsMutable();
+        serviceUuids_.remove(index);
+        onChanged();
+      } else {
+        serviceUuidsBuilder_.remove(index);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder getServiceUuidsBuilder(
+        int index) {
+      return getServiceUuidsFieldBuilder().getBuilder(index);
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder getServiceUuidsOrBuilder(
+        int index) {
+      if (serviceUuidsBuilder_ == null) {
+        return serviceUuids_.get(index);  } else {
+        return serviceUuidsBuilder_.getMessageOrBuilder(index);
+      }
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder> 
+         getServiceUuidsOrBuilderList() {
+      if (serviceUuidsBuilder_ != null) {
+        return serviceUuidsBuilder_.getMessageOrBuilderList();
+      } else {
+        return java.util.Collections.unmodifiableList(serviceUuids_);
+      }
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder addServiceUuidsBuilder() {
+      return getServiceUuidsFieldBuilder().addBuilder(
+          dev.yanshouwang.bluetooth_low_energy.proto.UUID.getDefaultInstance());
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder addServiceUuidsBuilder(
+        int index) {
+      return getServiceUuidsFieldBuilder().addBuilder(
+          index, dev.yanshouwang.bluetooth_low_energy.proto.UUID.getDefaultInstance());
+    }
+    /**
+     * <code>repeated .proto.UUID service_uuids = 8;</code>
+     */
+    public java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder> 
+         getServiceUuidsBuilderList() {
+      return getServiceUuidsFieldBuilder().getBuilderList();
+    }
+    private com.google.protobuf.RepeatedFieldBuilderV3<
+        dev.yanshouwang.bluetooth_low_energy.proto.UUID, dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder, dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder> 
+        getServiceUuidsFieldBuilder() {
+      if (serviceUuidsBuilder_ == null) {
+        serviceUuidsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+            dev.yanshouwang.bluetooth_low_energy.proto.UUID, dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder, dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder>(
+                serviceUuids_,
+                ((bitField0_ & 0x00000008) != 0),
+                getParentForChildren(),
+                isClean());
+        serviceUuids_ = null;
+      }
+      return serviceUuidsBuilder_;
+    }
+
+    private java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.UUID> solicitedServiceUuids_ =
+      java.util.Collections.emptyList();
+    private void ensureSolicitedServiceUuidsIsMutable() {
+      if (!((bitField0_ & 0x00000010) != 0)) {
+        solicitedServiceUuids_ = new java.util.ArrayList<dev.yanshouwang.bluetooth_low_energy.proto.UUID>(solicitedServiceUuids_);
+        bitField0_ |= 0x00000010;
+       }
+    }
+
+    private com.google.protobuf.RepeatedFieldBuilderV3<
+        dev.yanshouwang.bluetooth_low_energy.proto.UUID, dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder, dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder> solicitedServiceUuidsBuilder_;
+
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.UUID> getSolicitedServiceUuidsList() {
+      if (solicitedServiceUuidsBuilder_ == null) {
+        return java.util.Collections.unmodifiableList(solicitedServiceUuids_);
+      } else {
+        return solicitedServiceUuidsBuilder_.getMessageList();
+      }
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public int getSolicitedServiceUuidsCount() {
+      if (solicitedServiceUuidsBuilder_ == null) {
+        return solicitedServiceUuids_.size();
+      } else {
+        return solicitedServiceUuidsBuilder_.getCount();
+      }
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.UUID getSolicitedServiceUuids(int index) {
+      if (solicitedServiceUuidsBuilder_ == null) {
+        return solicitedServiceUuids_.get(index);
+      } else {
+        return solicitedServiceUuidsBuilder_.getMessage(index);
+      }
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public Builder setSolicitedServiceUuids(
+        int index, dev.yanshouwang.bluetooth_low_energy.proto.UUID value) {
+      if (solicitedServiceUuidsBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureSolicitedServiceUuidsIsMutable();
+        solicitedServiceUuids_.set(index, value);
+        onChanged();
+      } else {
+        solicitedServiceUuidsBuilder_.setMessage(index, value);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public Builder setSolicitedServiceUuids(
+        int index, dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder builderForValue) {
+      if (solicitedServiceUuidsBuilder_ == null) {
+        ensureSolicitedServiceUuidsIsMutable();
+        solicitedServiceUuids_.set(index, builderForValue.build());
+        onChanged();
+      } else {
+        solicitedServiceUuidsBuilder_.setMessage(index, builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public Builder addSolicitedServiceUuids(dev.yanshouwang.bluetooth_low_energy.proto.UUID value) {
+      if (solicitedServiceUuidsBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureSolicitedServiceUuidsIsMutable();
+        solicitedServiceUuids_.add(value);
+        onChanged();
+      } else {
+        solicitedServiceUuidsBuilder_.addMessage(value);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public Builder addSolicitedServiceUuids(
+        int index, dev.yanshouwang.bluetooth_low_energy.proto.UUID value) {
+      if (solicitedServiceUuidsBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureSolicitedServiceUuidsIsMutable();
+        solicitedServiceUuids_.add(index, value);
+        onChanged();
+      } else {
+        solicitedServiceUuidsBuilder_.addMessage(index, value);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public Builder addSolicitedServiceUuids(
+        dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder builderForValue) {
+      if (solicitedServiceUuidsBuilder_ == null) {
+        ensureSolicitedServiceUuidsIsMutable();
+        solicitedServiceUuids_.add(builderForValue.build());
+        onChanged();
+      } else {
+        solicitedServiceUuidsBuilder_.addMessage(builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public Builder addSolicitedServiceUuids(
+        int index, dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder builderForValue) {
+      if (solicitedServiceUuidsBuilder_ == null) {
+        ensureSolicitedServiceUuidsIsMutable();
+        solicitedServiceUuids_.add(index, builderForValue.build());
+        onChanged();
+      } else {
+        solicitedServiceUuidsBuilder_.addMessage(index, builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public Builder addAllSolicitedServiceUuids(
+        java.lang.Iterable<? extends dev.yanshouwang.bluetooth_low_energy.proto.UUID> values) {
+      if (solicitedServiceUuidsBuilder_ == null) {
+        ensureSolicitedServiceUuidsIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, solicitedServiceUuids_);
+        onChanged();
+      } else {
+        solicitedServiceUuidsBuilder_.addAllMessages(values);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public Builder clearSolicitedServiceUuids() {
+      if (solicitedServiceUuidsBuilder_ == null) {
+        solicitedServiceUuids_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000010);
+        onChanged();
+      } else {
+        solicitedServiceUuidsBuilder_.clear();
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public Builder removeSolicitedServiceUuids(int index) {
+      if (solicitedServiceUuidsBuilder_ == null) {
+        ensureSolicitedServiceUuidsIsMutable();
+        solicitedServiceUuids_.remove(index);
+        onChanged();
+      } else {
+        solicitedServiceUuidsBuilder_.remove(index);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder getSolicitedServiceUuidsBuilder(
+        int index) {
+      return getSolicitedServiceUuidsFieldBuilder().getBuilder(index);
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder getSolicitedServiceUuidsOrBuilder(
+        int index) {
+      if (solicitedServiceUuidsBuilder_ == null) {
+        return solicitedServiceUuids_.get(index);  } else {
+        return solicitedServiceUuidsBuilder_.getMessageOrBuilder(index);
+      }
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public java.util.List<? extends dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder> 
+         getSolicitedServiceUuidsOrBuilderList() {
+      if (solicitedServiceUuidsBuilder_ != null) {
+        return solicitedServiceUuidsBuilder_.getMessageOrBuilderList();
+      } else {
+        return java.util.Collections.unmodifiableList(solicitedServiceUuids_);
+      }
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder addSolicitedServiceUuidsBuilder() {
+      return getSolicitedServiceUuidsFieldBuilder().addBuilder(
+          dev.yanshouwang.bluetooth_low_energy.proto.UUID.getDefaultInstance());
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder addSolicitedServiceUuidsBuilder(
+        int index) {
+      return getSolicitedServiceUuidsFieldBuilder().addBuilder(
+          index, dev.yanshouwang.bluetooth_low_energy.proto.UUID.getDefaultInstance());
+    }
+    /**
+     * <code>repeated .proto.UUID solicited_service_uuids = 9;</code>
+     */
+    public java.util.List<dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder> 
+         getSolicitedServiceUuidsBuilderList() {
+      return getSolicitedServiceUuidsFieldBuilder().getBuilderList();
+    }
+    private com.google.protobuf.RepeatedFieldBuilderV3<
+        dev.yanshouwang.bluetooth_low_energy.proto.UUID, dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder, dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder> 
+        getSolicitedServiceUuidsFieldBuilder() {
+      if (solicitedServiceUuidsBuilder_ == null) {
+        solicitedServiceUuidsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+            dev.yanshouwang.bluetooth_low_energy.proto.UUID, dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder, dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder>(
+                solicitedServiceUuids_,
+                ((bitField0_ & 0x00000010) != 0),
+                getParentForChildren(),
+                isClean());
+        solicitedServiceUuids_ = null;
+      }
+      return solicitedServiceUuidsBuilder_;
+    }
+
+    private int txPowerLevel_ ;
+    /**
+     * <code>optional int32 tx_power_level = 10;</code>
+     * @return Whether the txPowerLevel field is set.
+     */
+    @java.lang.Override
+    public boolean hasTxPowerLevel() {
+      return ((bitField0_ & 0x00000020) != 0);
+    }
+    /**
+     * <code>optional int32 tx_power_level = 10;</code>
+     * @return The txPowerLevel.
+     */
+    @java.lang.Override
+    public int getTxPowerLevel() {
+      return txPowerLevel_;
+    }
+    /**
+     * <code>optional int32 tx_power_level = 10;</code>
+     * @param value The txPowerLevel to set.
+     * @return This builder for chaining.
+     */
+    public Builder setTxPowerLevel(int value) {
+      bitField0_ |= 0x00000020;
+      txPowerLevel_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>optional int32 tx_power_level = 10;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearTxPowerLevel() {
+      bitField0_ = (bitField0_ & ~0x00000020);
+      txPowerLevel_ = 0;
       onChanged();
       return this;
     }

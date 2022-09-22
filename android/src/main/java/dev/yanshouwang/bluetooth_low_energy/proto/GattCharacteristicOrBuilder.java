@@ -8,28 +8,25 @@ public interface GattCharacteristicOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>string id = 1;</code>
+   * <code>int64 id = 1;</code>
    * @return The id.
    */
-  java.lang.String getId();
-  /**
-   * <code>string id = 1;</code>
-   * @return The bytes for id.
-   */
-  com.google.protobuf.ByteString
-      getIdBytes();
+  long getId();
 
   /**
-   * <code>string uuid = 2;</code>
+   * <code>.proto.UUID uuid = 2;</code>
+   * @return Whether the uuid field is set.
+   */
+  boolean hasUuid();
+  /**
+   * <code>.proto.UUID uuid = 2;</code>
    * @return The uuid.
    */
-  java.lang.String getUuid();
+  dev.yanshouwang.bluetooth_low_energy.proto.UUID getUuid();
   /**
-   * <code>string uuid = 2;</code>
-   * @return The bytes for uuid.
+   * <code>.proto.UUID uuid = 2;</code>
    */
-  com.google.protobuf.ByteString
-      getUuidBytes();
+  dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder getUuidOrBuilder();
 
   /**
    * <code>bool can_read = 3;</code>

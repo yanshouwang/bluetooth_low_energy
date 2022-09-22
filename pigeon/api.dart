@@ -9,77 +9,111 @@ import 'package:pigeon/pigeon.dart';
     javaOptions: JavaOptions(
       package: 'dev.yanshouwang.bluetooth_low_energy.pigeon',
     ),
-    swiftOut: 'ios/Classes/pigeon/api.swift',
+    objcHeaderOut: 'ios/Classes/pigeon/Api.h',
+    objcSourceOut: 'ios/Classes/pigeon/Api.m',
+    objcOptions: ObjcOptions(
+      header: 'ios/Classes/pigeon/Api.h',
+      prefix: 'Pigeon',
+    ),
+    // swiftOut: 'ios/Classes/pigeon/api.swift',
   ),
 )
 @HostApi(dartHostTestHandler: 'TestCentralControllerHostApi')
 abstract class CentralManagerHostApi {
+  @ObjCSelector('authorize')
   @async
   bool authorize();
-  Uint8List getState();
+  @ObjCSelector('getState')
+  int getState();
+  @ObjCSelector('addStateObserver')
   void addStateObserver();
+  @ObjCSelector('removeStateObserver')
   void removeStateObserver();
+  @ObjCSelector('startScan:')
   @async
-  void startScan(List<String>? uuids);
+  void startScan(List<Uint8List>? uuidBuffers);
+  @ObjCSelector('stopScan')
   void stopScan();
+  @ObjCSelector('connect:')
   @async
-  Uint8List connect(String uuid);
+  Uint8List connect(Uint8List uuidBuffer);
 }
 
 @FlutterApi()
 abstract class CentralManagerFlutterApi {
-  void notifyState(Uint8List state);
-  void notifyAdvertisement(Uint8List advertisement);
+  @ObjCSelector('notifyState:')
+  void notifyState(int stateNumber);
+  @ObjCSelector('notifyAdvertisement:')
+  void notifyAdvertisement(Uint8List advertisementBuffer);
 }
 
 @HostApi(dartHostTestHandler: 'TestPeripheralHostApi')
 abstract class PeripheralHostApi {
-  void allocate(String newId, String oldId);
-  void free(String id);
+  @ObjCSelector('allocate:instanceId:')
+  void allocate(int id, int instanceId);
+  @ObjCSelector('free:')
+  void free(int id);
+  @ObjCSelector('disconnect:')
   @async
-  void disconnect(String id);
+  void disconnect(int id);
+  @ObjCSelector('discoverServices:')
   @async
-  List<Uint8List> discoverServices(String id);
+  List<Uint8List> discoverServices(int id);
 }
 
 @FlutterApi()
 abstract class PeripheralFlutterApi {
-  void notifyConnectionLost(String id, String error);
+  @ObjCSelector('notifyConnectionLost:errorBuffer:')
+  void notifyConnectionLost(int id, Uint8List errorBuffer);
 }
 
 @HostApi(dartHostTestHandler: 'TestGattServiceHostApi')
 abstract class GattServiceHostApi {
-  void allocate(String newId, String oldId);
-  void free(String id);
+  @ObjCSelector('allocate:instanceId:')
+  void allocate(int id, int instanceId);
+  @ObjCSelector('free:')
+  void free(int id);
+  @ObjCSelector('discoverCharacteristics:')
   @async
-  List<Uint8List> discoverCharacteristics(String id);
+  List<Uint8List> discoverCharacteristics(int id);
 }
 
 @HostApi(dartHostTestHandler: 'TestGattCharacteristicHostApi')
 abstract class GattCharacteristicHostApi {
-  void allocate(String newId, String oldId);
-  void free(String id);
+  @ObjCSelector('allocate:instanceId:')
+  void allocate(int id, int instanceId);
+  @ObjCSelector('free:')
+  void free(int id);
+  @ObjCSelector('discoverDescriptors:')
   @async
-  List<Uint8List> discoverDescriptors(String id);
+  List<Uint8List> discoverDescriptors(int id);
+  @ObjCSelector('read:')
   @async
-  Uint8List read(String id);
+  Uint8List read(int id);
+  @ObjCSelector('write:value:withoutResponse:')
   @async
-  void write(String id, Uint8List value, bool withoutResponse);
+  void write(int id, Uint8List value, bool withoutResponse);
+  @ObjCSelector('setNotify:value:')
   @async
-  void setNotify(String id, bool value);
+  void setNotify(int id, bool value);
 }
 
 @FlutterApi()
 abstract class GattCharacteristicFlutterApi {
-  void notifyValue(String id, Uint8List value);
+  @ObjCSelector('notifyValue:value:')
+  void notifyValue(int id, Uint8List value);
 }
 
 @HostApi(dartHostTestHandler: 'TestGattDescriptorHostApi')
 abstract class GattDescriptorHostApi {
-  void allocate(String newId, String oldId);
-  void free(String id);
+  @ObjCSelector('allocate:instanceId:')
+  void allocate(int id, int instanceId);
+  @ObjCSelector('free:')
+  void free(int id);
+  @ObjCSelector('read:')
   @async
-  Uint8List read(String id);
+  Uint8List read(int id);
+  @ObjCSelector('write:value:')
   @async
-  void write(String id, Uint8List value);
+  void write(int id, Uint8List value);
 }

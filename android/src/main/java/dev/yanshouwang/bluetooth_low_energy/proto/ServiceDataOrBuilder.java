@@ -3,28 +3,28 @@
 
 package dev.yanshouwang.bluetooth_low_energy.proto;
 
-public interface GattServiceOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:proto.GattService)
+public interface ServiceDataOrBuilder extends
+    // @@protoc_insertion_point(interface_extends:proto.ServiceData)
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>int64 id = 1;</code>
-   * @return The id.
-   */
-  long getId();
-
-  /**
-   * <code>.proto.UUID uuid = 2;</code>
+   * <code>.proto.UUID uuid = 1;</code>
    * @return Whether the uuid field is set.
    */
   boolean hasUuid();
   /**
-   * <code>.proto.UUID uuid = 2;</code>
+   * <code>.proto.UUID uuid = 1;</code>
    * @return The uuid.
    */
   dev.yanshouwang.bluetooth_low_energy.proto.UUID getUuid();
   /**
-   * <code>.proto.UUID uuid = 2;</code>
+   * <code>.proto.UUID uuid = 1;</code>
    */
   dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder getUuidOrBuilder();
+
+  /**
+   * <code>bytes data = 2;</code>
+   * @return The data.
+   */
+  com.google.protobuf.ByteString getData();
 }

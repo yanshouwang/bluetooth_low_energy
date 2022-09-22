@@ -1,5 +1,5 @@
 import 'advertisement.dart';
-import 'bluetooth_low_energy_impl.dart';
+import 'impl.dart';
 import 'bluetooth_state.dart';
 import 'peripheral.dart';
 import 'uuid.dart';
