@@ -597,25 +597,6 @@ class MyBluetoothLowEnergyException implements BluetoothLowEnergyException {
   }
 }
 
-extension on List<int> {
-  Map<int, Uint8List> extract() {
-    final data = <int, Uint8List>{};
-    var start = 0;
-    while (start < length) {
-      final length = this[start++];
-      if (length == 0) {
-        break;
-      }
-      final end = start + length;
-      final type = this[start++];
-      final elements = sublist(start, end);
-      start = end;
-      data[type] = Uint8List.fromList(elements);
-    }
-    return data;
-  }
-}
-
 extension on UUID {
   Uint8List get buffer => proto.UUID(value: value).writeToBuffer();
 }

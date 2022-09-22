@@ -6,36 +6,70 @@ import android.bluetooth.le.ScanSettings
 import android.os.Build
 import com.google.protobuf.ByteString
 import dev.yanshouwang.bluetooth_low_energy.proto.advertisement
+import dev.yanshouwang.bluetooth_low_energy.proto.serviceData
+import dev.yanshouwang.bluetooth_low_energy.proto.uUID
 
 object MyScanCallback : ScanCallback() {
     override fun onScanFailed(errorCode: Int) {
         super.onScanFailed(errorCode)
-        val error = Throwable("Start scan failed with code: $errorCode")
-        items[MyCentralManagerHostApi.KEY_START_SCAN_ERROR] = error
+        val error = BluetoothLowEnergyException("Start scan failed with code: $errorCode")
+        items[KEY_START_SCAN_ERROR] = error
     }
 
     override fun onScanResult(callbackType: Int, result: ScanResult) {
         super.onScanResult(callbackType, result)
-        val record = result.scanRecord
-        val uuid = result.device.uuid
-        val data = if (record == null) {
-            ByteString.EMPTY
-        } else {
-            ByteString.copyFrom(record.bytes)
-        }
-        val connectable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            result.isConnectable
-        } else {
-            // Just return true before Android 8.0
-            true
-        }
         val advertisementValue = advertisement {
-            this.uuid = uuid
-            this.data = data
-            this.connectable = connectable
+            this.uuid = uUID {
+                this.value = result.device.uuidString
+            }
             this.rssi = result.rssi
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                this.connectable = result.isConnectable
+            }
+            val record = result.scanRecord
+            if (record == null) {
+                this.data = ByteString.EMPTY
+            } else {
+                this.data = ByteString.copyFrom(record.bytes)
+                val deviceName = record.deviceName
+                if (deviceName != null) {
+                    this.localName = deviceName
+                }
+                // TODO: extract the MSD form raw data.
+                val manufacturerSpecificData = record.rawManufacturerSpecificData
+                if (manufacturerSpecificData != null) {
+                    this.manufacturerSpecificData = ByteString.copyFrom(manufacturerSpecificData)
+                }
+                val serviceDatas = record.serviceData.map { entry ->
+                    serviceData {
+                        this.uuid = uUID {
+                            this.value = entry.key.toString()
+                        }
+                        this.data = ByteString.copyFrom(entry.value)
+                    }
+                }
+                this.serviceDatas.addAll(serviceDatas)
+                val serviceUUIDs = record.serviceUuids
+                if (serviceUUIDs != null) {
+                    val uuids = serviceUUIDs.map { uuid ->
+                        uUID {
+                            this.value = uuid.toString()
+                        }
+                    }
+                    this.serviceUuids.addAll(uuids)
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val uuids = record.serviceSolicitationUuids.map { uuid ->
+                        uUID {
+                            this.value = uuid.toString()
+                        }
+                    }
+                    this.solicitedServiceUuids.addAll(uuids)
+                }
+                this.txPowerLevel = record.txPowerLevel
+            }
         }.toByteArray()
-        centralManagerFlutterApi.notifyAdvertisement(advertisementValue) {}
+        centralFlutterApi.notifyAdvertisement(advertisementValue) {}
     }
 
     override fun onBatchScanResults(results: MutableList<ScanResult>) {

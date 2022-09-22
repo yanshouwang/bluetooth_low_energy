@@ -3,6 +3,7 @@ package dev.yanshouwang.bluetooth_low_energy
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
+import android.bluetooth.le.ScanRecord
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Handler
@@ -10,8 +11,6 @@ import androidx.annotation.NonNull
 import androidx.core.content.ContextCompat
 import dev.yanshouwang.bluetooth_low_energy.pigeon.Api
 import dev.yanshouwang.bluetooth_low_energy.proto.BluetoothState
-import dev.yanshouwang.bluetooth_low_energy.proto.UUID
-import dev.yanshouwang.bluetooth_low_energy.proto.uUID
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -66,20 +65,28 @@ class BluetoothLowEnergyPlugin : FlutterPlugin, ActivityAware {
     }
 }
 
-const val BLUETOOTH_LOW_ENERGY_ERROR = "BLUETOOTH_LOW_ENERGY_ERROR"
 const val KEY_CENTRAL_MANAGER_FLUTTER_API = "KEY_CENTRAL_MANAGER_FLUTTER_API"
 const val KEY_PERIPHERAL_FLUTTER_API = "KEY_PERIPHERAL_FLUTTER_API"
 const val KEY_GATT_CHARACTERISTIC_FLUTTER_API = "KEY_GATT_CHARACTERISTIC_FLUTTER_API"
 const val KEY_ACTIVITY_PLUGIN_BINDING = "KEY_ACTIVITY_PLUGIN_BINDING"
+const val REQUEST_CODE = 443
+const val KEY_AUTHORIZE_RESULT = "KEY_AUTHORIZE_RESULT"
+const val KEY_START_SCAN_ERROR = "KEY_START_SCAN_ERROR"
+const val KEY_CONNECT_RESULT = "KEY_CONNECT_RESULT"
+const val KEY_DISCONNECT_RESULT = "KEY_DISCONNECT_RESULT"
+const val KEY_DISCOVER_SERVICES_RESULT = "KEY_DISCOVER_SERVICES_RESULT"
+const val KEY_READ_RESULT = "KEY_READ_RESULT"
+const val KEY_WRITE_RESULT = "KEY_WRITE_RESULT"
+const val DATA_TYPE_MANUFACTURER_SPECIFIC_DATA = 0xFF;
 
 val items = mutableMapOf<String, Any>()
 val instances = mutableMapOf<Long, Any>()
 val identifiers = mutableMapOf<Any, Long>()
 
 val activity get() = (items[KEY_ACTIVITY_PLUGIN_BINDING] as ActivityPluginBinding).activity
-val centralManagerFlutterApi get() = items[KEY_CENTRAL_MANAGER_FLUTTER_API] as Api.CentralManagerFlutterApi
+val centralFlutterApi get() = items[KEY_CENTRAL_MANAGER_FLUTTER_API] as Api.CentralManagerFlutterApi
 val peripheralFlutterApi get() = items[KEY_PERIPHERAL_FLUTTER_API] as Api.PeripheralFlutterApi
-val gattCharacteristicFlutterApi get() = items[KEY_GATT_CHARACTERISTIC_FLUTTER_API] as Api.GattCharacteristicFlutterApi
+val characteristicFlutterApi get() = items[KEY_GATT_CHARACTERISTIC_FLUTTER_API] as Api.GattCharacteristicFlutterApi
 
 val bluetoothManager get() = activity.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
 val bluetoothAdapter get() = bluetoothManager.adapter as BluetoothAdapter
@@ -96,13 +103,30 @@ val Int.bluetoothState
         else -> throw IllegalArgumentException()
     }
 
-val BluetoothDevice.uuid: UUID
+val BluetoothDevice.uuidString: String
     get() {
         val node = address.filter { char -> char != ':' }.lowercase()
         // We don't know the timestamp of the bluetooth device, use nil UUID as prefix.
-        return uUID {
-            this.value = "00000000-0000-0000-$node"
-        }
+        return "00000000-0000-0000-$node"
     }
 
-val UUID.address: String get() = value.takeLast(12).chunked(2).joinToString(":").uppercase()
+val String.address: String
+    get() = takeLast(12).chunked(2).joinToString(":").uppercase()
+
+val ScanRecord.rawManufacturerSpecificData: ByteArray?
+    get() {
+        var offset = 0;
+        while (offset < bytes.size) {
+            val length = bytes[offset++].toInt() and 0xff
+            if (length == 0) {
+                break
+            }
+            val end = offset + length
+            val type = bytes[offset++].toInt() and 0xff
+            if (type == DATA_TYPE_MANUFACTURER_SPECIFIC_DATA) {
+                return bytes.slice(offset until end).toByteArray()
+            }
+            offset = end
+        }
+        return null
+    }

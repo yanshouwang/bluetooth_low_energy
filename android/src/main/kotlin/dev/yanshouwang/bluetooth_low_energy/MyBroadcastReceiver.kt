@@ -5,7 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 
-object MyBluetoothStateBroadcastReceiver : BroadcastReceiver() {
+object MyBroadcastReceiver : BroadcastReceiver() {
     private const val STATE_UNKNOWN = -1
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -14,6 +14,6 @@ object MyBluetoothStateBroadcastReceiver : BroadcastReceiver() {
         val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, STATE_UNKNOWN).bluetoothState
         if (state == previousState) return
         val stateNumber = state.number.toLong()
-        centralManagerFlutterApi.notifyState(stateNumber) {}
+        centralFlutterApi.notifyState(stateNumber) {}
     }
 }

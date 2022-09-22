@@ -11,9 +11,6 @@ import java.util.UUID
 object MyGattCharacteristicHostApi : Api.GattCharacteristicHostApi {
     private const val CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
 
-    const val READ_RESULT = "READ_RESULT"
-    const val WRITE_RESULT = "WRITE_RESULT"
-
     override fun allocate(id: Long, instanceId: Long) {
         val list = instances.remove(instanceId) as List<Any>
         val characteristic = list[1]
@@ -52,9 +49,9 @@ object MyGattCharacteristicHostApi : Api.GattCharacteristicHostApi {
         val characteristic = list[1] as BluetoothGattCharacteristic
         val succeed = gatt.readCharacteristic(characteristic)
         if (succeed) {
-            items["${characteristic.hashCode()}/$READ_RESULT"] = result
+            items["${characteristic.hashCode()}/$KEY_READ_RESULT"] = result
         } else {
-            val error = Throwable("GATT read characteristic failed.")
+            val error = BluetoothLowEnergyException("GATT read characteristic failed.")
             result.error(error)
         }
     }
@@ -71,9 +68,9 @@ object MyGattCharacteristicHostApi : Api.GattCharacteristicHostApi {
         characteristic.value = value
         val succeed = gatt.writeCharacteristic(characteristic)
         if (succeed) {
-            items["${characteristic.hashCode()}/$WRITE_RESULT"] = result
+            items["${characteristic.hashCode()}/$KEY_WRITE_RESULT"] = result
         } else {
-            val error = Throwable("GATT write characteristic failed.")
+            val error = BluetoothLowEnergyException("GATT write characteristic failed.")
             result.error(error)
         }
     }
@@ -82,8 +79,8 @@ object MyGattCharacteristicHostApi : Api.GattCharacteristicHostApi {
         val list = instances[id] as List<Any>
         val gatt = list[0] as BluetoothGatt
         val characteristic = list[1] as BluetoothGattCharacteristic
-        val setSucceed = gatt.setCharacteristicNotification(characteristic, value)
-        if (setSucceed) {
+        val setNotificationSucceed = gatt.setCharacteristicNotification(characteristic, value)
+        if (setNotificationSucceed) {
             val uuid = UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG)
             val descriptor = characteristic.getDescriptor(uuid)
             descriptor.value = if (value) {
@@ -93,13 +90,13 @@ object MyGattCharacteristicHostApi : Api.GattCharacteristicHostApi {
             }
             val writeSucceed = gatt.writeDescriptor(descriptor)
             if (writeSucceed) {
-                items["${descriptor.hashCode()}/${MyGattDescriptorHostApi.WRITE_RESULT}"] = result
+                items["${descriptor.hashCode()}/${KEY_WRITE_RESULT}"] = result
             } else {
-                val error = Throwable("GATT write <client characteristic config> descriptor failed.")
+                val error = BluetoothLowEnergyException("GATT write <client characteristic config> descriptor failed.")
                 result.error(error)
             }
         } else {
-            val error = Throwable("GATT set characteristic notification failed.")
+            val error = BluetoothLowEnergyException("GATT set characteristic notification failed.")
             result.error(error)
         }
     }

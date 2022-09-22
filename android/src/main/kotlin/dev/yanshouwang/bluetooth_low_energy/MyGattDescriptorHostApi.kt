@@ -5,9 +5,6 @@ import android.bluetooth.BluetoothGattDescriptor
 import dev.yanshouwang.bluetooth_low_energy.pigeon.Api
 
 object MyGattDescriptorHostApi : Api.GattDescriptorHostApi {
-    const val READ_RESULT = "READ_RESULT"
-    const val WRITE_RESULT = "WRITE_RESULT"
-
     override fun allocate(id: Long, instanceId: Long) {
         val list = instances.remove(instanceId) as List<Any>
         val descriptor = list[1]
@@ -27,9 +24,9 @@ object MyGattDescriptorHostApi : Api.GattDescriptorHostApi {
         val descriptor = list[1] as BluetoothGattDescriptor
         val succeed = gatt.readDescriptor(descriptor)
         if (succeed) {
-            items["${descriptor.hashCode()}/$READ_RESULT"] = result
+            items["${descriptor.hashCode()}/$KEY_READ_RESULT"] = result
         } else {
-            val error = Throwable("GATT read descriptor failed.")
+            val error = BluetoothLowEnergyException("GATT read descriptor failed.")
             result.error(error)
         }
     }
@@ -41,9 +38,9 @@ object MyGattDescriptorHostApi : Api.GattDescriptorHostApi {
         descriptor.value = value
         val succeed = gatt.writeDescriptor(descriptor)
         if (succeed) {
-            items["${descriptor.hashCode()}/$WRITE_RESULT"] = result
+            items["${descriptor.hashCode()}/$KEY_WRITE_RESULT"] = result
         } else {
-            val error = Throwable("GATT write descriptor failed.")
+            val error = BluetoothLowEnergyException("GATT write descriptor failed.")
             result.error(error)
         }
     }
