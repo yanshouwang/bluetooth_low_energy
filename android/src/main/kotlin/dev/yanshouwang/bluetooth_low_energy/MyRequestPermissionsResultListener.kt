@@ -4,15 +4,20 @@ import android.content.pm.PackageManager
 import dev.yanshouwang.bluetooth_low_energy.pigeon.Api
 import io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener
 
-object RequestPermissionsResultListener : RequestPermissionsResultListener {
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray): Boolean {
+object MyRequestPermissionsResultListener : RequestPermissionsResultListener {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ): Boolean {
         return when (requestCode) {
-            CentralManagerHostApi.REQUEST_CODE -> {
-                val result = instances.freeNotNull<Api.Result<Boolean>>(CentralManagerHostApi.KEY_AUTHORIZE_RESULT)
+            MyCentralManagerHostApi.REQUEST_CODE -> {
+                val result = items.remove(MyCentralManagerHostApi.KEY_AUTHORIZE_RESULT) as Api.Result<Boolean>
                 val authorized = grantResults.all { grantResult -> grantResult == PackageManager.PERMISSION_GRANTED }
                 result.success(authorized)
                 true
             }
+
             else -> false
         }
     }

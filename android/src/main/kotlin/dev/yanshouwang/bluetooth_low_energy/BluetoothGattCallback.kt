@@ -3,6 +3,7 @@ package dev.yanshouwang.bluetooth_low_energy
 import android.bluetooth.*
 import android.bluetooth.BluetoothGattCallback
 import dev.yanshouwang.bluetooth_low_energy.pigeon.Api
+import dev.yanshouwang.bluetooth_low_energy.proto.bluetoothLowEnergyException
 import dev.yanshouwang.bluetooth_low_energy.proto.gattService
 import dev.yanshouwang.bluetooth_low_energy.proto.peripheral
 
@@ -19,14 +20,18 @@ object BluetoothGattCallback : BluetoothGattCallback() {
             } else {
                 // Maybe disconnect succeed, connection failed or connection lost.
                 gatt.close()
-                val connectResult = instances.free<Api.Result<ByteArray>>("${gatt.id}/${CentralManagerHostApi.KEY_CONNECT_RESULT}")
+                val connectResult =
+                    items.remove("${gatt.hashCode()}/${MyCentralManagerHostApi.KEY_CONNECT_RESULT}") as Api.Result<ByteArray>?
                 if (connectResult == null) {
-                    val disconnectResult = instances.free<Api.Result<Void>>("${gatt.id}/${PeripheralHostApi.KEY_DISCONNECT_RESULT}")
+                    val disconnectResult =
+                        items.remove("${gatt.hashCode()}/${MyPeripheralHostApi.KEY_DISCONNECT_RESULT}") as Api.Result<Void>?
                     if (disconnectResult == null) {
-                        val id = ids.findId(gatt)
-                        val errorMessage = "GATT connection lost."
+                        val id = identifiers[gatt] as Long
+                        val errorBuffer = bluetoothLowEnergyException {
+                            this.message = "GATT connection lost."
+                        }.toByteArray()
                         mainExecutor.execute {
-                            peripheralFlutterApi.notifyConnectionLost(id, errorMessage) {}
+                            peripheralFlutterApi.notifyConnectionLost(id, errorBuffer) {}
                         }
                     } else {
                         disconnectResult.success(null)
@@ -40,20 +45,25 @@ object BluetoothGattCallback : BluetoothGattCallback() {
         } else {
             // Maybe connect failed, disconnect failed or connection lost.
             gatt.close()
-            val errorMessage = "GATT error with status: $status"
-            val error = Throwable(errorMessage)
-            val connectResult = instances.free<Api.Result<ByteArray>>("${gatt.id}/${CentralManagerHostApi.KEY_CONNECT_RESULT}")
+            val connectResult =
+                items.remove("${gatt.hashCode()}/${MyCentralManagerHostApi.KEY_CONNECT_RESULT}") as Api.Result<ByteArray>?
             if (connectResult == null) {
-                val disconnectResult = instances.free<Api.Result<Void>>("${gatt.id}/${PeripheralHostApi.KEY_DISCONNECT_RESULT}")
+                val disconnectResult =
+                    items.remove("${gatt.hashCode()}/${MyPeripheralHostApi.KEY_DISCONNECT_RESULT}") as Api.Result<Void>?
                 if (disconnectResult == null) {
-                    val id = ids.findId(gatt)
+                    val id = identifiers[gatt] as Long
+                    val errorBuffer = bluetoothLowEnergyException {
+                        this.message = "GATT error with status: $status"
+                    }.toByteArray()
                     mainExecutor.execute {
-                        peripheralFlutterApi.notifyConnectionLost(id, errorMessage) {}
+                        peripheralFlutterApi.notifyConnectionLost(id, errorBuffer) {}
                     }
                 } else {
+                    val error = Throwable("GATT error with status: $status")
                     disconnectResult.error(error)
                 }
             } else {
+                val error = Throwable("GATT error with status: $status")
                 connectResult.error(error)
             }
         }
@@ -63,10 +73,12 @@ object BluetoothGattCallback : BluetoothGattCallback() {
         super.onMtuChanged(gatt, mtu, status)
         when (status) {
             BluetoothGatt.GATT_SUCCESS -> {
-                val connectResult = instances.freeNotNull<Api.Result<ByteArray>>("${gatt.id}/${CentralManagerHostApi.KEY_CONNECT_RESULT}")
-                instances[gatt.id] = gatt
+                val connectResult =
+                    items.remove("${gatt.hashCode()}/${MyCentralManagerHostApi.KEY_CONNECT_RESULT}") as Api.Result<ByteArray>
+                val gattId = gatt.hashCode().toLong()
+                instances[gattId] = gatt
                 val peripheralValue = peripheral {
-                    this.id = gatt.id
+                    this.id = gattId
                     this.maximumWriteLength = mtu - 3
                 }.toByteArray()
                 connectResult.success(peripheralValue)
@@ -79,7 +91,8 @@ object BluetoothGattCallback : BluetoothGattCallback() {
 
     override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
         super.onServicesDiscovered(gatt, status)
-        val result = instances.freeNotNull<Api.Result<MutableList<ByteArray>>>("${gatt.id}/${PeripheralHostApi.KEY_DISCOVER_SERVICES_RESULT}")
+        val result =
+            instances.freeNotNull<Api.Result<MutableList<ByteArray>>>("${gatt.id}/${MyPeripheralHostApi.KEY_DISCOVER_SERVICES_RESULT}")
         if (status == BluetoothGatt.GATT_SUCCESS) {
             val serviceValues = mutableListOf<ByteArray>()
             for (service in gatt.services) {
@@ -99,7 +112,8 @@ object BluetoothGattCallback : BluetoothGattCallback() {
 
     override fun onCharacteristicRead(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int) {
         super.onCharacteristicRead(gatt, characteristic, status)
-        val result = instances.freeNotNull<Api.Result<ByteArray>>("${characteristic.id}/${GattCharacteristicHostApi.READ_RESULT}")
+        val result =
+            instances.freeNotNull<Api.Result<ByteArray>>("${characteristic.id}/${MyGattCharacteristicHostApi.READ_RESULT}")
         if (status == BluetoothGatt.GATT_SUCCESS) {
             result.success(characteristic.value)
         } else {
@@ -110,7 +124,8 @@ object BluetoothGattCallback : BluetoothGattCallback() {
 
     override fun onCharacteristicWrite(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int) {
         super.onCharacteristicWrite(gatt, characteristic, status)
-        val result = instances.freeNotNull<Api.Result<Void>>("${characteristic.id}/${GattCharacteristicHostApi.WRITE_RESULT}")
+        val result =
+            instances.freeNotNull<Api.Result<Void>>("${characteristic.id}/${MyGattCharacteristicHostApi.WRITE_RESULT}")
         if (status == BluetoothGatt.GATT_SUCCESS) {
             result.success(null)
         } else {
@@ -121,7 +136,7 @@ object BluetoothGattCallback : BluetoothGattCallback() {
 
     override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
         super.onCharacteristicChanged(gatt, characteristic)
-        val id = ids.findId(characteristic)
+        val id = identifiers.findId(characteristic)
         val value = characteristic.value
         mainExecutor.execute {
             gattCharacteristicFlutterApi.notifyValue(id, value) {}
@@ -130,7 +145,8 @@ object BluetoothGattCallback : BluetoothGattCallback() {
 
     override fun onDescriptorRead(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {
         super.onDescriptorRead(gatt, descriptor, status)
-        val result = instances.freeNotNull<Api.Result<ByteArray>>("${descriptor.id}/${GattDescriptorHostApi.READ_RESULT}")
+        val result =
+            instances.freeNotNull<Api.Result<ByteArray>>("${descriptor.id}/${MyGattDescriptorHostApi.READ_RESULT}")
         if (status == BluetoothGatt.GATT_SUCCESS) {
             result.success(descriptor.value)
         } else {
@@ -141,7 +157,7 @@ object BluetoothGattCallback : BluetoothGattCallback() {
 
     override fun onDescriptorWrite(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {
         super.onDescriptorWrite(gatt, descriptor, status)
-        val result = instances.freeNotNull<Api.Result<Void>>("${descriptor.id}/${GattDescriptorHostApi.WRITE_RESULT}")
+        val result = instances.freeNotNull<Api.Result<Void>>("${descriptor.id}/${MyGattDescriptorHostApi.WRITE_RESULT}")
         if (status == BluetoothGatt.GATT_SUCCESS) {
             result.success(null)
         } else {
