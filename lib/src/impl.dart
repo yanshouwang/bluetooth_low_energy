@@ -220,20 +220,21 @@ class MyGattDescriptorApi extends GattDescriptorApi {
 
 class MyCentralManager implements CentralManager {
   @override
-  Stream<Advertisement> createAdvertisementStream({List<UUID>? uuids}) {
+  Stream<Advertisement> getAdvertisementStream({List<UUID>? uuids}) {
     return CentralManagerApi.instance.advertisementStream
         .map((buffer) => MyAdvertisement.fromBuffer(buffer))
         .asBroadcastStream(
-      onListen: (subscription) {
+      onListen: (subscription) async {
         subscription.resume();
-        final myUUIDs = uuids
+        final uuidBuffers = uuids
             ?.map((e) => proto.UUID(value: e.value).writeToBuffer())
             .toList();
-        CentralManagerApi.instance.startScan(myUUIDs);
+        await CentralManagerApi.instance.startScan(uuidBuffers);
       },
-      onCancel: (subscription) {
+      onCancel: (subscription) async {
+        // TODO: the stream can't listen again when use `subscription.cancel()`.
+        await CentralManagerApi.instance.stopScan();
         subscription.pause();
-        CentralManagerApi.instance.stopScan();
       },
     );
   }
@@ -255,12 +256,14 @@ class MyCentralManager implements CentralManager {
       CentralManagerApi.instance.stateStream
           .map((number) => BluetoothState.values[number])
           .asBroadcastStream(
-        onListen: (subscription) {
-          CentralManagerApi.instance.addStateObserver();
+        onListen: (subscription) async {
+          subscription.resume();
+          await CentralManagerApi.instance.addStateObserver();
         },
-        onCancel: (subscription) {
-          subscription.cancel();
-          CentralManagerApi.instance.removeStateObserver();
+        onCancel: (subscription) async {
+          // TODO: the stream can't listen again when use `subscription.cancel()`.
+          await CentralManagerApi.instance.removeStateObserver();
+          subscription.pause();
         },
       );
 
@@ -485,12 +488,14 @@ class MyGattCharacteristic extends GattCharacteristic {
           .where((event) => event.item1 == hashCode)
           .map((event) => event.item2)
           .asBroadcastStream(
-        onListen: (subscription) {
-          GattCharacteristicApi.instance.setNotify(hashCode, true);
+        onListen: (subscription) async {
+          subscription.resume();
+          await GattCharacteristicApi.instance.setNotify(hashCode, true);
         },
-        onCancel: (subscription) {
-          subscription.cancel();
-          GattCharacteristicApi.instance.setNotify(hashCode, false);
+        onCancel: (subscription) async {
+          // TODO: the stream can't listen again when use `subscription.cancel()`.
+          await GattCharacteristicApi.instance.setNotify(hashCode, false);
+          subscription.pause();
         },
       );
 

@@ -52,7 +52,7 @@ class _HomeViewState extends State<HomeView> {
     state = ValueNotifier(false);
     discovering = ValueNotifier(false);
     advertisements = ValueNotifier([]);
-    advertisementStream = CentralManager.instance.createAdvertisementStream();
+    advertisementStream = CentralManager.instance.getAdvertisementStream();
 
     state.addListener(onStateChanged);
     stateStreamSubscription = CentralManager.instance.stateStream.listen(

@@ -26,21 +26,20 @@ object MyScanCallback : ScanCallback() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 this.connectable = result.isConnectable
             }
-            val record = result.scanRecord
-            if (record == null) {
+            val scanRecord = result.scanRecord
+            if (scanRecord == null) {
                 this.data = ByteString.EMPTY
             } else {
-                this.data = ByteString.copyFrom(record.bytes)
-                val deviceName = record.deviceName
+                this.data = ByteString.copyFrom(scanRecord.bytes)
+                val deviceName = scanRecord.deviceName
                 if (deviceName != null) {
                     this.localName = deviceName
                 }
-                // TODO: extract the MSD form raw data.
-                val manufacturerSpecificData = record.rawManufacturerSpecificData
+                val manufacturerSpecificData = scanRecord.rawManufacturerSpecificData
                 if (manufacturerSpecificData != null) {
                     this.manufacturerSpecificData = ByteString.copyFrom(manufacturerSpecificData)
                 }
-                val serviceDatas = record.serviceData.map { entry ->
+                val serviceDatas = scanRecord.serviceData.map { entry ->
                     serviceData {
                         this.uuid = uUID {
                             this.value = entry.key.toString()
@@ -49,7 +48,7 @@ object MyScanCallback : ScanCallback() {
                     }
                 }
                 this.serviceDatas.addAll(serviceDatas)
-                val serviceUUIDs = record.serviceUuids
+                val serviceUUIDs = scanRecord.serviceUuids
                 if (serviceUUIDs != null) {
                     val uuids = serviceUUIDs.map { uuid ->
                         uUID {
@@ -59,14 +58,14 @@ object MyScanCallback : ScanCallback() {
                     this.serviceUuids.addAll(uuids)
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val uuids = record.serviceSolicitationUuids.map { uuid ->
+                    val uuids = scanRecord.serviceSolicitationUuids.map { uuid ->
                         uUID {
                             this.value = uuid.toString()
                         }
                     }
                     this.solicitedServiceUuids.addAll(uuids)
                 }
-                this.txPowerLevel = record.txPowerLevel
+                this.txPowerLevel = scanRecord.txPowerLevel
             }
         }.toByteArray()
         centralFlutterApi.notifyAdvertisement(advertisementValue) {}

@@ -9,7 +9,7 @@ abstract class CentralManager {
 
   Future<bool> authorize();
   Future<BluetoothState> getState();
-  Stream<Advertisement> createAdvertisementStream({List<UUID>? uuids});
+  Stream<Advertisement> getAdvertisementStream({List<UUID>? uuids});
   Future<Peripheral> connect(
     UUID uuid, {
     Function(Exception)? onConnectionLost,
