@@ -10,9 +10,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  pigeon: ^4.0.2
   plugin_platform_interface: ^2.0.2
+  pigeon: ^4.0.2
   protobuf: ^2.1.0
+  fixnum: ^1.0.1
   tuple: ^2.0.0
 
 dev_dependencies:
