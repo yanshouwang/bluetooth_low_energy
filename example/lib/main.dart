@@ -7,84 +7,91 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 void main() {
-  final app = MaterialApp(
-    theme: ThemeData(
-      fontFamily: 'IBM Plex Mono',
-    ),
-    home: HomeView(),
-    routes: {
-      'gatt': (context) => GattView(),
-    },
-  );
+  const app = MyApp();
   runApp(app);
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: const HomeView(),
+      routes: {
+        'device': (context) {
+          final uuid = ModalRoute.of(context)?.settings.arguments as UUID;
+          return DeviceView(
+            uuid: uuid,
+          );
+        },
+      },
+    );
+  }
 }
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
 
   @override
-  _HomeViewState createState() => _HomeViewState();
+  State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
-  final ValueNotifier<bool> state;
-  final ValueNotifier<bool> discovering;
-  final ValueNotifier<Map<UUID, Discovery>> discoveries;
-  late StreamSubscription<BluetoothState> stateSubscription;
-  late StreamSubscription<Discovery> discoverySubscription;
-
-  _HomeViewState()
-      : state = ValueNotifier(false),
-        discovering = ValueNotifier(false),
-        discoveries = ValueNotifier({});
+class _HomeViewState extends State<HomeView> {
+  late ValueNotifier<bool> state;
+  late ValueNotifier<bool> discovering;
+  late ValueNotifier<List<Advertisement>> advertisements;
+  late Stream<Advertisement> advertisementStream;
+  late StreamSubscription<BluetoothState> stateStreamSubscription;
+  late StreamSubscription<Advertisement> advertisementStreamSubscription;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+
+    state = ValueNotifier(false);
+    discovering = ValueNotifier(false);
+    advertisements = ValueNotifier([]);
+    advertisementStream = CentralManager.instance.getAdvertisementStream();
+
+    state.addListener(onStateChanged);
+    stateStreamSubscription = CentralManager.instance.stateStream.listen(
+      (state) => this.state.value = state == BluetoothState.poweredOn,
+    );
     setup();
   }
 
   void setup() async {
-    final state = await central.state;
+    final authorized = await CentralManager.instance.authorize();
+    if (!authorized) {
+      throw UnimplementedError();
+    }
+    final state = await CentralManager.instance.getState();
     this.state.value = state == BluetoothState.poweredOn;
-    stateSubscription = central.stateChanged.listen(
-      (state) {
-        this.state.value = state == BluetoothState.poweredOn;
-        final invisible = !ModalRoute.of(context)!.isCurrent;
-        if (invisible) return;
-        if (this.state.value) {
-          startDiscovery();
-        } else {
-          discovering.value = false;
-        }
-      },
-    );
-    discoverySubscription = central.discovered.listen(
-      (discovery) {
-        discoveries.value[discovery.uuid] = discovery;
-        discoveries.value = {...discoveries.value};
-      },
-    );
-    if (this.state.value) {
-      startDiscovery();
+  }
+
+  void onStateChanged() {
+    final route = ModalRoute.of(context);
+    if (route == null || !route.isCurrent) {
+      return;
+    }
+    if (state.value) {
+      startScan();
+    } else {
+      discovering.value = false;
     }
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-  }
-
-  @override
   void dispose() {
-    stopDiscovery();
-    stateSubscription.cancel();
-    discoverySubscription.cancel();
-    discoveries.dispose();
+    stopScan();
+    state.removeListener(onStateChanged);
+    stateStreamSubscription.cancel();
+
+    state.dispose();
     discovering.dispose();
-    WidgetsBinding.instance!.removeObserver(this);
-    print('dispose');
+    advertisements.dispose();
+
     super.dispose();
   }
 
@@ -92,89 +99,108 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: const Text('Home'),
       ),
-      body: bodyView,
+      body: buildBody(context),
     );
   }
 
-  void startDiscovery() async {
-    if (discovering.value || !state.value) return;
-    await central.startDiscovery();
+  void startScan() async {
+    if (discovering.value || !state.value) {
+      return;
+    }
+    advertisementStreamSubscription = advertisementStream.listen(
+      (advertisement) {
+        final index = advertisements.value.indexWhere(
+          (element) => element.uuid == advertisement.uuid,
+        );
+        if (index >= 0) {
+          return;
+        }
+        advertisements.value = [...advertisements.value, advertisement];
+      },
+    );
     discovering.value = true;
   }
 
-  void stopDiscovery() async {
-    if (!discovering.value || !state.value) return;
-    await central.stopDiscovery();
-    discoveries.value = {};
+  void stopScan() async {
+    if (!discovering.value || !state.value) {
+      return;
+    }
+    await advertisementStreamSubscription.cancel();
+    advertisements.value = [];
     discovering.value = false;
   }
 
-  void showAdvertisements(Discovery discovery) {
+  void showAdvertisement(Advertisement advertisement) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       elevation: 0.0,
-      builder: (context) => buildAdvertisementsView(discovery),
+      builder: (context) => buildAdvertisementView(advertisement),
     );
   }
 
-  void showGattView(Discovery discovery) async {
-    stopDiscovery();
+  void showDeviceView(UUID uuid) async {
+    stopScan();
     await Navigator.of(context).pushNamed(
-      'gatt',
-      arguments: discovery.uuid,
+      'device',
+      arguments: uuid,
     );
-    startDiscovery();
+    startScan();
   }
 }
 
 extension on _HomeViewState {
-  Widget get bodyView {
+  Widget buildBody(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: state,
-      builder: (context, bool state, child) =>
-          state ? discoveriesView : closedView,
+      builder: (context, bool state, child) {
+        return state
+            ? buildAdvertisementsView(context)
+            : buildClosedView(context);
+      },
     );
   }
 
-  Widget get closedView {
-    return Center(
+  Widget buildClosedView(BuildContext context) {
+    return const Center(
       child: Text('蓝牙未开启'),
     );
   }
 
-  Widget get discoveriesView {
+  Widget buildAdvertisementsView(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: () async => discoveries.value = {},
+      onRefresh: () async => advertisements.value = [],
       child: ValueListenableBuilder(
-        valueListenable: discoveries,
-        builder: (context, Map<UUID, Discovery> discoveries, child) {
+        valueListenable: advertisements,
+        builder: (context, List<Advertisement> advertisements, child) {
           return ListView.builder(
-            padding: EdgeInsets.all(6.0),
-            itemCount: discoveries.length,
+            padding: const EdgeInsets.all(6.0),
+            itemCount: advertisements.length,
             itemBuilder: (context, i) {
-              final discovery = discoveries.values.elementAt(i);
+              final advertisement = advertisements.elementAt(i);
+              final connectable = advertisement.connectable ?? true;
               return Card(
-                color: discovery.connectable ? Colors.amber : Colors.grey,
+                color: connectable ? Colors.amber : Colors.grey,
                 clipBehavior: Clip.antiAlias,
-                shape: BeveledRectangleBorder(
+                shape: const BeveledRectangleBorder(
                   borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(12.0),
-                      bottomLeft: Radius.circular(12.0)),
+                    topRight: Radius.circular(12.0),
+                    bottomLeft: Radius.circular(12.0),
+                  ),
                 ),
-                margin: EdgeInsets.all(6.0),
-                key: Key(discovery.uuid.name),
+                margin: const EdgeInsets.all(6.0),
+                key: Key('${advertisement.uuid}'),
                 child: InkWell(
                   splashColor: Colors.purple,
-                  onTap: discovery.connectable
-                      ? () => showGattView(discovery)
+                  onTap: connectable
+                      ? () => showDeviceView(advertisement.uuid)
                       : null,
-                  onLongPress: () => showAdvertisements(discovery),
+                  onLongPress: () => showAdvertisement(advertisement),
                   child: Container(
                     height: 100.0,
-                    padding: EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.all(12.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -183,9 +209,9 @@ extension on _HomeViewState {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(discovery.name ?? 'NaN'),
+                              Text(advertisement.localName ?? 'UNKNOWN'),
                               Text(
-                                discovery.uuid.name,
+                                advertisement.uuid.toString(),
                                 softWrap: true,
                               ),
                             ],
@@ -194,7 +220,7 @@ extension on _HomeViewState {
                         Expanded(
                           flex: 1,
                           child: Text(
-                            discovery.rssi.toString(),
+                            advertisement.rssi.toString(),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -210,10 +236,10 @@ extension on _HomeViewState {
     );
   }
 
-  Widget buildAdvertisementsView(Discovery discovery) {
+  Widget buildAdvertisementView(Advertisement advertisement) {
     final widgets = <Widget>[
       Row(
-        children: [
+        children: const [
           Text('Type'),
           Expanded(
             child: Center(
@@ -222,34 +248,34 @@ extension on _HomeViewState {
           ),
         ],
       ),
-      Divider(),
+      const Divider(),
     ];
-    for (final entry in discovery.advertisements.entries) {
-      final key = entry.key.toRadixString(16).padLeft(2, '0');
-      final value = hex.encode(entry.value);
-      final widget = Row(
-        children: [
-          Text('0x$key'),
-          Container(width: 12.0),
-          Expanded(
-            child: Text(
-              '$value',
-              softWrap: true,
-            ),
-          ),
-        ],
-      );
-      widgets.add(widget);
-      if (entry.key != discovery.advertisements.entries.last.key) {
-        final divider = Divider();
-        widgets.add(divider);
-      }
-    }
+    // for (final entry in advertisement.data.entries) {
+    //   final type = '0x${entry.key.toRadixString(16).padLeft(2, '0')}';
+    //   final value = hex.encode(entry.value);
+    //   final widget = Row(
+    //     children: [
+    //       Text(type),
+    //       Container(width: 12.0),
+    //       Expanded(
+    //         child: Text(
+    //           value,
+    //           softWrap: true,
+    //         ),
+    //       ),
+    //     ],
+    //   );
+    //   widgets.add(widget);
+    //   if (entry.key != advertisement.data.entries.last.key) {
+    //     const divider = Divider();
+    //     widgets.add(divider);
+    //   }
+    // }
     return Container(
       margin: const EdgeInsets.all(12.0),
       child: Material(
         elevation: 1.0,
-        shape: BeveledRectangleBorder(
+        shape: const BeveledRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(12.0),
             bottomRight: Radius.circular(12.0),
@@ -268,49 +294,51 @@ extension on _HomeViewState {
   }
 }
 
-class GattView extends StatefulWidget {
-  const GattView({Key? key}) : super(key: key);
+class DeviceView extends StatefulWidget {
+  final UUID uuid;
+
+  const DeviceView({
+    Key? key,
+    required this.uuid,
+  }) : super(key: key);
 
   @override
-  _GattViewState createState() => _GattViewState();
+  State<DeviceView> createState() => _DeviceViewState();
 }
 
-class _GattViewState extends State<GattView> {
-  final ValueNotifier<ConnectionState> state;
-  GATT? gatt;
-  StreamSubscription? connectionLostSubscription;
-  final ValueNotifier<GattService?> service;
-  final ValueNotifier<GattCharacteristic?> characteristic;
-  final TextEditingController writeController;
-  final ValueNotifier<Map<GattCharacteristic, StreamSubscription>> notifies;
-  final ValueNotifier<List<String>> logs;
-
-  late UUID uuid;
-
-  _GattViewState()
-      : state = ValueNotifier(ConnectionState.disconnected),
-        service = ValueNotifier(null),
-        characteristic = ValueNotifier(null),
-        writeController = TextEditingController(),
-        notifies = ValueNotifier({}),
-        logs = ValueNotifier([]);
+class _DeviceViewState extends State<DeviceView> {
+  late Peripheral peripheral;
+  late Map<GattService, List<GattCharacteristic>> services;
+  late ValueNotifier<ConnectionState> state;
+  late ValueNotifier<GattService?> service;
+  late ValueNotifier<GattCharacteristic?> characteristic;
+  late TextEditingController writeController;
+  late ValueNotifier<Map<GattCharacteristic, StreamSubscription>> notifies;
+  late ValueNotifier<List<String>> logs;
 
   @override
   void initState() {
     super.initState();
+
+    services = {};
+    state = ValueNotifier(ConnectionState.disconnected);
+    service = ValueNotifier(null);
+    characteristic = ValueNotifier(null);
+    writeController = TextEditingController();
+    notifies = ValueNotifier({});
+    logs = ValueNotifier([]);
   }
 
   @override
   Widget build(BuildContext context) {
-    uuid = ModalRoute.of(context)!.settings.arguments as UUID;
     return Scaffold(
       appBar: AppBar(
-        title: Text(uuid.name),
+        title: Text('${widget.uuid}'),
         actions: [
-          changeStateView,
+          buildConnectionState(context),
         ],
       ),
-      body: bodyView,
+      body: buildBody(context),
     );
   }
 
@@ -356,16 +384,12 @@ class _GattViewState extends State<GattView> {
   void connect() async {
     try {
       state.value = ConnectionState.connecting;
-      gatt = await central.connect(uuid);
-      state.value = ConnectionState.connected;
-      connectionLostSubscription = gatt!.connectionLost.listen(
-        (errorCode) async {
+      peripheral = await CentralManager.instance.connect(
+        widget.uuid,
+        onConnectionLost: (error) {
           for (var subscription in notifies.value.values) {
-            await subscription.cancel();
+            subscription.cancel();
           }
-          await connectionLostSubscription!.cancel();
-          gatt = null;
-          connectionLostSubscription = null;
           service.value = null;
           characteristic.value = null;
           notifies.value.clear();
@@ -373,7 +397,24 @@ class _GattViewState extends State<GattView> {
           state.value = ConnectionState.disconnected;
         },
       );
-    } on PlatformException {
+      try {
+        final items0 = <GattService, List<GattCharacteristic>>{};
+        final services = await peripheral.discoverServices();
+        for (var service in services) {
+          final items1 = <GattCharacteristic>[];
+          final characteristics = await service.discoverCharacteristics();
+          for (var characteristic in characteristics) {
+            items1.add(characteristic);
+          }
+          items0[service] = items1;
+        }
+        this.services = items0;
+      } catch (e) {
+        peripheral.disconnect();
+        rethrow;
+      }
+      state.value = ConnectionState.connected;
+    } catch (error) {
       state.value = ConnectionState.disconnected;
     }
   }
@@ -381,32 +422,30 @@ class _GattViewState extends State<GattView> {
   void disconnect() async {
     try {
       state.value = ConnectionState.disconnecting;
-      await gatt!.disconnect();
       for (var subscription in notifies.value.values) {
-        await subscription.cancel();
+        subscription.cancel();
       }
-      await connectionLostSubscription!.cancel();
-      gatt = null;
-      connectionLostSubscription = null;
+      await peripheral.disconnect();
+      services = {};
       service.value = null;
       characteristic.value = null;
       notifies.value.clear();
       logs.value.clear();
       state.value = ConnectionState.disconnected;
-    } on PlatformException {
+    } catch (e) {
       state.value = ConnectionState.connected;
     }
   }
 }
 
-extension on _GattViewState {
-  Widget get changeStateView {
+extension on _DeviceViewState {
+  Widget buildConnectionState(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: state,
-      builder: (context, ConnectionState stateValue, child) {
+      builder: (context, ConnectionState state, child) {
         void Function()? onPressed;
         String data;
-        switch (stateValue) {
+        switch (state) {
           case ConnectionState.disconnected:
             onPressed = connect;
             data = '连接';
@@ -428,7 +467,7 @@ extension on _GattViewState {
         return TextButton(
           onPressed: onPressed,
           style: TextButton.styleFrom(
-            primary: Colors.white,
+            foregroundColor: Colors.white,
           ),
           child: Text(data),
         );
@@ -436,19 +475,19 @@ extension on _GattViewState {
     );
   }
 
-  Widget get bodyView {
+  Widget buildBody(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: state,
       builder: (context, ConnectionState stateValue, child) {
         switch (stateValue) {
           case ConnectionState.disconnected:
-            return disconnectedView;
+            return buildDisconnectedView(context);
           case ConnectionState.connecting:
-            return connectingView;
+            return buildConnectingView(context);
           case ConnectionState.connected:
-            return connectedView;
+            return buildConnectedView(context);
           case ConnectionState.disconnecting:
-            return disconnectingView;
+            return buildDisconnectingView(context);
           default:
             throw UnimplementedError();
         }
@@ -456,75 +495,74 @@ extension on _GattViewState {
     );
   }
 
-  Widget get disconnectedView {
-    return Center(
-      child: Text('未连接'),
+  Widget buildDisconnectedView(BuildContext context) {
+    return const Center(
+      child: Text('Disconnected'),
     );
   }
 
-  Widget get connectingView {
-    return Center(
-      child: Text('正在建立连接'),
+  Widget buildConnectingView(BuildContext context) {
+    return const Center(
+      child: Text('Connecting'),
     );
   }
 
-  Widget get connectedView {
+  Widget buildConnectedView(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: service,
-      builder: (context, GattService? serviceValue, child) {
-        final services = gatt!.services.values
-            .map((service) => DropdownMenuItem<GattService>(
-                  value: service,
-                  child: Text(
-                    service.uuid.name,
-                    softWrap: false,
-                  ),
-                ))
-            .toList();
+      builder: (context, GattService? service, child) {
+        final services = this.services.keys.map((service) {
+          return DropdownMenuItem<GattService>(
+            value: service,
+            child: Text(
+              service.uuid.toString(),
+              softWrap: false,
+            ),
+          );
+        }).toList();
         final serviceView = DropdownButton<GattService>(
           isExpanded: true,
-          hint: Text('选择服务'),
-          value: serviceValue,
+          hint: const Text('Choose a service'),
+          value: service,
           items: services,
-          onChanged: (value) {
-            service.value = value;
+          onChanged: (service) {
+            this.service.value = service;
             characteristic.value = null;
           },
         );
         final views = <Widget>[serviceView];
-        if (serviceValue != null) {
-          final characteristics = serviceValue.characteristics.values
-              .map((characteristic) => DropdownMenuItem(
-                    value: characteristic,
-                    child: Text(
-                      characteristic.uuid.name,
-                      softWrap: false,
-                    ),
-                  ))
-              .toList();
+        if (service != null) {
+          final characteristics = this.services[service]?.map((characteristic) {
+            return DropdownMenuItem(
+              value: characteristic,
+              child: Text(
+                characteristic.uuid.toString(),
+                softWrap: false,
+              ),
+            );
+          }).toList();
           final characteristicView = ValueListenableBuilder(
             valueListenable: characteristic,
-            builder: (context, GattCharacteristic? characteristicValue, child) {
-              final canWrite = characteristicValue != null &&
-                  (characteristicValue.canWrite ||
-                      characteristicValue.canWriteWithoutResponse);
-              final canRead =
-                  characteristicValue != null && characteristicValue.canRead;
+            builder: (context, GattCharacteristic? characteristic, child) {
+              final canWrite = characteristic != null &&
+                  (characteristic.canWrite ||
+                      characteristic.canWriteWithoutResponse);
+              final canRead = characteristic != null && characteristic.canRead;
               final canNotify =
-                  characteristicValue != null && characteristicValue.canNotify;
+                  characteristic != null && characteristic.canNotify;
               final readAndNotifyView = Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
                     onPressed: canRead
                         ? () async {
-                            final value = await characteristicValue!.read();
+                            final value = await characteristic.read();
                             final time = DateTime.now().display;
                             final log = '[$time][READ] ${hex.encode(value)}';
                             logs.value = [...logs.value, log];
                           }
                         : null,
-                    icon: Icon(Icons.archive),
+                    icon: const Icon(Icons.archive),
                   ),
                   ValueListenableBuilder(
                       valueListenable: notifies,
@@ -533,19 +571,17 @@ extension on _GattViewState {
                               notifiesValue,
                           child) {
                         final notifying =
-                            notifiesValue.containsKey(characteristicValue);
+                            notifiesValue.containsKey(characteristic);
                         return IconButton(
                           onPressed: canNotify
                               ? () async {
                                   if (notifying) {
-                                    await characteristicValue!.notify(false);
                                     await notifiesValue
-                                        .remove(characteristicValue)!
+                                        .remove(characteristic)!
                                         .cancel();
                                   } else {
-                                    await characteristicValue!.notify(true);
-                                    notifiesValue[characteristicValue] =
-                                        characteristicValue.valueChanged
+                                    notifiesValue[characteristic] =
+                                        characteristic.valueStream
                                             .listen((value) {
                                       final time = DateTime.now().display;
                                       final log =
@@ -567,18 +603,19 @@ extension on _GattViewState {
               final controllerView = TextField(
                 controller: writeController,
                 decoration: InputDecoration(
-                  hintText: 'MTU: ${gatt!.maximumWriteLength}',
+                  hintText: 'MTU: ${peripheral.maximumWriteLength}',
                   suffixIcon: IconButton(
                     onPressed: canWrite
                         ? () {
-                            final value = utf8.encode(writeController.text);
-                            final withoutResponse =
-                                !characteristicValue!.canWrite;
-                            characteristicValue.write(value,
-                                withoutResponse: withoutResponse);
+                            final elements = utf8.encode(writeController.text);
+                            final value = Uint8List.fromList(elements);
+                            characteristic.write(
+                              value,
+                              withoutResponse: !characteristic.canWrite,
+                            );
                           }
                         : null,
-                    icon: Icon(Icons.send),
+                    icon: const Icon(Icons.send),
                   ),
                 ),
               );
@@ -586,10 +623,12 @@ extension on _GattViewState {
                 children: [
                   DropdownButton<GattCharacteristic>(
                     isExpanded: true,
-                    hint: Text('选择特征值'),
-                    value: characteristicValue,
+                    hint: const Text('Choose a characteristic'),
+                    value: characteristic,
                     items: characteristics,
-                    onChanged: (value) => characteristic.value = value,
+                    onChanged: (characteristic) {
+                      this.characteristic.value = characteristic;
+                    },
                   ),
                   readAndNotifyView,
                   controllerView,
@@ -617,7 +656,7 @@ extension on _GattViewState {
         );
         views.add(loggerView);
         return Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.0),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: views,
@@ -627,9 +666,9 @@ extension on _GattViewState {
     );
   }
 
-  Widget get disconnectingView {
-    return Center(
-      child: Text('正在断开连接'),
+  Widget buildDisconnectingView(BuildContext context) {
+    return const Center(
+      child: Text('Disconnecting'),
     );
   }
 }

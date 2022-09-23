@@ -1,19 +1,9 @@
-library bluetooth_low_energy;
-
-import 'dart:async';
-import 'dart:convert';
-
-import 'package:convert/convert.dart';
-
-import 'src/message.pb.dart' as proto;
-import 'src/util.dart';
-
-part 'src/bluetooth.dart';
-part 'src/central.dart';
-part 'src/discovery.dart';
-part 'src/gatt.dart';
-part 'src/gatt_service.dart';
-part 'src/gatt_characteristic.dart';
-part 'src/gatt_descriptor.dart';
-part 'src/uuid.dart';
-part 'src/extension.dart';
+export 'src/central_manager.dart';
+export 'src/peripheral.dart';
+export 'src/gatt_service.dart';
+export 'src/gatt_characteristic.dart';
+export 'src/gatt_descriptor.dart';
+export 'src/bluetooth_state.dart';
+export 'src/advertisement.dart';
+export 'src/uuid.dart';
+export 'src/exception.dart';

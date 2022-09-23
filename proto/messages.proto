@@ -1,0 +1,61 @@
+syntax = "proto3";
+package proto;
+
+option java_package = "dev.yanshouwang.bluetooth_low_energy.proto";
+option java_multiple_files = true;
+
+message Advertisement {
+  UUID uuid = 1;
+  int32 rssi = 2;
+  optional bool connectable = 3;
+  bytes data = 4;
+  optional string local_name = 5;
+  bytes manufacturer_specific_data = 6;
+  repeated ServiceData service_datas = 7;
+  repeated UUID service_uuids = 8;
+  repeated UUID solicited_service_uuids = 9;
+  optional int32 tx_power_level = 10;
+}
+
+message Peripheral {
+  int64 id = 1;
+  int32 maximum_write_length = 2;
+}
+
+message GattService {
+  int64 id = 1;
+  UUID uuid = 2;
+}
+
+message GattCharacteristic {
+  int64 id = 1;
+  UUID uuid = 2;
+  bool can_read = 3;
+  bool can_write = 4;
+  bool can_write_without_response = 5;
+  bool can_notify = 6;
+}
+
+message GattDescriptor {
+  int64 id = 1;
+  UUID uuid = 2;
+}
+
+enum BluetoothState {
+  BLUETOOTH_STATE_UNSUPPORTED = 0;
+  BLUETOOTH_STATE_POWERED_OFF = 1;
+  BLUETOOTH_STATE_POWERED_ON = 2;
+}
+
+message UUID {
+  string value = 1;
+}
+
+message ServiceData {
+  UUID uuid = 1;
+  bytes data = 2;
+}
+
+message BluetoothLowEnergyException {
+  string message = 1;
+}

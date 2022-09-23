@@ -1,12 +1,12 @@
-# Bluetooth Low Energy
+# bluetooth_low_energy
 
 A bluetooth low energy plugin for flutter, which can be used to develope central role apps.
 
 ## Features
 
 ### Central APIs
-- [x] Discover advertisements.
-- [x] Connect/Disconnect to GATTs.
+- [x] Scan advertisements.
+- [x] Connect/Disconnect to peripherals.
 - [x] Read/Write/Notify characteristics.
 - [x] Read/Write descriptors.
 

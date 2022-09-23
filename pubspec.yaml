@@ -1,33 +1,40 @@
 name: bluetooth_low_energy
 description: A bluetooth low energy plugin for flutter, which can be used to develope central role apps.
-version: 0.1.0
+version: 1.0.0
 homepage: https://github.com/yanshouwang/bluetooth_low_energy
-publish_to: https://pub.dev
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
-  flutter: ">=1.20.0"
+  sdk: ">=2.17.6 <3.0.0"
+  flutter: ">=2.5.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  protobuf: ^2.0.0
-  collection: ^1.15.0
-  convert: ^3.0.0
+  plugin_platform_interface: ^2.0.2
+  pigeon: ^4.0.2
+  protobuf: ^2.1.0
+  fixnum: ^1.0.1
+  tuple: ^2.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  pedantic: ^1.11.0
+  flutter_lints: ^2.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
-# The following section is specific to Flutter.
+# The following section is specific to Flutter packages.
 flutter:
   # This section identifies this Flutter project as a plugin project.
-  # The 'pluginClass' and Android 'package' identifiers should not ordinarily
-  # be modified. They are used by the tooling to maintain consistency when
+  # The 'pluginClass' specifies the class (in Java, Kotlin, Swift, Objective-C, etc.)
+  # which should be registered in the plugin registry. This is required for
+  # using method channels.
+  # The Android 'package' specifies package in which the registered class is.
+  # This is required for using method channels on Android.
+  # The 'ffiPlugin' specifies that native code should be built and bundled.
+  # This is required for using `dart:ffi`.
+  # All these are used by the tooling to maintain consistency when
   # adding or updating assets for this project.
   plugin:
     platforms:
@@ -46,7 +53,7 @@ flutter:
   # https://flutter.dev/assets-and-images/#from-packages
   #
   # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware.
+  # https://flutter.dev/assets-and-images/#resolution-aware
 
   # To add custom fonts to your plugin package, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

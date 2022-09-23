@@ -1,3 +1,8 @@
+## 1.0.0
+
+- Upgrade to flutter 3.x.
+- Rewrite the whole project with pigeon.
+
 ## 0.1.0
 
 - Add implementations on iOS.

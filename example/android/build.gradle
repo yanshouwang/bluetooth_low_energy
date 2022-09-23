@@ -1,13 +1,12 @@
 buildscript {
-    ext.kotlin_version = '1.5.21'
+    ext.kotlin_version = '1.6.10'
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' }
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.0'
+        classpath 'com.android.tools.build:gradle:7.1.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -16,13 +15,14 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' }
     }
 }
 
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
     project.evaluationDependsOn(':app')
 }
 
