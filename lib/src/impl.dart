@@ -1,13 +1,12 @@
 import 'dart:async';
-import 'dart:typed_data';
 
+import 'package:flutter/services.dart';
 import 'package:tuple/tuple.dart';
 
 import 'advertisement.dart';
 import 'api.dart';
 import 'bluetooth_state.dart';
 import 'central_manager.dart';
-import 'exception.dart';
 import 'gatt_characteristic.dart';
 import 'gatt_descriptor.dart';
 import 'gatt_service.dart';
@@ -17,6 +16,8 @@ import 'proto.dart' as proto;
 import 'uuid.dart';
 
 final finalizer = Finalizer<void Function()>((free) => free());
+
+const bluetoothLowEnergyError = 'bluetoothLowEnergyError';
 
 class MyCentralManagerApi extends CentralManagerApi
     implements CentralManagerFlutterApi {
@@ -368,7 +369,10 @@ class MyPeripheral implements Peripheral {
         .instance.connectionLostStream
         .where((event) => event.item1 == hashCode)
         .listen((event) {
-      final error = MyBluetoothLowEnergyException.fromBuffer(event.item2);
+      final error = PlatformException(
+        code: bluetoothLowEnergyError,
+        message: '',
+      );
       onConnectionLost?.call(error);
     });
     finalizer.attach(
@@ -582,23 +586,6 @@ class MyUUID implements UUID {
   @override
   bool operator ==(Object other) {
     return other is MyUUID && other.value == value;
-  }
-}
-
-class MyBluetoothLowEnergyException implements BluetoothLowEnergyException {
-  @override
-  final String message;
-
-  MyBluetoothLowEnergyException({required this.message});
-
-  factory MyBluetoothLowEnergyException.fromBuffer(Uint8List buffer) {
-    final error = proto.BluetoothLowEnergyException.fromBuffer(buffer);
-    return MyBluetoothLowEnergyException(message: error.message);
-  }
-
-  @override
-  String toString() {
-    return 'BluetoothLowEnergyException: $message';
   }
 }
 

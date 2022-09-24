@@ -55,7 +55,3 @@ message ServiceData {
   UUID uuid = 1;
   bytes data = 2;
 }
-
-message BluetoothLowEnergyException {
-  string message = 1;
-}

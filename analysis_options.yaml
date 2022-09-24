@@ -6,11 +6,11 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   exclude: 
     - "**/*.g.dart"
+    - "**/*.mocks.dart"
     - "**/*.pb.dart"
     - "**/*.pbenum.dart"
     - "**/*.pbjson.dart"
     - "**/*.pbserver.dart"
-    - "**/*.mocks.dart"
 
 linter:
   rules:

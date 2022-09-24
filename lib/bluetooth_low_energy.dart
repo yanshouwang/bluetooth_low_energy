@@ -6,4 +6,3 @@ export 'src/gatt_descriptor.dart';
 export 'src/bluetooth_state.dart';
 export 'src/advertisement.dart';
 export 'src/uuid.dart';
-export 'src/exception.dart';

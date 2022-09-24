@@ -2,20 +2,19 @@ import 'package:pigeon/pigeon.dart';
 
 @ConfigurePigeon(
   PigeonOptions(
-    dartOut: 'lib/src/pigeon/api.g.dart',
-    dartTestOut: 'test/pigeon/test_api.g.dart',
+    dartOut: 'lib/src/pigeon/messages.g.dart',
+    dartTestOut: 'test/pigeon/test_messages.g.dart',
     javaOut:
-        'android/src/main/java/dev/yanshouwang/bluetooth_low_energy/pigeon/Api.java',
+        'android/src/main/java/dev/yanshouwang/bluetooth_low_energy/pigeon/Messages.java',
     javaOptions: JavaOptions(
       package: 'dev.yanshouwang.bluetooth_low_energy.pigeon',
     ),
-    objcHeaderOut: 'ios/Classes/pigeon/Api.h',
-    objcSourceOut: 'ios/Classes/pigeon/Api.m',
+    objcHeaderOut: 'ios/Classes/pigeon/Messages.h',
+    objcSourceOut: 'ios/Classes/pigeon/Messages.m',
     objcOptions: ObjcOptions(
-      header: 'ios/Classes/pigeon/Api.h',
+      header: 'ios/Classes/pigeon/Messages.h',
       prefix: 'Pigeon',
     ),
-    // swiftOut: 'ios/Classes/pigeon/api.swift',
   ),
 )
 @HostApi(dartHostTestHandler: 'TestCentralControllerHostApi')
@@ -63,8 +62,8 @@ abstract class PeripheralHostApi {
 
 @FlutterApi()
 abstract class PeripheralFlutterApi {
-  @ObjCSelector('notifyConnectionLost:errorBuffer:')
-  void notifyConnectionLost(int id, Uint8List errorBuffer);
+  @ObjCSelector('notifyConnectionLost:errorMessage:')
+  void notifyConnectionLost(int id, String errorMessage);
 }
 
 @HostApi(dartHostTestHandler: 'TestGattServiceHostApi')

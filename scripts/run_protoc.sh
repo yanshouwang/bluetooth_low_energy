@@ -50,4 +50,4 @@ protoc \
     --java_out $JAVA_OUT \
     --kotlin_out $KOTLIN_OUT \
     --swift_out $SWIFT_OUT \
-    proto/*.proto
+    proto/messages.proto
