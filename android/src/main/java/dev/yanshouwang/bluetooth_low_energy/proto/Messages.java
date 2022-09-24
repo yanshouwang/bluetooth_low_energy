@@ -49,11 +49,6 @@ public final class Messages {
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_proto_ServiceData_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_proto_BluetoothLowEnergyException_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_proto_BluetoothLowEnergyException_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -82,13 +77,12 @@ public final class Messages {
       "\n\ncan_notify\030\006 \001(\010\"7\n\016GattDescriptor\022\n\n\002" +
       "id\030\001 \001(\003\022\031\n\004uuid\030\002 \001(\0132\013.proto.UUID\"\025\n\004U" +
       "UID\022\r\n\005value\030\001 \001(\t\"6\n\013ServiceData\022\031\n\004uui" +
-      "d\030\001 \001(\0132\013.proto.UUID\022\014\n\004data\030\002 \001(\014\".\n\033Bl" +
-      "uetoothLowEnergyException\022\017\n\007message\030\001 \001" +
-      "(\t*r\n\016BluetoothState\022\037\n\033BLUETOOTH_STATE_" +
-      "UNSUPPORTED\020\000\022\037\n\033BLUETOOTH_STATE_POWERED" +
-      "_OFF\020\001\022\036\n\032BLUETOOTH_STATE_POWERED_ON\020\002B." +
-      "\n*dev.yanshouwang.bluetooth_low_energy.p" +
-      "rotoP\001b\006proto3"
+      "d\030\001 \001(\0132\013.proto.UUID\022\014\n\004data\030\002 \001(\014*r\n\016Bl" +
+      "uetoothState\022\037\n\033BLUETOOTH_STATE_UNSUPPOR" +
+      "TED\020\000\022\037\n\033BLUETOOTH_STATE_POWERED_OFF\020\001\022\036" +
+      "\n\032BLUETOOTH_STATE_POWERED_ON\020\002B.\n*dev.ya" +
+      "nshouwang.bluetooth_low_energy.protoP\001b\006" +
+      "proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -136,12 +130,6 @@ public final class Messages {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_proto_ServiceData_descriptor,
         new java.lang.String[] { "Uuid", "Data", });
-    internal_static_proto_BluetoothLowEnergyException_descriptor =
-      getDescriptor().getMessageTypes().get(7);
-    internal_static_proto_BluetoothLowEnergyException_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_proto_BluetoothLowEnergyException_descriptor,
-        new java.lang.String[] { "Message", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

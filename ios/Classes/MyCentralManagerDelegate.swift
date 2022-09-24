@@ -102,11 +102,8 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate {
         let completion = items.removeValue(forKey: "\(peripheral.hash)/\(KEY_DISCONNECT_COMPLETION)") as? (FlutterError?) -> Void
         if completion == nil {
             let id = identifiers[peripheral]!
-            let data = try! Proto_BluetoothLowEnergyException.with {
-                $0.message = error?.localizedDescription ?? "Peripheral connection lost."
-            }.serializedData()
-            let errorBuffer = FlutterStandardTypedData(bytes: data)
-            peripheralFlutterApi.notifyConnectionLost(id, errorBuffer: errorBuffer) {_ in }
+            let errorMessage = error?.localizedDescription ?? "Peripheral disconnected without error message."
+            peripheralFlutterApi.notifyConnectionLost(id, errorMessage: errorMessage) {_ in }
         } else if error == nil {
             completion!(nil)
         } else {

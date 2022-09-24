@@ -3,12 +3,12 @@ package dev.yanshouwang.bluetooth_low_energy
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
-import dev.yanshouwang.bluetooth_low_energy.pigeon.Api
+import dev.yanshouwang.bluetooth_low_energy.pigeon.Messages as Pigeon
 import dev.yanshouwang.bluetooth_low_energy.proto.gattDescriptor
 import dev.yanshouwang.bluetooth_low_energy.proto.uUID
 import java.util.UUID
 
-object MyGattCharacteristicHostApi : Api.GattCharacteristicHostApi {
+object MyGattCharacteristicHostApi : Pigeon.GattCharacteristicHostApi {
     private const val CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
 
     override fun allocate(id: Long, instanceId: Long) {
@@ -24,7 +24,7 @@ object MyGattCharacteristicHostApi : Api.GattCharacteristicHostApi {
         identifiers.remove(characteristic)
     }
 
-    override fun discoverDescriptors(id: Long, result: Api.Result<MutableList<ByteArray>>) {
+    override fun discoverDescriptors(id: Long, result: Pigeon.Result<MutableList<ByteArray>>) {
         val list = instances[id] as List<Any>
         val gatt = list[0] as BluetoothGatt
         val characteristic = list[1] as BluetoothGattCharacteristic
@@ -43,7 +43,7 @@ object MyGattCharacteristicHostApi : Api.GattCharacteristicHostApi {
         result.success(descriptorValues)
     }
 
-    override fun read(id: Long, result: Api.Result<ByteArray>) {
+    override fun read(id: Long, result: Pigeon.Result<ByteArray>) {
         val list = instances[id] as List<Any>
         val gatt = list[0] as BluetoothGatt
         val characteristic = list[1] as BluetoothGattCharacteristic
@@ -56,7 +56,7 @@ object MyGattCharacteristicHostApi : Api.GattCharacteristicHostApi {
         }
     }
 
-    override fun write(id: Long, value: ByteArray, withoutResponse: Boolean, result: Api.Result<Void>) {
+    override fun write(id: Long, value: ByteArray, withoutResponse: Boolean, result: Pigeon.Result<Void>) {
         val list = instances[id] as List<Any>
         val gatt = list[0] as BluetoothGatt
         val characteristic = list[1] as BluetoothGattCharacteristic
@@ -75,7 +75,7 @@ object MyGattCharacteristicHostApi : Api.GattCharacteristicHostApi {
         }
     }
 
-    override fun setNotify(id: Long, value: Boolean, result: Api.Result<Void>) {
+    override fun setNotify(id: Long, value: Boolean, result: Pigeon.Result<Void>) {
         val list = instances[id] as List<Any>
         val gatt = list[0] as BluetoothGatt
         val characteristic = list[1] as BluetoothGattCharacteristic

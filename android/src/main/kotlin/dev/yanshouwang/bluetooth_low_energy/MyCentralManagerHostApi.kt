@@ -9,12 +9,12 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.ParcelUuid
 import androidx.core.app.ActivityCompat
-import dev.yanshouwang.bluetooth_low_energy.pigeon.Api
+import dev.yanshouwang.bluetooth_low_energy.pigeon.Messages as Pigeon
 import dev.yanshouwang.bluetooth_low_energy.proto.BluetoothState
 import dev.yanshouwang.bluetooth_low_energy.proto.UUID
 
-object MyCentralManagerHostApi : Api.CentralManagerHostApi {
-    override fun authorize(result: Api.Result<Boolean>) {
+object MyCentralManagerHostApi : Pigeon.CentralManagerHostApi {
+    override fun authorize(result: Pigeon.Result<Boolean>) {
         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.BLUETOOTH_SCAN, android.Manifest.permission.BLUETOOTH_CONNECT)
         } else {
@@ -49,7 +49,7 @@ object MyCentralManagerHostApi : Api.CentralManagerHostApi {
         activity.unregisterReceiver(MyBroadcastReceiver)
     }
 
-    override fun startScan(uuidBuffers: MutableList<ByteArray>?, result: Api.Result<Void>) {
+    override fun startScan(uuidBuffers: MutableList<ByteArray>?, result: Pigeon.Result<Void>) {
         val filters = uuidBuffers?.map { buffer ->
             val uuid = UUID.parseFrom(buffer).value
             val serviceUUID = ParcelUuid.fromString(uuid)
@@ -72,7 +72,7 @@ object MyCentralManagerHostApi : Api.CentralManagerHostApi {
         bluetoothAdapter.bluetoothLeScanner.stopScan(MyScanCallback)
     }
 
-    override fun connect(uuidBuffer: ByteArray, result: Api.Result<ByteArray>) {
+    override fun connect(uuidBuffer: ByteArray, result: Pigeon.Result<ByteArray>) {
         val address = UUID.parseFrom(uuidBuffer).value.address
         val device = bluetoothAdapter.getRemoteDevice(address)
         val autoConnect = false

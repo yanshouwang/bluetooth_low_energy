@@ -113,13 +113,3 @@ const ServiceData$json = const {
 
 /// Descriptor for `ServiceData`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List serviceDataDescriptor = $convert.base64Decode('CgtTZXJ2aWNlRGF0YRIfCgR1dWlkGAEgASgLMgsucHJvdG8uVVVJRFIEdXVpZBISCgRkYXRhGAIgASgMUgRkYXRh');
-@$core.Deprecated('Use bluetoothLowEnergyExceptionDescriptor instead')
-const BluetoothLowEnergyException$json = const {
-  '1': 'BluetoothLowEnergyException',
-  '2': const [
-    const {'1': 'message', '3': 1, '4': 1, '5': 9, '10': 'message'},
-  ],
-};
-
-/// Descriptor for `BluetoothLowEnergyException`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List bluetoothLowEnergyExceptionDescriptor = $convert.base64Decode('ChtCbHVldG9vdGhMb3dFbmVyZ3lFeGNlcHRpb24SGAoHbWVzc2FnZRgBIAEoCVIHbWVzc2FnZQ==');

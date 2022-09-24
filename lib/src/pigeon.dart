@@ -1,1 +1,1 @@
-export 'pigeon/api.g.dart';
+export 'pigeon/messages.g.dart';

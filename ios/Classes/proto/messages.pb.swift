@@ -253,18 +253,6 @@ struct Proto_ServiceData {
   fileprivate var _uuid: Proto_UUID? = nil
 }
 
-struct Proto_BluetoothLowEnergyException {
-  // SwiftProtobuf.Message conformance is added in an extension below. See the
-  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-  // methods supported on all messages.
-
-  var message: String = String()
-
-  var unknownFields = SwiftProtobuf.UnknownStorage()
-
-  init() {}
-}
-
 #if swift(>=5.5) && canImport(_Concurrency)
 extension Proto_BluetoothState: @unchecked Sendable {}
 extension Proto_Advertisement: @unchecked Sendable {}
@@ -274,7 +262,6 @@ extension Proto_GattCharacteristic: @unchecked Sendable {}
 extension Proto_GattDescriptor: @unchecked Sendable {}
 extension Proto_UUID: @unchecked Sendable {}
 extension Proto_ServiceData: @unchecked Sendable {}
-extension Proto_BluetoothLowEnergyException: @unchecked Sendable {}
 #endif  // swift(>=5.5) && canImport(_Concurrency)
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
@@ -636,38 +623,6 @@ extension Proto_ServiceData: SwiftProtobuf.Message, SwiftProtobuf._MessageImplem
   static func ==(lhs: Proto_ServiceData, rhs: Proto_ServiceData) -> Bool {
     if lhs._uuid != rhs._uuid {return false}
     if lhs.data != rhs.data {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
-extension Proto_BluetoothLowEnergyException: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".BluetoothLowEnergyException"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "message"),
-  ]
-
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 1: try { try decoder.decodeSingularStringField(value: &self.message) }()
-      default: break
-      }
-    }
-  }
-
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if !self.message.isEmpty {
-      try visitor.visitSingularStringField(value: self.message, fieldNumber: 1)
-    }
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  static func ==(lhs: Proto_BluetoothLowEnergyException, rhs: Proto_BluetoothLowEnergyException) -> Bool {
-    if lhs.message != rhs.message {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

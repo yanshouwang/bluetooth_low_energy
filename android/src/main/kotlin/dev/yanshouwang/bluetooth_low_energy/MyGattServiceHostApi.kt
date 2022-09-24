@@ -3,11 +3,11 @@ package dev.yanshouwang.bluetooth_low_energy
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
-import dev.yanshouwang.bluetooth_low_energy.pigeon.Api
+import dev.yanshouwang.bluetooth_low_energy.pigeon.Messages as Pigeon
 import dev.yanshouwang.bluetooth_low_energy.proto.gattCharacteristic
 import dev.yanshouwang.bluetooth_low_energy.proto.uUID
 
-object MyGattServiceHostApi : Api.GattServiceHostApi {
+object MyGattServiceHostApi : Pigeon.GattServiceHostApi {
     override fun allocate(id: Long, instanceId: Long) {
         val list = instances.remove(instanceId) as List<Any>
         val service = list[1]
@@ -21,7 +21,7 @@ object MyGattServiceHostApi : Api.GattServiceHostApi {
         identifiers.remove(service)
     }
 
-    override fun discoverCharacteristics(id: Long, result: Api.Result<MutableList<ByteArray>>) {
+    override fun discoverCharacteristics(id: Long, result: Pigeon.Result<MutableList<ByteArray>>) {
         val list = instances[id] as List<Any>
         val gatt = list[0] as BluetoothGatt
         val service = list[1] as BluetoothGattService

@@ -55,7 +55,7 @@ abstract class PeripheralApi extends PlatformInterface {
     _instance = instance;
   }
 
-  Stream<Tuple2<int, Uint8List>> get connectionLostStream;
+  Stream<Tuple2<int, String>> get connectionLostStream;
 
   Future<void> allocate(int id, int instanceId);
   Future<void> free(int id);

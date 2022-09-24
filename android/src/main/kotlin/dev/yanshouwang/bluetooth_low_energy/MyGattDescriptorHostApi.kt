@@ -2,9 +2,9 @@ package dev.yanshouwang.bluetooth_low_energy
 
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattDescriptor
-import dev.yanshouwang.bluetooth_low_energy.pigeon.Api
+import dev.yanshouwang.bluetooth_low_energy.pigeon.Messages as Pigeon
 
-object MyGattDescriptorHostApi : Api.GattDescriptorHostApi {
+object MyGattDescriptorHostApi : Pigeon.GattDescriptorHostApi {
     override fun allocate(id: Long, instanceId: Long) {
         val list = instances.remove(instanceId) as List<Any>
         val descriptor = list[1]
@@ -18,7 +18,7 @@ object MyGattDescriptorHostApi : Api.GattDescriptorHostApi {
         identifiers.remove(descriptor)
     }
 
-    override fun read(id: Long, result: Api.Result<ByteArray>) {
+    override fun read(id: Long, result: Pigeon.Result<ByteArray>) {
         val list = instances[id] as List<Any>
         val gatt = list[0] as BluetoothGatt
         val descriptor = list[1] as BluetoothGattDescriptor
@@ -31,7 +31,7 @@ object MyGattDescriptorHostApi : Api.GattDescriptorHostApi {
         }
     }
 
-    override fun write(id: Long, value: ByteArray, result: Api.Result<Void>) {
+    override fun write(id: Long, value: ByteArray, result: Pigeon.Result<Void>) {
         val list = instances[id] as List<Any>
         val gatt = list[0] as BluetoothGatt
         val descriptor = list[1] as BluetoothGattDescriptor

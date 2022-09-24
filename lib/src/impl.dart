@@ -85,14 +85,14 @@ class MyCentralManagerApi extends CentralManagerApi
 class MyPeripheralApi extends PeripheralApi implements PeripheralFlutterApi {
   final hostApi = PeripheralHostApi();
   final connectionLostStreamController =
-      StreamController<Tuple2<int, Uint8List>>.broadcast();
+      StreamController<Tuple2<int, String>>.broadcast();
 
   MyPeripheralApi() {
     PeripheralFlutterApi.setup(this);
   }
 
   @override
-  Stream<Tuple2<int, Uint8List>> get connectionLostStream =>
+  Stream<Tuple2<int, String>> get connectionLostStream =>
       connectionLostStreamController.stream;
 
   @override
@@ -116,8 +116,8 @@ class MyPeripheralApi extends PeripheralApi implements PeripheralFlutterApi {
   }
 
   @override
-  void notifyConnectionLost(int id, Uint8List errorBuffer) {
-    final event = Tuple2(id, errorBuffer);
+  void notifyConnectionLost(int id, String errorMessage) {
+    final event = Tuple2(id, errorMessage);
     connectionLostStreamController.add(event);
   }
 }
@@ -353,8 +353,7 @@ class MyAdvertisement implements Advertisement {
 }
 
 class MyPeripheral implements Peripheral {
-  late StreamSubscription<Tuple2<int, Uint8List>>
-      connectionLostStreamSubscription;
+  late StreamSubscription<Tuple2<int, String>> connectionLostStreamSubscription;
 
   @override
   final int maximumWriteLength;
@@ -371,7 +370,7 @@ class MyPeripheral implements Peripheral {
         .listen((event) {
       final error = PlatformException(
         code: bluetoothLowEnergyError,
-        message: '',
+        message: event.item2,
       );
       onConnectionLost?.call(error);
     });
