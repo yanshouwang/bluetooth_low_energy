@@ -60,6 +60,7 @@ abstract class PeripheralApi extends PlatformInterface {
   Future<void> allocate(int id, int instanceId);
   Future<void> free(int id);
   Future<void> disconnect(int id);
+  Future<int> requestMtu(int id);
   Future<List<Uint8List>> discoverServices(int id);
 }
 

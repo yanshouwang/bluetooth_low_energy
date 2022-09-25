@@ -38,23 +38,6 @@ object PeripheralKt {
     fun clearId() {
       _builder.clearId()
     }
-
-    /**
-     * <code>int32 maximum_write_length = 2;</code>
-     */
-    var maximumWriteLength: kotlin.Int
-      @JvmName("getMaximumWriteLength")
-      get() = _builder.getMaximumWriteLength()
-      @JvmName("setMaximumWriteLength")
-      set(value) {
-        _builder.setMaximumWriteLength(value)
-      }
-    /**
-     * <code>int32 maximum_write_length = 2;</code>
-     */
-    fun clearMaximumWriteLength() {
-      _builder.clearMaximumWriteLength()
-    }
   }
 }
 @kotlin.jvm.JvmSynthetic

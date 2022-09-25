@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.ParcelUuid
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import dev.yanshouwang.bluetooth_low_energy.pigeon.Messages as Pigeon
 import dev.yanshouwang.bluetooth_low_energy.proto.BluetoothState
@@ -15,6 +16,7 @@ import dev.yanshouwang.bluetooth_low_energy.proto.UUID
 
 object MyCentralManagerHostApi : Pigeon.CentralManagerHostApi {
     override fun authorize(result: Pigeon.Result<Boolean>) {
+        Log.d(TAG, "authorize: ")
         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.BLUETOOTH_SCAN, android.Manifest.permission.BLUETOOTH_CONNECT)
         } else {
@@ -32,6 +34,7 @@ object MyCentralManagerHostApi : Pigeon.CentralManagerHostApi {
     }
 
     override fun getState(): Long {
+        Log.d(TAG, "getState: ")
         val state = if (bluetoothAvailable) {
             bluetoothAdapter.state.bluetoothState
         } else {
@@ -41,15 +44,18 @@ object MyCentralManagerHostApi : Pigeon.CentralManagerHostApi {
     }
 
     override fun addStateObserver() {
+        Log.d(TAG, "addStateObserver: ")
         val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
         activity.registerReceiver(MyBroadcastReceiver, filter)
     }
 
     override fun removeStateObserver() {
+        Log.d(TAG, "removeStateObserver: ")
         activity.unregisterReceiver(MyBroadcastReceiver)
     }
 
     override fun startScan(uuidBuffers: MutableList<ByteArray>?, result: Pigeon.Result<Void>) {
+        Log.d(TAG, "startScan: $uuidBuffers")
         val filters = uuidBuffers?.map { buffer ->
             val uuid = UUID.parseFrom(buffer).value
             val serviceUUID = ParcelUuid.fromString(uuid)
@@ -69,10 +75,12 @@ object MyCentralManagerHostApi : Pigeon.CentralManagerHostApi {
     }
 
     override fun stopScan() {
+        Log.d(TAG, "stopScan: ")
         bluetoothAdapter.bluetoothLeScanner.stopScan(MyScanCallback)
     }
 
     override fun connect(uuidBuffer: ByteArray, result: Pigeon.Result<ByteArray>) {
+        Log.d(TAG, "connect: $uuidBuffer")
         val address = UUID.parseFrom(uuidBuffer).value.address
         val device = bluetoothAdapter.getRemoteDevice(address)
         val autoConnect = false
@@ -82,6 +90,6 @@ object MyCentralManagerHostApi : Pigeon.CentralManagerHostApi {
         } else {
             device.connectGatt(activity, autoConnect, MyBluetoothGattCallback)
         }
-        items["${gatt.hashCode()}/${KEY_CONNECT_RESULT}"] = result
+        items["${gatt.hashCode()}/$KEY_CONNECT_RESULT"] = result
     }
 }

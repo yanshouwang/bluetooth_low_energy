@@ -134,8 +134,6 @@ struct Proto_Peripheral {
 
   var id: Int64 = 0
 
-  var maximumWriteLength: Int32 = 0
-
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
@@ -370,7 +368,6 @@ extension Proto_Peripheral: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
   static let protoMessageName: String = _protobuf_package + ".Peripheral"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .same(proto: "id"),
-    2: .standard(proto: "maximum_write_length"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -380,7 +377,6 @@ extension Proto_Peripheral: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularInt64Field(value: &self.id) }()
-      case 2: try { try decoder.decodeSingularInt32Field(value: &self.maximumWriteLength) }()
       default: break
       }
     }
@@ -390,15 +386,11 @@ extension Proto_Peripheral: SwiftProtobuf.Message, SwiftProtobuf._MessageImpleme
     if self.id != 0 {
       try visitor.visitSingularInt64Field(value: self.id, fieldNumber: 1)
     }
-    if self.maximumWriteLength != 0 {
-      try visitor.visitSingularInt32Field(value: self.maximumWriteLength, fieldNumber: 2)
-    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: Proto_Peripheral, rhs: Proto_Peripheral) -> Bool {
     if lhs.id != rhs.id {return false}
-    if lhs.maximumWriteLength != rhs.maximumWriteLength {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

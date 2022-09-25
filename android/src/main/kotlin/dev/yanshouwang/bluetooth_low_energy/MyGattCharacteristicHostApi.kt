@@ -3,6 +3,7 @@ package dev.yanshouwang.bluetooth_low_energy
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
+import android.util.Log
 import dev.yanshouwang.bluetooth_low_energy.pigeon.Messages as Pigeon
 import dev.yanshouwang.bluetooth_low_energy.proto.gattDescriptor
 import dev.yanshouwang.bluetooth_low_energy.proto.uUID
@@ -12,6 +13,7 @@ object MyGattCharacteristicHostApi : Pigeon.GattCharacteristicHostApi {
     private const val CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
 
     override fun allocate(id: Long, instanceId: Long) {
+        Log.d(TAG, "allocate: $id, $instanceId")
         val list = instances.remove(instanceId) as List<Any>
         val characteristic = list[1]
         instances[id] = list
@@ -19,12 +21,14 @@ object MyGattCharacteristicHostApi : Pigeon.GattCharacteristicHostApi {
     }
 
     override fun free(id: Long) {
+        Log.d(TAG, "free: $id")
         val list = instances.remove(id) as List<Any>
         val characteristic = list[1]
         identifiers.remove(characteristic)
     }
 
     override fun discoverDescriptors(id: Long, result: Pigeon.Result<MutableList<ByteArray>>) {
+        Log.d(TAG, "discoverDescriptors: $id")
         val list = instances[id] as List<Any>
         val gatt = list[0] as BluetoothGatt
         val characteristic = list[1] as BluetoothGattCharacteristic
@@ -44,6 +48,7 @@ object MyGattCharacteristicHostApi : Pigeon.GattCharacteristicHostApi {
     }
 
     override fun read(id: Long, result: Pigeon.Result<ByteArray>) {
+        Log.d(TAG, "read: $id")
         val list = instances[id] as List<Any>
         val gatt = list[0] as BluetoothGatt
         val characteristic = list[1] as BluetoothGattCharacteristic
@@ -57,6 +62,7 @@ object MyGattCharacteristicHostApi : Pigeon.GattCharacteristicHostApi {
     }
 
     override fun write(id: Long, value: ByteArray, withoutResponse: Boolean, result: Pigeon.Result<Void>) {
+        Log.d(TAG, "write: $id, $value")
         val list = instances[id] as List<Any>
         val gatt = list[0] as BluetoothGatt
         val characteristic = list[1] as BluetoothGattCharacteristic
@@ -76,6 +82,7 @@ object MyGattCharacteristicHostApi : Pigeon.GattCharacteristicHostApi {
     }
 
     override fun setNotify(id: Long, value: Boolean, result: Pigeon.Result<Void>) {
+        Log.d(TAG, "setNotify: $id, $value")
         val list = instances[id] as List<Any>
         val gatt = list[0] as BluetoothGatt
         val characteristic = list[1] as BluetoothGattCharacteristic
@@ -90,7 +97,7 @@ object MyGattCharacteristicHostApi : Pigeon.GattCharacteristicHostApi {
             }
             val writeSucceed = gatt.writeDescriptor(descriptor)
             if (writeSucceed) {
-                items["${descriptor.hashCode()}/${KEY_WRITE_RESULT}"] = result
+                items["${descriptor.hashCode()}/$KEY_WRITE_RESULT"] = result
             } else {
                 val error = BluetoothLowEnergyException("GATT write <client characteristic config> descriptor failed.")
                 result.error(error)

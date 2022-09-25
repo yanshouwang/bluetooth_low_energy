@@ -263,6 +263,7 @@ public class Messages {
     void allocate(@NonNull Long id, @NonNull Long instanceId);
     void free(@NonNull Long id);
     void disconnect(@NonNull Long id, Result<Void> result);
+    void requestMtu(@NonNull Long id, Result<Long> result);
     void discoverServices(@NonNull Long id, Result<List<byte[]>> result);
 
     /** The codec used by PeripheralHostApi. */
@@ -348,6 +349,40 @@ public class Messages {
               };
 
               api.disconnect((idArg == null) ? null : idArg.longValue(), resultCallback);
+            }
+            catch (Error | RuntimeException exception) {
+              wrapped.put("error", wrapError(exception));
+              reply.reply(wrapped);
+            }
+          });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.PeripheralHostApi.requestMtu", getCodec());
+        if (api != null) {
+          channel.setMessageHandler((message, reply) -> {
+            Map<String, Object> wrapped = new HashMap<>();
+            try {
+              ArrayList<Object> args = (ArrayList<Object>)message;
+              Number idArg = (Number)args.get(0);
+              if (idArg == null) {
+                throw new NullPointerException("idArg unexpectedly null.");
+              }
+              Result<Long> resultCallback = new Result<Long>() {
+                public void success(Long result) {
+                  wrapped.put("result", result);
+                  reply.reply(wrapped);
+                }
+                public void error(Throwable error) {
+                  wrapped.put("error", wrapError(error));
+                  reply.reply(wrapped);
+                }
+              };
+
+              api.requestMtu((idArg == null) ? null : idArg.longValue(), resultCallback);
             }
             catch (Error | RuntimeException exception) {
               wrapped.put("error", wrapError(exception));

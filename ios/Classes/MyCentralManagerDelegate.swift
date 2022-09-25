@@ -83,7 +83,6 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate {
         let completion = items.removeValue(forKey: "\(peripheral.hash)/\(KEY_CONNECT_COMPLETION)") as! (FlutterStandardTypedData?, FlutterError?) -> Void
         let data = try! Proto_Peripheral.with {
             $0.id = Int64(peripheral.hash)
-            $0.maximumWriteLength = Int32(peripheral.maximumWriteLength)
         }.serializedData()
         let peripheralValue = FlutterStandardTypedData(bytes: data)
         completion(peripheralValue, nil)

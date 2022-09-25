@@ -359,6 +359,26 @@ void PigeonPeripheralHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NS
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
+        initWithName:@"dev.flutter.pigeon.PeripheralHostApi.requestMtu"
+        binaryMessenger:binaryMessenger
+        codec:PigeonPeripheralHostApiGetCodec()        ];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(requestMtu:completion:)], @"PigeonPeripheralHostApi api (%@) doesn't respond to @selector(requestMtu:completion:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        NSArray *args = message;
+        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
+        [api requestMtu:arg_id completion:^(NSNumber *_Nullable output, FlutterError *_Nullable error) {
+          callback(wrapResult(output, error));
+        }];
+      }];
+    }
+    else {
+      [channel setMessageHandler:nil];
+    }
+  }
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
         initWithName:@"dev.flutter.pigeon.PeripheralHostApi.discoverServices"
         binaryMessenger:binaryMessenger
         codec:PigeonPeripheralHostApiGetCodec()        ];

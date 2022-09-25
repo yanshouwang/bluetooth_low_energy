@@ -21,6 +21,12 @@ class MyPeripheralHostApi: NSObject, PigeonPeripheralHostApi {
         identifiers.removeValue(forKey: instance)
     }
     
+    func requestMtu(_ id: NSNumber, completion: @escaping (NSNumber?, FlutterError?) -> Void) {
+        let instance = instances.removeValue(forKey: id) as! CBPeripheral
+        let maximumWriteLength = NSNumber(value: instance.maximumWriteLength)
+        completion(maximumWriteLength, nil)
+    }
+    
     func disconnect(_ id: NSNumber, completion: @escaping (FlutterError?) -> Void) {
         let peripheral = instances[id] as! CBPeripheral
         central.cancelPeripheralConnection(peripheral)

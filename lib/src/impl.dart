@@ -106,6 +106,11 @@ class MyPeripheralApi extends PeripheralApi implements PeripheralFlutterApi {
   }
 
   @override
+  Future<int> requestMtu(int id) {
+    return hostApi.requestMtu(id);
+  }
+
+  @override
   Future<void> disconnect(int id) {
     return hostApi.disconnect(id);
   }
@@ -355,11 +360,7 @@ class MyAdvertisement implements Advertisement {
 class MyPeripheral implements Peripheral {
   late StreamSubscription<Tuple2<int, String>> connectionLostStreamSubscription;
 
-  @override
-  final int maximumWriteLength;
-
   MyPeripheral({
-    required this.maximumWriteLength,
     required int instanceId,
     Function(Exception)? onConnectionLost,
   }) {
@@ -389,7 +390,6 @@ class MyPeripheral implements Peripheral {
   ) {
     final peripheral = proto.Peripheral.fromBuffer(buffer);
     return MyPeripheral(
-      maximumWriteLength: peripheral.maximumWriteLength,
       instanceId: peripheral.id.toInt(),
       onConnectionLost: onConnectionLost,
     );
@@ -398,6 +398,11 @@ class MyPeripheral implements Peripheral {
   @override
   Future<void> disconnect() {
     return PeripheralApi.instance.disconnect(hashCode);
+  }
+
+  @override
+  Future<int> requestMtu() {
+    return PeripheralApi.instance.requestMtu(hashCode);
   }
 
   @override

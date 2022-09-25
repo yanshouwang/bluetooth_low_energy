@@ -12,10 +12,4 @@ public interface PeripheralOrBuilder extends
    * @return The id.
    */
   long getId();
-
-  /**
-   * <code>int32 maximum_write_length = 2;</code>
-   * @return The maximumWriteLength.
-   */
-  int getMaximumWriteLength();
 }

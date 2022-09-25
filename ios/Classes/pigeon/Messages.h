@@ -40,6 +40,7 @@ NSObject<FlutterMessageCodec> *PigeonPeripheralHostApiGetCodec(void);
 - (void)allocate:(NSNumber *)id instanceId:(NSNumber *)instanceId error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)free:(NSNumber *)id error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)disconnect:(NSNumber *)id completion:(void(^)(FlutterError *_Nullable))completion;
+- (void)requestMtu:(NSNumber *)id completion:(void(^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 - (void)discoverServices:(NSNumber *)id completion:(void(^)(NSArray<FlutterStandardTypedData *> *_Nullable, FlutterError *_Nullable))completion;
 @end
 

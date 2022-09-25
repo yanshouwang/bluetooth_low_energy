@@ -55,6 +55,9 @@ abstract class PeripheralHostApi {
   @ObjCSelector('disconnect:')
   @async
   void disconnect(int id);
+  @ObjCSelector('requestMtu:')
+  @async
+  int requestMtu(int id);
   @ObjCSelector('discoverServices:')
   @async
   List<Uint8List> discoverServices(int id);

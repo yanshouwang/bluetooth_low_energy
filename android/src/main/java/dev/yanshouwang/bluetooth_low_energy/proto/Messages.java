@@ -67,22 +67,21 @@ public final class Messages {
       "ice_uuids\030\010 \003(\0132\013.proto.UUID\022,\n\027solicite" +
       "d_service_uuids\030\t \003(\0132\013.proto.UUID\022\033\n\016tx" +
       "_power_level\030\n \001(\005H\002\210\001\001B\016\n\014_connectableB" +
-      "\r\n\013_local_nameB\021\n\017_tx_power_level\"6\n\nPer" +
-      "ipheral\022\n\n\002id\030\001 \001(\003\022\034\n\024maximum_write_len" +
-      "gth\030\002 \001(\005\"4\n\013GattService\022\n\n\002id\030\001 \001(\003\022\031\n\004" +
-      "uuid\030\002 \001(\0132\013.proto.UUID\"\230\001\n\022GattCharacte" +
-      "ristic\022\n\n\002id\030\001 \001(\003\022\031\n\004uuid\030\002 \001(\0132\013.proto" +
-      ".UUID\022\020\n\010can_read\030\003 \001(\010\022\021\n\tcan_write\030\004 \001" +
-      "(\010\022\"\n\032can_write_without_response\030\005 \001(\010\022\022" +
-      "\n\ncan_notify\030\006 \001(\010\"7\n\016GattDescriptor\022\n\n\002" +
-      "id\030\001 \001(\003\022\031\n\004uuid\030\002 \001(\0132\013.proto.UUID\"\025\n\004U" +
-      "UID\022\r\n\005value\030\001 \001(\t\"6\n\013ServiceData\022\031\n\004uui" +
-      "d\030\001 \001(\0132\013.proto.UUID\022\014\n\004data\030\002 \001(\014*r\n\016Bl" +
-      "uetoothState\022\037\n\033BLUETOOTH_STATE_UNSUPPOR" +
-      "TED\020\000\022\037\n\033BLUETOOTH_STATE_POWERED_OFF\020\001\022\036" +
-      "\n\032BLUETOOTH_STATE_POWERED_ON\020\002B.\n*dev.ya" +
-      "nshouwang.bluetooth_low_energy.protoP\001b\006" +
-      "proto3"
+      "\r\n\013_local_nameB\021\n\017_tx_power_level\"\030\n\nPer" +
+      "ipheral\022\n\n\002id\030\001 \001(\003\"4\n\013GattService\022\n\n\002id" +
+      "\030\001 \001(\003\022\031\n\004uuid\030\002 \001(\0132\013.proto.UUID\"\230\001\n\022Ga" +
+      "ttCharacteristic\022\n\n\002id\030\001 \001(\003\022\031\n\004uuid\030\002 \001" +
+      "(\0132\013.proto.UUID\022\020\n\010can_read\030\003 \001(\010\022\021\n\tcan" +
+      "_write\030\004 \001(\010\022\"\n\032can_write_without_respon" +
+      "se\030\005 \001(\010\022\022\n\ncan_notify\030\006 \001(\010\"7\n\016GattDesc" +
+      "riptor\022\n\n\002id\030\001 \001(\003\022\031\n\004uuid\030\002 \001(\0132\013.proto" +
+      ".UUID\"\025\n\004UUID\022\r\n\005value\030\001 \001(\t\"6\n\013ServiceD" +
+      "ata\022\031\n\004uuid\030\001 \001(\0132\013.proto.UUID\022\014\n\004data\030\002" +
+      " \001(\014*r\n\016BluetoothState\022\037\n\033BLUETOOTH_STAT" +
+      "E_UNSUPPORTED\020\000\022\037\n\033BLUETOOTH_STATE_POWER" +
+      "ED_OFF\020\001\022\036\n\032BLUETOOTH_STATE_POWERED_ON\020\002" +
+      "B.\n*dev.yanshouwang.bluetooth_low_energy" +
+      ".protoP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -99,7 +98,7 @@ public final class Messages {
     internal_static_proto_Peripheral_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_proto_Peripheral_descriptor,
-        new java.lang.String[] { "Id", "MaximumWriteLength", });
+        new java.lang.String[] { "Id", });
     internal_static_proto_GattService_descriptor =
       getDescriptor().getMessageTypes().get(2);
     internal_static_proto_GattService_fieldAccessorTable = new

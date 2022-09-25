@@ -53,11 +53,6 @@ private static final long serialVersionUID = 0L;
             id_ = input.readInt64();
             break;
           }
-          case 16: {
-
-            maximumWriteLength_ = input.readInt32();
-            break;
-          }
           default: {
             if (!parseUnknownField(
                 input, unknownFields, extensionRegistry, tag)) {
@@ -103,17 +98,6 @@ private static final long serialVersionUID = 0L;
     return id_;
   }
 
-  public static final int MAXIMUM_WRITE_LENGTH_FIELD_NUMBER = 2;
-  private int maximumWriteLength_;
-  /**
-   * <code>int32 maximum_write_length = 2;</code>
-   * @return The maximumWriteLength.
-   */
-  @java.lang.Override
-  public int getMaximumWriteLength() {
-    return maximumWriteLength_;
-  }
-
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -131,9 +115,6 @@ private static final long serialVersionUID = 0L;
     if (id_ != 0L) {
       output.writeInt64(1, id_);
     }
-    if (maximumWriteLength_ != 0) {
-      output.writeInt32(2, maximumWriteLength_);
-    }
     unknownFields.writeTo(output);
   }
 
@@ -146,10 +127,6 @@ private static final long serialVersionUID = 0L;
     if (id_ != 0L) {
       size += com.google.protobuf.CodedOutputStream
         .computeInt64Size(1, id_);
-    }
-    if (maximumWriteLength_ != 0) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(2, maximumWriteLength_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -168,8 +145,6 @@ private static final long serialVersionUID = 0L;
 
     if (getId()
         != other.getId()) return false;
-    if (getMaximumWriteLength()
-        != other.getMaximumWriteLength()) return false;
     if (!unknownFields.equals(other.unknownFields)) return false;
     return true;
   }
@@ -184,8 +159,6 @@ private static final long serialVersionUID = 0L;
     hash = (37 * hash) + ID_FIELD_NUMBER;
     hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
         getId());
-    hash = (37 * hash) + MAXIMUM_WRITE_LENGTH_FIELD_NUMBER;
-    hash = (53 * hash) + getMaximumWriteLength();
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -321,8 +294,6 @@ private static final long serialVersionUID = 0L;
       super.clear();
       id_ = 0L;
 
-      maximumWriteLength_ = 0;
-
       return this;
     }
 
@@ -350,7 +321,6 @@ private static final long serialVersionUID = 0L;
     public dev.yanshouwang.bluetooth_low_energy.proto.Peripheral buildPartial() {
       dev.yanshouwang.bluetooth_low_energy.proto.Peripheral result = new dev.yanshouwang.bluetooth_low_energy.proto.Peripheral(this);
       result.id_ = id_;
-      result.maximumWriteLength_ = maximumWriteLength_;
       onBuilt();
       return result;
     }
@@ -401,9 +371,6 @@ private static final long serialVersionUID = 0L;
       if (other == dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.getDefaultInstance()) return this;
       if (other.getId() != 0L) {
         setId(other.getId());
-      }
-      if (other.getMaximumWriteLength() != 0) {
-        setMaximumWriteLength(other.getMaximumWriteLength());
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -461,37 +428,6 @@ private static final long serialVersionUID = 0L;
     public Builder clearId() {
       
       id_ = 0L;
-      onChanged();
-      return this;
-    }
-
-    private int maximumWriteLength_ ;
-    /**
-     * <code>int32 maximum_write_length = 2;</code>
-     * @return The maximumWriteLength.
-     */
-    @java.lang.Override
-    public int getMaximumWriteLength() {
-      return maximumWriteLength_;
-    }
-    /**
-     * <code>int32 maximum_write_length = 2;</code>
-     * @param value The maximumWriteLength to set.
-     * @return This builder for chaining.
-     */
-    public Builder setMaximumWriteLength(int value) {
-      
-      maximumWriteLength_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>int32 maximum_write_length = 2;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearMaximumWriteLength() {
-      
-      maximumWriteLength_ = 0;
       onChanged();
       return this;
     }

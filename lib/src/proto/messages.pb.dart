@@ -172,21 +172,16 @@ class Advertisement extends $pb.GeneratedMessage {
 class Peripheral extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Peripheral', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'proto'), createEmptyInstance: create)
     ..aInt64(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'maximumWriteLength', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
   ;
 
   Peripheral._() : super();
   factory Peripheral({
     $fixnum.Int64? id,
-    $core.int? maximumWriteLength,
   }) {
     final _result = create();
     if (id != null) {
       _result.id = id;
-    }
-    if (maximumWriteLength != null) {
-      _result.maximumWriteLength = maximumWriteLength;
     }
     return _result;
   }
@@ -219,15 +214,6 @@ class Peripheral extends $pb.GeneratedMessage {
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
   void clearId() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.int get maximumWriteLength => $_getIZ(1);
-  @$pb.TagNumber(2)
-  set maximumWriteLength($core.int v) { $_setSignedInt32(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasMaximumWriteLength() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearMaximumWriteLength() => clearField(2);
 }
 
 class GattService extends $pb.GeneratedMessage {

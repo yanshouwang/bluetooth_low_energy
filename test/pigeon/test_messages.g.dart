@@ -132,6 +132,7 @@ abstract class TestPeripheralHostApi {
   void allocate(int id, int instanceId);
   void free(int id);
   Future<void> disconnect(int id);
+  Future<int> requestMtu(int id);
   Future<List<Uint8List?>> discoverServices(int id);
   static void setup(TestPeripheralHostApi? api, {BinaryMessenger? binaryMessenger}) {
     {
@@ -181,6 +182,22 @@ abstract class TestPeripheralHostApi {
           assert(arg_id != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.disconnect was null, expected non-null int.');
           await api.disconnect(arg_id!);
           return <Object?, Object?>{};
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.PeripheralHostApi.requestMtu', codec, binaryMessenger: binaryMessenger);
+      if (api == null) {
+        channel.setMockMessageHandler(null);
+      } else {
+        channel.setMockMessageHandler((Object? message) async {
+          assert(message != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.requestMtu was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final int? arg_id = (args[0] as int?);
+          assert(arg_id != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.requestMtu was null, expected non-null int.');
+          final int output = await api.requestMtu(arg_id!);
+          return <Object?, Object?>{'result': output};
         });
       }
     }

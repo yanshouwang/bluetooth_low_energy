@@ -19,7 +19,6 @@ message Advertisement {
 
 message Peripheral {
   int64 id = 1;
-  int32 maximum_write_length = 2;
 }
 
 message GattService {

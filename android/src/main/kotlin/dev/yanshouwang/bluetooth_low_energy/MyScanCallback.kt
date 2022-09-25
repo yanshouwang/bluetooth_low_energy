@@ -4,6 +4,7 @@ import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.os.Build
+import android.util.Log
 import com.google.protobuf.ByteString
 import dev.yanshouwang.bluetooth_low_energy.proto.advertisement
 import dev.yanshouwang.bluetooth_low_energy.proto.serviceData
@@ -11,12 +12,14 @@ import dev.yanshouwang.bluetooth_low_energy.proto.uUID
 
 object MyScanCallback : ScanCallback() {
     override fun onScanFailed(errorCode: Int) {
+        Log.d(TAG, "onScanFailed: $errorCode")
         super.onScanFailed(errorCode)
         val error = BluetoothLowEnergyException("Start scan failed with code: $errorCode")
         items[KEY_START_SCAN_ERROR] = error
     }
 
     override fun onScanResult(callbackType: Int, result: ScanResult) {
+        Log.d(TAG, "onScanResult: $callbackType, $result")
         super.onScanResult(callbackType, result)
         val advertisementValue = advertisement {
             this.uuid = uUID {
@@ -73,7 +76,7 @@ object MyScanCallback : ScanCallback() {
 
     override fun onBatchScanResults(results: MutableList<ScanResult>) {
         super.onBatchScanResults(results)
-
+        Log.d(TAG, "onBatchScanResults: $results")
         for (result in results) {
             onScanResult(ScanSettings.CALLBACK_TYPE_ALL_MATCHES, result)
         }

@@ -603,7 +603,7 @@ extension on _DeviceViewState {
               final controllerView = TextField(
                 controller: writeController,
                 decoration: InputDecoration(
-                  hintText: 'MTU: ${peripheral.maximumWriteLength}',
+                  // hintText: 'MTU: ${peripheral.maximumWriteLength}',
                   suffixIcon: IconButton(
                     onPressed: canWrite
                         ? () {
