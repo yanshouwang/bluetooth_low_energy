@@ -509,14 +509,9 @@ class MyUUID implements UUID {
   MyUUID({required this.value});
 
   factory MyUUID.fromProto(proto.UUID uuid) {
-    final value = uuid.value;
+    final value = uuid.value.toLowerCase();
     return MyUUID(value: value);
   }
-
-  // factory MyUUID.fromBuffer(Uint8List buffer) {
-  //   final uuid = proto.UUID.fromBuffer(buffer);
-  //   return MyUUID.fromProto(uuid);
-  // }
 
   @override
   String toString() {
