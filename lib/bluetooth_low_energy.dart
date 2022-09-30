@@ -4,6 +4,5 @@ export 'src/gatt_service.dart';
 export 'src/gatt_characteristic.dart';
 export 'src/gatt_descriptor.dart';
 export 'src/bluetooth_state.dart';
-export 'src/advertisement.dart';
+export 'src/broadcast.dart';
 export 'src/uuid.dart';
-export 'src/exception.dart';

@@ -10,133 +10,108 @@ import CoreBluetooth
 
 class MyPeripheralDelegate: NSObject, CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        let completion = items.removeValue(forKey: "\(peripheral.hash)/\(KEY_DISCOVER_SERVICES_COMPLETION)") as! ([FlutterStandardTypedData]?, FlutterError?) -> Void
+        let id = String(peripheral.hash)
+        let completion = instances.removeValue(forKey: "\(id)/\(KEY_DISCOVER_SERVICES_COMPLETION)") as! ([FlutterStandardTypedData]?, FlutterError?) -> Void
         if error == nil {
+            var serviceBuffers = [FlutterStandardTypedData]()
             let services = peripheral.services
-            if services == nil {
-                let serviceBuffers = [FlutterStandardTypedData]()
-                completion(serviceBuffers, nil)
-            } else {
-                let serviceBuffers: [FlutterStandardTypedData] = services!.map { service in
-                    let data = try! Proto_GattService.with {
-                        $0.id = Int64(service.hash)
-                        $0.uuid = Proto_UUID.with {
-                            $0.value = service.uuid.uuidString
-                        }
-                    }.serializedData()
-                    return FlutterStandardTypedData(bytes: data)
-                }
-                completion(serviceBuffers, nil)
+            if services != nil {
                 for service in services! {
-                    let id = NSNumber(value: service.hash)
-                    instances[id] = service
+                    let serviceBuffer = registerService(service)
+                    serviceBuffers.append(serviceBuffer)
                 }
             }
+            completion(serviceBuffers, nil)
         } else {
-            let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: error!.localizedDescription, details: nil)
+            let errorMessage = error!.localizedDescription
+            let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: errorMessage, details: nil)
             completion(nil, flutterError)
         }
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        let completion = items.removeValue(forKey: "\(service.hash)/\(KEY_DISCOVER_CHARACTERISTICS_COMPLETION)") as! ([FlutterStandardTypedData]?, FlutterError?) -> Void
+        let id = String(service.hash)
+        let completion = instances.removeValue(forKey: "\(id)/\(KEY_DISCOVER_CHARACTERISTICS_COMPLETION)") as! ([FlutterStandardTypedData]?, FlutterError?) -> Void
         if error == nil {
+            var characteristicBuffers = [FlutterStandardTypedData]()
             let characteristics = service.characteristics
-            if characteristics == nil {
-                let characteristicBuffers = [FlutterStandardTypedData]()
-                completion(characteristicBuffers, nil)
-            } else {
-                let characteristicBuffers: [FlutterStandardTypedData] = characteristics!.map { characteristic in
-                    let data = try! Proto_GattCharacteristic.with {
-                        $0.id = Int64(characteristic.hash)
-                        $0.uuid = Proto_UUID.with {
-                            $0.value = characteristic.uuid.uuidString
-                        }
-                        $0.canRead = characteristic.properties.contains(.read)
-                        $0.canWrite = characteristic.properties.contains(.write)
-                        $0.canWriteWithoutResponse = characteristic.properties.contains(.writeWithoutResponse)
-                        $0.canNotify = characteristic.properties.contains(.notify)
-                    }.serializedData()
-                    return FlutterStandardTypedData(bytes: data)
-                }
-                completion(characteristicBuffers, nil)
+            if characteristics != nil {
                 for characteristic in characteristics! {
-                    let id = NSNumber(value: characteristic.hash)
-                    instances[id] = characteristic
+                    let characteristicBuffer = registerCharacteristic(characteristic)
+                    characteristicBuffers.append(characteristicBuffer)
                 }
             }
+            completion(characteristicBuffers, nil)
         } else {
-            let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: error!.localizedDescription, details: nil)
+            let errorMessage = error!.localizedDescription
+            let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: errorMessage, details: nil)
             completion(nil, flutterError)
         }
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
-        let completion = items.removeValue(forKey: "\(characteristic.hash)/\(KEY_DISCOVER_DESCRIPTORS_COMPLETION)") as! ([FlutterStandardTypedData]?, FlutterError?) -> Void
+        let id = String(characteristic.hash)
+        let completion = instances.removeValue(forKey: "\(id)/\(KEY_DISCOVER_DESCRIPTORS_COMPLETION)") as! ([FlutterStandardTypedData]?, FlutterError?) -> Void
         if error == nil {
+            var descriptorBuffers = [FlutterStandardTypedData]()
             let descriptors = characteristic.descriptors
-            if descriptors == nil {
-                let descriptorBuffers = [FlutterStandardTypedData]()
-                completion(descriptorBuffers, nil)
-            } else {
-                let descriptorBuffers: [FlutterStandardTypedData] = descriptors!.map { descriptor in
-                    let data = try! Proto_GattDescriptor.with {
-                        $0.id = Int64(descriptor.hash)
-                        $0.uuid = Proto_UUID.with {
-                            $0.value = descriptor.uuid.uuidString
-                        }
-                    }.serializedData()
-                    return FlutterStandardTypedData(bytes: data)
-                }
-                completion(descriptorBuffers, nil)
+            if descriptors != nil {
                 for descriptor in descriptors! {
-                    let id = NSNumber(value: descriptor.hash)
-                    instances[id] = descriptor
+                    let descriptorBuffer = registerDescriptor(descriptor)
+                    descriptorBuffers.append(descriptorBuffer)
                 }
             }
+            completion(descriptorBuffers, nil)
         } else {
-            let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: error!.localizedDescription, details: nil)
+            let errorMessage = error!.localizedDescription
+            let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: errorMessage, details: nil)
             completion(nil, flutterError)
         }
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        let completion = items.removeValue(forKey: "\(characteristic.hash)/\(KEY_READ_COMPLETION)") as? (FlutterStandardTypedData?, FlutterError?) -> Void
+        let id = String(characteristic.hash)
+        let completion = instances.removeValue(forKey: "\(id)/\(KEY_READ_COMPLETION)") as? (FlutterStandardTypedData?, FlutterError?) -> Void
         let characteristicValue = characteristic.value
         let value = characteristicValue == nil ? FlutterStandardTypedData() : FlutterStandardTypedData(bytes: characteristicValue!)
         if completion == nil {
-            let id = identifiers[characteristic]!
-            characteristicFlutterApi.notifyValue(id, value: value) {_ in }
+            characteristicFlutterApi.onValueChanged(id, value: value) {_ in }
         } else if error == nil {
             completion!(value, nil)
         } else {
-            let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: error!.localizedDescription, details: nil)
+            let errorMessage = error!.localizedDescription
+            let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: errorMessage, details: nil)
             completion!(nil, flutterError)
         }
     }
     
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-        let completion = items.removeValue(forKey: "\(characteristic.hash)/\(KEY_WRITE_COMPLETION)") as! (FlutterError?) -> Void
+        let id = String(characteristic.hash)
+        let completion = instances.removeValue(forKey: "\(id)/\(KEY_WRITE_COMPLETION)") as! (FlutterError?) -> Void
         if error == nil {
             completion(nil)
         } else {
-            let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: error!.localizedDescription, details: nil)
+            let errorMessage = error!.localizedDescription
+            let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: errorMessage, details: nil)
             completion(flutterError)
         }
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
-        let completion = items.removeValue(forKey: "\(characteristic.hash)/\(KEY_SET_NOTIFY_COMPLETION)") as! (FlutterError?) -> Void
+        let id = String(characteristic.hash)
+        let completion = instances.removeValue(forKey: "\(id)/\(KEY_SET_NOTIFY_COMPLETION)") as! (FlutterError?) -> Void
         if error == nil {
             completion(nil)
         } else {
-            let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: error!.localizedDescription, details: nil)
+            let errorMessage = error!.localizedDescription
+            let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: errorMessage, details: nil)
             completion(flutterError)
         }
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor descriptor: CBDescriptor, error: Error?) {
-        let completion = items.removeValue(forKey: "\(descriptor.hash)/\(KEY_READ_COMPLETION)") as! (FlutterStandardTypedData?, FlutterError?) -> Void
+        let id = String(descriptor.hash)
+        let completion = instances.removeValue(forKey: "\(id)/\(KEY_READ_COMPLETION)") as! (FlutterStandardTypedData?, FlutterError?) -> Void
         if error == nil {
             let value: FlutterStandardTypedData
             if descriptor.value == nil {
@@ -167,18 +142,70 @@ class MyPeripheralDelegate: NSObject, CBPeripheralDelegate {
             }
             completion(value, nil)
         } else {
-            let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: error!.localizedDescription, details: nil)
+            let errorMessage = error!.localizedDescription
+            let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: errorMessage, details: nil)
             completion(nil, flutterError)
         }
     }
     
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor descriptor: CBDescriptor, error: Error?) {
-        let completion = items.removeValue(forKey: "\(descriptor.hash)/\(KEY_WRITE_COMPLETION)") as! (FlutterError?) -> Void
+        let id = String(descriptor.hash)
+        let completion = instances.removeValue(forKey: "\(id)/\(KEY_WRITE_COMPLETION)") as! (FlutterError?) -> Void
         if error == nil {
             completion(nil)
         } else {
-            let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: error!.localizedDescription, details: nil)
+            let errorMessage = error!.localizedDescription
+            let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: errorMessage, details: nil)
             completion(flutterError)
         }
+    }
+    
+    private func registerService(_ service: CBService) -> FlutterStandardTypedData {
+        let id = String(service.hash)
+        var items = register(id)
+        items[KEY_SERVICE] = service
+        // This is a copy on write.
+        instances[id] = items
+        let data = try! Proto_GattService.with {
+            $0.id = id
+            $0.uuid = Proto_UUID.with {
+                $0.value = service.uuid.uuidString
+            }
+        }.serializedData()
+        return FlutterStandardTypedData(bytes: data)
+    }
+    
+    private func registerCharacteristic(_ characteristic: CBCharacteristic) -> FlutterStandardTypedData {
+        let id = String(characteristic.hash)
+        var items = register(id)
+        items[KEY_CHARACTERISTIC] = characteristic
+        // This is a copy on write.
+        instances[id] = items
+        let data = try! Proto_GattCharacteristic.with {
+            $0.id = id
+            $0.uuid = Proto_UUID.with {
+                $0.value = characteristic.uuid.uuidString
+            }
+            $0.canRead = characteristic.properties.contains(.read)
+            $0.canWrite = characteristic.properties.contains(.write)
+            $0.canWriteWithoutResponse = characteristic.properties.contains(.writeWithoutResponse)
+            $0.canNotify = characteristic.properties.contains(.notify)
+        }.serializedData()
+        return FlutterStandardTypedData(bytes: data)
+    }
+    
+    private func registerDescriptor(_ descriptor: CBDescriptor) -> FlutterStandardTypedData {
+        let id = String(descriptor.hash)
+        var items = register(id)
+        items[KEY_DESCRIPTOR] = descriptor
+        // This is a copy on write.
+        instances[id] = items
+        let data = try! Proto_GattDescriptor.with {
+            $0.id = id
+            $0.uuid = Proto_UUID.with {
+                $0.value = descriptor.uuid.uuidString
+            }
+        }.serializedData()
+        return FlutterStandardTypedData(bytes: data)
     }
 }

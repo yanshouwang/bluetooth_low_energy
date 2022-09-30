@@ -1,9 +1,10 @@
 import 'dart:typed_data';
 
+import 'peripheral.dart';
 import 'uuid.dart';
 
-abstract class Advertisement {
-  UUID get uuid;
+abstract class Broadcast {
+  Peripheral get peripheral;
   int get rssi;
   bool? get connectable;
   Uint8List get data;

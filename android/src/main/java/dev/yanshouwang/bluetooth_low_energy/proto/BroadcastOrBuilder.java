@@ -3,24 +3,24 @@
 
 package dev.yanshouwang.bluetooth_low_energy.proto;
 
-public interface AdvertisementOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:proto.Advertisement)
+public interface BroadcastOrBuilder extends
+    // @@protoc_insertion_point(interface_extends:proto.Broadcast)
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>.proto.UUID uuid = 1;</code>
-   * @return Whether the uuid field is set.
+   * <code>.proto.Peripheral peripheral = 1;</code>
+   * @return Whether the peripheral field is set.
    */
-  boolean hasUuid();
+  boolean hasPeripheral();
   /**
-   * <code>.proto.UUID uuid = 1;</code>
-   * @return The uuid.
+   * <code>.proto.Peripheral peripheral = 1;</code>
+   * @return The peripheral.
    */
-  dev.yanshouwang.bluetooth_low_energy.proto.UUID getUuid();
+  dev.yanshouwang.bluetooth_low_energy.proto.Peripheral getPeripheral();
   /**
-   * <code>.proto.UUID uuid = 1;</code>
+   * <code>.proto.Peripheral peripheral = 1;</code>
    */
-  dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder getUuidOrBuilder();
+  dev.yanshouwang.bluetooth_low_energy.proto.PeripheralOrBuilder getPeripheralOrBuilder();
 
   /**
    * <code>int32 rssi = 2;</code>

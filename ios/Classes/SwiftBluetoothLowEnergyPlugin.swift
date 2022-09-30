@@ -12,9 +12,9 @@ public class SwiftBluetoothLowEnergyPlugin: NSObject, FlutterPlugin {
         PigeonGattCharacteristicHostApiSetup(binaryMessenger, characteristicHostApi)
         PigeonGattDescriptorHostApiSetup(binaryMessenger, descriptorHostApi)
         
-        items[KEY_CENTRAL_MANAGER_FLUTTER_API] = PigeonCentralManagerFlutterApi(binaryMessenger: binaryMessenger)
-        items[KEY_PERIPHERAL_FLUTTER_API] = PigeonPeripheralFlutterApi(binaryMessenger: binaryMessenger)
-        items[KEY_GATT_CHARACTERISTIC_FLUTTER_API] = PigeonGattCharacteristicFlutterApi(binaryMessenger: binaryMessenger)
+        instances[KEY_CENTRAL_MANAGER_FLUTTER_API] = PigeonCentralManagerFlutterApi(binaryMessenger: binaryMessenger)
+        instances[KEY_PERIPHERAL_FLUTTER_API] = PigeonPeripheralFlutterApi(binaryMessenger: binaryMessenger)
+        instances[KEY_GATT_CHARACTERISTIC_FLUTTER_API] = PigeonGattCharacteristicFlutterApi(binaryMessenger: binaryMessenger)
     }
 }
 
@@ -22,8 +22,13 @@ let BLUETOOTH_LOW_ENERGY_ERROR = "BLUETOOTH_LOW_ENERGY_ERROR"
 let KEY_CENTRAL_MANAGER_FLUTTER_API = "KEY_CENTRAL_MANAGER_FLUTTER_API"
 let KEY_PERIPHERAL_FLUTTER_API = "KEY_PERIPHERAL_FLUTTER_API"
 let KEY_GATT_CHARACTERISTIC_FLUTTER_API = "KEY_GATT_CHARACTERISTIC_FLUTTER_API"
+let KEY_STATE_NUMBER = "KEY_STATE_NUMBER"
+let KEY_COUNT = "KEY_COUNT"
+let KEY_PERIPHERAL = "KEY_PERIPHERAL"
+let KEY_SERVICE = "KEY_SERVICE"
+let KEY_CHARACTERISTIC = "KEY_CHARACTERISTIC"
+let KEY_DESCRIPTOR = "KEY_DESCRIPTOR"
 let KEY_AUTHORIZE_COMPLETION = "KEY_AUTHORIZE_COMPLETION"
-let KEY_STATE_OBSERVER = "KEY_STATE_OBSERVER"
 let KEY_CONNECT_COMPLETION = "KEY_CONNECT_COMPLETION"
 let KEY_DISCONNECT_COMPLETION = "KEY_DISCONNECT_COMPLETION"
 let KEY_DISCOVER_SERVICES_COMPLETION = "KEY_DISCOVER_SERVICES_COMPLETION"
@@ -33,9 +38,7 @@ let KEY_READ_COMPLETION = "KEY_READ_COMPLETION"
 let KEY_WRITE_COMPLETION = "KEY_WRITE_COMPLETION"
 let KEY_SET_NOTIFY_COMPLETION = "KEY_SET_NOTIFY_COMPLETION"
 
-var items = [String: Any]()
-var instances =  [NSNumber: NSObject]()
-var identifiers = [NSObject: NSNumber]()
+var instances =  [String: Any]()
 
 let central = CBCentralManager(delegate: centralManagerDelegate, queue: nil)
 let centralManagerDelegate = MyCentralManagerDelegate()
@@ -47,9 +50,34 @@ let serviceHostApi = MyGattServiceHostApi()
 let characteristicHostApi = MyGattCharacteristicHostApi()
 let descriptorHostApi = MyGattDescriptorHostApi()
 
-var centralFlutterApi: PigeonCentralManagerFlutterApi { return items[KEY_CENTRAL_MANAGER_FLUTTER_API] as! PigeonCentralManagerFlutterApi }
-var peripheralFlutterApi: PigeonPeripheralFlutterApi { return items[KEY_PERIPHERAL_FLUTTER_API] as! PigeonPeripheralFlutterApi }
-var characteristicFlutterApi: PigeonGattCharacteristicFlutterApi { return items[KEY_GATT_CHARACTERISTIC_FLUTTER_API] as! PigeonGattCharacteristicFlutterApi }
+var centralFlutterApi: PigeonCentralManagerFlutterApi { return instances[KEY_CENTRAL_MANAGER_FLUTTER_API] as! PigeonCentralManagerFlutterApi }
+var peripheralFlutterApi: PigeonPeripheralFlutterApi { return instances[KEY_PERIPHERAL_FLUTTER_API] as! PigeonPeripheralFlutterApi }
+var characteristicFlutterApi: PigeonGattCharacteristicFlutterApi { return instances[KEY_GATT_CHARACTERISTIC_FLUTTER_API] as! PigeonGattCharacteristicFlutterApi }
+
+func register(_ id:String) -> [String:Any] {
+    var items = instances[id] as? [String: Any] ?? [String: Any]()
+    var count = items[KEY_COUNT] as? Int ?? 0
+    count += 1
+    items[KEY_COUNT] = count
+    // This is a copy on write.
+    instances[id] = items
+    debugPrint("register: \(id)")
+    return items
+}
+
+func unregister(_ id: String) {
+    var items = instances[id] as! [String: Any]
+    var count = items[KEY_COUNT] as! Int
+    count -= 1
+    items[KEY_COUNT] = count
+    if count < 1 {
+        instances.removeValue(forKey: id)
+        debugPrint("unregister: \(id)")
+    } else {
+        // This is a copy on write.
+        instances[id] = items
+    }
+}
 
 extension CBCentralManager {
     var stateNumber: Int {
@@ -60,15 +88,6 @@ extension CBCentralManager {
         } else {
             return Proto_BluetoothState.poweredOff.rawValue
         }
-    }
-}
-
-extension CBPeripheral {
-    var maximumWriteLength: Int {
-        let maximumWriteLengthWithResponse = maximumWriteValueLength(for: .withResponse)
-        let maximumWriteLengthWithoutResponse = maximumWriteValueLength(for: .withoutResponse)
-        let maximumWriteLength = min(maximumWriteLengthWithResponse, maximumWriteLengthWithoutResponse)
-        return maximumWriteLength
     }
 }
 

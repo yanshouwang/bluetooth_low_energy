@@ -9,27 +9,36 @@ import Foundation
 import CoreBluetooth
 
 class MyPeripheralHostApi: NSObject, PigeonPeripheralHostApi {
-    func allocate(_ id: NSNumber, instanceId: NSNumber, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {
-        let instance = instances.removeValue(forKey: instanceId) as! CBPeripheral
-        instances[id] = instance
-        identifiers[instance] = id
-        instance.delegate = peripheralDelegate
+    func free(_ id: String, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {
+        unregister(id)
     }
     
-    func free(_ id: NSNumber, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {
-        let instance = instances.removeValue(forKey: id) as! CBPeripheral
-        identifiers.removeValue(forKey: instance)
+    func connect(_ id: String, completion: @escaping (FlutterError?) -> Void) {
+        let items = instances[id] as! [String: Any]
+        let peripheral = items[KEY_PERIPHERAL] as! CBPeripheral
+        central.connect(peripheral)
+        instances["\(id)/\(KEY_CONNECT_COMPLETION)"] = completion
     }
     
-    func disconnect(_ id: NSNumber, completion: @escaping (FlutterError?) -> Void) {
-        let peripheral = instances[id] as! CBPeripheral
+    func disconnect(_ id: String, completion: @escaping (FlutterError?) -> Void) {
+        let items = instances[id] as! [String: Any]
+        let peripheral = items[KEY_PERIPHERAL] as! CBPeripheral
         central.cancelPeripheralConnection(peripheral)
-        items["\(peripheral.hash)/\(KEY_DISCONNECT_COMPLETION)"] = completion
+        instances["\(id)/\(KEY_DISCONNECT_COMPLETION)"] = completion
     }
     
-    func discoverServices(_ id: NSNumber, completion: @escaping ([FlutterStandardTypedData]?, FlutterError?) -> Void) {
-        let peripheral = instances[id] as! CBPeripheral
+    func requestMtu(_ id: String, completion: @escaping (NSNumber?, FlutterError?) -> Void) {
+        let items = instances[id] as! [String: Any]
+        let peripheral = items[KEY_PERIPHERAL] as! CBPeripheral
+        let value = peripheral.maximumWriteValueLength(for: .withoutResponse)
+        let maximumWriteLength = NSNumber(value: value)
+        completion(maximumWriteLength, nil)
+    }
+    
+    func discoverServices(_ id: String, completion: @escaping ([FlutterStandardTypedData]?, FlutterError?) -> Void) {
+        let items = instances[id] as! [String: Any]
+        let peripheral = items[KEY_PERIPHERAL] as! CBPeripheral
         peripheral.discoverServices(nil)
-        items["\(peripheral.hash)/\(KEY_DISCOVER_SERVICES_COMPLETION)"] = completion
+        instances["\(id)/\(KEY_DISCOVER_SERVICES_COMPLETION)"] = completion
     }
 }

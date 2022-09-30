@@ -23,9 +23,9 @@ object PeripheralKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.proto.Peripheral = _builder.build()
 
     /**
-     * <code>int64 id = 1;</code>
+     * <code>string id = 1;</code>
      */
-    var id: kotlin.Long
+    var id: kotlin.String
       @JvmName("getId")
       get() = _builder.getId()
       @JvmName("setId")
@@ -33,31 +33,41 @@ object PeripheralKt {
         _builder.setId(value)
       }
     /**
-     * <code>int64 id = 1;</code>
+     * <code>string id = 1;</code>
      */
     fun clearId() {
       _builder.clearId()
     }
 
     /**
-     * <code>int32 maximum_write_length = 2;</code>
+     * <code>.proto.UUID uuid = 2;</code>
      */
-    var maximumWriteLength: kotlin.Int
-      @JvmName("getMaximumWriteLength")
-      get() = _builder.getMaximumWriteLength()
-      @JvmName("setMaximumWriteLength")
+    var uuid: dev.yanshouwang.bluetooth_low_energy.proto.UUID
+      @JvmName("getUuid")
+      get() = _builder.getUuid()
+      @JvmName("setUuid")
       set(value) {
-        _builder.setMaximumWriteLength(value)
+        _builder.setUuid(value)
       }
     /**
-     * <code>int32 maximum_write_length = 2;</code>
+     * <code>.proto.UUID uuid = 2;</code>
      */
-    fun clearMaximumWriteLength() {
-      _builder.clearMaximumWriteLength()
+    fun clearUuid() {
+      _builder.clearUuid()
+    }
+    /**
+     * <code>.proto.UUID uuid = 2;</code>
+     * @return Whether the uuid field is set.
+     */
+    fun hasUuid(): kotlin.Boolean {
+      return _builder.hasUuid()
     }
   }
 }
 @kotlin.jvm.JvmSynthetic
 inline fun dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.copy(block: dev.yanshouwang.bluetooth_low_energy.proto.PeripheralKt.Dsl.() -> kotlin.Unit): dev.yanshouwang.bluetooth_low_energy.proto.Peripheral =
   dev.yanshouwang.bluetooth_low_energy.proto.PeripheralKt.Dsl._create(this.toBuilder()).apply { block() }._build()
+
+val dev.yanshouwang.bluetooth_low_energy.proto.PeripheralOrBuilder.uuidOrNull: dev.yanshouwang.bluetooth_low_energy.proto.UUID?
+  get() = if (hasUuid()) getUuid() else null
 

@@ -9,29 +9,24 @@ import Foundation
 import CoreBluetooth
 
 class MyGattDescriptorHostApi: NSObject, PigeonGattDescriptorHostApi {
-    func allocate(_ id: NSNumber, instanceId: NSNumber, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {
-        let instance = instances.removeValue(forKey: instanceId) as! CBDescriptor
-        instances[id] = instance
-        identifiers[instance] = id
+    func free(_ id: String, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {
+        unregister(id)
     }
     
-    func free(_ id: NSNumber, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {
-        let instance = instances.removeValue(forKey: id) as! CBDescriptor
-        identifiers.removeValue(forKey: instance)
-    }
-    
-    func read(_ id: NSNumber, completion: @escaping (FlutterStandardTypedData?, FlutterError?) -> Void) {
-        let descriptor = instances[id] as! CBDescriptor
+    func read(_ id: String, completion: @escaping (FlutterStandardTypedData?, FlutterError?) -> Void) {
+        let items = instances[id] as! [String: Any]
+        let descriptor = items[KEY_DESCRIPTOR] as! CBDescriptor
         let peripheral = descriptor.characteristic!.service!.peripheral!
         peripheral.readValue(for: descriptor)
-        items["\(descriptor.hash)/\(KEY_READ_COMPLETION)"] = completion
+        instances["\(id)/\(KEY_READ_COMPLETION)"] = completion
     }
     
-    func write(_ id: NSNumber, value: FlutterStandardTypedData, completion: @escaping (FlutterError?) -> Void) {
-        let descriptor = instances[id] as! CBDescriptor
+    func write(_ id: String, value: FlutterStandardTypedData, completion: @escaping (FlutterError?) -> Void) {
+        let items = instances[id] as! [String: Any]
+        let descriptor = items[KEY_DESCRIPTOR] as! CBDescriptor
         let peripheral = descriptor.characteristic!.service!.peripheral!
         let data = value.data
         peripheral.writeValue(data, for: descriptor)
-        items["\(descriptor.hash)/\(KEY_WRITE_COMPLETION)"] = completion
+        instances["\(id)/\(KEY_WRITE_COMPLETION)"] = completion
     }
 }

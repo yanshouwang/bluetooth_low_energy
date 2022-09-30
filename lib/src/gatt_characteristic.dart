@@ -9,9 +9,10 @@ abstract class GattCharacteristic {
   bool get canWrite;
   bool get canWriteWithoutResponse;
   bool get canNotify;
-  Stream<Uint8List> get valueStream;
+  Stream<Uint8List> get valueChanged;
 
   Future<List<GattDescriptor>> discoverDescriptors();
   Future<Uint8List> read();
   Future<void> write(Uint8List value, {bool withoutResponse = false});
+  Future<void> setNotify(bool value);
 }

@@ -3,47 +3,47 @@
 
 package dev.yanshouwang.bluetooth_low_energy.proto;
 
-@kotlin.jvm.JvmName("-initializeadvertisement")
-inline fun advertisement(block: dev.yanshouwang.bluetooth_low_energy.proto.AdvertisementKt.Dsl.() -> kotlin.Unit): dev.yanshouwang.bluetooth_low_energy.proto.Advertisement =
-  dev.yanshouwang.bluetooth_low_energy.proto.AdvertisementKt.Dsl._create(dev.yanshouwang.bluetooth_low_energy.proto.Advertisement.newBuilder()).apply { block() }._build()
-object AdvertisementKt {
+@kotlin.jvm.JvmName("-initializebroadcast")
+inline fun broadcast(block: dev.yanshouwang.bluetooth_low_energy.proto.BroadcastKt.Dsl.() -> kotlin.Unit): dev.yanshouwang.bluetooth_low_energy.proto.Broadcast =
+  dev.yanshouwang.bluetooth_low_energy.proto.BroadcastKt.Dsl._create(dev.yanshouwang.bluetooth_low_energy.proto.Broadcast.newBuilder()).apply { block() }._build()
+object BroadcastKt {
   @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
   @com.google.protobuf.kotlin.ProtoDslMarker
   class Dsl private constructor(
-    private val _builder: dev.yanshouwang.bluetooth_low_energy.proto.Advertisement.Builder
+    private val _builder: dev.yanshouwang.bluetooth_low_energy.proto.Broadcast.Builder
   ) {
     companion object {
       @kotlin.jvm.JvmSynthetic
       @kotlin.PublishedApi
-      internal fun _create(builder: dev.yanshouwang.bluetooth_low_energy.proto.Advertisement.Builder): Dsl = Dsl(builder)
+      internal fun _create(builder: dev.yanshouwang.bluetooth_low_energy.proto.Broadcast.Builder): Dsl = Dsl(builder)
     }
 
     @kotlin.jvm.JvmSynthetic
     @kotlin.PublishedApi
-    internal fun _build(): dev.yanshouwang.bluetooth_low_energy.proto.Advertisement = _builder.build()
+    internal fun _build(): dev.yanshouwang.bluetooth_low_energy.proto.Broadcast = _builder.build()
 
     /**
-     * <code>.proto.UUID uuid = 1;</code>
+     * <code>.proto.Peripheral peripheral = 1;</code>
      */
-    var uuid: dev.yanshouwang.bluetooth_low_energy.proto.UUID
-      @JvmName("getUuid")
-      get() = _builder.getUuid()
-      @JvmName("setUuid")
+    var peripheral: dev.yanshouwang.bluetooth_low_energy.proto.Peripheral
+      @JvmName("getPeripheral")
+      get() = _builder.getPeripheral()
+      @JvmName("setPeripheral")
       set(value) {
-        _builder.setUuid(value)
+        _builder.setPeripheral(value)
       }
     /**
-     * <code>.proto.UUID uuid = 1;</code>
+     * <code>.proto.Peripheral peripheral = 1;</code>
      */
-    fun clearUuid() {
-      _builder.clearUuid()
+    fun clearPeripheral() {
+      _builder.clearPeripheral()
     }
     /**
-     * <code>.proto.UUID uuid = 1;</code>
-     * @return Whether the uuid field is set.
+     * <code>.proto.Peripheral peripheral = 1;</code>
+     * @return Whether the peripheral field is set.
      */
-    fun hasUuid(): kotlin.Boolean {
-      return _builder.hasUuid()
+    fun hasPeripheral(): kotlin.Boolean {
+      return _builder.hasPeripheral()
     }
 
     /**
@@ -387,9 +387,9 @@ object AdvertisementKt {
   }
 }
 @kotlin.jvm.JvmSynthetic
-inline fun dev.yanshouwang.bluetooth_low_energy.proto.Advertisement.copy(block: dev.yanshouwang.bluetooth_low_energy.proto.AdvertisementKt.Dsl.() -> kotlin.Unit): dev.yanshouwang.bluetooth_low_energy.proto.Advertisement =
-  dev.yanshouwang.bluetooth_low_energy.proto.AdvertisementKt.Dsl._create(this.toBuilder()).apply { block() }._build()
+inline fun dev.yanshouwang.bluetooth_low_energy.proto.Broadcast.copy(block: dev.yanshouwang.bluetooth_low_energy.proto.BroadcastKt.Dsl.() -> kotlin.Unit): dev.yanshouwang.bluetooth_low_energy.proto.Broadcast =
+  dev.yanshouwang.bluetooth_low_energy.proto.BroadcastKt.Dsl._create(this.toBuilder()).apply { block() }._build()
 
-val dev.yanshouwang.bluetooth_low_energy.proto.AdvertisementOrBuilder.uuidOrNull: dev.yanshouwang.bluetooth_low_energy.proto.UUID?
-  get() = if (hasUuid()) getUuid() else null
+val dev.yanshouwang.bluetooth_low_energy.proto.BroadcastOrBuilder.peripheralOrNull: dev.yanshouwang.bluetooth_low_energy.proto.Peripheral?
+  get() = if (hasPeripheral()) getPeripheral() else null
 

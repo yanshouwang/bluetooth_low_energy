@@ -31,4 +31,4 @@ else
     mkdir -p $SWIFT_OUT
 fi
 
-flutter pub run pigeon --input pigeon/api.dart
+flutter pub run pigeon --input pigeon/messages.dart

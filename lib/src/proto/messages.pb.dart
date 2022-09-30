@@ -7,14 +7,13 @@
 
 import 'dart:core' as $core;
 
-import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 export 'messages.pbenum.dart';
 
-class Advertisement extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Advertisement', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'proto'), createEmptyInstance: create)
-    ..aOM<UUID>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uuid', subBuilder: UUID.create)
+class Broadcast extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Broadcast', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'proto'), createEmptyInstance: create)
+    ..aOM<Peripheral>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'peripheral', subBuilder: Peripheral.create)
     ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rssi', $pb.PbFieldType.O3)
     ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'connectable')
     ..a<$core.List<$core.int>>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
@@ -27,9 +26,9 @@ class Advertisement extends $pb.GeneratedMessage {
     ..hasRequiredFields = false
   ;
 
-  Advertisement._() : super();
-  factory Advertisement({
-    UUID? uuid,
+  Broadcast._() : super();
+  factory Broadcast({
+    Peripheral? peripheral,
     $core.int? rssi,
     $core.bool? connectable,
     $core.List<$core.int>? data,
@@ -41,8 +40,8 @@ class Advertisement extends $pb.GeneratedMessage {
     $core.int? txPowerLevel,
   }) {
     final _result = create();
-    if (uuid != null) {
-      _result.uuid = uuid;
+    if (peripheral != null) {
+      _result.peripheral = peripheral;
     }
     if (rssi != null) {
       _result.rssi = rssi;
@@ -73,37 +72,37 @@ class Advertisement extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory Advertisement.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Advertisement.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Broadcast.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Broadcast.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  Advertisement clone() => Advertisement()..mergeFromMessage(this);
+  Broadcast clone() => Broadcast()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  Advertisement copyWith(void Function(Advertisement) updates) => super.copyWith((message) => updates(message as Advertisement)) as Advertisement; // ignore: deprecated_member_use
+  Broadcast copyWith(void Function(Broadcast) updates) => super.copyWith((message) => updates(message as Broadcast)) as Broadcast; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static Advertisement create() => Advertisement._();
-  Advertisement createEmptyInstance() => create();
-  static $pb.PbList<Advertisement> createRepeated() => $pb.PbList<Advertisement>();
+  static Broadcast create() => Broadcast._();
+  Broadcast createEmptyInstance() => create();
+  static $pb.PbList<Broadcast> createRepeated() => $pb.PbList<Broadcast>();
   @$core.pragma('dart2js:noInline')
-  static Advertisement getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Advertisement>(create);
-  static Advertisement? _defaultInstance;
+  static Broadcast getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Broadcast>(create);
+  static Broadcast? _defaultInstance;
 
   @$pb.TagNumber(1)
-  UUID get uuid => $_getN(0);
+  Peripheral get peripheral => $_getN(0);
   @$pb.TagNumber(1)
-  set uuid(UUID v) { setField(1, v); }
+  set peripheral(Peripheral v) { setField(1, v); }
   @$pb.TagNumber(1)
-  $core.bool hasUuid() => $_has(0);
+  $core.bool hasPeripheral() => $_has(0);
   @$pb.TagNumber(1)
-  void clearUuid() => clearField(1);
+  void clearPeripheral() => clearField(1);
   @$pb.TagNumber(1)
-  UUID ensureUuid() => $_ensure(0);
+  Peripheral ensurePeripheral() => $_ensure(0);
 
   @$pb.TagNumber(2)
   $core.int get rssi => $_getIZ(1);
@@ -171,22 +170,22 @@ class Advertisement extends $pb.GeneratedMessage {
 
 class Peripheral extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Peripheral', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'proto'), createEmptyInstance: create)
-    ..aInt64(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'maximumWriteLength', $pb.PbFieldType.O3)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+    ..aOM<UUID>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uuid', subBuilder: UUID.create)
     ..hasRequiredFields = false
   ;
 
   Peripheral._() : super();
   factory Peripheral({
-    $fixnum.Int64? id,
-    $core.int? maximumWriteLength,
+    $core.String? id,
+    UUID? uuid,
   }) {
     final _result = create();
     if (id != null) {
       _result.id = id;
     }
-    if (maximumWriteLength != null) {
-      _result.maximumWriteLength = maximumWriteLength;
+    if (uuid != null) {
+      _result.uuid = uuid;
     }
     return _result;
   }
@@ -212,34 +211,36 @@ class Peripheral extends $pb.GeneratedMessage {
   static Peripheral? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $fixnum.Int64 get id => $_getI64(0);
+  $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($fixnum.Int64 v) { $_setInt64(0, v); }
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.int get maximumWriteLength => $_getIZ(1);
+  UUID get uuid => $_getN(1);
   @$pb.TagNumber(2)
-  set maximumWriteLength($core.int v) { $_setSignedInt32(1, v); }
+  set uuid(UUID v) { setField(2, v); }
   @$pb.TagNumber(2)
-  $core.bool hasMaximumWriteLength() => $_has(1);
+  $core.bool hasUuid() => $_has(1);
   @$pb.TagNumber(2)
-  void clearMaximumWriteLength() => clearField(2);
+  void clearUuid() => clearField(2);
+  @$pb.TagNumber(2)
+  UUID ensureUuid() => $_ensure(1);
 }
 
 class GattService extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattService', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'proto'), createEmptyInstance: create)
-    ..aInt64(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOM<UUID>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uuid', subBuilder: UUID.create)
     ..hasRequiredFields = false
   ;
 
   GattService._() : super();
   factory GattService({
-    $fixnum.Int64? id,
+    $core.String? id,
     UUID? uuid,
   }) {
     final _result = create();
@@ -273,9 +274,9 @@ class GattService extends $pb.GeneratedMessage {
   static GattService? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $fixnum.Int64 get id => $_getI64(0);
+  $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($fixnum.Int64 v) { $_setInt64(0, v); }
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -295,7 +296,7 @@ class GattService extends $pb.GeneratedMessage {
 
 class GattCharacteristic extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattCharacteristic', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'proto'), createEmptyInstance: create)
-    ..aInt64(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOM<UUID>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uuid', subBuilder: UUID.create)
     ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'canRead')
     ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'canWrite')
@@ -306,7 +307,7 @@ class GattCharacteristic extends $pb.GeneratedMessage {
 
   GattCharacteristic._() : super();
   factory GattCharacteristic({
-    $fixnum.Int64? id,
+    $core.String? id,
     UUID? uuid,
     $core.bool? canRead,
     $core.bool? canWrite,
@@ -356,9 +357,9 @@ class GattCharacteristic extends $pb.GeneratedMessage {
   static GattCharacteristic? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $fixnum.Int64 get id => $_getI64(0);
+  $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($fixnum.Int64 v) { $_setInt64(0, v); }
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -414,14 +415,14 @@ class GattCharacteristic extends $pb.GeneratedMessage {
 
 class GattDescriptor extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GattDescriptor', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'proto'), createEmptyInstance: create)
-    ..aInt64(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOM<UUID>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uuid', subBuilder: UUID.create)
     ..hasRequiredFields = false
   ;
 
   GattDescriptor._() : super();
   factory GattDescriptor({
-    $fixnum.Int64? id,
+    $core.String? id,
     UUID? uuid,
   }) {
     final _result = create();
@@ -455,9 +456,9 @@ class GattDescriptor extends $pb.GeneratedMessage {
   static GattDescriptor? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $fixnum.Int64 get id => $_getI64(0);
+  $core.String get id => $_getSZ(0);
   @$pb.TagNumber(1)
-  set id($fixnum.Int64 v) { $_setInt64(0, v); }
+  set id($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
   $core.bool hasId() => $_has(0);
   @$pb.TagNumber(1)
@@ -583,52 +584,5 @@ class ServiceData extends $pb.GeneratedMessage {
   $core.bool hasData() => $_has(1);
   @$pb.TagNumber(2)
   void clearData() => clearField(2);
-}
-
-class BluetoothLowEnergyException extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'BluetoothLowEnergyException', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'proto'), createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'message')
-    ..hasRequiredFields = false
-  ;
-
-  BluetoothLowEnergyException._() : super();
-  factory BluetoothLowEnergyException({
-    $core.String? message,
-  }) {
-    final _result = create();
-    if (message != null) {
-      _result.message = message;
-    }
-    return _result;
-  }
-  factory BluetoothLowEnergyException.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory BluetoothLowEnergyException.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  BluetoothLowEnergyException clone() => BluetoothLowEnergyException()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  BluetoothLowEnergyException copyWith(void Function(BluetoothLowEnergyException) updates) => super.copyWith((message) => updates(message as BluetoothLowEnergyException)) as BluetoothLowEnergyException; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static BluetoothLowEnergyException create() => BluetoothLowEnergyException._();
-  BluetoothLowEnergyException createEmptyInstance() => create();
-  static $pb.PbList<BluetoothLowEnergyException> createRepeated() => $pb.PbList<BluetoothLowEnergyException>();
-  @$core.pragma('dart2js:noInline')
-  static BluetoothLowEnergyException getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BluetoothLowEnergyException>(create);
-  static BluetoothLowEnergyException? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.String get message => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set message($core.String v) { $_setString(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasMessage() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearMessage() => clearField(1);
 }
 

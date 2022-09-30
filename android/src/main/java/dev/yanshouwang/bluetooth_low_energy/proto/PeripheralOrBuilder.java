@@ -8,14 +8,29 @@ public interface PeripheralOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>int64 id = 1;</code>
+   * <code>string id = 1;</code>
    * @return The id.
    */
-  long getId();
+  java.lang.String getId();
+  /**
+   * <code>string id = 1;</code>
+   * @return The bytes for id.
+   */
+  com.google.protobuf.ByteString
+      getIdBytes();
 
   /**
-   * <code>int32 maximum_write_length = 2;</code>
-   * @return The maximumWriteLength.
+   * <code>.proto.UUID uuid = 2;</code>
+   * @return Whether the uuid field is set.
    */
-  int getMaximumWriteLength();
+  boolean hasUuid();
+  /**
+   * <code>.proto.UUID uuid = 2;</code>
+   * @return The uuid.
+   */
+  dev.yanshouwang.bluetooth_low_energy.proto.UUID getUuid();
+  /**
+   * <code>.proto.UUID uuid = 2;</code>
+   */
+  dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder getUuidOrBuilder();
 }

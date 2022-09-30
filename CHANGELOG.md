@@ -1,3 +1,9 @@
+## 1.1.0
+
+- Fix the crash by onMtuChanged called multi-times on Android.
+- Fix the finalizer doesn't work issue.
+- Make some break changes.
+
 ## 1.0.0
 
 - Upgrade to flutter 3.x.

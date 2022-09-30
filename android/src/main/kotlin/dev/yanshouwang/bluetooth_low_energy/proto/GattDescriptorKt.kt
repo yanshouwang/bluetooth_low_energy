@@ -23,9 +23,9 @@ object GattDescriptorKt {
     internal fun _build(): dev.yanshouwang.bluetooth_low_energy.proto.GattDescriptor = _builder.build()
 
     /**
-     * <code>int64 id = 1;</code>
+     * <code>string id = 1;</code>
      */
-    var id: kotlin.Long
+    var id: kotlin.String
       @JvmName("getId")
       get() = _builder.getId()
       @JvmName("setId")
@@ -33,7 +33,7 @@ object GattDescriptorKt {
         _builder.setId(value)
       }
     /**
-     * <code>int64 id = 1;</code>
+     * <code>string id = 1;</code>
      */
     fun clearId() {
       _builder.clearId()
