@@ -12,26 +12,29 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         // Checks whether the authorize completion is nil.
         let state = central.state
-        let completion = items.removeValue(forKey: KEY_AUTHORIZE_COMPLETION) as? (NSNumber?, FlutterError?) -> Void
+        let completion = instances.removeValue(forKey: KEY_AUTHORIZE_COMPLETION) as? (NSNumber?, FlutterError?) -> Void
         if state != .unknown && completion != nil {
-            let authorized = NSNumber(value: central.state != .unauthorized)
+            let authorized = NSNumber(value: state != .unauthorized)
             completion!(authorized, nil)
         }
         // Checks whether the state is changed.
-        let oldNumber = items[KEY_STATE_OBSERVER] as? Int
-        if oldNumber == nil {
-            return
-        }
+        let oldNumber = instances[KEY_STATE_NUMBER] as? Int
         let number = central.stateNumber
         if number == oldNumber {
             return
         }
-        items[KEY_STATE_OBSERVER] = number
+        instances[KEY_STATE_NUMBER] = number
         let stateNumber = NSNumber(value: number)
-        centralFlutterApi.notifyState(stateNumber) {_ in }
+        centralFlutterApi.onStateChanged(stateNumber) {_ in }
     }
     
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+        peripheral.delegate = peripheralDelegate
+        let id = String(peripheral.hash)
+        var items = register(id)
+        items[KEY_PERIPHERAL] = peripheral
+        // This is a copy on write.
+        instances[id] = items
         let connectable = advertisementData[CBAdvertisementDataIsConnectable] as? Bool
         let localName = advertisementData[CBAdvertisementDataLocalNameKey] as? String
         let manufacturerSpecificData = advertisementData[CBAdvertisementDataManufacturerDataKey] as? Data ?? Data()
@@ -39,9 +42,12 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate {
         let serviceUUIDs = advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID] ?? [CBUUID]()
         let solicitedServiceUUIDs = advertisementData[CBAdvertisementDataSolicitedServiceUUIDsKey] as? [CBUUID] ?? [CBUUID]()
         let txPowerLevel = advertisementData[CBAdvertisementDataTxPowerLevelKey] as? NSNumber
-        let data = try! Proto_Advertisement.with {
-            $0.uuid = Proto_UUID.with {
-                $0.value = peripheral.identifier.uuidString
+        let data = try! Proto_Broadcast.with {
+            $0.peripheral = Proto_Peripheral.with {
+                $0.id = id
+                $0.uuid = Proto_UUID.with {
+                    $0.value = peripheral.identifier.uuidString
+                }
             }
             $0.rssi = RSSI.int32Value
             if(connectable != nil) {
@@ -75,39 +81,32 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate {
                 $0.txPowerLevel = txPowerLevel!.int32Value
             }
         }.serializedData()
-        let advertisementBuffer = FlutterStandardTypedData(bytes: data)
-        centralFlutterApi.notifyAdvertisement(advertisementBuffer) {_ in }
+        let broadcastBuffer = FlutterStandardTypedData(bytes: data)
+        centralFlutterApi.onScanned(broadcastBuffer) {_ in }
     }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        let completion = items.removeValue(forKey: "\(peripheral.hash)/\(KEY_CONNECT_COMPLETION)") as! (FlutterStandardTypedData?, FlutterError?) -> Void
-        let data = try! Proto_Peripheral.with {
-            $0.id = Int64(peripheral.hash)
-        }.serializedData()
-        let peripheralValue = FlutterStandardTypedData(bytes: data)
-        completion(peripheralValue, nil)
+        let id = String(peripheral.hash)
+        let completion = instances.removeValue(forKey: "\(id)/\(KEY_CONNECT_COMPLETION)") as! (FlutterError?) -> Void
+        completion(nil)
     }
     
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-        let completion = items.removeValue(forKey: "\(peripheral.hash)/\(KEY_CONNECT_COMPLETION)") as! (FlutterStandardTypedData?, FlutterError?) -> Void
+        let id = String(peripheral.hash)
+        let completion = instances.removeValue(forKey: "\(id)/\(KEY_CONNECT_COMPLETION)") as! (FlutterError?) -> Void
         let errorMessage = error?.localizedDescription
-        let error = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: errorMessage, details: nil)
-        completion(nil, error)
-        let id = NSNumber(value: peripheral.hash)
-        instances.removeValue(forKey: id)
+        let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: errorMessage, details: nil)
+        completion(flutterError)
     }
     
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-        let completion = items.removeValue(forKey: "\(peripheral.hash)/\(KEY_DISCONNECT_COMPLETION)") as? (FlutterError?) -> Void
-        if completion == nil {
-            let id = identifiers[peripheral]!
-            let errorMessage = error?.localizedDescription ?? "Peripheral disconnected without error message."
-            peripheralFlutterApi.notifyConnectionLost(id, errorMessage: errorMessage) {_ in }
-        } else if error == nil {
-            completion!(nil)
+        let id = String(peripheral.hash)
+        if error == nil {
+            let completion = instances.removeValue(forKey: "\(id)/\(KEY_DISCONNECT_COMPLETION)") as! (FlutterError?) -> Void
+            completion(nil)
         } else {
-            let flutterError = FlutterError(code: BLUETOOTH_LOW_ENERGY_ERROR, message: error!.localizedDescription, details: nil)
-            completion!(flutterError)
+            let errorMessage = error!.localizedDescription
+            peripheralFlutterApi.onConnectionLost(id, errorMessage: errorMessage) {_ in }
         }
     }
 }

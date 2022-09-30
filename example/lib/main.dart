@@ -6,6 +6,8 @@ import 'package:convert/convert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+CentralManager get central => CentralManager.instance;
+
 void main() {
   const app = MyApp();
   runApp(app);
@@ -20,9 +22,10 @@ class MyApp extends StatelessWidget {
       home: const HomeView(),
       routes: {
         'device': (context) {
-          final uuid = ModalRoute.of(context)?.settings.arguments as UUID;
+          final peripheral =
+              ModalRoute.of(context)?.settings.arguments as Peripheral;
           return DeviceView(
-            uuid: uuid,
+            peripheral: peripheral,
           );
         },
       },
@@ -40,10 +43,9 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   late ValueNotifier<bool> state;
   late ValueNotifier<bool> discovering;
-  late ValueNotifier<List<Advertisement>> advertisements;
-  late Stream<Advertisement> advertisementStream;
+  late ValueNotifier<List<Broadcast>> broadcasts;
   late StreamSubscription<BluetoothState> stateStreamSubscription;
-  late StreamSubscription<Advertisement> advertisementStreamSubscription;
+  late StreamSubscription<Broadcast> broadcastStreamSubscription;
 
   @override
   void initState() {
@@ -51,22 +53,35 @@ class _HomeViewState extends State<HomeView> {
 
     state = ValueNotifier(false);
     discovering = ValueNotifier(false);
-    advertisements = ValueNotifier([]);
-    advertisementStream = CentralManager.instance.getAdvertisementStream();
+    broadcasts = ValueNotifier([]);
 
     state.addListener(onStateChanged);
-    stateStreamSubscription = CentralManager.instance.stateStream.listen(
+    stateStreamSubscription = central.stateChanged.listen(
       (state) => this.state.value = state == BluetoothState.poweredOn,
+    );
+    broadcastStreamSubscription = central.scanned.listen(
+      (broadcast) {
+        final broadcasts = this.broadcasts.value;
+        final i = broadcasts.indexWhere(
+          (element) => element.peripheral.uuid == broadcast.peripheral.uuid,
+        );
+        if (i < 0) {
+          this.broadcasts.value = [...broadcasts, broadcast];
+        } else {
+          broadcasts[i] = broadcast;
+          this.broadcasts.value = [...broadcasts];
+        }
+      },
     );
     setup();
   }
 
   void setup() async {
-    final authorized = await CentralManager.instance.authorize();
+    final authorized = await central.authorize();
     if (!authorized) {
       throw UnimplementedError();
     }
-    final state = await CentralManager.instance.getState();
+    final state = await central.state;
     this.state.value = state == BluetoothState.poweredOn;
   }
 
@@ -87,10 +102,11 @@ class _HomeViewState extends State<HomeView> {
     stopScan();
     state.removeListener(onStateChanged);
     stateStreamSubscription.cancel();
+    broadcastStreamSubscription.cancel();
 
     state.dispose();
     discovering.dispose();
-    advertisements.dispose();
+    broadcasts.dispose();
 
     super.dispose();
   }
@@ -109,17 +125,7 @@ class _HomeViewState extends State<HomeView> {
     if (discovering.value || !state.value) {
       return;
     }
-    advertisementStreamSubscription = advertisementStream.listen(
-      (advertisement) {
-        final index = advertisements.value.indexWhere(
-          (element) => element.uuid == advertisement.uuid,
-        );
-        if (index >= 0) {
-          return;
-        }
-        advertisements.value = [...advertisements.value, advertisement];
-      },
-    );
+    await central.startScan();
     discovering.value = true;
   }
 
@@ -127,25 +133,25 @@ class _HomeViewState extends State<HomeView> {
     if (!discovering.value || !state.value) {
       return;
     }
-    await advertisementStreamSubscription.cancel();
-    advertisements.value = [];
+    await central.stopScan();
+    broadcasts.value = [];
     discovering.value = false;
   }
 
-  void showAdvertisement(Advertisement advertisement) {
+  void showBroadcast(Broadcast advertisement) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       elevation: 0.0,
-      builder: (context) => buildAdvertisementView(advertisement),
+      builder: (context) => buildBroadcastView(advertisement),
     );
   }
 
-  void showDeviceView(UUID uuid) async {
+  void showDeviceView(Peripheral peripheral) async {
     stopScan();
     await Navigator.of(context).pushNamed(
       'device',
-      arguments: uuid,
+      arguments: peripheral,
     );
     startScan();
   }
@@ -156,9 +162,7 @@ extension on _HomeViewState {
     return ValueListenableBuilder(
       valueListenable: state,
       builder: (context, bool state, child) {
-        return state
-            ? buildAdvertisementsView(context)
-            : buildClosedView(context);
+        return state ? buildBroadcastsView(context) : buildClosedView(context);
       },
     );
   }
@@ -169,18 +173,18 @@ extension on _HomeViewState {
     );
   }
 
-  Widget buildAdvertisementsView(BuildContext context) {
+  Widget buildBroadcastsView(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: () async => advertisements.value = [],
+      onRefresh: () async => broadcasts.value = [],
       child: ValueListenableBuilder(
-        valueListenable: advertisements,
-        builder: (context, List<Advertisement> advertisements, child) {
+        valueListenable: broadcasts,
+        builder: (context, List<Broadcast> broadcasts, child) {
           return ListView.builder(
             padding: const EdgeInsets.all(6.0),
-            itemCount: advertisements.length,
+            itemCount: broadcasts.length,
             itemBuilder: (context, i) {
-              final advertisement = advertisements.elementAt(i);
-              final connectable = advertisement.connectable ?? true;
+              final broadcast = broadcasts.elementAt(i);
+              final connectable = broadcast.connectable ?? true;
               return Card(
                 color: connectable ? Colors.amber : Colors.grey,
                 clipBehavior: Clip.antiAlias,
@@ -191,13 +195,13 @@ extension on _HomeViewState {
                   ),
                 ),
                 margin: const EdgeInsets.all(6.0),
-                key: Key('${advertisement.uuid}'),
+                key: Key(broadcast.peripheral.uuid.value),
                 child: InkWell(
                   splashColor: Colors.purple,
                   onTap: connectable
-                      ? () => showDeviceView(advertisement.uuid)
+                      ? () => showDeviceView(broadcast.peripheral)
                       : null,
-                  onLongPress: () => showAdvertisement(advertisement),
+                  onLongPress: () => showBroadcast(broadcast),
                   child: Container(
                     height: 100.0,
                     padding: const EdgeInsets.all(12.0),
@@ -209,9 +213,9 @@ extension on _HomeViewState {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(advertisement.localName ?? 'UNKNOWN'),
+                              Text(broadcast.localName ?? 'UNKNOWN'),
                               Text(
-                                advertisement.uuid.toString(),
+                                broadcast.peripheral.uuid.value,
                                 softWrap: true,
                               ),
                             ],
@@ -220,7 +224,7 @@ extension on _HomeViewState {
                         Expanded(
                           flex: 1,
                           child: Text(
-                            advertisement.rssi.toString(),
+                            broadcast.rssi.toString(),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -236,7 +240,7 @@ extension on _HomeViewState {
     );
   }
 
-  Widget buildAdvertisementView(Advertisement advertisement) {
+  Widget buildBroadcastView(Broadcast advertisement) {
     final widgets = <Widget>[
       Row(
         children: const [
@@ -295,11 +299,11 @@ extension on _HomeViewState {
 }
 
 class DeviceView extends StatefulWidget {
-  final UUID uuid;
+  final Peripheral peripheral;
 
   const DeviceView({
     Key? key,
-    required this.uuid,
+    required this.peripheral,
   }) : super(key: key);
 
   @override
@@ -307,7 +311,7 @@ class DeviceView extends StatefulWidget {
 }
 
 class _DeviceViewState extends State<DeviceView> {
-  late Peripheral peripheral;
+  late StreamSubscription<Exception> connectionLostStreamSubscription;
   late Map<GattService, List<GattCharacteristic>> services;
   late ValueNotifier<ConnectionState> state;
   late ValueNotifier<GattService?> service;
@@ -320,6 +324,18 @@ class _DeviceViewState extends State<DeviceView> {
   void initState() {
     super.initState();
 
+    connectionLostStreamSubscription = widget.peripheral.connectionLost.listen(
+      (error) {
+        for (var subscription in notifies.value.values) {
+          subscription.cancel();
+        }
+        service.value = null;
+        characteristic.value = null;
+        notifies.value.clear();
+        logs.value.clear();
+        state.value = ConnectionState.disconnected;
+      },
+    );
     services = {};
     state = ValueNotifier(ConnectionState.disconnected);
     service = ValueNotifier(null);
@@ -333,7 +349,7 @@ class _DeviceViewState extends State<DeviceView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.uuid}'),
+        title: Text(widget.peripheral.uuid.value),
         actions: [
           buildConnectionState(context),
         ],
@@ -355,6 +371,7 @@ class _DeviceViewState extends State<DeviceView> {
         disconnect();
       }
     } else {
+      connectionLostStreamSubscription.cancel();
       state.dispose();
       service.dispose();
       characteristic.dispose();
@@ -370,6 +387,7 @@ class _DeviceViewState extends State<DeviceView> {
         break;
       case ConnectionState.disconnected:
         state.removeListener(disposeListener!);
+        connectionLostStreamSubscription.cancel();
         state.dispose();
         service.dispose();
         characteristic.dispose();
@@ -384,22 +402,10 @@ class _DeviceViewState extends State<DeviceView> {
   void connect() async {
     try {
       state.value = ConnectionState.connecting;
-      peripheral = await CentralManager.instance.connect(
-        widget.uuid,
-        onConnectionLost: (error) {
-          for (var subscription in notifies.value.values) {
-            subscription.cancel();
-          }
-          service.value = null;
-          characteristic.value = null;
-          notifies.value.clear();
-          logs.value.clear();
-          state.value = ConnectionState.disconnected;
-        },
-      );
+      await widget.peripheral.connect();
       try {
         final items0 = <GattService, List<GattCharacteristic>>{};
-        final services = await peripheral.discoverServices();
+        final services = await widget.peripheral.discoverServices();
         for (var service in services) {
           final items1 = <GattCharacteristic>[];
           final characteristics = await service.discoverCharacteristics();
@@ -410,7 +416,7 @@ class _DeviceViewState extends State<DeviceView> {
         }
         this.services = items0;
       } catch (e) {
-        peripheral.disconnect();
+        widget.peripheral.disconnect();
         rethrow;
       }
       state.value = ConnectionState.connected;
@@ -425,7 +431,7 @@ class _DeviceViewState extends State<DeviceView> {
       for (var subscription in notifies.value.values) {
         subscription.cancel();
       }
-      await peripheral.disconnect();
+      await widget.peripheral.disconnect();
       services = {};
       service.value = null;
       characteristic.value = null;
@@ -579,15 +585,17 @@ extension on _DeviceViewState {
                                     await notifiesValue
                                         .remove(characteristic)!
                                         .cancel();
+                                    await characteristic.setNotify(false);
                                   } else {
                                     notifiesValue[characteristic] =
-                                        characteristic.valueStream
+                                        characteristic.valueChanged
                                             .listen((value) {
                                       final time = DateTime.now().display;
                                       final log =
                                           '[$time][NOTIFY] ${hex.encode(value)}';
                                       logs.value = [...logs.value, log];
                                     });
+                                    await characteristic.setNotify(true);
                                   }
                                   notifies.value = {...notifiesValue};
                                 }

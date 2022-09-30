@@ -18,11 +18,8 @@ abstract class TestCentralControllerHostApi {
 
   Future<bool> authorize();
   int getState();
-  void addStateObserver();
-  void removeStateObserver();
   Future<void> startScan(List<Uint8List?>? uuidBuffers);
   void stopScan();
-  Future<Uint8List> connect(Uint8List uuidBuffer);
   static void setup(TestCentralControllerHostApi? api, {BinaryMessenger? binaryMessenger}) {
     {
       final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
@@ -47,32 +44,6 @@ abstract class TestCentralControllerHostApi {
           // ignore message
           final int output = api.getState();
           return <Object?, Object?>{'result': output};
-        });
-      }
-    }
-    {
-      final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.CentralManagerHostApi.addStateObserver', codec, binaryMessenger: binaryMessenger);
-      if (api == null) {
-        channel.setMockMessageHandler(null);
-      } else {
-        channel.setMockMessageHandler((Object? message) async {
-          // ignore message
-          api.addStateObserver();
-          return <Object?, Object?>{};
-        });
-      }
-    }
-    {
-      final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.CentralManagerHostApi.removeStateObserver', codec, binaryMessenger: binaryMessenger);
-      if (api == null) {
-        channel.setMockMessageHandler(null);
-      } else {
-        channel.setMockMessageHandler((Object? message) async {
-          // ignore message
-          api.removeStateObserver();
-          return <Object?, Object?>{};
         });
       }
     }
@@ -104,22 +75,6 @@ abstract class TestCentralControllerHostApi {
         });
       }
     }
-    {
-      final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.CentralManagerHostApi.connect', codec, binaryMessenger: binaryMessenger);
-      if (api == null) {
-        channel.setMockMessageHandler(null);
-      } else {
-        channel.setMockMessageHandler((Object? message) async {
-          assert(message != null, 'Argument for dev.flutter.pigeon.CentralManagerHostApi.connect was null.');
-          final List<Object?> args = (message as List<Object?>?)!;
-          final Uint8List? arg_uuidBuffer = (args[0] as Uint8List?);
-          assert(arg_uuidBuffer != null, 'Argument for dev.flutter.pigeon.CentralManagerHostApi.connect was null, expected non-null Uint8List.');
-          final Uint8List output = await api.connect(arg_uuidBuffer!);
-          return <Object?, Object?>{'result': output};
-        });
-      }
-    }
   }
 }
 
@@ -129,30 +84,12 @@ class _TestPeripheralHostApiCodec extends StandardMessageCodec {
 abstract class TestPeripheralHostApi {
   static const MessageCodec<Object?> codec = _TestPeripheralHostApiCodec();
 
-  void allocate(int id, int instanceId);
-  void free(int id);
-  Future<void> disconnect(int id);
-  Future<int> requestMtu(int id);
-  Future<List<Uint8List?>> discoverServices(int id);
+  void free(String id);
+  Future<void> connect(String id);
+  Future<void> disconnect(String id);
+  Future<int> requestMtu(String id);
+  Future<List<Uint8List?>> discoverServices(String id);
   static void setup(TestPeripheralHostApi? api, {BinaryMessenger? binaryMessenger}) {
-    {
-      final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.PeripheralHostApi.allocate', codec, binaryMessenger: binaryMessenger);
-      if (api == null) {
-        channel.setMockMessageHandler(null);
-      } else {
-        channel.setMockMessageHandler((Object? message) async {
-          assert(message != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.allocate was null.');
-          final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.allocate was null, expected non-null int.');
-          final int? arg_instanceId = (args[1] as int?);
-          assert(arg_instanceId != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.allocate was null, expected non-null int.');
-          api.allocate(arg_id!, arg_instanceId!);
-          return <Object?, Object?>{};
-        });
-      }
-    }
     {
       final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
           'dev.flutter.pigeon.PeripheralHostApi.free', codec, binaryMessenger: binaryMessenger);
@@ -162,9 +99,25 @@ abstract class TestPeripheralHostApi {
         channel.setMockMessageHandler((Object? message) async {
           assert(message != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.free was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.free was null, expected non-null int.');
+          final String? arg_id = (args[0] as String?);
+          assert(arg_id != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.free was null, expected non-null String.');
           api.free(arg_id!);
+          return <Object?, Object?>{};
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.PeripheralHostApi.connect', codec, binaryMessenger: binaryMessenger);
+      if (api == null) {
+        channel.setMockMessageHandler(null);
+      } else {
+        channel.setMockMessageHandler((Object? message) async {
+          assert(message != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.connect was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final String? arg_id = (args[0] as String?);
+          assert(arg_id != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.connect was null, expected non-null String.');
+          await api.connect(arg_id!);
           return <Object?, Object?>{};
         });
       }
@@ -178,8 +131,8 @@ abstract class TestPeripheralHostApi {
         channel.setMockMessageHandler((Object? message) async {
           assert(message != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.disconnect was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.disconnect was null, expected non-null int.');
+          final String? arg_id = (args[0] as String?);
+          assert(arg_id != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.disconnect was null, expected non-null String.');
           await api.disconnect(arg_id!);
           return <Object?, Object?>{};
         });
@@ -194,8 +147,8 @@ abstract class TestPeripheralHostApi {
         channel.setMockMessageHandler((Object? message) async {
           assert(message != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.requestMtu was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.requestMtu was null, expected non-null int.');
+          final String? arg_id = (args[0] as String?);
+          assert(arg_id != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.requestMtu was null, expected non-null String.');
           final int output = await api.requestMtu(arg_id!);
           return <Object?, Object?>{'result': output};
         });
@@ -210,8 +163,8 @@ abstract class TestPeripheralHostApi {
         channel.setMockMessageHandler((Object? message) async {
           assert(message != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.discoverServices was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.discoverServices was null, expected non-null int.');
+          final String? arg_id = (args[0] as String?);
+          assert(arg_id != null, 'Argument for dev.flutter.pigeon.PeripheralHostApi.discoverServices was null, expected non-null String.');
           final List<Uint8List?> output = await api.discoverServices(arg_id!);
           return <Object?, Object?>{'result': output};
         });
@@ -226,28 +179,9 @@ class _TestGattServiceHostApiCodec extends StandardMessageCodec {
 abstract class TestGattServiceHostApi {
   static const MessageCodec<Object?> codec = _TestGattServiceHostApiCodec();
 
-  void allocate(int id, int instanceId);
-  void free(int id);
-  Future<List<Uint8List?>> discoverCharacteristics(int id);
+  void free(String id);
+  Future<List<Uint8List?>> discoverCharacteristics(String id);
   static void setup(TestGattServiceHostApi? api, {BinaryMessenger? binaryMessenger}) {
-    {
-      final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.GattServiceHostApi.allocate', codec, binaryMessenger: binaryMessenger);
-      if (api == null) {
-        channel.setMockMessageHandler(null);
-      } else {
-        channel.setMockMessageHandler((Object? message) async {
-          assert(message != null, 'Argument for dev.flutter.pigeon.GattServiceHostApi.allocate was null.');
-          final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattServiceHostApi.allocate was null, expected non-null int.');
-          final int? arg_instanceId = (args[1] as int?);
-          assert(arg_instanceId != null, 'Argument for dev.flutter.pigeon.GattServiceHostApi.allocate was null, expected non-null int.');
-          api.allocate(arg_id!, arg_instanceId!);
-          return <Object?, Object?>{};
-        });
-      }
-    }
     {
       final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
           'dev.flutter.pigeon.GattServiceHostApi.free', codec, binaryMessenger: binaryMessenger);
@@ -257,8 +191,8 @@ abstract class TestGattServiceHostApi {
         channel.setMockMessageHandler((Object? message) async {
           assert(message != null, 'Argument for dev.flutter.pigeon.GattServiceHostApi.free was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattServiceHostApi.free was null, expected non-null int.');
+          final String? arg_id = (args[0] as String?);
+          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattServiceHostApi.free was null, expected non-null String.');
           api.free(arg_id!);
           return <Object?, Object?>{};
         });
@@ -273,8 +207,8 @@ abstract class TestGattServiceHostApi {
         channel.setMockMessageHandler((Object? message) async {
           assert(message != null, 'Argument for dev.flutter.pigeon.GattServiceHostApi.discoverCharacteristics was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattServiceHostApi.discoverCharacteristics was null, expected non-null int.');
+          final String? arg_id = (args[0] as String?);
+          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattServiceHostApi.discoverCharacteristics was null, expected non-null String.');
           final List<Uint8List?> output = await api.discoverCharacteristics(arg_id!);
           return <Object?, Object?>{'result': output};
         });
@@ -289,31 +223,12 @@ class _TestGattCharacteristicHostApiCodec extends StandardMessageCodec {
 abstract class TestGattCharacteristicHostApi {
   static const MessageCodec<Object?> codec = _TestGattCharacteristicHostApiCodec();
 
-  void allocate(int id, int instanceId);
-  void free(int id);
-  Future<List<Uint8List?>> discoverDescriptors(int id);
-  Future<Uint8List> read(int id);
-  Future<void> write(int id, Uint8List value, bool withoutResponse);
-  Future<void> setNotify(int id, bool value);
+  void free(String id);
+  Future<List<Uint8List?>> discoverDescriptors(String id);
+  Future<Uint8List> read(String id);
+  Future<void> write(String id, Uint8List value, bool withoutResponse);
+  Future<void> setNotify(String id, bool value);
   static void setup(TestGattCharacteristicHostApi? api, {BinaryMessenger? binaryMessenger}) {
-    {
-      final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.GattCharacteristicHostApi.allocate', codec, binaryMessenger: binaryMessenger);
-      if (api == null) {
-        channel.setMockMessageHandler(null);
-      } else {
-        channel.setMockMessageHandler((Object? message) async {
-          assert(message != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.allocate was null.');
-          final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.allocate was null, expected non-null int.');
-          final int? arg_instanceId = (args[1] as int?);
-          assert(arg_instanceId != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.allocate was null, expected non-null int.');
-          api.allocate(arg_id!, arg_instanceId!);
-          return <Object?, Object?>{};
-        });
-      }
-    }
     {
       final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
           'dev.flutter.pigeon.GattCharacteristicHostApi.free', codec, binaryMessenger: binaryMessenger);
@@ -323,8 +238,8 @@ abstract class TestGattCharacteristicHostApi {
         channel.setMockMessageHandler((Object? message) async {
           assert(message != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.free was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.free was null, expected non-null int.');
+          final String? arg_id = (args[0] as String?);
+          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.free was null, expected non-null String.');
           api.free(arg_id!);
           return <Object?, Object?>{};
         });
@@ -339,8 +254,8 @@ abstract class TestGattCharacteristicHostApi {
         channel.setMockMessageHandler((Object? message) async {
           assert(message != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.discoverDescriptors was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.discoverDescriptors was null, expected non-null int.');
+          final String? arg_id = (args[0] as String?);
+          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.discoverDescriptors was null, expected non-null String.');
           final List<Uint8List?> output = await api.discoverDescriptors(arg_id!);
           return <Object?, Object?>{'result': output};
         });
@@ -355,8 +270,8 @@ abstract class TestGattCharacteristicHostApi {
         channel.setMockMessageHandler((Object? message) async {
           assert(message != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.read was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.read was null, expected non-null int.');
+          final String? arg_id = (args[0] as String?);
+          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.read was null, expected non-null String.');
           final Uint8List output = await api.read(arg_id!);
           return <Object?, Object?>{'result': output};
         });
@@ -371,8 +286,8 @@ abstract class TestGattCharacteristicHostApi {
         channel.setMockMessageHandler((Object? message) async {
           assert(message != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.write was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.write was null, expected non-null int.');
+          final String? arg_id = (args[0] as String?);
+          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.write was null, expected non-null String.');
           final Uint8List? arg_value = (args[1] as Uint8List?);
           assert(arg_value != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.write was null, expected non-null Uint8List.');
           final bool? arg_withoutResponse = (args[2] as bool?);
@@ -391,8 +306,8 @@ abstract class TestGattCharacteristicHostApi {
         channel.setMockMessageHandler((Object? message) async {
           assert(message != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.setNotify was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.setNotify was null, expected non-null int.');
+          final String? arg_id = (args[0] as String?);
+          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.setNotify was null, expected non-null String.');
           final bool? arg_value = (args[1] as bool?);
           assert(arg_value != null, 'Argument for dev.flutter.pigeon.GattCharacteristicHostApi.setNotify was null, expected non-null bool.');
           await api.setNotify(arg_id!, arg_value!);
@@ -409,29 +324,10 @@ class _TestGattDescriptorHostApiCodec extends StandardMessageCodec {
 abstract class TestGattDescriptorHostApi {
   static const MessageCodec<Object?> codec = _TestGattDescriptorHostApiCodec();
 
-  void allocate(int id, int instanceId);
-  void free(int id);
-  Future<Uint8List> read(int id);
-  Future<void> write(int id, Uint8List value);
+  void free(String id);
+  Future<Uint8List> read(String id);
+  Future<void> write(String id, Uint8List value);
   static void setup(TestGattDescriptorHostApi? api, {BinaryMessenger? binaryMessenger}) {
-    {
-      final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.GattDescriptorHostApi.allocate', codec, binaryMessenger: binaryMessenger);
-      if (api == null) {
-        channel.setMockMessageHandler(null);
-      } else {
-        channel.setMockMessageHandler((Object? message) async {
-          assert(message != null, 'Argument for dev.flutter.pigeon.GattDescriptorHostApi.allocate was null.');
-          final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattDescriptorHostApi.allocate was null, expected non-null int.');
-          final int? arg_instanceId = (args[1] as int?);
-          assert(arg_instanceId != null, 'Argument for dev.flutter.pigeon.GattDescriptorHostApi.allocate was null, expected non-null int.');
-          api.allocate(arg_id!, arg_instanceId!);
-          return <Object?, Object?>{};
-        });
-      }
-    }
     {
       final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
           'dev.flutter.pigeon.GattDescriptorHostApi.free', codec, binaryMessenger: binaryMessenger);
@@ -441,8 +337,8 @@ abstract class TestGattDescriptorHostApi {
         channel.setMockMessageHandler((Object? message) async {
           assert(message != null, 'Argument for dev.flutter.pigeon.GattDescriptorHostApi.free was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattDescriptorHostApi.free was null, expected non-null int.');
+          final String? arg_id = (args[0] as String?);
+          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattDescriptorHostApi.free was null, expected non-null String.');
           api.free(arg_id!);
           return <Object?, Object?>{};
         });
@@ -457,8 +353,8 @@ abstract class TestGattDescriptorHostApi {
         channel.setMockMessageHandler((Object? message) async {
           assert(message != null, 'Argument for dev.flutter.pigeon.GattDescriptorHostApi.read was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattDescriptorHostApi.read was null, expected non-null int.');
+          final String? arg_id = (args[0] as String?);
+          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattDescriptorHostApi.read was null, expected non-null String.');
           final Uint8List output = await api.read(arg_id!);
           return <Object?, Object?>{'result': output};
         });
@@ -473,8 +369,8 @@ abstract class TestGattDescriptorHostApi {
         channel.setMockMessageHandler((Object? message) async {
           assert(message != null, 'Argument for dev.flutter.pigeon.GattDescriptorHostApi.write was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_id = (args[0] as int?);
-          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattDescriptorHostApi.write was null, expected non-null int.');
+          final String? arg_id = (args[0] as String?);
+          assert(arg_id != null, 'Argument for dev.flutter.pigeon.GattDescriptorHostApi.write was null, expected non-null String.');
           final Uint8List? arg_value = (args[1] as Uint8List?);
           assert(arg_value != null, 'Argument for dev.flutter.pigeon.GattDescriptorHostApi.write was null, expected non-null Uint8List.');
           await api.write(arg_id!, arg_value!);

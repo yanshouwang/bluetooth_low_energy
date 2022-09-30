@@ -12,60 +12,56 @@ import java.util.UUID
 object MyGattCharacteristicHostApi : Pigeon.GattCharacteristicHostApi {
     private const val CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
 
-    override fun allocate(id: Long, instanceId: Long) {
-        Log.d(TAG, "allocate: $id, $instanceId")
-        val list = instances.remove(instanceId) as List<Any>
-        val characteristic = list[1]
-        instances[id] = list
-        identifiers[characteristic] = id
-    }
-
-    override fun free(id: Long) {
+    override fun free(id: String) {
         Log.d(TAG, "free: $id")
-        val list = instances.remove(id) as List<Any>
-        val characteristic = list[1]
-        identifiers.remove(characteristic)
+        unregister(id)
     }
 
-    override fun discoverDescriptors(id: Long, result: Pigeon.Result<MutableList<ByteArray>>) {
+    override fun discoverDescriptors(id: String, result: Pigeon.Result<MutableList<ByteArray>>) {
         Log.d(TAG, "discoverDescriptors: $id")
-        val list = instances[id] as List<Any>
-        val gatt = list[0] as BluetoothGatt
-        val characteristic = list[1] as BluetoothGattCharacteristic
+        val items = instances[id] as MutableMap<String, Any>
+        val gatt = items[KEY_GATT] as BluetoothGatt
+        val characteristic = items[KEY_CHARACTERISTIC] as BluetoothGattCharacteristic
         val descriptorValues = mutableListOf<ByteArray>()
         for (descriptor in characteristic.descriptors) {
-            val descriptorId = descriptor.hashCode().toLong()
-            instances[descriptorId] = listOf(gatt, descriptor)
-            val descriptorValue = gattDescriptor {
-                this.id = descriptorId
-                this.uuid = uUID {
-                    this.value = descriptor.uuid.toString()
-                }
-            }.toByteArray()
+            val descriptorValue = registerDescriptor(gatt, descriptor)
             descriptorValues.add(descriptorValue)
         }
         result.success(descriptorValues)
     }
 
-    override fun read(id: Long, result: Pigeon.Result<ByteArray>) {
+    private fun registerDescriptor(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor): ByteArray {
+        val id = descriptor.hashCode().toString()
+        val items = register(id)
+        items[KEY_GATT] = gatt
+        items[KEY_DESCRIPTOR] = descriptor
+        return gattDescriptor {
+            this.id = id
+            this.uuid = uUID {
+                this.value = descriptor.uuid.toString()
+            }
+        }.toByteArray()
+    }
+
+    override fun read(id: String, result: Pigeon.Result<ByteArray>) {
         Log.d(TAG, "read: $id")
-        val list = instances[id] as List<Any>
-        val gatt = list[0] as BluetoothGatt
-        val characteristic = list[1] as BluetoothGattCharacteristic
+        val items = instances[id] as MutableMap<String, Any>
+        val gatt = items[KEY_GATT] as BluetoothGatt
+        val characteristic = items[KEY_CHARACTERISTIC] as BluetoothGattCharacteristic
         val succeed = gatt.readCharacteristic(characteristic)
         if (succeed) {
-            items["${characteristic.hashCode()}/$KEY_READ_RESULT"] = result
+            instances["$id/$KEY_READ_RESULT"] = result
         } else {
             val error = BluetoothLowEnergyException("GATT read characteristic failed.")
             result.error(error)
         }
     }
 
-    override fun write(id: Long, value: ByteArray, withoutResponse: Boolean, result: Pigeon.Result<Void>) {
+    override fun write(id: String, value: ByteArray, withoutResponse: Boolean, result: Pigeon.Result<Void>) {
         Log.d(TAG, "write: $id, $value")
-        val list = instances[id] as List<Any>
-        val gatt = list[0] as BluetoothGatt
-        val characteristic = list[1] as BluetoothGattCharacteristic
+        val items = instances[id] as MutableMap<String, Any>
+        val gatt = items[KEY_GATT] as BluetoothGatt
+        val characteristic = items[KEY_CHARACTERISTIC] as BluetoothGattCharacteristic
         characteristic.writeType = if (withoutResponse) {
             BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
         } else {
@@ -74,36 +70,41 @@ object MyGattCharacteristicHostApi : Pigeon.GattCharacteristicHostApi {
         characteristic.value = value
         val succeed = gatt.writeCharacteristic(characteristic)
         if (succeed) {
-            items["${characteristic.hashCode()}/$KEY_WRITE_RESULT"] = result
+            instances["$id/$KEY_WRITE_RESULT"] = result
         } else {
             val error = BluetoothLowEnergyException("GATT write characteristic failed.")
             result.error(error)
         }
     }
 
-    override fun setNotify(id: Long, value: Boolean, result: Pigeon.Result<Void>) {
+    override fun setNotify(id: String, value: Boolean, result: Pigeon.Result<Void>) {
         Log.d(TAG, "setNotify: $id, $value")
-        val list = instances[id] as List<Any>
-        val gatt = list[0] as BluetoothGatt
-        val characteristic = list[1] as BluetoothGattCharacteristic
-        val setNotificationSucceed = gatt.setCharacteristicNotification(characteristic, value)
-        if (setNotificationSucceed) {
-            val uuid = UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG)
-            val descriptor = characteristic.getDescriptor(uuid)
-            descriptor.value = if (value) {
-                BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-            } else {
-                BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
-            }
-            val writeSucceed = gatt.writeDescriptor(descriptor)
-            if (writeSucceed) {
-                items["${descriptor.hashCode()}/$KEY_WRITE_RESULT"] = result
-            } else {
-                val error = BluetoothLowEnergyException("GATT write <client characteristic config> descriptor failed.")
-                result.error(error)
-            }
+        val items = instances[id] as MutableMap<String, Any>
+        val gatt = items[KEY_GATT] as BluetoothGatt
+        val characteristic = items[KEY_CHARACTERISTIC] as BluetoothGattCharacteristic
+        val succeed = gatt.setCharacteristicNotification(characteristic, value)
+        if (succeed) {
+            writeClientCharacteristicConfig(gatt, characteristic, value, result)
         } else {
             val error = BluetoothLowEnergyException("GATT set characteristic notification failed.")
+            result.error(error)
+        }
+    }
+
+    private fun writeClientCharacteristicConfig(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: Boolean, result: Pigeon.Result<Void>) {
+        val uuid = UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG)
+        val descriptor = characteristic.getDescriptor(uuid)
+        descriptor.value = if (value) {
+            BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+        } else {
+            BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
+        }
+        val succeed = gatt.writeDescriptor(descriptor)
+        if (succeed) {
+            val id = descriptor.hashCode().toString()
+            instances["$id/$KEY_WRITE_RESULT"] = result
+        } else {
+            val error = BluetoothLowEnergyException("GATT write client characteristic config failed.")
             result.error(error)
         }
     }

@@ -4,8 +4,8 @@ package proto;
 option java_package = "dev.yanshouwang.bluetooth_low_energy.proto";
 option java_multiple_files = true;
 
-message Advertisement {
-  UUID uuid = 1;
+message Broadcast {
+  Peripheral peripheral = 1;
   int32 rssi = 2;
   optional bool connectable = 3;
   bytes data = 4;
@@ -18,16 +18,17 @@ message Advertisement {
 }
 
 message Peripheral {
-  int64 id = 1;
+  string id = 1;
+  UUID uuid = 2;
 }
 
 message GattService {
-  int64 id = 1;
+  string id = 1;
   UUID uuid = 2;
 }
 
 message GattCharacteristic {
-  int64 id = 1;
+  string id = 1;
   UUID uuid = 2;
   bool can_read = 3;
   bool can_write = 4;
@@ -36,7 +37,7 @@ message GattCharacteristic {
 }
 
 message GattDescriptor {
-  int64 id = 1;
+  string id = 1;
   UUID uuid = 2;
 }
 

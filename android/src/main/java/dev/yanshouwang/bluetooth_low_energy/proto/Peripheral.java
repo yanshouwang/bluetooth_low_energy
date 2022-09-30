@@ -16,6 +16,7 @@ private static final long serialVersionUID = 0L;
     super(builder);
   }
   private Peripheral() {
+    id_ = "";
   }
 
   @java.lang.Override
@@ -48,9 +49,23 @@ private static final long serialVersionUID = 0L;
           case 0:
             done = true;
             break;
-          case 8: {
+          case 10: {
+            java.lang.String s = input.readStringRequireUtf8();
 
-            id_ = input.readInt64();
+            id_ = s;
+            break;
+          }
+          case 18: {
+            dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder subBuilder = null;
+            if (uuid_ != null) {
+              subBuilder = uuid_.toBuilder();
+            }
+            uuid_ = input.readMessage(dev.yanshouwang.bluetooth_low_energy.proto.UUID.parser(), extensionRegistry);
+            if (subBuilder != null) {
+              subBuilder.mergeFrom(uuid_);
+              uuid_ = subBuilder.buildPartial();
+            }
+
             break;
           }
           default: {
@@ -88,14 +103,67 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int ID_FIELD_NUMBER = 1;
-  private long id_;
+  private volatile java.lang.Object id_;
   /**
-   * <code>int64 id = 1;</code>
+   * <code>string id = 1;</code>
    * @return The id.
    */
   @java.lang.Override
-  public long getId() {
-    return id_;
+  public java.lang.String getId() {
+    java.lang.Object ref = id_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      id_ = s;
+      return s;
+    }
+  }
+  /**
+   * <code>string id = 1;</code>
+   * @return The bytes for id.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+      getIdBytes() {
+    java.lang.Object ref = id_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      id_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  public static final int UUID_FIELD_NUMBER = 2;
+  private dev.yanshouwang.bluetooth_low_energy.proto.UUID uuid_;
+  /**
+   * <code>.proto.UUID uuid = 2;</code>
+   * @return Whether the uuid field is set.
+   */
+  @java.lang.Override
+  public boolean hasUuid() {
+    return uuid_ != null;
+  }
+  /**
+   * <code>.proto.UUID uuid = 2;</code>
+   * @return The uuid.
+   */
+  @java.lang.Override
+  public dev.yanshouwang.bluetooth_low_energy.proto.UUID getUuid() {
+    return uuid_ == null ? dev.yanshouwang.bluetooth_low_energy.proto.UUID.getDefaultInstance() : uuid_;
+  }
+  /**
+   * <code>.proto.UUID uuid = 2;</code>
+   */
+  @java.lang.Override
+  public dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder getUuidOrBuilder() {
+    return getUuid();
   }
 
   private byte memoizedIsInitialized = -1;
@@ -112,8 +180,11 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (id_ != 0L) {
-      output.writeInt64(1, id_);
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(id_)) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 1, id_);
+    }
+    if (uuid_ != null) {
+      output.writeMessage(2, getUuid());
     }
     unknownFields.writeTo(output);
   }
@@ -124,9 +195,12 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (id_ != 0L) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(id_)) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, id_);
+    }
+    if (uuid_ != null) {
       size += com.google.protobuf.CodedOutputStream
-        .computeInt64Size(1, id_);
+        .computeMessageSize(2, getUuid());
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -143,8 +217,13 @@ private static final long serialVersionUID = 0L;
     }
     dev.yanshouwang.bluetooth_low_energy.proto.Peripheral other = (dev.yanshouwang.bluetooth_low_energy.proto.Peripheral) obj;
 
-    if (getId()
-        != other.getId()) return false;
+    if (!getId()
+        .equals(other.getId())) return false;
+    if (hasUuid() != other.hasUuid()) return false;
+    if (hasUuid()) {
+      if (!getUuid()
+          .equals(other.getUuid())) return false;
+    }
     if (!unknownFields.equals(other.unknownFields)) return false;
     return true;
   }
@@ -157,8 +236,11 @@ private static final long serialVersionUID = 0L;
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
     hash = (37 * hash) + ID_FIELD_NUMBER;
-    hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-        getId());
+    hash = (53 * hash) + getId().hashCode();
+    if (hasUuid()) {
+      hash = (37 * hash) + UUID_FIELD_NUMBER;
+      hash = (53 * hash) + getUuid().hashCode();
+    }
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -292,8 +374,14 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public Builder clear() {
       super.clear();
-      id_ = 0L;
+      id_ = "";
 
+      if (uuidBuilder_ == null) {
+        uuid_ = null;
+      } else {
+        uuid_ = null;
+        uuidBuilder_ = null;
+      }
       return this;
     }
 
@@ -321,6 +409,11 @@ private static final long serialVersionUID = 0L;
     public dev.yanshouwang.bluetooth_low_energy.proto.Peripheral buildPartial() {
       dev.yanshouwang.bluetooth_low_energy.proto.Peripheral result = new dev.yanshouwang.bluetooth_low_energy.proto.Peripheral(this);
       result.id_ = id_;
+      if (uuidBuilder_ == null) {
+        result.uuid_ = uuid_;
+      } else {
+        result.uuid_ = uuidBuilder_.build();
+      }
       onBuilt();
       return result;
     }
@@ -369,8 +462,12 @@ private static final long serialVersionUID = 0L;
 
     public Builder mergeFrom(dev.yanshouwang.bluetooth_low_energy.proto.Peripheral other) {
       if (other == dev.yanshouwang.bluetooth_low_energy.proto.Peripheral.getDefaultInstance()) return this;
-      if (other.getId() != 0L) {
-        setId(other.getId());
+      if (!other.getId().isEmpty()) {
+        id_ = other.id_;
+        onChanged();
+      }
+      if (other.hasUuid()) {
+        mergeUuid(other.getUuid());
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -401,35 +498,199 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
-    private long id_ ;
+    private java.lang.Object id_ = "";
     /**
-     * <code>int64 id = 1;</code>
+     * <code>string id = 1;</code>
      * @return The id.
      */
-    @java.lang.Override
-    public long getId() {
-      return id_;
+    public java.lang.String getId() {
+      java.lang.Object ref = id_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        id_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
     }
     /**
-     * <code>int64 id = 1;</code>
+     * <code>string id = 1;</code>
+     * @return The bytes for id.
+     */
+    public com.google.protobuf.ByteString
+        getIdBytes() {
+      java.lang.Object ref = id_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        id_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>string id = 1;</code>
      * @param value The id to set.
      * @return This builder for chaining.
      */
-    public Builder setId(long value) {
-      
+    public Builder setId(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
       id_ = value;
       onChanged();
       return this;
     }
     /**
-     * <code>int64 id = 1;</code>
+     * <code>string id = 1;</code>
      * @return This builder for chaining.
      */
     public Builder clearId() {
       
-      id_ = 0L;
+      id_ = getDefaultInstance().getId();
       onChanged();
       return this;
+    }
+    /**
+     * <code>string id = 1;</code>
+     * @param value The bytes for id to set.
+     * @return This builder for chaining.
+     */
+    public Builder setIdBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+      
+      id_ = value;
+      onChanged();
+      return this;
+    }
+
+    private dev.yanshouwang.bluetooth_low_energy.proto.UUID uuid_;
+    private com.google.protobuf.SingleFieldBuilderV3<
+        dev.yanshouwang.bluetooth_low_energy.proto.UUID, dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder, dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder> uuidBuilder_;
+    /**
+     * <code>.proto.UUID uuid = 2;</code>
+     * @return Whether the uuid field is set.
+     */
+    public boolean hasUuid() {
+      return uuidBuilder_ != null || uuid_ != null;
+    }
+    /**
+     * <code>.proto.UUID uuid = 2;</code>
+     * @return The uuid.
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.UUID getUuid() {
+      if (uuidBuilder_ == null) {
+        return uuid_ == null ? dev.yanshouwang.bluetooth_low_energy.proto.UUID.getDefaultInstance() : uuid_;
+      } else {
+        return uuidBuilder_.getMessage();
+      }
+    }
+    /**
+     * <code>.proto.UUID uuid = 2;</code>
+     */
+    public Builder setUuid(dev.yanshouwang.bluetooth_low_energy.proto.UUID value) {
+      if (uuidBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        uuid_ = value;
+        onChanged();
+      } else {
+        uuidBuilder_.setMessage(value);
+      }
+
+      return this;
+    }
+    /**
+     * <code>.proto.UUID uuid = 2;</code>
+     */
+    public Builder setUuid(
+        dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder builderForValue) {
+      if (uuidBuilder_ == null) {
+        uuid_ = builderForValue.build();
+        onChanged();
+      } else {
+        uuidBuilder_.setMessage(builderForValue.build());
+      }
+
+      return this;
+    }
+    /**
+     * <code>.proto.UUID uuid = 2;</code>
+     */
+    public Builder mergeUuid(dev.yanshouwang.bluetooth_low_energy.proto.UUID value) {
+      if (uuidBuilder_ == null) {
+        if (uuid_ != null) {
+          uuid_ =
+            dev.yanshouwang.bluetooth_low_energy.proto.UUID.newBuilder(uuid_).mergeFrom(value).buildPartial();
+        } else {
+          uuid_ = value;
+        }
+        onChanged();
+      } else {
+        uuidBuilder_.mergeFrom(value);
+      }
+
+      return this;
+    }
+    /**
+     * <code>.proto.UUID uuid = 2;</code>
+     */
+    public Builder clearUuid() {
+      if (uuidBuilder_ == null) {
+        uuid_ = null;
+        onChanged();
+      } else {
+        uuid_ = null;
+        uuidBuilder_ = null;
+      }
+
+      return this;
+    }
+    /**
+     * <code>.proto.UUID uuid = 2;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder getUuidBuilder() {
+      
+      onChanged();
+      return getUuidFieldBuilder().getBuilder();
+    }
+    /**
+     * <code>.proto.UUID uuid = 2;</code>
+     */
+    public dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder getUuidOrBuilder() {
+      if (uuidBuilder_ != null) {
+        return uuidBuilder_.getMessageOrBuilder();
+      } else {
+        return uuid_ == null ?
+            dev.yanshouwang.bluetooth_low_energy.proto.UUID.getDefaultInstance() : uuid_;
+      }
+    }
+    /**
+     * <code>.proto.UUID uuid = 2;</code>
+     */
+    private com.google.protobuf.SingleFieldBuilderV3<
+        dev.yanshouwang.bluetooth_low_energy.proto.UUID, dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder, dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder> 
+        getUuidFieldBuilder() {
+      if (uuidBuilder_ == null) {
+        uuidBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+            dev.yanshouwang.bluetooth_low_energy.proto.UUID, dev.yanshouwang.bluetooth_low_energy.proto.UUID.Builder, dev.yanshouwang.bluetooth_low_energy.proto.UUIDOrBuilder>(
+                getUuid(),
+                getParentForChildren(),
+                isClean());
+        uuid_ = null;
+      }
+      return uuidBuilder_;
     }
     @java.lang.Override
     public final Builder setUnknownFields(

@@ -104,42 +104,6 @@ void PigeonCentralManagerHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.CentralManagerHostApi.addStateObserver"
-        binaryMessenger:binaryMessenger
-        codec:PigeonCentralManagerHostApiGetCodec()        ];
-    if (api) {
-      NSCAssert([api respondsToSelector:@selector(addStateObserver:)], @"PigeonCentralManagerHostApi api (%@) doesn't respond to @selector(addStateObserver:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        FlutterError *error;
-        [api addStateObserver:&error];
-        callback(wrapResult(nil, error));
-      }];
-    }
-    else {
-      [channel setMessageHandler:nil];
-    }
-  }
-  {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.CentralManagerHostApi.removeStateObserver"
-        binaryMessenger:binaryMessenger
-        codec:PigeonCentralManagerHostApiGetCodec()        ];
-    if (api) {
-      NSCAssert([api respondsToSelector:@selector(removeStateObserver:)], @"PigeonCentralManagerHostApi api (%@) doesn't respond to @selector(removeStateObserver:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        FlutterError *error;
-        [api removeStateObserver:&error];
-        callback(wrapResult(nil, error));
-      }];
-    }
-    else {
-      [channel setMessageHandler:nil];
-    }
-  }
-  {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
         initWithName:@"dev.flutter.pigeon.CentralManagerHostApi.startScan"
         binaryMessenger:binaryMessenger
         codec:PigeonCentralManagerHostApiGetCodec()        ];
@@ -169,26 +133,6 @@ void PigeonCentralManagerHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger
         FlutterError *error;
         [api stopScan:&error];
         callback(wrapResult(nil, error));
-      }];
-    }
-    else {
-      [channel setMessageHandler:nil];
-    }
-  }
-  {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.CentralManagerHostApi.connect"
-        binaryMessenger:binaryMessenger
-        codec:PigeonCentralManagerHostApiGetCodec()        ];
-    if (api) {
-      NSCAssert([api respondsToSelector:@selector(connect:completion:)], @"PigeonCentralManagerHostApi api (%@) doesn't respond to @selector(connect:completion:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        NSArray *args = message;
-        FlutterStandardTypedData *arg_uuidBuffer = GetNullableObjectAtIndex(args, 0);
-        [api connect:arg_uuidBuffer completion:^(FlutterStandardTypedData *_Nullable output, FlutterError *_Nullable error) {
-          callback(wrapResult(output, error));
-        }];
       }];
     }
     else {
@@ -241,23 +185,23 @@ NSObject<FlutterMessageCodec> *PigeonCentralManagerFlutterApiGetCodec() {
   }
   return self;
 }
-- (void)notifyState:(NSNumber *)arg_stateNumber completion:(void(^)(NSError *_Nullable))completion {
+- (void)onStateChanged:(NSNumber *)arg_stateNumber completion:(void(^)(NSError *_Nullable))completion {
   FlutterBasicMessageChannel *channel =
     [FlutterBasicMessageChannel
-      messageChannelWithName:@"dev.flutter.pigeon.CentralManagerFlutterApi.notifyState"
+      messageChannelWithName:@"dev.flutter.pigeon.CentralManagerFlutterApi.onStateChanged"
       binaryMessenger:self.binaryMessenger
       codec:PigeonCentralManagerFlutterApiGetCodec()];
   [channel sendMessage:@[arg_stateNumber ?: [NSNull null]] reply:^(id reply) {
     completion(nil);
   }];
 }
-- (void)notifyAdvertisement:(FlutterStandardTypedData *)arg_advertisementBuffer completion:(void(^)(NSError *_Nullable))completion {
+- (void)onScanned:(FlutterStandardTypedData *)arg_broadcastBuffer completion:(void(^)(NSError *_Nullable))completion {
   FlutterBasicMessageChannel *channel =
     [FlutterBasicMessageChannel
-      messageChannelWithName:@"dev.flutter.pigeon.CentralManagerFlutterApi.notifyAdvertisement"
+      messageChannelWithName:@"dev.flutter.pigeon.CentralManagerFlutterApi.onScanned"
       binaryMessenger:self.binaryMessenger
       codec:PigeonCentralManagerFlutterApiGetCodec()];
-  [channel sendMessage:@[arg_advertisementBuffer ?: [NSNull null]] reply:^(id reply) {
+  [channel sendMessage:@[arg_broadcastBuffer ?: [NSNull null]] reply:^(id reply) {
     completion(nil);
   }];
 }
@@ -298,17 +242,16 @@ void PigeonPeripheralHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NS
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.PeripheralHostApi.allocate"
+        initWithName:@"dev.flutter.pigeon.PeripheralHostApi.free"
         binaryMessenger:binaryMessenger
         codec:PigeonPeripheralHostApiGetCodec()        ];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(allocate:instanceId:error:)], @"PigeonPeripheralHostApi api (%@) doesn't respond to @selector(allocate:instanceId:error:)", api);
+      NSCAssert([api respondsToSelector:@selector(free:error:)], @"PigeonPeripheralHostApi api (%@) doesn't respond to @selector(free:error:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
-        NSNumber *arg_instanceId = GetNullableObjectAtIndex(args, 1);
+        NSString *arg_id = GetNullableObjectAtIndex(args, 0);
         FlutterError *error;
-        [api allocate:arg_id instanceId:arg_instanceId error:&error];
+        [api free:arg_id error:&error];
         callback(wrapResult(nil, error));
       }];
     }
@@ -319,17 +262,17 @@ void PigeonPeripheralHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NS
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.PeripheralHostApi.free"
+        initWithName:@"dev.flutter.pigeon.PeripheralHostApi.connect"
         binaryMessenger:binaryMessenger
         codec:PigeonPeripheralHostApiGetCodec()        ];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(free:error:)], @"PigeonPeripheralHostApi api (%@) doesn't respond to @selector(free:error:)", api);
+      NSCAssert([api respondsToSelector:@selector(connect:completion:)], @"PigeonPeripheralHostApi api (%@) doesn't respond to @selector(connect:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
-        FlutterError *error;
-        [api free:arg_id error:&error];
-        callback(wrapResult(nil, error));
+        NSString *arg_id = GetNullableObjectAtIndex(args, 0);
+        [api connect:arg_id completion:^(FlutterError *_Nullable error) {
+          callback(wrapResult(nil, error));
+        }];
       }];
     }
     else {
@@ -346,7 +289,7 @@ void PigeonPeripheralHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NS
       NSCAssert([api respondsToSelector:@selector(disconnect:completion:)], @"PigeonPeripheralHostApi api (%@) doesn't respond to @selector(disconnect:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
+        NSString *arg_id = GetNullableObjectAtIndex(args, 0);
         [api disconnect:arg_id completion:^(FlutterError *_Nullable error) {
           callback(wrapResult(nil, error));
         }];
@@ -366,7 +309,7 @@ void PigeonPeripheralHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NS
       NSCAssert([api respondsToSelector:@selector(requestMtu:completion:)], @"PigeonPeripheralHostApi api (%@) doesn't respond to @selector(requestMtu:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
+        NSString *arg_id = GetNullableObjectAtIndex(args, 0);
         [api requestMtu:arg_id completion:^(NSNumber *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
@@ -386,7 +329,7 @@ void PigeonPeripheralHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NS
       NSCAssert([api respondsToSelector:@selector(discoverServices:completion:)], @"PigeonPeripheralHostApi api (%@) doesn't respond to @selector(discoverServices:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
+        NSString *arg_id = GetNullableObjectAtIndex(args, 0);
         [api discoverServices:arg_id completion:^(NSArray<FlutterStandardTypedData *> *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
@@ -442,10 +385,10 @@ NSObject<FlutterMessageCodec> *PigeonPeripheralFlutterApiGetCodec() {
   }
   return self;
 }
-- (void)notifyConnectionLost:(NSNumber *)arg_id errorMessage:(NSString *)arg_errorMessage completion:(void(^)(NSError *_Nullable))completion {
+- (void)onConnectionLost:(NSString *)arg_id errorMessage:(NSString *)arg_errorMessage completion:(void(^)(NSError *_Nullable))completion {
   FlutterBasicMessageChannel *channel =
     [FlutterBasicMessageChannel
-      messageChannelWithName:@"dev.flutter.pigeon.PeripheralFlutterApi.notifyConnectionLost"
+      messageChannelWithName:@"dev.flutter.pigeon.PeripheralFlutterApi.onConnectionLost"
       binaryMessenger:self.binaryMessenger
       codec:PigeonPeripheralFlutterApiGetCodec()];
   [channel sendMessage:@[arg_id ?: [NSNull null], arg_errorMessage ?: [NSNull null]] reply:^(id reply) {
@@ -489,27 +432,6 @@ void PigeonGattServiceHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, N
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.GattServiceHostApi.allocate"
-        binaryMessenger:binaryMessenger
-        codec:PigeonGattServiceHostApiGetCodec()        ];
-    if (api) {
-      NSCAssert([api respondsToSelector:@selector(allocate:instanceId:error:)], @"PigeonGattServiceHostApi api (%@) doesn't respond to @selector(allocate:instanceId:error:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
-        NSNumber *arg_instanceId = GetNullableObjectAtIndex(args, 1);
-        FlutterError *error;
-        [api allocate:arg_id instanceId:arg_instanceId error:&error];
-        callback(wrapResult(nil, error));
-      }];
-    }
-    else {
-      [channel setMessageHandler:nil];
-    }
-  }
-  {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
         initWithName:@"dev.flutter.pigeon.GattServiceHostApi.free"
         binaryMessenger:binaryMessenger
         codec:PigeonGattServiceHostApiGetCodec()        ];
@@ -517,7 +439,7 @@ void PigeonGattServiceHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, N
       NSCAssert([api respondsToSelector:@selector(free:error:)], @"PigeonGattServiceHostApi api (%@) doesn't respond to @selector(free:error:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
+        NSString *arg_id = GetNullableObjectAtIndex(args, 0);
         FlutterError *error;
         [api free:arg_id error:&error];
         callback(wrapResult(nil, error));
@@ -537,7 +459,7 @@ void PigeonGattServiceHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger, N
       NSCAssert([api respondsToSelector:@selector(discoverCharacteristics:completion:)], @"PigeonGattServiceHostApi api (%@) doesn't respond to @selector(discoverCharacteristics:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
+        NSString *arg_id = GetNullableObjectAtIndex(args, 0);
         [api discoverCharacteristics:arg_id completion:^(NSArray<FlutterStandardTypedData *> *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
@@ -584,27 +506,6 @@ void PigeonGattCharacteristicHostApiSetup(id<FlutterBinaryMessenger> binaryMesse
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.GattCharacteristicHostApi.allocate"
-        binaryMessenger:binaryMessenger
-        codec:PigeonGattCharacteristicHostApiGetCodec()        ];
-    if (api) {
-      NSCAssert([api respondsToSelector:@selector(allocate:instanceId:error:)], @"PigeonGattCharacteristicHostApi api (%@) doesn't respond to @selector(allocate:instanceId:error:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
-        NSNumber *arg_instanceId = GetNullableObjectAtIndex(args, 1);
-        FlutterError *error;
-        [api allocate:arg_id instanceId:arg_instanceId error:&error];
-        callback(wrapResult(nil, error));
-      }];
-    }
-    else {
-      [channel setMessageHandler:nil];
-    }
-  }
-  {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
         initWithName:@"dev.flutter.pigeon.GattCharacteristicHostApi.free"
         binaryMessenger:binaryMessenger
         codec:PigeonGattCharacteristicHostApiGetCodec()        ];
@@ -612,7 +513,7 @@ void PigeonGattCharacteristicHostApiSetup(id<FlutterBinaryMessenger> binaryMesse
       NSCAssert([api respondsToSelector:@selector(free:error:)], @"PigeonGattCharacteristicHostApi api (%@) doesn't respond to @selector(free:error:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
+        NSString *arg_id = GetNullableObjectAtIndex(args, 0);
         FlutterError *error;
         [api free:arg_id error:&error];
         callback(wrapResult(nil, error));
@@ -632,7 +533,7 @@ void PigeonGattCharacteristicHostApiSetup(id<FlutterBinaryMessenger> binaryMesse
       NSCAssert([api respondsToSelector:@selector(discoverDescriptors:completion:)], @"PigeonGattCharacteristicHostApi api (%@) doesn't respond to @selector(discoverDescriptors:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
+        NSString *arg_id = GetNullableObjectAtIndex(args, 0);
         [api discoverDescriptors:arg_id completion:^(NSArray<FlutterStandardTypedData *> *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
@@ -652,7 +553,7 @@ void PigeonGattCharacteristicHostApiSetup(id<FlutterBinaryMessenger> binaryMesse
       NSCAssert([api respondsToSelector:@selector(read:completion:)], @"PigeonGattCharacteristicHostApi api (%@) doesn't respond to @selector(read:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
+        NSString *arg_id = GetNullableObjectAtIndex(args, 0);
         [api read:arg_id completion:^(FlutterStandardTypedData *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
@@ -672,7 +573,7 @@ void PigeonGattCharacteristicHostApiSetup(id<FlutterBinaryMessenger> binaryMesse
       NSCAssert([api respondsToSelector:@selector(write:value:withoutResponse:completion:)], @"PigeonGattCharacteristicHostApi api (%@) doesn't respond to @selector(write:value:withoutResponse:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
+        NSString *arg_id = GetNullableObjectAtIndex(args, 0);
         FlutterStandardTypedData *arg_value = GetNullableObjectAtIndex(args, 1);
         NSNumber *arg_withoutResponse = GetNullableObjectAtIndex(args, 2);
         [api write:arg_id value:arg_value withoutResponse:arg_withoutResponse completion:^(FlutterError *_Nullable error) {
@@ -694,7 +595,7 @@ void PigeonGattCharacteristicHostApiSetup(id<FlutterBinaryMessenger> binaryMesse
       NSCAssert([api respondsToSelector:@selector(setNotify:value:completion:)], @"PigeonGattCharacteristicHostApi api (%@) doesn't respond to @selector(setNotify:value:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
+        NSString *arg_id = GetNullableObjectAtIndex(args, 0);
         NSNumber *arg_value = GetNullableObjectAtIndex(args, 1);
         [api setNotify:arg_id value:arg_value completion:^(FlutterError *_Nullable error) {
           callback(wrapResult(nil, error));
@@ -751,10 +652,10 @@ NSObject<FlutterMessageCodec> *PigeonGattCharacteristicFlutterApiGetCodec() {
   }
   return self;
 }
-- (void)notifyValue:(NSNumber *)arg_id value:(FlutterStandardTypedData *)arg_value completion:(void(^)(NSError *_Nullable))completion {
+- (void)onValueChanged:(NSString *)arg_id value:(FlutterStandardTypedData *)arg_value completion:(void(^)(NSError *_Nullable))completion {
   FlutterBasicMessageChannel *channel =
     [FlutterBasicMessageChannel
-      messageChannelWithName:@"dev.flutter.pigeon.GattCharacteristicFlutterApi.notifyValue"
+      messageChannelWithName:@"dev.flutter.pigeon.GattCharacteristicFlutterApi.onValueChanged"
       binaryMessenger:self.binaryMessenger
       codec:PigeonGattCharacteristicFlutterApiGetCodec()];
   [channel sendMessage:@[arg_id ?: [NSNull null], arg_value ?: [NSNull null]] reply:^(id reply) {
@@ -798,27 +699,6 @@ void PigeonGattDescriptorHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.GattDescriptorHostApi.allocate"
-        binaryMessenger:binaryMessenger
-        codec:PigeonGattDescriptorHostApiGetCodec()        ];
-    if (api) {
-      NSCAssert([api respondsToSelector:@selector(allocate:instanceId:error:)], @"PigeonGattDescriptorHostApi api (%@) doesn't respond to @selector(allocate:instanceId:error:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
-        NSNumber *arg_instanceId = GetNullableObjectAtIndex(args, 1);
-        FlutterError *error;
-        [api allocate:arg_id instanceId:arg_instanceId error:&error];
-        callback(wrapResult(nil, error));
-      }];
-    }
-    else {
-      [channel setMessageHandler:nil];
-    }
-  }
-  {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
         initWithName:@"dev.flutter.pigeon.GattDescriptorHostApi.free"
         binaryMessenger:binaryMessenger
         codec:PigeonGattDescriptorHostApiGetCodec()        ];
@@ -826,7 +706,7 @@ void PigeonGattDescriptorHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger
       NSCAssert([api respondsToSelector:@selector(free:error:)], @"PigeonGattDescriptorHostApi api (%@) doesn't respond to @selector(free:error:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
+        NSString *arg_id = GetNullableObjectAtIndex(args, 0);
         FlutterError *error;
         [api free:arg_id error:&error];
         callback(wrapResult(nil, error));
@@ -846,7 +726,7 @@ void PigeonGattDescriptorHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger
       NSCAssert([api respondsToSelector:@selector(read:completion:)], @"PigeonGattDescriptorHostApi api (%@) doesn't respond to @selector(read:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
+        NSString *arg_id = GetNullableObjectAtIndex(args, 0);
         [api read:arg_id completion:^(FlutterStandardTypedData *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
@@ -866,7 +746,7 @@ void PigeonGattDescriptorHostApiSetup(id<FlutterBinaryMessenger> binaryMessenger
       NSCAssert([api respondsToSelector:@selector(write:value:completion:)], @"PigeonGattDescriptorHostApi api (%@) doesn't respond to @selector(write:value:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        NSNumber *arg_id = GetNullableObjectAtIndex(args, 0);
+        NSString *arg_id = GetNullableObjectAtIndex(args, 0);
         FlutterStandardTypedData *arg_value = GetNullableObjectAtIndex(args, 1);
         [api write:arg_id value:arg_value completion:^(FlutterError *_Nullable error) {
           callback(wrapResult(nil, error));

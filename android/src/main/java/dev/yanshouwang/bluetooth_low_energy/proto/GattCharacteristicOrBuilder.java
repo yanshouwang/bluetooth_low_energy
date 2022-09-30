@@ -8,10 +8,16 @@ public interface GattCharacteristicOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>int64 id = 1;</code>
+   * <code>string id = 1;</code>
    * @return The id.
    */
-  long getId();
+  java.lang.String getId();
+  /**
+   * <code>string id = 1;</code>
+   * @return The bytes for id.
+   */
+  com.google.protobuf.ByteString
+      getIdBytes();
 
   /**
    * <code>.proto.UUID uuid = 2;</code>

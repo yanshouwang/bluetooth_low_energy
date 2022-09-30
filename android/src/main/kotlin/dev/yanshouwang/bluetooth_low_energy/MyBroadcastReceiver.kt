@@ -11,11 +11,10 @@ object MyBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         Log.d(TAG, "onReceive: $context, $intent")
-        val previousState =
-            intent.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_STATE, STATE_UNKNOWN).bluetoothState
-        val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, STATE_UNKNOWN).bluetoothState
-        if (state == previousState) return
-        val stateNumber = state.number.toLong()
-        centralFlutterApi.notifyState(stateNumber) {}
+        val previousStateNumber =
+            intent.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_STATE, STATE_UNKNOWN).stateNumber
+        val stateNumber = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, STATE_UNKNOWN).stateNumber
+        if (stateNumber == previousStateNumber) return
+        centralFlutterApi.onStateChanged(stateNumber) {}
     }
 }

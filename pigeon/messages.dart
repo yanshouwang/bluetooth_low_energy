@@ -24,98 +24,86 @@ abstract class CentralManagerHostApi {
   bool authorize();
   @ObjCSelector('getState')
   int getState();
-  @ObjCSelector('addStateObserver')
-  void addStateObserver();
-  @ObjCSelector('removeStateObserver')
-  void removeStateObserver();
   @ObjCSelector('startScan:')
   @async
   void startScan(List<Uint8List>? uuidBuffers);
   @ObjCSelector('stopScan')
   void stopScan();
-  @ObjCSelector('connect:')
-  @async
-  Uint8List connect(Uint8List uuidBuffer);
 }
 
 @FlutterApi()
 abstract class CentralManagerFlutterApi {
-  @ObjCSelector('notifyState:')
-  void notifyState(int stateNumber);
-  @ObjCSelector('notifyAdvertisement:')
-  void notifyAdvertisement(Uint8List advertisementBuffer);
+  @ObjCSelector('onStateChanged:')
+  void onStateChanged(int stateNumber);
+  @ObjCSelector('onScanned:')
+  void onScanned(Uint8List broadcastBuffer);
 }
 
 @HostApi(dartHostTestHandler: 'TestPeripheralHostApi')
 abstract class PeripheralHostApi {
-  @ObjCSelector('allocate:instanceId:')
-  void allocate(int id, int instanceId);
   @ObjCSelector('free:')
-  void free(int id);
+  void free(String id);
+  @ObjCSelector('connect:')
+  @async
+  void connect(String id);
   @ObjCSelector('disconnect:')
   @async
-  void disconnect(int id);
+  void disconnect(String id);
   @ObjCSelector('requestMtu:')
   @async
-  int requestMtu(int id);
+  int requestMtu(String id);
   @ObjCSelector('discoverServices:')
   @async
-  List<Uint8List> discoverServices(int id);
+  List<Uint8List> discoverServices(String id);
 }
 
 @FlutterApi()
 abstract class PeripheralFlutterApi {
-  @ObjCSelector('notifyConnectionLost:errorMessage:')
-  void notifyConnectionLost(int id, String errorMessage);
+  @ObjCSelector('onConnectionLost:errorMessage:')
+  void onConnectionLost(String id, String errorMessage);
 }
 
 @HostApi(dartHostTestHandler: 'TestGattServiceHostApi')
 abstract class GattServiceHostApi {
-  @ObjCSelector('allocate:instanceId:')
-  void allocate(int id, int instanceId);
   @ObjCSelector('free:')
-  void free(int id);
+  void free(String id);
   @ObjCSelector('discoverCharacteristics:')
   @async
-  List<Uint8List> discoverCharacteristics(int id);
+  List<Uint8List> discoverCharacteristics(String id);
 }
 
 @HostApi(dartHostTestHandler: 'TestGattCharacteristicHostApi')
 abstract class GattCharacteristicHostApi {
-  @ObjCSelector('allocate:instanceId:')
-  void allocate(int id, int instanceId);
   @ObjCSelector('free:')
-  void free(int id);
+  void free(String id);
   @ObjCSelector('discoverDescriptors:')
   @async
-  List<Uint8List> discoverDescriptors(int id);
+  List<Uint8List> discoverDescriptors(String id);
   @ObjCSelector('read:')
   @async
-  Uint8List read(int id);
+  Uint8List read(String id);
   @ObjCSelector('write:value:withoutResponse:')
   @async
-  void write(int id, Uint8List value, bool withoutResponse);
+  void write(String id, Uint8List value, bool withoutResponse);
   @ObjCSelector('setNotify:value:')
   @async
-  void setNotify(int id, bool value);
+  void setNotify(String id, bool value);
 }
 
 @FlutterApi()
 abstract class GattCharacteristicFlutterApi {
-  @ObjCSelector('notifyValue:value:')
-  void notifyValue(int id, Uint8List value);
+  @ObjCSelector('onValueChanged:value:')
+  void onValueChanged(String id, Uint8List value);
 }
 
 @HostApi(dartHostTestHandler: 'TestGattDescriptorHostApi')
 abstract class GattDescriptorHostApi {
-  @ObjCSelector('allocate:instanceId:')
-  void allocate(int id, int instanceId);
   @ObjCSelector('free:')
-  void free(int id);
+  void free(String id);
   @ObjCSelector('read:')
   @async
-  Uint8List read(int id);
+  Uint8List read(String id);
   @ObjCSelector('write:value:')
   @async
-  void write(int id, Uint8List value);
+  void write(String id, Uint8List value);
 }

@@ -20,11 +20,11 @@ const BluetoothState$json = const {
 
 /// Descriptor for `BluetoothState`. Decode as a `google.protobuf.EnumDescriptorProto`.
 final $typed_data.Uint8List bluetoothStateDescriptor = $convert.base64Decode('Cg5CbHVldG9vdGhTdGF0ZRIfChtCTFVFVE9PVEhfU1RBVEVfVU5TVVBQT1JURUQQABIfChtCTFVFVE9PVEhfU1RBVEVfUE9XRVJFRF9PRkYQARIeChpCTFVFVE9PVEhfU1RBVEVfUE9XRVJFRF9PThAC');
-@$core.Deprecated('Use advertisementDescriptor instead')
-const Advertisement$json = const {
-  '1': 'Advertisement',
+@$core.Deprecated('Use broadcastDescriptor instead')
+const Broadcast$json = const {
+  '1': 'Broadcast',
   '2': const [
-    const {'1': 'uuid', '3': 1, '4': 1, '5': 11, '6': '.proto.UUID', '10': 'uuid'},
+    const {'1': 'peripheral', '3': 1, '4': 1, '5': 11, '6': '.proto.Peripheral', '10': 'peripheral'},
     const {'1': 'rssi', '3': 2, '4': 1, '5': 5, '10': 'rssi'},
     const {'1': 'connectable', '3': 3, '4': 1, '5': 8, '9': 0, '10': 'connectable', '17': true},
     const {'1': 'data', '3': 4, '4': 1, '5': 12, '10': 'data'},
@@ -42,34 +42,35 @@ const Advertisement$json = const {
   ],
 };
 
-/// Descriptor for `Advertisement`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List advertisementDescriptor = $convert.base64Decode('Cg1BZHZlcnRpc2VtZW50Eh8KBHV1aWQYASABKAsyCy5wcm90by5VVUlEUgR1dWlkEhIKBHJzc2kYAiABKAVSBHJzc2kSJQoLY29ubmVjdGFibGUYAyABKAhIAFILY29ubmVjdGFibGWIAQESEgoEZGF0YRgEIAEoDFIEZGF0YRIiCgpsb2NhbF9uYW1lGAUgASgJSAFSCWxvY2FsTmFtZYgBARI8ChptYW51ZmFjdHVyZXJfc3BlY2lmaWNfZGF0YRgGIAEoDFIYbWFudWZhY3R1cmVyU3BlY2lmaWNEYXRhEjcKDXNlcnZpY2VfZGF0YXMYByADKAsyEi5wcm90by5TZXJ2aWNlRGF0YVIMc2VydmljZURhdGFzEjAKDXNlcnZpY2VfdXVpZHMYCCADKAsyCy5wcm90by5VVUlEUgxzZXJ2aWNlVXVpZHMSQwoXc29saWNpdGVkX3NlcnZpY2VfdXVpZHMYCSADKAsyCy5wcm90by5VVUlEUhVzb2xpY2l0ZWRTZXJ2aWNlVXVpZHMSKQoOdHhfcG93ZXJfbGV2ZWwYCiABKAVIAlIMdHhQb3dlckxldmVsiAEBQg4KDF9jb25uZWN0YWJsZUINCgtfbG9jYWxfbmFtZUIRCg9fdHhfcG93ZXJfbGV2ZWw=');
+/// Descriptor for `Broadcast`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List broadcastDescriptor = $convert.base64Decode('CglCcm9hZGNhc3QSMQoKcGVyaXBoZXJhbBgBIAEoCzIRLnByb3RvLlBlcmlwaGVyYWxSCnBlcmlwaGVyYWwSEgoEcnNzaRgCIAEoBVIEcnNzaRIlCgtjb25uZWN0YWJsZRgDIAEoCEgAUgtjb25uZWN0YWJsZYgBARISCgRkYXRhGAQgASgMUgRkYXRhEiIKCmxvY2FsX25hbWUYBSABKAlIAVIJbG9jYWxOYW1liAEBEjwKGm1hbnVmYWN0dXJlcl9zcGVjaWZpY19kYXRhGAYgASgMUhhtYW51ZmFjdHVyZXJTcGVjaWZpY0RhdGESNwoNc2VydmljZV9kYXRhcxgHIAMoCzISLnByb3RvLlNlcnZpY2VEYXRhUgxzZXJ2aWNlRGF0YXMSMAoNc2VydmljZV91dWlkcxgIIAMoCzILLnByb3RvLlVVSURSDHNlcnZpY2VVdWlkcxJDChdzb2xpY2l0ZWRfc2VydmljZV91dWlkcxgJIAMoCzILLnByb3RvLlVVSURSFXNvbGljaXRlZFNlcnZpY2VVdWlkcxIpCg50eF9wb3dlcl9sZXZlbBgKIAEoBUgCUgx0eFBvd2VyTGV2ZWyIAQFCDgoMX2Nvbm5lY3RhYmxlQg0KC19sb2NhbF9uYW1lQhEKD190eF9wb3dlcl9sZXZlbA==');
 @$core.Deprecated('Use peripheralDescriptor instead')
 const Peripheral$json = const {
   '1': 'Peripheral',
   '2': const [
-    const {'1': 'id', '3': 1, '4': 1, '5': 3, '10': 'id'},
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'uuid', '3': 2, '4': 1, '5': 11, '6': '.proto.UUID', '10': 'uuid'},
   ],
 };
 
 /// Descriptor for `Peripheral`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List peripheralDescriptor = $convert.base64Decode('CgpQZXJpcGhlcmFsEg4KAmlkGAEgASgDUgJpZA==');
+final $typed_data.Uint8List peripheralDescriptor = $convert.base64Decode('CgpQZXJpcGhlcmFsEg4KAmlkGAEgASgJUgJpZBIfCgR1dWlkGAIgASgLMgsucHJvdG8uVVVJRFIEdXVpZA==');
 @$core.Deprecated('Use gattServiceDescriptor instead')
 const GattService$json = const {
   '1': 'GattService',
   '2': const [
-    const {'1': 'id', '3': 1, '4': 1, '5': 3, '10': 'id'},
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'uuid', '3': 2, '4': 1, '5': 11, '6': '.proto.UUID', '10': 'uuid'},
   ],
 };
 
 /// Descriptor for `GattService`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gattServiceDescriptor = $convert.base64Decode('CgtHYXR0U2VydmljZRIOCgJpZBgBIAEoA1ICaWQSHwoEdXVpZBgCIAEoCzILLnByb3RvLlVVSURSBHV1aWQ=');
+final $typed_data.Uint8List gattServiceDescriptor = $convert.base64Decode('CgtHYXR0U2VydmljZRIOCgJpZBgBIAEoCVICaWQSHwoEdXVpZBgCIAEoCzILLnByb3RvLlVVSURSBHV1aWQ=');
 @$core.Deprecated('Use gattCharacteristicDescriptor instead')
 const GattCharacteristic$json = const {
   '1': 'GattCharacteristic',
   '2': const [
-    const {'1': 'id', '3': 1, '4': 1, '5': 3, '10': 'id'},
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'uuid', '3': 2, '4': 1, '5': 11, '6': '.proto.UUID', '10': 'uuid'},
     const {'1': 'can_read', '3': 3, '4': 1, '5': 8, '10': 'canRead'},
     const {'1': 'can_write', '3': 4, '4': 1, '5': 8, '10': 'canWrite'},
@@ -79,18 +80,18 @@ const GattCharacteristic$json = const {
 };
 
 /// Descriptor for `GattCharacteristic`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gattCharacteristicDescriptor = $convert.base64Decode('ChJHYXR0Q2hhcmFjdGVyaXN0aWMSDgoCaWQYASABKANSAmlkEh8KBHV1aWQYAiABKAsyCy5wcm90by5VVUlEUgR1dWlkEhkKCGNhbl9yZWFkGAMgASgIUgdjYW5SZWFkEhsKCWNhbl93cml0ZRgEIAEoCFIIY2FuV3JpdGUSOwoaY2FuX3dyaXRlX3dpdGhvdXRfcmVzcG9uc2UYBSABKAhSF2NhbldyaXRlV2l0aG91dFJlc3BvbnNlEh0KCmNhbl9ub3RpZnkYBiABKAhSCWNhbk5vdGlmeQ==');
+final $typed_data.Uint8List gattCharacteristicDescriptor = $convert.base64Decode('ChJHYXR0Q2hhcmFjdGVyaXN0aWMSDgoCaWQYASABKAlSAmlkEh8KBHV1aWQYAiABKAsyCy5wcm90by5VVUlEUgR1dWlkEhkKCGNhbl9yZWFkGAMgASgIUgdjYW5SZWFkEhsKCWNhbl93cml0ZRgEIAEoCFIIY2FuV3JpdGUSOwoaY2FuX3dyaXRlX3dpdGhvdXRfcmVzcG9uc2UYBSABKAhSF2NhbldyaXRlV2l0aG91dFJlc3BvbnNlEh0KCmNhbl9ub3RpZnkYBiABKAhSCWNhbk5vdGlmeQ==');
 @$core.Deprecated('Use gattDescriptorDescriptor instead')
 const GattDescriptor$json = const {
   '1': 'GattDescriptor',
   '2': const [
-    const {'1': 'id', '3': 1, '4': 1, '5': 3, '10': 'id'},
+    const {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     const {'1': 'uuid', '3': 2, '4': 1, '5': 11, '6': '.proto.UUID', '10': 'uuid'},
   ],
 };
 
 /// Descriptor for `GattDescriptor`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List gattDescriptorDescriptor = $convert.base64Decode('Cg5HYXR0RGVzY3JpcHRvchIOCgJpZBgBIAEoA1ICaWQSHwoEdXVpZBgCIAEoCzILLnByb3RvLlVVSURSBHV1aWQ=');
+final $typed_data.Uint8List gattDescriptorDescriptor = $convert.base64Decode('Cg5HYXR0RGVzY3JpcHRvchIOCgJpZBgBIAEoCVICaWQSHwoEdXVpZBgCIAEoCzILLnByb3RvLlVVSURSBHV1aWQ=');
 @$core.Deprecated('Use uUIDDescriptor instead')
 const UUID$json = const {
   '1': 'UUID',

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:tuple/tuple.dart';
 
-import 'advertisement.dart';
+import 'broadcast.dart';
 import 'api.dart';
 import 'bluetooth_state.dart';
 import 'central_manager.dart';
@@ -15,45 +15,28 @@ import 'pigeon.dart';
 import 'proto.dart' as proto;
 import 'uuid.dart';
 
-final finalizer = Finalizer<void Function()>((free) => free());
-
 const bluetoothLowEnergyError = 'bluetoothLowEnergyError';
 
 class MyCentralManagerApi extends CentralManagerApi
     implements CentralManagerFlutterApi {
   final hostApi = CentralManagerHostApi();
   final stateStreamController = StreamController<int>.broadcast();
-  final advertisementStreamController = StreamController<Uint8List>.broadcast();
+  final broadcastStreamController = StreamController<Uint8List>.broadcast();
 
   MyCentralManagerApi() {
     CentralManagerFlutterApi.setup(this);
   }
 
   @override
-  Stream<int> get stateStream => stateStreamController.stream;
-
+  Future<int> get state => hostApi.getState();
   @override
-  Stream<Uint8List> get advertisementStream =>
-      advertisementStreamController.stream;
+  Stream<int> get stateChanged => stateStreamController.stream;
+  @override
+  Stream<Uint8List> get scanned => broadcastStreamController.stream;
 
   @override
   Future<bool> authorize() {
     return hostApi.authorize();
-  }
-
-  @override
-  Future<int> getState() {
-    return hostApi.getState();
-  }
-
-  @override
-  Future<void> addStateObserver() {
-    return hostApi.addStateObserver();
-  }
-
-  @override
-  Future<void> removeStateObserver() {
-    return hostApi.removeStateObserver();
   }
 
   @override
@@ -67,61 +50,56 @@ class MyCentralManagerApi extends CentralManagerApi
   }
 
   @override
-  Future<Uint8List> connect(Uint8List uuidBuffer) {
-    return hostApi.connect(uuidBuffer);
-  }
-
-  @override
-  void notifyState(int stateNumber) {
+  void onStateChanged(int stateNumber) {
     stateStreamController.add(stateNumber);
   }
 
   @override
-  void notifyAdvertisement(Uint8List advertisementBuffer) {
-    advertisementStreamController.add(advertisementBuffer);
+  void onScanned(Uint8List broadcastBuffer) {
+    broadcastStreamController.add(broadcastBuffer);
   }
 }
 
 class MyPeripheralApi extends PeripheralApi implements PeripheralFlutterApi {
   final hostApi = PeripheralHostApi();
   final connectionLostStreamController =
-      StreamController<Tuple2<int, String>>.broadcast();
+      StreamController<Tuple2<String, String>>.broadcast();
 
   MyPeripheralApi() {
     PeripheralFlutterApi.setup(this);
   }
 
   @override
-  Stream<Tuple2<int, String>> get connectionLostStream =>
+  Stream<Tuple2<String, String>> get connectionLost =>
       connectionLostStreamController.stream;
 
   @override
-  Future<void> allocate(int id, int instanceId) {
-    return hostApi.allocate(id, instanceId);
-  }
-
-  @override
-  Future<void> free(int id) {
+  Future<void> free(String id) {
     return hostApi.free(id);
   }
 
   @override
-  Future<int> requestMtu(int id) {
-    return hostApi.requestMtu(id);
+  Future<void> connect(String id) {
+    return hostApi.connect(id);
   }
 
   @override
-  Future<void> disconnect(int id) {
+  Future<void> disconnect(String id) {
     return hostApi.disconnect(id);
   }
 
   @override
-  Future<List<Uint8List>> discoverServices(int id) {
-    return hostApi.discoverServices(id).then((value) => value.cast());
+  Future<int> requestMtu(String id) {
+    return hostApi.requestMtu(id);
   }
 
   @override
-  void notifyConnectionLost(int id, String errorMessage) {
+  Future<List<Uint8List>> discoverServices(String id) {
+    return hostApi.discoverServices(id).then((buffers) => buffers.cast());
+  }
+
+  @override
+  void onConnectionLost(String id, String errorMessage) {
     final event = Tuple2(id, errorMessage);
     connectionLostStreamController.add(event);
   }
@@ -131,17 +109,12 @@ class MyGattServiceApi extends GattServiceApi {
   final hostApi = GattServiceHostApi();
 
   @override
-  Future<void> allocate(int id, int instanceId) {
-    return hostApi.allocate(id, instanceId);
-  }
-
-  @override
-  Future<void> free(int id) {
+  Future<void> free(String id) {
     return hostApi.free(id);
   }
 
   @override
-  Future<List<Uint8List>> discoverCharacteristics(int id) {
+  Future<List<Uint8List>> discoverCharacteristics(String id) {
     return hostApi
         .discoverCharacteristics(id)
         .then((buffers) => buffers.cast());
@@ -157,44 +130,39 @@ class MyGattCharacteristicApi extends GattCharacteristicApi
   }
 
   final valueStreamController =
-      StreamController<Tuple2<int, Uint8List>>.broadcast();
+      StreamController<Tuple2<String, Uint8List>>.broadcast();
 
   @override
-  Stream<Tuple2<int, Uint8List>> get valueStream =>
+  Stream<Tuple2<String, Uint8List>> get valueChanged =>
       valueStreamController.stream;
 
   @override
-  Future<void> allocate(int id, int instanceId) {
-    return hostApi.allocate(id, instanceId);
-  }
-
-  @override
-  Future<void> free(int id) {
+  Future<void> free(String id) {
     return hostApi.free(id);
   }
 
   @override
-  Future<List<Uint8List>> discoverDescriptors(int id) {
+  Future<List<Uint8List>> discoverDescriptors(String id) {
     return hostApi.discoverDescriptors(id).then((buffers) => buffers.cast());
   }
 
   @override
-  Future<Uint8List> read(int id) {
+  Future<Uint8List> read(String id) {
     return hostApi.read(id);
   }
 
   @override
-  Future<void> write(int id, Uint8List value, bool withoutResponse) {
+  Future<void> write(String id, Uint8List value, bool withoutResponse) {
     return hostApi.write(id, value, withoutResponse);
   }
 
   @override
-  Future<void> setNotify(int id, bool value) {
+  Future<void> setNotify(String id, bool value) {
     return hostApi.setNotify(id, value);
   }
 
   @override
-  void notifyValue(int id, Uint8List value) {
+  void onValueChanged(String id, Uint8List value) {
     final event = Tuple2(id, value);
     valueStreamController.add(event);
   }
@@ -204,89 +172,54 @@ class MyGattDescriptorApi extends GattDescriptorApi {
   final hostApi = GattDescriptorHostApi();
 
   @override
-  Future<void> allocate(int id, int instanceId) {
-    return hostApi.allocate(id, instanceId);
-  }
-
-  @override
-  Future<void> free(int id) {
+  Future<void> free(String id) {
     return hostApi.free(id);
   }
 
   @override
-  Future<Uint8List> read(int id) {
+  Future<Uint8List> read(String id) {
     return hostApi.read(id);
   }
 
   @override
-  Future<void> write(int id, Uint8List value) {
+  Future<void> write(String id, Uint8List value) {
     return hostApi.write(id, value);
   }
 }
 
 class MyCentralManager implements CentralManager {
+  static CentralManagerApi get api => CentralManagerApi.instance;
+
   @override
-  Stream<Advertisement> getAdvertisementStream({List<UUID>? uuids}) {
-    return CentralManagerApi.instance.advertisementStream
-        .map((buffer) => MyAdvertisement.fromBuffer(buffer))
-        .asBroadcastStream(
-      onListen: (subscription) async {
-        subscription.resume();
-        final uuidBuffers = uuids
-            ?.map((e) => proto.UUID(value: e.value).writeToBuffer())
-            .toList();
-        await CentralManagerApi.instance.startScan(uuidBuffers);
-      },
-      onCancel: (subscription) async {
-        // TODO: the stream can't listen again when use `subscription.cancel()`.
-        await CentralManagerApi.instance.stopScan();
-        subscription.pause();
-      },
-    );
-  }
+  Future<BluetoothState> get state =>
+      api.state.then((number) => BluetoothState.values[number]);
+  @override
+  Stream<BluetoothState> get stateChanged =>
+      api.stateChanged.map((number) => BluetoothState.values[number]);
+  @override
+  Stream<Broadcast> get scanned =>
+      api.scanned.map((buffer) => MyBroadcast.fromBuffer(buffer));
 
   @override
   Future<bool> authorize() {
-    return CentralManagerApi.instance.authorize();
+    return api.authorize();
   }
 
   @override
-  Future<BluetoothState> getState() {
-    return CentralManagerApi.instance
-        .getState()
-        .then((number) => BluetoothState.values[number]);
+  Future<void> startScan({List<UUID>? uuids}) {
+    final uuidBuffers = uuids?.map((uuid) => uuid.buffer).toList();
+    return api.startScan(uuidBuffers);
   }
 
   @override
-  Stream<BluetoothState> get stateStream =>
-      CentralManagerApi.instance.stateStream
-          .map((number) => BluetoothState.values[number])
-          .asBroadcastStream(
-        onListen: (subscription) async {
-          subscription.resume();
-          await CentralManagerApi.instance.addStateObserver();
-        },
-        onCancel: (subscription) async {
-          // TODO: the stream can't listen again when use `subscription.cancel()`.
-          await CentralManagerApi.instance.removeStateObserver();
-          subscription.pause();
-        },
-      );
-
-  @override
-  Future<Peripheral> connect(
-    UUID uuid, {
-    Function(Exception)? onConnectionLost,
-  }) {
-    return CentralManagerApi.instance
-        .connect(uuid.buffer)
-        .then((buffer) => MyPeripheral.fromBuffer(buffer, onConnectionLost));
+  Future<void> stopScan() {
+    return api.stopScan();
   }
 }
 
-class MyAdvertisement implements Advertisement {
+class MyBroadcast implements Broadcast {
   @override
-  final UUID uuid;
+  final Peripheral peripheral;
   @override
   final int rssi;
   @override
@@ -306,8 +239,8 @@ class MyAdvertisement implements Advertisement {
   @override
   final int? txPowerLevel;
 
-  MyAdvertisement({
-    required this.uuid,
+  MyBroadcast({
+    required this.peripheral,
     required this.rssi,
     required this.connectable,
     required this.data,
@@ -319,31 +252,29 @@ class MyAdvertisement implements Advertisement {
     required this.txPowerLevel,
   });
 
-  factory MyAdvertisement.fromBuffer(Uint8List buffer) {
-    final advertisement = proto.Advertisement.fromBuffer(buffer);
-    final uuid = MyUUID.fromProto(advertisement.uuid);
-    final rssi = advertisement.rssi;
+  factory MyBroadcast.fromBuffer(Uint8List buffer) {
+    final broadcast = proto.Broadcast.fromBuffer(buffer);
+    final peripheral = MyPeripheral.fromProto(broadcast.peripheral);
+    final rssi = broadcast.rssi;
     final connectable =
-        advertisement.hasConnectable() ? advertisement.connectable : null;
-    final data = Uint8List.fromList(advertisement.data);
-    final localName =
-        advertisement.hasLocalName() ? advertisement.localName : null;
+        broadcast.hasConnectable() ? broadcast.connectable : null;
+    final data = Uint8List.fromList(broadcast.data);
+    final localName = broadcast.hasLocalName() ? broadcast.localName : null;
     final manufacturerSpecificData =
-        Uint8List.fromList(advertisement.manufacturerSpecificData);
+        Uint8List.fromList(broadcast.manufacturerSpecificData);
     final serviceData = {
-      for (var serviceData in advertisement.serviceDatas)
+      for (var serviceData in broadcast.serviceDatas)
         MyUUID.fromProto(serviceData.uuid): Uint8List.fromList(serviceData.data)
     };
-    final serviceUUIDs = advertisement.serviceUuids
-        .map((uuid) => MyUUID.fromProto(uuid))
-        .toList();
-    final solicitedServiceUUIDs = advertisement.solicitedServiceUuids
+    final serviceUUIDs =
+        broadcast.serviceUuids.map((uuid) => MyUUID.fromProto(uuid)).toList();
+    final solicitedServiceUUIDs = broadcast.solicitedServiceUuids
         .map((uuid) => MyUUID.fromProto(uuid))
         .toList();
     final txPowerLevel =
-        advertisement.hasTxPowerLevel() ? advertisement.txPowerLevel : null;
-    return MyAdvertisement(
-      uuid: uuid,
+        broadcast.hasTxPowerLevel() ? broadcast.txPowerLevel : null;
+    return MyBroadcast(
+      peripheral: peripheral,
       rssi: rssi,
       connectable: connectable,
       data: data,
@@ -358,56 +289,57 @@ class MyAdvertisement implements Advertisement {
 }
 
 class MyPeripheral implements Peripheral {
-  late StreamSubscription<Tuple2<int, String>> connectionLostStreamSubscription;
+  static PeripheralApi get api => PeripheralApi.instance;
 
-  MyPeripheral({
-    required int instanceId,
-    Function(Exception)? onConnectionLost,
-  }) {
-    PeripheralApi.instance.allocate(hashCode, instanceId);
-    connectionLostStreamSubscription = PeripheralApi
-        .instance.connectionLostStream
-        .where((event) => event.item1 == hashCode)
-        .listen((event) {
-      final error = PlatformException(
-        code: bluetoothLowEnergyError,
-        message: event.item2,
-      );
-      onConnectionLost?.call(error);
-    });
+  static final finalizer = Finalizer<String>((id) {
+    api.free(id);
+  });
+
+  final String id;
+  @override
+  final UUID uuid;
+
+  MyPeripheral({required this.id, required this.uuid}) {
     finalizer.attach(
       this,
-      () {
-        connectionLostStreamSubscription.cancel();
-        PeripheralApi.instance.free(hashCode);
-      },
+      id,
     );
   }
 
-  factory MyPeripheral.fromBuffer(
-    Uint8List buffer,
-    Function(Exception)? onConnectionLost,
-  ) {
-    final peripheral = proto.Peripheral.fromBuffer(buffer);
+  factory MyPeripheral.fromProto(proto.Peripheral peripheral) {
     return MyPeripheral(
-      instanceId: peripheral.id.toInt(),
-      onConnectionLost: onConnectionLost,
+      id: peripheral.id,
+      uuid: MyUUID.fromProto(peripheral.uuid),
     );
+  }
+
+  @override
+  Stream<Exception> get connectionLost =>
+      api.connectionLost.where((event) => event.item1 == id).map(
+            (event) => PlatformException(
+              code: bluetoothLowEnergyError,
+              message: event.item2,
+            ),
+          );
+
+  @override
+  Future<void> connect() {
+    return api.connect(id);
   }
 
   @override
   Future<void> disconnect() {
-    return PeripheralApi.instance.disconnect(hashCode);
+    return api.disconnect(id);
   }
 
   @override
   Future<int> requestMtu() {
-    return PeripheralApi.instance.requestMtu(hashCode);
+    return api.requestMtu(id);
   }
 
   @override
   Future<List<GattService>> discoverServices() {
-    return PeripheralApi.instance.discoverServices(hashCode).then(
+    return api.discoverServices(id).then(
           (buffers) => buffers
               .map((buffer) => MyGattService.fromBuffer(buffer))
               .toList(),
@@ -416,14 +348,20 @@ class MyPeripheral implements Peripheral {
 }
 
 class MyGattService extends GattService {
+  static GattServiceApi get api => GattServiceApi.instance;
+
+  static final finalizer = Finalizer<String>((id) {
+    api.free(id);
+  });
+
+  final String id;
   @override
   final UUID uuid;
 
-  MyGattService({required this.uuid, required int instanceId}) {
-    GattServiceApi.instance.allocate(hashCode, instanceId);
+  MyGattService({required this.id, required this.uuid}) {
     finalizer.attach(
       this,
-      () => GattServiceApi.instance.free(hashCode),
+      id,
     );
   }
 
@@ -431,14 +369,14 @@ class MyGattService extends GattService {
     final service = proto.GattService.fromBuffer(buffer);
     final uuid = MyUUID.fromProto(service.uuid);
     return MyGattService(
+      id: service.id,
       uuid: uuid,
-      instanceId: service.id.toInt(),
     );
   }
 
   @override
   Future<List<GattCharacteristic>> discoverCharacteristics() {
-    return GattServiceApi.instance.discoverCharacteristics(hashCode).then(
+    return api.discoverCharacteristics(id).then(
           (buffers) => buffers
               .map((buffer) => MyGattCharacteristic.fromBuffer(buffer))
               .toList(),
@@ -447,6 +385,13 @@ class MyGattService extends GattService {
 }
 
 class MyGattCharacteristic extends GattCharacteristic {
+  static GattCharacteristicApi get api => GattCharacteristicApi.instance;
+
+  static final finalizer = Finalizer<String>((id) {
+    api.free(id);
+  });
+
+  final String id;
   @override
   final UUID uuid;
   @override
@@ -459,17 +404,16 @@ class MyGattCharacteristic extends GattCharacteristic {
   final bool canNotify;
 
   MyGattCharacteristic({
+    required this.id,
     required this.uuid,
     required this.canRead,
     required this.canWrite,
     required this.canWriteWithoutResponse,
     required this.canNotify,
-    required int instanceId,
   }) {
-    GattCharacteristicApi.instance.allocate(hashCode, instanceId);
     finalizer.attach(
       this,
-      () => GattCharacteristicApi.instance.free(hashCode),
+      id,
     );
   }
 
@@ -481,35 +425,23 @@ class MyGattCharacteristic extends GattCharacteristic {
     final canWriteWithoutResponse = characteristic.canWriteWithoutResponse;
     final canNotify = characteristic.canNotify;
     return MyGattCharacteristic(
+      id: characteristic.id,
       uuid: uuid,
       canRead: canRead,
       canWrite: canWrite,
       canWriteWithoutResponse: canWriteWithoutResponse,
       canNotify: canNotify,
-      instanceId: characteristic.id.toInt(),
     );
   }
 
   @override
-  Stream<Uint8List> get valueStream =>
-      GattCharacteristicApi.instance.valueStream
-          .where((event) => event.item1 == hashCode)
-          .map((event) => event.item2)
-          .asBroadcastStream(
-        onListen: (subscription) async {
-          subscription.resume();
-          await GattCharacteristicApi.instance.setNotify(hashCode, true);
-        },
-        onCancel: (subscription) async {
-          // TODO: the stream can't listen again when use `subscription.cancel()`.
-          await GattCharacteristicApi.instance.setNotify(hashCode, false);
-          subscription.pause();
-        },
-      );
+  Stream<Uint8List> get valueChanged => api.valueChanged
+      .where((event) => event.item1 == id)
+      .map((event) => event.item2);
 
   @override
   Future<List<GattDescriptor>> discoverDescriptors() {
-    return GattCharacteristicApi.instance.discoverDescriptors(hashCode).then(
+    return api.discoverDescriptors(id).then(
           (buffers) => buffers
               .map((buffer) => MyGattDescriptor.fromBuffer(buffer))
               .toList(),
@@ -518,28 +450,35 @@ class MyGattCharacteristic extends GattCharacteristic {
 
   @override
   Future<Uint8List> read() {
-    return GattCharacteristicApi.instance.read(hashCode);
+    return api.read(id);
   }
 
   @override
   Future<void> write(Uint8List value, {bool withoutResponse = false}) {
-    return GattCharacteristicApi.instance.write(
-      hashCode,
-      value,
-      withoutResponse,
-    );
+    return api.write(id, value, withoutResponse);
+  }
+
+  @override
+  Future<void> setNotify(bool value) {
+    return api.setNotify(id, value);
   }
 }
 
 class MyGattDescriptor extends GattDescriptor {
+  static GattDescriptorApi get api => GattDescriptorApi.instance;
+
+  static final finalizer = Finalizer<String>((id) {
+    GattDescriptorApi.instance.free(id);
+  });
+
+  final String id;
   @override
   final UUID uuid;
 
-  MyGattDescriptor({required this.uuid, required int instanceId}) {
-    GattDescriptorApi.instance.allocate(hashCode, instanceId);
+  MyGattDescriptor({required this.id, required this.uuid}) {
     finalizer.attach(
       this,
-      () => GattDescriptorApi.instance.free(hashCode),
+      id,
     );
   }
 
@@ -547,19 +486,19 @@ class MyGattDescriptor extends GattDescriptor {
     final descriptor = proto.GattDescriptor.fromBuffer(buffer);
     final uuid = MyUUID.fromProto(descriptor.uuid);
     return MyGattDescriptor(
+      id: descriptor.id,
       uuid: uuid,
-      instanceId: descriptor.id.toInt(),
     );
   }
 
   @override
   Future<Uint8List> read() {
-    return GattDescriptorApi.instance.read(hashCode);
+    return api.read(id);
   }
 
   @override
   Future<void> write(Uint8List value) {
-    return GattDescriptorApi.instance.write(hashCode, value);
+    return api.write(id, value);
   }
 }
 
@@ -574,10 +513,10 @@ class MyUUID implements UUID {
     return MyUUID(value: value);
   }
 
-  factory MyUUID.fromBuffer(Uint8List buffer) {
-    final uuid = proto.UUID.fromBuffer(buffer);
-    return MyUUID.fromProto(uuid);
-  }
+  // factory MyUUID.fromBuffer(Uint8List buffer) {
+  //   final uuid = proto.UUID.fromBuffer(buffer);
+  //   return MyUUID.fromProto(uuid);
+  // }
 
   @override
   String toString() {

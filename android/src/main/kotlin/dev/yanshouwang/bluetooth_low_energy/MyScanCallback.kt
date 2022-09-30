@@ -2,28 +2,44 @@ package dev.yanshouwang.bluetooth_low_energy
 
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
-import android.bluetooth.le.ScanSettings
 import android.os.Build
 import android.util.Log
 import com.google.protobuf.ByteString
-import dev.yanshouwang.bluetooth_low_energy.proto.advertisement
-import dev.yanshouwang.bluetooth_low_energy.proto.serviceData
-import dev.yanshouwang.bluetooth_low_energy.proto.uUID
+import dev.yanshouwang.bluetooth_low_energy.proto.*
 
 object MyScanCallback : ScanCallback() {
+    const val DATA_TYPE_MANUFACTURER_SPECIFIC_DATA = 0xff
+
     override fun onScanFailed(errorCode: Int) {
-        Log.d(TAG, "onScanFailed: $errorCode")
         super.onScanFailed(errorCode)
+        Log.d(TAG, "onScanFailed: $errorCode")
         val error = BluetoothLowEnergyException("Start scan failed with code: $errorCode")
-        items[KEY_START_SCAN_ERROR] = error
+        instances[KEY_START_SCAN_ERROR] = error
     }
 
     override fun onScanResult(callbackType: Int, result: ScanResult) {
-        Log.d(TAG, "onScanResult: $callbackType, $result")
         super.onScanResult(callbackType, result)
-        val advertisementValue = advertisement {
-            this.uuid = uUID {
-                this.value = result.device.uuidString
+        Log.d(TAG, "onScanResult: $callbackType, $result")
+        onScanned(result)
+    }
+
+    override fun onBatchScanResults(results: MutableList<ScanResult>) {
+        super.onBatchScanResults(results)
+        Log.d(TAG, "onBatchScanResults: $results")
+        for (result in results) {
+            onScanned(result)
+        }
+    }
+
+    private fun onScanned(result: ScanResult): Unit {
+        val device = result.device
+        val id = device.hashCode().toString()
+        val items = register(id)
+        items[KEY_DEVICE] = device
+        val broadcastValue = broadcast {
+            this.peripheral = peripheral {
+                this.id = id
+                this.uuid = result.device.uuid
             }
             this.rssi = result.rssi
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -71,14 +87,6 @@ object MyScanCallback : ScanCallback() {
                 this.txPowerLevel = scanRecord.txPowerLevel
             }
         }.toByteArray()
-        centralFlutterApi.notifyAdvertisement(advertisementValue) {}
-    }
-
-    override fun onBatchScanResults(results: MutableList<ScanResult>) {
-        super.onBatchScanResults(results)
-        Log.d(TAG, "onBatchScanResults: $results")
-        for (result in results) {
-            onScanResult(ScanSettings.CALLBACK_TYPE_ALL_MATCHES, result)
-        }
+        centralFlutterApi.onScanned(broadcastValue) {}
     }
 }

@@ -1,19 +1,17 @@
-import 'advertisement.dart';
+import 'broadcast.dart';
 import 'impl.dart';
 import 'bluetooth_state.dart';
-import 'peripheral.dart';
 import 'uuid.dart';
 
 abstract class CentralManager {
-  Stream<BluetoothState> get stateStream;
+  Future<BluetoothState> get state;
+  Stream<BluetoothState> get stateChanged;
+  Stream<Broadcast> get scanned;
 
   Future<bool> authorize();
-  Future<BluetoothState> getState();
-  Stream<Advertisement> getAdvertisementStream({List<UUID>? uuids});
-  Future<Peripheral> connect(
-    UUID uuid, {
-    Function(Exception)? onConnectionLost,
-  });
+  Future<void> startScan({List<UUID>? uuids});
+  Future<void> stopScan();
 
-  static CentralManager instance = MyCentralManager();
+  static final _instance = MyCentralManager();
+  static CentralManager get instance => _instance;
 }

@@ -9,8 +9,8 @@ object MyRequestPermissionsResultListener : RequestPermissionsResultListener {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray): Boolean {
         Log.d(TAG, "onRequestPermissionsResult: $requestCode, $permissions, $grantResults")
         return when (requestCode) {
-            REQUEST_CODE -> {
-                val result = items.remove(KEY_AUTHORIZE_RESULT) as Pigeon.Result<Boolean>
+            MyCentralManagerHostApi.REQUEST_CODE -> {
+                val result = instances.remove(KEY_AUTHORIZE_RESULT) as Pigeon.Result<Boolean>
                 val authorized = grantResults.all { grantResult -> grantResult == PackageManager.PERMISSION_GRANTED }
                 result.success(authorized)
                 true
