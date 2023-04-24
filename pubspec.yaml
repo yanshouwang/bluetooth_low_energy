@@ -1,25 +1,23 @@
 name: bluetooth_low_energy
-description: A bluetooth low energy plugin for flutter, which can be used to develope central role apps.
-version: 1.1.0
+description: A new Flutter plugin project.
+version: 0.0.1
 homepage: https://github.com/yanshouwang/bluetooth_low_energy
 
 environment:
-  sdk: ">=2.17.6 <3.0.0"
+  sdk: '>=2.19.6 <3.0.0'
   flutter: ">=2.5.0"
 
 dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
-  pigeon: ^4.0.2
-  protobuf: ^2.1.0
-  fixnum: ^1.0.1
-  tuple: ^2.0.0
+  quick_blue: 0.5.0-dev.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  pigeon: ^9.2.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -43,6 +41,12 @@ flutter:
         pluginClass: BluetoothLowEnergyPlugin
       ios:
         pluginClass: BluetoothLowEnergyPlugin
+      linux:
+        pluginClass: BluetoothLowEnergyPlugin
+      macos:
+        pluginClass: BluetoothLowEnergyPlugin
+      windows:
+        pluginClass: BluetoothLowEnergyPluginCApi
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

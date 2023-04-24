@@ -2,19 +2,19 @@ group 'dev.yanshouwang.bluetooth_low_energy'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.6.10'
+    ext.kotlin_version = '1.7.10'
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.2'
+        classpath 'com.android.tools.build:gradle:7.2.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
-rootProject.allprojects {
+allprojects {
     repositories {
         google()
         mavenCentral()
@@ -41,12 +41,6 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 16
     }
-}
-
-dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.google.protobuf:protobuf-kotlin:3.19.4'
-    implementation 'com.google.guava:guava:31.1-android'
 }

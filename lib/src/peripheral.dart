@@ -1,13 +1,15 @@
-import 'gatt_service.dart';
-import 'uuid.dart';
+import 'dart:typed_data';
 
-abstract class Peripheral {
-  UUID get uuid;
+class Peripheral {
+  final String id;
+  final String name;
+  final int rssi;
+  final Uint8List manufacturerData;
 
-  Stream<Exception> get connectionLost;
-
-  Future<void> connect();
-  Future<void> disconnect();
-  Future<int> requestMtu();
-  Future<List<GattService>> discoverServices();
+  Peripheral({
+    required this.id,
+    required this.name,
+    required this.rssi,
+    required this.manufacturerData,
+  });
 }
