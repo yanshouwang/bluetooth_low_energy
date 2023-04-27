@@ -1,9 +1,17 @@
 import 'dart:typed_data';
 
-import 'connection_state.dart';
+import 'package:bluetooth_low_energy/src/central_manager_state.dart';
+
 import 'peripheral.dart';
+import 'peripheral_state.dart';
 
 class EventArgs {}
+
+class CentralManagerStateEventArgs extends EventArgs {
+  final CentralManagerState state;
+
+  CentralManagerStateEventArgs(this.state);
+}
 
 class PeripheralEventArgs extends EventArgs {
   final Peripheral peripheral;
@@ -11,11 +19,11 @@ class PeripheralEventArgs extends EventArgs {
   PeripheralEventArgs(this.peripheral);
 }
 
-class ConnectionStateEventArgs extends EventArgs {
+class PeripheralStateEventArgs extends EventArgs {
   final String id;
-  final ConnectionState state;
+  final PeripheralState state;
 
-  ConnectionStateEventArgs(this.id, this.state);
+  PeripheralStateEventArgs(this.id, this.state);
 }
 
 class CharacteristicValueEventArgs extends EventArgs {

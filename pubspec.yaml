@@ -4,13 +4,14 @@ version: 0.0.1
 homepage: https://github.com/yanshouwang/bluetooth_low_energy
 
 environment:
-  sdk: '>=2.19.6 <3.0.0'
+  sdk: ">=2.19.6 <3.0.0"
   flutter: ">=2.5.0"
 
 dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
+  bluez: ^0.7.9
   quick_blue: 0.5.0-dev.2
 
 dev_dependencies:

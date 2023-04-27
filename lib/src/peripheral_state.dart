@@ -1,4 +1,4 @@
-enum ConnectionState {
+enum PeripheralState {
   disconnected,
   connecting,
   connected,

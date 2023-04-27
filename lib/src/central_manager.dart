@@ -1,10 +1,12 @@
 import 'dart:async';
-import 'dart:typed_data';
 
+import 'package:bluetooth_low_energy/src/characteristic_write_type.dart';
+import 'package:flutter/foundation.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:quick_blue/quick_blue.dart';
 
-import 'connection_state.dart';
+import 'central_manager_state.dart';
+import 'peripheral_state.dart';
 import 'errors.dart';
 import 'event_args.dart';
 import 'peripheral.dart';
@@ -28,10 +30,13 @@ abstract class CentralManager extends PlatformInterface {
     _instance = instance;
   }
 
-  Stream<PeripheralEventArgs> get scanned;
-  Stream<ConnectionStateEventArgs> get stateChanged;
-  Stream<CharacteristicValueEventArgs> get valueChanged;
+  ValueListenable<CentralManagerState> get state;
 
+  Stream<PeripheralEventArgs> get scanned;
+  Stream<PeripheralStateEventArgs> get peripheralStateChanged;
+  Stream<CharacteristicValueEventArgs> get characteristicValueChanged;
+
+  Future<void> initialize();
   Future<void> startScan();
   Future<void> stopScan();
   Future<void> connect(String id);
@@ -46,7 +51,7 @@ abstract class CentralManager extends PlatformInterface {
     String serviceId,
     String characteristicId,
     Uint8List value, {
-    bool withoutResponse = false,
+    CharacteristicWriteType? type,
   });
   Future<void> notify(
     String id,
@@ -57,15 +62,19 @@ abstract class CentralManager extends PlatformInterface {
 }
 
 class _CentralManager extends CentralManager {
-  final StreamController<ConnectionStateEventArgs> _stateChangedController;
-  final StreamController<CharacteristicValueEventArgs> _valueChangedController;
+  final ValueNotifier<CentralManagerState> _state;
+  final StreamController<PeripheralStateEventArgs>
+      _peripheralStateChangedController;
+  final StreamController<CharacteristicValueEventArgs>
+      _characteristicValueChangedController;
 
   _CentralManager()
-      : _stateChangedController = StreamController.broadcast(),
-        _valueChangedController = StreamController.broadcast() {
+      : _state = ValueNotifier(CentralManagerState.unknown),
+        _peripheralStateChangedController = StreamController.broadcast(),
+        _characteristicValueChangedController = StreamController.broadcast() {
     QuickBlue.setConnectionHandler((deviceId, state) {
-      final eventArgs = ConnectionStateEventArgs(deviceId, state.toNative());
-      _stateChangedController.add(eventArgs);
+      final eventArgs = PeripheralStateEventArgs(deviceId, state.toNative());
+      _peripheralStateChangedController.add(eventArgs);
     });
     QuickBlue.setValueHandler((deviceId, characteristicId, value) {
       final eventArgs = CharacteristicValueEventArgs(
@@ -74,9 +83,12 @@ class _CentralManager extends CentralManager {
         characteristicId,
         value,
       );
-      _valueChangedController.add(eventArgs);
+      _characteristicValueChangedController.add(eventArgs);
     });
   }
+
+  @override
+  ValueListenable<CentralManagerState> get state => _state;
 
   @override
   Stream<PeripheralEventArgs> get scanned =>
@@ -91,21 +103,39 @@ class _CentralManager extends CentralManager {
       });
 
   @override
-  Stream<ConnectionStateEventArgs> get stateChanged =>
-      _stateChangedController.stream;
+  Stream<PeripheralStateEventArgs> get peripheralStateChanged =>
+      _peripheralStateChangedController.stream;
 
   @override
-  Stream<CharacteristicValueEventArgs> get valueChanged =>
-      _valueChangedController.stream;
+  Stream<CharacteristicValueEventArgs> get characteristicValueChanged =>
+      _characteristicValueChangedController.stream;
+
+  @override
+  Future<void> initialize() async {
+    final isBluetoothAvailable = await QuickBlue.isBluetoothAvailable();
+    _state.value = isBluetoothAvailable
+        ? CentralManagerState.poweredOn
+        : CentralManagerState.unsupported;
+  }
+
+  @override
+  Future<void> startScan() {
+    return Future.sync(() => QuickBlue.startScan());
+  }
+
+  @override
+  Future<void> stopScan() {
+    return Future.sync(() => QuickBlue.stopScan());
+  }
 
   @override
   Future<void> connect(String id) {
     final completer = Completer<void>();
-    final subscription = stateChanged.listen((eventArgs) {
+    final subscription = peripheralStateChanged.listen((eventArgs) {
       if (eventArgs.id != id) {
         return;
       }
-      if (eventArgs.state == ConnectionState.connected) {
+      if (eventArgs.state == PeripheralState.connected) {
         completer.complete();
       } else {
         final error = BluetoothLowEnergyError('Connect failed: $eventArgs');
@@ -119,6 +149,52 @@ class _CentralManager extends CentralManager {
   @override
   void disconnect(String id) {
     QuickBlue.disconnect(id);
+  }
+
+  @override
+  Future<Uint8List> read(
+    String id,
+    String serviceId,
+    String characteristicId,
+  ) {
+    final completer = Completer<Uint8List>();
+    final subscription = characteristicValueChanged.listen((eventArgs) {
+      if (eventArgs.id != id ||
+          eventArgs.serviceId != serviceId ||
+          eventArgs.characteristicId != characteristicId) {
+        return;
+      }
+      completer.complete(eventArgs.value);
+    });
+    QuickBlue.readValue(id, serviceId, characteristicId).onError(
+      (error, _) {
+        final error1 = BluetoothLowEnergyError('$error');
+        completer.completeError(error1);
+      },
+    );
+    return completer.future.whenComplete(() => subscription.cancel());
+  }
+
+  @override
+  Future<void> write(
+    String id,
+    String serviceId,
+    String characteristicId,
+    Uint8List value, {
+    CharacteristicWriteType? type,
+  }) {
+    if (type == null) {
+      throw UnimplementedError();
+    }
+    return QuickBlue.writeValue(
+      id,
+      serviceId,
+      characteristicId,
+      value,
+      type.toApi(),
+    ).onError(
+      (error, _) => throw BluetoothLowEnergyError('$error'),
+    );
   }
 
   @override
@@ -139,73 +215,30 @@ class _CentralManager extends CentralManager {
       (error, _) => throw BluetoothLowEnergyError('$error'),
     );
   }
-
-  @override
-  Future<Uint8List> read(
-    String id,
-    String serviceId,
-    String characteristicId,
-  ) {
-    final completer = Completer<Uint8List>();
-    final subscription = valueChanged.listen((eventArgs) {
-      if (eventArgs.id != id ||
-          eventArgs.serviceId != serviceId ||
-          eventArgs.characteristicId != characteristicId) {
-        return;
-      }
-      completer.complete(eventArgs.value);
-    });
-    QuickBlue.readValue(id, serviceId, characteristicId).onError(
-      (error, _) {
-        final error1 = BluetoothLowEnergyError('$error');
-        completer.completeError(error1);
-      },
-    );
-    return completer.future.whenComplete(() => subscription.cancel());
-  }
-
-  @override
-  Future<void> startScan() {
-    return Future.sync(() => QuickBlue.startScan());
-  }
-
-  @override
-  Future<void> stopScan() {
-    return Future.sync(() => QuickBlue.stopScan());
-  }
-
-  @override
-  Future<void> write(
-    String id,
-    String serviceId,
-    String characteristicId,
-    Uint8List value, {
-    bool withoutResponse = false,
-  }) {
-    final bleOutputProperty = withoutResponse
-        ? BleOutputProperty.withoutResponse
-        : BleOutputProperty.withResponse;
-    return QuickBlue.writeValue(
-      id,
-      serviceId,
-      characteristicId,
-      value,
-      bleOutputProperty,
-    ).onError(
-      (error, _) => throw BluetoothLowEnergyError('$error'),
-    );
-  }
 }
 
 extension on BlueConnectionState {
-  ConnectionState toNative() {
+  PeripheralState toNative() {
     switch (this) {
       case BlueConnectionState.disconnected:
-        return ConnectionState.disconnected;
+        return PeripheralState.disconnected;
       case BlueConnectionState.connected:
-        return ConnectionState.connected;
+        return PeripheralState.connected;
       default:
-        throw ArgumentError.value(this);
+        throw UnimplementedError();
+    }
+  }
+}
+
+extension on CharacteristicWriteType {
+  BleOutputProperty toApi() {
+    switch (this) {
+      case CharacteristicWriteType.withResponse:
+        return BleOutputProperty.withResponse;
+      case CharacteristicWriteType.withoutResponse:
+        return BleOutputProperty.withoutResponse;
+      default:
+        throw UnimplementedError();
     }
   }
 }
