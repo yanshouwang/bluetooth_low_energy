@@ -43,7 +43,8 @@ flutter:
       ios:
         pluginClass: BluetoothLowEnergyPlugin
       linux:
-        pluginClass: BluetoothLowEnergyPlugin
+        # pluginClass: BluetoothLowEnergyPlugin
+        dartPluginClass: LinuxBluetoothLowEnergyPlugin
       macos:
         pluginClass: BluetoothLowEnergyPlugin
       windows:
