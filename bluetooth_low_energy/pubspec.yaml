@@ -1,0 +1,43 @@
+name: bluetooth_low_energy
+description: A new Flutter plugin project.
+version: 0.0.1
+homepage:
+
+environment:
+  sdk: '>=3.1.0-35.0.dev <4.0.0'
+  flutter: ">=3.3.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  bluetooth_low_energy_platform_interface:
+    path: ../bluetooth_low_energy_platform_interface
+  bluetooth_low_energy_android:
+    path: ../bluetooth_low_energy_android
+  bluetooth_low_energy_ios:
+    path: ../bluetooth_low_energy_ios
+  bluetooth_low_energy_macos:
+    path: ../bluetooth_low_energy_macos
+  bluetooth_low_energy_windows:
+    path: ../bluetooth_low_energy_windows
+  bluetooth_low_energy_linux:
+    path: ../bluetooth_low_energy_linux
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        default_package: bluetooth_low_energy_android
+      ios:
+        default_package: bluetooth_low_energy_ios
+      macos:
+        default_package: bluetooth_low_energy_macos
+      windows:
+        default_package: bluetooth_low_energy_windows
+      linux:
+        default_package: bluetooth_low_energy_linux
