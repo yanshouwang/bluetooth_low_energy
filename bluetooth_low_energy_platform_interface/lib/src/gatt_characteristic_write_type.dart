@@ -1,4 +1,4 @@
-enum CharacteristicWriteType {
+enum GattCharacteristicWriteType {
   // Write without response
   withoutResponse,
   // Write with response

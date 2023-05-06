@@ -25,13 +25,13 @@ class PeripheralStateEventArgs extends EventArgs {
   PeripheralStateEventArgs(this.id, this.state);
 }
 
-class CharacteristicValueEventArgs extends EventArgs {
+class GattCharacteristicValueEventArgs extends EventArgs {
   final String id;
   final String serviceId;
   final String characteristicId;
   final Uint8List value;
 
-  CharacteristicValueEventArgs(
+  GattCharacteristicValueEventArgs(
     this.id,
     this.serviceId,
     this.characteristicId,

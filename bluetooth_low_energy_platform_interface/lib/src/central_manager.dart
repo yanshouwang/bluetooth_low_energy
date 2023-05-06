@@ -4,8 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'central_manager_state.dart';
-import 'characteristic_write_type.dart';
+import 'gatt_characteristic_write_type.dart';
 import 'event_args.dart';
+import 'gatt_service.dart';
 
 abstract class CentralManager extends PlatformInterface {
   /// Constructs a CentralManager.
@@ -30,13 +31,14 @@ abstract class CentralManager extends PlatformInterface {
 
   Stream<PeripheralEventArgs> get scanned;
   Stream<PeripheralStateEventArgs> get peripheralStateChanged;
-  Stream<CharacteristicValueEventArgs> get characteristicValueChanged;
+  Stream<GattCharacteristicValueEventArgs> get characteristicValueChanged;
 
   Future<void> initialize();
   Future<void> startScan();
   Future<void> stopScan();
   Future<void> connect(String id);
   void disconnect(String id);
+  Future<GattService> discoverService(String id, String serviceId);
   Future<Uint8List> read(
     String id,
     String serviceId,
@@ -47,7 +49,7 @@ abstract class CentralManager extends PlatformInterface {
     String serviceId,
     String characteristicId,
     Uint8List value, {
-    CharacteristicWriteType? type,
+    GattCharacteristicWriteType? type,
   });
   Future<void> notify(
     String id,
@@ -59,7 +61,7 @@ abstract class CentralManager extends PlatformInterface {
 
 class _CentralManager extends CentralManager {
   @override
-  Stream<CharacteristicValueEventArgs> get characteristicValueChanged =>
+  Stream<GattCharacteristicValueEventArgs> get characteristicValueChanged =>
       throw UnimplementedError();
 
   @override
@@ -69,6 +71,11 @@ class _CentralManager extends CentralManager {
 
   @override
   void disconnect(String id) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<GattService> discoverService(String id, String serviceId) {
     throw UnimplementedError();
   }
 
@@ -118,7 +125,7 @@ class _CentralManager extends CentralManager {
     String serviceId,
     String characteristicId,
     Uint8List value, {
-    CharacteristicWriteType? type,
+    GattCharacteristicWriteType? type,
   }) {
     throw UnimplementedError();
   }

@@ -6,18 +6,31 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 import 'package:bluez/bluez.dart';
 import 'package:flutter/foundation.dart';
 
+import 'event_args.dart';
+
 class BlueZCentralManager extends CentralManager {
+  final BlueZClient _client;
   final ValueNotifier<CentralManagerState> _state;
   final StreamController<PeripheralEventArgs> _scannedController;
-  final BlueZClient _client;
+  final StreamController<PeripheralStateEventArgs>
+      _peripheralStateChangedController;
+  final StreamController<IdEventArgs> _servicesResolvedController;
+  final StreamController<GattCharacteristicValueEventArgs>
+      _characteristicValueChangedController;
   final Map<String, StreamSubscription<List<String>>>
-      devicePropertiesSubscription;
+      _devicePropertiesSubscriptions;
+  final Map<String, StreamSubscription<List<String>>>
+      _characteristicPropertiesSubscriptions;
 
   BlueZCentralManager()
-      : _state = ValueNotifier(CentralManagerState.unsupported),
+      : _client = BlueZClient(),
+        _state = ValueNotifier(CentralManagerState.unsupported),
         _scannedController = StreamController.broadcast(),
-        _client = BlueZClient(),
-        devicePropertiesSubscription = {};
+        _peripheralStateChangedController = StreamController.broadcast(),
+        _servicesResolvedController = StreamController.broadcast(),
+        _characteristicValueChangedController = StreamController.broadcast(),
+        _devicePropertiesSubscriptions = {},
+        _characteristicPropertiesSubscriptions = {};
 
   BlueZAdapter get _adapter => _client.adapters.first;
 
@@ -29,18 +42,21 @@ class BlueZCentralManager extends CentralManager {
 
   @override
   Stream<PeripheralStateEventArgs> get peripheralStateChanged =>
-      throw UnimplementedError();
+      _peripheralStateChangedController.stream;
+
+  Stream<IdEventArgs> get _servicesResolved =>
+      _servicesResolvedController.stream;
 
   @override
-  Stream<CharacteristicValueEventArgs> get characteristicValueChanged =>
-      throw UnimplementedError();
+  Stream<GattCharacteristicValueEventArgs> get characteristicValueChanged =>
+      _characteristicValueChangedController.stream;
 
   @override
   Future<void> initialize() async {
     await _client.connect();
     _state.value = _client.adapters.isEmpty
         ? CentralManagerState.unsupported
-        : _adapter.toNativeState();
+        : _adapter.flutterState;
     _adapter.propertiesChanged.listen(_onAdapterPropertiesChanged);
     for (var device in _client.devices) {
       _onDeviceAdded(device);
@@ -72,6 +88,36 @@ class BlueZCentralManager extends CentralManager {
   }
 
   @override
+  Future<GattService> discoverService(String id, String serviceId) async {
+    final serviceUUID = BlueZUUID.fromString(serviceId);
+    final device = _client.devices.firstWhere((device) => device.address == id);
+    if (device.connected && !device.servicesResolved) {
+      final completer = Completer<void>();
+      final subscription0 = peripheralStateChanged.listen((eventArgs) {
+        if (eventArgs.id != id ||
+            eventArgs.state == PeripheralState.connected) {
+          return;
+        }
+        completer.complete();
+      });
+      final subscription1 = _servicesResolved.listen((eventArgs) {
+        if (eventArgs.id != id) {
+          return;
+        }
+        completer.complete();
+      });
+      await completer.future.whenComplete(() {
+        subscription0.cancel();
+        subscription1.cancel();
+      });
+    }
+    final service = device.gattServices
+        .singleWhere((service) => service.uuid == serviceUUID)
+        .toFlutter();
+    return service;
+  }
+
+  @override
   Future<Uint8List> read(String id, String serviceId, String characteristicId) {
     final serviceUUID = BlueZUUID.fromString(serviceId);
     final characterisitcUUID = BlueZUUID.fromString(characteristicId);
@@ -91,7 +137,7 @@ class BlueZCentralManager extends CentralManager {
     String serviceId,
     String characteristicId,
     Uint8List value, {
-    CharacteristicWriteType? type,
+    GattCharacteristicWriteType? type,
   }) {
     final serviceUUID = BlueZUUID.fromString(serviceId);
     final characterisitcUUID = BlueZUUID.fromString(characteristicId);
@@ -102,7 +148,7 @@ class BlueZCentralManager extends CentralManager {
         (characteristic) => characteristic.uuid == characterisitcUUID);
     return characteristic.writeValue(
       value,
-      type: type?.toApi(),
+      type: type?.toHost(),
     );
   }
 
@@ -132,7 +178,7 @@ class BlueZCentralManager extends CentralManager {
     for (var property in properties) {
       switch (property) {
         case 'Powered':
-          _state.value = _adapter.toNativeState();
+          _state.value = _adapter.flutterState;
           break;
         default:
           break;
@@ -146,26 +192,75 @@ class BlueZCentralManager extends CentralManager {
       for (var property in properties) {
         switch (property) {
           case 'RSSI':
-            final eventArgs = PeripheralEventArgs(device.toNative());
+            final eventArgs = PeripheralEventArgs(device.toFlutter());
             _scannedController.add(eventArgs);
             break;
+          case 'Connected':
+            final eventArgs = PeripheralStateEventArgs(
+              device.address,
+              device.flutterState,
+            );
+            _peripheralStateChangedController.add(eventArgs);
+            break;
+          case 'UUIDs':
+            break;
+          case 'ServicesResolved':
+            if (device.servicesResolved) {
+              for (var service in device.gattServices) {
+                for (var characteristic in service.characteristics) {
+                  final key =
+                      '${device.address}->${service.uuid}->${characteristic.uuid}';
+                  final subscription =
+                      characteristic.propertiesChanged.listen((properties) {
+                    for (var property in properties) {
+                      switch (property) {
+                        case 'Value':
+                          final eventArgs = GattCharacteristicValueEventArgs(
+                            device.address,
+                            service.uuid.toString(),
+                            characteristic.uuid.toString(),
+                            Uint8List.fromList(characteristic.value),
+                          );
+                          _characteristicValueChangedController.add(eventArgs);
+                          break;
+                        default:
+                          break;
+                      }
+                    }
+                  });
+                  _characteristicPropertiesSubscriptions[key] = subscription;
+                }
+              }
+              final eventArgs = IdEventArgs(device.address);
+              _servicesResolvedController.add(eventArgs);
+            }
+            break;
           default:
+            break;
         }
       }
     });
-    devicePropertiesSubscription[device.address] = subscription;
-    final eventArgs = PeripheralEventArgs(device.toNative());
+    _devicePropertiesSubscriptions[device.address] = subscription;
+    final eventArgs = PeripheralEventArgs(device.toFlutter());
     _scannedController.add(eventArgs);
   }
 
   void _onDeviceRemoved(BlueZDevice device) {
-    final subscription = devicePropertiesSubscription.remove(device.address);
+    for (var service in device.gattServices) {
+      for (var characteristic in service.characteristics) {
+        final key =
+            '${device.address}->${service.uuid}->${characteristic.uuid}';
+        final subscription = _characteristicPropertiesSubscriptions.remove(key);
+        subscription?.cancel();
+      }
+    }
+    final subscription = _devicePropertiesSubscriptions.remove(device.address);
     subscription?.cancel();
   }
 }
 
 extension on BlueZAdapter {
-  CentralManagerState toNativeState() {
+  CentralManagerState get flutterState {
     return powered
         ? CentralManagerState.poweredOn
         : CentralManagerState.poweredOff;
@@ -173,16 +268,16 @@ extension on BlueZAdapter {
 }
 
 extension on BlueZDevice {
-  Peripheral toNative() {
+  Peripheral toFlutter() {
     return Peripheral(
       id: address,
       name: name,
       rssi: rssi,
-      manufacturerData: toNativeManufacturerData(),
+      manufacturerData: flutterManufacturerData,
     );
   }
 
-  Uint8List toNativeManufacturerData() {
+  Uint8List get flutterManufacturerData {
     if (manufacturerData.isEmpty) {
       return Uint8List(0);
     } else {
@@ -194,14 +289,59 @@ extension on BlueZDevice {
       ]);
     }
   }
+
+  PeripheralState get flutterState {
+    return connected ? PeripheralState.connected : PeripheralState.disconnected;
+  }
 }
 
-extension on CharacteristicWriteType {
-  BlueZGattCharacteristicWriteType toApi() {
+extension on BlueZGattService {
+  GattService toFlutter() {
+    final characteristics = this
+        .characteristics
+        .map((characteristic) => characteristic.toFlutter())
+        .toList();
+    return GattService(
+      id: uuid.toString(),
+      characteristics: characteristics,
+    );
+  }
+}
+
+extension on BlueZGattCharacteristic {
+  GattCharacteristic toFlutter() {
+    final canRead = flags.contains(BlueZGattCharacteristicFlag.read);
+    final canWrite = flags.contains(BlueZGattCharacteristicFlag.write);
+    final canWriteWithoutResponse =
+        flags.contains(BlueZGattCharacteristicFlag.writeWithoutResponse);
+    final canNotify = flags.contains(BlueZGattCharacteristicFlag.notify);
+    final descriptors =
+        this.descriptors.map((descriptor) => descriptor.toFlutter()).toList();
+    return GattCharacteristic(
+      id: uuid.toString(),
+      canRead: canRead,
+      canWrite: canWrite,
+      canWriteWithoutResponse: canWriteWithoutResponse,
+      canNotify: canNotify,
+      descriptors: descriptors,
+    );
+  }
+}
+
+extension on BlueZGattDescriptor {
+  GattDescriptor toFlutter() {
+    return GattDescriptor(
+      id: uuid.toString(),
+    );
+  }
+}
+
+extension on GattCharacteristicWriteType {
+  BlueZGattCharacteristicWriteType toHost() {
     switch (this) {
-      case CharacteristicWriteType.withResponse:
+      case GattCharacteristicWriteType.withResponse:
         return BlueZGattCharacteristicWriteType.request;
-      case CharacteristicWriteType.withoutResponse:
+      case GattCharacteristicWriteType.withoutResponse:
         return BlueZGattCharacteristicWriteType.command;
       default:
         throw UnimplementedError();

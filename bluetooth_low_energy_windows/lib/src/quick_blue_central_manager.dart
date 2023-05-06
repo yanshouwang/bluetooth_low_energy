@@ -4,25 +4,53 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 import 'package:flutter/foundation.dart';
 import 'package:quick_blue/quick_blue.dart';
 
+import 'event_args.dart';
+
 class QuickBlueCentralManager extends CentralManager {
   final ValueNotifier<CentralManagerState> _state;
   final StreamController<PeripheralStateEventArgs>
       _peripheralStateChangedController;
-  final StreamController<CharacteristicValueEventArgs>
+  final StreamController<GattServiceEventArgs> _serviceDiscoveredController;
+  final StreamController<GattCharacteristicValueEventArgs>
       _characteristicValueChangedController;
+  final Map<String, String> _serviceIds;
 
   QuickBlueCentralManager()
       : _state = ValueNotifier(CentralManagerState.unknown),
         _peripheralStateChangedController = StreamController.broadcast(),
-        _characteristicValueChangedController = StreamController.broadcast() {
+        _serviceDiscoveredController = StreamController.broadcast(),
+        _characteristicValueChangedController = StreamController.broadcast(),
+        _serviceIds = {} {
     QuickBlue.setConnectionHandler((deviceId, state) {
-      final eventArgs = PeripheralStateEventArgs(deviceId, state.toNative());
+      final eventArgs = PeripheralStateEventArgs(deviceId, state.toFlutter());
       _peripheralStateChangedController.add(eventArgs);
     });
+    QuickBlue.setServiceHandler((deviceId, serviceId, characteristicIds) {
+      for (var characteristicId in characteristicIds) {
+        _serviceIds['$deviceId->$characteristicId'] = serviceId;
+      }
+      final characteristics = characteristicIds.map((characteristicId) {
+        return GattCharacteristic(
+          id: characteristicId,
+          canRead: false,
+          canWrite: false,
+          canWriteWithoutResponse: false,
+          canNotify: false,
+          descriptors: [],
+        );
+      }).toList();
+      final service = GattService(
+        id: serviceId,
+        characteristics: characteristics,
+      );
+      final eventArgs = GattServiceEventArgs(deviceId, service);
+      _serviceDiscoveredController.add(eventArgs);
+    });
     QuickBlue.setValueHandler((deviceId, characteristicId, value) {
-      final eventArgs = CharacteristicValueEventArgs(
+      final serviceId = _serviceIds['$deviceId->$characteristicId']!;
+      final eventArgs = GattCharacteristicValueEventArgs(
         deviceId,
-        '',
+        serviceId,
         characteristicId,
         value,
       );
@@ -49,8 +77,11 @@ class QuickBlueCentralManager extends CentralManager {
   Stream<PeripheralStateEventArgs> get peripheralStateChanged =>
       _peripheralStateChangedController.stream;
 
+  Stream<GattServiceEventArgs> get _serviceDiscovered =>
+      _serviceDiscoveredController.stream;
+
   @override
-  Stream<CharacteristicValueEventArgs> get characteristicValueChanged =>
+  Stream<GattCharacteristicValueEventArgs> get characteristicValueChanged =>
       _characteristicValueChangedController.stream;
 
   @override
@@ -95,6 +126,19 @@ class QuickBlueCentralManager extends CentralManager {
   }
 
   @override
+  Future<GattService> discoverService(String id, String serviceId) {
+    final completer = Completer<GattService>();
+    final subscription = _serviceDiscovered.listen((eventArgs) {
+      if (id != eventArgs.id || serviceId != eventArgs.service.id) {
+        return;
+      }
+      completer.complete(eventArgs.service);
+    });
+    QuickBlue.discoverServices(id);
+    return completer.future.whenComplete(() => subscription.cancel());
+  }
+
+  @override
   Future<Uint8List> read(
     String id,
     String serviceId,
@@ -124,7 +168,7 @@ class QuickBlueCentralManager extends CentralManager {
     String serviceId,
     String characteristicId,
     Uint8List value, {
-    CharacteristicWriteType? type,
+    GattCharacteristicWriteType? type,
   }) {
     if (type == null) {
       throw UnimplementedError();
@@ -134,7 +178,7 @@ class QuickBlueCentralManager extends CentralManager {
       serviceId,
       characteristicId,
       value,
-      type.toApi(),
+      type.toHost(),
     ).onError(
       (error, _) => throw BluetoothLowEnergyError('$error'),
     );
@@ -161,7 +205,7 @@ class QuickBlueCentralManager extends CentralManager {
 }
 
 extension on BlueConnectionState {
-  PeripheralState toNative() {
+  PeripheralState toFlutter() {
     switch (this) {
       case BlueConnectionState.disconnected:
         return PeripheralState.disconnected;
@@ -173,12 +217,12 @@ extension on BlueConnectionState {
   }
 }
 
-extension on CharacteristicWriteType {
-  BleOutputProperty toApi() {
+extension on GattCharacteristicWriteType {
+  BleOutputProperty toHost() {
     switch (this) {
-      case CharacteristicWriteType.withResponse:
+      case GattCharacteristicWriteType.withResponse:
         return BleOutputProperty.withResponse;
-      case CharacteristicWriteType.withoutResponse:
+      case GattCharacteristicWriteType.withoutResponse:
         return BleOutputProperty.withoutResponse;
       default:
         throw UnimplementedError();
