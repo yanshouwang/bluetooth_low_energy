@@ -1,5 +1,6 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="dev.yanshouwang.bluetooth_low_energy_android_example">
+   <application
         android:label="bluetooth_low_energy_android_example"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">

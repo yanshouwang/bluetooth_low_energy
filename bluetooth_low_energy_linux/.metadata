@@ -4,8 +4,8 @@
 # This file should be version controlled.
 
 version:
-  revision: 60077ff979467f270d6d6e4ab24bd8bd8198215b
-  channel: master
+  revision: 4d9e56e694b656610ab87fcf2efbcd226e0ed8cf
+  channel: stable
 
 project_type: plugin
 
@@ -13,11 +13,11 @@ project_type: plugin
 migration:
   platforms:
     - platform: root
-      create_revision: 60077ff979467f270d6d6e4ab24bd8bd8198215b
-      base_revision: 60077ff979467f270d6d6e4ab24bd8bd8198215b
+      create_revision: 4d9e56e694b656610ab87fcf2efbcd226e0ed8cf
+      base_revision: 4d9e56e694b656610ab87fcf2efbcd226e0ed8cf
     - platform: linux
-      create_revision: 60077ff979467f270d6d6e4ab24bd8bd8198215b
-      base_revision: 60077ff979467f270d6d6e4ab24bd8bd8198215b
+      create_revision: 4d9e56e694b656610ab87fcf2efbcd226e0ed8cf
+      base_revision: 4d9e56e694b656610ab87fcf2efbcd226e0ed8cf
 
   # User provided section
 

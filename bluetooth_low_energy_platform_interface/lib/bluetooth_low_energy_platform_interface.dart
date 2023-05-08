@@ -1,10 +1,14 @@
-export 'src/central_manager.dart';
-export 'src/central_manager_state.dart';
-export 'src/peripheral.dart';
-export 'src/peripheral_state.dart';
-export 'src/gatt_service.dart';
-export 'src/gatt_characteristic.dart';
-export 'src/gatt_characteristic_write_type.dart';
-export 'src/gatt_descriptor.dart';
-export 'src/errors.dart';
-export 'src/event_args.dart';
+// You have generated a new plugin project without specifying the `--platforms`
+// flag. A plugin project with no platform support was generated. To add a
+// platform, run `flutter create -t plugin --platforms <platforms> .` under the
+// same directory. You can also find a detailed instruction on how to add
+// platforms in the `pubspec.yaml` at
+// https://flutter.dev/docs/development/packages-and-plugins/developing-packages#plugin-platforms.
+
+import 'bluetooth_low_energy_platform_interface_platform_interface.dart';
+
+class BluetoothLowEnergyPlatformInterface {
+  Future<String?> getPlatformVersion() {
+    return BluetoothLowEnergyPlatformInterfacePlatform.instance.getPlatformVersion();
+  }
+}

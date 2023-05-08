@@ -3,22 +3,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:bluetooth_low_energy_windows/bluetooth_low_energy_windows_method_channel.dart';
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
-
   MethodChannelBluetoothLowEnergyWindows platform = MethodChannelBluetoothLowEnergyWindows();
   const MethodChannel channel = MethodChannel('bluetooth_low_energy_windows');
 
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   setUp(() {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
-      channel,
-      (MethodCall methodCall) async {
-        return '42';
-      },
-    );
+    channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      return '42';
+    });
   });
 
   tearDown(() {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null);
+    channel.setMockMethodCallHandler(null);
   });
 
   test('getPlatformVersion', () async {

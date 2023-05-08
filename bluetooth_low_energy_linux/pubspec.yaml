@@ -4,15 +4,13 @@ version: 0.0.1
 homepage:
 
 environment:
-  sdk: '>=3.1.0-35.0.dev <4.0.0'
-  flutter: ">=3.3.0"
+  sdk: '>=2.19.6 <3.0.0'
+  flutter: ">=2.5.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  bluetooth_low_energy_platform_interface:
-    path: ../bluetooth_low_energy_platform_interface
-  bluez: ^0.7.9
+  plugin_platform_interface: ^2.0.2
 
 dev_dependencies:
   flutter_test:
@@ -35,10 +33,8 @@ flutter:
   # All these are used by the tooling to maintain consistency when
   # adding or updating assets for this project.
   plugin:
-    implements: bluetooth_low_energy
     platforms:
       linux:
-        dartPluginClass: BluetoothLowEnergyLinuxPlugin
         pluginClass: BluetoothLowEnergyLinuxPlugin
 
   # To add assets to your plugin package, add an assets section, like this:

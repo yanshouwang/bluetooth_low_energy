@@ -20,6 +20,7 @@ class BluetoothLowEnergyWindowsPlugin : public flutter::Plugin {
   BluetoothLowEnergyWindowsPlugin(const BluetoothLowEnergyWindowsPlugin&) = delete;
   BluetoothLowEnergyWindowsPlugin& operator=(const BluetoothLowEnergyWindowsPlugin&) = delete;
 
+ private:
   // Called when a method is called on this plugin's channel from Dart.
   void HandleMethodCall(
       const flutter::MethodCall<flutter::EncodableValue> &method_call,
