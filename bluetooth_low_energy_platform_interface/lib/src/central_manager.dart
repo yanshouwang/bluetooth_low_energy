@@ -33,7 +33,6 @@ abstract class CentralManager extends PlatformInterface {
   Stream<PeripheralStateEventArgs> get peripheralStateChanged;
   Stream<GattCharacteristicValueEventArgs> get characteristicValueChanged;
 
-  Future<void> initialize();
   Future<void> startScan();
   Future<void> stopScan();
   Future<void> connect(String id);

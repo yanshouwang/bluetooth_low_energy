@@ -24,13 +24,15 @@ class BlueZCentralManager extends CentralManager {
 
   BlueZCentralManager()
       : _client = BlueZClient(),
-        _state = ValueNotifier(CentralManagerState.unsupported),
+        _state = ValueNotifier(CentralManagerState.unknown),
         _scannedController = StreamController.broadcast(),
         _peripheralStateChangedController = StreamController.broadcast(),
         _servicesResolvedController = StreamController.broadcast(),
         _characteristicValueChangedController = StreamController.broadcast(),
         _devicePropertiesSubscriptions = {},
-        _characteristicPropertiesSubscriptions = {};
+        _characteristicPropertiesSubscriptions = {} {
+    initialize();
+  }
 
   BlueZAdapter get _adapter => _client.adapters.first;
 
@@ -51,8 +53,7 @@ class BlueZCentralManager extends CentralManager {
   Stream<GattCharacteristicValueEventArgs> get characteristicValueChanged =>
       _characteristicValueChangedController.stream;
 
-  @override
-  Future<void> initialize() async {
+  void initialize() async {
     await _client.connect();
     _state.value = _client.adapters.isEmpty
         ? CentralManagerState.unsupported
