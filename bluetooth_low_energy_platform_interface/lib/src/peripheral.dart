@@ -4,12 +4,12 @@ class Peripheral {
   final String id;
   final String name;
   final int rssi;
-  final Uint8List manufacturerData;
+  final Uint8List? manufacturerSpecificData;
 
   Peripheral({
     required this.id,
     required this.name,
     required this.rssi,
-    required this.manufacturerData,
+    required this.manufacturerSpecificData,
   });
 }

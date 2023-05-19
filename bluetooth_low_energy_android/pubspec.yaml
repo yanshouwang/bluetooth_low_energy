@@ -1,7 +1,7 @@
 name: bluetooth_low_energy_android
 description: A new Flutter plugin project.
 version: 0.0.1
-homepage:
+homepage: https://github.com/yanshouwang/bluetooth_low_energy
 
 environment:
   sdk: '>=2.19.6 <3.0.0'
@@ -10,12 +10,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  plugin_platform_interface: ^2.0.2
+  bluetooth_low_energy_platform_interface:
+    path: ../bluetooth_low_energy_platform_interface
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  pigeon: ^10.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -33,10 +35,12 @@ flutter:
   # All these are used by the tooling to maintain consistency when
   # adding or updating assets for this project.
   plugin:
+    implements: bluetooth_low_energy
     platforms:
       android:
         package: dev.yanshouwang.bluetooth_low_energy_android
         pluginClass: BluetoothLowEnergyAndroidPlugin
+        dartPluginClass: BluetoothLowEnergyAndroidPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

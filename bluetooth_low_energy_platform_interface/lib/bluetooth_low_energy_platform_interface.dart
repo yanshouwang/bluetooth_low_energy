@@ -7,4 +7,4 @@ export 'src/gatt_characteristic.dart';
 export 'src/gatt_characteristic_write_type.dart';
 export 'src/gatt_descriptor.dart';
 export 'src/errors.dart';
-export 'src/event_args.dart';
+export 'src/events.dart';

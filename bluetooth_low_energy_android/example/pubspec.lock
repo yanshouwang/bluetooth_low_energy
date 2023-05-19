@@ -16,6 +16,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  bluetooth_low_energy_platform_interface:
+    dependency: transitive
+    description:
+      path: "../../bluetooth_low_energy_platform_interface"
+      relative: true
+    source: path
+    version: "0.0.1"
   boolean_selector:
     dependency: transitive
     description:
