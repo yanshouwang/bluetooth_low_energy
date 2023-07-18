@@ -1,10 +1,11 @@
-import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
-import 'package:flutter/foundation.dart';
+import 'dart:typed_data';
 
-class PigeonCentralManager extends CentralManager {
+import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
+
+class MyCentralManager extends CentralManager {
   @override
   // TODO: implement characteristicValueChanged
-  Stream<GattCharacteristicValueEvent> get characteristicValueChanged =>
+  Stream<(String, String, String, Uint8List)> get characteristicValueChanged =>
       throw UnimplementedError();
 
   @override
@@ -25,8 +26,12 @@ class PigeonCentralManager extends CentralManager {
   }
 
   @override
-  Future<void> initialize() {
-    // TODO: implement initialize
+  // TODO: implement discovered
+  Stream<Peripheral> get discovered => throw UnimplementedError();
+
+  @override
+  Future<CentralManagerState> getState() {
+    // TODO: implement getState
     throw UnimplementedError();
   }
 
@@ -42,7 +47,7 @@ class PigeonCentralManager extends CentralManager {
 
   @override
   // TODO: implement peripheralStateChanged
-  Stream<PeripheralStateEvent> get peripheralStateChanged =>
+  Stream<(String, PeripheralState)> get peripheralStateChanged =>
       throw UnimplementedError();
 
   @override
@@ -65,22 +70,18 @@ class PigeonCentralManager extends CentralManager {
   }
 
   @override
-  // TODO: implement scanned
-  Stream<PeripheralEvent> get scanned => throw UnimplementedError();
-
-  @override
-  Future<void> startScan() {
-    // TODO: implement startScan
+  Future<void> startDiscovery() {
+    // TODO: implement startDiscovery
     throw UnimplementedError();
   }
 
   @override
-  // TODO: implement state
-  ValueListenable<CentralManagerState> get state => throw UnimplementedError();
+  // TODO: implement stateChanged
+  Stream<CentralManagerState> get stateChanged => throw UnimplementedError();
 
   @override
-  Future<void> stopScan() {
-    // TODO: implement stopScan
+  Future<void> stopDiscovery() {
+    // TODO: implement stopDiscovery
     throw UnimplementedError();
   }
 

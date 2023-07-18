@@ -4,8 +4,8 @@ version: 0.0.1
 homepage: https://github.com/yanshouwang/bluetooth_low_energy
 
 environment:
-  sdk: '>=2.19.6 <3.0.0'
-  flutter: ">=2.5.0"
+  sdk: '>=3.0.3 <4.0.0'
+  flutter: ">=3.3.0"
 
 dependencies:
   flutter:
@@ -17,7 +17,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
-  pigeon: ^10.0.0
+  pigeon: ^10.1.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

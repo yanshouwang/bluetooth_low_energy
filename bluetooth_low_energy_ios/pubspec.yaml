@@ -1,11 +1,11 @@
 name: bluetooth_low_energy_ios
 description: A new Flutter plugin project.
 version: 0.0.1
-homepage:
+homepage: https://github.com/yanshouwang/bluetooth_low_energy
 
 environment:
-  sdk: '>=2.19.6 <3.0.0'
-  flutter: ">=2.5.0"
+  sdk: '>=3.0.3 <4.0.0'
+  flutter: ">=3.3.0"
 
 dependencies:
   flutter:
