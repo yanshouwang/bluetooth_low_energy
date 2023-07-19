@@ -250,8 +250,8 @@ extension on _HomeViewState {
 
   Widget buildManufacturerSpecificDataView(Uint8List manufacturerSpecificData) {
     final widgets = <Widget>[
-      Row(
-        children: const [
+      const Row(
+        children: [
           Text('Type'),
           Expanded(
             child: Center(
@@ -565,7 +565,7 @@ extension on _DeviceViewState {
                                 );
                               }
                             : null,
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.notifications,
                           // color: notifying ? Colors.blue : null,
                         ),
