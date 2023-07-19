@@ -1,45 +1,31 @@
-import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:bluetooth_low_energy_android/src/my_api.dart';
+import 'package:bluetooth_low_energy_android/src/my_central_manager_api.dart';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
-import 'my_api.dart';
-
-class MyCentralManager extends CentralManager
-    implements MyCentralManagerFlutterApi {
-  final MyCentralManagerHostApi _api;
-  final StreamController<CentralManagerState> _stateChangedController;
-  final StreamController<Peripheral> _discoveredController;
-  final StreamController<(String, PeripheralState)>
-      _peripheralStateChangedController;
-  final StreamController<(String, String, String, Uint8List)>
-      _characteristicValueChangedController;
-
-  MyCentralManager()
-      : _api = MyCentralManagerHostApi(),
-        _stateChangedController = StreamController.broadcast(),
-        _discoveredController = StreamController.broadcast(),
-        _peripheralStateChangedController = StreamController.broadcast(),
-        _characteristicValueChangedController = StreamController.broadcast();
+class MyCentralManager extends CentralManager {
+  late final _api = MyCentralManagerApi()..setup();
 
   @override
   Stream<CentralManagerState> get stateChanged =>
-      _stateChangedController.stream;
-
+      _api.stateChanged.map((i) => MyCentralManagerState.values[i].nativeState);
   @override
-  Stream<Peripheral> get discovered => _discoveredController.stream;
-
+  Stream<Peripheral> get discovered =>
+      _api.discovered.map((peripheral) => peripheral.nativePeripheral);
   @override
-  Stream<(String, PeripheralState)> get peripheralStateChanged =>
-      _peripheralStateChangedController.stream;
-
+  Stream<(String, PeripheralState)> get peripheralStateChanged => _api
+      .peripheralStateChanged
+      .map((item) => (item.$1, MyPeripheralState.values[item.$2].nativeState));
   @override
   Stream<(String, String, String, Uint8List)> get characteristicValueChanged =>
-      _characteristicValueChangedController.stream;
+      _api.characteristicValueChanged;
 
   @override
-  Future<CentralManagerState> getState() {
-    return _api.getState().then((i) => CentralManagerState.values[i]);
+  Future<CentralManagerState> getState() async {
+    final state = await _api.getState();
+    final myState = MyCentralManagerState.values[state];
+    return myState.nativeState;
   }
 
   @override
@@ -59,17 +45,16 @@ class MyCentralManager extends CentralManager
 
   @override
   void disconnect(String id) {
-    _api.disconnect(id);
+    _api.disconnect(id).ignore();
   }
 
   @override
-  Future<List<GattService>> discoverServices(String id) {
-    return _api.discoverServices(id).then((services) {
-      return services
-          .cast<MyGattService>()
-          .map((service) => service.nativeService)
-          .toList();
-    });
+  Future<List<GattService>> discoverServices(String id) async {
+    final myServices = await _api.discoverServices(id);
+    return myServices
+        .cast<MyGattService>()
+        .map((myService) => myService.nativeService)
+        .toList();
   }
 
   @override
@@ -78,7 +63,11 @@ class MyCentralManager extends CentralManager
     required String serviceId,
     required String characteristicId,
   }) {
-    return _api.readCharacteristic(id, serviceId, characteristicId);
+    return _api.readCharacteristic(
+      id,
+      serviceId,
+      characteristicId,
+    );
   }
 
   @override
@@ -144,43 +133,14 @@ class MyCentralManager extends CentralManager
       value,
     );
   }
-
-  @override
-  void onStateChanged(int state) {
-    final myState = MyCentralManagerState.values[state];
-    _stateChangedController.add(myState.nativeState);
-  }
-
-  @override
-  void onDiscovered(MyPeripheral peripheral) {
-    _discoveredController.add(peripheral.nativePeripheral);
-  }
-
-  @override
-  void onPeripheralStateChanged(String id, int state) {
-    final myState = MyPeripheralState.values[state];
-    final event = (id, myState.nativeState);
-    _peripheralStateChangedController.add(event);
-  }
-
-  @override
-  void onCharacteristicValueChanged(
-    String id,
-    String serviceId,
-    String characteristicId,
-    Uint8List value,
-  ) {
-    final event = (id, serviceId, characteristicId, value);
-    _characteristicValueChangedController.add(event);
-  }
 }
 
 extension on MyPeripheral {
   Peripheral get nativePeripheral {
     return Peripheral(
       id: id,
-      name: name,
       rssi: rssi,
+      name: name,
       manufacturerSpecificData: manufacturerSpecificData,
     );
   }

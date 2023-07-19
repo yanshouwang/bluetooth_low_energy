@@ -1,5 +1,7 @@
 import 'package:pigeon/pigeon.dart';
 
+// TODO: 当 pigeon 支持 enum 后调整对应 api.
+
 @HostApi()
 abstract class MyCentralManagerHostApi {
   int getState();
@@ -64,14 +66,14 @@ abstract class MyCentralManagerFlutterApi {
 
 class MyPeripheral {
   final String id;
-  final String name;
   final int rssi;
+  final String? name;
   final Uint8List? manufacturerSpecificData;
 
   MyPeripheral({
     required this.id,
-    required this.name,
     required this.rssi,
+    required this.name,
     required this.manufacturerSpecificData,
   });
 }

@@ -82,8 +82,8 @@ enum class MyGattCharacteristicWriteType(val raw: Int) {
 /** Generated class from Pigeon that represents data sent in messages. */
 data class MyPeripheral (
   val id: String,
-  val name: String,
   val rssi: Long,
+  val name: String? = null,
   val manufacturerSpecificData: ByteArray? = null
 
 ) {
@@ -91,17 +91,17 @@ data class MyPeripheral (
     @Suppress("UNCHECKED_CAST")
     fun fromList(list: List<Any?>): MyPeripheral {
       val id = list[0] as String
-      val name = list[1] as String
-      val rssi = list[2].let { if (it is Int) it.toLong() else it as Long }
+      val rssi = list[1].let { if (it is Int) it.toLong() else it as Long }
+      val name = list[2] as String?
       val manufacturerSpecificData = list[3] as ByteArray?
-      return MyPeripheral(id, name, rssi, manufacturerSpecificData)
+      return MyPeripheral(id, rssi, name, manufacturerSpecificData)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
       id,
-      name,
       rssi,
+      name,
       manufacturerSpecificData,
     )
   }

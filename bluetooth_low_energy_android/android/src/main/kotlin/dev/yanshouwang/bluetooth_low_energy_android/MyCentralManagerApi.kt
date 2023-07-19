@@ -9,7 +9,15 @@ import MyGattDescriptor
 import MyGattService
 import MyPeripheral
 import MyPeripheralState
-import android.bluetooth.*
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCallback
+import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
+import android.bluetooth.BluetoothGattService
+import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.content.BroadcastReceiver
@@ -19,11 +27,10 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Handler
-import android.os.Looper
 import androidx.core.content.ContextCompat
 import io.flutter.plugin.common.BinaryMessenger
 import java.nio.ByteBuffer
-import java.util.*
+import java.util.UUID
 
 class MyCentralManagerApi(private val context: Context, binaryMessenger: BinaryMessenger) :
     MyCentralManagerHostApi {
@@ -33,8 +40,8 @@ class MyCentralManagerApi(private val context: Context, binaryMessenger: BinaryM
 
     private val api = MyCentralManagerFlutterApi(binaryMessenger)
 
-    //    private val mainExecutor: Executor get() = ContextCompat.getMainExecutor(context)
-    private val mainHandler = Handler(Looper.getMainLooper())
+    private val mainHandler = Handler(context.mainLooper)
+    private val mainExecutor = ContextCompat.getMainExecutor(context)
 
     private val hasFeature
         get() = context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
@@ -86,27 +93,31 @@ class MyCentralManagerApi(private val context: Context, binaryMessenger: BinaryM
     private val bluetoothGattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
+            // NOTICE: 不要通过 status 判断是否为连接成功，测试发现某为在连接丢失时 status 也是 GATT_SUCCESS
             val id = gatt.device.address
-            val callback = connectCallbacks.remove(id)
-            if (callback == null) {
-                // Disconnected or connection lost
+            val isConnected =
+                status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED
+            val result = if (isConnected) {
+                gatts[id] = gatt
+                Result.success(Unit)
+            } else {
                 gatt.close()
                 gatts.remove(id)
-                val myState = MyPeripheralState.DISCONNECTED.raw.toLong()
-                api.onPeripheralStateChanged(id, myState) {}
-            } else {
-                val result =
-                    if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
-                        // Connected
-                        gatts[id] = gatt
-                        Result.success(Unit)
-                    } else {
-                        // Connect failed
-                        gatt.close()
-                        val error = BluetoothLowEnergyError("GATT error with status: $status.")
-                        Result.failure(error)
-                    }
+                val error =
+                    BluetoothLowEnergyError("GATT connect failed, status: $status; newState: $newState")
+                Result.failure(error)
+            }
+            val callback = connectCallbacks.remove(id)
+            if (callback != null) {
                 callback(result)
+            }
+            val myState = if (isConnected) {
+                MyPeripheralState.CONNECTED
+            } else {
+                MyPeripheralState.DISCONNECTED
+            }.raw.toLong()
+            mainExecutor.execute {
+                api.onPeripheralStateChanged(id, myState) {}
             }
         }
 
@@ -172,8 +183,9 @@ class MyCentralManagerApi(private val context: Context, binaryMessenger: BinaryM
             val serviceId = characteristic.service.uuid.toString()
             val characteristicId = characteristic.uuid.toString()
             val value = characteristic.value
-            // TODO: 是否需要主线程支持
-            api.onCharacteristicValueChanged(id, serviceId, characteristicId, value) {}
+            mainExecutor.execute {
+                api.onCharacteristicValueChanged(id, serviceId, characteristicId, value) {}
+            }
         }
 
         override fun onDescriptorRead(
@@ -240,7 +252,7 @@ class MyCentralManagerApi(private val context: Context, binaryMessenger: BinaryM
         val name = device.name
         val rssi = result.rssi.toLong()
         val myManufacturerSpecificData = result.myManufacturerSpecificData
-        val myPeripheral = MyPeripheral(id, name, rssi, myManufacturerSpecificData)
+        val myPeripheral = MyPeripheral(id, rssi, name, myManufacturerSpecificData)
         api.onDiscovered(myPeripheral) {}
     }
 
@@ -280,6 +292,8 @@ class MyCentralManagerApi(private val context: Context, binaryMessenger: BinaryM
             device.connectGatt(context, autoConnect, bluetoothGattCallback)
         }
         connectCallbacks[id] = callback
+        val myState = MyPeripheralState.CONNECTING.raw.toLong()
+        api.onPeripheralStateChanged(id, myState) {}
     }
 
     override fun disconnect(id: String) {

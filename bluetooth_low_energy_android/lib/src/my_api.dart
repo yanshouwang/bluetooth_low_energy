@@ -30,24 +30,24 @@ enum MyGattCharacteristicWriteType {
 class MyPeripheral {
   MyPeripheral({
     required this.id,
-    required this.name,
     required this.rssi,
+    this.name,
     this.manufacturerSpecificData,
   });
 
   String id;
 
-  String name;
-
   int rssi;
+
+  String? name;
 
   Uint8List? manufacturerSpecificData;
 
   Object encode() {
     return <Object?>[
       id,
-      name,
       rssi,
+      name,
       manufacturerSpecificData,
     ];
   }
@@ -56,8 +56,8 @@ class MyPeripheral {
     result as List<Object?>;
     return MyPeripheral(
       id: result[0]! as String,
-      name: result[1]! as String,
-      rssi: result[2]! as int,
+      rssi: result[1]! as int,
+      name: result[2] as String?,
       manufacturerSpecificData: result[3] as Uint8List?,
     );
   }
