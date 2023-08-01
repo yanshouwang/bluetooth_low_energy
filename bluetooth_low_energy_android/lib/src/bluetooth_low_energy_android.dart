@@ -2,7 +2,7 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 
 import 'my_central_manager.dart';
 
-class BluetoothLowEnergyAndroidPlugin {
+class BluetoothLowEnergyAndroid {
   static void registerWith() {
     CentralManager.instance = MyCentralManager();
   }

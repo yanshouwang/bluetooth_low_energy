@@ -4,7 +4,7 @@ version: 0.0.1
 homepage: https://github.com/yanshouwang/bluetooth_low_energy
 
 environment:
-  sdk: '>=3.0.3 <4.0.0'
+  sdk: '>=3.0.0 <4.0.0'
   flutter: ">=3.3.0"
 
 dependencies:
@@ -39,8 +39,8 @@ flutter:
     platforms:
       android:
         package: dev.yanshouwang.bluetooth_low_energy_android
-        pluginClass: BluetoothLowEnergyAndroidPlugin
-        dartPluginClass: BluetoothLowEnergyAndroidPlugin
+        pluginClass: BluetoothLowEnergyAndroid
+        dartPluginClass: BluetoothLowEnergyAndroid
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
