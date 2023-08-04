@@ -1,9 +1,20 @@
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
-import 'my_central_manager.dart';
+import 'api.dart' as api;
 
-class BluetoothLowEnergyAndroid {
+class BluetoothLowEnergyAndroid extends BluetoothLowEnergy {
   static void registerWith() {
-    CentralManager.instance = MyCentralManager();
+    BluetoothLowEnergy.instance = BluetoothLowEnergyAndroid();
+  }
+
+  @override
+  void initialize() {
+    api.setup();
+  }
+
+  @override
+  Future<CentralManager> getCenrtalManager() {
+    // TODO: implement getCenrtalManager
+    throw UnimplementedError();
   }
 }

@@ -1,7 +1,7 @@
-class GattDescriptor {
-  final String id;
+import 'gatt_characteristic.dart';
+import 'uuid.dart';
 
-  const GattDescriptor({
-    required this.id,
-  });
+abstract class GattDescriptor {
+  GattCharacteristic get characteristic;
+  UUID get uuid;
 }

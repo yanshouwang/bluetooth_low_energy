@@ -1,80 +1,45 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
 import 'central_manager_state.dart';
+import 'event_args.dart';
+import 'gatt_characteristic.dart';
 import 'gatt_characteristic_write_type.dart';
+import 'gatt_descriptor.dart';
 import 'gatt_service.dart';
 import 'peripheral.dart';
-import 'peripheral_state.dart';
 
-abstract class CentralManager extends PlatformInterface {
-  /// Constructs a CentralManager.
-  CentralManager() : super(token: _token);
-
-  static final Object _token = Object();
-
-  static CentralManager? _instance;
-
-  /// The default instance of [CentralManager] to use.
-  static CentralManager get instance {
-    final instance = _instance;
-    if (instance == null) {
-      const message = '`CentralManager` is not implemented on this platform.';
-      throw UnimplementedError(message);
-    }
-    return instance;
-  }
-
-  /// Platform-specific implementations should set this with their own
-  /// platform-specific class that extends [CentralManager] when
-  /// they register themselves.
-  static set instance(CentralManager instance) {
-    PlatformInterface.verifyToken(instance, _token);
-    _instance = instance;
-  }
-
-  Stream<CentralManagerState> get stateChanged;
-  Stream<Peripheral> get discovered;
-  Stream<(String, PeripheralState)> get peripheralStateChanged;
-  Stream<(String, String, String, Uint8List)> get characteristicValueChanged;
+abstract class CentralManager {
+  Stream<CentralManagerStateChangedEventArgs> get stateChanged;
+  Stream<DiscoveredEventArgs> get discovered;
+  Stream<PeripheralStateChangedEventArgs> get peripheralStateChanged;
+  Stream<GattCharacteristicValueChangedEventArgs>
+      get characteristicValueChanged;
 
   Future<CentralManagerState> getState();
   Future<void> startDiscovery();
   Future<void> stopDiscovery();
-  Future<void> connect(String id);
-  void disconnect(String id);
-  Future<List<GattService>> discoverServices(String id);
-  Future<Uint8List> readCharacteristic({
-    required String id,
-    required String serviceId,
-    required String characteristicId,
-  });
-  Future<void> writeCharacteristic({
-    required String id,
-    required String serviceId,
-    required String characteristicId,
+  Future<void> connect(Peripheral peripheral);
+  void disconnect(Peripheral peripheral);
+  Future<void> discoverServices(Peripheral peripheral);
+  Future<List<GattService>> getServices(Peripheral peripheral);
+  Future<List<GattCharacteristic>> getCharacteristics(GattService service);
+  Future<List<GattDescriptor>> getDescriptors(
+    GattCharacteristic characteristic,
+  );
+  Future<Uint8List> readCharacteristic(GattCharacteristic characteristic);
+  Future<void> writeCharacteristic(
+    GattCharacteristic characteristic, {
     required Uint8List value,
     required GattCharacteristicWriteType type,
   });
-  Future<void> notifyCharacteristic({
-    required String id,
-    required String serviceId,
-    required String characteristicId,
-    required bool value,
+  Future<void> notifyCharacteristic(
+    GattCharacteristic characteristic, {
+    required bool state,
   });
-  Future<Uint8List> readDescriptor({
-    required String id,
-    required String serviceId,
-    required String characteristicId,
-    required String descriptorId,
-  });
-  Future<void> writeDescriptor({
-    required String id,
-    required String serviceId,
-    required String characteristicId,
-    required String descriptorId,
+  Future<Uint8List> readDescriptor(GattDescriptor descriptor);
+  Future<void> writeDescriptor(
+    GattDescriptor descriptor, {
     required Uint8List value,
   });
 }

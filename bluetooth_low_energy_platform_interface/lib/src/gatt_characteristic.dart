@@ -1,19 +1,9 @@
-import 'gatt_descriptor.dart';
+import 'gatt_characteristic_properties.dart';
+import 'gatt_service.dart';
+import 'uuid.dart';
 
-class GattCharacteristic {
-  final String id;
-  final bool canRead;
-  final bool canWrite;
-  final bool canWriteWithoutResponse;
-  final bool canNotify;
-  final List<GattDescriptor> descriptors;
-
-  const GattCharacteristic({
-    required this.id,
-    required this.canRead,
-    required this.canWrite,
-    required this.canWriteWithoutResponse,
-    required this.canNotify,
-    required this.descriptors,
-  });
+abstract class GattCharacteristic {
+  GattService get service;
+  UUID get uuid;
+  GattCharacteristicProperties get properties;
 }

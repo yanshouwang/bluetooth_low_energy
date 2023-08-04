@@ -1,11 +1,7 @@
-import 'gatt_characteristic.dart';
+import 'peripheral.dart';
+import 'uuid.dart';
 
-class GattService {
-  final String id;
-  final List<GattCharacteristic> characteristics;
-
-  GattService({
-    required this.id,
-    required this.characteristics,
-  });
+abstract class GattService {
+  Peripheral get peripehral;
+  UUID get uuid;
 }

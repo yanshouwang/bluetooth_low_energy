@@ -16,7 +16,7 @@ import org.mockito.Mockito
 internal class BluetoothLowEnergyPluginTest {
   @Test
   fun onMethodCall_getPlatformVersion_returnsExpectedValue() {
-    val plugin = BluetoothLowEnergyPlugin()
+    val plugin = BluetoothLowEnergyAndroid()
 
     val call = MethodCall("getPlatformVersion", null)
     val mockResult: MethodChannel.Result = Mockito.mock(MethodChannel.Result::class.java)
