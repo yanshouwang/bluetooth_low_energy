@@ -4,6 +4,6 @@ import 'my_central_manager.dart';
 
 class BluetoothLowEnergyWindowsPlugin {
   static void registerWith() {
-    CentralManager.instance = MyCentralManager();
+    CentralController.instance = MyCentralManager();
   }
 }

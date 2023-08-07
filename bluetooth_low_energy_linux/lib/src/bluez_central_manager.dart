@@ -5,9 +5,9 @@ import 'dart:typed_data';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:bluez/bluez.dart';
 
-class BlueZCentralManager extends CentralManager {
+class BlueZCentralManager extends CentralController {
   final BlueZClient _client;
-  final StreamController<CentralManagerState> _stateController;
+  final StreamController<BluetoothState> _stateController;
   final StreamController<Peripheral> _discoveredController;
   final StreamController<(String, PeripheralState)>
       _peripheralStateChangedController;
@@ -36,7 +36,7 @@ class BlueZCentralManager extends CentralManager {
   BlueZAdapter get _adapter => _client.adapters.first;
 
   @override
-  Stream<CentralManagerState> get stateChanged => _stateController.stream;
+  Stream<BluetoothState> get stateChanged => _stateController.stream;
 
   @override
   Stream<Peripheral> get discovered => _discoveredController.stream;
@@ -62,10 +62,10 @@ class BlueZCentralManager extends CentralManager {
   }
 
   @override
-  Future<CentralManagerState> getState() async {
+  Future<BluetoothState> getState() async {
     await _ini;
     final state = _client.adapters.isEmpty
-        ? CentralManagerState.unsupported
+        ? BluetoothState.unsupported
         : _adapter.myState;
     return state;
   }
@@ -317,10 +317,8 @@ class BlueZCentralManager extends CentralManager {
 }
 
 extension on BlueZAdapter {
-  CentralManagerState get myState {
-    return powered
-        ? CentralManagerState.poweredOn
-        : CentralManagerState.poweredOff;
+  BluetoothState get myState {
+    return powered ? BluetoothState.poweredOn : BluetoothState.poweredOff;
   }
 }
 

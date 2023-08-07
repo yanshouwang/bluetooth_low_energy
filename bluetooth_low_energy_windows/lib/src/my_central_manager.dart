@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
-class MyCentralManager extends CentralManager {
+class MyCentralManager extends CentralController {
   @override
   // TODO: implement characteristicValueChanged
   Stream<(String, String, String, Uint8List)> get characteristicValueChanged =>
@@ -30,7 +30,7 @@ class MyCentralManager extends CentralManager {
   Stream<Peripheral> get discovered => throw UnimplementedError();
 
   @override
-  Future<CentralManagerState> getState() {
+  Future<BluetoothState> getState() {
     // TODO: implement getState
     throw UnimplementedError();
   }
@@ -77,7 +77,7 @@ class MyCentralManager extends CentralManager {
 
   @override
   // TODO: implement stateChanged
-  Stream<CentralManagerState> get stateChanged => throw UnimplementedError();
+  Stream<BluetoothState> get stateChanged => throw UnimplementedError();
 
   @override
   Future<void> stopDiscovery() {

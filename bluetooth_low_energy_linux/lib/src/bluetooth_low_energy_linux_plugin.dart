@@ -4,6 +4,6 @@ import 'bluez_central_manager.dart';
 
 class BluetoothLowEnergyLinuxPlugin {
   static void registerWith() {
-    CentralManager.instance = BlueZCentralManager();
+    CentralController.instance = BlueZCentralManager();
   }
 }

@@ -1,7 +1,7 @@
-import 'api.dart';
+import 'my_api.dart';
 
 final _finalizer = Finalizer<int>((hashCode) {
-  instanceManagerApi.free(hashCode);
+  myInstanceManagerApi.free(hashCode);
 });
 
 abstract class MyObject {

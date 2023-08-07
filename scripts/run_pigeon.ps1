@@ -1,1 +1,1 @@
-dart run pigeon --input api.dart
+dart run pigeon --input my_api.dart

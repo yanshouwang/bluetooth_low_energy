@@ -1,0 +1,4 @@
+enum CentralControllerState {
+  off,
+  on,
+}
