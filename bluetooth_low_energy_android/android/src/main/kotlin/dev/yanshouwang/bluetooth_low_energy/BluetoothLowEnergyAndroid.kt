@@ -11,8 +11,9 @@ class BluetoothLowEnergyAndroid : FlutterPlugin, ActivityAware {
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         val context = binding.applicationContext
         val binaryMessenger = binding.binaryMessenger
-        centralController = MyCentralController(context, binaryMessenger)
-        centralController.setUp()
+        centralController = MyCentralController(context, binaryMessenger).apply {
+            setUp()
+        }
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
