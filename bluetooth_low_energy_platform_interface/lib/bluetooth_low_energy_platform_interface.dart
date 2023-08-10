@@ -3,7 +3,6 @@ export 'src/event_args.dart';
 export 'src/central_controller.dart';
 export 'src/central_controller_state.dart';
 export 'src/peripheral.dart';
-export 'src/peripheral_state.dart';
 export 'src/uuid.dart';
 export 'src/advertisement.dart';
 export 'src/gatt_service.dart';

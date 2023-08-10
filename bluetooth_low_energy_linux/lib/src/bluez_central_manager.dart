@@ -97,7 +97,7 @@ class BlueZCentralManager extends CentralController {
   }
 
   @override
-  Future<List<GattService>> discoverServices(String id) async {
+  Future<List<GattService>> getServices(String id) async {
     await _ini;
     final device = _client.devices.firstWhere((device) => device.address == id);
     if (device.connected && !device.servicesResolved) {

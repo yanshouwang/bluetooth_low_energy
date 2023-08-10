@@ -1,5 +1,9 @@
 import 'uuid.dart';
 
-abstract class GattService {
-  Future<UUID> getUUID();
+class GattService {
+  final UUID uuid;
+
+  GattService({
+    required this.uuid,
+  });
 }

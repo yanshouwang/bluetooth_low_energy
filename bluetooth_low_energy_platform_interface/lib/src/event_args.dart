@@ -2,9 +2,9 @@ import 'dart:typed_data';
 
 import 'advertisement.dart';
 import 'central_controller_state.dart';
+import 'errors.dart';
 import 'gatt_characteristic.dart';
 import 'peripheral.dart';
-import 'peripheral_state.dart';
 
 abstract class EventArgs {}
 
@@ -28,9 +28,14 @@ class CentralControllerDiscoveredEventArgs extends EventArgs {
 
 class PeripheralStateChangedEventArgs extends EventArgs {
   final Peripheral peripheral;
-  final PeripheralState state;
+  final bool state;
+  final BluetoothLowEnergyError? error;
 
-  PeripheralStateChangedEventArgs(this.peripheral, this.state);
+  PeripheralStateChangedEventArgs(
+    this.peripheral,
+    this.state,
+    this.error,
+  );
 }
 
 class GattCharacteristicValueChangedEventArgs extends EventArgs {

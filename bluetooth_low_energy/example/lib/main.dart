@@ -1,11 +1,29 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
 
 void main() {
+  runZonedGuarded(onStartUp, onCrashed);
+}
+
+void onStartUp() async {
+  await initialize();
   runApp(const MyApp());
+}
+
+void onCrashed(Object error, StackTrace stackTrace) {
+  log(
+    '$error',
+    error: error,
+    stackTrace: stackTrace,
+  );
+}
+
+Future<void> initialize() async {
+  await CentralController.instance.initialize();
 }
 
 class MyApp extends StatefulWidget {
@@ -16,48 +34,48 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-  final _bluetoothLowEnergyPlugin = CentralController();
+  late final CentralController centralController;
+  late final ValueNotifier<CentralControllerState> state;
+  late final StreamSubscription<CentralControllerStateChangedEventArgs>
+      stateChangedSubscription;
+  late final StreamSubscription<CentralControllerDiscoveredEventArgs>
+      discoveredSubscription;
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+    centralController = CentralController.instance;
+    state = ValueNotifier(centralController.state);
+    stateChangedSubscription =
+        centralController.stateChanged.listen(onStateChanged);
+    discoveredSubscription = centralController.discovered.listen(onDiscovered);
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion = await _bluetoothLowEnergyPlugin.getPlatformVersion() ??
-          'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
+  void onStateChanged(CentralControllerStateChangedEventArgs eventArgs) {
+    state.value = eventArgs.state;
   }
+
+  void onDiscovered(CentralControllerDiscoveredEventArgs eventArgs) {}
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('BluetoothLowEnergy'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: Text('BluetoothLowEnergy'),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    stateChangedSubscription.cancel();
+    discoveredSubscription.cancel();
+    state.dispose();
   }
 }

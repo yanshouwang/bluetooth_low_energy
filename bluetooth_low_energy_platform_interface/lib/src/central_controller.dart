@@ -11,7 +11,7 @@ import 'gatt_service.dart';
 import 'peripheral.dart';
 
 abstract class CentralController extends PlatformInterface {
-  /// Constructs a CentralController.
+  /// Constructs a [CentralController].
   CentralController() : super(token: _token);
 
   static final Object _token = Object();
@@ -37,6 +37,7 @@ abstract class CentralController extends PlatformInterface {
     _instance = instance;
   }
 
+  CentralControllerState get state;
   Stream<CentralControllerStateChangedEventArgs> get stateChanged;
   Stream<CentralControllerDiscoveredEventArgs> get discovered;
   Stream<PeripheralStateChangedEventArgs> get peripheralStateChanged;
@@ -44,14 +45,14 @@ abstract class CentralController extends PlatformInterface {
       get characteristicValueChanged;
 
   Future<void> initialize();
-  Future<CentralControllerState> getState();
   Future<void> startDiscovery();
   Future<void> stopDiscovery();
   Future<void> connect(Peripheral peripheral);
   void disconnect(Peripheral peripheral);
-  Future<List<GattService>> discoverServices(Peripheral peripheral);
-  Future<List<GattCharacteristic>> discoverCharacteristics(GattService service);
-  Future<List<GattDescriptor>> discoverDescriptors(
+  Future<void> discoverGATT(Peripheral peripheral);
+  Future<List<GattService>> getServices(Peripheral peripheral);
+  Future<List<GattCharacteristic>> getCharacteristics(GattService service);
+  Future<List<GattDescriptor>> getDescriptors(
     GattCharacteristic characteristic,
   );
   Future<Uint8List> readCharacteristic(GattCharacteristic characteristic);

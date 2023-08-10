@@ -1,5 +1,9 @@
 import 'uuid.dart';
 
-abstract class GattDescriptor {
-  Future<UUID> getUUID();
+class GattDescriptor {
+  final UUID uuid;
+
+  GattDescriptor({
+    required this.uuid,
+  });
 }

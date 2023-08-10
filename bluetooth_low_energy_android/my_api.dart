@@ -12,32 +12,30 @@ import 'package:pigeon/pigeon.dart';
   ),
 )
 @HostApi()
-abstract class MyInstanceManagerHostApi {
-  void free(int hashCode);
-}
-
-@HostApi()
 abstract class MyCentralControllerHostApi {
+  @async
+  void initialize();
+  void free(int hashCode);
   int getState();
   @async
   void startDiscovery();
   void stopDiscovery();
   @async
   void connect(int peripheralHashCode);
+  @async
   void disconnect(int peripheralHashCode);
   @async
-  List<int> discoverServices(int peripheralHashCode);
-  @async
-  List<int> discoverCharacteristics(int serviceHashCode);
-  @async
-  List<int> discoverDescriptors(int characteristicHashCode);
+  void discoverGATT(int peripheralHashCode);
+  List<MyGattServiceArgs> getServices(int peripheralHashCode);
+  List<MyGattCharacteristicArgs> getCharacteristics(int serviceHashCode);
+  List<MyGattDescriptorArgs> getDescriptors(int characteristicHashCode);
   @async
   Uint8List readCharacteristic(int characteristicHashCode);
   @async
   void writeCharacteristic(
     int characteristicHashCode,
     Uint8List value,
-    int rawType,
+    int typeNumber,
   );
   @async
   void notifyCharacteristic(int characteristicHashCode, bool state);
@@ -49,58 +47,73 @@ abstract class MyCentralControllerHostApi {
 
 @FlutterApi()
 abstract class MyCentralControllerFlutterApi {
-  void onStateChanged(int rawState);
+  void onStateChanged(int stateNumber);
   void onDiscovered(
-    int peripheralHashCode,
+    MyPeripheralArgs peripheralArgs,
     int rssi,
-    int advertisementHashCode,
+    MyAdvertisementArgs advertisementArgs,
   );
-  void onPeripheralStateChanged(int peripheralHashCode, int rawState);
+  void onPeripheralStateChanged(
+    MyPeripheralArgs peripheralArgs,
+    bool state,
+    String? errorMessage,
+  );
   void onCharacteristicValueChanged(
-    int characteristicHashCode,
+    MyGattCharacteristicArgs characteristicArgs,
     Uint8List value,
   );
 }
 
-@HostApi()
-abstract class MyPeripheralHostApi {
-  String getUUID(int hashCode);
+class MyPeripheralArgs {
+  final int hashCode;
+  final String uuidValue;
+
+  MyPeripheralArgs(this.hashCode, this.uuidValue);
 }
 
-@HostApi()
-abstract class MyGattServiceHostApi {
-  String getUUID(int hashCode);
+class MyAdvertisementArgs {
+  final String? name;
+  final Uint8List? manufacturerSpecificData;
+
+  MyAdvertisementArgs(
+    this.name,
+    this.manufacturerSpecificData,
+  );
 }
 
-@HostApi()
-abstract class MyGattCharacteristicHostApi {
-  String getUUID(int hashCode);
-  List<int> getProperties(int hashCode);
+class MyGattServiceArgs {
+  final int hashCode;
+  final String uuidValue;
+
+  MyGattServiceArgs(this.hashCode, this.uuidValue);
 }
 
-@HostApi()
-abstract class MyGattDescriptorHostApi {
-  String getUUID(int hashCode);
+class MyGattCharacteristicArgs {
+  final int hashCode;
+  final String uuidValue;
+  final List<int?> propertyNumbers;
+
+  MyGattCharacteristicArgs(
+    this.hashCode,
+    this.uuidValue,
+    this.propertyNumbers,
+  );
 }
 
-@HostApi()
-abstract class MyAdvertisementHostApi {
-  String? getName(int hashCode);
-  Uint8List? getManufacturerSpecificData(int hashCode);
+class MyGattDescriptorArgs {
+  final int hashCode;
+  final String uuidValue;
+
+  MyGattDescriptorArgs(this.hashCode, this.uuidValue);
 }
 
-enum MyCentralControllerState {
-  off,
-  on,
+enum MyCentralControllerStateArgs {
+  unauthorized,
+  poweredOff,
+  poweredOn,
 }
 
-enum MyPeripheralState {
-  disconnected,
-  connecting,
-  connected,
-}
-
-enum MyGattCharacteristicProperty {
+enum MyGattCharacteristicPropertyArgs {
   read,
   write,
   writeWithoutResponse,
@@ -108,7 +121,7 @@ enum MyGattCharacteristicProperty {
   indicate,
 }
 
-enum MyGattCharacteristicWriteType {
+enum MyGattCharacteristicWriteTypeArgs {
   // Write with response
   withResponse,
   // Write without response

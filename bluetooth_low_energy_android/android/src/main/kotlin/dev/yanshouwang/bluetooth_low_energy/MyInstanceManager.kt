@@ -1,38 +1,33 @@
 package dev.yanshouwang.bluetooth_low_energy
 
 class MyInstanceManager {
-    private val counters = mutableMapOf<Long, MyCounter>()
+    private val counters = mutableMapOf<Int, MyCounter>()
 
-    fun instanceOf(hashCode: Long): MyObject? {
+    fun instanceOf(key: Int): Any? {
         synchronized(counters) {
-            return counters[hashCode]?.instance
+            return counters[key]?.instance
         }
     }
 
-    fun allocate(instance: MyObject): Long {
+    fun allocate(key: Int, instance: Any) {
         synchronized(counters) {
-            val hashCode = instance.hashCode().toLong()
-            val oldCounter = counters[hashCode]
-            if (oldCounter == null) {
-                instance.onAllocated()
-                val newCounter = MyCounter(instance)
-                counters[hashCode] = newCounter
+            val counter = counters[key]
+            if (counter == null) {
+                counters[key] = MyCounter(instance)
             } else {
-                oldCounter.increase()
+                counter.count++
             }
-            return hashCode
         }
     }
 
-    fun free(hashCode: Long) {
+    fun free(key: Int) {
         synchronized(counters) {
-            val counter = counters[hashCode] ?: return
-            counter.decrease()
+            val counter = counters[key] ?: return
+            counter.count--
             if (counter.count > 0) {
                 return
             }
-            counters.remove(hashCode)
-            counter.instance.onFreed()
+            counters.remove(key)
         }
     }
 }

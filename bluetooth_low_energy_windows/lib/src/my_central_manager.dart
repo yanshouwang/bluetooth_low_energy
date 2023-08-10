@@ -20,7 +20,7 @@ class MyCentralManager extends CentralController {
   }
 
   @override
-  Future<List<GattService>> discoverServices(String id) {
+  Future<List<GattService>> getServices(String id) {
     // TODO: implement discoverServices
     throw UnimplementedError();
   }

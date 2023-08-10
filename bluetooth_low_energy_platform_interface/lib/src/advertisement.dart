@@ -1,6 +1,11 @@
 import 'dart:typed_data';
 
-abstract class Advertisement {
-  Future<String?> getName();
-  Future<Uint8List?> getManufacturerSpecificData();
+class Advertisement {
+  final String? name;
+  final Uint8List? manufacturerSpecificData;
+
+  Advertisement({
+    this.name,
+    this.manufacturerSpecificData,
+  });
 }

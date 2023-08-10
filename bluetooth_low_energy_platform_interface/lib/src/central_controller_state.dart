@@ -1,4 +1,5 @@
 enum CentralControllerState {
-  off,
-  on,
+  unauthorized,
+  poweredOff,
+  poweredOn,
 }
