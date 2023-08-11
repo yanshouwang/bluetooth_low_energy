@@ -1,7 +1,7 @@
 export 'src/errors.dart';
 export 'src/event_args.dart';
 export 'src/central_controller.dart';
-export 'src/central_controller_state.dart';
+export 'src/central_state.dart';
 export 'src/peripheral.dart';
 export 'src/uuid.dart';
 export 'src/advertisement.dart';

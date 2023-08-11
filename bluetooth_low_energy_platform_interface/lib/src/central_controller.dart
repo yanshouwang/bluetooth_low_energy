@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'central_controller_state.dart';
+import 'central_state.dart';
 import 'event_args.dart';
 import 'gatt_characteristic.dart';
 import 'gatt_characteristic_write_type.dart';
@@ -37,18 +37,20 @@ abstract class CentralController extends PlatformInterface {
     _instance = instance;
   }
 
-  CentralControllerState get state;
-  Stream<CentralControllerStateChangedEventArgs> get stateChanged;
-  Stream<CentralControllerDiscoveredEventArgs> get discovered;
+  CentralState get state;
+  bool get isDiscovering;
+  Stream<CentralStateChangedEventArgs> get stateChanged;
+  Stream<CentralDiscoveredEventArgs> get discovered;
   Stream<PeripheralStateChangedEventArgs> get peripheralStateChanged;
   Stream<GattCharacteristicValueChangedEventArgs>
       get characteristicValueChanged;
 
-  Future<void> initialize();
+  Future<void> setUp();
+  Future<void> tearDown();
   Future<void> startDiscovery();
   Future<void> stopDiscovery();
   Future<void> connect(Peripheral peripheral);
-  void disconnect(Peripheral peripheral);
+  Future<void> disconnect(Peripheral peripheral);
   Future<void> discoverGATT(Peripheral peripheral);
   Future<List<GattService>> getServices(Peripheral peripheral);
   Future<List<GattCharacteristic>> getCharacteristics(GattService service);

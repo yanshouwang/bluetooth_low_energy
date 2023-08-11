@@ -43,13 +43,15 @@ class FlutterError (
   val details: Any? = null
 ) : Throwable()
 
-enum class MyCentralControllerStateArgs(val raw: Int) {
-  UNAUTHORIZED(0),
-  POWEREDOFF(1),
-  POWEREDON(2);
+enum class MyCentralStateArgs(val raw: Int) {
+  UNKNOWN(0),
+  UNSUPPORTED(1),
+  UNAUTHORIZED(2),
+  POWEREDOFF(3),
+  POWEREDON(4);
 
   companion object {
-    fun ofRaw(raw: Int): MyCentralControllerStateArgs? {
+    fun ofRaw(raw: Int): MyCentralStateArgs? {
       return values().firstOrNull { it.raw == raw }
     }
   }
@@ -81,23 +83,45 @@ enum class MyGattCharacteristicWriteTypeArgs(val raw: Int) {
 }
 
 /** Generated class from Pigeon that represents data sent in messages. */
+data class MyCentralControllerArgs (
+  val myStateNumber: Long,
+  val isDiscovering: Boolean
+
+) {
+  companion object {
+    @Suppress("UNCHECKED_CAST")
+    fun fromList(list: List<Any?>): MyCentralControllerArgs {
+      val myStateNumber = list[0].let { if (it is Int) it.toLong() else it as Long }
+      val isDiscovering = list[1] as Boolean
+      return MyCentralControllerArgs(myStateNumber, isDiscovering)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf<Any?>(
+      myStateNumber,
+      isDiscovering,
+    )
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
 data class MyPeripheralArgs (
-  val hashCode: Long,
-  val uuidValue: String
+  val key: Long,
+  val uuidString: String
 
 ) {
   companion object {
     @Suppress("UNCHECKED_CAST")
     fun fromList(list: List<Any?>): MyPeripheralArgs {
-      val hashCode = list[0].let { if (it is Int) it.toLong() else it as Long }
-      val uuidValue = list[1] as String
-      return MyPeripheralArgs(hashCode, uuidValue)
+      val key = list[0].let { if (it is Int) it.toLong() else it as Long }
+      val uuidString = list[1] as String
+      return MyPeripheralArgs(key, uuidString)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
-      hashCode,
-      uuidValue,
+      key,
+      uuidString,
     )
   }
 }
@@ -105,14 +129,14 @@ data class MyPeripheralArgs (
 /** Generated class from Pigeon that represents data sent in messages. */
 data class MyAdvertisementArgs (
   val name: String? = null,
-  val manufacturerSpecificData: ByteArray? = null
+  val manufacturerSpecificData: Map<Long?, ByteArray?>
 
 ) {
   companion object {
     @Suppress("UNCHECKED_CAST")
     fun fromList(list: List<Any?>): MyAdvertisementArgs {
       val name = list[0] as String?
-      val manufacturerSpecificData = list[1] as ByteArray?
+      val manufacturerSpecificData = list[1] as Map<Long?, ByteArray?>
       return MyAdvertisementArgs(name, manufacturerSpecificData)
     }
   }
@@ -126,69 +150,69 @@ data class MyAdvertisementArgs (
 
 /** Generated class from Pigeon that represents data sent in messages. */
 data class MyGattServiceArgs (
-  val hashCode: Long,
-  val uuidValue: String
+  val key: Long,
+  val uuidString: String
 
 ) {
   companion object {
     @Suppress("UNCHECKED_CAST")
     fun fromList(list: List<Any?>): MyGattServiceArgs {
-      val hashCode = list[0].let { if (it is Int) it.toLong() else it as Long }
-      val uuidValue = list[1] as String
-      return MyGattServiceArgs(hashCode, uuidValue)
+      val key = list[0].let { if (it is Int) it.toLong() else it as Long }
+      val uuidString = list[1] as String
+      return MyGattServiceArgs(key, uuidString)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
-      hashCode,
-      uuidValue,
+      key,
+      uuidString,
     )
   }
 }
 
 /** Generated class from Pigeon that represents data sent in messages. */
 data class MyGattCharacteristicArgs (
-  val hashCode: Long,
-  val uuidValue: String,
-  val propertyNumbers: List<Long?>
+  val key: Long,
+  val uuidString: String,
+  val myPropertyNumbers: List<Long?>
 
 ) {
   companion object {
     @Suppress("UNCHECKED_CAST")
     fun fromList(list: List<Any?>): MyGattCharacteristicArgs {
-      val hashCode = list[0].let { if (it is Int) it.toLong() else it as Long }
-      val uuidValue = list[1] as String
-      val propertyNumbers = list[2] as List<Long?>
-      return MyGattCharacteristicArgs(hashCode, uuidValue, propertyNumbers)
+      val key = list[0].let { if (it is Int) it.toLong() else it as Long }
+      val uuidString = list[1] as String
+      val myPropertyNumbers = list[2] as List<Long?>
+      return MyGattCharacteristicArgs(key, uuidString, myPropertyNumbers)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
-      hashCode,
-      uuidValue,
-      propertyNumbers,
+      key,
+      uuidString,
+      myPropertyNumbers,
     )
   }
 }
 
 /** Generated class from Pigeon that represents data sent in messages. */
 data class MyGattDescriptorArgs (
-  val hashCode: Long,
-  val uuidValue: String
+  val key: Long,
+  val uuidString: String
 
 ) {
   companion object {
     @Suppress("UNCHECKED_CAST")
     fun fromList(list: List<Any?>): MyGattDescriptorArgs {
-      val hashCode = list[0].let { if (it is Int) it.toLong() else it as Long }
-      val uuidValue = list[1] as String
-      return MyGattDescriptorArgs(hashCode, uuidValue)
+      val key = list[0].let { if (it is Int) it.toLong() else it as Long }
+      val uuidString = list[1] as String
+      return MyGattDescriptorArgs(key, uuidString)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
-      hashCode,
-      uuidValue,
+      key,
+      uuidString,
     )
   }
 }
@@ -199,15 +223,20 @@ private object MyCentralControllerHostApiCodec : StandardMessageCodec() {
     return when (type) {
       128.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          MyGattCharacteristicArgs.fromList(it)
+          MyCentralControllerArgs.fromList(it)
         }
       }
       129.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          MyGattDescriptorArgs.fromList(it)
+          MyGattCharacteristicArgs.fromList(it)
         }
       }
       130.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          MyGattDescriptorArgs.fromList(it)
+        }
+      }
+      131.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
           MyGattServiceArgs.fromList(it)
         }
@@ -217,16 +246,20 @@ private object MyCentralControllerHostApiCodec : StandardMessageCodec() {
   }
   override fun writeValue(stream: ByteArrayOutputStream, value: Any?)   {
     when (value) {
-      is MyGattCharacteristicArgs -> {
+      is MyCentralControllerArgs -> {
         stream.write(128)
         writeValue(stream, value.toList())
       }
-      is MyGattDescriptorArgs -> {
+      is MyGattCharacteristicArgs -> {
         stream.write(129)
         writeValue(stream, value.toList())
       }
-      is MyGattServiceArgs -> {
+      is MyGattDescriptorArgs -> {
         stream.write(130)
+        writeValue(stream, value.toList())
+      }
+      is MyGattServiceArgs -> {
+        stream.write(131)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -236,22 +269,21 @@ private object MyCentralControllerHostApiCodec : StandardMessageCodec() {
 
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface MyCentralControllerHostApi {
-  fun initialize(callback: (Result<Unit>) -> Unit)
-  fun free(hashCode: Long)
-  fun getState(): Long
+  fun setUp(): MyCentralControllerArgs
+  fun tearDown()
   fun startDiscovery(callback: (Result<Unit>) -> Unit)
   fun stopDiscovery()
-  fun connect(peripheralHashCode: Long, callback: (Result<Unit>) -> Unit)
-  fun disconnect(peripheralHashCode: Long, callback: (Result<Unit>) -> Unit)
-  fun discoverGATT(peripheralHashCode: Long, callback: (Result<Unit>) -> Unit)
-  fun getServices(peripheralHashCode: Long): List<MyGattServiceArgs>
-  fun getCharacteristics(serviceHashCode: Long): List<MyGattCharacteristicArgs>
-  fun getDescriptors(characteristicHashCode: Long): List<MyGattDescriptorArgs>
-  fun readCharacteristic(characteristicHashCode: Long, callback: (Result<ByteArray>) -> Unit)
-  fun writeCharacteristic(characteristicHashCode: Long, value: ByteArray, typeNumber: Long, callback: (Result<Unit>) -> Unit)
-  fun notifyCharacteristic(characteristicHashCode: Long, state: Boolean, callback: (Result<Unit>) -> Unit)
-  fun readDescriptor(descriptorHashCode: Long, callback: (Result<ByteArray>) -> Unit)
-  fun writeDescriptor(descriptorHashCode: Long, value: ByteArray, callback: (Result<Unit>) -> Unit)
+  fun connect(myPeripheralKey: Long, callback: (Result<Unit>) -> Unit)
+  fun disconnect(myPeripheralKey: Long, callback: (Result<Unit>) -> Unit)
+  fun discoverGATT(myPeripheralKey: Long, callback: (Result<Unit>) -> Unit)
+  fun getServices(myPeripheralKey: Long): List<MyGattServiceArgs>
+  fun getCharacteristics(myServiceKey: Long): List<MyGattCharacteristicArgs>
+  fun getDescriptors(myCharacteristicKey: Long): List<MyGattDescriptorArgs>
+  fun readCharacteristic(myPeripheralKey: Long, myCharacteristicKey: Long, callback: (Result<ByteArray>) -> Unit)
+  fun writeCharacteristic(myPeripheralKey: Long, myCharacteristicKey: Long, value: ByteArray, myTypeNumber: Long, callback: (Result<Unit>) -> Unit)
+  fun notifyCharacteristic(myPeripheralKey: Long, myCharacteristicKey: Long, state: Boolean, callback: (Result<Unit>) -> Unit)
+  fun readDescriptor(myPeripheralKey: Long, myDescriptorKey: Long, callback: (Result<ByteArray>) -> Unit)
+  fun writeDescriptor(myPeripheralKey: Long, myDescriptorKey: Long, value: ByteArray, callback: (Result<Unit>) -> Unit)
 
   companion object {
     /** The codec used by MyCentralControllerHostApi. */
@@ -262,32 +294,12 @@ interface MyCentralControllerHostApi {
     @Suppress("UNCHECKED_CAST")
     fun setUp(binaryMessenger: BinaryMessenger, api: MyCentralControllerHostApi?) {
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.MyCentralControllerHostApi.initialize", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.MyCentralControllerHostApi.setUp", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
-            api.initialize() { result: Result<Unit> ->
-              val error = result.exceptionOrNull()
-              if (error != null) {
-                reply.reply(wrapError(error))
-              } else {
-                reply.reply(wrapResult(null))
-              }
-            }
-          }
-        } else {
-          channel.setMessageHandler(null)
-        }
-      }
-      run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.MyCentralControllerHostApi.free", codec)
-        if (api != null) {
-          channel.setMessageHandler { message, reply ->
-            val args = message as List<Any?>
-            val hashCodeArg = args[0].let { if (it is Int) it.toLong() else it as Long }
             var wrapped: List<Any?>
             try {
-              api.free(hashCodeArg)
-              wrapped = listOf<Any?>(null)
+              wrapped = listOf<Any?>(api.setUp())
             } catch (exception: Throwable) {
               wrapped = wrapError(exception)
             }
@@ -298,12 +310,13 @@ interface MyCentralControllerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.MyCentralControllerHostApi.getState", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.MyCentralControllerHostApi.tearDown", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             var wrapped: List<Any?>
             try {
-              wrapped = listOf<Any?>(api.getState())
+              api.tearDown()
+              wrapped = listOf<Any?>(null)
             } catch (exception: Throwable) {
               wrapped = wrapError(exception)
             }
@@ -352,8 +365,8 @@ interface MyCentralControllerHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val peripheralHashCodeArg = args[0].let { if (it is Int) it.toLong() else it as Long }
-            api.connect(peripheralHashCodeArg) { result: Result<Unit> ->
+            val myPeripheralKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
+            api.connect(myPeripheralKeyArg) { result: Result<Unit> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))
@@ -371,8 +384,8 @@ interface MyCentralControllerHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val peripheralHashCodeArg = args[0].let { if (it is Int) it.toLong() else it as Long }
-            api.disconnect(peripheralHashCodeArg) { result: Result<Unit> ->
+            val myPeripheralKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
+            api.disconnect(myPeripheralKeyArg) { result: Result<Unit> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))
@@ -390,8 +403,8 @@ interface MyCentralControllerHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val peripheralHashCodeArg = args[0].let { if (it is Int) it.toLong() else it as Long }
-            api.discoverGATT(peripheralHashCodeArg) { result: Result<Unit> ->
+            val myPeripheralKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
+            api.discoverGATT(myPeripheralKeyArg) { result: Result<Unit> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))
@@ -409,10 +422,10 @@ interface MyCentralControllerHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val peripheralHashCodeArg = args[0].let { if (it is Int) it.toLong() else it as Long }
+            val myPeripheralKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
             var wrapped: List<Any?>
             try {
-              wrapped = listOf<Any?>(api.getServices(peripheralHashCodeArg))
+              wrapped = listOf<Any?>(api.getServices(myPeripheralKeyArg))
             } catch (exception: Throwable) {
               wrapped = wrapError(exception)
             }
@@ -427,10 +440,10 @@ interface MyCentralControllerHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val serviceHashCodeArg = args[0].let { if (it is Int) it.toLong() else it as Long }
+            val myServiceKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
             var wrapped: List<Any?>
             try {
-              wrapped = listOf<Any?>(api.getCharacteristics(serviceHashCodeArg))
+              wrapped = listOf<Any?>(api.getCharacteristics(myServiceKeyArg))
             } catch (exception: Throwable) {
               wrapped = wrapError(exception)
             }
@@ -445,10 +458,10 @@ interface MyCentralControllerHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val characteristicHashCodeArg = args[0].let { if (it is Int) it.toLong() else it as Long }
+            val myCharacteristicKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
             var wrapped: List<Any?>
             try {
-              wrapped = listOf<Any?>(api.getDescriptors(characteristicHashCodeArg))
+              wrapped = listOf<Any?>(api.getDescriptors(myCharacteristicKeyArg))
             } catch (exception: Throwable) {
               wrapped = wrapError(exception)
             }
@@ -463,8 +476,9 @@ interface MyCentralControllerHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val characteristicHashCodeArg = args[0].let { if (it is Int) it.toLong() else it as Long }
-            api.readCharacteristic(characteristicHashCodeArg) { result: Result<ByteArray> ->
+            val myPeripheralKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
+            val myCharacteristicKeyArg = args[1].let { if (it is Int) it.toLong() else it as Long }
+            api.readCharacteristic(myPeripheralKeyArg, myCharacteristicKeyArg) { result: Result<ByteArray> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))
@@ -483,10 +497,11 @@ interface MyCentralControllerHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val characteristicHashCodeArg = args[0].let { if (it is Int) it.toLong() else it as Long }
-            val valueArg = args[1] as ByteArray
-            val typeNumberArg = args[2].let { if (it is Int) it.toLong() else it as Long }
-            api.writeCharacteristic(characteristicHashCodeArg, valueArg, typeNumberArg) { result: Result<Unit> ->
+            val myPeripheralKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
+            val myCharacteristicKeyArg = args[1].let { if (it is Int) it.toLong() else it as Long }
+            val valueArg = args[2] as ByteArray
+            val myTypeNumberArg = args[3].let { if (it is Int) it.toLong() else it as Long }
+            api.writeCharacteristic(myPeripheralKeyArg, myCharacteristicKeyArg, valueArg, myTypeNumberArg) { result: Result<Unit> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))
@@ -504,9 +519,10 @@ interface MyCentralControllerHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val characteristicHashCodeArg = args[0].let { if (it is Int) it.toLong() else it as Long }
-            val stateArg = args[1] as Boolean
-            api.notifyCharacteristic(characteristicHashCodeArg, stateArg) { result: Result<Unit> ->
+            val myPeripheralKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
+            val myCharacteristicKeyArg = args[1].let { if (it is Int) it.toLong() else it as Long }
+            val stateArg = args[2] as Boolean
+            api.notifyCharacteristic(myPeripheralKeyArg, myCharacteristicKeyArg, stateArg) { result: Result<Unit> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))
@@ -524,8 +540,9 @@ interface MyCentralControllerHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val descriptorHashCodeArg = args[0].let { if (it is Int) it.toLong() else it as Long }
-            api.readDescriptor(descriptorHashCodeArg) { result: Result<ByteArray> ->
+            val myPeripheralKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
+            val myDescriptorKeyArg = args[1].let { if (it is Int) it.toLong() else it as Long }
+            api.readDescriptor(myPeripheralKeyArg, myDescriptorKeyArg) { result: Result<ByteArray> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))
@@ -544,9 +561,10 @@ interface MyCentralControllerHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val descriptorHashCodeArg = args[0].let { if (it is Int) it.toLong() else it as Long }
-            val valueArg = args[1] as ByteArray
-            api.writeDescriptor(descriptorHashCodeArg, valueArg) { result: Result<Unit> ->
+            val myPeripheralKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
+            val myDescriptorKeyArg = args[1].let { if (it is Int) it.toLong() else it as Long }
+            val valueArg = args[2] as ByteArray
+            api.writeDescriptor(myPeripheralKeyArg, myDescriptorKeyArg, valueArg) { result: Result<Unit> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))
@@ -573,11 +591,6 @@ private object MyCentralControllerFlutterApiCodec : StandardMessageCodec() {
       }
       129.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          MyGattCharacteristicArgs.fromList(it)
-        }
-      }
-      130.toByte() -> {
-        return (readValue(buffer) as? List<Any?>)?.let {
           MyPeripheralArgs.fromList(it)
         }
       }
@@ -590,12 +603,8 @@ private object MyCentralControllerFlutterApiCodec : StandardMessageCodec() {
         stream.write(128)
         writeValue(stream, value.toList())
       }
-      is MyGattCharacteristicArgs -> {
-        stream.write(129)
-        writeValue(stream, value.toList())
-      }
       is MyPeripheralArgs -> {
-        stream.write(130)
+        stream.write(129)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -612,27 +621,33 @@ class MyCentralControllerFlutterApi(private val binaryMessenger: BinaryMessenger
       MyCentralControllerFlutterApiCodec
     }
   }
-  fun onStateChanged(stateNumberArg: Long, callback: () -> Unit) {
+  fun onStateChanged(myStateNumberArg: Long, callback: () -> Unit) {
     val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.MyCentralControllerFlutterApi.onStateChanged", codec)
-    channel.send(listOf(stateNumberArg)) {
+    channel.send(listOf(myStateNumberArg)) {
       callback()
     }
   }
-  fun onDiscovered(peripheralArgsArg: MyPeripheralArgs, rssiArg: Long, advertisementArgsArg: MyAdvertisementArgs, callback: () -> Unit) {
+  fun onDiscoveryStateChanged(isDiscoveringArg: Boolean, callback: () -> Unit) {
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.MyCentralControllerFlutterApi.onDiscoveryStateChanged", codec)
+    channel.send(listOf(isDiscoveringArg)) {
+      callback()
+    }
+  }
+  fun onDiscovered(myPeripheralArgsArg: MyPeripheralArgs, rssiArg: Long, myAdvertisementArgsArg: MyAdvertisementArgs, callback: () -> Unit) {
     val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.MyCentralControllerFlutterApi.onDiscovered", codec)
-    channel.send(listOf(peripheralArgsArg, rssiArg, advertisementArgsArg)) {
+    channel.send(listOf(myPeripheralArgsArg, rssiArg, myAdvertisementArgsArg)) {
       callback()
     }
   }
-  fun onPeripheralStateChanged(peripheralArgsArg: MyPeripheralArgs, stateArg: Boolean, errorMessageArg: String?, callback: () -> Unit) {
+  fun onPeripheralStateChanged(myPeripheralKeyArg: Long, stateArg: Boolean, errorMessageArg: String?, callback: () -> Unit) {
     val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.MyCentralControllerFlutterApi.onPeripheralStateChanged", codec)
-    channel.send(listOf(peripheralArgsArg, stateArg, errorMessageArg)) {
+    channel.send(listOf(myPeripheralKeyArg, stateArg, errorMessageArg)) {
       callback()
     }
   }
-  fun onCharacteristicValueChanged(characteristicArgsArg: MyGattCharacteristicArgs, valueArg: ByteArray, callback: () -> Unit) {
+  fun onCharacteristicValueChanged(myCharacteristicKeyArg: Long, valueArg: ByteArray, callback: () -> Unit) {
     val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.MyCentralControllerFlutterApi.onCharacteristicValueChanged", codec)
-    channel.send(listOf(characteristicArgsArg, valueArg)) {
+    channel.send(listOf(myCharacteristicKeyArg, valueArg)) {
       callback()
     }
   }

@@ -1,25 +1,25 @@
 import 'dart:typed_data';
 
 import 'advertisement.dart';
-import 'central_controller_state.dart';
+import 'central_state.dart';
 import 'errors.dart';
 import 'gatt_characteristic.dart';
 import 'peripheral.dart';
 
 abstract class EventArgs {}
 
-class CentralControllerStateChangedEventArgs extends EventArgs {
-  final CentralControllerState state;
+class CentralStateChangedEventArgs extends EventArgs {
+  final CentralState state;
 
-  CentralControllerStateChangedEventArgs(this.state);
+  CentralStateChangedEventArgs(this.state);
 }
 
-class CentralControllerDiscoveredEventArgs extends EventArgs {
+class CentralDiscoveredEventArgs extends EventArgs {
   final Peripheral peripheral;
   final int rssi;
   final Advertisement advertisement;
 
-  CentralControllerDiscoveredEventArgs(
+  CentralDiscoveredEventArgs(
     this.peripheral,
     this.rssi,
     this.advertisement,

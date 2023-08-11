@@ -4,6 +4,6 @@ import 'src/my_central_controller.dart';
 
 class BluetoothLowEnergyAndroid {
   static void registerWith() {
-    CentralController.instance = centralController;
+    CentralController.instance = MyCentralController();
   }
 }

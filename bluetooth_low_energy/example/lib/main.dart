@@ -10,7 +10,6 @@ void main() {
 }
 
 void onStartUp() async {
-  await initialize();
   runApp(const MyApp());
 }
 
@@ -22,10 +21,6 @@ void onCrashed(Object error, StackTrace stackTrace) {
   );
 }
 
-Future<void> initialize() async {
-  await CentralController.instance.initialize();
-}
-
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -35,10 +30,11 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late final CentralController centralController;
-  late final ValueNotifier<CentralControllerState> state;
-  late final StreamSubscription<CentralControllerStateChangedEventArgs>
+  late final ValueNotifier<CentralState> state;
+  late final ValueNotifier<bool> isDiscovering;
+  late final StreamSubscription<CentralStateChangedEventArgs>
       stateChangedSubscription;
-  late final StreamSubscription<CentralControllerDiscoveredEventArgs>
+  late final StreamSubscription<CentralDiscoveredEventArgs>
       discoveredSubscription;
 
   @override
@@ -46,16 +42,34 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     centralController = CentralController.instance;
     state = ValueNotifier(centralController.state);
+    isDiscovering = ValueNotifier(centralController.isDiscovering);
     stateChangedSubscription =
         centralController.stateChanged.listen(onStateChanged);
     discoveredSubscription = centralController.discovered.listen(onDiscovered);
+    setUp();
   }
 
-  void onStateChanged(CentralControllerStateChangedEventArgs eventArgs) {
+  Future<void> setUp() async {
+    await centralController.setUp();
+    state.value = centralController.state;
+    await startDiscovery();
+  }
+
+  void onStateChanged(CentralStateChangedEventArgs eventArgs) {
     state.value = eventArgs.state;
   }
 
-  void onDiscovered(CentralControllerDiscoveredEventArgs eventArgs) {}
+  void onDiscovered(CentralDiscoveredEventArgs eventArgs) {}
+
+  Future<void> startDiscovery() async {
+    await centralController.startDiscovery();
+    isDiscovering.value = true;
+  }
+
+  Future<void> stopDiscovery() async {
+    await centralController.stopDiscovery();
+    isDiscovering.value = false;
+  }
 
   @override
   Widget build(BuildContext context) {

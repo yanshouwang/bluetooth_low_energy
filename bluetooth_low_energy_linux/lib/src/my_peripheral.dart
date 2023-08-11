@@ -1,6 +1,7 @@
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
+import 'package:bluez/bluez.dart';
 
-import 'my_api.g.dart';
+import 'my_bluez.dart';
 import 'my_object.dart';
 
 class MyPeripheral extends MyObject implements Peripheral {
@@ -9,9 +10,9 @@ class MyPeripheral extends MyObject implements Peripheral {
 
   MyPeripheral(super.hashCode, this.uuid);
 
-  factory MyPeripheral.fromMyArgs(MyPeripheralArgs myArgs) {
-    final hashCode = myArgs.key;
-    final uuid = UUID.fromString(myArgs.uuidString);
+  factory MyPeripheral.fromBlueZ(BlueZDevice blueZDevice) {
+    final hashCode = blueZDevice.hashCode;
+    final uuid = blueZDevice.uuid.toUUID();
     return MyPeripheral(hashCode, uuid);
   }
 }

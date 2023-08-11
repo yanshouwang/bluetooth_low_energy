@@ -13,67 +13,79 @@ import 'package:pigeon/pigeon.dart';
 )
 @HostApi()
 abstract class MyCentralControllerHostApi {
-  @async
-  void initialize();
-  void free(int hashCode);
-  int getState();
+  MyCentralControllerArgs setUp();
+  void tearDown();
   @async
   void startDiscovery();
   void stopDiscovery();
   @async
-  void connect(int peripheralHashCode);
+  void connect(int myPeripheralKey);
   @async
-  void disconnect(int peripheralHashCode);
+  void disconnect(int myPeripheralKey);
   @async
-  void discoverGATT(int peripheralHashCode);
-  List<MyGattServiceArgs> getServices(int peripheralHashCode);
-  List<MyGattCharacteristicArgs> getCharacteristics(int serviceHashCode);
-  List<MyGattDescriptorArgs> getDescriptors(int characteristicHashCode);
+  void discoverGATT(int myPeripheralKey);
+  List<MyGattServiceArgs> getServices(int myPeripheralKey);
+  List<MyGattCharacteristicArgs> getCharacteristics(int myServiceKey);
+  List<MyGattDescriptorArgs> getDescriptors(int myCharacteristicKey);
   @async
-  Uint8List readCharacteristic(int characteristicHashCode);
+  Uint8List readCharacteristic(int myPeripheralKey, int myCharacteristicKey);
   @async
   void writeCharacteristic(
-    int characteristicHashCode,
+    int myPeripheralKey,
+    int myCharacteristicKey,
     Uint8List value,
-    int typeNumber,
+    int myTypeNumber,
   );
   @async
-  void notifyCharacteristic(int characteristicHashCode, bool state);
+  void notifyCharacteristic(
+    int myPeripheralKey,
+    int myCharacteristicKey,
+    bool state,
+  );
   @async
-  Uint8List readDescriptor(int descriptorHashCode);
+  Uint8List readDescriptor(int myPeripheralKey, int myDescriptorKey);
   @async
-  void writeDescriptor(int descriptorHashCode, Uint8List value);
+  void writeDescriptor(
+    int myPeripheralKey,
+    int myDescriptorKey,
+    Uint8List value,
+  );
 }
 
 @FlutterApi()
 abstract class MyCentralControllerFlutterApi {
-  void onStateChanged(int stateNumber);
+  void onStateChanged(int myStateNumber);
+  void onDiscoveryStateChanged(bool isDiscovering);
   void onDiscovered(
-    MyPeripheralArgs peripheralArgs,
+    MyPeripheralArgs myPeripheralArgs,
     int rssi,
-    MyAdvertisementArgs advertisementArgs,
+    MyAdvertisementArgs myAdvertisementArgs,
   );
   void onPeripheralStateChanged(
-    MyPeripheralArgs peripheralArgs,
+    int myPeripheralKey,
     bool state,
     String? errorMessage,
   );
-  void onCharacteristicValueChanged(
-    MyGattCharacteristicArgs characteristicArgs,
-    Uint8List value,
-  );
+  void onCharacteristicValueChanged(int myCharacteristicKey, Uint8List value);
+}
+
+class MyCentralControllerArgs {
+  final int myStateNumber;
+  final bool isDiscovering;
+
+  MyCentralControllerArgs(this.myStateNumber, this.isDiscovering);
 }
 
 class MyPeripheralArgs {
-  final int hashCode;
-  final String uuidValue;
+  final int key;
+  final String uuidString;
 
-  MyPeripheralArgs(this.hashCode, this.uuidValue);
+  MyPeripheralArgs(this.key, this.uuidString);
 }
 
 class MyAdvertisementArgs {
   final String? name;
-  final Uint8List? manufacturerSpecificData;
+  final Map<int?, Uint8List?> manufacturerSpecificData;
 
   MyAdvertisementArgs(
     this.name,
@@ -82,32 +94,34 @@ class MyAdvertisementArgs {
 }
 
 class MyGattServiceArgs {
-  final int hashCode;
-  final String uuidValue;
+  final int key;
+  final String uuidString;
 
-  MyGattServiceArgs(this.hashCode, this.uuidValue);
+  MyGattServiceArgs(this.key, this.uuidString);
 }
 
 class MyGattCharacteristicArgs {
-  final int hashCode;
-  final String uuidValue;
-  final List<int?> propertyNumbers;
+  final int key;
+  final String uuidString;
+  final List<int?> myPropertyNumbers;
 
   MyGattCharacteristicArgs(
-    this.hashCode,
-    this.uuidValue,
-    this.propertyNumbers,
+    this.key,
+    this.uuidString,
+    this.myPropertyNumbers,
   );
 }
 
 class MyGattDescriptorArgs {
-  final int hashCode;
-  final String uuidValue;
+  final int key;
+  final String uuidString;
 
-  MyGattDescriptorArgs(this.hashCode, this.uuidValue);
+  MyGattDescriptorArgs(this.key, this.uuidString);
 }
 
-enum MyCentralControllerStateArgs {
+enum MyCentralStateArgs {
+  unknown,
+  unsupported,
   unauthorized,
   poweredOff,
   poweredOn,

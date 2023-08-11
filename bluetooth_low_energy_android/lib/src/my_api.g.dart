@@ -8,7 +8,9 @@ import 'dart:typed_data' show Float64List, Int32List, Int64List, Uint8List;
 import 'package:flutter/foundation.dart' show ReadBuffer, WriteBuffer;
 import 'package:flutter/services.dart';
 
-enum MyCentralControllerStateArgs {
+enum MyCentralStateArgs {
+  unknown,
+  unsupported,
   unauthorized,
   poweredOff,
   poweredOn,
@@ -27,28 +29,54 @@ enum MyGattCharacteristicWriteTypeArgs {
   withoutResponse,
 }
 
-class MyPeripheralArgs {
-  MyPeripheralArgs({
-    required this.hashCode,
-    required this.uuidValue,
+class MyCentralControllerArgs {
+  MyCentralControllerArgs({
+    required this.myStateNumber,
+    required this.isDiscovering,
   });
 
-  int hashCode;
+  int myStateNumber;
 
-  String uuidValue;
+  bool isDiscovering;
 
   Object encode() {
     return <Object?>[
-      hashCode,
-      uuidValue,
+      myStateNumber,
+      isDiscovering,
+    ];
+  }
+
+  static MyCentralControllerArgs decode(Object result) {
+    result as List<Object?>;
+    return MyCentralControllerArgs(
+      myStateNumber: result[0]! as int,
+      isDiscovering: result[1]! as bool,
+    );
+  }
+}
+
+class MyPeripheralArgs {
+  MyPeripheralArgs({
+    required this.key,
+    required this.uuidString,
+  });
+
+  int key;
+
+  String uuidString;
+
+  Object encode() {
+    return <Object?>[
+      key,
+      uuidString,
     ];
   }
 
   static MyPeripheralArgs decode(Object result) {
     result as List<Object?>;
     return MyPeripheralArgs(
-      hashCode: result[0]! as int,
-      uuidValue: result[1]! as String,
+      key: result[0]! as int,
+      uuidString: result[1]! as String,
     );
   }
 }
@@ -56,12 +84,12 @@ class MyPeripheralArgs {
 class MyAdvertisementArgs {
   MyAdvertisementArgs({
     this.name,
-    this.manufacturerSpecificData,
+    required this.manufacturerSpecificData,
   });
 
   String? name;
 
-  Uint8List? manufacturerSpecificData;
+  Map<int?, Uint8List?> manufacturerSpecificData;
 
   Object encode() {
     return <Object?>[
@@ -74,90 +102,90 @@ class MyAdvertisementArgs {
     result as List<Object?>;
     return MyAdvertisementArgs(
       name: result[0] as String?,
-      manufacturerSpecificData: result[1] as Uint8List?,
+      manufacturerSpecificData: (result[1] as Map<Object?, Object?>?)!.cast<int?, Uint8List?>(),
     );
   }
 }
 
 class MyGattServiceArgs {
   MyGattServiceArgs({
-    required this.hashCode,
-    required this.uuidValue,
+    required this.key,
+    required this.uuidString,
   });
 
-  int hashCode;
+  int key;
 
-  String uuidValue;
+  String uuidString;
 
   Object encode() {
     return <Object?>[
-      hashCode,
-      uuidValue,
+      key,
+      uuidString,
     ];
   }
 
   static MyGattServiceArgs decode(Object result) {
     result as List<Object?>;
     return MyGattServiceArgs(
-      hashCode: result[0]! as int,
-      uuidValue: result[1]! as String,
+      key: result[0]! as int,
+      uuidString: result[1]! as String,
     );
   }
 }
 
 class MyGattCharacteristicArgs {
   MyGattCharacteristicArgs({
-    required this.hashCode,
-    required this.uuidValue,
-    required this.propertyNumbers,
+    required this.key,
+    required this.uuidString,
+    required this.myPropertyNumbers,
   });
 
-  int hashCode;
+  int key;
 
-  String uuidValue;
+  String uuidString;
 
-  List<int?> propertyNumbers;
+  List<int?> myPropertyNumbers;
 
   Object encode() {
     return <Object?>[
-      hashCode,
-      uuidValue,
-      propertyNumbers,
+      key,
+      uuidString,
+      myPropertyNumbers,
     ];
   }
 
   static MyGattCharacteristicArgs decode(Object result) {
     result as List<Object?>;
     return MyGattCharacteristicArgs(
-      hashCode: result[0]! as int,
-      uuidValue: result[1]! as String,
-      propertyNumbers: (result[2] as List<Object?>?)!.cast<int?>(),
+      key: result[0]! as int,
+      uuidString: result[1]! as String,
+      myPropertyNumbers: (result[2] as List<Object?>?)!.cast<int?>(),
     );
   }
 }
 
 class MyGattDescriptorArgs {
   MyGattDescriptorArgs({
-    required this.hashCode,
-    required this.uuidValue,
+    required this.key,
+    required this.uuidString,
   });
 
-  int hashCode;
+  int key;
 
-  String uuidValue;
+  String uuidString;
 
   Object encode() {
     return <Object?>[
-      hashCode,
-      uuidValue,
+      key,
+      uuidString,
     ];
   }
 
   static MyGattDescriptorArgs decode(Object result) {
     result as List<Object?>;
     return MyGattDescriptorArgs(
-      hashCode: result[0]! as int,
-      uuidValue: result[1]! as String,
+      key: result[0]! as int,
+      uuidString: result[1]! as String,
     );
   }
 }
@@ -166,14 +194,17 @@ class _MyCentralControllerHostApiCodec extends StandardMessageCodec {
   const _MyCentralControllerHostApiCodec();
   @override
   void writeValue(WriteBuffer buffer, Object? value) {
-    if (value is MyGattCharacteristicArgs) {
+    if (value is MyCentralControllerArgs) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
-    } else if (value is MyGattDescriptorArgs) {
+    } else if (value is MyGattCharacteristicArgs) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is MyGattServiceArgs) {
+    } else if (value is MyGattDescriptorArgs) {
       buffer.putUint8(130);
+      writeValue(buffer, value.encode());
+    } else if (value is MyGattServiceArgs) {
+      buffer.putUint8(131);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -184,10 +215,12 @@ class _MyCentralControllerHostApiCodec extends StandardMessageCodec {
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
       case 128: 
-        return MyGattCharacteristicArgs.decode(readValue(buffer)!);
+        return MyCentralControllerArgs.decode(readValue(buffer)!);
       case 129: 
-        return MyGattDescriptorArgs.decode(readValue(buffer)!);
+        return MyGattCharacteristicArgs.decode(readValue(buffer)!);
       case 130: 
+        return MyGattDescriptorArgs.decode(readValue(buffer)!);
+      case 131: 
         return MyGattServiceArgs.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -205,53 +238,9 @@ class MyCentralControllerHostApi {
 
   static const MessageCodec<Object?> codec = _MyCentralControllerHostApiCodec();
 
-  Future<void> initialize() async {
+  Future<MyCentralControllerArgs> setUp() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.MyCentralControllerHostApi.initialize', codec,
-        binaryMessenger: _binaryMessenger);
-    final List<Object?>? replyList =
-        await channel.send(null) as List<Object?>?;
-    if (replyList == null) {
-      throw PlatformException(
-        code: 'channel-error',
-        message: 'Unable to establish connection on channel.',
-      );
-    } else if (replyList.length > 1) {
-      throw PlatformException(
-        code: replyList[0]! as String,
-        message: replyList[1] as String?,
-        details: replyList[2],
-      );
-    } else {
-      return;
-    }
-  }
-
-  Future<void> free(int arg_hashCode) async {
-    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.MyCentralControllerHostApi.free', codec,
-        binaryMessenger: _binaryMessenger);
-    final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_hashCode]) as List<Object?>?;
-    if (replyList == null) {
-      throw PlatformException(
-        code: 'channel-error',
-        message: 'Unable to establish connection on channel.',
-      );
-    } else if (replyList.length > 1) {
-      throw PlatformException(
-        code: replyList[0]! as String,
-        message: replyList[1] as String?,
-        details: replyList[2],
-      );
-    } else {
-      return;
-    }
-  }
-
-  Future<int> getState() async {
-    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.MyCentralControllerHostApi.getState', codec,
+        'dev.flutter.pigeon.MyCentralControllerHostApi.setUp', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
         await channel.send(null) as List<Object?>?;
@@ -272,7 +261,29 @@ class MyCentralControllerHostApi {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (replyList[0] as int?)!;
+      return (replyList[0] as MyCentralControllerArgs?)!;
+    }
+  }
+
+  Future<void> tearDown() async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.MyCentralControllerHostApi.tearDown', codec,
+        binaryMessenger: _binaryMessenger);
+    final List<Object?>? replyList =
+        await channel.send(null) as List<Object?>?;
+    if (replyList == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyList.length > 1) {
+      throw PlatformException(
+        code: replyList[0]! as String,
+        message: replyList[1] as String?,
+        details: replyList[2],
+      );
+    } else {
+      return;
     }
   }
 
@@ -320,12 +331,12 @@ class MyCentralControllerHostApi {
     }
   }
 
-  Future<void> connect(int arg_peripheralHashCode) async {
+  Future<void> connect(int arg_myPeripheralKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.MyCentralControllerHostApi.connect', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_peripheralHashCode]) as List<Object?>?;
+        await channel.send(<Object?>[arg_myPeripheralKey]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -342,12 +353,12 @@ class MyCentralControllerHostApi {
     }
   }
 
-  Future<void> disconnect(int arg_peripheralHashCode) async {
+  Future<void> disconnect(int arg_myPeripheralKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.MyCentralControllerHostApi.disconnect', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_peripheralHashCode]) as List<Object?>?;
+        await channel.send(<Object?>[arg_myPeripheralKey]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -364,12 +375,12 @@ class MyCentralControllerHostApi {
     }
   }
 
-  Future<void> discoverGATT(int arg_peripheralHashCode) async {
+  Future<void> discoverGATT(int arg_myPeripheralKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.MyCentralControllerHostApi.discoverGATT', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_peripheralHashCode]) as List<Object?>?;
+        await channel.send(<Object?>[arg_myPeripheralKey]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -386,12 +397,12 @@ class MyCentralControllerHostApi {
     }
   }
 
-  Future<List<MyGattServiceArgs?>> getServices(int arg_peripheralHashCode) async {
+  Future<List<MyGattServiceArgs?>> getServices(int arg_myPeripheralKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.MyCentralControllerHostApi.getServices', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_peripheralHashCode]) as List<Object?>?;
+        await channel.send(<Object?>[arg_myPeripheralKey]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -413,12 +424,12 @@ class MyCentralControllerHostApi {
     }
   }
 
-  Future<List<MyGattCharacteristicArgs?>> getCharacteristics(int arg_serviceHashCode) async {
+  Future<List<MyGattCharacteristicArgs?>> getCharacteristics(int arg_myServiceKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.MyCentralControllerHostApi.getCharacteristics', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_serviceHashCode]) as List<Object?>?;
+        await channel.send(<Object?>[arg_myServiceKey]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -440,12 +451,12 @@ class MyCentralControllerHostApi {
     }
   }
 
-  Future<List<MyGattDescriptorArgs?>> getDescriptors(int arg_characteristicHashCode) async {
+  Future<List<MyGattDescriptorArgs?>> getDescriptors(int arg_myCharacteristicKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.MyCentralControllerHostApi.getDescriptors', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_characteristicHashCode]) as List<Object?>?;
+        await channel.send(<Object?>[arg_myCharacteristicKey]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -467,12 +478,12 @@ class MyCentralControllerHostApi {
     }
   }
 
-  Future<Uint8List> readCharacteristic(int arg_characteristicHashCode) async {
+  Future<Uint8List> readCharacteristic(int arg_myPeripheralKey, int arg_myCharacteristicKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.MyCentralControllerHostApi.readCharacteristic', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_characteristicHashCode]) as List<Object?>?;
+        await channel.send(<Object?>[arg_myPeripheralKey, arg_myCharacteristicKey]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -494,12 +505,12 @@ class MyCentralControllerHostApi {
     }
   }
 
-  Future<void> writeCharacteristic(int arg_characteristicHashCode, Uint8List arg_value, int arg_typeNumber) async {
+  Future<void> writeCharacteristic(int arg_myPeripheralKey, int arg_myCharacteristicKey, Uint8List arg_value, int arg_myTypeNumber) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.MyCentralControllerHostApi.writeCharacteristic', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_characteristicHashCode, arg_value, arg_typeNumber]) as List<Object?>?;
+        await channel.send(<Object?>[arg_myPeripheralKey, arg_myCharacteristicKey, arg_value, arg_myTypeNumber]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -516,12 +527,12 @@ class MyCentralControllerHostApi {
     }
   }
 
-  Future<void> notifyCharacteristic(int arg_characteristicHashCode, bool arg_state) async {
+  Future<void> notifyCharacteristic(int arg_myPeripheralKey, int arg_myCharacteristicKey, bool arg_state) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.MyCentralControllerHostApi.notifyCharacteristic', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_characteristicHashCode, arg_state]) as List<Object?>?;
+        await channel.send(<Object?>[arg_myPeripheralKey, arg_myCharacteristicKey, arg_state]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -538,12 +549,12 @@ class MyCentralControllerHostApi {
     }
   }
 
-  Future<Uint8List> readDescriptor(int arg_descriptorHashCode) async {
+  Future<Uint8List> readDescriptor(int arg_myPeripheralKey, int arg_myDescriptorKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.MyCentralControllerHostApi.readDescriptor', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_descriptorHashCode]) as List<Object?>?;
+        await channel.send(<Object?>[arg_myPeripheralKey, arg_myDescriptorKey]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -565,12 +576,12 @@ class MyCentralControllerHostApi {
     }
   }
 
-  Future<void> writeDescriptor(int arg_descriptorHashCode, Uint8List arg_value) async {
+  Future<void> writeDescriptor(int arg_myPeripheralKey, int arg_myDescriptorKey, Uint8List arg_value) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.MyCentralControllerHostApi.writeDescriptor', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_descriptorHashCode, arg_value]) as List<Object?>?;
+        await channel.send(<Object?>[arg_myPeripheralKey, arg_myDescriptorKey, arg_value]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -595,11 +606,8 @@ class _MyCentralControllerFlutterApiCodec extends StandardMessageCodec {
     if (value is MyAdvertisementArgs) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
-    } else if (value is MyGattCharacteristicArgs) {
-      buffer.putUint8(129);
-      writeValue(buffer, value.encode());
     } else if (value is MyPeripheralArgs) {
-      buffer.putUint8(130);
+      buffer.putUint8(129);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -612,8 +620,6 @@ class _MyCentralControllerFlutterApiCodec extends StandardMessageCodec {
       case 128: 
         return MyAdvertisementArgs.decode(readValue(buffer)!);
       case 129: 
-        return MyGattCharacteristicArgs.decode(readValue(buffer)!);
-      case 130: 
         return MyPeripheralArgs.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -624,13 +630,15 @@ class _MyCentralControllerFlutterApiCodec extends StandardMessageCodec {
 abstract class MyCentralControllerFlutterApi {
   static const MessageCodec<Object?> codec = _MyCentralControllerFlutterApiCodec();
 
-  void onStateChanged(int stateNumber);
+  void onStateChanged(int myStateNumber);
 
-  void onDiscovered(MyPeripheralArgs peripheralArgs, int rssi, MyAdvertisementArgs advertisementArgs);
+  void onDiscoveryStateChanged(bool isDiscovering);
 
-  void onPeripheralStateChanged(MyPeripheralArgs peripheralArgs, bool state, String? errorMessage);
+  void onDiscovered(MyPeripheralArgs myPeripheralArgs, int rssi, MyAdvertisementArgs myAdvertisementArgs);
 
-  void onCharacteristicValueChanged(MyGattCharacteristicArgs characteristicArgs, Uint8List value);
+  void onPeripheralStateChanged(int myPeripheralKey, bool state, String? errorMessage);
+
+  void onCharacteristicValueChanged(int myCharacteristicKey, Uint8List value);
 
   static void setup(MyCentralControllerFlutterApi? api, {BinaryMessenger? binaryMessenger}) {
     {
@@ -644,10 +652,29 @@ abstract class MyCentralControllerFlutterApi {
           assert(message != null,
           'Argument for dev.flutter.pigeon.MyCentralControllerFlutterApi.onStateChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_stateNumber = (args[0] as int?);
-          assert(arg_stateNumber != null,
+          final int? arg_myStateNumber = (args[0] as int?);
+          assert(arg_myStateNumber != null,
               'Argument for dev.flutter.pigeon.MyCentralControllerFlutterApi.onStateChanged was null, expected non-null int.');
-          api.onStateChanged(arg_stateNumber!);
+          api.onStateChanged(arg_myStateNumber!);
+          return;
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.MyCentralControllerFlutterApi.onDiscoveryStateChanged', codec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        channel.setMessageHandler(null);
+      } else {
+        channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.MyCentralControllerFlutterApi.onDiscoveryStateChanged was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final bool? arg_isDiscovering = (args[0] as bool?);
+          assert(arg_isDiscovering != null,
+              'Argument for dev.flutter.pigeon.MyCentralControllerFlutterApi.onDiscoveryStateChanged was null, expected non-null bool.');
+          api.onDiscoveryStateChanged(arg_isDiscovering!);
           return;
         });
       }
@@ -663,16 +690,16 @@ abstract class MyCentralControllerFlutterApi {
           assert(message != null,
           'Argument for dev.flutter.pigeon.MyCentralControllerFlutterApi.onDiscovered was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final MyPeripheralArgs? arg_peripheralArgs = (args[0] as MyPeripheralArgs?);
-          assert(arg_peripheralArgs != null,
+          final MyPeripheralArgs? arg_myPeripheralArgs = (args[0] as MyPeripheralArgs?);
+          assert(arg_myPeripheralArgs != null,
               'Argument for dev.flutter.pigeon.MyCentralControllerFlutterApi.onDiscovered was null, expected non-null MyPeripheralArgs.');
           final int? arg_rssi = (args[1] as int?);
           assert(arg_rssi != null,
               'Argument for dev.flutter.pigeon.MyCentralControllerFlutterApi.onDiscovered was null, expected non-null int.');
-          final MyAdvertisementArgs? arg_advertisementArgs = (args[2] as MyAdvertisementArgs?);
-          assert(arg_advertisementArgs != null,
+          final MyAdvertisementArgs? arg_myAdvertisementArgs = (args[2] as MyAdvertisementArgs?);
+          assert(arg_myAdvertisementArgs != null,
               'Argument for dev.flutter.pigeon.MyCentralControllerFlutterApi.onDiscovered was null, expected non-null MyAdvertisementArgs.');
-          api.onDiscovered(arg_peripheralArgs!, arg_rssi!, arg_advertisementArgs!);
+          api.onDiscovered(arg_myPeripheralArgs!, arg_rssi!, arg_myAdvertisementArgs!);
           return;
         });
       }
@@ -688,14 +715,14 @@ abstract class MyCentralControllerFlutterApi {
           assert(message != null,
           'Argument for dev.flutter.pigeon.MyCentralControllerFlutterApi.onPeripheralStateChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final MyPeripheralArgs? arg_peripheralArgs = (args[0] as MyPeripheralArgs?);
-          assert(arg_peripheralArgs != null,
-              'Argument for dev.flutter.pigeon.MyCentralControllerFlutterApi.onPeripheralStateChanged was null, expected non-null MyPeripheralArgs.');
+          final int? arg_myPeripheralKey = (args[0] as int?);
+          assert(arg_myPeripheralKey != null,
+              'Argument for dev.flutter.pigeon.MyCentralControllerFlutterApi.onPeripheralStateChanged was null, expected non-null int.');
           final bool? arg_state = (args[1] as bool?);
           assert(arg_state != null,
               'Argument for dev.flutter.pigeon.MyCentralControllerFlutterApi.onPeripheralStateChanged was null, expected non-null bool.');
           final String? arg_errorMessage = (args[2] as String?);
-          api.onPeripheralStateChanged(arg_peripheralArgs!, arg_state!, arg_errorMessage);
+          api.onPeripheralStateChanged(arg_myPeripheralKey!, arg_state!, arg_errorMessage);
           return;
         });
       }
@@ -711,13 +738,13 @@ abstract class MyCentralControllerFlutterApi {
           assert(message != null,
           'Argument for dev.flutter.pigeon.MyCentralControllerFlutterApi.onCharacteristicValueChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final MyGattCharacteristicArgs? arg_characteristicArgs = (args[0] as MyGattCharacteristicArgs?);
-          assert(arg_characteristicArgs != null,
-              'Argument for dev.flutter.pigeon.MyCentralControllerFlutterApi.onCharacteristicValueChanged was null, expected non-null MyGattCharacteristicArgs.');
+          final int? arg_myCharacteristicKey = (args[0] as int?);
+          assert(arg_myCharacteristicKey != null,
+              'Argument for dev.flutter.pigeon.MyCentralControllerFlutterApi.onCharacteristicValueChanged was null, expected non-null int.');
           final Uint8List? arg_value = (args[1] as Uint8List?);
           assert(arg_value != null,
               'Argument for dev.flutter.pigeon.MyCentralControllerFlutterApi.onCharacteristicValueChanged was null, expected non-null Uint8List.');
-          api.onCharacteristicValueChanged(arg_characteristicArgs!, arg_value!);
+          api.onCharacteristicValueChanged(arg_myCharacteristicKey!, arg_value!);
           return;
         });
       }

@@ -9,50 +9,42 @@ import 'my_gatt_descriptor.dart';
 import 'my_gatt_service.dart';
 import 'my_peripheral.dart';
 
-final centralController = MyCentralController._();
-
 class MyCentralController extends CentralController
     implements MyCentralControllerFlutterApi {
-  MyCentralController._()
-      : _api = MyCentralControllerHostApi(),
+  MyCentralController()
+      : _myApi = MyCentralControllerHostApi(),
         _stateChangedController = StreamController.broadcast(),
         _discoveredController = StreamController.broadcast(),
         _peripheralStateChangedController = StreamController.broadcast(),
         _characteristicValueChangedController = StreamController.broadcast(),
-        _state = CentralControllerState.unauthorized;
+        _myPeripherals = {},
+        _myCharacteristics = {},
+        _state = CentralState.unknown,
+        _isDiscovering = false;
 
-  final MyCentralControllerHostApi _api;
-  final StreamController<CentralControllerStateChangedEventArgs>
-      _stateChangedController;
-  final StreamController<CentralControllerDiscoveredEventArgs>
-      _discoveredController;
+  final MyCentralControllerHostApi _myApi;
+  final StreamController<CentralStateChangedEventArgs> _stateChangedController;
+  final StreamController<CentralDiscoveredEventArgs> _discoveredController;
   final StreamController<PeripheralStateChangedEventArgs>
       _peripheralStateChangedController;
   final StreamController<GattCharacteristicValueChangedEventArgs>
       _characteristicValueChangedController;
+  final Map<int, MyPeripheral> _myPeripherals;
+  final Map<int, MyGattCharacteristic> _myCharacteristics;
 
-  CentralControllerState _state;
+  CentralState _state;
   @override
-  CentralControllerState get state => _state;
+  CentralState get state => _state;
 
+  bool _isDiscovering;
   @override
-  Future<void> initialize() async {
-    await _api.initialize();
-    final stateNumber = await _api.getState();
-    final stateArgs = MyCentralControllerStateArgs.values[stateNumber];
-    _state = stateArgs.toState();
-    MyCentralControllerFlutterApi.setup(this);
-  }
-
-  Future<void> free(int hashCode) {
-    return _api.free(hashCode);
-  }
+  bool get isDiscovering => _isDiscovering;
 
   @override
-  Stream<CentralControllerStateChangedEventArgs> get stateChanged =>
+  Stream<CentralStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
-  Stream<CentralControllerDiscoveredEventArgs> get discovered =>
+  Stream<CentralDiscoveredEventArgs> get discovered =>
       _discoveredController.stream;
   @override
   Stream<PeripheralStateChangedEventArgs> get peripheralStateChanged =>
@@ -62,37 +54,84 @@ class MyCentralController extends CentralController
       get characteristicValueChanged =>
           _characteristicValueChangedController.stream;
 
+  void _throwWithState(CentralState state) {
+    if (this.state == state) {
+      throw BluetoothLowEnergyError('$state is unexpected.');
+    }
+  }
+
+  void _throwWithoutState(CentralState state) {
+    if (this.state != state) {
+      throw BluetoothLowEnergyError(
+        '$state is expected, but current state is ${this.state}.',
+      );
+    }
+  }
+
+  @override
+  Future<void> setUp() async {
+    _throwWithoutState(CentralState.unknown);
+    final args = await _myApi.setUp();
+    final myStateArgs = MyCentralStateArgs.values[args.myStateNumber];
+    _state = myStateArgs.toState();
+    _isDiscovering = args.isDiscovering;
+    MyCentralControllerFlutterApi.setup(this);
+  }
+
+  @override
+  Future<void> tearDown() async {
+    _throwWithState(CentralState.unknown);
+    await _myApi.tearDown();
+    MyCentralControllerFlutterApi.setup(null);
+    _myPeripherals.clear();
+    _myCharacteristics.clear();
+    _state = CentralState.unknown;
+  }
+
   @override
   Future<void> startDiscovery() {
-    return _api.startDiscovery();
+    _throwWithoutState(CentralState.poweredOn);
+    return _myApi.startDiscovery();
   }
 
   @override
   Future<void> stopDiscovery() {
-    return _api.stopDiscovery();
+    _throwWithoutState(CentralState.poweredOn);
+    return _myApi.stopDiscovery();
   }
 
   @override
   Future<void> connect(Peripheral peripheral) {
-    return _api.connect(peripheral.hashCode);
+    _throwWithoutState(CentralState.poweredOn);
+    final myPeripheral = peripheral as MyPeripheral;
+    return _myApi.connect(myPeripheral.hashCode);
   }
 
   @override
-  void disconnect(Peripheral peripheral) {
-    _api.disconnect(peripheral.hashCode).ignore();
+  Future<void> disconnect(Peripheral peripheral) {
+    _throwWithoutState(CentralState.poweredOn);
+    final myPeripheral = peripheral as MyPeripheral;
+    return _myApi.disconnect(myPeripheral.hashCode);
   }
 
   @override
   Future<void> discoverGATT(Peripheral peripheral) {
-    return _api.discoverGATT(peripheral.hashCode);
+    _throwWithoutState(CentralState.poweredOn);
+    final myPeripheral = peripheral as MyPeripheral;
+    return _myApi.discoverGATT(myPeripheral.hashCode);
   }
 
   @override
   Future<List<GattService>> getServices(Peripheral peripheral) async {
-    final argses = await _api.getServices(peripheral.hashCode);
-    return argses
+    _throwWithoutState(CentralState.poweredOn);
+    final myPeripheral = peripheral as MyPeripheral;
+    final myServiceArgses = await _myApi.getServices(myPeripheral.hashCode);
+    return myServiceArgses
         .whereType<MyGattServiceArgs>()
-        .map((args) => MyGattService.fromArgs(args))
+        .map((myServiceArgs) => MyGattService.fromMyArgs(
+              myPeripheral,
+              myServiceArgs,
+            ))
         .toList();
   }
 
@@ -100,10 +139,17 @@ class MyCentralController extends CentralController
   Future<List<GattCharacteristic>> getCharacteristics(
     GattService service,
   ) async {
-    final argses = await _api.getCharacteristics(service.hashCode);
-    return argses
+    _throwWithoutState(CentralState.poweredOn);
+    final myService = service as MyGattService;
+    final myCharactersiticArgses = await _myApi.getCharacteristics(
+      myService.hashCode,
+    );
+    return myCharactersiticArgses
         .whereType<MyGattCharacteristicArgs>()
-        .map((args) => MyGattCharacteristic.fromArgs(args))
+        .map((myCharacteristicArgs) => MyGattCharacteristic.fromMyArgs(
+              myService,
+              myCharacteristicArgs,
+            ))
         .toList();
   }
 
@@ -111,16 +157,30 @@ class MyCentralController extends CentralController
   Future<List<GattDescriptor>> getDescriptors(
     GattCharacteristic characteristic,
   ) async {
-    final argses = await _api.getDescriptors(characteristic.hashCode);
-    return argses
+    _throwWithoutState(CentralState.poweredOn);
+    final myCharacteristic = characteristic as MyGattCharacteristic;
+    final myDescriptorArgses = await _myApi.getDescriptors(
+      myCharacteristic.hashCode,
+    );
+    return myDescriptorArgses
         .whereType<MyGattDescriptorArgs>()
-        .map((args) => MyGattDescriptor.fromArgs(args))
+        .map((myDescriptorArgs) => MyGattDescriptor.fromMyArgs(
+              myCharacteristic,
+              myDescriptorArgs,
+            ))
         .toList();
   }
 
   @override
   Future<Uint8List> readCharacteristic(GattCharacteristic characteristic) {
-    return _api.readCharacteristic(characteristic.hashCode);
+    _throwWithoutState(CentralState.poweredOn);
+    final myCharacteristic = characteristic as MyGattCharacteristic;
+    final myService = myCharacteristic.myService;
+    final myPeripheral = myService.myPeripheral;
+    return _myApi.readCharacteristic(
+      myPeripheral.hashCode,
+      myCharacteristic.hashCode,
+    );
   }
 
   @override
@@ -129,9 +189,18 @@ class MyCentralController extends CentralController
     required Uint8List value,
     required GattCharacteristicWriteType type,
   }) {
-    final typeArgs = type.toArgs();
+    _throwWithoutState(CentralState.poweredOn);
+    final myCharacteristic = characteristic as MyGattCharacteristic;
+    final myService = myCharacteristic.myService;
+    final myPeripheral = myService.myPeripheral;
+    final typeArgs = type.toMyArgs();
     final typeNumber = typeArgs.index;
-    return _api.writeCharacteristic(characteristic.hashCode, value, typeNumber);
+    return _myApi.writeCharacteristic(
+      myPeripheral.hashCode,
+      myCharacteristic.hashCode,
+      value,
+      typeNumber,
+    );
   }
 
   @override
@@ -139,12 +208,25 @@ class MyCentralController extends CentralController
     GattCharacteristic characteristic, {
     required bool state,
   }) {
-    return _api.notifyCharacteristic(characteristic.hashCode, state);
+    _throwWithoutState(CentralState.poweredOn);
+    final myCharacteristic = characteristic as MyGattCharacteristic;
+    final myService = myCharacteristic.myService;
+    final myPeripheral = myService.myPeripheral;
+    return _myApi.notifyCharacteristic(
+      myPeripheral.hashCode,
+      myCharacteristic.hashCode,
+      state,
+    );
   }
 
   @override
   Future<Uint8List> readDescriptor(GattDescriptor descriptor) {
-    return _api.readDescriptor(descriptor.hashCode);
+    _throwWithoutState(CentralState.poweredOn);
+    final myDescriptor = descriptor as MyGattDescriptor;
+    final myCharacteristic = myDescriptor.myCharacteristic;
+    final myService = myCharacteristic.myService;
+    final myPeripheral = myService.myPeripheral;
+    return _myApi.readDescriptor(myPeripheral.hashCode, myDescriptor.hashCode);
   }
 
   @override
@@ -152,31 +234,45 @@ class MyCentralController extends CentralController
     GattDescriptor descriptor, {
     required Uint8List value,
   }) {
-    return _api.writeDescriptor(descriptor.hashCode, value);
+    _throwWithoutState(CentralState.poweredOn);
+    final myDescriptor = descriptor as MyGattDescriptor;
+    final myCharacteristic = myDescriptor.myCharacteristic;
+    final myService = myCharacteristic.myService;
+    final myPeripheral = myService.myPeripheral;
+    return _myApi.writeDescriptor(
+      myPeripheral.hashCode,
+      myDescriptor.hashCode,
+      value,
+    );
   }
 
   @override
-  void onStateChanged(int stateNumber) {
-    final stateArgs = MyCentralControllerStateArgs.values[stateNumber];
-    final state = stateArgs.toState();
+  void onStateChanged(int myStateNumber) {
+    final myStateArgs = MyCentralStateArgs.values[myStateNumber];
+    final state = myStateArgs.toState();
     if (_state == state) {
       return;
     }
     _state = state;
-    final eventArgs = CentralControllerStateChangedEventArgs(state);
+    final eventArgs = CentralStateChangedEventArgs(state);
     _stateChangedController.add(eventArgs);
   }
 
   @override
+  void onDiscoveryStateChanged(bool isDiscovering) {
+    _isDiscovering = isDiscovering;
+  }
+
+  @override
   void onDiscovered(
-    MyPeripheralArgs peripheralArgs,
+    MyPeripheralArgs myPeripheralArgs,
     int rssi,
-    MyAdvertisementArgs advertisementArgs,
+    MyAdvertisementArgs myAdvertisementArgs,
   ) {
-    final peripheral = MyPeripheral.fromArgs(peripheralArgs);
-    final advertisement = advertisementArgs.toAdvertisement();
-    final eventArgs = CentralControllerDiscoveredEventArgs(
-      peripheral,
+    final myPeripheral = MyPeripheral.fromMyArgs(myPeripheralArgs);
+    final advertisement = myAdvertisementArgs.toAdvertisement();
+    final eventArgs = CentralDiscoveredEventArgs(
+      myPeripheral,
       rssi,
       advertisement,
     );
@@ -185,25 +281,24 @@ class MyCentralController extends CentralController
 
   @override
   void onPeripheralStateChanged(
-    MyPeripheralArgs peripheralArgs,
+    int myPeripheralKey,
     bool state,
     String? errorMessage,
   ) {
-    final peripheral = MyPeripheral.fromArgs(peripheralArgs);
+    final myPeripheral = _myPeripherals[myPeripheralKey] as MyPeripheral;
     final error =
         errorMessage == null ? null : BluetoothLowEnergyError(errorMessage);
-    final eventArgs = PeripheralStateChangedEventArgs(peripheral, state, error);
+    final eventArgs =
+        PeripheralStateChangedEventArgs(myPeripheral, state, error);
     _peripheralStateChangedController.add(eventArgs);
   }
 
   @override
-  void onCharacteristicValueChanged(
-    MyGattCharacteristicArgs characteristicArgs,
-    Uint8List value,
-  ) {
-    final characteristic = MyGattCharacteristic.fromArgs(characteristicArgs);
+  void onCharacteristicValueChanged(int myCharacteristicKey, Uint8List value) {
+    final myCharacteristic =
+        _myCharacteristics[myCharacteristicKey] as MyGattCharacteristic;
     final eventArgs = GattCharacteristicValueChangedEventArgs(
-      characteristic,
+      myCharacteristic,
       value,
     );
     _characteristicValueChangedController.add(eventArgs);
@@ -214,19 +309,19 @@ extension on MyAdvertisementArgs {
   Advertisement toAdvertisement() {
     return Advertisement(
       name: name,
-      manufacturerSpecificData: manufacturerSpecificData,
+      manufacturerSpecificData: manufacturerSpecificData.cast<int, Uint8List>(),
     );
   }
 }
 
-extension on MyCentralControllerStateArgs {
-  CentralControllerState toState() {
-    return CentralControllerState.values[index];
+extension on MyCentralStateArgs {
+  CentralState toState() {
+    return CentralState.values[index];
   }
 }
 
 extension on GattCharacteristicWriteType {
-  MyGattCharacteristicWriteTypeArgs toArgs() {
+  MyGattCharacteristicWriteTypeArgs toMyArgs() {
     return MyGattCharacteristicWriteTypeArgs.values[index];
   }
 }
