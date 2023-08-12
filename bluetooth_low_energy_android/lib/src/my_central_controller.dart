@@ -280,16 +280,12 @@ class MyCentralController extends CentralController
   }
 
   @override
-  void onPeripheralStateChanged(
-    int myPeripheralKey,
-    bool state,
-    String? errorMessage,
-  ) {
-    final myPeripheral = _myPeripherals[myPeripheralKey] as MyPeripheral;
-    final error =
-        errorMessage == null ? null : BluetoothLowEnergyError(errorMessage);
-    final eventArgs =
-        PeripheralStateChangedEventArgs(myPeripheral, state, error);
+  void onPeripheralStateChanged(int myPeripheralKey, bool state) {
+    final myPeripheral = _myPeripherals[myPeripheralKey];
+    if (myPeripheral == null) {
+      return;
+    }
+    final eventArgs = PeripheralStateChangedEventArgs(myPeripheral, state);
     _peripheralStateChangedController.add(eventArgs);
   }
 

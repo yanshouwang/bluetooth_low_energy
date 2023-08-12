@@ -639,9 +639,9 @@ class MyCentralControllerFlutterApi(private val binaryMessenger: BinaryMessenger
       callback()
     }
   }
-  fun onPeripheralStateChanged(myPeripheralKeyArg: Long, stateArg: Boolean, errorMessageArg: String?, callback: () -> Unit) {
+  fun onPeripheralStateChanged(myPeripheralKeyArg: Long, stateArg: Boolean, callback: () -> Unit) {
     val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.MyCentralControllerFlutterApi.onPeripheralStateChanged", codec)
-    channel.send(listOf(myPeripheralKeyArg, stateArg, errorMessageArg)) {
+    channel.send(listOf(myPeripheralKeyArg, stateArg)) {
       callback()
     }
   }

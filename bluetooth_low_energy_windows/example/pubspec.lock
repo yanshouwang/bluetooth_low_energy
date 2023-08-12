@@ -15,14 +15,14 @@ packages:
       path: "../../bluetooth_low_energy_platform_interface"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "2.0.0"
   bluetooth_low_energy_windows:
     dependency: "direct main"
     description:
       path: ".."
       relative: true
     source: path
-    version: "0.0.1"
+    version: "2.0.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -207,5 +207,5 @@ packages:
     source: hosted
     version: "2.1.4"
 sdks:
-  dart: ">=3.0.3 <4.0.0"
+  dart: ">=3.0.0 <4.0.0"
   flutter: ">=3.3.0"

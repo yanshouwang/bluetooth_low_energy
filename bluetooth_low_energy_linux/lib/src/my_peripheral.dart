@@ -5,14 +5,10 @@ import 'my_bluez.dart';
 import 'my_object.dart';
 
 class MyPeripheral extends MyObject implements Peripheral {
+  final BlueZDevice device;
+
+  MyPeripheral(this.device) : super(device);
+
   @override
-  final UUID uuid;
-
-  MyPeripheral(super.hashCode, this.uuid);
-
-  factory MyPeripheral.fromBlueZ(BlueZDevice blueZDevice) {
-    final hashCode = blueZDevice.hashCode;
-    final uuid = blueZDevice.uuid.toUUID();
-    return MyPeripheral(hashCode, uuid);
-  }
+  UUID get uuid => device.uuid.toUUID();
 }

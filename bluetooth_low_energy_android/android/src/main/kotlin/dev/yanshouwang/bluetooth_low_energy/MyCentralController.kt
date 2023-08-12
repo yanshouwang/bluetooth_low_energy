@@ -362,15 +362,13 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         if (connectCallback == null && disconnectCallback == null) {
             // State changed.
             val state = newState == BluetoothProfile.STATE_CONNECTED
-            val errorMessage = if (state) null
-            else "Connection lost with status: $status"
-            myApi.onPeripheralStateChanged(myPeripheralKey, state, errorMessage) {}
+            myApi.onPeripheralStateChanged(myPeripheralKey, state) {}
         } else {
             if (connectCallback != null) {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     // Connect succeed.
                     connectCallback(Result.success(Unit))
-                    myApi.onPeripheralStateChanged(myPeripheralKey, true, null) {}
+                    myApi.onPeripheralStateChanged(myPeripheralKey, true) {}
                 } else {
                     // Connect failed.
                     val exception = IllegalStateException("Connect failed with status: $status")
@@ -381,7 +379,7 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     // Disconnect succeed.
                     disconnectCallback(Result.success(Unit))
-                    myApi.onPeripheralStateChanged(myPeripheralKey, false, null) {}
+                    myApi.onPeripheralStateChanged(myPeripheralKey, false) {}
                 } else {
                     // Disconnect failed.
                     val exception = IllegalStateException("Connect failed with status: $status")

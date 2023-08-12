@@ -23,7 +23,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.0.1"
+    version: "2.0.0"
   bluetooth_low_energy_android:
     dependency: transitive
     description:
@@ -58,7 +58,7 @@ packages:
       path: "../../bluetooth_low_energy_platform_interface"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "2.0.0"
   bluetooth_low_energy_windows:
     dependency: transitive
     description:

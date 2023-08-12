@@ -61,11 +61,7 @@ abstract class MyCentralControllerFlutterApi {
     int rssi,
     MyAdvertisementArgs myAdvertisementArgs,
   );
-  void onPeripheralStateChanged(
-    int myPeripheralKey,
-    bool state,
-    String? errorMessage,
-  );
+  void onPeripheralStateChanged(int myPeripheralKey, bool state);
   void onCharacteristicValueChanged(int myCharacteristicKey, Uint8List value);
 }
 

@@ -5,19 +5,13 @@ import 'my_bluez.dart';
 import 'my_object.dart';
 
 class MyGattCharacteristic extends MyObject implements GattCharacteristic {
-  @override
-  final UUID uuid;
-  @override
-  final List<GattCharacteristicProperty> properties;
+  final BlueZGattCharacteristic characteristic;
 
-  MyGattCharacteristic(super.hashCode, this.uuid, this.properties);
+  MyGattCharacteristic(this.characteristic) : super(characteristic);
 
-  factory MyGattCharacteristic.fromBlueZ(
-    BlueZGattCharacteristic blueZCharacteristic,
-  ) {
-    final hashCode = blueZCharacteristic.hashCode;
-    final uuid = blueZCharacteristic.uuid.toUUID();
-    final properties = blueZCharacteristic.properties;
-    return MyGattCharacteristic(hashCode, uuid, properties);
-  }
+  @override
+  UUID get uuid => characteristic.uuid.toUUID();
+
+  @override
+  List<GattCharacteristicProperty> get properties => characteristic.properties;
 }

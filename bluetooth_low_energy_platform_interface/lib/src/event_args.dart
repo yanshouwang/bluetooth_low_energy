@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'advertisement.dart';
 import 'central_state.dart';
-import 'errors.dart';
 import 'gatt_characteristic.dart';
 import 'peripheral.dart';
 
@@ -19,23 +18,14 @@ class CentralDiscoveredEventArgs extends EventArgs {
   final int rssi;
   final Advertisement advertisement;
 
-  CentralDiscoveredEventArgs(
-    this.peripheral,
-    this.rssi,
-    this.advertisement,
-  );
+  CentralDiscoveredEventArgs(this.peripheral, this.rssi, this.advertisement);
 }
 
 class PeripheralStateChangedEventArgs extends EventArgs {
   final Peripheral peripheral;
   final bool state;
-  final BluetoothLowEnergyError? error;
 
-  PeripheralStateChangedEventArgs(
-    this.peripheral,
-    this.state,
-    this.error,
-  );
+  PeripheralStateChangedEventArgs(this.peripheral, this.state);
 }
 
 class GattCharacteristicValueChangedEventArgs extends EventArgs {

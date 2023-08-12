@@ -636,7 +636,7 @@ abstract class MyCentralControllerFlutterApi {
 
   void onDiscovered(MyPeripheralArgs myPeripheralArgs, int rssi, MyAdvertisementArgs myAdvertisementArgs);
 
-  void onPeripheralStateChanged(int myPeripheralKey, bool state, String? errorMessage);
+  void onPeripheralStateChanged(int myPeripheralKey, bool state);
 
   void onCharacteristicValueChanged(int myCharacteristicKey, Uint8List value);
 
@@ -721,8 +721,7 @@ abstract class MyCentralControllerFlutterApi {
           final bool? arg_state = (args[1] as bool?);
           assert(arg_state != null,
               'Argument for dev.flutter.pigeon.MyCentralControllerFlutterApi.onPeripheralStateChanged was null, expected non-null bool.');
-          final String? arg_errorMessage = (args[2] as String?);
-          api.onPeripheralStateChanged(arg_myPeripheralKey!, arg_state!, arg_errorMessage);
+          api.onPeripheralStateChanged(arg_myPeripheralKey!, arg_state!);
           return;
         });
       }
