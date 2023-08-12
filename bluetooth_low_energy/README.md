@@ -1,18 +1,35 @@
 # bluetooth_low_energy
 
-A new Flutter plugin project.
+A Flutter plugin for controlling the bluetooth low energy.
+
+## Features
+
+### CentralController
+- [x] Get/Listen central state.
+- [x] Start/Stop discovery.
+- [x] Connect/Disconnect peripherals.
+- [x] Discover GATT.
+- [x] Get GATT services.
+- [x] Get GATT characteristics.
+- [x] Get GATT descriptors.
+- [x] Read/Write/Notify GATT characteristics.
+- [x] Read/Write GATT descriptors.
 
 ## Getting Started
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+Add `bluetooth_low_energy` as a [dependency in your pubspec.yaml file](https://flutter.dev/using-packages/).
 
-For help getting started with Flutter development, view the
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```
+dependencies:
+  bluetooth_low_energy: ^<latest-version>
+```
 
-The plugin project was generated without specifying the `--platforms` flag, no platforms are currently supported.
-To add platforms, run `flutter create -t plugin --platforms <platforms> .` in this directory.
-You can also find a detailed instruction on how to add platforms in the `pubspec.yaml` at https://flutter.dev/docs/development/packages-and-plugins/developing-packages#plugin-platforms.
+*Note*: Bluetooth Low Energy doesn't work on emulators, so use physical devices which has bluetooth features for development.
+
+### Android
+
+Make sure you have a `miniSdkVersion` with 21 or higher in your `android/app/build.gradle` file.
+
+### iOS
+
+According to Apple's [documents](https://developer.apple.com/documentation/corebluetooth/), you must include the [`NSBluetoothAlwaysUsageDescription`](https://developer.apple.com/documentation/bundleresources/information_property_list/nsbluetoothalwaysusagedescription) on or after iOS 13, and include the [`NSBluetoothPeripheralUsageDescription`](https://developer.apple.com/documentation/bundleresources/information_property_list/nsbluetoothperipheralusagedescription) key before iOS 13.
