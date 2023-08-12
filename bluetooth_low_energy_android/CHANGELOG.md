@@ -1,3 +1,4 @@
-## 0.0.1
+## 2.0.0
 
-* TODO: Describe initial release.
+- Rewrite the whole project with federated plugins.
+- Support macOS and Linux.

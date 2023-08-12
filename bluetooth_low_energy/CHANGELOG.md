@@ -1,6 +1,6 @@
 ## 2.0.0
 
-- Rewrite the whole project to simplify the usage of central controller.
+- Rewrite the whole project with federated plugins.
 - Support macOS and Linux.
 
 ## 1.1.0
