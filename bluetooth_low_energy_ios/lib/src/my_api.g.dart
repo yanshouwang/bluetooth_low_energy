@@ -235,7 +235,7 @@ class MyCentralControllerHostApi {
 
   Future<MyCentralControllerArgs> setUp() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerHostApi.setUp', codec,
+        'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.setUp', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
         await channel.send(null) as List<Object?>?;
@@ -262,7 +262,7 @@ class MyCentralControllerHostApi {
 
   Future<void> tearDown() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerHostApi.tearDown', codec,
+        'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.tearDown', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
         await channel.send(null) as List<Object?>?;
@@ -284,7 +284,7 @@ class MyCentralControllerHostApi {
 
   Future<void> startDiscovery() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerHostApi.startDiscovery', codec,
+        'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.startDiscovery', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
         await channel.send(null) as List<Object?>?;
@@ -306,7 +306,7 @@ class MyCentralControllerHostApi {
 
   Future<void> stopDiscovery() async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerHostApi.stopDiscovery', codec,
+        'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.stopDiscovery', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
         await channel.send(null) as List<Object?>?;
@@ -328,7 +328,7 @@ class MyCentralControllerHostApi {
 
   Future<void> connect(int arg_myPeripheralKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerHostApi.connect', codec,
+        'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.connect', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
         await channel.send(<Object?>[arg_myPeripheralKey]) as List<Object?>?;
@@ -350,7 +350,7 @@ class MyCentralControllerHostApi {
 
   Future<void> disconnect(int arg_myPeripheralKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerHostApi.disconnect', codec,
+        'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.disconnect', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
         await channel.send(<Object?>[arg_myPeripheralKey]) as List<Object?>?;
@@ -372,7 +372,7 @@ class MyCentralControllerHostApi {
 
   Future<void> discoverGATT(int arg_myPeripheralKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerHostApi.discoverGATT', codec,
+        'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.discoverGATT', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
         await channel.send(<Object?>[arg_myPeripheralKey]) as List<Object?>?;
@@ -394,7 +394,7 @@ class MyCentralControllerHostApi {
 
   Future<List<MyGattServiceArgs?>> getServices(int arg_myPeripheralKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerHostApi.getServices', codec,
+        'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.getServices', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
         await channel.send(<Object?>[arg_myPeripheralKey]) as List<Object?>?;
@@ -421,7 +421,7 @@ class MyCentralControllerHostApi {
 
   Future<List<MyGattCharacteristicArgs?>> getCharacteristics(int arg_myServiceKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerHostApi.getCharacteristics', codec,
+        'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.getCharacteristics', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
         await channel.send(<Object?>[arg_myServiceKey]) as List<Object?>?;
@@ -448,7 +448,7 @@ class MyCentralControllerHostApi {
 
   Future<List<MyGattDescriptorArgs?>> getDescriptors(int arg_myCharacteristicKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerHostApi.getDescriptors', codec,
+        'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.getDescriptors', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
         await channel.send(<Object?>[arg_myCharacteristicKey]) as List<Object?>?;
@@ -475,7 +475,7 @@ class MyCentralControllerHostApi {
 
   Future<Uint8List> readCharacteristic(int arg_myPeripheralKey, int arg_myCharacteristicKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerHostApi.readCharacteristic', codec,
+        'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.readCharacteristic', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
         await channel.send(<Object?>[arg_myPeripheralKey, arg_myCharacteristicKey]) as List<Object?>?;
@@ -502,7 +502,7 @@ class MyCentralControllerHostApi {
 
   Future<void> writeCharacteristic(int arg_myPeripheralKey, int arg_myCharacteristicKey, Uint8List arg_value, int arg_myTypeNumber) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerHostApi.writeCharacteristic', codec,
+        'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.writeCharacteristic', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
         await channel.send(<Object?>[arg_myPeripheralKey, arg_myCharacteristicKey, arg_value, arg_myTypeNumber]) as List<Object?>?;
@@ -524,7 +524,7 @@ class MyCentralControllerHostApi {
 
   Future<void> notifyCharacteristic(int arg_myPeripheralKey, int arg_myCharacteristicKey, bool arg_state) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerHostApi.notifyCharacteristic', codec,
+        'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.notifyCharacteristic', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
         await channel.send(<Object?>[arg_myPeripheralKey, arg_myCharacteristicKey, arg_state]) as List<Object?>?;
@@ -546,7 +546,7 @@ class MyCentralControllerHostApi {
 
   Future<Uint8List> readDescriptor(int arg_myPeripheralKey, int arg_myDescriptorKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerHostApi.readDescriptor', codec,
+        'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.readDescriptor', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
         await channel.send(<Object?>[arg_myPeripheralKey, arg_myDescriptorKey]) as List<Object?>?;
@@ -573,7 +573,7 @@ class MyCentralControllerHostApi {
 
   Future<void> writeDescriptor(int arg_myPeripheralKey, int arg_myDescriptorKey, Uint8List arg_value) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerHostApi.writeDescriptor', codec,
+        'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.writeDescriptor', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
         await channel.send(<Object?>[arg_myPeripheralKey, arg_myDescriptorKey, arg_value]) as List<Object?>?;
@@ -636,18 +636,18 @@ abstract class MyCentralControllerFlutterApi {
   static void setup(MyCentralControllerFlutterApi? api, {BinaryMessenger? binaryMessenger}) {
     {
       final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerFlutterApi.onStateChanged', codec,
+          'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onStateChanged', codec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         channel.setMessageHandler(null);
       } else {
         channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerFlutterApi.onStateChanged was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onStateChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_myStateNumber = (args[0] as int?);
           assert(arg_myStateNumber != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerFlutterApi.onStateChanged was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onStateChanged was null, expected non-null int.');
           api.onStateChanged(arg_myStateNumber!);
           return;
         });
@@ -655,24 +655,24 @@ abstract class MyCentralControllerFlutterApi {
     }
     {
       final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerFlutterApi.onDiscovered', codec,
+          'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onDiscovered', codec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         channel.setMessageHandler(null);
       } else {
         channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerFlutterApi.onDiscovered was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onDiscovered was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final MyPeripheralArgs? arg_myPeripheralArgs = (args[0] as MyPeripheralArgs?);
           assert(arg_myPeripheralArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerFlutterApi.onDiscovered was null, expected non-null MyPeripheralArgs.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onDiscovered was null, expected non-null MyPeripheralArgs.');
           final int? arg_rssi = (args[1] as int?);
           assert(arg_rssi != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerFlutterApi.onDiscovered was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onDiscovered was null, expected non-null int.');
           final MyAdvertisementArgs? arg_myAdvertisementArgs = (args[2] as MyAdvertisementArgs?);
           assert(arg_myAdvertisementArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerFlutterApi.onDiscovered was null, expected non-null MyAdvertisementArgs.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onDiscovered was null, expected non-null MyAdvertisementArgs.');
           api.onDiscovered(arg_myPeripheralArgs!, arg_rssi!, arg_myAdvertisementArgs!);
           return;
         });
@@ -680,21 +680,21 @@ abstract class MyCentralControllerFlutterApi {
     }
     {
       final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerFlutterApi.onPeripheralStateChanged', codec,
+          'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onPeripheralStateChanged', codec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         channel.setMessageHandler(null);
       } else {
         channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerFlutterApi.onPeripheralStateChanged was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onPeripheralStateChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_myPeripheralKey = (args[0] as int?);
           assert(arg_myPeripheralKey != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerFlutterApi.onPeripheralStateChanged was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onPeripheralStateChanged was null, expected non-null int.');
           final bool? arg_state = (args[1] as bool?);
           assert(arg_state != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerFlutterApi.onPeripheralStateChanged was null, expected non-null bool.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onPeripheralStateChanged was null, expected non-null bool.');
           api.onPeripheralStateChanged(arg_myPeripheralKey!, arg_state!);
           return;
         });
@@ -702,21 +702,21 @@ abstract class MyCentralControllerFlutterApi {
     }
     {
       final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerFlutterApi.onCharacteristicValueChanged', codec,
+          'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onCharacteristicValueChanged', codec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         channel.setMessageHandler(null);
       } else {
         channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerFlutterApi.onCharacteristicValueChanged was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onCharacteristicValueChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_myCharacteristicKey = (args[0] as int?);
           assert(arg_myCharacteristicKey != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerFlutterApi.onCharacteristicValueChanged was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onCharacteristicValueChanged was null, expected non-null int.');
           final Uint8List? arg_value = (args[1] as Uint8List?);
           assert(arg_value != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerFlutterApi.onCharacteristicValueChanged was null, expected non-null Uint8List.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onCharacteristicValueChanged was null, expected non-null Uint8List.');
           api.onCharacteristicValueChanged(arg_myCharacteristicKey!, arg_value!);
           return;
         });

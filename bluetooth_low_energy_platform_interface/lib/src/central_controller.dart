@@ -38,7 +38,6 @@ abstract class CentralController extends PlatformInterface {
   }
 
   CentralState get state;
-  bool get isDiscovering;
   Stream<CentralStateChangedEventArgs> get stateChanged;
   Stream<CentralDiscoveredEventArgs> get discovered;
   Stream<PeripheralStateChangedEventArgs> get peripheralStateChanged;

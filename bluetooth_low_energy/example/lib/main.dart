@@ -42,7 +42,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     centralController = CentralController.instance;
     state = ValueNotifier(centralController.state);
-    isDiscovering = ValueNotifier(centralController.isDiscovering);
+    isDiscovering = ValueNotifier(false);
     stateChangedSubscription =
         centralController.stateChanged.listen(onStateChanged);
     discoveredSubscription = centralController.discovered.listen(onDiscovered);

@@ -1,8 +1,9 @@
+import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
-import 'bluetooth_low_energy_ios_platform_interface.dart';
+import 'src/my_central_controller.dart';
 
-class BluetoothLowEnergyIos {
-  Future<String?> getPlatformVersion() {
-    return BluetoothLowEnergyIosPlatform.instance.getPlatformVersion();
+abstract class BluetoothLowEnergyiOS {
+  static void registerWith() {
+    CentralController.instance = MyCentralController();
   }
 }

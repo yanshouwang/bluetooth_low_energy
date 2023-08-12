@@ -4,18 +4,14 @@ import 'package:pigeon/pigeon.dart';
   PigeonOptions(
     dartOut: 'lib/src/my_api.g.dart',
     dartOptions: DartOptions(),
-    kotlinOut:
-        'android/src/main/kotlin/dev/yanshouwang/bluetooth_low_energy/MyApi.g.kt',
-    kotlinOptions: KotlinOptions(
-      package: 'dev.yanshouwang.bluetooth_low_energy',
-    ),
+    kotlinOut: 'iOS/Classes/MyApi.g.swift',
+    swiftOptions: SwiftOptions(),
   ),
 )
 @HostApi()
 abstract class MyCentralControllerHostApi {
   MyCentralControllerArgs setUp();
   void tearDown();
-  @async
   void startDiscovery();
   void stopDiscovery();
   @async

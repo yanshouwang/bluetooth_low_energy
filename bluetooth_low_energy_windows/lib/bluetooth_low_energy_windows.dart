@@ -1,9 +1,9 @@
-export 'src/bluetooth_low_energy_windows_plugin.dart';
+import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
-import 'bluetooth_low_energy_windows_platform_interface.dart';
+import 'src/my_central_controller.dart';
 
-class BluetoothLowEnergyWindows {
-  Future<String?> getPlatformVersion() {
-    return BluetoothLowEnergyWindowsPlatform.instance.getPlatformVersion();
+abstract class BluetoothLowEnergyWindows {
+  static void registerWith() {
+    CentralController.instance = MyCentralController();
   }
 }

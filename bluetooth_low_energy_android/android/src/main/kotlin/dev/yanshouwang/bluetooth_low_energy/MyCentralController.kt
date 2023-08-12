@@ -44,16 +44,7 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
     private val descriptors = mutableMapOf<Int, BluetoothGattDescriptor>()
 
     private var isRegisteredReceiver = false
-    private var _isDiscovering = false
-    private var isDiscovering: Boolean
-        get() = _isDiscovering
-        set(value) {
-            if (value == _isDiscovering) {
-                return
-            }
-            _isDiscovering = value
-            myApi.onDiscoveryStateChanged(value) {}
-        }
+    private var isDiscovering = false
 
     private var startDiscoveryCallback: ((Result<Unit>) -> Unit)? = null
     private val connectCallbacks = mutableMapOf<Int, (Result<Unit>) -> Unit>()
@@ -79,7 +70,7 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
             } else MyCentralStateArgs.UNAUTHORIZED
         } else MyCentralStateArgs.UNSUPPORTED
         val stateNumber = myStateArgs.raw.toLong()
-        return MyCentralControllerArgs(stateNumber, isDiscovering)
+        return MyCentralControllerArgs(stateNumber)
     }
 
     override fun tearDown() {
