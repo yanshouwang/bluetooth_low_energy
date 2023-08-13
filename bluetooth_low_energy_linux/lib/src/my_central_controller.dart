@@ -49,10 +49,6 @@ class MyCentralController extends CentralController {
   CentralState get state => _state;
 
   @override
-  bool get isDiscovering =>
-      state == CentralState.poweredOn ? _adapter.discovering : false;
-
-  @override
   Stream<CentralStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
@@ -110,6 +106,9 @@ class MyCentralController extends CentralController {
   @override
   Future<void> tearDown() async {
     _throwWithState(CentralState.unknown);
+    if (_state != CentralState.unsupported && _adapter.discovering) {
+      await _adapter.stopDiscovery();
+    }
     for (var myPeripheral in _myPeripherals.values) {
       final device = myPeripheral.device;
       if (device.connected) {
@@ -120,7 +119,6 @@ class MyCentralController extends CentralController {
     _myServices.clear();
     _myCharacteristics.clear();
     _myDescriptors.clear();
-    await _client.close();
     for (var device in _client.devices) {
       if (device.adapter != _adapter) {
         continue;
@@ -130,6 +128,7 @@ class MyCentralController extends CentralController {
     _adapterPropertiesChangedSubscription.cancel();
     _deviceAddedSubscription.cancel();
     _deviceRemovedSubscription.cancel();
+    await _client.close();
     _state = CentralState.unknown;
   }
 
