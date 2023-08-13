@@ -30,28 +30,28 @@ packages:
       path: "../../bluetooth_low_energy_android"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "2.0.0"
   bluetooth_low_energy_ios:
     dependency: transitive
     description:
       path: "../../bluetooth_low_energy_ios"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "2.0.0"
   bluetooth_low_energy_linux:
     dependency: transitive
     description:
       path: "../../bluetooth_low_energy_linux"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "2.0.0"
   bluetooth_low_energy_macos:
     dependency: transitive
     description:
       path: "../../bluetooth_low_energy_macos"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "2.0.0"
   bluetooth_low_energy_platform_interface:
     dependency: transitive
     description:
@@ -65,7 +65,7 @@ packages:
       path: "../../bluetooth_low_energy_windows"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "2.0.0"
   bluez:
     dependency: transitive
     description:
