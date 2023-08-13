@@ -252,6 +252,7 @@ class MyCentralController: MyCentralControllerHostApi {
     func didDiscover(_ peripheral: CBPeripheral, _ advertisementData: [String : Any], _ rssiNumber: NSNumber) {
         let peripheralKey = peripheral.hash
         if peripherals[peripheralKey] == nil {
+            peripheral.delegate = myPeripheralDelegate
             peripherals[peripheralKey] = peripheral
         }
         let myPeripheralArgs = peripheral.toMyArgs()
