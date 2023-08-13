@@ -185,21 +185,39 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         val deviceKey = myPeripheralKey.toInt()
         val gatt = gatts[deviceKey] as BluetoothGatt
         val services = gatt.services
-        return services.map { service -> service.toMyArgs() }
+        return services.map { service ->
+            val serviceKey = service.hashCode()
+            if (this.services[serviceKey] == null) {
+                this.services[serviceKey] = service
+            }
+            return@map service.toMyArgs()
+        }
     }
 
     override fun getCharacteristics(myServiceKey: Long): List<MyGattCharacteristicArgs> {
         val serviceKey = myServiceKey.toInt()
         val service = services[serviceKey] as BluetoothGattService
         val characteristics = service.characteristics
-        return characteristics.map { characteristic -> characteristic.toMyArgs() }
+        return characteristics.map { characteristic ->
+            val characteristicKey = characteristic.hashCode()
+            if (this.characteristics[characteristicKey] == null) {
+                this.characteristics[characteristicKey] = characteristic
+            }
+            return@map characteristic.toMyArgs()
+        }
     }
 
     override fun getDescriptors(myCharacteristicKey: Long): List<MyGattDescriptorArgs> {
         val characteristicKey = myCharacteristicKey.toInt()
         val characteristic = characteristics[characteristicKey] as BluetoothGattCharacteristic
         val descriptors = characteristic.descriptors
-        return descriptors.map { descriptor -> descriptor.toMyArgs() }
+        return descriptors.map { descriptor ->
+            val descriptorKey = descriptor.hashCode()
+            if (this.descriptors[descriptorKey] == null) {
+                this.descriptors[descriptorKey] = descriptor
+            }
+            return@map descriptor.toMyArgs()
+        }
     }
 
     override fun readCharacteristic(myPeripheralKey: Long, myCharacteristicKey: Long, callback: (Result<ByteArray>) -> Unit) {
@@ -335,6 +353,10 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
 
     fun onScanResult(result: ScanResult) {
         val device = result.device
+        val deviceKey = device.hashCode()
+        if (devices[deviceKey] == null) {
+            devices[deviceKey] = device
+        }
         val myPeripheralArgs = device.toMyArgs()
         val rssi = result.rssi.toLong()
         val myAdvertisementArgs = result.myAdvertisementArgs
