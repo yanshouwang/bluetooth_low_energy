@@ -488,7 +488,7 @@ private val BluetoothDevice.uuid: UUID
     get() {
         val node = address.filter { char -> char != ':' }
         // We don't know the timestamp of the bluetooth device, use nil UUID as prefix.
-        return UUID.fromString("00000000-0000-0000-$node")
+        return UUID.fromString("00000000-0000-0000-0000-$node")
     }
 
 private val ScanResult.myAdvertisementArgs: MyAdvertisementArgs
@@ -503,7 +503,7 @@ private val ScanResult.myAdvertisementArgs: MyAdvertisementArgs
         } else {
             val name = record.deviceName
             val manufacturerSpecificData = record.manufacturerSpecificData.toMyArgs()
-            val serviceUUIDs = record.serviceUuids.map { uuid -> uuid.toString() }
+            val serviceUUIDs = record.serviceUuids?.map { uuid -> uuid.toString() } ?: emptyList()
             val pairs = record.serviceData.entries.map { (uuid, value) ->
                 val key = uuid.toString()
                 return@map Pair(key, value)
