@@ -23,13 +23,14 @@ class MyGattCharacteristic extends MyObject implements GattCharacteristic {
     MyGattCharacteristicArgs myArgs,
   ) {
     final hashCode = myArgs.key;
-    final uuid = UUID.fromString(myArgs.uuidString);
-    final properties =
-        myArgs.myPropertyNumbers.whereType<int>().map((myPropertyNumber) {
-      final myPropertyArgs =
-          MyGattCharacteristicPropertyArgs.values[myPropertyNumber];
-      return myPropertyArgs.toProperty();
-    }).toList();
+    final uuid = UUID.fromString(myArgs.uuid);
+    final properties = myArgs.myPropertyNumbers.cast<int>().map(
+      (myPropertyNumber) {
+        final myPropertyArgs =
+            MyGattCharacteristicPropertyArgs.values[myPropertyNumber];
+        return myPropertyArgs.toProperty();
+      },
+    ).toList();
     return MyGattCharacteristic(hashCode, myService, uuid, properties);
   }
 }

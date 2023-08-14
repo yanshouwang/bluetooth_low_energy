@@ -53,17 +53,17 @@ class MyCentralControllerArgs {
 class MyPeripheralArgs {
   MyPeripheralArgs({
     required this.key,
-    required this.uuidString,
+    required this.uuid,
   });
 
   int key;
 
-  String uuidString;
+  String uuid;
 
   Object encode() {
     return <Object?>[
       key,
-      uuidString,
+      uuid,
     ];
   }
 
@@ -71,7 +71,7 @@ class MyPeripheralArgs {
     result as List<Object?>;
     return MyPeripheralArgs(
       key: result[0]! as int,
-      uuidString: result[1]! as String,
+      uuid: result[1]! as String,
     );
   }
 }
@@ -80,16 +80,24 @@ class MyAdvertisementArgs {
   MyAdvertisementArgs({
     this.name,
     required this.manufacturerSpecificData,
+    required this.serviceUUIDs,
+    required this.serviceData,
   });
 
   String? name;
 
   Map<int?, Uint8List?> manufacturerSpecificData;
 
+  List<String?> serviceUUIDs;
+
+  Map<String?, Uint8List?> serviceData;
+
   Object encode() {
     return <Object?>[
       name,
       manufacturerSpecificData,
+      serviceUUIDs,
+      serviceData,
     ];
   }
 
@@ -98,6 +106,8 @@ class MyAdvertisementArgs {
     return MyAdvertisementArgs(
       name: result[0] as String?,
       manufacturerSpecificData: (result[1] as Map<Object?, Object?>?)!.cast<int?, Uint8List?>(),
+      serviceUUIDs: (result[2] as List<Object?>?)!.cast<String?>(),
+      serviceData: (result[3] as Map<Object?, Object?>?)!.cast<String?, Uint8List?>(),
     );
   }
 }
@@ -105,17 +115,17 @@ class MyAdvertisementArgs {
 class MyGattServiceArgs {
   MyGattServiceArgs({
     required this.key,
-    required this.uuidString,
+    required this.uuid,
   });
 
   int key;
 
-  String uuidString;
+  String uuid;
 
   Object encode() {
     return <Object?>[
       key,
-      uuidString,
+      uuid,
     ];
   }
 
@@ -123,7 +133,7 @@ class MyGattServiceArgs {
     result as List<Object?>;
     return MyGattServiceArgs(
       key: result[0]! as int,
-      uuidString: result[1]! as String,
+      uuid: result[1]! as String,
     );
   }
 }
@@ -131,20 +141,20 @@ class MyGattServiceArgs {
 class MyGattCharacteristicArgs {
   MyGattCharacteristicArgs({
     required this.key,
-    required this.uuidString,
+    required this.uuid,
     required this.myPropertyNumbers,
   });
 
   int key;
 
-  String uuidString;
+  String uuid;
 
   List<int?> myPropertyNumbers;
 
   Object encode() {
     return <Object?>[
       key,
-      uuidString,
+      uuid,
       myPropertyNumbers,
     ];
   }
@@ -153,7 +163,7 @@ class MyGattCharacteristicArgs {
     result as List<Object?>;
     return MyGattCharacteristicArgs(
       key: result[0]! as int,
-      uuidString: result[1]! as String,
+      uuid: result[1]! as String,
       myPropertyNumbers: (result[2] as List<Object?>?)!.cast<int?>(),
     );
   }
@@ -162,17 +172,17 @@ class MyGattCharacteristicArgs {
 class MyGattDescriptorArgs {
   MyGattDescriptorArgs({
     required this.key,
-    required this.uuidString,
+    required this.uuid,
   });
 
   int key;
 
-  String uuidString;
+  String uuid;
 
   Object encode() {
     return <Object?>[
       key,
-      uuidString,
+      uuid,
     ];
   }
 
@@ -180,7 +190,7 @@ class MyGattDescriptorArgs {
     result as List<Object?>;
     return MyGattDescriptorArgs(
       key: result[0]! as int,
-      uuidString: result[1]! as String,
+      uuid: result[1]! as String,
     );
   }
 }

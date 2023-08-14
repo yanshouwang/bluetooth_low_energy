@@ -22,9 +22,17 @@ extension MyBlueZDevice on BlueZDevice {
       final data = Uint8List.fromList(value);
       return MapEntry(id, data);
     });
+    final serviceUUIDs = uuids.map((uuid) => uuid.toUUID()).toList();
+    final serviceData = this.serviceData.map((uuid, data) {
+      final key = uuid.toUUID();
+      final value = Uint8List.fromList(data);
+      return MapEntry(key, value);
+    });
     return Advertisement(
       name: name,
       manufacturerSpecificData: manufacturerSpecificData,
+      serviceUUIDs: serviceUUIDs,
+      serviceData: serviceData,
     );
   }
 }

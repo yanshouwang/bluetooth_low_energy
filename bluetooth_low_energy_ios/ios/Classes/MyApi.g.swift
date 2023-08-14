@@ -76,21 +76,21 @@ struct MyCentralControllerArgs {
 /// Generated class from Pigeon that represents data sent in messages.
 struct MyPeripheralArgs {
   var key: Int64
-  var uuidString: String
+  var uuid: String
 
   static func fromList(_ list: [Any?]) -> MyPeripheralArgs? {
     let key = list[0] is Int64 ? list[0] as! Int64 : Int64(list[0] as! Int32)
-    let uuidString = list[1] as! String
+    let uuid = list[1] as! String
 
     return MyPeripheralArgs(
       key: key,
-      uuidString: uuidString
+      uuid: uuid
     )
   }
   func toList() -> [Any?] {
     return [
       key,
-      uuidString,
+      uuid,
     ]
   }
 }
@@ -99,20 +99,28 @@ struct MyPeripheralArgs {
 struct MyAdvertisementArgs {
   var name: String? = nil
   var manufacturerSpecificData: [Int64?: FlutterStandardTypedData?]
+  var serviceUUIDs: [String?]
+  var serviceData: [String?: FlutterStandardTypedData?]
 
   static func fromList(_ list: [Any?]) -> MyAdvertisementArgs? {
     let name: String? = nilOrValue(list[0])
     let manufacturerSpecificData = list[1] as! [Int64?: FlutterStandardTypedData?]
+    let serviceUUIDs = list[2] as! [String?]
+    let serviceData = list[3] as! [String?: FlutterStandardTypedData?]
 
     return MyAdvertisementArgs(
       name: name,
-      manufacturerSpecificData: manufacturerSpecificData
+      manufacturerSpecificData: manufacturerSpecificData,
+      serviceUUIDs: serviceUUIDs,
+      serviceData: serviceData
     )
   }
   func toList() -> [Any?] {
     return [
       name,
       manufacturerSpecificData,
+      serviceUUIDs,
+      serviceData,
     ]
   }
 }
@@ -120,21 +128,21 @@ struct MyAdvertisementArgs {
 /// Generated class from Pigeon that represents data sent in messages.
 struct MyGattServiceArgs {
   var key: Int64
-  var uuidString: String
+  var uuid: String
 
   static func fromList(_ list: [Any?]) -> MyGattServiceArgs? {
     let key = list[0] is Int64 ? list[0] as! Int64 : Int64(list[0] as! Int32)
-    let uuidString = list[1] as! String
+    let uuid = list[1] as! String
 
     return MyGattServiceArgs(
       key: key,
-      uuidString: uuidString
+      uuid: uuid
     )
   }
   func toList() -> [Any?] {
     return [
       key,
-      uuidString,
+      uuid,
     ]
   }
 }
@@ -142,24 +150,24 @@ struct MyGattServiceArgs {
 /// Generated class from Pigeon that represents data sent in messages.
 struct MyGattCharacteristicArgs {
   var key: Int64
-  var uuidString: String
+  var uuid: String
   var myPropertyNumbers: [Int64?]
 
   static func fromList(_ list: [Any?]) -> MyGattCharacteristicArgs? {
     let key = list[0] is Int64 ? list[0] as! Int64 : Int64(list[0] as! Int32)
-    let uuidString = list[1] as! String
+    let uuid = list[1] as! String
     let myPropertyNumbers = list[2] as! [Int64?]
 
     return MyGattCharacteristicArgs(
       key: key,
-      uuidString: uuidString,
+      uuid: uuid,
       myPropertyNumbers: myPropertyNumbers
     )
   }
   func toList() -> [Any?] {
     return [
       key,
-      uuidString,
+      uuid,
       myPropertyNumbers,
     ]
   }
@@ -168,21 +176,21 @@ struct MyGattCharacteristicArgs {
 /// Generated class from Pigeon that represents data sent in messages.
 struct MyGattDescriptorArgs {
   var key: Int64
-  var uuidString: String
+  var uuid: String
 
   static func fromList(_ list: [Any?]) -> MyGattDescriptorArgs? {
     let key = list[0] is Int64 ? list[0] as! Int64 : Int64(list[0] as! Int32)
-    let uuidString = list[1] as! String
+    let uuid = list[1] as! String
 
     return MyGattDescriptorArgs(
       key: key,
-      uuidString: uuidString
+      uuid: uuid
     )
   }
   func toList() -> [Any?] {
     return [
       key,
-      uuidString,
+      uuid,
     ]
   }
 }

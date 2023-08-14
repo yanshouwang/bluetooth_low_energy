@@ -104,21 +104,21 @@ data class MyCentralControllerArgs (
 /** Generated class from Pigeon that represents data sent in messages. */
 data class MyPeripheralArgs (
   val key: Long,
-  val uuidString: String
+  val uuid: String
 
 ) {
   companion object {
     @Suppress("UNCHECKED_CAST")
     fun fromList(list: List<Any?>): MyPeripheralArgs {
       val key = list[0].let { if (it is Int) it.toLong() else it as Long }
-      val uuidString = list[1] as String
-      return MyPeripheralArgs(key, uuidString)
+      val uuid = list[1] as String
+      return MyPeripheralArgs(key, uuid)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
       key,
-      uuidString,
+      uuid,
     )
   }
 }
@@ -126,7 +126,9 @@ data class MyPeripheralArgs (
 /** Generated class from Pigeon that represents data sent in messages. */
 data class MyAdvertisementArgs (
   val name: String? = null,
-  val manufacturerSpecificData: Map<Long?, ByteArray?>
+  val manufacturerSpecificData: Map<Long?, ByteArray?>,
+  val serviceUUIDs: List<String?>,
+  val serviceData: Map<String?, ByteArray?>
 
 ) {
   companion object {
@@ -134,13 +136,17 @@ data class MyAdvertisementArgs (
     fun fromList(list: List<Any?>): MyAdvertisementArgs {
       val name = list[0] as String?
       val manufacturerSpecificData = list[1] as Map<Long?, ByteArray?>
-      return MyAdvertisementArgs(name, manufacturerSpecificData)
+      val serviceUUIDs = list[2] as List<String?>
+      val serviceData = list[3] as Map<String?, ByteArray?>
+      return MyAdvertisementArgs(name, manufacturerSpecificData, serviceUUIDs, serviceData)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
       name,
       manufacturerSpecificData,
+      serviceUUIDs,
+      serviceData,
     )
   }
 }
@@ -148,21 +154,21 @@ data class MyAdvertisementArgs (
 /** Generated class from Pigeon that represents data sent in messages. */
 data class MyGattServiceArgs (
   val key: Long,
-  val uuidString: String
+  val uuid: String
 
 ) {
   companion object {
     @Suppress("UNCHECKED_CAST")
     fun fromList(list: List<Any?>): MyGattServiceArgs {
       val key = list[0].let { if (it is Int) it.toLong() else it as Long }
-      val uuidString = list[1] as String
-      return MyGattServiceArgs(key, uuidString)
+      val uuid = list[1] as String
+      return MyGattServiceArgs(key, uuid)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
       key,
-      uuidString,
+      uuid,
     )
   }
 }
@@ -170,7 +176,7 @@ data class MyGattServiceArgs (
 /** Generated class from Pigeon that represents data sent in messages. */
 data class MyGattCharacteristicArgs (
   val key: Long,
-  val uuidString: String,
+  val uuid: String,
   val myPropertyNumbers: List<Long?>
 
 ) {
@@ -178,15 +184,15 @@ data class MyGattCharacteristicArgs (
     @Suppress("UNCHECKED_CAST")
     fun fromList(list: List<Any?>): MyGattCharacteristicArgs {
       val key = list[0].let { if (it is Int) it.toLong() else it as Long }
-      val uuidString = list[1] as String
+      val uuid = list[1] as String
       val myPropertyNumbers = list[2] as List<Long?>
-      return MyGattCharacteristicArgs(key, uuidString, myPropertyNumbers)
+      return MyGattCharacteristicArgs(key, uuid, myPropertyNumbers)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
       key,
-      uuidString,
+      uuid,
       myPropertyNumbers,
     )
   }
@@ -195,21 +201,21 @@ data class MyGattCharacteristicArgs (
 /** Generated class from Pigeon that represents data sent in messages. */
 data class MyGattDescriptorArgs (
   val key: Long,
-  val uuidString: String
+  val uuid: String
 
 ) {
   companion object {
     @Suppress("UNCHECKED_CAST")
     fun fromList(list: List<Any?>): MyGattDescriptorArgs {
       val key = list[0].let { if (it is Int) it.toLong() else it as Long }
-      val uuidString = list[1] as String
-      return MyGattDescriptorArgs(key, uuidString)
+      val uuid = list[1] as String
+      return MyGattDescriptorArgs(key, uuid)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
       key,
-      uuidString,
+      uuid,
     )
   }
 }

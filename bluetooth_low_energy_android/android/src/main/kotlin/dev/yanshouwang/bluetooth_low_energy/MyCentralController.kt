@@ -480,8 +480,8 @@ private fun Int.toMyCentralStateArgs(): MyCentralStateArgs {
 
 private fun BluetoothDevice.toMyArgs(): MyPeripheralArgs {
     val key = hashCode().toLong()
-    val uuidString = uuid.toString()
-    return MyPeripheralArgs(key, uuidString)
+    val uuid = this.uuid.toString()
+    return MyPeripheralArgs(key, uuid)
 }
 
 private val BluetoothDevice.uuid: UUID
@@ -497,11 +497,19 @@ private val ScanResult.myAdvertisementArgs: MyAdvertisementArgs
         return if (record == null) {
             val name = null
             val manufacturerSpecificData = emptyMap<Long?, ByteArray?>()
-            MyAdvertisementArgs(name, manufacturerSpecificData)
+            val serviceUUIDs = emptyList<String?>()
+            val serviceData = emptyMap<String?, ByteArray>()
+            MyAdvertisementArgs(name, manufacturerSpecificData, serviceUUIDs, serviceData)
         } else {
             val name = record.deviceName
             val manufacturerSpecificData = record.manufacturerSpecificData.toMyArgs()
-            MyAdvertisementArgs(name, manufacturerSpecificData)
+            val serviceUUIDs = record.serviceUuids.map { uuid -> uuid.toString() }
+            val pairs = record.serviceData.entries.map { (uuid, value) ->
+                val key = uuid.toString()
+                return@map Pair(key, value)
+            }.toTypedArray()
+            val serviceData = mapOf<String?, ByteArray?>(*pairs)
+            MyAdvertisementArgs(name, manufacturerSpecificData, serviceUUIDs, serviceData)
         }
     }
 
@@ -539,14 +547,14 @@ private fun SparseArray<ByteArray>.toMyArgs(): Map<Long?, ByteArray?> {
 
 private fun BluetoothGattService.toMyArgs(): MyGattServiceArgs {
     val key = hashCode().toLong()
-    val uuidString = uuid.toString()
-    return MyGattServiceArgs(key, uuidString)
+    val uuid = this.uuid.toString()
+    return MyGattServiceArgs(key, uuid)
 }
 
 private fun BluetoothGattCharacteristic.toMyArgs(): MyGattCharacteristicArgs {
     val key = hashCode().toLong()
-    val uuidValue = uuid.toString()
-    return MyGattCharacteristicArgs(key, uuidValue, myPropertyNumbers)
+    val uuid = this.uuid.toString()
+    return MyGattCharacteristicArgs(key, uuid, myPropertyNumbers)
 }
 
 private val BluetoothGattCharacteristic.myPropertyNumbers: List<Long>
@@ -577,8 +585,8 @@ private val BluetoothGattCharacteristic.myPropertyNumbers: List<Long>
 
 private fun BluetoothGattDescriptor.toMyArgs(): MyGattDescriptorArgs {
     val key = hashCode().toLong()
-    val uuidString = uuid.toString()
-    return MyGattDescriptorArgs(key, uuidString)
+    val uuid = this.uuid.toString()
+    return MyGattDescriptorArgs(key, uuid)
 }
 
 private fun Long.toMyGattCharacteristicTypeArgs(): MyGattCharacteristicWriteTypeArgs {

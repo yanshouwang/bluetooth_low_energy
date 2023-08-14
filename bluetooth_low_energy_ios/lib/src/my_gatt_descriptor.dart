@@ -16,7 +16,7 @@ class MyGattDescriptor extends MyObject implements GattDescriptor {
     MyGattDescriptorArgs myArgs,
   ) {
     final hashCode = myArgs.key;
-    final uuid = UUID.fromString(myArgs.uuidString);
+    final uuid = UUID.fromString(myArgs.uuid);
     return MyGattDescriptor(hashCode, myCharacteristic, uuid);
   }
 }

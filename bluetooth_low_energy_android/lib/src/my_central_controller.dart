@@ -127,7 +127,7 @@ class MyCentralController extends CentralController
     final myPeripheral = peripheral as MyPeripheral;
     final myServiceArgses = await _myApi.getServices(myPeripheral.hashCode);
     return myServiceArgses
-        .whereType<MyGattServiceArgs>()
+        .cast<MyGattServiceArgs>()
         .map(
           (myServiceArgs) => _myServices.putIfAbsent(
             myServiceArgs.key,
@@ -150,7 +150,7 @@ class MyCentralController extends CentralController
       myService.hashCode,
     );
     return myCharactersiticArgses
-        .whereType<MyGattCharacteristicArgs>()
+        .cast<MyGattCharacteristicArgs>()
         .map(
           (myCharacteristicArgs) => _myCharacteristics.putIfAbsent(
             myCharacteristicArgs.key,
@@ -173,7 +173,7 @@ class MyCentralController extends CentralController
       myCharacteristic.hashCode,
     );
     return myDescriptorArgses
-        .whereType<MyGattDescriptorArgs>()
+        .cast<MyGattDescriptorArgs>()
         .map(
           (myDescriptorArgs) => _myDescriptors.putIfAbsent(
             myDescriptorArgs.key,
@@ -316,9 +316,23 @@ class MyCentralController extends CentralController
 
 extension on MyAdvertisementArgs {
   Advertisement toAdvertisement() {
+    final serviceUUIDs = this
+        .serviceUUIDs
+        .cast<String>()
+        .map((uuid) => UUID.fromString(uuid))
+        .toList();
+    final serviceData = this.serviceData.cast<String, Uint8List>().map(
+      (uuid, data) {
+        final key = UUID.fromString(uuid);
+        final value = data;
+        return MapEntry(key, value);
+      },
+    );
     return Advertisement(
       name: name,
       manufacturerSpecificData: manufacturerSpecificData.cast<int, Uint8List>(),
+      serviceUUIDs: serviceUUIDs,
+      serviceData: serviceData,
     );
   }
 }

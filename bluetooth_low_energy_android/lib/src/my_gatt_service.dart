@@ -16,7 +16,7 @@ class MyGattService extends MyObject implements GattService {
     MyGattServiceArgs myArgs,
   ) {
     final hashCode = myArgs.key;
-    final uuid = UUID.fromString(myArgs.uuidString);
+    final uuid = UUID.fromString(myArgs.uuid);
     return MyGattService(hashCode, myPeripheral, uuid);
   }
 }

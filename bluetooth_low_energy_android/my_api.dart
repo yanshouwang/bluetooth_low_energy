@@ -72,45 +72,49 @@ class MyCentralControllerArgs {
 
 class MyPeripheralArgs {
   final int key;
-  final String uuidString;
+  final String uuid;
 
-  MyPeripheralArgs(this.key, this.uuidString);
+  MyPeripheralArgs(this.key, this.uuid);
 }
 
 class MyAdvertisementArgs {
   final String? name;
   final Map<int?, Uint8List?> manufacturerSpecificData;
+  final List<String?> serviceUUIDs;
+  final Map<String?, Uint8List?> serviceData;
 
   MyAdvertisementArgs(
     this.name,
     this.manufacturerSpecificData,
+    this.serviceUUIDs,
+    this.serviceData,
   );
 }
 
 class MyGattServiceArgs {
   final int key;
-  final String uuidString;
+  final String uuid;
 
-  MyGattServiceArgs(this.key, this.uuidString);
+  MyGattServiceArgs(this.key, this.uuid);
 }
 
 class MyGattCharacteristicArgs {
   final int key;
-  final String uuidString;
+  final String uuid;
   final List<int?> myPropertyNumbers;
 
   MyGattCharacteristicArgs(
     this.key,
-    this.uuidString,
+    this.uuid,
     this.myPropertyNumbers,
   );
 }
 
 class MyGattDescriptorArgs {
   final int key;
-  final String uuidString;
+  final String uuid;
 
-  MyGattDescriptorArgs(this.key, this.uuidString);
+  MyGattDescriptorArgs(this.key, this.uuid);
 }
 
 enum MyCentralStateArgs {

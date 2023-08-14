@@ -75,7 +75,9 @@ class MyCentralController: MyCentralControllerHostApi {
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
             }
-            guard let peripheral = peripherals[peripheralKey] else { throw MyError.illegalArgument }
+            guard let peripheral = peripherals[peripheralKey] else {
+                throw MyError.illegalArgument
+            }
             centralManager.connect(peripheral)
             connectCompletions[peripheralKey] = completion
         } catch {
@@ -90,7 +92,9 @@ class MyCentralController: MyCentralControllerHostApi {
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
             }
-            guard let peripheral = peripherals[peripheralKey] else { throw MyError.illegalArgument }
+            guard let peripheral = peripherals[peripheralKey] else {
+                throw MyError.illegalArgument
+            }
             centralManager.cancelPeripheralConnection(peripheral)
             disconnectCompletions[peripheralKey] = completion
         } catch {
@@ -105,7 +109,9 @@ class MyCentralController: MyCentralControllerHostApi {
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
             }
-            guard let peripheral = peripherals[peripheralKey] else { throw MyError.illegalArgument }
+            guard let peripheral = peripherals[peripheralKey] else {
+                throw MyError.illegalArgument
+            }
             peripheral.discoverServices(nil)
             discoverGattCompletions[peripheralKey] = completion
         } catch {
@@ -115,7 +121,9 @@ class MyCentralController: MyCentralControllerHostApi {
     
     func getServices(myPeripheralKey: Int64) throws -> [MyGattServiceArgs] {
         let peripheralKey = Int(myPeripheralKey)
-        guard let peripheral = peripherals[peripheralKey] else { throw MyError.illegalArgument }
+        guard let peripheral = peripherals[peripheralKey] else {
+            throw MyError.illegalArgument
+        }
         let services = peripheral.services ?? []
         return services.map { service in
             let serviceKey = service.hash
@@ -128,7 +136,9 @@ class MyCentralController: MyCentralControllerHostApi {
     
     func getCharacteristics(myServiceKey: Int64) throws -> [MyGattCharacteristicArgs] {
         let serviceKey = Int(myServiceKey)
-        guard let service = services[serviceKey] else { throw MyError.illegalArgument }
+        guard let service = services[serviceKey] else {
+            throw MyError.illegalArgument
+        }
         let characteristics = service.characteristics ?? []
         return characteristics.map { characteristic in
             let characteristicKey = characteristic.hash
@@ -141,7 +151,9 @@ class MyCentralController: MyCentralControllerHostApi {
     
     func getDescriptors(myCharacteristicKey: Int64) throws -> [MyGattDescriptorArgs] {
         let characteristicKey = Int(myCharacteristicKey)
-        guard let characteristic = characteristics[characteristicKey] else { throw MyError.illegalArgument }
+        guard let characteristic = characteristics[characteristicKey] else {
+            throw MyError.illegalArgument
+        }
         let descritors = characteristic.descriptors ?? []
         return descritors.map { descriptor in
             let descriptorKey = descriptor.hash
@@ -155,9 +167,13 @@ class MyCentralController: MyCentralControllerHostApi {
     func readCharacteristic(myPeripheralKey: Int64, myCharacteristicKey: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void) {
         do {
             let peripheralKey = Int(myPeripheralKey)
-            guard let peripheral = peripherals[peripheralKey] else { throw MyError.illegalArgument }
+            guard let peripheral = peripherals[peripheralKey] else {
+                throw MyError.illegalArgument
+            }
             let characteristicKey = Int(myCharacteristicKey)
-            guard let characteristic = characteristics[characteristicKey] else { throw MyError.illegalArgument }
+            guard let characteristic = characteristics[characteristicKey] else {
+                throw MyError.illegalArgument
+            }
             let unfinishedCompletion = readCharacteristicCompletions[characteristicKey]
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
@@ -172,12 +188,18 @@ class MyCentralController: MyCentralControllerHostApi {
     func writeCharacteristic(myPeripheralKey: Int64, myCharacteristicKey: Int64, value: FlutterStandardTypedData, myTypeNumber: Int64, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             let peripheralKey = Int(myPeripheralKey)
-            guard  let peripheral = peripherals[peripheralKey] else { throw MyError.illegalArgument }
+            guard  let peripheral = peripherals[peripheralKey] else {
+                throw MyError.illegalArgument
+            }
             let characteristicKey = Int(myCharacteristicKey)
-            guard let characteristic = characteristics[characteristicKey] else { throw MyError.illegalArgument }
+            guard let characteristic = characteristics[characteristicKey] else {
+                throw MyError.illegalArgument
+            }
             let data = value.data
             let myTypeRawValue = Int(myTypeNumber)
-            guard let myTypeArgs = MyGattCharacteristicWriteTypeArgs(rawValue: myTypeRawValue) else { throw MyError.illegalArgument }
+            guard let myTypeArgs = MyGattCharacteristicWriteTypeArgs(rawValue: myTypeRawValue) else {
+                throw MyError.illegalArgument
+            }
             let type = myTypeArgs.toType()
             let unfinishedCompletion = writeCharacteristicCompletions[characteristicKey]
             if unfinishedCompletion != nil {
@@ -193,9 +215,13 @@ class MyCentralController: MyCentralControllerHostApi {
     func notifyCharacteristic(myPeripheralKey: Int64, myCharacteristicKey: Int64, state: Bool, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             let peripheralKey = Int(myPeripheralKey)
-            guard let peripheral = peripherals[peripheralKey] else { throw MyError.illegalArgument }
+            guard let peripheral = peripherals[peripheralKey] else {
+                throw MyError.illegalArgument
+            }
             let characteristicKey = Int(myCharacteristicKey)
-            guard let characteristic = characteristics[characteristicKey] else { throw MyError.illegalArgument }
+            guard let characteristic = characteristics[characteristicKey] else {
+                throw MyError.illegalArgument
+            }
             let unfinishedCompletion = notifyCharacteristicCompletions[characteristicKey]
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
@@ -210,9 +236,13 @@ class MyCentralController: MyCentralControllerHostApi {
     func readDescriptor(myPeripheralKey: Int64, myDescriptorKey: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void) {
         do {
             let peripheralKey = Int(myPeripheralKey)
-            guard let peripheral = peripherals[peripheralKey] else { throw MyError.illegalArgument }
+            guard let peripheral = peripherals[peripheralKey] else {
+                throw MyError.illegalArgument
+            }
             let descriptorKey = Int(myDescriptorKey)
-            guard let descriptor = descriptors[descriptorKey] else { throw MyError.illegalArgument }
+            guard let descriptor = descriptors[descriptorKey] else {
+                throw MyError.illegalArgument
+            }
             let unfinishedCompletion = readDescriptorCompletions[descriptorKey]
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
@@ -227,9 +257,13 @@ class MyCentralController: MyCentralControllerHostApi {
     func writeDescriptor(myPeripheralKey: Int64, myDescriptorKey: Int64, value: FlutterStandardTypedData, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             let peripheralKey = Int(myPeripheralKey)
-            guard let peripheral = peripherals[peripheralKey] else { throw MyError.illegalArgument }
+            guard let peripheral = peripherals[peripheralKey] else {
+                throw MyError.illegalArgument
+            }
             let descriptorKey = Int(myDescriptorKey)
-            guard let descriptor = descriptors[descriptorKey] else { throw MyError.illegalArgument }
+            guard let descriptor = descriptors[descriptorKey] else {
+                throw MyError.illegalArgument
+            }
             let data = value.data
             let unfinishedCompletion = writeDescriptorCompletions[descriptorKey]
             if unfinishedCompletion != nil {
@@ -262,8 +296,12 @@ class MyCentralController: MyCentralControllerHostApi {
         var manufacturerSpecificData = [Int64: FlutterStandardTypedData]()
         if rawManufacturerSpecificData != nil {
             do {
-                guard let data = rawManufacturerSpecificData else { throw MyError.illegalArgument }
-                guard data.count >= 2 else { throw MyError.illegalArgument }
+                guard let data = rawManufacturerSpecificData else {
+                    throw MyError.illegalArgument
+                }
+                guard data.count >= 2 else {
+                    throw MyError.illegalArgument
+                }
                 let key = Int64(data[0]) | (Int64(data[1]) << 8)
                 let value = FlutterStandardTypedData(bytes: data[2...data.endIndex])
                 manufacturerSpecificData[key] = value
@@ -271,7 +309,16 @@ class MyCentralController: MyCentralControllerHostApi {
                 manufacturerSpecificData = [:]
             }
         }
-        let myAdvertisementArgs = MyAdvertisementArgs(name: name, manufacturerSpecificData: manufacturerSpecificData)
+        let rawServiceUUIDs = advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID] ?? []
+        let serviceUUIDs = rawServiceUUIDs.map { uuid in uuid.uuidString }
+        let rawServiceData = advertisementData[CBAdvertisementDataServiceDataKey] as? [CBUUID: Data] ?? [:]
+        let elements = rawServiceData.map { (uuid, data) in
+            let key = uuid.uuidString
+            let value = FlutterStandardTypedData(bytes: data)
+            return (key, value)
+        }
+        let serviceData = [String?: FlutterStandardTypedData?](uniqueKeysWithValues: elements)
+        let myAdvertisementArgs = MyAdvertisementArgs(name: name, manufacturerSpecificData: manufacturerSpecificData, serviceUUIDs: serviceUUIDs, serviceData: serviceData)
         myApi.onDiscovered(myPeripheralArgs: myPeripheralArgs, rssi: rssi, myAdvertisementArgs: myAdvertisementArgs) {}
     }
     
@@ -510,34 +557,34 @@ extension CBManagerState {
 extension CBPeripheral {
     func toMyArgs() -> MyPeripheralArgs {
         let key = Int64(hash)
-        let uuidString = identifier.uuidString
-        return MyPeripheralArgs(key: key, uuidString: uuidString)
+        let uuid = identifier.uuidString
+        return MyPeripheralArgs(key: key, uuid: uuid)
     }
 }
 
 extension CBService {
     func toMyArgs() -> MyGattServiceArgs {
         let key = Int64(hash)
-        let uuidString = uuid.uuidString
-        return MyGattServiceArgs(key: key, uuidString: uuidString)
+        let uuid = uuid.uuidString
+        return MyGattServiceArgs(key: key, uuid: uuid)
     }
 }
 
 extension CBCharacteristic {
     func toMyArgs() -> MyGattCharacteristicArgs {
         let key = Int64(hash)
-        let uuidString = uuid.uuidString
+        let uuid = uuid.uuidString
         let myPropertyArgses = properties.toMyArgses()
         let myPropertyNumbers = myPropertyArgses.map { myPropertyArgs in Int64(myPropertyArgs.rawValue) }
-        return MyGattCharacteristicArgs(key: key, uuidString: uuidString, myPropertyNumbers: myPropertyNumbers)
+        return MyGattCharacteristicArgs(key: key, uuid: uuid, myPropertyNumbers: myPropertyNumbers)
     }
 }
 
 extension CBDescriptor {
     func toMyArgs() -> MyGattDescriptorArgs {
         let key = Int64(hash)
-        let uuidString = uuid.uuidString
-        return MyGattDescriptorArgs(key: key, uuidString: uuidString)
+        let uuid = uuid.uuidString
+        return MyGattDescriptorArgs(key: key, uuid: uuid)
     }
 }
 
