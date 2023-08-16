@@ -5,8 +5,7 @@ import android.bluetooth.le.ScanResult
 
 class MyScanCallback(private val myCentralController: MyCentralController) : ScanCallback() {
     override fun onScanFailed(errorCode: Int) {
-        val error = IllegalStateException("Start discovery failed with error code: $errorCode")
-        myCentralController.onScanFailed(error)
+        myCentralController.onScanFailed(errorCode)
     }
 
     override fun onScanResult(callbackType: Int, result: ScanResult) {

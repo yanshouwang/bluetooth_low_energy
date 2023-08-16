@@ -67,13 +67,13 @@ class MyCentralController extends CentralController {
   late StreamSubscription<BlueZDevice> _deviceAddedSubscription;
   late StreamSubscription<BlueZDevice> _deviceRemovedSubscription;
 
-  void _throwWithState(CentralState state) {
+  Future<void> _throwWithState(CentralState state) async {
     if (this.state == state) {
       throw BluetoothLowEnergyError('$state is unexpected.');
     }
   }
 
-  void _throwWithoutState(CentralState state) {
+  Future<void> _throwWithoutState(CentralState state) async {
     if (this.state != state) {
       throw BluetoothLowEnergyError(
         '$state is expected, but current state is ${this.state}.',
@@ -83,7 +83,7 @@ class MyCentralController extends CentralController {
 
   @override
   Future<void> setUp() async {
-    _throwWithoutState(CentralState.unknown);
+    await _throwWithoutState(CentralState.unknown);
     await _client.connect();
     _state =
         _client.adapters.isEmpty ? CentralState.unsupported : _adapter.state;
@@ -105,7 +105,7 @@ class MyCentralController extends CentralController {
 
   @override
   Future<void> tearDown() async {
-    _throwWithState(CentralState.unknown);
+    await _throwWithState(CentralState.unknown);
     if (_state != CentralState.unsupported && _adapter.discovering) {
       await _adapter.stopDiscovery();
     }
@@ -134,19 +134,19 @@ class MyCentralController extends CentralController {
 
   @override
   Future<void> startDiscovery() async {
-    _throwWithoutState(CentralState.poweredOn);
+    await _throwWithoutState(CentralState.poweredOn);
     await _adapter.startDiscovery();
   }
 
   @override
   Future<void> stopDiscovery() async {
-    _throwWithoutState(CentralState.poweredOn);
+    await _throwWithoutState(CentralState.poweredOn);
     await _adapter.stopDiscovery();
   }
 
   @override
   Future<void> connect(Peripheral peripheral) async {
-    _throwWithoutState(CentralState.poweredOn);
+    await _throwWithoutState(CentralState.poweredOn);
     final myPeripheral = peripheral as MyPeripheral;
     final device = myPeripheral.device;
     await device.connect();
@@ -154,7 +154,7 @@ class MyCentralController extends CentralController {
 
   @override
   Future<void> disconnect(Peripheral peripheral) async {
-    _throwWithoutState(CentralState.poweredOn);
+    await _throwWithoutState(CentralState.poweredOn);
     final myPeripheral = peripheral as MyPeripheral;
     final device = myPeripheral.device;
     await device.disconnect();
@@ -162,7 +162,7 @@ class MyCentralController extends CentralController {
 
   @override
   Future<void> discoverGATT(Peripheral peripheral) async {
-    _throwWithoutState(CentralState.poweredOn);
+    await _throwWithoutState(CentralState.poweredOn);
     final myPeripheral = peripheral as MyPeripheral;
     final device = myPeripheral.device;
     if (!device.connected) {
@@ -178,7 +178,7 @@ class MyCentralController extends CentralController {
 
   @override
   Future<List<GattService>> getServices(Peripheral peripheral) async {
-    _throwWithoutState(CentralState.poweredOn);
+    await _throwWithoutState(CentralState.poweredOn);
     final myPeripheral = peripheral as MyPeripheral;
     final blueZDevice = myPeripheral.device;
     return blueZDevice.gattServices
@@ -195,6 +195,7 @@ class MyCentralController extends CentralController {
   Future<List<GattCharacteristic>> getCharacteristics(
     GattService service,
   ) async {
+    await _throwWithoutState(CentralState.poweredOn);
     final myService = service as MyGattService;
     final blueZService = myService.service;
     return blueZService.characteristics
@@ -211,6 +212,7 @@ class MyCentralController extends CentralController {
   Future<List<GattDescriptor>> getDescriptors(
     GattCharacteristic characteristic,
   ) async {
+    await _throwWithoutState(CentralState.poweredOn);
     final myCharacteristic = characteristic as MyGattCharacteristic;
     final blueZCharacteristic = myCharacteristic.characteristic;
     return blueZCharacteristic.descriptors
@@ -227,7 +229,7 @@ class MyCentralController extends CentralController {
   Future<Uint8List> readCharacteristic(
     GattCharacteristic characteristic,
   ) async {
-    _throwWithoutState(CentralState.poweredOn);
+    await _throwWithoutState(CentralState.poweredOn);
     final myCharacteristic = characteristic as MyGattCharacteristic;
     final blueZCharacteristic = myCharacteristic.characteristic;
     final blueZValue = await blueZCharacteristic.readValue();
@@ -240,7 +242,7 @@ class MyCentralController extends CentralController {
     required Uint8List value,
     required GattCharacteristicWriteType type,
   }) async {
-    _throwWithoutState(CentralState.poweredOn);
+    await _throwWithoutState(CentralState.poweredOn);
     final myCharacteristic = characteristic as MyGattCharacteristic;
     final blueZCharacteristic = myCharacteristic.characteristic;
     await blueZCharacteristic.writeValue(
@@ -254,7 +256,7 @@ class MyCentralController extends CentralController {
     GattCharacteristic characteristic, {
     required bool state,
   }) async {
-    _throwWithoutState(CentralState.poweredOn);
+    await _throwWithoutState(CentralState.poweredOn);
     final myCharacteristic = characteristic as MyGattCharacteristic;
     final blueZCharacteristic = myCharacteristic.characteristic;
     if (state) {
@@ -266,7 +268,7 @@ class MyCentralController extends CentralController {
 
   @override
   Future<Uint8List> readDescriptor(GattDescriptor descriptor) async {
-    _throwWithoutState(CentralState.poweredOn);
+    await _throwWithoutState(CentralState.poweredOn);
     final myDescriptor = descriptor as MyGattDescriptor;
     final blueZDescriptor = myDescriptor.descriptor;
     final blueZValue = await blueZDescriptor.readValue();
@@ -278,7 +280,7 @@ class MyCentralController extends CentralController {
     GattDescriptor descriptor, {
     required Uint8List value,
   }) async {
-    _throwWithoutState(CentralState.poweredOn);
+    await _throwWithoutState(CentralState.poweredOn);
     final myDescriptor = descriptor as MyGattDescriptor;
     final blueZDescriptor = myDescriptor.descriptor;
     await blueZDescriptor.writeValue(value);

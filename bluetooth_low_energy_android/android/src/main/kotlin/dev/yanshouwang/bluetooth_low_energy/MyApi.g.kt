@@ -272,7 +272,7 @@ private object MyCentralControllerHostApiCodec : StandardMessageCodec() {
 
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface MyCentralControllerHostApi {
-  fun setUp(): MyCentralControllerArgs
+  fun setUp(callback: (Result<MyCentralControllerArgs>) -> Unit)
   fun tearDown()
   fun startDiscovery(callback: (Result<Unit>) -> Unit)
   fun stopDiscovery()
@@ -300,13 +300,15 @@ interface MyCentralControllerHostApi {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerHostApi.setUp", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
-            var wrapped: List<Any?>
-            try {
-              wrapped = listOf<Any?>(api.setUp())
-            } catch (exception: Throwable) {
-              wrapped = wrapError(exception)
+            api.setUp() { result: Result<MyCentralControllerArgs> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(wrapResult(data))
+              }
             }
-            reply.reply(wrapped)
           }
         } else {
           channel.setMessageHandler(null)

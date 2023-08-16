@@ -13,6 +13,7 @@ import 'package:pigeon/pigeon.dart';
 )
 @HostApi()
 abstract class MyCentralControllerHostApi {
+  @async
   MyCentralControllerArgs setUp();
   void tearDown();
   @async

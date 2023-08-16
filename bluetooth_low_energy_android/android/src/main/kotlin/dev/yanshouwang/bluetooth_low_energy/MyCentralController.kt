@@ -17,15 +17,20 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.SparseArray
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.BinaryMessenger
 import java.util.UUID
 
 class MyCentralController(private val context: Context, binaryMessenger: BinaryMessenger) : MyCentralControllerHostApi {
     companion object {
         //        const val DATA_TYPE_MANUFACTURER_SPECIFIC_DATA = 0xff.toByte()
-        const val CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
+        private const val REQUEST_CODE = 443
+        private const val CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
     }
+
+    private lateinit var binding: ActivityPluginBinding
 
     private val manager = ContextCompat.getSystemService(context, BluetoothManager::class.java) as BluetoothManager
     private val adapter = manager.adapter
@@ -33,6 +38,7 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
     private val executor = ContextCompat.getMainExecutor(context)
 
     private val myApi = MyCentralControllerFlutterApi(binaryMessenger)
+    private val myRequestPermissionResultListener = MyRequestPermissionResultListener(this)
     private val myReceiver = MyBroadcastReceiver(this)
     private val myScanCallback = MyScanCallback(this)
     private val myGattCallback = MyBluetoothGattCallback(this, executor)
@@ -43,9 +49,10 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
     private val characteristics = mutableMapOf<Int, BluetoothGattCharacteristic>()
     private val descriptors = mutableMapOf<Int, BluetoothGattDescriptor>()
 
-    private var isRegisteredReceiver = false
-    private var isDiscovering = false
+    private var registered = false
+    private var discovering = false
 
+    private var setUpCallback: ((Result<MyCentralControllerArgs>) -> Unit)? = null
     private var startDiscoveryCallback: ((Result<Unit>) -> Unit)? = null
     private val connectCallbacks = mutableMapOf<Int, (Result<Unit>) -> Unit>()
     private val disconnectCallbacks = mutableMapOf<Int, (Result<Unit>) -> Unit>()
@@ -55,34 +62,40 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
     private val readDescriptorCallbacks = mutableMapOf<Int, (Result<ByteArray>) -> Unit>()
     private val writeDescriptorCallbacks = mutableMapOf<Int, (Result<Unit>) -> Unit>()
 
-    override fun setUp(): MyCentralControllerArgs {
-        val isAvailable = context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
-        val myStateArgs = if (isAvailable) {
+    override fun setUp(callback: (Result<MyCentralControllerArgs>) -> Unit) {
+        try {
+            val available = context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
+            if (!available) {
+                val stateNumber = MyCentralStateArgs.UNSUPPORTED.raw.toLong()
+                val args = MyCentralControllerArgs(stateNumber)
+                callback(Result.success(args))
+            }
+            val unfinishedCallback = setUpCallback
+            if (unfinishedCallback != null) {
+                throw IllegalStateException()
+            }
             val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.BLUETOOTH_SCAN, android.Manifest.permission.BLUETOOTH_CONNECT)
             } else {
                 arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION)
             }
-            val isGranted = permissions.all { permission -> ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED }
-            if (isGranted) {
-                registerReceiver()
-                adapter.myStateArgs
-            } else MyCentralStateArgs.UNAUTHORIZED
-        } else MyCentralStateArgs.UNSUPPORTED
-        val stateNumber = myStateArgs.raw.toLong()
-        return MyCentralControllerArgs(stateNumber)
+            val activity = binding.activity
+            ActivityCompat.requestPermissions(activity, permissions, REQUEST_CODE)
+            setUpCallback = callback
+        } catch (e: Throwable) {
+            callback(Result.failure(e))
+        }
     }
 
     override fun tearDown() {
-        if (isRegisteredReceiver) {
-            unregisterReceiver()
+        if (registered) {
+            unregister()
         }
-        if (isDiscovering) {
+        if (discovering) {
             stopDiscovery()
         }
         for (gatt in gatts.values) {
             gatt.disconnect()
-            gatt.close()
         }
         devices.clear()
         gatts.clear()
@@ -91,15 +104,15 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         descriptors.clear()
     }
 
-    private fun registerReceiver() {
+    private fun register() {
         val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
         context.registerReceiver(myReceiver, filter)
-        isRegisteredReceiver = true
+        registered = true
     }
 
-    private fun unregisterReceiver() {
+    private fun unregister() {
         context.unregisterReceiver(myReceiver)
-        isRegisteredReceiver = false
+        registered = false
     }
 
     override fun startDiscovery(callback: (Result<Unit>) -> Unit) {
@@ -124,7 +137,7 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
 
     override fun stopDiscovery() {
         scanner.stopScan(myScanCallback)
-        isDiscovering = false
+        discovering = false
     }
 
     override fun connect(myPeripheralKey: Long, callback: (Result<Unit>) -> Unit) {
@@ -335,19 +348,52 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         }
     }
 
+    fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        binding.addRequestPermissionsResultListener(myRequestPermissionResultListener)
+        this.binding = binding
+    }
+
+    fun onDetachedFromActivity() {
+        binding.removeRequestPermissionsResultListener(myRequestPermissionResultListener)
+    }
+
+    fun onRequestPermissionsResult(requestCode: Int, results: IntArray): Boolean {
+        if (requestCode != REQUEST_CODE) {
+            return false
+        }
+        val callback = setUpCallback ?: return false
+        val isGranted = results.all { r -> r == PackageManager.PERMISSION_GRANTED }
+        if (isGranted) {
+            register()
+        }
+        val myStateArgs = if (isGranted) adapter.myStateArgs
+        else MyCentralStateArgs.UNAUTHORIZED
+        val stateNumber = myStateArgs.raw.toLong()
+        val args = MyCentralControllerArgs(stateNumber)
+        callback(Result.success(args))
+        return true
+    }
+
     fun onReceive(intent: Intent) {
         val action = intent.action
         if (action != BluetoothAdapter.ACTION_STATE_CHANGED) {
             return
         }
+        val previousState = intent.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_STATE, BluetoothAdapter.STATE_OFF)
         val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF)
+        val myPreviousStateArgs = previousState.toMyCentralStateArgs()
         val myStateArgs = state.toMyCentralStateArgs()
-        val myStateNumber = myStateArgs.hashCode().toLong()
+        if (myStateArgs == myPreviousStateArgs) {
+            return
+        }
+        val myStateNumber = myStateArgs.raw.toLong()
         myApi.onStateChanged(myStateNumber) {}
     }
 
-    fun onScanFailed(error: Throwable) {
+    fun onScanFailed(errorCode: Int) {
         val callback = startDiscoveryCallback ?: return
+        startDiscoveryCallback = null
+        val error = IllegalStateException("Start discovery failed with error code: $errorCode")
         callback(Result.failure(error))
     }
 
@@ -365,13 +411,43 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
 
     fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
         val device = gatt.device
-        val key = device.hashCode()
-        val myPeripheralKey = key.toLong()
+        val deviceKey = device.hashCode()
+        val myPeripheralKey = deviceKey.toLong()
         if (newState != BluetoothProfile.STATE_CONNECTED) {
             gatt.close()
+            gatts.remove(deviceKey)
+            val error = IllegalStateException("GATT is disconnected with status: $status")
+            val discoverGattCallback = discoverGattCallbacks.remove(deviceKey)
+            if (discoverGattCallback != null) {
+                discoverGattCallback(Result.failure(error))
+            }
+            for (service in gatt.services) {
+                for (characteristic in service.characteristics) {
+                    val characteristicKey = characteristic.hashCode()
+                    val readCharacteristicCallback = readCharacteristicCallbacks.remove(characteristicKey)
+                    val writeCharacteristicCallback = writeCharacteristicCallbacks.remove(characteristicKey)
+                    if (readCharacteristicCallback != null) {
+                        readCharacteristicCallback(Result.failure(error))
+                    }
+                    if (writeCharacteristicCallback != null) {
+                        writeCharacteristicCallback(Result.failure(error))
+                    }
+                    for (descriptor in characteristic.descriptors) {
+                        val descriptorKey = descriptor.hashCode()
+                        val readDescriptorCallback = readDescriptorCallbacks.remove(descriptorKey)
+                        val writeDescriptorCallback = writeDescriptorCallbacks.remove(descriptorKey)
+                        if (readDescriptorCallback != null) {
+                            readDescriptorCallback(Result.failure(error))
+                        }
+                        if (writeDescriptorCallback != null) {
+                            writeDescriptorCallback(Result.failure(error))
+                        }
+                    }
+                }
+            }
         }
-        val connectCallback = connectCallbacks.remove(key)
-        val disconnectCallback = disconnectCallbacks.remove(key)
+        val connectCallback = connectCallbacks.remove(deviceKey)
+        val disconnectCallback = disconnectCallbacks.remove(deviceKey)
         if (connectCallback == null && disconnectCallback == null) {
             // State changed.
             val state = newState == BluetoothProfile.STATE_CONNECTED
@@ -384,8 +460,8 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
                     myApi.onPeripheralStateChanged(myPeripheralKey, true) {}
                 } else {
                     // Connect failed.
-                    val exception = IllegalStateException("Connect failed with status: $status")
-                    connectCallback(Result.failure(exception))
+                    val error = IllegalStateException("Connect failed with status: $status")
+                    connectCallback(Result.failure(error))
                 }
             }
             if (disconnectCallback != null) {
@@ -395,8 +471,8 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
                     myApi.onPeripheralStateChanged(myPeripheralKey, false) {}
                 } else {
                     // Disconnect failed.
-                    val exception = IllegalStateException("Connect failed with status: $status")
-                    disconnectCallback(Result.failure(exception))
+                    val error = IllegalStateException("Connect failed with status: $status")
+                    disconnectCallback(Result.failure(error))
                 }
             }
         }
@@ -404,66 +480,66 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
 
     fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
         val device = gatt.device
-        val key = device.hashCode()
-        val callback = discoverGattCallbacks.remove(key) ?: return
+        val deviceKey = device.hashCode()
+        val callback = discoverGattCallbacks.remove(deviceKey) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
             callback(Result.success(Unit))
         } else {
-            val exception = IllegalStateException("Discover GATT failed with status: $status")
-            callback(Result.failure(exception))
+            val error = IllegalStateException("Discover GATT failed with status: $status")
+            callback(Result.failure(error))
         }
     }
 
     fun onCharacteristicRead(characteristic: BluetoothGattCharacteristic, status: Int) {
-        val key = characteristic.hashCode()
-        val callback = readCharacteristicCallbacks.remove(key) ?: return
+        val characteristicKey = characteristic.hashCode()
+        val callback = readCharacteristicCallbacks.remove(characteristicKey) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
             val value = characteristic.value
             callback(Result.success(value))
         } else {
-            val exception = IllegalStateException("Read characteristic failed with status: $status.")
-            callback(Result.failure(exception))
+            val error = IllegalStateException("Read characteristic failed with status: $status.")
+            callback(Result.failure(error))
         }
     }
 
     fun onCharacteristicWrite(characteristic: BluetoothGattCharacteristic, status: Int) {
-        val key = characteristic.hashCode()
-        val callback = writeCharacteristicCallbacks.remove(key) ?: return
+        val characteristicKey = characteristic.hashCode()
+        val callback = writeCharacteristicCallbacks.remove(characteristicKey) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
             callback(Result.success(Unit))
         } else {
-            val exception = IllegalStateException("Write characteristic failed with status: $status.")
-            callback(Result.failure(exception))
+            val error = IllegalStateException("Write characteristic failed with status: $status.")
+            callback(Result.failure(error))
         }
     }
 
     fun onCharacteristicChanged(characteristic: BluetoothGattCharacteristic) {
-        val key = characteristic.hashCode()
-        val myCharacteristicKey = key.toLong()
+        val characteristicKey = characteristic.hashCode()
+        val myCharacteristicKey = characteristicKey.toLong()
         val value = characteristic.value
         myApi.onCharacteristicValueChanged(myCharacteristicKey, value) {}
     }
 
     fun onDescriptorRead(descriptor: BluetoothGattDescriptor, status: Int) {
-        val key = descriptor.hashCode()
-        val callback = readDescriptorCallbacks.remove(key) ?: return
+        val descriptorKey = descriptor.hashCode()
+        val callback = readDescriptorCallbacks.remove(descriptorKey) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
             val value = descriptor.value
             callback(Result.success(value))
         } else {
-            val exception = IllegalStateException("Read descriptor failed with status: $status.")
-            callback(Result.failure(exception))
+            val error = IllegalStateException("Read descriptor failed with status: $status.")
+            callback(Result.failure(error))
         }
     }
 
     fun onDescriptorWrite(descriptor: BluetoothGattDescriptor, status: Int) {
-        val key = descriptor.hashCode()
-        val callback = writeDescriptorCallbacks.remove(key) ?: return
+        val descriptorKey = descriptor.hashCode()
+        val callback = writeDescriptorCallbacks.remove(descriptorKey) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
             callback(Result.success(Unit))
         } else {
-            val exception = IllegalStateException("Write descriptor failed with status: $status.")
-            callback(Result.failure(exception))
+            val error = IllegalStateException("Write descriptor failed with status: $status.")
+            callback(Result.failure(error))
         }
     }
 }
