@@ -27,7 +27,8 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
     companion object {
         //        const val DATA_TYPE_MANUFACTURER_SPECIFIC_DATA = 0xff.toByte()
         private const val REQUEST_CODE = 443
-        private const val CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
+        private val UUID_HEART_RATE_MEASUREMENT = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb")
+        private val UUID_CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
     }
 
     private lateinit var binding: ActivityPluginBinding
@@ -287,8 +288,11 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
             if (!notifying) {
                 throw IllegalStateException()
             }
-            val descriptorUUID = UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG)
-            val descriptor = characteristic.getDescriptor(descriptorUUID)
+            // TODO: Seems the docs is not correct, this operation is necessary for all characteristics.
+            // https://developer.android.com/guide/topics/connectivity/bluetooth/transfer-ble-data#notification
+            // This is specific to Heart Rate Measurement.
+//            if (characteristic.uuid == UUID_HEART_RATE_MEASUREMENT) {
+            val descriptor = characteristic.getDescriptor(UUID_CLIENT_CHARACTERISTIC_CONFIG)
             val descriptorKey = descriptor.hashCode()
             val unfinishedCallback = writeDescriptorCallbacks[descriptorKey]
             if (unfinishedCallback != null) {
@@ -302,6 +306,9 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
                 throw IllegalStateException()
             }
             writeDescriptorCallbacks[descriptorKey] = callback
+//            } else {
+//                callback(Result.success(Unit))
+//            }
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
