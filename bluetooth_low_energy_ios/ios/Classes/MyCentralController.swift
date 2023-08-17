@@ -24,6 +24,7 @@ class MyCentralController: MyCentralControllerHostApi {
     private var characteristics = [Int: CBCharacteristic]()
     private var descriptors = [Int: CBDescriptor]()
     
+    var setUpCompletion: ((Result<MyCentralControllerArgs, Error>) -> Void)?
     var connectCompletions = [Int: (Result<Void, Error>) -> Void]()
     var disconnectCompletions = [Int: (Result<Void, Error>) -> Void]()
     var discoverGattCompletions = [Int: (Result<Void, Error>) -> Void]()
@@ -35,11 +36,24 @@ class MyCentralController: MyCentralControllerHostApi {
     var readDescriptorCompletions = [Int: (Result<FlutterStandardTypedData, Error>) -> Void]()
     var writeDescriptorCompletions = [Int: (Result<Void, Error>) -> Void]()
     
-    func setUp() throws -> MyCentralControllerArgs {
-        centralManager.delegate = myCentralManagerDelegate
-        let myStateArgs = centralManager.state.toMyArgs()
-        let myStateNumber = Int64(myStateArgs.rawValue)
-        return MyCentralControllerArgs(myStateNumber: myStateNumber)
+    func setUp(completion: @escaping (Result<MyCentralControllerArgs, Error>) -> Void) {
+        do {
+            let unfinishedCompletion = setUpCompletion
+            if unfinishedCompletion != nil {
+                throw MyError.illegalState
+            }
+            centralManager.delegate = myCentralManagerDelegate
+            if centralManager.state == .unknown {
+                setUpCompletion = completion
+            } else {
+                let myStateArgs = centralManager.state.toMyArgs()
+                let myStateNumber = Int64(myStateArgs.rawValue)
+                let myArgs = MyCentralControllerArgs(myStateNumber: myStateNumber)
+                completion(.success(myArgs))
+            }
+        } catch {
+            completion(.failure(error))
+        }
     }
     
     func tearDown() throws {
@@ -277,6 +291,14 @@ class MyCentralController: MyCentralControllerHostApi {
     }
     
     func didUpdateState(_ state: CBManagerState) {
+        let completion = setUpCompletion
+        if state != .unknown && completion != nil {
+            let myStateArgs = state.toMyArgs()
+            let myStateNumber = Int64(myStateArgs.rawValue)
+            let myArgs = MyCentralControllerArgs(myStateNumber: myStateNumber)
+            completion!(.success(myArgs))
+            setUpCompletion = nil
+        }
         let myStateArgs = state.toMyArgs()
         let myStateNumber = Int64(myStateArgs.rawValue)
         myApi.onStateChanged(myStateNumber: myStateNumber) {}
@@ -303,7 +325,8 @@ class MyCentralController: MyCentralControllerHostApi {
                     throw MyError.illegalArgument
                 }
                 let key = Int64(data[0]) | (Int64(data[1]) << 8)
-                let value = FlutterStandardTypedData(bytes: data[2...data.endIndex])
+                let bytes = data.count > 2 ? data[2...data.count-1] : Data()
+                let value = FlutterStandardTypedData(bytes: bytes)
                 manufacturerSpecificData[key] = value
             } catch {
                 manufacturerSpecificData = [:]
@@ -468,7 +491,7 @@ class MyCentralController: MyCentralControllerHostApi {
     
     func didUpdateCharacteristicValue(_ characteristic: CBCharacteristic, _ error: Error?) {
         let characteristicKey = characteristic.hash
-        guard let completion = readCharacteristicCompletions[characteristicKey] else {
+        guard let completion = readCharacteristicCompletions.removeValue(forKey: characteristicKey) else {
             let myCharacteristicKey = Int64(characteristicKey)
             let rawValue = characteristic.value ?? Data()
             let value = FlutterStandardTypedData(bytes: rawValue)
@@ -486,7 +509,7 @@ class MyCentralController: MyCentralControllerHostApi {
     
     func didWriteCharacteristicValue(_ characteristic: CBCharacteristic, _ error: Error?) {
         let characteristicKey = characteristic.hash
-        guard let completion = writeCharacteristicCompletions[characteristicKey] else {
+        guard let completion = writeCharacteristicCompletions.removeValue(forKey: characteristicKey) else {
             return
         }
         if error == nil {
@@ -498,7 +521,7 @@ class MyCentralController: MyCentralControllerHostApi {
     
     func didUpdateNotificationState(_ characteristic: CBCharacteristic, _ error: Error?) {
         let characteristicKey = characteristic.hash
-        guard let completion = notifyCharacteristicCompletions[characteristicKey] else {
+        guard let completion = notifyCharacteristicCompletions.removeValue(forKey: characteristicKey) else {
             return
         }
         if error == nil {
@@ -510,7 +533,7 @@ class MyCentralController: MyCentralControllerHostApi {
     
     func didUpdateDescriptorValue(_ descriptor: CBDescriptor, _ error: Error?) {
         let descriptorKey = descriptor.hash
-        guard let completion = readDescriptorCompletions[descriptorKey] else {
+        guard let completion = readDescriptorCompletions.removeValue(forKey: descriptorKey) else {
             return
         }
         if error == nil {
@@ -559,7 +582,7 @@ class MyCentralController: MyCentralControllerHostApi {
     
     func didWriteDescriptorValue(_ descriptor: CBDescriptor, _ error: Error?) {
         let descriptorKey = descriptor.hash
-        guard let completion = writeDescriptorCompletions[descriptorKey] else {
+        guard let completion = writeDescriptorCompletions.removeValue(forKey: descriptorKey) else {
             return
         }
         if error == nil {

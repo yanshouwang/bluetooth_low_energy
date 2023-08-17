@@ -27,7 +27,7 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
     companion object {
         //        const val DATA_TYPE_MANUFACTURER_SPECIFIC_DATA = 0xff.toByte()
         private const val REQUEST_CODE = 443
-        private val UUID_HEART_RATE_MEASUREMENT = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb")
+//        private val UUID_HEART_RATE_MEASUREMENT = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb")
         private val UUID_CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
     }
 
@@ -375,9 +375,9 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         }
         val myStateArgs = if (isGranted) adapter.myStateArgs
         else MyCentralStateArgs.UNAUTHORIZED
-        val stateNumber = myStateArgs.raw.toLong()
-        val args = MyCentralControllerArgs(stateNumber)
-        callback(Result.success(args))
+        val myStateNumber = myStateArgs.raw.toLong()
+        val myArgs = MyCentralControllerArgs(myStateNumber)
+        callback(Result.success(myArgs))
         return true
     }
 

@@ -19,7 +19,7 @@ class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate {
         let state = central.state
         myCentralController.didUpdateState(state)
     }
-
+    
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         myCentralController.didDiscover(peripheral, advertisementData, RSSI)
     }

@@ -48,6 +48,14 @@ class UUID {
 
   /// Creates a new UUID from the string format encoding (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx where xx is a hexadecimal number).
   factory UUID.fromString(String value) {
+    if (value.length == 4) {
+      try {
+        final shortValue = int.parse(value, radix: 16);
+        return UUID.short(shortValue);
+      } catch (e) {
+        throw const FormatException('Invalid UUID string');
+      }
+    }
     var groups = value.split('-');
     if (groups.length != 5 ||
         groups[0].length != 8 ||
