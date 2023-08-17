@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:typed_data';
 
@@ -120,36 +121,40 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bluetooth LowEnergy'),
-        actions: [
-          ValueListenableBuilder(
-            valueListenable: state,
-            builder: (context, state, child) {
-              return ValueListenableBuilder(
-                valueListenable: discovering,
-                builder: (context, discovering, child) {
-                  return TextButton(
-                    onPressed: state == CentralState.poweredOn
-                        ? () async {
-                            if (discovering) {
-                              await stopDiscovery();
-                            } else {
-                              await startDiscovery();
-                            }
-                          }
-                        : null,
-                    child: Text(
-                      discovering ? 'END' : 'BEGIN',
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        ],
-      ),
+      appBar: buildAppBar(context),
       body: buildBody(context),
+    );
+  }
+
+  PreferredSizeWidget buildAppBar(BuildContext context) {
+    return AppBar(
+      title: const Text('Bluetooth LowEnergy'),
+      actions: [
+        ValueListenableBuilder(
+          valueListenable: state,
+          builder: (context, state, child) {
+            return ValueListenableBuilder(
+              valueListenable: discovering,
+              builder: (context, discovering, child) {
+                return TextButton(
+                  onPressed: state == CentralState.poweredOn
+                      ? () async {
+                          if (discovering) {
+                            await stopDiscovery();
+                          } else {
+                            await startDiscovery();
+                          }
+                        }
+                      : null,
+                  child: Text(
+                    discovering ? 'END' : 'BEGIN',
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -168,8 +173,6 @@ class _HomeViewState extends State<HomeView> {
             final rssi = item.rssi;
             final advertisement = item.advertisement;
             final name = advertisement.name;
-            // final manufacturerSpecificData =
-            //     advertisement.manufacturerSpecificData;
             return ListTile(
               onTap: () async {
                 final discovering = this.discovering.value;
@@ -187,7 +190,64 @@ class _HomeViewState extends State<HomeView> {
                   await startDiscovery();
                 }
               },
-              onLongPress: () {},
+              onLongPress: () async {
+                await showModalBottomSheet(
+                  context: context,
+                  builder: (context) {
+                    return BottomSheet(
+                      onClosing: () {},
+                      clipBehavior: Clip.antiAlias,
+                      builder: (context) {
+                        final manufacturerSpecificData =
+                            advertisement.manufacturerSpecificData;
+                        return ListView.separated(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 40.0,
+                          ),
+                          itemBuilder: (context, i) {
+                            const idWidth = 80.0;
+                            if (i == 0) {
+                              return const Row(
+                                children: [
+                                  SizedBox(
+                                    width: idWidth,
+                                    child: Text('ID'),
+                                  ),
+                                  Expanded(
+                                    child: Text('DATA'),
+                                  ),
+                                ],
+                              );
+                            } else {
+                              final entry = manufacturerSpecificData.entries
+                                  .elementAt(i - 1);
+                              final id =
+                                  '0x${entry.key.toRadixString(16).padLeft(4, '0')}';
+                              final value = hex.encode(entry.value);
+                              return Row(
+                                children: [
+                                  SizedBox(
+                                    width: idWidth,
+                                    child: Text(id),
+                                  ),
+                                  Expanded(
+                                    child: Text(value),
+                                  ),
+                                ],
+                              );
+                            }
+                          },
+                          separatorBuilder: (context, i) {
+                            return const Divider();
+                          },
+                          itemCount: manufacturerSpecificData.length + 1,
+                        );
+                      },
+                    );
+                  },
+                );
+              },
               title: Text(name ?? '<EMPTY NAME>'),
               subtitle: Text(
                 '$uuid',
@@ -242,6 +302,7 @@ class _PeripheralViewState extends State<PeripheralView> {
   late final ValueNotifier<List<GattCharacteristic>> characteristics;
   late final ValueNotifier<GattService?> service;
   late final ValueNotifier<GattCharacteristic?> characteristic;
+  late final TextEditingController writeController;
   late final ValueNotifier<List<Log>> logs;
   late final StreamSubscription stateChangedSubscription;
   late final StreamSubscription valueChangedSubscription;
@@ -255,6 +316,7 @@ class _PeripheralViewState extends State<PeripheralView> {
     characteristics = ValueNotifier([]);
     service = ValueNotifier(null);
     characteristic = ValueNotifier(null);
+    writeController = TextEditingController();
     logs = ValueNotifier([]);
     stateChangedSubscription = centralController.peripheralStateChanged.listen(
       (eventArgs) {
@@ -292,7 +354,6 @@ class _PeripheralViewState extends State<PeripheralView> {
 
   @override
   Widget build(BuildContext context) {
-    final title = eventArgs.advertisement.name ?? '<EMPTY NAME>';
     return WillPopScope(
       onWillPop: () async {
         if (state.value) {
@@ -302,32 +363,37 @@ class _PeripheralViewState extends State<PeripheralView> {
         return true;
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-          actions: [
-            ValueListenableBuilder(
-              valueListenable: state,
-              builder: (context, state, child) {
-                return TextButton(
-                  onPressed: () async {
-                    final peripheral = eventArgs.peripheral;
-                    if (state) {
-                      await centralController.disconnect(peripheral);
-                    } else {
-                      await centralController.connect(peripheral);
-                      await centralController.discoverGATT(peripheral);
-                      services.value =
-                          await centralController.getServices(peripheral);
-                    }
-                  },
-                  child: Text(state ? 'DISCONNECT' : 'CONNECT'),
-                );
-              },
-            ),
-          ],
-        ),
+        appBar: buildAppBar(context),
         body: buildBody(context),
       ),
+    );
+  }
+
+  PreferredSizeWidget buildAppBar(BuildContext context) {
+    final title = eventArgs.advertisement.name ?? '<EMPTY NAME>';
+    return AppBar(
+      title: Text(title),
+      actions: [
+        ValueListenableBuilder(
+          valueListenable: state,
+          builder: (context, state, child) {
+            return TextButton(
+              onPressed: () async {
+                final peripheral = eventArgs.peripheral;
+                if (state) {
+                  await centralController.disconnect(peripheral);
+                } else {
+                  await centralController.connect(peripheral);
+                  await centralController.discoverGATT(peripheral);
+                  services.value =
+                      await centralController.getServices(peripheral);
+                }
+              },
+              child: Text(state ? 'DISCONNECT' : 'CONNECT'),
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -455,45 +521,56 @@ class _PeripheralViewState extends State<PeripheralView> {
           Container(
             margin: const EdgeInsets.symmetric(vertical: 16.0),
             height: 160.0,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  child: TextField(
-                    expands: true,
-                    maxLines: null,
-                    textAlignVertical: TextAlignVertical.top,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+            child: ValueListenableBuilder(
+              valueListenable: characteristic,
+              builder: (context, characteristic, child) {
+                final bool canNotify, canRead, canWrite;
+                if (characteristic == null) {
+                  canNotify = canRead = canWrite = false;
+                } else {
+                  final properties = characteristic.properties;
+                  canNotify = properties.contains(
+                    GattCharacteristicProperty.notify,
+                  );
+                  canRead = properties.contains(
+                    GattCharacteristicProperty.read,
+                  );
+                  canWrite = properties.contains(
+                    GattCharacteristicProperty.write,
+                  );
+                }
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: writeController,
+                        enabled: canWrite,
+                        expands: true,
+                        maxLines: null,
+                        textAlignVertical: TextAlignVertical.top,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 12.0,
+                            vertical: 8.0,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                ValueListenableBuilder(
-                  valueListenable: characteristic,
-                  builder: (context, characteristic, child) {
-                    final bool canNotify, canRead, canWrite;
-                    if (characteristic == null) {
-                      canNotify = canRead = canWrite = false;
-                    } else {
-                      final properties = characteristic.properties;
-                      canNotify = properties.contains(
-                        GattCharacteristicProperty.notify,
-                      );
-                      canRead = properties.contains(
-                        GattCharacteristicProperty.read,
-                      );
-                      canWrite = properties.contains(
-                        GattCharacteristicProperty.write,
-                      );
-                    }
-                    return Column(
+                    Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         TextButton(
-                          onPressed: canNotify ? () {} : null,
-                          child: Text('NOTIFY'),
+                          onPressed: characteristic != null && canNotify
+                              ? () async {
+                                  await centralController.notifyCharacteristic(
+                                    characteristic,
+                                    state: true,
+                                  );
+                                }
+                              : null,
+                          child: const Text('NOTIFY'),
                         ),
                         TextButton(
                           onPressed: characteristic != null && canRead
@@ -506,17 +583,31 @@ class _PeripheralViewState extends State<PeripheralView> {
                                   logs.value = [...logs.value, log];
                                 }
                               : null,
-                          child: Text('READ'),
+                          child: const Text('READ'),
                         ),
                         TextButton(
-                          onPressed: canWrite ? () {} : null,
-                          child: Text('WRITE'),
+                          onPressed: characteristic != null && canWrite
+                              ? () async {
+                                  final text = writeController.text;
+                                  final elements = utf8.encode(text);
+                                  final value = Uint8List.fromList(elements);
+                                  await centralController.writeCharacteristic(
+                                    characteristic,
+                                    value: value,
+                                    type: GattCharacteristicWriteType
+                                        .withResponse,
+                                  );
+                                  final log = Log(LogType.write, text);
+                                  logs.value = [...logs.value, log];
+                                }
+                              : null,
+                          child: const Text('WRITE'),
                         ),
                       ],
-                    );
-                  },
-                ),
-              ],
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ],
