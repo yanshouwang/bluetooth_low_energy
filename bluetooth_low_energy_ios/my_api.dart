@@ -4,7 +4,7 @@ import 'package:pigeon/pigeon.dart';
   PigeonOptions(
     dartOut: 'lib/src/my_api.g.dart',
     dartOptions: DartOptions(),
-    swiftOut: 'iOS/Classes/MyApi.g.swift',
+    swiftOut: 'ios/Classes/MyApi.g.swift',
     swiftOptions: SwiftOptions(),
   ),
 )
