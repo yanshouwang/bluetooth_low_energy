@@ -10,18 +10,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  bluetooth_low_energy_platform_interface:
-    path: ../bluetooth_low_energy_platform_interface
-  bluetooth_low_energy_android:
-    path: ../bluetooth_low_energy_android
-  bluetooth_low_energy_ios:
-    path: ../bluetooth_low_energy_ios
-  bluetooth_low_energy_macos:
-    path: ../bluetooth_low_energy_macos
-  bluetooth_low_energy_windows:
-    path: ../bluetooth_low_energy_windows
-  bluetooth_low_energy_linux:
-    path: ../bluetooth_low_energy_linux
+  bluetooth_low_energy_platform_interface: ^2.0.0
+  bluetooth_low_energy_android: ^2.0.0
+  bluetooth_low_energy_ios: ^2.0.0
+  bluetooth_low_energy_macos: ^2.0.0
+  bluetooth_low_energy_linux: ^2.0.0
+  bluetooth_low_energy_windows: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -37,7 +31,7 @@ flutter:
         default_package: bluetooth_low_energy_ios
       macos:
         default_package: bluetooth_low_energy_macos
-      windows:
-        default_package: bluetooth_low_energy_windows
       linux:
         default_package: bluetooth_low_energy_linux
+      windows:
+        default_package: bluetooth_low_energy_windows
