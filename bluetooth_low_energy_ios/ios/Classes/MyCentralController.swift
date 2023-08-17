@@ -343,6 +343,37 @@ class MyCentralController: MyCentralControllerHostApi {
     func didDisconnectPeripheral(_ peripheral: CBPeripheral, _ error: Error?) {
         let peripheralKey = peripheral.hash
         let myPeripheralKey = Int64(peripheralKey)
+        let discoverGattCompletion = discoverGattCompletions.removeValue(forKey: peripheralKey)
+        if discoverGattCompletion != nil {
+            discoverGattCompletion!(.failure(error ?? MyError.illegalState))
+        }
+        let services = peripheral.services ?? []
+        for service in services {
+            let characteristics = service.characteristics ?? []
+            for characteristic in characteristics {
+                let characteristicKey = characteristic.hash
+                let readCharacteristicCompletion = readCharacteristicCompletions.removeValue(forKey: characteristicKey)
+                let writeCharacteristicCompletion = writeCharacteristicCompletions.removeValue(forKey: characteristicKey)
+                if readCharacteristicCompletion != nil {
+                    readCharacteristicCompletion!(.failure(MyError.illegalState))
+                }
+                if writeCharacteristicCompletion != nil {
+                    writeCharacteristicCompletion!(.failure(MyError.illegalState))
+                }
+                let descriptors = characteristic.descriptors ?? []
+                for descriptor in descriptors {
+                    let descriptorKey = descriptor.hash
+                    let readDescriptorCompletion = readDescriptorCompletions.removeValue(forKey: descriptorKey)
+                    let writeDescriptorCompletion = writeDescriptorCompletions.removeValue(forKey: descriptorKey)
+                    if readDescriptorCompletion != nil {
+                        readDescriptorCompletion!(.failure(MyError.illegalState))
+                    }
+                    if writeDescriptorCompletion != nil {
+                        writeDescriptorCompletion!(.failure(MyError.illegalState))
+                    }
+                }
+            }
+        }
         myApi.onPeripheralStateChanged(myPeripheralKey: myPeripheralKey, state: false) {}
         guard let completion = disconnectCompletions.removeValue(forKey: peripheralKey) else {
             return
@@ -350,7 +381,7 @@ class MyCentralController: MyCentralControllerHostApi {
         if error == nil {
             completion(.success(()))
         } else {
-            completion(.failure(error ?? MyError.unknown))
+            completion(.failure(error!))
         }
     }
     
@@ -372,7 +403,7 @@ class MyCentralController: MyCentralControllerHostApi {
             }
         } else {
             discoverGattCompletions.removeValue(forKey: peripheralKey)
-            completion(.failure(error ?? MyError.unknown))
+            completion(.failure(error!))
         }
     }
     
@@ -401,7 +432,7 @@ class MyCentralController: MyCentralControllerHostApi {
         } else {
             discoverGattCompletions.removeValue(forKey: peripheralKey)
             unfinishedServices.removeValue(forKey: peripheralKey)
-            completion(.failure(error ?? MyError.unknown))
+            completion(.failure(error!))
         }
     }
     
@@ -431,7 +462,7 @@ class MyCentralController: MyCentralControllerHostApi {
             discoverGattCompletions.removeValue(forKey: peripheralKey)
             unfinishedServices.removeValue(forKey: peripheralKey)
             unfinishedCharacteristics.removeValue(forKey: peripheralKey)
-            completion(.failure(error ?? MyError.unknown))
+            completion(.failure(error!))
         }
     }
     
@@ -449,7 +480,7 @@ class MyCentralController: MyCentralControllerHostApi {
             let value = FlutterStandardTypedData(bytes: rawValue)
             completion(.success(value))
         } else {
-            completion(.failure(error ?? MyError.unknown))
+            completion(.failure(error!))
         }
     }
     
@@ -461,7 +492,7 @@ class MyCentralController: MyCentralControllerHostApi {
         if error == nil {
             completion(.success(()))
         } else {
-            completion(.failure(error ?? MyError.unknown))
+            completion(.failure(error!))
         }
     }
     
@@ -473,7 +504,7 @@ class MyCentralController: MyCentralControllerHostApi {
         if error == nil {
             completion(.success(()))
         } else {
-            completion(.failure(error ?? MyError.unknown))
+            completion(.failure(error!))
         }
     }
     
@@ -522,7 +553,7 @@ class MyCentralController: MyCentralControllerHostApi {
             }
             completion(.success((value)))
         } else {
-            completion(.failure(error ?? MyError.unknown))
+            completion(.failure(error!))
         }
     }
     
@@ -534,7 +565,7 @@ class MyCentralController: MyCentralControllerHostApi {
         if error == nil {
             completion(.success(()))
         } else {
-            completion(.failure(error ?? MyError.unknown))
+            completion(.failure(error!))
         }
     }
 }
