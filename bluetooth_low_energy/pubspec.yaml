@@ -1,10 +1,10 @@
 name: bluetooth_low_energy
-description: A new Flutter plugin project.
-version: 0.0.1
+description: A Flutter plugin for controlling the bluetooth low energy.
+version: 2.0.0
 homepage: https://github.com/yanshouwang/bluetooth_low_energy
 
 environment:
-  sdk: '>=3.0.3 <4.0.0'
+  sdk: '>=3.0.0 <4.0.0'
   flutter: ">=3.3.0"
 
 dependencies:

@@ -8,5 +8,5 @@ import Foundation
 import bluetooth_low_energy_macos
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
-  BluetoothLowEnergyMacosPlugin.register(with: registry.registrar(forPlugin: "BluetoothLowEnergyMacosPlugin"))
+  BluetoothLowEnergymacOS.register(with: registry.registrar(forPlugin: "BluetoothLowEnergymacOS"))
 }

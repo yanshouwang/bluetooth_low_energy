@@ -1,11 +1,9 @@
-import 'gatt_characteristic.dart';
+import 'uuid.dart';
 
 class GattService {
-  final String id;
-  final List<GattCharacteristic> characteristics;
+  final UUID uuid;
 
   GattService({
-    required this.id,
-    required this.characteristics,
+    required this.uuid,
   });
 }

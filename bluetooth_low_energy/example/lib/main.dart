@@ -1,32 +1,57 @@
-import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
+import 'dart:typed_data';
 
-import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
 import 'package:convert/convert.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'dart:async';
 
-CentralManager get cm => CentralManager.instance;
+import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
+import 'package:intl/intl.dart';
 
 void main() {
-  const myApp = MyApp();
-  runApp(myApp);
+  runZonedGuarded(onStartUp, onCrashed);
 }
 
-class MyApp extends StatelessWidget {
+void onStartUp() async {
+  runApp(const MyApp());
+}
+
+void onCrashed(Object error, StackTrace stackTrace) {
+  log(
+    '$error',
+    error: error,
+    stackTrace: stackTrace,
+  );
+}
+
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData.light(
+        useMaterial3: true,
+      ),
       home: const HomeView(),
       routes: {
-        'device': (context) {
-          final peripheral =
-              ModalRoute.of(context)?.settings.arguments as Peripheral;
-          return DeviceView(
-            peripheral: peripheral,
+        'peripheral': (context) {
+          final route = ModalRoute.of(context);
+          final eventArgs =
+              route!.settings.arguments as CentralDiscoveredEventArgs;
+          return PeripheralView(
+            eventArgs: eventArgs,
           );
         },
       },
@@ -35,625 +60,593 @@ class MyApp extends StatelessWidget {
 }
 
 class HomeView extends StatefulWidget {
-  const HomeView({Key? key}) : super(key: key);
+  const HomeView({super.key});
 
   @override
   State<HomeView> createState() => _HomeViewState();
 }
 
 class _HomeViewState extends State<HomeView> {
-  late final ValueNotifier<bool> isPoweredOn;
-  late final ValueNotifier<bool> isDiscovering;
-  late final ValueNotifier<List<Peripheral>> peripherals;
-  late final StreamSubscription<CentralManagerState> stateChangedSubscription;
-  late final StreamSubscription<Peripheral> discoveredSubscription;
+  CentralController get centralController => CentralController.instance;
+  late final ValueNotifier<CentralState> state;
+  late final ValueNotifier<bool> discovering;
+  late final ValueNotifier<List<CentralDiscoveredEventArgs>>
+      discoveredEventArgs;
+  late final StreamSubscription stateChangedSubscription;
+  late final StreamSubscription discoveredSubscription;
 
   @override
   void initState() {
     super.initState();
-
-    isPoweredOn = ValueNotifier(false);
-    isDiscovering = ValueNotifier(false);
-    peripherals = ValueNotifier([]);
-
-    isPoweredOn.addListener(onStateChanged);
-    stateChangedSubscription = cm.stateChanged.listen((state) {
-      isPoweredOn.value = state == CentralManagerState.poweredOn;
-    });
-    discoveredSubscription = cm.discovered.listen(
-      (peripheral) {
-        final peripherals = this.peripherals.value;
-        final i = peripherals.indexWhere((item) => item.id == peripheral.id);
+    state = ValueNotifier(centralController.state);
+    discovering = ValueNotifier(false);
+    discoveredEventArgs = ValueNotifier([]);
+    stateChangedSubscription = centralController.stateChanged.listen(
+      (eventArgs) {
+        state.value = eventArgs.state;
+      },
+    );
+    discoveredSubscription = centralController.discovered.listen(
+      (eventArgs) {
+        final items = discoveredEventArgs.value;
+        final i = items.indexWhere(
+          (item) => item.peripheral == eventArgs.peripheral,
+        );
         if (i < 0) {
-          this.peripherals.value = [...peripherals, peripheral];
+          discoveredEventArgs.value = [...items, eventArgs];
         } else {
-          peripherals[i] = peripheral;
-          this.peripherals.value = [...peripherals];
+          items[i] = eventArgs;
+          discoveredEventArgs.value = [...items];
         }
       },
     );
-    setup();
+    setUp();
   }
 
-  void setup() async {
-    await Permission.locationWhenInUse.request();
-    await Permission.bluetooth.request();
-    await Permission.bluetoothScan.request();
-    await Permission.bluetoothConnect.request();
-    final state = await cm.getState();
-    isPoweredOn.value = state == CentralManagerState.poweredOn;
+  void setUp() async {
+    await centralController.setUp();
+    state.value = centralController.state;
   }
 
-  void onStateChanged() {
-    final route = ModalRoute.of(context);
-    if (route == null || !route.isCurrent) {
-      return;
-    }
-    if (isPoweredOn.value) {
-      startDiscovery();
-    } else {
-      isDiscovering.value = false;
-    }
+  Future<void> startDiscovery() async {
+    await centralController.startDiscovery();
+    discovering.value = true;
   }
 
-  @override
-  void dispose() {
-    stopDiscovery();
-    isPoweredOn.removeListener(onStateChanged);
-    stateChangedSubscription.cancel();
-    discoveredSubscription.cancel();
-
-    isPoweredOn.dispose();
-    isDiscovering.dispose();
-    peripherals.dispose();
-
-    super.dispose();
+  Future<void> stopDiscovery() async {
+    await centralController.stopDiscovery();
+    discovering.value = false;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-      ),
+      appBar: buildAppBar(context),
       body: buildBody(context),
     );
   }
 
-  void startDiscovery() async {
-    if (isDiscovering.value || !isPoweredOn.value) {
-      return;
-    }
-    await cm.startDiscovery();
-    isDiscovering.value = true;
-  }
-
-  void stopDiscovery() async {
-    if (!isDiscovering.value || !isPoweredOn.value) {
-      return;
-    }
-    await cm.stopDiscovery();
-    peripherals.value = [];
-    isDiscovering.value = false;
-  }
-
-  void showManufacturerSpecificData(Uint8List manufacturerSpecificData) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return buildManufacturerSpecificDataView(manufacturerSpecificData);
-      },
-      elevation: 0.0,
-      backgroundColor: Colors.transparent,
+  PreferredSizeWidget buildAppBar(BuildContext context) {
+    return AppBar(
+      title: const Text('Bluetooth LowEnergy'),
+      actions: [
+        ValueListenableBuilder(
+          valueListenable: state,
+          builder: (context, state, child) {
+            return ValueListenableBuilder(
+              valueListenable: discovering,
+              builder: (context, discovering, child) {
+                return TextButton(
+                  onPressed: state == CentralState.poweredOn
+                      ? () async {
+                          if (discovering) {
+                            await stopDiscovery();
+                          } else {
+                            await startDiscovery();
+                          }
+                        }
+                      : null,
+                  child: Text(
+                    discovering ? 'END' : 'BEGIN',
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ],
     );
   }
 
-  void showDeviceView(Peripheral peripheral) async {
-    stopDiscovery();
-    await Navigator.of(context).pushNamed(
-      'device',
-      arguments: peripheral,
-    );
-    startDiscovery();
-  }
-}
-
-extension on _HomeViewState {
   Widget buildBody(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: isPoweredOn,
-      builder: (context, bool state, child) {
-        return state ? buildBroadcastsView(context) : buildClosedView(context);
+      valueListenable: discoveredEventArgs,
+      builder: (context, discoveredEventArgs, child) {
+        final items = discoveredEventArgs
+            .where((eventArgs) => eventArgs.advertisement.name != null)
+            .toList();
+        return ListView.separated(
+          itemBuilder: (context, i) {
+            final theme = Theme.of(context);
+            final item = items[i];
+            final uuid = item.peripheral.uuid;
+            final rssi = item.rssi;
+            final advertisement = item.advertisement;
+            final name = advertisement.name;
+            return ListTile(
+              onTap: () async {
+                final discovering = this.discovering.value;
+                if (discovering) {
+                  await stopDiscovery();
+                }
+                if (!mounted) {
+                  throw UnimplementedError();
+                }
+                await Navigator.of(context).pushNamed(
+                  'peripheral',
+                  arguments: item,
+                );
+                if (discovering) {
+                  await startDiscovery();
+                }
+              },
+              onLongPress: () async {
+                await showModalBottomSheet(
+                  context: context,
+                  builder: (context) {
+                    return BottomSheet(
+                      onClosing: () {},
+                      clipBehavior: Clip.antiAlias,
+                      builder: (context) {
+                        final manufacturerSpecificData =
+                            advertisement.manufacturerSpecificData;
+                        return ListView.separated(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 40.0,
+                          ),
+                          itemBuilder: (context, i) {
+                            const idWidth = 80.0;
+                            if (i == 0) {
+                              return const Row(
+                                children: [
+                                  SizedBox(
+                                    width: idWidth,
+                                    child: Text('ID'),
+                                  ),
+                                  Expanded(
+                                    child: Text('DATA'),
+                                  ),
+                                ],
+                              );
+                            } else {
+                              final entry = manufacturerSpecificData.entries
+                                  .elementAt(i - 1);
+                              final id =
+                                  '0x${entry.key.toRadixString(16).padLeft(4, '0')}';
+                              final value = hex.encode(entry.value);
+                              return Row(
+                                children: [
+                                  SizedBox(
+                                    width: idWidth,
+                                    child: Text(id),
+                                  ),
+                                  Expanded(
+                                    child: Text(value),
+                                  ),
+                                ],
+                              );
+                            }
+                          },
+                          separatorBuilder: (context, i) {
+                            return const Divider();
+                          },
+                          itemCount: manufacturerSpecificData.length + 1,
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+              title: Text(name ?? '<EMPTY NAME>'),
+              subtitle: Text(
+                '$uuid',
+                style: theme.textTheme.bodySmall,
+                softWrap: false,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              trailing: Text('$rssi'),
+            );
+          },
+          separatorBuilder: (context, i) {
+            return const Divider(
+              height: 0.0,
+            );
+          },
+          itemCount: items.length,
+        );
       },
     );
   }
 
-  Widget buildClosedView(BuildContext context) {
-    return const Center(
-      child: Text('蓝牙未开启'),
-    );
-  }
-
-  Widget buildBroadcastsView(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async => peripherals.value = [],
-      child: ValueListenableBuilder<List<Peripheral>>(
-        valueListenable: peripherals,
-        builder: (context, peripherals, child) {
-          final items = peripherals.where((i) => i.name != null).toList();
-          return ListView.builder(
-            padding: const EdgeInsets.all(6.0),
-            itemCount: items.length,
-            itemBuilder: (context, i) {
-              final item = items.elementAt(i);
-              // final connectable = broadcast.connectable ?? true;
-              final manufacturerSpecificData = item.manufacturerSpecificData;
-              return Card(
-                // color: connectable ? Colors.amber : Colors.grey,
-                color: Colors.amber,
-                clipBehavior: Clip.antiAlias,
-                shape: const BeveledRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(12.0),
-                    bottomLeft: Radius.circular(12.0),
-                  ),
-                ),
-                margin: const EdgeInsets.all(6.0),
-                key: ValueKey(item.id),
-                child: InkWell(
-                  splashColor: Colors.purple,
-                  // onTap: connectable
-                  //     ? () => showDeviceView(peripheral)
-                  //     : null,
-                  onTap: () => showDeviceView(item),
-                  onLongPress: manufacturerSpecificData == null
-                      ? null
-                      : () => showManufacturerSpecificData(
-                          manufacturerSpecificData),
-                  child: Container(
-                    height: 100.0,
-                    padding: const EdgeInsets.all(12.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(item.name ?? ''),
-                              Text(
-                                item.id,
-                                softWrap: true,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Text(
-                            item.rssi.toString(),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Widget buildManufacturerSpecificDataView(Uint8List manufacturerSpecificData) {
-    final widgets = <Widget>[
-      const Row(
-        children: [
-          Text('Type'),
-          Expanded(
-            child: Center(
-              child: Text('Value'),
-            ),
-          ),
-        ],
-      ),
-      const Divider(),
-    ];
-    // for (final entry in advertisement.data.entries) {
-    //   final type = '0x${entry.key.toRadixString(16).padLeft(2, '0')}';
-    //   final value = hex.encode(entry.value);
-    //   final widget = Row(
-    //     children: [
-    //       Text(type),
-    //       Container(width: 12.0),
-    //       Expanded(
-    //         child: Text(
-    //           value,
-    //           softWrap: true,
-    //         ),
-    //       ),
-    //     ],
-    //   );
-    //   widgets.add(widget);
-    //   if (entry.key != advertisement.data.entries.last.key) {
-    //     const divider = Divider();
-    //     widgets.add(divider);
-    //   }
-    // }
-    return Container(
-      margin: const EdgeInsets.all(12.0),
-      child: Material(
-        elevation: 1.0,
-        shape: const BeveledRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(12.0),
-            bottomRight: Radius.circular(12.0),
-          ),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: widgets,
-          ),
-        ),
-      ),
-    );
+  @override
+  void dispose() {
+    super.dispose();
+    centralController.tearDown().ignore();
+    stateChangedSubscription.cancel();
+    discoveredSubscription.cancel();
+    state.dispose();
+    discovering.dispose();
+    discoveredEventArgs.dispose();
   }
 }
 
-class DeviceView extends StatefulWidget {
-  final Peripheral peripheral;
+class PeripheralView extends StatefulWidget {
+  final CentralDiscoveredEventArgs eventArgs;
 
-  const DeviceView({
-    Key? key,
-    required this.peripheral,
-  }) : super(key: key);
+  const PeripheralView({
+    super.key,
+    required this.eventArgs,
+  });
 
   @override
-  State<DeviceView> createState() => _DeviceViewState();
+  State<PeripheralView> createState() => _PeripheralViewState();
 }
 
-class _DeviceViewState extends State<DeviceView> {
-  late final ValueNotifier<PeripheralState> state;
+class _PeripheralViewState extends State<PeripheralView> {
+  CentralController get centralController => CentralController.instance;
+  late final ValueNotifier<bool> state;
+  late final CentralDiscoveredEventArgs eventArgs;
   late final ValueNotifier<List<GattService>> services;
+  late final ValueNotifier<List<GattCharacteristic>> characteristics;
   late final ValueNotifier<GattService?> service;
   late final ValueNotifier<GattCharacteristic?> characteristic;
   late final TextEditingController writeController;
-  late final ValueNotifier<List<String>> logs;
-  late final StreamSubscription<(String, PeripheralState)> stateSubscription;
-  late final StreamSubscription<(String, String, String, Uint8List)>
-      valueChangedSubscription;
+  late final ValueNotifier<List<Log>> logs;
+  late final StreamSubscription stateChangedSubscription;
+  late final StreamSubscription valueChangedSubscription;
 
   @override
   void initState() {
     super.initState();
-    state = ValueNotifier(PeripheralState.disconnected);
+    eventArgs = widget.eventArgs;
+    state = ValueNotifier(false);
     services = ValueNotifier([]);
+    characteristics = ValueNotifier([]);
     service = ValueNotifier(null);
     characteristic = ValueNotifier(null);
     writeController = TextEditingController();
     logs = ValueNotifier([]);
-    stateSubscription = cm.peripheralStateChanged.listen(
-      (item) {
-        final id = item.$1;
-        final state = item.$2;
-        if (id != widget.peripheral.id) {
+    stateChangedSubscription = centralController.peripheralStateChanged.listen(
+      (eventArgs) {
+        if (eventArgs.peripheral != this.eventArgs.peripheral) {
           return;
         }
-        if (state == PeripheralState.disconnected) {
+        final state = eventArgs.state;
+        this.state.value = state;
+        if (!state) {
+          services.value = [];
+          characteristics.value = [];
           service.value = null;
           characteristic.value = null;
-          logs.value.clear();
+          logs.value = [];
         }
-        this.state.value = state;
       },
     );
-    valueChangedSubscription = cm.characteristicValueChanged.listen((item) {
-      final id = item.$1;
-      final serviceId = item.$2;
-      final characteristicId = item.$3;
-      final value = item.$4;
-      if (id != widget.peripheral.id ||
-          serviceId != service.value?.id ||
-          characteristicId != characteristic.value?.id) {
-        return;
-      }
-      final time = DateTime.now().display;
-      final log = '[$time][NOTIFY] ${hex.encode(value)}';
-      logs.value = [...logs.value, log];
-    });
+    valueChangedSubscription =
+        centralController.characteristicValueChanged.listen(
+      (eventArgs) {
+        final characteristic = this.characteristic.value;
+        if (eventArgs.characteristic != characteristic) {
+          return;
+        }
+        const type = LogType.notify;
+        final value = hex.encode(eventArgs.value);
+        final log = Log(type, value);
+        logs.value = [
+          ...logs.value,
+          log,
+        ];
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.peripheral.id),
-        actions: [
-          buildConnectionState(context),
-        ],
+    return WillPopScope(
+      onWillPop: () async {
+        if (state.value) {
+          final peripheral = eventArgs.peripheral;
+          await centralController.disconnect(peripheral);
+        }
+        return true;
+      },
+      child: Scaffold(
+        appBar: buildAppBar(context),
+        body: buildBody(context),
       ),
-      body: buildBody(context),
     );
   }
 
-  void Function()? disposeListener;
-
-  @override
-  void dispose() {
-    super.dispose();
-    if (state.value == PeripheralState.connected) {
-      disconnect();
-    }
-    stateSubscription.cancel();
-    valueChangedSubscription.cancel();
-    state.dispose();
-    service.dispose();
-    characteristic.dispose();
-    logs.dispose();
-  }
-
-  void connect() async {
-    final id = widget.peripheral.id;
-    await cm.connect(id);
-    try {
-      services.value = await cm.discoverServices(id);
-    } catch (e) {
-      cm.disconnect(id);
-      rethrow;
-    }
-  }
-
-  void disconnect() async {
-    final id = widget.peripheral.id;
-    cm.disconnect(id);
-    service.value = null;
-    characteristic.value = null;
-    logs.value.clear();
-  }
-}
-
-extension on _DeviceViewState {
-  Widget buildConnectionState(BuildContext context) {
-    return ValueListenableBuilder<PeripheralState>(
-      valueListenable: state,
-      builder: (context, state, child) {
-        void Function()? onPressed;
-        String data;
-        switch (state) {
-          case PeripheralState.disconnected:
-            onPressed = connect;
-            data = '连接';
-            break;
-          case PeripheralState.connecting:
-            data = '连接';
-            break;
-          case PeripheralState.connected:
-            onPressed = disconnect;
-            data = '断开';
-            break;
-          default:
-            data = '';
-            break;
-        }
-        return TextButton(
-          onPressed: onPressed,
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.white,
-          ),
-          child: Text(data),
-        );
-      },
+  PreferredSizeWidget buildAppBar(BuildContext context) {
+    final title = eventArgs.advertisement.name ?? '<EMPTY NAME>';
+    return AppBar(
+      title: Text(title),
+      actions: [
+        ValueListenableBuilder(
+          valueListenable: state,
+          builder: (context, state, child) {
+            return TextButton(
+              onPressed: () async {
+                final peripheral = eventArgs.peripheral;
+                if (state) {
+                  await centralController.disconnect(peripheral);
+                } else {
+                  await centralController.connect(peripheral);
+                  await centralController.discoverGATT(peripheral);
+                  services.value =
+                      await centralController.getServices(peripheral);
+                }
+              },
+              child: Text(state ? 'DISCONNECT' : 'CONNECT'),
+            );
+          },
+        ),
+      ],
     );
   }
 
   Widget buildBody(BuildContext context) {
-    return ValueListenableBuilder<PeripheralState>(
-      valueListenable: state,
-      builder: (context, state, child) {
-        switch (state) {
-          case PeripheralState.disconnected:
-            return buildDisconnectedView(context);
-          case PeripheralState.connecting:
-            return buildConnectingView(context);
-          case PeripheralState.connected:
-            return buildConnectedView(context);
-          default:
-            throw UnimplementedError();
-        }
-      },
-    );
-  }
-
-  Widget buildDisconnectedView(BuildContext context) {
-    return const Center(
-      child: Text('Disconnected'),
-    );
-  }
-
-  Widget buildConnectingView(BuildContext context) {
-    return const Center(
-      child: Text('Connecting'),
-    );
-  }
-
-  Widget buildConnectedView(BuildContext context) {
-    return ValueListenableBuilder<List<GattService>>(
-      valueListenable: services,
-      builder: (context, services, child) {
-        return ValueListenableBuilder<GattService?>(
-          valueListenable: service,
-          builder: (context, service, child) {
-            final id = widget.peripheral.id;
-            final serviceViews = services.map((service) {
-              return DropdownMenuItem<GattService>(
-                value: service,
-                child: Text(
-                  service.id,
-                  softWrap: false,
-                ),
-              );
-            }).toList();
-            final serviceView = DropdownButton<GattService>(
-              isExpanded: true,
-              hint: const Text('Choose a service'),
-              value: service,
-              items: serviceViews,
-              onChanged: (service) {
-                this.service.value = service;
-                characteristic.value = null;
-              },
-            );
-            final views = <Widget>[
-              serviceView,
-            ];
-            if (service != null) {
-              final serviceId = service.id;
-              final characteristicViews =
-                  service.characteristics.map((characteristic) {
+    final theme = Theme.of(context);
+    return Container(
+      margin: const EdgeInsets.symmetric(
+        horizontal: 16.0,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ValueListenableBuilder(
+            valueListenable: services,
+            builder: (context, services, child) {
+              final items = services.map((service) {
                 return DropdownMenuItem(
-                  value: characteristic,
+                  value: service,
                   child: Text(
-                    characteristic.id,
-                    softWrap: false,
+                    '${service.uuid}',
+                    style: theme.textTheme.bodyMedium,
                   ),
                 );
               }).toList();
-              final characteristicView =
-                  ValueListenableBuilder<GattCharacteristic?>(
-                valueListenable: characteristic,
-                builder: (context, characteristic, child) {
-                  final canWrite = characteristic != null &&
-                      (characteristic.canWrite ||
-                          characteristic.canWriteWithoutResponse);
-                  final canRead =
-                      characteristic != null && characteristic.canRead;
-                  final canNotify =
-                      characteristic != null && characteristic.canNotify;
-                  final readAndNotifyView = Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        onPressed: canRead
-                            ? () async {
-                                final value = await cm.readCharacteristic(
-                                  id: id,
-                                  serviceId: serviceId,
-                                  characteristicId: characteristic.id,
-                                );
-                                final time = DateTime.now().display;
-                                final log =
-                                    '[$time][READ] ${hex.encode(value)}';
-                                logs.value = [...logs.value, log];
-                              }
-                            : null,
-                        icon: const Icon(Icons.archive),
-                      ),
-                      IconButton(
-                        onPressed: canNotify
-                            ? () async {
-                                await cm.notifyCharacteristic(
-                                  id: id,
-                                  serviceId: serviceId,
-                                  characteristicId: characteristic.id,
-                                  value: true,
-                                );
-                              }
-                            : null,
-                        icon: const Icon(
-                          Icons.notifications,
-                          // color: notifying ? Colors.blue : null,
-                        ),
-                      ),
-                    ],
-                  );
-                  final controllerView = TextField(
-                    controller: writeController,
-                    decoration: InputDecoration(
-                      // hintText: 'MTU: ${peripheral.maximumWriteLength}',
-                      suffixIcon: IconButton(
-                        onPressed: canWrite
-                            ? () async {
-                                final elements =
-                                    utf8.encode(writeController.text);
-                                final value = Uint8List.fromList(elements);
-                                final type = characteristic.canWrite
-                                    ? GattCharacteristicWriteType.withResponse
-                                    : GattCharacteristicWriteType
-                                        .withoutResponse;
-                                await cm.writeCharacteristic(
-                                  id: id,
-                                  serviceId: serviceId,
-                                  characteristicId: characteristic.id,
-                                  value: value,
-                                  type: type,
-                                );
-                              }
-                            : null,
-                        icon: const Icon(Icons.send),
-                      ),
-                    ),
-                  );
-                  return Column(
-                    children: [
-                      DropdownButton<GattCharacteristic>(
-                        isExpanded: true,
-                        hint: const Text('Choose a characteristic'),
-                        value: characteristic,
-                        items: characteristicViews,
-                        onChanged: (characteristic) {
-                          this.characteristic.value = characteristic;
-                        },
-                      ),
-                      readAndNotifyView,
-                      controllerView,
-                    ],
+              return ValueListenableBuilder(
+                valueListenable: service,
+                builder: (context, service, child) {
+                  return DropdownButton(
+                    isExpanded: true,
+                    items: items,
+                    hint: const Text('CHOOSE A SERVICE'),
+                    value: service,
+                    onChanged: (service) async {
+                      this.service.value = service;
+                      characteristic.value = null;
+                      if (service == null) {
+                        return;
+                      }
+                      characteristics.value =
+                          await centralController.getCharacteristics(service);
+                    },
                   );
                 },
               );
-              views.add(characteristicView);
-            }
-            final loggerView = Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12.0),
-                child: ValueListenableBuilder(
-                    valueListenable: logs,
-                    builder: (context, List<String> logsValue, child) {
-                      return ListView.builder(
-                        itemCount: logsValue.length,
-                        itemBuilder: (context, i) {
-                          final log = logsValue[i];
-                          return Text(log);
-                        },
-                      );
-                    }),
-              ),
-            );
-            views.add(loggerView);
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: views,
-              ),
-            );
-          },
-        );
-      },
+            },
+          ),
+          ValueListenableBuilder(
+            valueListenable: characteristics,
+            builder: (context, characteristics, child) {
+              final items = characteristics.map((characteristic) {
+                return DropdownMenuItem(
+                  value: characteristic,
+                  child: Text(
+                    '${characteristic.uuid}',
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                );
+              }).toList();
+              return ValueListenableBuilder(
+                valueListenable: characteristic,
+                builder: (context, characteristic, child) {
+                  return DropdownButton(
+                    isExpanded: true,
+                    items: items,
+                    hint: const Text('CHOOSE A CHARACTERISTIC'),
+                    value: characteristic,
+                    onChanged: (characteristic) {
+                      this.characteristic.value = characteristic;
+                    },
+                  );
+                },
+              );
+            },
+          ),
+          Expanded(
+            child: ValueListenableBuilder(
+              valueListenable: logs,
+              builder: (context, logs, child) {
+                return ListView.builder(
+                  itemBuilder: (context, i) {
+                    final log = logs[i];
+                    final type = log.type.name.toUpperCase().characters.first;
+                    final Color typeColor;
+                    switch (log.type) {
+                      case LogType.read:
+                        typeColor = Colors.blue;
+                        break;
+                      case LogType.write:
+                        typeColor = Colors.amber;
+                        break;
+                      case LogType.notify:
+                        typeColor = Colors.red;
+                        break;
+                      default:
+                        typeColor = Colors.black;
+                    }
+                    final time = DateFormat.Hms().format(log.time);
+                    final value = log.value;
+                    return Text.rich(
+                      TextSpan(
+                        text: '[$type]',
+                        children: [
+                          TextSpan(
+                            text: ' $time: ',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: Colors.green,
+                            ),
+                          ),
+                          TextSpan(
+                            text: value,
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        ],
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: typeColor,
+                        ),
+                      ),
+                    );
+                  },
+                  itemCount: logs.length,
+                );
+              },
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 16.0),
+            height: 160.0,
+            child: ValueListenableBuilder(
+              valueListenable: characteristic,
+              builder: (context, characteristic, child) {
+                final bool canNotify, canRead, canWrite;
+                if (characteristic == null) {
+                  canNotify = canRead = canWrite = false;
+                } else {
+                  final properties = characteristic.properties;
+                  canNotify = properties.contains(
+                    GattCharacteristicProperty.notify,
+                  );
+                  canRead = properties.contains(
+                    GattCharacteristicProperty.read,
+                  );
+                  canWrite = properties.contains(
+                    GattCharacteristicProperty.write,
+                  );
+                }
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: writeController,
+                        enabled: canWrite,
+                        expands: true,
+                        maxLines: null,
+                        textAlignVertical: TextAlignVertical.top,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 12.0,
+                            vertical: 8.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextButton(
+                          onPressed: characteristic != null && canNotify
+                              ? () async {
+                                  await centralController.notifyCharacteristic(
+                                    characteristic,
+                                    state: true,
+                                  );
+                                }
+                              : null,
+                          child: const Text('NOTIFY'),
+                        ),
+                        TextButton(
+                          onPressed: characteristic != null && canRead
+                              ? () async {
+                                  final value = await centralController
+                                      .readCharacteristic(characteristic);
+                                  const type = LogType.read;
+                                  final text = hex.encode(value);
+                                  final log = Log(type, text);
+                                  logs.value = [...logs.value, log];
+                                }
+                              : null,
+                          child: const Text('READ'),
+                        ),
+                        TextButton(
+                          onPressed: characteristic != null && canWrite
+                              ? () async {
+                                  final text = writeController.text;
+                                  final elements = utf8.encode(text);
+                                  final value = Uint8List.fromList(elements);
+                                  await centralController.writeCharacteristic(
+                                    characteristic,
+                                    value: value,
+                                    type: GattCharacteristicWriteType
+                                        .withResponse,
+                                  );
+                                  final log = Log(LogType.write, text);
+                                  logs.value = [...logs.value, log];
+                                }
+                              : null,
+                          child: const Text('WRITE'),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    stateChangedSubscription.cancel();
+    valueChangedSubscription.cancel();
+    state.dispose();
+    services.dispose();
+    characteristics.dispose();
+    service.dispose();
+    characteristic.dispose();
   }
 }
 
-extension on DateTime {
-  String get display {
-    final hh = hour.toString().padLeft(2, '0');
-    final mm = minute.toString().padLeft(2, '0');
-    final ss = second.toString().padLeft(2, '0');
-    return '$hh:$mm:$ss';
+class Log {
+  final DateTime time;
+  final LogType type;
+  final String value;
+
+  Log(this.type, this.value) : time = DateTime.now();
+
+  @override
+  String toString() {
+    final type = this.type.toString().split('.').last;
+    final formatter = DateFormat.Hms();
+    final time = formatter.format(this.time);
+    return '[$type]$time: $value';
   }
+}
+
+enum LogType {
+  read,
+  write,
+  notify,
+  error,
 }

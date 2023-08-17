@@ -1,7 +1,9 @@
-class GattDescriptor {
-  final String id;
+import 'uuid.dart';
 
-  const GattDescriptor({
-    required this.id,
+class GattDescriptor {
+  final UUID uuid;
+
+  GattDescriptor({
+    required this.uuid,
   });
 }

@@ -1,120 +1,124 @@
 import 'package:pigeon/pigeon.dart';
 
-// TODO: 当 pigeon 支持 enum 后调整对应 api.
-
+@ConfigurePigeon(
+  PigeonOptions(
+    dartOut: 'lib/src/my_api.g.dart',
+    dartOptions: DartOptions(),
+    kotlinOut:
+        'android/src/main/kotlin/dev/yanshouwang/bluetooth_low_energy/MyApi.g.kt',
+    kotlinOptions: KotlinOptions(
+      package: 'dev.yanshouwang.bluetooth_low_energy',
+    ),
+  ),
+)
 @HostApi()
-abstract class MyCentralManagerHostApi {
-  int getState();
+abstract class MyCentralControllerHostApi {
+  @async
+  MyCentralControllerArgs setUp();
+  void tearDown();
   @async
   void startDiscovery();
   void stopDiscovery();
   @async
-  void connect(String id);
-  void disconnect(String id);
+  void connect(int myPeripheralKey);
   @async
-  List<MyGattService> discoverServices(String id);
+  void disconnect(int myPeripheralKey);
   @async
-  Uint8List readCharacteristic(
-    String id,
-    String serviceId,
-    String characteristicId,
-  );
+  void discoverGATT(int myPeripheralKey);
+  List<MyGattServiceArgs> getServices(int myPeripheralKey);
+  List<MyGattCharacteristicArgs> getCharacteristics(int myServiceKey);
+  List<MyGattDescriptorArgs> getDescriptors(int myCharacteristicKey);
+  @async
+  Uint8List readCharacteristic(int myPeripheralKey, int myCharacteristicKey);
   @async
   void writeCharacteristic(
-    String id,
-    String serviceId,
-    String characteristicId,
+    int myPeripheralKey,
+    int myCharacteristicKey,
     Uint8List value,
-    int type,
+    int myTypeNumber,
   );
   @async
   void notifyCharacteristic(
-    String id,
-    String serviceId,
-    String characteristicId,
-    bool value,
+    int myPeripheralKey,
+    int myCharacteristicKey,
+    bool state,
   );
   @async
-  Uint8List readDescriptor(
-    String id,
-    String serviceId,
-    String characteristicId,
-    String descriptorId,
-  );
+  Uint8List readDescriptor(int myPeripheralKey, int myDescriptorKey);
   @async
   void writeDescriptor(
-    String id,
-    String serviceId,
-    String characteristicId,
-    String descriptorId,
+    int myPeripheralKey,
+    int myDescriptorKey,
     Uint8List value,
   );
 }
 
 @FlutterApi()
-abstract class MyCentralManagerFlutterApi {
-  void onStateChanged(int state);
-  void onDiscovered(MyPeripheral peripheral);
-  void onPeripheralStateChanged(String id, int state);
-  void onCharacteristicValueChanged(
-    String id,
-    String serviceId,
-    String characteristicId,
-    Uint8List value,
+abstract class MyCentralControllerFlutterApi {
+  void onStateChanged(int myStateNumber);
+  void onDiscovered(
+    MyPeripheralArgs myPeripheralArgs,
+    int rssi,
+    MyAdvertisementArgs myAdvertisementArgs,
+  );
+  void onPeripheralStateChanged(int myPeripheralKey, bool state);
+  void onCharacteristicValueChanged(int myCharacteristicKey, Uint8List value);
+}
+
+class MyCentralControllerArgs {
+  final int myStateNumber;
+
+  MyCentralControllerArgs(this.myStateNumber);
+}
+
+class MyPeripheralArgs {
+  final int key;
+  final String uuid;
+
+  MyPeripheralArgs(this.key, this.uuid);
+}
+
+class MyAdvertisementArgs {
+  final String? name;
+  final Map<int?, Uint8List?> manufacturerSpecificData;
+  final List<String?> serviceUUIDs;
+  final Map<String?, Uint8List?> serviceData;
+
+  MyAdvertisementArgs(
+    this.name,
+    this.manufacturerSpecificData,
+    this.serviceUUIDs,
+    this.serviceData,
   );
 }
 
-class MyPeripheral {
-  final String id;
-  final int rssi;
-  final String? name;
-  final Uint8List? manufacturerSpecificData;
+class MyGattServiceArgs {
+  final int key;
+  final String uuid;
 
-  MyPeripheral({
-    required this.id,
-    required this.rssi,
-    required this.name,
-    required this.manufacturerSpecificData,
-  });
+  MyGattServiceArgs(this.key, this.uuid);
 }
 
-class MyGattService {
-  final String id;
-  final List<MyGattCharacteristic?> characteristics;
+class MyGattCharacteristicArgs {
+  final int key;
+  final String uuid;
+  final List<int?> myPropertyNumbers;
 
-  MyGattService({
-    required this.id,
-    required this.characteristics,
-  });
+  MyGattCharacteristicArgs(
+    this.key,
+    this.uuid,
+    this.myPropertyNumbers,
+  );
 }
 
-class MyGattCharacteristic {
-  final String id;
-  final bool canRead;
-  final bool canWrite;
-  final bool canWriteWithoutResponse;
-  final bool canNotify;
-  final List<MyGattDescriptor?> descriptors;
+class MyGattDescriptorArgs {
+  final int key;
+  final String uuid;
 
-  const MyGattCharacteristic({
-    required this.id,
-    required this.canRead,
-    required this.canWrite,
-    required this.canWriteWithoutResponse,
-    required this.canNotify,
-    required this.descriptors,
-  });
+  MyGattDescriptorArgs(this.key, this.uuid);
 }
 
-class MyGattDescriptor {
-  final String id;
-
-  const MyGattDescriptor({
-    required this.id,
-  });
-}
-
-enum MyCentralManagerState {
+enum MyCentralStateArgs {
   unknown,
   unsupported,
   unauthorized,
@@ -122,13 +126,15 @@ enum MyCentralManagerState {
   poweredOn,
 }
 
-enum MyPeripheralState {
-  disconnected,
-  connecting,
-  connected,
+enum MyGattCharacteristicPropertyArgs {
+  read,
+  write,
+  writeWithoutResponse,
+  notify,
+  indicate,
 }
 
-enum MyGattCharacteristicWriteType {
+enum MyGattCharacteristicWriteTypeArgs {
   // Write with response
   withResponse,
   // Write without response
