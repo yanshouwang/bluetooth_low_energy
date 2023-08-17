@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
-import 'package:win32/win32.dart' as win32;
 
 class MyCentralController extends CentralController {
   @override
