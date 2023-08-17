@@ -248,7 +248,7 @@ class MyCentralControllerHostApiCodec: FlutterStandardMessageCodec {
 
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol MyCentralControllerHostApi {
-  func setUp() throws -> MyCentralControllerArgs
+  func setUp(completion: @escaping (Result<MyCentralControllerArgs, Error>) -> Void)
   func tearDown() throws
   func startDiscovery() throws
   func stopDiscovery() throws
@@ -274,11 +274,13 @@ class MyCentralControllerHostApiSetup {
     let setUpChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_macos.MyCentralControllerHostApi.setUp", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       setUpChannel.setMessageHandler { _, reply in
-        do {
-          let result = try api.setUp()
-          reply(wrapResult(result))
-        } catch {
-          reply(wrapError(error))
+        api.setUp() { result in
+          switch result {
+            case .success(let res):
+              reply(wrapResult(res))
+            case .failure(let error):
+              reply(wrapError(error))
+          }
         }
       }
     } else {
