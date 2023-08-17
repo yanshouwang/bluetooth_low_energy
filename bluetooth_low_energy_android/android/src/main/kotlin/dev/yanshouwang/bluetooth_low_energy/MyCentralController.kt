@@ -386,13 +386,13 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         if (action != BluetoothAdapter.ACTION_STATE_CHANGED) {
             return
         }
-        val previousState = intent.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_STATE, BluetoothAdapter.STATE_OFF)
+//        val previousState = intent.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_STATE, BluetoothAdapter.STATE_OFF)
         val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF)
-        val myPreviousStateArgs = previousState.toMyCentralStateArgs()
+//        val myPreviousStateArgs = previousState.toMyCentralStateArgs()
         val myStateArgs = state.toMyCentralStateArgs()
-        if (myStateArgs == myPreviousStateArgs) {
-            return
-        }
+//        if (myStateArgs == myPreviousStateArgs) {
+//            return
+//        }
         val myStateNumber = myStateArgs.raw.toLong()
         myApi.onStateChanged(myStateNumber) {}
     }
