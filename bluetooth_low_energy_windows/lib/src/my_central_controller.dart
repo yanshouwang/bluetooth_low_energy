@@ -1,12 +1,52 @@
 import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
+import 'package:win32/win32.dart' as win32;
 
 class MyCentralController extends CentralController {
+  @override
+  // TODO: implement state
+  CentralState get state => throw UnimplementedError();
+  @override
+  // TODO: implement stateChanged
+  Stream<CentralStateChangedEventArgs> get stateChanged =>
+      throw UnimplementedError();
+  @override
+  // TODO: implement discovered
+  Stream<CentralDiscoveredEventArgs> get discovered =>
+      throw UnimplementedError();
+  @override
+  // TODO: implement peripheralStateChanged
+  Stream<PeripheralStateChangedEventArgs> get peripheralStateChanged =>
+      throw UnimplementedError();
   @override
   // TODO: implement characteristicValueChanged
   Stream<GattCharacteristicValueChangedEventArgs>
       get characteristicValueChanged => throw UnimplementedError();
+
+  @override
+  Future<void> setUp() {
+    // TODO: implement setUp
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> tearDown() {
+    // TODO: implement tearDown
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> startDiscovery() {
+    // TODO: implement startDiscovery
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> stopDiscovery() {
+    // TODO: implement stopDiscovery
+    throw UnimplementedError();
+  }
 
   @override
   Future<void> connect(Peripheral peripheral) {
@@ -27,9 +67,10 @@ class MyCentralController extends CentralController {
   }
 
   @override
-  // TODO: implement discovered
-  Stream<CentralDiscoveredEventArgs> get discovered =>
-      throw UnimplementedError();
+  Future<List<GattService>> getServices(Peripheral peripheral) {
+    // TODO: implement getServices
+    throw UnimplementedError();
+  }
 
   @override
   Future<List<GattCharacteristic>> getCharacteristics(GattService service) {
@@ -45,8 +86,15 @@ class MyCentralController extends CentralController {
   }
 
   @override
-  Future<List<GattService>> getServices(Peripheral peripheral) {
-    // TODO: implement getServices
+  Future<Uint8List> readCharacteristic(GattCharacteristic characteristic) {
+    // TODO: implement readCharacteristic
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> writeCharacteristic(GattCharacteristic characteristic,
+      {required Uint8List value, required GattCharacteristicWriteType type}) {
+    // TODO: implement writeCharacteristic
     throw UnimplementedError();
   }
 
@@ -58,59 +106,8 @@ class MyCentralController extends CentralController {
   }
 
   @override
-  // TODO: implement peripheralStateChanged
-  Stream<PeripheralStateChangedEventArgs> get peripheralStateChanged =>
-      throw UnimplementedError();
-
-  @override
-  Future<Uint8List> readCharacteristic(GattCharacteristic characteristic) {
-    // TODO: implement readCharacteristic
-    throw UnimplementedError();
-  }
-
-  @override
   Future<Uint8List> readDescriptor(GattDescriptor descriptor) {
     // TODO: implement readDescriptor
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> setUp() {
-    // TODO: implement setUp
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> startDiscovery() {
-    // TODO: implement startDiscovery
-    throw UnimplementedError();
-  }
-
-  @override
-  // TODO: implement state
-  CentralState get state => throw UnimplementedError();
-
-  @override
-  // TODO: implement stateChanged
-  Stream<CentralStateChangedEventArgs> get stateChanged =>
-      throw UnimplementedError();
-
-  @override
-  Future<void> stopDiscovery() {
-    // TODO: implement stopDiscovery
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> tearDown() {
-    // TODO: implement tearDown
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> writeCharacteristic(GattCharacteristic characteristic,
-      {required Uint8List value, required GattCharacteristicWriteType type}) {
-    // TODO: implement writeCharacteristic
     throw UnimplementedError();
   }
 
