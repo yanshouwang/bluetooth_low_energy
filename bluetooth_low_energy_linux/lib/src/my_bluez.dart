@@ -13,10 +13,11 @@ extension MyBlueZDevice on BlueZDevice {
   BlueZUUID get uuid {
     final node = address.replaceAll(':', '');
     // We don't know the timestamp of the bluetooth device, use nil UUID as prefix.
-    return BlueZUUID.fromString("00000000-0000-0000-$node");
+    return BlueZUUID.fromString("00000000-0000-0000-0000-$node");
   }
 
   Advertisement get advertisement {
+    final name = this.name.isNotEmpty ? this.name : null;
     final manufacturerSpecificData = manufacturerData.map((key, value) {
       final id = key.id;
       final data = Uint8List.fromList(value);

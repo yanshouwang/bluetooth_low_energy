@@ -162,9 +162,10 @@ class _HomeViewState extends State<HomeView> {
     return ValueListenableBuilder(
       valueListenable: discoveredEventArgs,
       builder: (context, discoveredEventArgs, child) {
-        final items = discoveredEventArgs
-            .where((eventArgs) => eventArgs.advertisement.name != null)
-            .toList();
+        // final items = discoveredEventArgs
+        //     .where((eventArgs) => eventArgs.advertisement.name != null)
+        //     .toList();
+        final items = discoveredEventArgs;
         return ListView.separated(
           itemBuilder: (context, i) {
             final theme = Theme.of(context);
@@ -248,7 +249,7 @@ class _HomeViewState extends State<HomeView> {
                   },
                 );
               },
-              title: Text(name ?? '<EMPTY NAME>'),
+              title: Text(name ?? 'N/A'),
               subtitle: Text(
                 '$uuid',
                 style: theme.textTheme.bodySmall,

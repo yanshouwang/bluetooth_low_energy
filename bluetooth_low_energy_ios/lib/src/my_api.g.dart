@@ -483,12 +483,12 @@ class MyCentralControllerHostApi {
     }
   }
 
-  Future<Uint8List> readCharacteristic(int arg_myPeripheralKey, int arg_myCharacteristicKey) async {
+  Future<Uint8List> readCharacteristic(int arg_myPeripheralKey, int arg_myServiceKey, int arg_myCharacteristicKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.readCharacteristic', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_myPeripheralKey, arg_myCharacteristicKey]) as List<Object?>?;
+        await channel.send(<Object?>[arg_myPeripheralKey, arg_myServiceKey, arg_myCharacteristicKey]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -510,12 +510,12 @@ class MyCentralControllerHostApi {
     }
   }
 
-  Future<void> writeCharacteristic(int arg_myPeripheralKey, int arg_myCharacteristicKey, Uint8List arg_value, int arg_myTypeNumber) async {
+  Future<void> writeCharacteristic(int arg_myPeripheralKey, int arg_myServiceKey, int arg_myCharacteristicKey, Uint8List arg_value, int arg_myTypeNumber) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.writeCharacteristic', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_myPeripheralKey, arg_myCharacteristicKey, arg_value, arg_myTypeNumber]) as List<Object?>?;
+        await channel.send(<Object?>[arg_myPeripheralKey, arg_myServiceKey, arg_myCharacteristicKey, arg_value, arg_myTypeNumber]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -532,12 +532,12 @@ class MyCentralControllerHostApi {
     }
   }
 
-  Future<void> notifyCharacteristic(int arg_myPeripheralKey, int arg_myCharacteristicKey, bool arg_state) async {
+  Future<void> notifyCharacteristic(int arg_myPeripheralKey, int arg_myServiceKey, int arg_myCharacteristicKey, bool arg_state) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.notifyCharacteristic', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_myPeripheralKey, arg_myCharacteristicKey, arg_state]) as List<Object?>?;
+        await channel.send(<Object?>[arg_myPeripheralKey, arg_myServiceKey, arg_myCharacteristicKey, arg_state]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -554,12 +554,12 @@ class MyCentralControllerHostApi {
     }
   }
 
-  Future<Uint8List> readDescriptor(int arg_myPeripheralKey, int arg_myDescriptorKey) async {
+  Future<Uint8List> readDescriptor(int arg_myPeripheralKey, int arg_myCharacteristicKey, int arg_myDescriptorKey) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.readDescriptor', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_myPeripheralKey, arg_myDescriptorKey]) as List<Object?>?;
+        await channel.send(<Object?>[arg_myPeripheralKey, arg_myCharacteristicKey, arg_myDescriptorKey]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -581,12 +581,12 @@ class MyCentralControllerHostApi {
     }
   }
 
-  Future<void> writeDescriptor(int arg_myPeripheralKey, int arg_myDescriptorKey, Uint8List arg_value) async {
+  Future<void> writeDescriptor(int arg_myPeripheralKey, int arg_myCharacteristicKey, int arg_myDescriptorKey, Uint8List arg_value) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.writeDescriptor', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_myPeripheralKey, arg_myDescriptorKey, arg_value]) as List<Object?>?;
+        await channel.send(<Object?>[arg_myPeripheralKey, arg_myCharacteristicKey, arg_myDescriptorKey, arg_value]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',

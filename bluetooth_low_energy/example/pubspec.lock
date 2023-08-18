@@ -23,55 +23,55 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "2.0.0"
+    version: "2.0.1"
   bluetooth_low_energy_android:
     dependency: transitive
     description:
       name: bluetooth_low_energy_android
-      sha256: f2a91728df49d52a77af9c8fb294a7afc173e2ce94abb6f9586949827b88a320
+      sha256: e4a14243be6b4556836a734e53e813a1c5f4f6c8e380ca49ebf8d02e5b3f37dc
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.1"
   bluetooth_low_energy_ios:
     dependency: transitive
     description:
       name: bluetooth_low_energy_ios
-      sha256: bf940f40321d1c3284957dbf7ff15587b4851bd722858798d77314d8f188b94f
+      sha256: "38401d8e50d6f96b3e63f2c7e6fc32d6a1ae7d99dc60520fcb4162eb39ba2dd4"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.1"
   bluetooth_low_energy_linux:
     dependency: transitive
     description:
       name: bluetooth_low_energy_linux
-      sha256: ff162bbf375240a615ee3539484438742c3c334c5ac6750db27a1e458cce8135
+      sha256: c88363e296ecb3a4b936e6d02f21214cf4e894d694c9996b523811b65e2d0eb0
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.1"
   bluetooth_low_energy_macos:
     dependency: transitive
     description:
       name: bluetooth_low_energy_macos
-      sha256: "0e454bde70f8d26a78156a2ffc7193c174f7bd04f8ff52eabfd21385fdcb22f9"
+      sha256: b816568cc943d419bb395fbeb4b7aad66295c5e25e2f5b3e06532394dc27522e
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.1"
   bluetooth_low_energy_platform_interface:
     dependency: transitive
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: e07eb812e320cb167a2b9a59417fe1e632d23b031595dd8a9b72069243045900
+      sha256: "090b642fa738c04e899c4f4a78e88fa43a7dfa7f5b99f1c882cadad10a68e8fb"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.1"
   bluetooth_low_energy_windows:
     dependency: transitive
     description:
       name: bluetooth_low_energy_windows
-      sha256: "6f28d9d7ce35e795207428f2c493a16759cbee34a74e9b254a29672dc8385205"
+      sha256: ddd66c36811ad3fd347efaaba132e7bb27cdc446afc3e8cd3880c5f26a0d3b54
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.1"
   bluez:
     dependency: transitive
     description:

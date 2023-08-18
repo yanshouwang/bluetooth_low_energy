@@ -27,7 +27,8 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
     companion object {
         //        const val DATA_TYPE_MANUFACTURER_SPECIFIC_DATA = 0xff.toByte()
         private const val REQUEST_CODE = 443
-//        private val UUID_HEART_RATE_MEASUREMENT = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb")
+
+        //        private val UUID_HEART_RATE_MEASUREMENT = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb")
         private val UUID_CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
     }
 
@@ -44,11 +45,11 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
     private val myScanCallback = MyScanCallback(this)
     private val myGattCallback = MyBluetoothGattCallback(this, executor)
 
-    private val devices = mutableMapOf<Int, BluetoothDevice>()
-    private val gatts = mutableMapOf<Int, BluetoothGatt>()
-    private val services = mutableMapOf<Int, BluetoothGattService>()
-    private val characteristics = mutableMapOf<Int, BluetoothGattCharacteristic>()
-    private val descriptors = mutableMapOf<Int, BluetoothGattDescriptor>()
+    private val cachedDevices = mutableMapOf<Int, BluetoothDevice>()
+    private val cachedGATTs = mutableMapOf<Int, BluetoothGatt>()
+    private val cachedServices = mutableMapOf<Int, Map<Int, BluetoothGattService>>()
+    private val cachedCharacteristics = mutableMapOf<Int, Map<Int, BluetoothGattCharacteristic>>()
+    private val cachedDescriptors = mutableMapOf<Int, Map<Int, BluetoothGattDescriptor>>()
 
     private var registered = false
     private var discovering = false
@@ -95,14 +96,14 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         if (discovering) {
             stopDiscovery()
         }
-        for (gatt in gatts.values) {
+        for (gatt in cachedGATTs.values) {
             gatt.disconnect()
         }
-        devices.clear()
-        gatts.clear()
-        services.clear()
-        characteristics.clear()
-        descriptors.clear()
+        cachedDevices.clear()
+        cachedGATTs.clear()
+        cachedServices.clear()
+        cachedCharacteristics.clear()
+        cachedDescriptors.clear()
     }
 
     private fun register() {
@@ -148,9 +149,9 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val device = devices[deviceKey] as BluetoothDevice
+            val device = cachedDevices[deviceKey] as BluetoothDevice
             val autoConnect = false
-            gatts[deviceKey] = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            cachedGATTs[deviceKey] = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 val transport = BluetoothDevice.TRANSPORT_LE
                 device.connectGatt(context, autoConnect, myGattCallback, transport)
             } else {
@@ -169,7 +170,7 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val gatt = gatts[deviceKey] as BluetoothGatt
+            val gatt = cachedGATTs[deviceKey] as BluetoothGatt
             gatt.disconnect()
             disconnectCallbacks[deviceKey] = callback
         } catch (e: Throwable) {
@@ -184,7 +185,7 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val gatt = gatts[deviceKey] as BluetoothGatt
+            val gatt = cachedGATTs[deviceKey] as BluetoothGatt
             val discovering = gatt.discoverServices()
             if (!discovering) {
                 throw IllegalStateException()
@@ -197,53 +198,35 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
 
     override fun getServices(myPeripheralKey: Long): List<MyGattServiceArgs> {
         val deviceKey = myPeripheralKey.toInt()
-        val gatt = gatts[deviceKey] as BluetoothGatt
-        val services = gatt.services
-        return services.map { service ->
-            val serviceKey = service.hashCode()
-            if (this.services[serviceKey] == null) {
-                this.services[serviceKey] = service
-            }
-            return@map service.toMyArgs()
-        }
+        val services = cachedServices[deviceKey] ?: throw IllegalStateException()
+        return services.values.map { service -> service.toMyArgs() }
     }
 
     override fun getCharacteristics(myServiceKey: Long): List<MyGattCharacteristicArgs> {
         val serviceKey = myServiceKey.toInt()
-        val service = services[serviceKey] as BluetoothGattService
-        val characteristics = service.characteristics
-        return characteristics.map { characteristic ->
-            val characteristicKey = characteristic.hashCode()
-            if (this.characteristics[characteristicKey] == null) {
-                this.characteristics[characteristicKey] = characteristic
-            }
-            return@map characteristic.toMyArgs()
-        }
+        val characteristics = cachedCharacteristics[serviceKey] ?: throw IllegalStateException()
+        return characteristics.values.map { characteristic -> characteristic.toMyArgs() }
     }
 
     override fun getDescriptors(myCharacteristicKey: Long): List<MyGattDescriptorArgs> {
         val characteristicKey = myCharacteristicKey.toInt()
-        val characteristic = characteristics[characteristicKey] as BluetoothGattCharacteristic
-        val descriptors = characteristic.descriptors
-        return descriptors.map { descriptor ->
-            val descriptorKey = descriptor.hashCode()
-            if (this.descriptors[descriptorKey] == null) {
-                this.descriptors[descriptorKey] = descriptor
-            }
-            return@map descriptor.toMyArgs()
-        }
+        val descriptors = cachedDescriptors[characteristicKey] ?: throw IllegalStateException()
+        return descriptors.values.map { descriptor -> descriptor.toMyArgs() }
     }
 
-    override fun readCharacteristic(myPeripheralKey: Long, myCharacteristicKey: Long, callback: (Result<ByteArray>) -> Unit) {
+    override fun readCharacteristic(myPeripheralKey: Long, myServiceKey: Long, myCharacteristicKey: Long, callback: (Result<ByteArray>) -> Unit) {
         try {
             val deviceKey = myPeripheralKey.toInt()
+            val gatt = cachedGATTs[deviceKey] as BluetoothGatt
+            val serviceKey = myServiceKey.toInt()
+            val characteristics = cachedCharacteristics[serviceKey]
+                    ?: throw IllegalArgumentException()
             val characteristicKey = myCharacteristicKey.toInt()
+            val characteristic = characteristics[characteristicKey] as BluetoothGattCharacteristic
             val unfinishedCallback = readCharacteristicCallbacks[characteristicKey]
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val gatt = gatts[deviceKey] as BluetoothGatt
-            val characteristic = characteristics[characteristicKey] as BluetoothGattCharacteristic
             val reading = gatt.readCharacteristic(characteristic)
             if (!reading) {
                 throw IllegalStateException()
@@ -254,16 +237,19 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         }
     }
 
-    override fun writeCharacteristic(myPeripheralKey: Long, myCharacteristicKey: Long, value: ByteArray, myTypeNumber: Long, callback: (Result<Unit>) -> Unit) {
+    override fun writeCharacteristic(myPeripheralKey: Long, myServiceKey: Long, myCharacteristicKey: Long, value: ByteArray, myTypeNumber: Long, callback: (Result<Unit>) -> Unit) {
         try {
             val deviceKey = myPeripheralKey.toInt()
+            val gatt = cachedGATTs[deviceKey] as BluetoothGatt
+            val serviceKey = myServiceKey.toInt()
+            val characteristics = cachedCharacteristics[serviceKey]
+                    ?: throw IllegalArgumentException()
             val characteristicKey = myCharacteristicKey.toInt()
+            val characteristic = characteristics[characteristicKey] as BluetoothGattCharacteristic
             val unfinishedCallback = writeCharacteristicCallbacks[characteristicKey]
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val gatt = gatts[deviceKey] as BluetoothGatt
-            val characteristic = characteristics[characteristicKey] as BluetoothGattCharacteristic
             val myTypeArgs = myTypeNumber.toMyGattCharacteristicTypeArgs()
             val writeType = myTypeArgs.toType()
             characteristic.value = value
@@ -278,11 +264,14 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         }
     }
 
-    override fun notifyCharacteristic(myPeripheralKey: Long, myCharacteristicKey: Long, state: Boolean, callback: (Result<Unit>) -> Unit) {
+    override fun notifyCharacteristic(myPeripheralKey: Long, myServiceKey: Long, myCharacteristicKey: Long, state: Boolean, callback: (Result<Unit>) -> Unit) {
         try {
             val deviceKey = myPeripheralKey.toInt()
+            val gatt = cachedGATTs[deviceKey] as BluetoothGatt
+            val serviceKey = myServiceKey.toInt()
+            val characteristics = cachedCharacteristics[serviceKey]
+                    ?: throw IllegalArgumentException()
             val characteristicKey = myCharacteristicKey.toInt()
-            val gatt = gatts[deviceKey] as BluetoothGatt
             val characteristic = characteristics[characteristicKey] as BluetoothGattCharacteristic
             val notifying = gatt.setCharacteristicNotification(characteristic, state)
             if (!notifying) {
@@ -314,16 +303,19 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         }
     }
 
-    override fun readDescriptor(myPeripheralKey: Long, myDescriptorKey: Long, callback: (Result<ByteArray>) -> Unit) {
+    override fun readDescriptor(myPeripheralKey: Long, myCharacteristicKey: Long, myDescriptorKey: Long, callback: (Result<ByteArray>) -> Unit) {
         try {
             val deviceKey = myPeripheralKey.toInt()
+            val gatt = cachedGATTs[deviceKey] as BluetoothGatt
+            val characteristicKey = myCharacteristicKey.toInt()
+            val descriptors = cachedDescriptors[characteristicKey]
+                    ?: throw IllegalArgumentException()
             val descriptorKey = myDescriptorKey.toInt()
+            val descriptor = descriptors[descriptorKey] as BluetoothGattDescriptor
             val unfinishedCallback = readDescriptorCallbacks[descriptorKey]
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val gatt = gatts[deviceKey] as BluetoothGatt
-            val descriptor = descriptors[descriptorKey] as BluetoothGattDescriptor
             val reading = gatt.readDescriptor(descriptor)
             if (!reading) {
                 throw IllegalStateException()
@@ -334,16 +326,19 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         }
     }
 
-    override fun writeDescriptor(myPeripheralKey: Long, myDescriptorKey: Long, value: ByteArray, callback: (Result<Unit>) -> Unit) {
+    override fun writeDescriptor(myPeripheralKey: Long, myCharacteristicKey: Long, myDescriptorKey: Long, value: ByteArray, callback: (Result<Unit>) -> Unit) {
         try {
             val deviceKey = myPeripheralKey.toInt()
+            val gatt = cachedGATTs[deviceKey] as BluetoothGatt
+            val characteristicKey = myCharacteristicKey.toInt()
+            val descriptors = cachedDescriptors[characteristicKey]
+                    ?: throw IllegalArgumentException()
             val descriptorKey = myDescriptorKey.toInt()
+            val descriptor = descriptors[descriptorKey] as BluetoothGattDescriptor
             val unfinishedCallback = writeDescriptorCallbacks[descriptorKey]
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val gatt = gatts[deviceKey] as BluetoothGatt
-            val descriptor = descriptors[descriptorKey] as BluetoothGattDescriptor
             descriptor.value = value
             val writing = gatt.writeDescriptor(descriptor)
             if (!writing) {
@@ -407,9 +402,7 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
     fun onScanResult(result: ScanResult) {
         val device = result.device
         val deviceKey = device.hashCode()
-        if (devices[deviceKey] == null) {
-            devices[deviceKey] = device
-        }
+        cachedDevices[deviceKey] = device
         val myPeripheralArgs = device.toMyArgs()
         val rssi = result.rssi.toLong()
         val myAdvertisementArgs = result.myAdvertisementArgs
@@ -422,27 +415,28 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         val myPeripheralKey = deviceKey.toLong()
         if (newState != BluetoothProfile.STATE_CONNECTED) {
             gatt.close()
-            gatts.remove(deviceKey)
+            cachedGATTs.remove(deviceKey)
             val error = IllegalStateException("GATT is disconnected with status: $status")
             val discoverGattCallback = discoverGattCallbacks.remove(deviceKey)
             if (discoverGattCallback != null) {
                 discoverGattCallback(Result.failure(error))
             }
-            for (service in gatt.services) {
-                for (characteristic in service.characteristics) {
-                    val characteristicKey = characteristic.hashCode()
-                    val readCharacteristicCallback = readCharacteristicCallbacks.remove(characteristicKey)
-                    val writeCharacteristicCallback = writeCharacteristicCallbacks.remove(characteristicKey)
+            val services = cachedServices[deviceKey] ?: emptyMap()
+            for (service in services) {
+                val characteristics = cachedCharacteristics[service.key] ?: emptyMap()
+                for (characteristic in characteristics) {
+                    val readCharacteristicCallback = readCharacteristicCallbacks.remove(characteristic.key)
+                    val writeCharacteristicCallback = writeCharacteristicCallbacks.remove(characteristic.key)
                     if (readCharacteristicCallback != null) {
                         readCharacteristicCallback(Result.failure(error))
                     }
                     if (writeCharacteristicCallback != null) {
                         writeCharacteristicCallback(Result.failure(error))
                     }
-                    for (descriptor in characteristic.descriptors) {
-                        val descriptorKey = descriptor.hashCode()
-                        val readDescriptorCallback = readDescriptorCallbacks.remove(descriptorKey)
-                        val writeDescriptorCallback = writeDescriptorCallbacks.remove(descriptorKey)
+                    val descriptors = cachedDescriptors[characteristic.key] ?: emptyMap()
+                    for (descriptor in descriptors) {
+                        val readDescriptorCallback = readDescriptorCallbacks.remove(descriptor.key)
+                        val writeDescriptorCallback = writeDescriptorCallbacks.remove(descriptor.key)
                         if (readDescriptorCallback != null) {
                             readDescriptorCallback(Result.failure(error))
                         }
@@ -490,6 +484,24 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         val deviceKey = device.hashCode()
         val callback = discoverGattCallbacks.remove(deviceKey) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
+            val cachedServices = mutableMapOf<Int, BluetoothGattService>()
+            for (service in gatt.services) {
+                val serviceKey = service.hashCode()
+                cachedServices[serviceKey] = service
+                val cachedCharacteristics = mutableMapOf<Int, BluetoothGattCharacteristic>()
+                for (characteristic in service.characteristics) {
+                    val characteristicKey = characteristic.hashCode()
+                    cachedCharacteristics[characteristicKey] = characteristic
+                    val cachedDescriptors = mutableMapOf<Int, BluetoothGattDescriptor>()
+                    for (descriptor in characteristic.descriptors) {
+                        val descriptorKey = descriptor.hashCode()
+                        cachedDescriptors[descriptorKey] = descriptor
+                    }
+                    this.cachedDescriptors[characteristicKey] = cachedDescriptors
+                }
+                this.cachedCharacteristics[serviceKey] = cachedCharacteristics
+            }
+            this.cachedServices[deviceKey] = cachedServices
             callback(Result.success(Unit))
         } else {
             val error = IllegalStateException("Discover GATT failed with status: $status")

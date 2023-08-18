@@ -126,18 +126,16 @@ class MyCentralController extends CentralController
     await _throwWithoutState(CentralState.poweredOn);
     final myPeripheral = peripheral as MyPeripheral;
     final myServiceArgses = await _myApi.getServices(myPeripheral.hashCode);
-    return myServiceArgses
-        .cast<MyGattServiceArgs>()
-        .map(
-          (myServiceArgs) => _myServices.putIfAbsent(
-            myServiceArgs.key,
-            () => MyGattService.fromMyArgs(
-              myPeripheral,
-              myServiceArgs,
-            ),
-          ),
-        )
-        .toList();
+    return myServiceArgses.cast<MyGattServiceArgs>().map(
+      (myServiceArgs) {
+        final myService = MyGattService.fromMyArgs(
+          myPeripheral,
+          myServiceArgs,
+        );
+        _myServices[myService.hashCode] = myService;
+        return myService;
+      },
+    ).toList();
   }
 
   @override
@@ -149,18 +147,16 @@ class MyCentralController extends CentralController
     final myCharactersiticArgses = await _myApi.getCharacteristics(
       myService.hashCode,
     );
-    return myCharactersiticArgses
-        .cast<MyGattCharacteristicArgs>()
-        .map(
-          (myCharacteristicArgs) => _myCharacteristics.putIfAbsent(
-            myCharacteristicArgs.key,
-            () => MyGattCharacteristic.fromMyArgs(
-              myService,
-              myCharacteristicArgs,
-            ),
-          ),
-        )
-        .toList();
+    return myCharactersiticArgses.cast<MyGattCharacteristicArgs>().map(
+      (myCharacteristicArgs) {
+        final myCharacteristic = MyGattCharacteristic.fromMyArgs(
+          myService,
+          myCharacteristicArgs,
+        );
+        _myCharacteristics[myCharacteristic.hashCode] = myCharacteristic;
+        return myCharacteristic;
+      },
+    ).toList();
   }
 
   @override
@@ -172,18 +168,16 @@ class MyCentralController extends CentralController
     final myDescriptorArgses = await _myApi.getDescriptors(
       myCharacteristic.hashCode,
     );
-    return myDescriptorArgses
-        .cast<MyGattDescriptorArgs>()
-        .map(
-          (myDescriptorArgs) => _myDescriptors.putIfAbsent(
-            myDescriptorArgs.key,
-            () => MyGattDescriptor.fromMyArgs(
-              myCharacteristic,
-              myDescriptorArgs,
-            ),
-          ),
-        )
-        .toList();
+    return myDescriptorArgses.cast<MyGattDescriptorArgs>().map(
+      (myDescriptorArgs) {
+        final myDescriptor = MyGattDescriptor.fromMyArgs(
+          myCharacteristic,
+          myDescriptorArgs,
+        );
+        _myDescriptors[myDescriptor.hashCode] = myDescriptor;
+        return myDescriptor;
+      },
+    ).toList();
   }
 
   @override
@@ -195,6 +189,7 @@ class MyCentralController extends CentralController
     final myPeripheral = myService.myPeripheral;
     final value = await _myApi.readCharacteristic(
       myPeripheral.hashCode,
+      myService.hashCode,
       myCharacteristic.hashCode,
     );
     return value;
@@ -214,6 +209,7 @@ class MyCentralController extends CentralController
     final typeNumber = typeArgs.index;
     await _myApi.writeCharacteristic(
       myPeripheral.hashCode,
+      myService.hashCode,
       myCharacteristic.hashCode,
       value,
       typeNumber,
@@ -231,6 +227,7 @@ class MyCentralController extends CentralController
     final myPeripheral = myService.myPeripheral;
     await _myApi.notifyCharacteristic(
       myPeripheral.hashCode,
+      myService.hashCode,
       myCharacteristic.hashCode,
       state,
     );
@@ -245,6 +242,7 @@ class MyCentralController extends CentralController
     final myPeripheral = myService.myPeripheral;
     final value = await _myApi.readDescriptor(
       myPeripheral.hashCode,
+      myCharacteristic.hashCode,
       myDescriptor.hashCode,
     );
     return value;
@@ -262,6 +260,7 @@ class MyCentralController extends CentralController
     final myPeripheral = myService.myPeripheral;
     await _myApi.writeDescriptor(
       myPeripheral.hashCode,
+      myCharacteristic.hashCode,
       myDescriptor.hashCode,
       value,
     );
@@ -285,10 +284,8 @@ class MyCentralController extends CentralController
     int rssi,
     MyAdvertisementArgs myAdvertisementArgs,
   ) {
-    final myPeripheral = _myPeripherals.putIfAbsent(
-      myPeripheralArgs.key,
-      () => MyPeripheral.fromMyArgs(myPeripheralArgs),
-    );
+    final myPeripheral = MyPeripheral.fromMyArgs(myPeripheralArgs);
+    _myPeripherals[myPeripheral.hashCode] = myPeripheral;
     final advertisement = myAdvertisementArgs.toAdvertisement();
     final eventArgs = CentralDiscoveredEventArgs(
       myPeripheral,
