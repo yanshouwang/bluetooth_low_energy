@@ -484,19 +484,16 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         val deviceKey = device.hashCode()
         val callback = discoverGattCallbacks.remove(deviceKey) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
-            val services = gatt.services
             val cachedServices = mutableMapOf<Int, BluetoothGattService>()
-            for (service in services) {
+            for (service in gatt.services) {
                 val serviceKey = service.hashCode()
                 cachedServices[serviceKey] = service
-                val characteristics = service.characteristics
                 val cachedCharacteristics = mutableMapOf<Int, BluetoothGattCharacteristic>()
-                for (characteristic in characteristics) {
+                for (characteristic in service.characteristics) {
                     val characteristicKey = characteristic.hashCode()
                     cachedCharacteristics[characteristicKey] = characteristic
-                    val descriptors = characteristic.descriptors
                     val cachedDescriptors = mutableMapOf<Int, BluetoothGattDescriptor>()
-                    for (descriptor in descriptors) {
+                    for (descriptor in characteristic.descriptors) {
                         val descriptorKey = descriptor.hashCode()
                         cachedDescriptors[descriptorKey] = descriptor
                     }
