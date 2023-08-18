@@ -40,7 +40,7 @@ According to Apple's [documents](https://developer.apple.com/documentation/coreb
 
 ### Linux
 
-Not tested yet, if you occured any problems, file an issue to let me know about it, i will fix it as soon as possible.
+Not tested enough, if you occured any problems, file an issue to let me know about it, i will fix it as soon as possible.
 
 ### Windows
 
