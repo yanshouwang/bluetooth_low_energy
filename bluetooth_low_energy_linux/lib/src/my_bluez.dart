@@ -17,6 +17,7 @@ extension MyBlueZDevice on BlueZDevice {
   }
 
   Advertisement get advertisement {
+    final name = this.name.isNotEmpty ? this.name : null;
     final manufacturerSpecificData = manufacturerData.map((key, value) {
       final id = key.id;
       final data = Uint8List.fromList(value);

@@ -41,9 +41,9 @@ class MyCentralController extends CentralController {
   final Map<int, StreamSubscription<List<String>>>
       _characteristicPropertiesChangedSubscriptions;
   final Map<int, MyPeripheral> _myPeripherals;
-  final Map<int, MyGattService> _myServices;
-  final Map<int, MyGattCharacteristic> _myCharacteristics;
-  final Map<int, MyGattDescriptor> _myDescriptors;
+  final Map<int, Map<int, MyGattService>> _myServices;
+  final Map<int, Map<int, MyGattCharacteristic>> _myCharacteristics;
+  final Map<int, Map<int, MyGattDescriptor>> _myDescriptors;
 
   BlueZAdapter get _adapter => _client.adapters.first;
   CentralState _state;
@@ -183,12 +183,11 @@ class MyCentralController extends CentralController {
   Future<List<GattService>> getServices(Peripheral peripheral) async {
     await _throwWithoutState(CentralState.poweredOn);
     final myPeripheral = peripheral as MyPeripheral;
-    final blueZDevice = myPeripheral.device;
-    return blueZDevice.gattServices.map((service) {
-      final myService = MyGattService(service);
-      _myServices[myService.hashCode] = myService;
-      return myService;
-    }).toList();
+    final myServices = _myServices[myPeripheral.hashCode];
+    if (myServices == null) {
+      throw ArgumentError();
+    }
+    return myServices.values.toList();
   }
 
   @override
@@ -197,12 +196,11 @@ class MyCentralController extends CentralController {
   ) async {
     await _throwWithoutState(CentralState.poweredOn);
     final myService = service as MyGattService;
-    final blueZService = myService.service;
-    return blueZService.characteristics.map((characteristic) {
-      final myCharacteristic = MyGattCharacteristic(characteristic);
-      _myCharacteristics[myCharacteristic.hashCode] = myCharacteristic;
-      return myCharacteristic;
-    }).toList();
+    final myCharacteristics = _myCharacteristics[myService.hashCode];
+    if (myCharacteristics == null) {
+      throw ArgumentError();
+    }
+    return myCharacteristics.values.toList();
   }
 
   @override
@@ -211,12 +209,11 @@ class MyCentralController extends CentralController {
   ) async {
     await _throwWithoutState(CentralState.poweredOn);
     final myCharacteristic = characteristic as MyGattCharacteristic;
-    final blueZCharacteristic = myCharacteristic.characteristic;
-    return blueZCharacteristic.descriptors.map((descriptor) {
-      final myDescriptor = MyGattDescriptor(descriptor);
-      _myDescriptors[myDescriptor.hashCode] = myDescriptor;
-      return myDescriptor;
-    }).toList();
+    final myDescriptors = _myDescriptors[myCharacteristic.hashCode];
+    if (myDescriptors == null) {
+      throw ArgumentError();
+    }
+    return myDescriptors.values.toList();
   }
 
   @override
@@ -327,11 +324,6 @@ class MyCentralController extends CentralController {
   }
 
   void _beginDevicePropertiesChangedListener(BlueZDevice device) {
-    for (var service in device.gattServices) {
-      for (var characteristic in service.characteristics) {
-        _beginCharacteristicPropertiesChangedListener(characteristic);
-      }
-    }
     final subscription = device.propertiesChanged.listen((properties) {
       for (var property in properties) {
         switch (property) {
@@ -352,12 +344,31 @@ class MyCentralController extends CentralController {
             break;
           case 'ServicesResolved':
             if (device.servicesResolved) {
+              final myPeripheral =
+                  _myPeripherals[device.hashCode] as MyPeripheral;
+              final myServices = <int, MyGattService>{};
               for (var service in device.gattServices) {
+                final myService = MyGattService(service);
+                myServices[myService.hashCode] = myService;
+                final myCharacteristics = <int, MyGattCharacteristic>{};
                 for (var characteristic in service.characteristics) {
-                  _beginCharacteristicPropertiesChangedListener(characteristic);
+                  final myCharacteristic = MyGattCharacteristic(characteristic);
+                  myCharacteristics[myCharacteristic.hashCode] =
+                      myCharacteristic;
+                  _beginCharacteristicPropertiesChangedListener(
+                    service,
+                    characteristic,
+                  );
+                  final myDescriptors = <int, MyGattDescriptor>{};
+                  for (var descriptor in characteristic.descriptors) {
+                    final myDescriptor = MyGattDescriptor(descriptor);
+                    myDescriptors[myDescriptor.hashCode] = myDescriptor;
+                  }
+                  _myDescriptors[myCharacteristic.hashCode] = myDescriptors;
                 }
+                _myCharacteristics[myService.hashCode] = myCharacteristics;
               }
-              final myPeripheral = MyPeripheral(device);
+              _myServices[myPeripheral.hashCode] = myServices;
               final eventArgs = MyPeripheralDiscoveredEventArgs(myPeripheral);
               _myPeripheralDiscoveredController.add(eventArgs);
             }
@@ -383,16 +394,19 @@ class MyCentralController extends CentralController {
   }
 
   void _beginCharacteristicPropertiesChangedListener(
+    BlueZGattService service,
     BlueZGattCharacteristic characteristic,
   ) {
     final subscription = characteristic.propertiesChanged.listen((properties) {
       for (var property in properties) {
         switch (property) {
           case 'Value':
-            final instance = _myCharacteristics[characteristic.hashCode];
-            final myCharacteristic = instance is MyGattCharacteristic
-                ? instance
-                : MyGattCharacteristic(characteristic);
+            final myCharacteristics = _myCharacteristics[service.hashCode];
+            if (myCharacteristics == null) {
+              throw ArgumentError();
+            }
+            final myCharacteristic = myCharacteristics[characteristic.hashCode]
+                as MyGattCharacteristic;
             final value = Uint8List.fromList(characteristic.value);
             final eventArgs = GattCharacteristicValueChangedEventArgs(
               myCharacteristic,
