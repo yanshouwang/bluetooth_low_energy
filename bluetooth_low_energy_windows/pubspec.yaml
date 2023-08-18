@@ -23,5 +23,5 @@ flutter:
     implements: bluetooth_low_energy
     platforms:
       windows:
-        pluginClass: BluetoothLowEnergyWindowsPluginCApi
+        pluginClass: BluetoothLowEnergyPluginCApi
         dartPluginClass: BluetoothLowEnergyWindows
