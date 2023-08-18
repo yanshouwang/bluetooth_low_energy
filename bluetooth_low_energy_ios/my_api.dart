@@ -25,10 +25,15 @@ abstract class MyCentralControllerHostApi {
   List<MyGattCharacteristicArgs> getCharacteristics(int myServiceKey);
   List<MyGattDescriptorArgs> getDescriptors(int myCharacteristicKey);
   @async
-  Uint8List readCharacteristic(int myPeripheralKey, int myCharacteristicKey);
+  Uint8List readCharacteristic(
+    int myPeripheralKey,
+    int myServiceKey,
+    int myCharacteristicKey,
+  );
   @async
   void writeCharacteristic(
     int myPeripheralKey,
+    int myServiceKey,
     int myCharacteristicKey,
     Uint8List value,
     int myTypeNumber,
@@ -36,14 +41,20 @@ abstract class MyCentralControllerHostApi {
   @async
   void notifyCharacteristic(
     int myPeripheralKey,
+    int myServiceKey,
     int myCharacteristicKey,
     bool state,
   );
   @async
-  Uint8List readDescriptor(int myPeripheralKey, int myDescriptorKey);
+  Uint8List readDescriptor(
+    int myPeripheralKey,
+    int myCharacteristicKey,
+    int myDescriptorKey,
+  );
   @async
   void writeDescriptor(
     int myPeripheralKey,
+    int myCharacteristicKey,
     int myDescriptorKey,
     Uint8List value,
   );

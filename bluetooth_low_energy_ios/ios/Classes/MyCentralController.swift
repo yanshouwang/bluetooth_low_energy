@@ -19,10 +19,10 @@ class MyCentralController: MyCentralControllerHostApi {
     private lazy var myPeripheralDelegate = MyPeripheralDelegate(self)
     private let centralManager = CBCentralManager()
     
-    private var peripherals = [Int: CBPeripheral]()
-    private var services = [Int: CBService]()
-    private var characteristics = [Int: CBCharacteristic]()
-    private var descriptors = [Int: CBDescriptor]()
+    private var cachedPeripherals = [Int: CBPeripheral]()
+    private var cachedServices = [Int: [Int: CBService]]()
+    private var cachedCharacteristics = [Int: [Int: CBCharacteristic]]()
+    private var cachedDescriptors = [Int: [Int: CBDescriptor]]()
     
     var setUpCompletion: ((Result<MyCentralControllerArgs, Error>) -> Void)?
     var connectCompletions = [Int: (Result<Void, Error>) -> Void]()
@@ -61,16 +61,16 @@ class MyCentralController: MyCentralControllerHostApi {
         if(centralManager.isScanning) {
             centralManager.stopScan()
         }
-        for peripheral in peripherals.values {
+        for peripheral in cachedPeripherals.values {
             peripheral.delegate = nil
             if peripheral.state != .disconnected {
                 centralManager.cancelPeripheralConnection(peripheral)
             }
         }
-        peripherals.removeAll()
-        services.removeAll()
-        characteristics.removeAll()
-        descriptors.removeAll()
+        cachedPeripherals.removeAll()
+        cachedServices.removeAll()
+        cachedCharacteristics.removeAll()
+        cachedDescriptors.removeAll()
     }
     
     func startDiscovery() throws {
@@ -89,7 +89,7 @@ class MyCentralController: MyCentralControllerHostApi {
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
             }
-            guard let peripheral = peripherals[peripheralKey] else {
+            guard let peripheral = cachedPeripherals[peripheralKey] else {
                 throw MyError.illegalArgument
             }
             centralManager.connect(peripheral)
@@ -106,7 +106,7 @@ class MyCentralController: MyCentralControllerHostApi {
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
             }
-            guard let peripheral = peripherals[peripheralKey] else {
+            guard let peripheral = cachedPeripherals[peripheralKey] else {
                 throw MyError.illegalArgument
             }
             centralManager.cancelPeripheralConnection(peripheral)
@@ -123,7 +123,7 @@ class MyCentralController: MyCentralControllerHostApi {
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
             }
-            guard let peripheral = peripherals[peripheralKey] else {
+            guard let peripheral = cachedPeripherals[peripheralKey] else {
                 throw MyError.illegalArgument
             }
             peripheral.discoverServices(nil)
@@ -135,53 +135,42 @@ class MyCentralController: MyCentralControllerHostApi {
     
     func getServices(myPeripheralKey: Int64) throws -> [MyGattServiceArgs] {
         let peripheralKey = Int(myPeripheralKey)
-        guard let peripheral = peripherals[peripheralKey] else {
+        guard let services = cachedServices[peripheralKey] else {
             throw MyError.illegalArgument
         }
-        let services = peripheral.services ?? []
-        return services.map { service in
-            let serviceKey = service.hash
-            if self.services[serviceKey] == nil {
-                self.services[serviceKey] = service
-            }
+        return services.map { (key, service) in
             return service.toMyArgs()
         }
     }
     
     func getCharacteristics(myServiceKey: Int64) throws -> [MyGattCharacteristicArgs] {
         let serviceKey = Int(myServiceKey)
-        guard let service = services[serviceKey] else {
+        guard let characteristics = cachedCharacteristics[serviceKey] else {
             throw MyError.illegalArgument
         }
-        let characteristics = service.characteristics ?? []
-        return characteristics.map { characteristic in
-            let characteristicKey = characteristic.hash
-            if self.characteristics[characteristicKey] == nil {
-                self.characteristics[characteristicKey] = characteristic
-            }
+        return characteristics.map { (key, characteristic) in
             return characteristic.toMyArgs()
         }
     }
     
     func getDescriptors(myCharacteristicKey: Int64) throws -> [MyGattDescriptorArgs] {
         let characteristicKey = Int(myCharacteristicKey)
-        guard let characteristic = characteristics[characteristicKey] else {
+        guard let descriptors = cachedDescriptors[characteristicKey] else {
             throw MyError.illegalArgument
         }
-        let descritors = characteristic.descriptors ?? []
-        return descritors.map { descriptor in
-            let descriptorKey = descriptor.hash
-            if self.descriptors[descriptorKey] == nil {
-                self.descriptors[descriptorKey] = descriptor
-            }
+        return descriptors.map { (key, descriptor) in
             return descriptor.toMyArgs()
         }
     }
     
-    func readCharacteristic(myPeripheralKey: Int64, myCharacteristicKey: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void) {
+    func readCharacteristic(myPeripheralKey: Int64, myServiceKey: Int64, myCharacteristicKey: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void) {
         do {
             let peripheralKey = Int(myPeripheralKey)
-            guard let peripheral = peripherals[peripheralKey] else {
+            guard let peripheral = cachedPeripherals[peripheralKey] else {
+                throw MyError.illegalArgument
+            }
+            let serviceKey = Int(myServiceKey)
+            guard let characteristics = cachedCharacteristics[serviceKey] else {
                 throw MyError.illegalArgument
             }
             let characteristicKey = Int(myCharacteristicKey)
@@ -199,10 +188,14 @@ class MyCentralController: MyCentralControllerHostApi {
         }
     }
     
-    func writeCharacteristic(myPeripheralKey: Int64, myCharacteristicKey: Int64, value: FlutterStandardTypedData, myTypeNumber: Int64, completion: @escaping (Result<Void, Error>) -> Void) {
+    func writeCharacteristic(myPeripheralKey: Int64, myServiceKey: Int64, myCharacteristicKey: Int64, value: FlutterStandardTypedData, myTypeNumber: Int64, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             let peripheralKey = Int(myPeripheralKey)
-            guard  let peripheral = peripherals[peripheralKey] else {
+            guard  let peripheral = cachedPeripherals[peripheralKey] else {
+                throw MyError.illegalArgument
+            }
+            let serviceKey = Int(myServiceKey)
+            guard let characteristics = cachedCharacteristics[serviceKey] else {
                 throw MyError.illegalArgument
             }
             let characteristicKey = Int(myCharacteristicKey)
@@ -226,10 +219,14 @@ class MyCentralController: MyCentralControllerHostApi {
         }
     }
     
-    func notifyCharacteristic(myPeripheralKey: Int64, myCharacteristicKey: Int64, state: Bool, completion: @escaping (Result<Void, Error>) -> Void) {
+    func notifyCharacteristic(myPeripheralKey: Int64, myServiceKey: Int64, myCharacteristicKey: Int64, state: Bool, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             let peripheralKey = Int(myPeripheralKey)
-            guard let peripheral = peripherals[peripheralKey] else {
+            guard let peripheral = cachedPeripherals[peripheralKey] else {
+                throw MyError.illegalArgument
+            }
+            let serviceKey = Int(myServiceKey)
+            guard let characteristics = cachedCharacteristics[serviceKey] else {
                 throw MyError.illegalArgument
             }
             let characteristicKey = Int(myCharacteristicKey)
@@ -247,10 +244,14 @@ class MyCentralController: MyCentralControllerHostApi {
         }
     }
     
-    func readDescriptor(myPeripheralKey: Int64, myDescriptorKey: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void) {
+    func readDescriptor(myPeripheralKey: Int64, myCharacteristicKey: Int64, myDescriptorKey: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void) {
         do {
             let peripheralKey = Int(myPeripheralKey)
-            guard let peripheral = peripherals[peripheralKey] else {
+            guard let peripheral = cachedPeripherals[peripheralKey] else {
+                throw MyError.illegalArgument
+            }
+            let characteristicKey = Int(myCharacteristicKey)
+            guard let descriptors = cachedDescriptors[characteristicKey] else {
                 throw MyError.illegalArgument
             }
             let descriptorKey = Int(myDescriptorKey)
@@ -268,10 +269,14 @@ class MyCentralController: MyCentralControllerHostApi {
         }
     }
     
-    func writeDescriptor(myPeripheralKey: Int64, myDescriptorKey: Int64, value: FlutterStandardTypedData, completion: @escaping (Result<Void, Error>) -> Void) {
+    func writeDescriptor(myPeripheralKey: Int64, myCharacteristicKey: Int64, myDescriptorKey: Int64, value: FlutterStandardTypedData, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             let peripheralKey = Int(myPeripheralKey)
-            guard let peripheral = peripherals[peripheralKey] else {
+            guard let peripheral = cachedPeripherals[peripheralKey] else {
+                throw MyError.illegalArgument
+            }
+            let characteristicKey = Int(myCharacteristicKey)
+            guard let descriptors = cachedDescriptors[characteristicKey] else {
                 throw MyError.illegalArgument
             }
             let descriptorKey = Int(myDescriptorKey)
@@ -307,9 +312,9 @@ class MyCentralController: MyCentralControllerHostApi {
     
     func didDiscover(_ peripheral: CBPeripheral, _ advertisementData: [String : Any], _ rssiNumber: NSNumber) {
         let peripheralKey = peripheral.hash
-        if peripherals[peripheralKey] == nil {
+        if cachedPeripherals[peripheralKey] == nil {
             peripheral.delegate = myPeripheralDelegate
-            peripherals[peripheralKey] = peripheral
+            cachedPeripherals[peripheralKey] = peripheral
         }
         let myPeripheralArgs = peripheral.toMyArgs()
         let rssi = rssiNumber.int64Value
@@ -368,26 +373,24 @@ class MyCentralController: MyCentralControllerHostApi {
         let myPeripheralKey = Int64(peripheralKey)
         let discoverGattCompletion = discoverGattCompletions.removeValue(forKey: peripheralKey)
         if discoverGattCompletion != nil {
-            discoverGattCompletion!(.failure(error ?? MyError.illegalState))
+            didDiscoverGATT(peripheral, error ?? MyError.unknown)
         }
-        let services = peripheral.services ?? []
+        let services = cachedServices[peripheralKey] ?? [:]
         for service in services {
-            let characteristics = service.characteristics ?? []
+            let characteristics = cachedCharacteristics[service.key] ?? [:]
             for characteristic in characteristics {
-                let characteristicKey = characteristic.hash
-                let readCharacteristicCompletion = readCharacteristicCompletions.removeValue(forKey: characteristicKey)
-                let writeCharacteristicCompletion = writeCharacteristicCompletions.removeValue(forKey: characteristicKey)
+                let readCharacteristicCompletion = readCharacteristicCompletions.removeValue(forKey: characteristic.key)
+                let writeCharacteristicCompletion = writeCharacteristicCompletions.removeValue(forKey: characteristic.key)
                 if readCharacteristicCompletion != nil {
                     readCharacteristicCompletion!(.failure(MyError.illegalState))
                 }
                 if writeCharacteristicCompletion != nil {
                     writeCharacteristicCompletion!(.failure(MyError.illegalState))
                 }
-                let descriptors = characteristic.descriptors ?? []
+                let descriptors = cachedDescriptors[characteristic.key] ?? [:]
                 for descriptor in descriptors {
-                    let descriptorKey = descriptor.hash
-                    let readDescriptorCompletion = readDescriptorCompletions.removeValue(forKey: descriptorKey)
-                    let writeDescriptorCompletion = writeDescriptorCompletions.removeValue(forKey: descriptorKey)
+                    let readDescriptorCompletion = readDescriptorCompletions.removeValue(forKey: descriptor.key)
+                    let writeDescriptorCompletion = writeDescriptorCompletions.removeValue(forKey: descriptor.key)
                     if readDescriptorCompletion != nil {
                         readDescriptorCompletion!(.failure(MyError.illegalState))
                     }
@@ -411,37 +414,28 @@ class MyCentralController: MyCentralControllerHostApi {
     
     func didDiscoverServices(_ peripheral: CBPeripheral, _ error: Error?) {
         let peripheralKey = peripheral.hash
-        guard let completion = discoverGattCompletions[peripheralKey] else {
-            return
-        }
         if error == nil {
             var services = peripheral.services ?? []
             if services.isEmpty {
-                discoverGattCompletions.removeValue(forKey: peripheralKey)
-                completion(.success(()))
+                didDiscoverGATT(peripheral, error)
             } else {
                 let service = services.removeFirst()
                 unfinishedServices[peripheralKey] = services
                 peripheral.discoverCharacteristics(nil, for: service)
             }
         } else {
-            discoverGattCompletions.removeValue(forKey: peripheralKey)
-            completion(.failure(error!))
+            didDiscoverGATT(peripheral, error)
         }
     }
     
     func didDiscoverCharacteristics(_ peripheral: CBPeripheral, _ service: CBService, _ error: Error?) {
         let peripheralKey = peripheral.hash
-        guard let completion = discoverGattCompletions[peripheralKey] else {
-            return
-        }
         if error == nil {
             var characteristics = service.characteristics ?? []
             if characteristics.isEmpty {
                 var services = unfinishedServices.removeValue(forKey: peripheralKey) ?? []
                 if services.isEmpty {
-                    discoverGattCompletions.removeValue(forKey: peripheralKey)
-                    completion(.success(()))
+                    didDiscoverGATT(peripheral, error)
                 } else {
                     let service = services.removeFirst()
                     unfinishedServices[peripheralKey] = services
@@ -453,24 +447,18 @@ class MyCentralController: MyCentralControllerHostApi {
                 peripheral.discoverDescriptors(for: characteristic)
             }
         } else {
-            discoverGattCompletions.removeValue(forKey: peripheralKey)
-            unfinishedServices.removeValue(forKey: peripheralKey)
-            completion(.failure(error!))
+            didDiscoverGATT(peripheral, error)
         }
     }
     
     func didDiscoverDescriptors(_ peripheral: CBPeripheral, _ characteristic: CBCharacteristic, _ error: Error?) {
         let peripheralKey = peripheral.hash
-        guard let completion = discoverGattCompletions[peripheralKey] else {
-            return
-        }
         if error == nil {
             var characteristics = unfinishedCharacteristics.removeValue(forKey: peripheralKey) ?? []
             if (characteristics.isEmpty) {
                 var services = unfinishedServices.removeValue(forKey: peripheralKey) ?? []
                 if services.isEmpty {
-                    discoverGattCompletions.removeValue(forKey: peripheralKey)
-                    completion(.success(()))
+                    didDiscoverGATT(peripheral, error)
                 } else {
                     let service = services.removeFirst()
                     unfinishedServices[peripheralKey] = services
@@ -482,9 +470,41 @@ class MyCentralController: MyCentralControllerHostApi {
                 peripheral.discoverDescriptors(for: characteristic)
             }
         } else {
-            discoverGattCompletions.removeValue(forKey: peripheralKey)
-            unfinishedServices.removeValue(forKey: peripheralKey)
-            unfinishedCharacteristics.removeValue(forKey: peripheralKey)
+            didDiscoverGATT(peripheral, error)
+        }
+    }
+    
+    private func didDiscoverGATT(_ peripheral: CBPeripheral, _ error: Error?) {
+        let peripheralKey = peripheral.hash
+        unfinishedServices.removeValue(forKey: peripheralKey)
+        unfinishedCharacteristics.removeValue(forKey: peripheralKey)
+        guard let completion = discoverGattCompletions.removeValue(forKey: peripheralKey) else {
+            return
+        }
+        if error == nil {
+            let services = peripheral.services ?? []
+            var cachedServices = [Int: CBService]()
+            for service in services {
+                let serviceKey = service.hash
+                cachedServices[serviceKey] = service
+                let characteristics = service.characteristics ?? []
+                var cachedCharacteristics = [Int: CBCharacteristic]()
+                for characteristic in characteristics {
+                    let characteristicKey = characteristic.hash
+                    cachedCharacteristics[characteristicKey] = characteristic
+                    let descriptors = characteristic.descriptors ?? []
+                    var cachedDescriptors = [Int: CBDescriptor]()
+                    for descriptor in descriptors {
+                        let descriptorKey = descriptor.hash
+                        cachedDescriptors[descriptorKey] = descriptor
+                    }
+                    self.cachedDescriptors[characteristicKey] = cachedDescriptors
+                }
+                self.cachedCharacteristics[serviceKey] = cachedCharacteristics
+            }
+            self.cachedServices[peripheralKey] = cachedServices
+            completion(.success(()))
+        } else {
             completion(.failure(error!))
         }
     }

@@ -258,11 +258,11 @@ protocol MyCentralControllerHostApi {
   func getServices(myPeripheralKey: Int64) throws -> [MyGattServiceArgs]
   func getCharacteristics(myServiceKey: Int64) throws -> [MyGattCharacteristicArgs]
   func getDescriptors(myCharacteristicKey: Int64) throws -> [MyGattDescriptorArgs]
-  func readCharacteristic(myPeripheralKey: Int64, myCharacteristicKey: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void)
-  func writeCharacteristic(myPeripheralKey: Int64, myCharacteristicKey: Int64, value: FlutterStandardTypedData, myTypeNumber: Int64, completion: @escaping (Result<Void, Error>) -> Void)
-  func notifyCharacteristic(myPeripheralKey: Int64, myCharacteristicKey: Int64, state: Bool, completion: @escaping (Result<Void, Error>) -> Void)
-  func readDescriptor(myPeripheralKey: Int64, myDescriptorKey: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void)
-  func writeDescriptor(myPeripheralKey: Int64, myDescriptorKey: Int64, value: FlutterStandardTypedData, completion: @escaping (Result<Void, Error>) -> Void)
+  func readCharacteristic(myPeripheralKey: Int64, myServiceKey: Int64, myCharacteristicKey: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void)
+  func writeCharacteristic(myPeripheralKey: Int64, myServiceKey: Int64, myCharacteristicKey: Int64, value: FlutterStandardTypedData, myTypeNumber: Int64, completion: @escaping (Result<Void, Error>) -> Void)
+  func notifyCharacteristic(myPeripheralKey: Int64, myServiceKey: Int64, myCharacteristicKey: Int64, state: Bool, completion: @escaping (Result<Void, Error>) -> Void)
+  func readDescriptor(myPeripheralKey: Int64, myCharacteristicKey: Int64, myDescriptorKey: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void)
+  func writeDescriptor(myPeripheralKey: Int64, myCharacteristicKey: Int64, myDescriptorKey: Int64, value: FlutterStandardTypedData, completion: @escaping (Result<Void, Error>) -> Void)
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -426,8 +426,9 @@ class MyCentralControllerHostApiSetup {
       readCharacteristicChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let myPeripheralKeyArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
-        let myCharacteristicKeyArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
-        api.readCharacteristic(myPeripheralKey: myPeripheralKeyArg, myCharacteristicKey: myCharacteristicKeyArg) { result in
+        let myServiceKeyArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
+        let myCharacteristicKeyArg = args[2] is Int64 ? args[2] as! Int64 : Int64(args[2] as! Int32)
+        api.readCharacteristic(myPeripheralKey: myPeripheralKeyArg, myServiceKey: myServiceKeyArg, myCharacteristicKey: myCharacteristicKeyArg) { result in
           switch result {
             case .success(let res):
               reply(wrapResult(res))
@@ -444,10 +445,11 @@ class MyCentralControllerHostApiSetup {
       writeCharacteristicChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let myPeripheralKeyArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
-        let myCharacteristicKeyArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
-        let valueArg = args[2] as! FlutterStandardTypedData
-        let myTypeNumberArg = args[3] is Int64 ? args[3] as! Int64 : Int64(args[3] as! Int32)
-        api.writeCharacteristic(myPeripheralKey: myPeripheralKeyArg, myCharacteristicKey: myCharacteristicKeyArg, value: valueArg, myTypeNumber: myTypeNumberArg) { result in
+        let myServiceKeyArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
+        let myCharacteristicKeyArg = args[2] is Int64 ? args[2] as! Int64 : Int64(args[2] as! Int32)
+        let valueArg = args[3] as! FlutterStandardTypedData
+        let myTypeNumberArg = args[4] is Int64 ? args[4] as! Int64 : Int64(args[4] as! Int32)
+        api.writeCharacteristic(myPeripheralKey: myPeripheralKeyArg, myServiceKey: myServiceKeyArg, myCharacteristicKey: myCharacteristicKeyArg, value: valueArg, myTypeNumber: myTypeNumberArg) { result in
           switch result {
             case .success:
               reply(wrapResult(nil))
@@ -464,9 +466,10 @@ class MyCentralControllerHostApiSetup {
       notifyCharacteristicChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let myPeripheralKeyArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
-        let myCharacteristicKeyArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
-        let stateArg = args[2] as! Bool
-        api.notifyCharacteristic(myPeripheralKey: myPeripheralKeyArg, myCharacteristicKey: myCharacteristicKeyArg, state: stateArg) { result in
+        let myServiceKeyArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
+        let myCharacteristicKeyArg = args[2] is Int64 ? args[2] as! Int64 : Int64(args[2] as! Int32)
+        let stateArg = args[3] as! Bool
+        api.notifyCharacteristic(myPeripheralKey: myPeripheralKeyArg, myServiceKey: myServiceKeyArg, myCharacteristicKey: myCharacteristicKeyArg, state: stateArg) { result in
           switch result {
             case .success:
               reply(wrapResult(nil))
@@ -483,8 +486,9 @@ class MyCentralControllerHostApiSetup {
       readDescriptorChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let myPeripheralKeyArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
-        let myDescriptorKeyArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
-        api.readDescriptor(myPeripheralKey: myPeripheralKeyArg, myDescriptorKey: myDescriptorKeyArg) { result in
+        let myCharacteristicKeyArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
+        let myDescriptorKeyArg = args[2] is Int64 ? args[2] as! Int64 : Int64(args[2] as! Int32)
+        api.readDescriptor(myPeripheralKey: myPeripheralKeyArg, myCharacteristicKey: myCharacteristicKeyArg, myDescriptorKey: myDescriptorKeyArg) { result in
           switch result {
             case .success(let res):
               reply(wrapResult(res))
@@ -501,9 +505,10 @@ class MyCentralControllerHostApiSetup {
       writeDescriptorChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let myPeripheralKeyArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
-        let myDescriptorKeyArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
-        let valueArg = args[2] as! FlutterStandardTypedData
-        api.writeDescriptor(myPeripheralKey: myPeripheralKeyArg, myDescriptorKey: myDescriptorKeyArg, value: valueArg) { result in
+        let myCharacteristicKeyArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
+        let myDescriptorKeyArg = args[2] is Int64 ? args[2] as! Int64 : Int64(args[2] as! Int32)
+        let valueArg = args[3] as! FlutterStandardTypedData
+        api.writeDescriptor(myPeripheralKey: myPeripheralKeyArg, myCharacteristicKey: myCharacteristicKeyArg, myDescriptorKey: myDescriptorKeyArg, value: valueArg) { result in
           switch result {
             case .success:
               reply(wrapResult(nil))
