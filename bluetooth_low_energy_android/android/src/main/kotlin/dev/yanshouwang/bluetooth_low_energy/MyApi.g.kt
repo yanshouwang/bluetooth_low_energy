@@ -282,11 +282,11 @@ interface MyCentralControllerHostApi {
   fun getServices(myPeripheralKey: Long): List<MyGattServiceArgs>
   fun getCharacteristics(myServiceKey: Long): List<MyGattCharacteristicArgs>
   fun getDescriptors(myCharacteristicKey: Long): List<MyGattDescriptorArgs>
-  fun readCharacteristic(myPeripheralKey: Long, myCharacteristicKey: Long, callback: (Result<ByteArray>) -> Unit)
-  fun writeCharacteristic(myPeripheralKey: Long, myCharacteristicKey: Long, value: ByteArray, myTypeNumber: Long, callback: (Result<Unit>) -> Unit)
-  fun notifyCharacteristic(myPeripheralKey: Long, myCharacteristicKey: Long, state: Boolean, callback: (Result<Unit>) -> Unit)
-  fun readDescriptor(myPeripheralKey: Long, myDescriptorKey: Long, callback: (Result<ByteArray>) -> Unit)
-  fun writeDescriptor(myPeripheralKey: Long, myDescriptorKey: Long, value: ByteArray, callback: (Result<Unit>) -> Unit)
+  fun readCharacteristic(myPeripheralKey: Long, myServiceKey: Long, myCharacteristicKey: Long, callback: (Result<ByteArray>) -> Unit)
+  fun writeCharacteristic(myPeripheralKey: Long, myServiceKey: Long, myCharacteristicKey: Long, value: ByteArray, myTypeNumber: Long, callback: (Result<Unit>) -> Unit)
+  fun notifyCharacteristic(myPeripheralKey: Long, myServiceKey: Long, myCharacteristicKey: Long, state: Boolean, callback: (Result<Unit>) -> Unit)
+  fun readDescriptor(myPeripheralKey: Long, myCharacteristicKey: Long, myDescriptorKey: Long, callback: (Result<ByteArray>) -> Unit)
+  fun writeDescriptor(myPeripheralKey: Long, myCharacteristicKey: Long, myDescriptorKey: Long, value: ByteArray, callback: (Result<Unit>) -> Unit)
 
   companion object {
     /** The codec used by MyCentralControllerHostApi. */
@@ -482,8 +482,9 @@ interface MyCentralControllerHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val myPeripheralKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
-            val myCharacteristicKeyArg = args[1].let { if (it is Int) it.toLong() else it as Long }
-            api.readCharacteristic(myPeripheralKeyArg, myCharacteristicKeyArg) { result: Result<ByteArray> ->
+            val myServiceKeyArg = args[1].let { if (it is Int) it.toLong() else it as Long }
+            val myCharacteristicKeyArg = args[2].let { if (it is Int) it.toLong() else it as Long }
+            api.readCharacteristic(myPeripheralKeyArg, myServiceKeyArg, myCharacteristicKeyArg) { result: Result<ByteArray> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))
@@ -503,10 +504,11 @@ interface MyCentralControllerHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val myPeripheralKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
-            val myCharacteristicKeyArg = args[1].let { if (it is Int) it.toLong() else it as Long }
-            val valueArg = args[2] as ByteArray
-            val myTypeNumberArg = args[3].let { if (it is Int) it.toLong() else it as Long }
-            api.writeCharacteristic(myPeripheralKeyArg, myCharacteristicKeyArg, valueArg, myTypeNumberArg) { result: Result<Unit> ->
+            val myServiceKeyArg = args[1].let { if (it is Int) it.toLong() else it as Long }
+            val myCharacteristicKeyArg = args[2].let { if (it is Int) it.toLong() else it as Long }
+            val valueArg = args[3] as ByteArray
+            val myTypeNumberArg = args[4].let { if (it is Int) it.toLong() else it as Long }
+            api.writeCharacteristic(myPeripheralKeyArg, myServiceKeyArg, myCharacteristicKeyArg, valueArg, myTypeNumberArg) { result: Result<Unit> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))
@@ -525,9 +527,10 @@ interface MyCentralControllerHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val myPeripheralKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
-            val myCharacteristicKeyArg = args[1].let { if (it is Int) it.toLong() else it as Long }
-            val stateArg = args[2] as Boolean
-            api.notifyCharacteristic(myPeripheralKeyArg, myCharacteristicKeyArg, stateArg) { result: Result<Unit> ->
+            val myServiceKeyArg = args[1].let { if (it is Int) it.toLong() else it as Long }
+            val myCharacteristicKeyArg = args[2].let { if (it is Int) it.toLong() else it as Long }
+            val stateArg = args[3] as Boolean
+            api.notifyCharacteristic(myPeripheralKeyArg, myServiceKeyArg, myCharacteristicKeyArg, stateArg) { result: Result<Unit> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))
@@ -546,8 +549,9 @@ interface MyCentralControllerHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val myPeripheralKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
-            val myDescriptorKeyArg = args[1].let { if (it is Int) it.toLong() else it as Long }
-            api.readDescriptor(myPeripheralKeyArg, myDescriptorKeyArg) { result: Result<ByteArray> ->
+            val myCharacteristicKeyArg = args[1].let { if (it is Int) it.toLong() else it as Long }
+            val myDescriptorKeyArg = args[2].let { if (it is Int) it.toLong() else it as Long }
+            api.readDescriptor(myPeripheralKeyArg, myCharacteristicKeyArg, myDescriptorKeyArg) { result: Result<ByteArray> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))
@@ -567,9 +571,10 @@ interface MyCentralControllerHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val myPeripheralKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
-            val myDescriptorKeyArg = args[1].let { if (it is Int) it.toLong() else it as Long }
-            val valueArg = args[2] as ByteArray
-            api.writeDescriptor(myPeripheralKeyArg, myDescriptorKeyArg, valueArg) { result: Result<Unit> ->
+            val myCharacteristicKeyArg = args[1].let { if (it is Int) it.toLong() else it as Long }
+            val myDescriptorKeyArg = args[2].let { if (it is Int) it.toLong() else it as Long }
+            val valueArg = args[3] as ByteArray
+            api.writeDescriptor(myPeripheralKeyArg, myCharacteristicKeyArg, myDescriptorKeyArg, valueArg) { result: Result<Unit> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))
