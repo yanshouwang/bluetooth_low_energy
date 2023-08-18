@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:bluetooth_low_energy_linux/src/my_event_args.dart';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:bluez/bluez.dart';
 
@@ -17,7 +18,7 @@ class MyCentralController extends CentralController {
         _discoveredController = StreamController.broadcast(),
         _peripheralStateChangedController = StreamController.broadcast(),
         _characteristicValueChangedController = StreamController.broadcast(),
-        _servicesResolvedController = StreamController.broadcast(),
+        _myPeripheralDiscoveredController = StreamController.broadcast(),
         _devicePropertiesChangedSubscriptions = {},
         _characteristicPropertiesChangedSubscriptions = {},
         _myPeripherals = {},
@@ -33,7 +34,8 @@ class MyCentralController extends CentralController {
       _peripheralStateChangedController;
   final StreamController<GattCharacteristicValueChangedEventArgs>
       _characteristicValueChangedController;
-  final StreamController<int> _servicesResolvedController;
+  final StreamController<MyPeripheralDiscoveredEventArgs>
+      _myPeripheralDiscoveredController;
   final Map<int, StreamSubscription<List<String>>>
       _devicePropertiesChangedSubscriptions;
   final Map<int, StreamSubscription<List<String>>>
@@ -61,7 +63,8 @@ class MyCentralController extends CentralController {
   Stream<GattCharacteristicValueChangedEventArgs>
       get characteristicValueChanged =>
           _characteristicValueChangedController.stream;
-  Stream<int> get _servicesResolved => _servicesResolvedController.stream;
+  Stream<MyPeripheralDiscoveredEventArgs> get _myPeripheralDiscovered =>
+      _myPeripheralDiscoveredController.stream;
 
   late StreamSubscription<List<String>> _adapterPropertiesChangedSubscription;
   late StreamSubscription<BlueZDevice> _deviceAddedSubscription;
@@ -91,7 +94,7 @@ class MyCentralController extends CentralController {
       return;
     }
     for (var device in _client.devices) {
-      if (device.adapter != _adapter) {
+      if (device.adapter.address != _adapter.address) {
         continue;
       }
       _beginDevicePropertiesChangedListener(device);
@@ -120,7 +123,7 @@ class MyCentralController extends CentralController {
     _myCharacteristics.clear();
     _myDescriptors.clear();
     for (var device in _client.devices) {
-      if (device.adapter != _adapter) {
+      if (device.adapter.address != _adapter.address) {
         continue;
       }
       _endDevicePropertiesChangedListener(device);
@@ -171,8 +174,8 @@ class MyCentralController extends CentralController {
     if (device.servicesResolved) {
       return;
     }
-    await _servicesResolved.firstWhere(
-      (hashCode) => hashCode == peripheral.hashCode,
+    await _myPeripheralDiscovered.firstWhere(
+      (eventArgs) => eventArgs.myPeripheral == myPeripheral,
     );
   }
 
@@ -181,14 +184,11 @@ class MyCentralController extends CentralController {
     await _throwWithoutState(CentralState.poweredOn);
     final myPeripheral = peripheral as MyPeripheral;
     final blueZDevice = myPeripheral.device;
-    return blueZDevice.gattServices
-        .map(
-          (service) => _myServices.putIfAbsent(
-            service.hashCode,
-            () => MyGattService(service),
-          ),
-        )
-        .toList();
+    return blueZDevice.gattServices.map((service) {
+      final myService = MyGattService(service);
+      _myServices[myService.hashCode] = myService;
+      return myService;
+    }).toList();
   }
 
   @override
@@ -198,14 +198,11 @@ class MyCentralController extends CentralController {
     await _throwWithoutState(CentralState.poweredOn);
     final myService = service as MyGattService;
     final blueZService = myService.service;
-    return blueZService.characteristics
-        .map(
-          (characteristic) => _myCharacteristics.putIfAbsent(
-            characteristic.hashCode,
-            () => MyGattCharacteristic(characteristic),
-          ),
-        )
-        .toList();
+    return blueZService.characteristics.map((characteristic) {
+      final myCharacteristic = MyGattCharacteristic(characteristic);
+      _myCharacteristics[myCharacteristic.hashCode] = myCharacteristic;
+      return myCharacteristic;
+    }).toList();
   }
 
   @override
@@ -215,14 +212,11 @@ class MyCentralController extends CentralController {
     await _throwWithoutState(CentralState.poweredOn);
     final myCharacteristic = characteristic as MyGattCharacteristic;
     final blueZCharacteristic = myCharacteristic.characteristic;
-    return blueZCharacteristic.descriptors
-        .map(
-          (descriptor) => _myDescriptors.putIfAbsent(
-            descriptor.hashCode,
-            () => MyGattDescriptor(descriptor),
-          ),
-        )
-        .toList();
+    return blueZCharacteristic.descriptors.map((descriptor) {
+      final myDescriptor = MyGattDescriptor(descriptor);
+      _myDescriptors[myDescriptor.hashCode] = myDescriptor;
+      return myDescriptor;
+    }).toList();
   }
 
   @override
@@ -305,7 +299,7 @@ class MyCentralController extends CentralController {
   }
 
   void _onDeviceAdded(BlueZDevice device) {
-    if (device.adapter != _adapter) {
+    if (device.adapter.address != _adapter.address) {
       return;
     }
     _onDiscovered(device);
@@ -313,17 +307,15 @@ class MyCentralController extends CentralController {
   }
 
   void _onDeviceRemoved(BlueZDevice device) {
-    if (device.adapter != _adapter) {
+    if (device.adapter.address != _adapter.address) {
       return;
     }
     _endDevicePropertiesChangedListener(device);
   }
 
   void _onDiscovered(BlueZDevice device) {
-    final myPeripheral = _myPeripherals.putIfAbsent(
-      device.hashCode,
-      () => MyPeripheral(device),
-    );
+    final myPeripheral = MyPeripheral(device);
+    _myPeripherals[myPeripheral.hashCode] = myPeripheral;
     final rssi = device.rssi;
     final advertisement = device.advertisement;
     final eventArgs = CentralDiscoveredEventArgs(
@@ -365,7 +357,9 @@ class MyCentralController extends CentralController {
                   _beginCharacteristicPropertiesChangedListener(characteristic);
                 }
               }
-              _servicesResolvedController.add(device.hashCode);
+              final myPeripheral = MyPeripheral(device);
+              final eventArgs = MyPeripheralDiscoveredEventArgs(myPeripheral);
+              _myPeripheralDiscoveredController.add(eventArgs);
             }
             break;
           default:
