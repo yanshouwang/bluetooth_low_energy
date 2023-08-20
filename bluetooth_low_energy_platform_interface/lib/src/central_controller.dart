@@ -55,10 +55,10 @@ abstract class CentralController extends PlatformInterface {
   Stream<GattCharacteristicValueChangedEventArgs>
       get characteristicValueChanged;
 
-  /// Sets up the central controller, call this before use any api.
+  /// Sets up the central controller.
   Future<void> setUp();
 
-  /// Tears down the central controller, call this when it is no longer needed.
+  /// Tears down the central controller.
   Future<void> tearDown();
 
   /// Starts to discover peripherals.
