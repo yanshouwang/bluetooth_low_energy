@@ -77,9 +77,9 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
                 throw IllegalStateException()
             }
             val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.BLUETOOTH_SCAN, android.Manifest.permission.BLUETOOTH_CONNECT)
+                arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.BLUETOOTH_SCAN, android.Manifest.permission.BLUETOOTH_CONNECT)
             } else {
-                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION)
             }
             val activity = binding.activity
             ActivityCompat.requestPermissions(activity, permissions, REQUEST_CODE)
