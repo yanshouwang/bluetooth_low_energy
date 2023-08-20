@@ -1,9 +1,9 @@
 #
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
-# Run `pod lib lint bluetooth_low_energy.podspec` to validate before publishing.
+# Run `pod lib lint bluetooth_low_energy_darwin.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'bluetooth_low_energy'
+  s.name             = 'bluetooth_low_energy_darwin'
   s.version          = '2.0.2'
   s.summary          = 'iOS and macOS implementation of the bluetooth_low_energy plugin.'
   s.description      = <<-DESC
