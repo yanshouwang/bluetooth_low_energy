@@ -14,7 +14,7 @@ iOS and macOS implementation of the bluetooth_low_energy plugin.
   s.author           = { 'yanshouwang' => 'yanshouwang@outlook.com' }
 
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source_files     = 'Classes/**/*'
 
   s.ios.dependency 'Flutter'
   s.ios.deployment_target = '11.0'

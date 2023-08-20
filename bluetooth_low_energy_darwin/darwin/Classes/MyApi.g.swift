@@ -271,7 +271,7 @@ class MyCentralControllerHostApiSetup {
   static var codec: FlutterStandardMessageCodec { MyCentralControllerHostApiCodec.shared }
   /// Sets up an instance of `MyCentralControllerHostApi` to handle messages through the `binaryMessenger`.
   static func setUp(binaryMessenger: FlutterBinaryMessenger, api: MyCentralControllerHostApi?) {
-    let setUpChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.setUp", binaryMessenger: binaryMessenger, codec: codec)
+    let setUpChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.setUp", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       setUpChannel.setMessageHandler { _, reply in
         api.setUp() { result in
@@ -286,7 +286,7 @@ class MyCentralControllerHostApiSetup {
     } else {
       setUpChannel.setMessageHandler(nil)
     }
-    let tearDownChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.tearDown", binaryMessenger: binaryMessenger, codec: codec)
+    let tearDownChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.tearDown", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       tearDownChannel.setMessageHandler { _, reply in
         do {
@@ -299,7 +299,7 @@ class MyCentralControllerHostApiSetup {
     } else {
       tearDownChannel.setMessageHandler(nil)
     }
-    let startDiscoveryChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.startDiscovery", binaryMessenger: binaryMessenger, codec: codec)
+    let startDiscoveryChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.startDiscovery", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       startDiscoveryChannel.setMessageHandler { _, reply in
         do {
@@ -312,7 +312,7 @@ class MyCentralControllerHostApiSetup {
     } else {
       startDiscoveryChannel.setMessageHandler(nil)
     }
-    let stopDiscoveryChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.stopDiscovery", binaryMessenger: binaryMessenger, codec: codec)
+    let stopDiscoveryChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.stopDiscovery", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       stopDiscoveryChannel.setMessageHandler { _, reply in
         do {
@@ -325,7 +325,7 @@ class MyCentralControllerHostApiSetup {
     } else {
       stopDiscoveryChannel.setMessageHandler(nil)
     }
-    let connectChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.connect", binaryMessenger: binaryMessenger, codec: codec)
+    let connectChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.connect", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       connectChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -342,7 +342,7 @@ class MyCentralControllerHostApiSetup {
     } else {
       connectChannel.setMessageHandler(nil)
     }
-    let disconnectChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.disconnect", binaryMessenger: binaryMessenger, codec: codec)
+    let disconnectChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.disconnect", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       disconnectChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -359,7 +359,7 @@ class MyCentralControllerHostApiSetup {
     } else {
       disconnectChannel.setMessageHandler(nil)
     }
-    let discoverGATTChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.discoverGATT", binaryMessenger: binaryMessenger, codec: codec)
+    let discoverGATTChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.discoverGATT", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       discoverGATTChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -376,7 +376,7 @@ class MyCentralControllerHostApiSetup {
     } else {
       discoverGATTChannel.setMessageHandler(nil)
     }
-    let getServicesChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.getServices", binaryMessenger: binaryMessenger, codec: codec)
+    let getServicesChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.getServices", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       getServicesChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -391,7 +391,7 @@ class MyCentralControllerHostApiSetup {
     } else {
       getServicesChannel.setMessageHandler(nil)
     }
-    let getCharacteristicsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.getCharacteristics", binaryMessenger: binaryMessenger, codec: codec)
+    let getCharacteristicsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.getCharacteristics", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       getCharacteristicsChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -406,7 +406,7 @@ class MyCentralControllerHostApiSetup {
     } else {
       getCharacteristicsChannel.setMessageHandler(nil)
     }
-    let getDescriptorsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.getDescriptors", binaryMessenger: binaryMessenger, codec: codec)
+    let getDescriptorsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.getDescriptors", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       getDescriptorsChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -421,7 +421,7 @@ class MyCentralControllerHostApiSetup {
     } else {
       getDescriptorsChannel.setMessageHandler(nil)
     }
-    let readCharacteristicChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.readCharacteristic", binaryMessenger: binaryMessenger, codec: codec)
+    let readCharacteristicChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.readCharacteristic", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       readCharacteristicChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -440,7 +440,7 @@ class MyCentralControllerHostApiSetup {
     } else {
       readCharacteristicChannel.setMessageHandler(nil)
     }
-    let writeCharacteristicChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.writeCharacteristic", binaryMessenger: binaryMessenger, codec: codec)
+    let writeCharacteristicChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.writeCharacteristic", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       writeCharacteristicChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -461,7 +461,7 @@ class MyCentralControllerHostApiSetup {
     } else {
       writeCharacteristicChannel.setMessageHandler(nil)
     }
-    let notifyCharacteristicChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.notifyCharacteristic", binaryMessenger: binaryMessenger, codec: codec)
+    let notifyCharacteristicChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.notifyCharacteristic", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       notifyCharacteristicChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -481,7 +481,7 @@ class MyCentralControllerHostApiSetup {
     } else {
       notifyCharacteristicChannel.setMessageHandler(nil)
     }
-    let readDescriptorChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.readDescriptor", binaryMessenger: binaryMessenger, codec: codec)
+    let readDescriptorChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.readDescriptor", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       readDescriptorChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -500,7 +500,7 @@ class MyCentralControllerHostApiSetup {
     } else {
       readDescriptorChannel.setMessageHandler(nil)
     }
-    let writeDescriptorChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerHostApi.writeDescriptor", binaryMessenger: binaryMessenger, codec: codec)
+    let writeDescriptorChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.writeDescriptor", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       writeDescriptorChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -573,25 +573,25 @@ class MyCentralControllerFlutterApi {
     return MyCentralControllerFlutterApiCodec.shared
   }
   func onStateChanged(myStateNumber myStateNumberArg: Int64, completion: @escaping () -> Void) {
-    let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onStateChanged", binaryMessenger: binaryMessenger, codec: codec)
+    let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerFlutterApi.onStateChanged", binaryMessenger: binaryMessenger, codec: codec)
     channel.sendMessage([myStateNumberArg] as [Any?]) { _ in
       completion()
     }
   }
   func onDiscovered(myPeripheralArgs myPeripheralArgsArg: MyPeripheralArgs, rssi rssiArg: Int64, myAdvertisementArgs myAdvertisementArgsArg: MyAdvertisementArgs, completion: @escaping () -> Void) {
-    let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onDiscovered", binaryMessenger: binaryMessenger, codec: codec)
+    let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerFlutterApi.onDiscovered", binaryMessenger: binaryMessenger, codec: codec)
     channel.sendMessage([myPeripheralArgsArg, rssiArg, myAdvertisementArgsArg] as [Any?]) { _ in
       completion()
     }
   }
   func onPeripheralStateChanged(myPeripheralKey myPeripheralKeyArg: Int64, state stateArg: Bool, completion: @escaping () -> Void) {
-    let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onPeripheralStateChanged", binaryMessenger: binaryMessenger, codec: codec)
+    let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerFlutterApi.onPeripheralStateChanged", binaryMessenger: binaryMessenger, codec: codec)
     channel.sendMessage([myPeripheralKeyArg, stateArg] as [Any?]) { _ in
       completion()
     }
   }
   func onCharacteristicValueChanged(myCharacteristicKey myCharacteristicKeyArg: Int64, value valueArg: FlutterStandardTypedData, completion: @escaping () -> Void) {
-    let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_ios.MyCentralControllerFlutterApi.onCharacteristicValueChanged", binaryMessenger: binaryMessenger, codec: codec)
+    let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerFlutterApi.onCharacteristicValueChanged", binaryMessenger: binaryMessenger, codec: codec)
     channel.sendMessage([myCharacteristicKeyArg, valueArg] as [Any?]) { _ in
       completion()
     }

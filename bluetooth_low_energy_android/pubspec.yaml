@@ -24,6 +24,6 @@ flutter:
     implements: bluetooth_low_energy
     platforms:
       android:
-        package: dev.yanshouwang.bluetooth_low_energy
+        package: dev.yanshouwang.bluetooth_low_energy_android
         pluginClass: BluetoothLowEnergyAndroid
         dartPluginClass: BluetoothLowEnergyAndroid
