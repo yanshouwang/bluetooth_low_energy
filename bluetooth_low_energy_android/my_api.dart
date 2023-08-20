@@ -5,9 +5,9 @@ import 'package:pigeon/pigeon.dart';
     dartOut: 'lib/src/my_api.g.dart',
     dartOptions: DartOptions(),
     kotlinOut:
-        'android/src/main/kotlin/dev/yanshouwang/bluetooth_low_energy/MyApi.g.kt',
+        'android/src/main/kotlin/dev/yanshouwang/bluetooth_low_energy_android/MyApi.g.kt',
     kotlinOptions: KotlinOptions(
-      package: 'dev.yanshouwang.bluetooth_low_energy',
+      package: 'dev.yanshouwang.bluetooth_low_energy_android',
     ),
   ),
 )

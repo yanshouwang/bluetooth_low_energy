@@ -14,10 +14,11 @@ import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('getPlatformVersion test', (WidgetTester tester) async {
-    final centralController = CentralController.instance;
-    await centralController.setUp();
-    // The version string depends on the host platform running the test, so
-    // just assert that some non-empty string is returned.
-  });
+  // testWidgets('getPlatformVersion test', (WidgetTester tester) async {
+  //   final BluetoothLowEnergy plugin = BluetoothLowEnergy();
+  //   final String? version = await plugin.getPlatformVersion();
+  //   // The version string depends on the host platform running the test, so
+  //   // just assert that some non-empty string is returned.
+  //   expect(version?.isNotEmpty, true);
+  // });
 }

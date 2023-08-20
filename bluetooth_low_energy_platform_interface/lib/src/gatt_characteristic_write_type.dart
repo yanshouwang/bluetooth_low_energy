@@ -1,3 +1,4 @@
+/// The write type for a GATT characteristic.
 enum GattCharacteristicWriteType {
   // Write with response
   withResponse,

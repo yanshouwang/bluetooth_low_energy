@@ -10,6 +10,8 @@ import 'gatt_descriptor.dart';
 import 'gatt_service.dart';
 import 'peripheral.dart';
 
+/// The central controller used to communicate with peripherals.
+/// Call `setUp` before use any api, and call `tearDown` when it is no longer needed.
 abstract class CentralController extends PlatformInterface {
   /// Constructs a [CentralController].
   CentralController() : super(token: _token);
@@ -37,36 +39,74 @@ abstract class CentralController extends PlatformInterface {
     _instance = instance;
   }
 
+  /// Gets the state of the central.
   CentralState get state;
+
+  /// Used to listen the central state changed event.
   Stream<CentralStateChangedEventArgs> get stateChanged;
+
+  /// Used to listen the central discovered event.
   Stream<CentralDiscoveredEventArgs> get discovered;
+
+  /// Used to listen peripherals state changed event.
   Stream<PeripheralStateChangedEventArgs> get peripheralStateChanged;
+
+  /// Used to listen GATT characteristics value changed event.
   Stream<GattCharacteristicValueChangedEventArgs>
       get characteristicValueChanged;
 
+  /// Sets up the central controller.
   Future<void> setUp();
+
+  /// Tears down the central controller.
   Future<void> tearDown();
+
+  /// Starts to discover peripherals.
   Future<void> startDiscovery();
+
+  /// Stops to discover peripherals.
   Future<void> stopDiscovery();
+
+  /// Connects to the peripheral.
   Future<void> connect(Peripheral peripheral);
+
+  /// Disconnects form the peripheral.
   Future<void> disconnect(Peripheral peripheral);
+
+  /// Discovers GATT of the peripheral.
   Future<void> discoverGATT(Peripheral peripheral);
+
+  /// Gets GATT services of the peripheral.
   Future<List<GattService>> getServices(Peripheral peripheral);
+
+  /// Gets GATT characteristics of the GATT service.
   Future<List<GattCharacteristic>> getCharacteristics(GattService service);
+
+  /// Gets GATT descriptors of the GATT characteristic.
   Future<List<GattDescriptor>> getDescriptors(
     GattCharacteristic characteristic,
   );
+
+  /// Reads value of the GATT characteristic.
   Future<Uint8List> readCharacteristic(GattCharacteristic characteristic);
+
+  /// Writes value of the GATT characteristic.
   Future<void> writeCharacteristic(
     GattCharacteristic characteristic, {
     required Uint8List value,
     required GattCharacteristicWriteType type,
   });
+
+  /// Notifies value of the GATT characteristic.
   Future<void> notifyCharacteristic(
     GattCharacteristic characteristic, {
     required bool state,
   });
+
+  /// Reads value of the GATT descriptor.
   Future<Uint8List> readDescriptor(GattDescriptor descriptor);
+
+  /// Writes value of the GATT descriptor.
   Future<void> writeDescriptor(
     GattDescriptor descriptor, {
     required Uint8List value,

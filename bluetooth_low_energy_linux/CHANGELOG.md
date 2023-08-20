@@ -1,3 +1,8 @@
+## 2.0.2
+
+- Combine iOS and macOS projects.
+- Optimize project structure.
+
 ## 2.0.1
 
 - Fix the issue that GATTs is cleared after peripheral disconnected on iOS and macOS.
