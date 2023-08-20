@@ -1,4 +1,4 @@
-package dev.yanshouwang.bluetooth_low_energy
+package dev.yanshouwang.bluetooth_low_energy_android
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
