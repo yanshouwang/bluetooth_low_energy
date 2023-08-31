@@ -23,47 +23,47 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "2.0.2"
+    version: "2.0.3"
   bluetooth_low_energy_android:
     dependency: transitive
     description:
       name: bluetooth_low_energy_android
-      sha256: "99cf2d82ea788f9f927513827f33b501a866902bbbdc20031b856fab7bcda61b"
+      sha256: e740179e5143c74e2f308c78d395d49054c941b95eb776884d52192b80ccfcee
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.2"
+    version: "2.0.3"
   bluetooth_low_energy_darwin:
     dependency: transitive
     description:
       name: bluetooth_low_energy_darwin
-      sha256: b81cc04e04ad44063a05072ddc748e036a3f269a90af4c86b132689e66df404f
+      sha256: "49e9dc08281fb25f91472252dfbdf7d1d6d94983bf2e746382ad4b2dd8ba05fe"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.2"
+    version: "2.0.3"
   bluetooth_low_energy_linux:
     dependency: transitive
     description:
       name: bluetooth_low_energy_linux
-      sha256: "11fc6a5f4c3d9121d2ac9b213a2f587dad2b091b7bfea648a709f0d70a909ca3"
+      sha256: d9576d89471e31b76cb2495dbb72aabaadc3aa093ad607f5aedb15518d5c20cb
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.2"
+    version: "2.0.3"
   bluetooth_low_energy_platform_interface:
     dependency: transitive
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: "05ea2e4a802555065bda342099efec006b4d02c51806ee913fb82da90b5da60a"
+      sha256: dbc05f604e379ea7570db718a9ae7cf7fa08a20ee088a6f66de17b4acc7d9260
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.2"
+    version: "2.0.3"
   bluetooth_low_energy_windows:
     dependency: transitive
     description:
       name: bluetooth_low_energy_windows
-      sha256: "404c704b88e516f23b5cd9bc3873f65593e868b8c6398292146ccda6e48fd335"
+      sha256: c4d11b2769da214b5ea20f50980c00f3c3229450e46f9d075cd64298e5a27057
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.2"
+    version: "2.0.3"
   bluez:
     dependency: transitive
     description:
