@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
+import android.bluetooth.BluetoothStatusCodes
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
@@ -41,9 +42,9 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
 
     private val myApi = MyCentralControllerFlutterApi(binaryMessenger)
     private val myRequestPermissionResultListener = MyRequestPermissionResultListener(this)
-    private val myReceiver = MyBroadcastReceiver(this)
+    private val myBroadcastReceiver = MyBroadcastReceiver(this)
     private val myScanCallback = MyScanCallback(this)
-    private val myGattCallback = MyBluetoothGattCallback(this, executor)
+    private val myBluetoothGattCallback = MyBluetoothGattCallback(this, executor)
 
     private val cachedDevices = mutableMapOf<Int, BluetoothDevice>()
     private val cachedGATTs = mutableMapOf<Int, BluetoothGatt>()
@@ -108,12 +109,12 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
 
     private fun register() {
         val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-        context.registerReceiver(myReceiver, filter)
+        context.registerReceiver(myBroadcastReceiver, filter)
         registered = true
     }
 
     private fun unregister() {
-        context.unregisterReceiver(myReceiver)
+        context.unregisterReceiver(myBroadcastReceiver)
         registered = false
     }
 
@@ -153,9 +154,9 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
             val autoConnect = false
             cachedGATTs[deviceKey] = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 val transport = BluetoothDevice.TRANSPORT_LE
-                device.connectGatt(context, autoConnect, myGattCallback, transport)
+                device.connectGatt(context, autoConnect, myBluetoothGattCallback, transport)
             } else {
-                device.connectGatt(context, autoConnect, myGattCallback)
+                device.connectGatt(context, autoConnect, myBluetoothGattCallback)
             }
             connectCallbacks[deviceKey] = callback
         } catch (e: Throwable) {
@@ -252,9 +253,15 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
             }
             val myTypeArgs = myTypeNumber.toMyGattCharacteristicTypeArgs()
             val writeType = myTypeArgs.toType()
-            characteristic.value = value
-            characteristic.writeType = writeType
-            val writing = gatt.writeCharacteristic(characteristic)
+            val writing = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val writeCode = gatt.writeCharacteristic(characteristic, value, writeType)
+                writeCode == BluetoothStatusCodes.SUCCESS
+            } else {
+                // TODO: remove this when minSdkVersion >= 33
+                characteristic.value = value
+                characteristic.writeType = writeType
+                gatt.writeCharacteristic(characteristic)
+            }
             if (!writing) {
                 throw IllegalStateException()
             }
@@ -289,8 +296,14 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
             }
             val value = if (state) BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
             else BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
-            descriptor.value = value
-            val writing = gatt.writeDescriptor(descriptor)
+            val writing = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val writeCode = gatt.writeDescriptor(descriptor, value)
+                writeCode == BluetoothStatusCodes.SUCCESS
+            } else {
+                // TODO: remove this when minSdkVersion >= 33
+                descriptor.value = value
+                gatt.writeDescriptor(descriptor)
+            }
             if (!writing) {
                 throw IllegalStateException()
             }
@@ -339,8 +352,14 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            descriptor.value = value
-            val writing = gatt.writeDescriptor(descriptor)
+            val writing = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val writeCode = gatt.writeDescriptor(descriptor, value)
+                writeCode == BluetoothStatusCodes.SUCCESS
+            } else {
+                // TODO: remove this when minSdkVersion >= 33
+                descriptor.value = value
+                gatt.writeDescriptor(descriptor)
+            }
             if (!writing) {
                 throw IllegalStateException()
             }
@@ -381,13 +400,8 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         if (action != BluetoothAdapter.ACTION_STATE_CHANGED) {
             return
         }
-//        val previousState = intent.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_STATE, BluetoothAdapter.STATE_OFF)
         val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF)
-//        val myPreviousStateArgs = previousState.toMyCentralStateArgs()
         val myStateArgs = state.toMyCentralStateArgs()
-//        if (myStateArgs == myPreviousStateArgs) {
-//            return
-//        }
         val myStateNumber = myStateArgs.raw.toLong()
         myApi.onStateChanged(myStateNumber) {}
     }
@@ -509,11 +523,10 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         }
     }
 
-    fun onCharacteristicRead(characteristic: BluetoothGattCharacteristic, status: Int) {
+    fun onCharacteristicRead(characteristic: BluetoothGattCharacteristic, status: Int, value: ByteArray) {
         val characteristicKey = characteristic.hashCode()
         val callback = readCharacteristicCallbacks.remove(characteristicKey) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
-            val value = characteristic.value
             callback(Result.success(value))
         } else {
             val error = IllegalStateException("Read characteristic failed with status: $status.")
@@ -532,18 +545,16 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         }
     }
 
-    fun onCharacteristicChanged(characteristic: BluetoothGattCharacteristic) {
+    fun onCharacteristicChanged(characteristic: BluetoothGattCharacteristic, value: ByteArray) {
         val characteristicKey = characteristic.hashCode()
         val myCharacteristicKey = characteristicKey.toLong()
-        val value = characteristic.value
         myApi.onCharacteristicValueChanged(myCharacteristicKey, value) {}
     }
 
-    fun onDescriptorRead(descriptor: BluetoothGattDescriptor, status: Int) {
+    fun onDescriptorRead(descriptor: BluetoothGattDescriptor, status: Int, value: ByteArray) {
         val descriptorKey = descriptor.hashCode()
         val callback = readDescriptorCallbacks.remove(descriptorKey) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
-            val value = descriptor.value
             callback(Result.success(value))
         } else {
             val error = IllegalStateException("Read descriptor failed with status: $status.")

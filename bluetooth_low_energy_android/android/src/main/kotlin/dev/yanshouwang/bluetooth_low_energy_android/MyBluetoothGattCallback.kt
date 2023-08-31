@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
+import android.os.Build
 import java.util.concurrent.Executor
 
 class MyBluetoothGattCallback(private val myCentralController: MyCentralController, private val executor: Executor) : BluetoothGattCallback() {
@@ -21,10 +22,22 @@ class MyBluetoothGattCallback(private val myCentralController: MyCentralControll
         }
     }
 
+    override fun onCharacteristicRead(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: ByteArray, status: Int) {
+        super.onCharacteristicRead(gatt, characteristic, value, status)
+        executor.execute {
+            myCentralController.onCharacteristicRead(characteristic, status, value)
+        }
+    }
+
+    // TODO: remove this override when minSdkVersion >= 33
     override fun onCharacteristicRead(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int) {
         super.onCharacteristicRead(gatt, characteristic, status)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return
+        }
+        val value = characteristic.value
         executor.execute {
-            myCentralController.onCharacteristicRead(characteristic, status)
+            myCentralController.onCharacteristicRead(characteristic, status, value)
         }
     }
 
@@ -35,16 +48,41 @@ class MyBluetoothGattCallback(private val myCentralController: MyCentralControll
         }
     }
 
-    override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
+    override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: ByteArray) {
+        super.onCharacteristicChanged(gatt, characteristic, value)
         executor.execute {
-            myCentralController.onCharacteristicChanged(characteristic)
+            myCentralController.onCharacteristicChanged(characteristic, value)
         }
     }
 
+    // TODO: remove this override when minSdkVersion >= 33
+    override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
+        super.onCharacteristicChanged(gatt, characteristic)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return
+        }
+        val value = characteristic.value
+        executor.execute {
+            myCentralController.onCharacteristicChanged(characteristic, value)
+        }
+    }
+
+    override fun onDescriptorRead(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int, value: ByteArray) {
+        super.onDescriptorRead(gatt, descriptor, status, value)
+        executor.execute {
+            myCentralController.onDescriptorRead(descriptor, status, value)
+        }
+    }
+
+    // TODO: remove this override when minSdkVersion >= 33
     override fun onDescriptorRead(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {
         super.onDescriptorRead(gatt, descriptor, status)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return
+        }
+        val value = descriptor.value
         executor.execute {
-            myCentralController.onDescriptorRead(descriptor, status)
+            myCentralController.onDescriptorRead(descriptor, status, value)
         }
     }
 
