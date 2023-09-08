@@ -1,3 +1,7 @@
+## 2.2.0
+
+- Add `GattCharacteristicWriteType` argument to `CentralController#getMaximumWriteLength` method.
+
 ## 2.1.0
 
 - Bump version.

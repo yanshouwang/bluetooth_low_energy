@@ -73,8 +73,11 @@ abstract class CentralController extends PlatformInterface {
   /// Disconnects form the peripheral.
   Future<void> disconnect(Peripheral peripheral);
 
-  /// Gets the maximum write length of the peripheral.
-  Future<int> getMaximumWriteLength(Peripheral peripheral);
+  /// Gets the max length in bytes for a single write type of the peripheral.
+  Future<int> getMaximumWriteLength(
+    Peripheral peripheral, {
+    required GattCharacteristicWriteType type,
+  });
 
   /// Discovers GATT of the peripheral.
   Future<void> discoverGATT(Peripheral peripheral);
