@@ -15,6 +15,13 @@ class MyBluetoothGattCallback(private val myCentralController: MyCentralControll
         }
     }
 
+    override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
+        super.onMtuChanged(gatt, mtu, status)
+        executor.execute {
+            myCentralController.onMtuChanged(gatt, mtu, status)
+        }
+    }
+
     override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
         super.onServicesDiscovered(gatt, status)
         executor.execute {

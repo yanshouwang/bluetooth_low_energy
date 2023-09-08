@@ -122,6 +122,21 @@ class MyCentralController: MyCentralControllerHostApi {
         }
     }
     
+    func getMaximumWriteLength(myPeripheralKey: Int64, myTypeNumber: Int64) throws -> Int64 {
+        let peripheralKey = Int(myPeripheralKey)
+        guard let peripheral = cachedPeripherals[peripheralKey] else {
+            throw MyError.illegalArgument
+        }
+        let myTypeRawValue = Int(myTypeNumber)
+        guard let myTypeArgs = MyGattCharacteristicWriteTypeArgs(rawValue: myTypeRawValue) else {
+            throw MyError.illegalArgument
+        }
+        let type = myTypeArgs.toType()
+        let maximumWriteLength32 = peripheral.maximumWriteValueLength(for: type)
+        let maximumWriteLength = Int64(maximumWriteLength32)
+        return maximumWriteLength
+    }
+    
     func discoverGATT(myPeripheralKey: Int64, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             let peripheralKey = Int(myPeripheralKey)

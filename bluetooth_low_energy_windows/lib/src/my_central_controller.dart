@@ -60,6 +60,15 @@ class MyCentralController extends CentralController {
   }
 
   @override
+  Future<int> getMaximumWriteLength(
+    Peripheral peripheral, {
+    required GattCharacteristicWriteType type,
+  }) {
+    // TODO: implement getMaximumWriteLength
+    throw UnimplementedError();
+  }
+
+  @override
   Future<void> discoverGATT(Peripheral peripheral) {
     // TODO: implement discoverGATT
     throw UnimplementedError();

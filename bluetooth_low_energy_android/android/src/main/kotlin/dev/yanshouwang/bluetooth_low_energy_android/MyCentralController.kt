@@ -59,6 +59,7 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
     private var startDiscoveryCallback: ((Result<Unit>) -> Unit)? = null
     private val connectCallbacks = mutableMapOf<Int, (Result<Unit>) -> Unit>()
     private val disconnectCallbacks = mutableMapOf<Int, (Result<Unit>) -> Unit>()
+    private val getMaximumWriteLengthCallbacks = mutableMapOf<Int, (Result<Long>) -> Unit>()
     private val discoverGattCallbacks = mutableMapOf<Int, (Result<Unit>) -> Unit>()
     private val readCharacteristicCallbacks = mutableMapOf<Int, (Result<ByteArray>) -> Unit>()
     private val writeCharacteristicCallbacks = mutableMapOf<Int, (Result<Unit>) -> Unit>()
@@ -174,6 +175,24 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
             val gatt = cachedGATTs[deviceKey] as BluetoothGatt
             gatt.disconnect()
             disconnectCallbacks[deviceKey] = callback
+        } catch (e: Throwable) {
+            callback(Result.failure(e))
+        }
+    }
+
+    override fun getMaximumWriteLength(myPeripheralKey: Long, callback: (Result<Long>) -> Unit) {
+        try {
+            val deviceKey = myPeripheralKey.toInt()
+            val unfinishedCallback = getMaximumWriteLengthCallbacks[deviceKey]
+            if (unfinishedCallback != null) {
+                throw IllegalStateException()
+            }
+            val gatt = cachedGATTs[deviceKey] as BluetoothGatt
+            val requesting = gatt.requestMtu(512)
+            if (!requesting) {
+                throw IllegalStateException()
+            }
+            getMaximumWriteLengthCallbacks[deviceKey] = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
@@ -493,6 +512,19 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
         }
     }
 
+    fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
+        val device = gatt.device
+        val deviceKey = device.hashCode()
+        val callback = getMaximumWriteLengthCallbacks.remove(deviceKey) ?: return
+        if (status == BluetoothGatt.GATT_SUCCESS) {
+            val maximumWriteLength = (mtu - 3).toLong()
+            callback(Result.success(maximumWriteLength))
+        } else {
+            val error = IllegalStateException("Get maximum write length failed with status: $status")
+            callback(Result.failure(error))
+        }
+    }
+
     fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
         val device = gatt.device
         val deviceKey = device.hashCode()
@@ -609,7 +641,8 @@ private val ScanResult.myAdvertisementArgs: MyAdvertisementArgs
         } else {
             val name = record.deviceName
             val manufacturerSpecificData = record.manufacturerSpecificData.toMyArgs()
-            val serviceUUIDs = record.serviceUuids?.map { uuid -> uuid.toString() } ?: emptyList()
+            val serviceUUIDs = record.serviceUuids?.map { uuid -> uuid.toString() }
+                    ?: emptyList()
             val pairs = record.serviceData.entries.map { (uuid, value) ->
                 val key = uuid.toString()
                 return@map Pair(key, value)

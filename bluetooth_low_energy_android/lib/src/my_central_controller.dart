@@ -115,6 +115,19 @@ class MyCentralController extends CentralController
   }
 
   @override
+  Future<int> getMaximumWriteLength(
+    Peripheral peripheral, {
+    required GattCharacteristicWriteType type,
+  }) async {
+    await _throwWithoutState(CentralState.poweredOn);
+    final myPeripheral = peripheral as MyPeripheral;
+    final maximumWriteLength = await _myApi.getMaximumWriteLength(
+      myPeripheral.hashCode,
+    );
+    return maximumWriteLength;
+  }
+
+  @override
   Future<void> discoverGATT(Peripheral peripheral) async {
     await _throwWithoutState(CentralState.poweredOn);
     final myPeripheral = peripheral as MyPeripheral;
@@ -205,14 +218,14 @@ class MyCentralController extends CentralController
     final myCharacteristic = characteristic as MyGattCharacteristic;
     final myService = myCharacteristic.myService;
     final myPeripheral = myService.myPeripheral;
-    final typeArgs = type.toMyArgs();
-    final typeNumber = typeArgs.index;
+    final myTypeArgs = type.toMyArgs();
+    final myTypeNumber = myTypeArgs.index;
     await _myApi.writeCharacteristic(
       myPeripheral.hashCode,
       myService.hashCode,
       myCharacteristic.hashCode,
       value,
-      typeNumber,
+      myTypeNumber,
     );
   }
 
