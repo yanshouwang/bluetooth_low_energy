@@ -278,6 +278,7 @@ interface MyCentralControllerHostApi {
   fun stopDiscovery()
   fun connect(myPeripheralKey: Long, callback: (Result<Unit>) -> Unit)
   fun disconnect(myPeripheralKey: Long, callback: (Result<Unit>) -> Unit)
+  fun getMaximumWriteLength(myPeripheralKey: Long, callback: (Result<Long>) -> Unit)
   fun discoverGATT(myPeripheralKey: Long, callback: (Result<Unit>) -> Unit)
   fun getServices(myPeripheralKey: Long): List<MyGattServiceArgs>
   fun getCharacteristics(myServiceKey: Long): List<MyGattCharacteristicArgs>
@@ -396,6 +397,26 @@ interface MyCentralControllerHostApi {
                 reply.reply(wrapError(error))
               } else {
                 reply.reply(wrapResult(null))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralControllerHostApi.getMaximumWriteLength", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val myPeripheralKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
+            api.getMaximumWriteLength(myPeripheralKeyArg) { result: Result<Long> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(wrapResult(data))
               }
             }
           }

@@ -73,6 +73,15 @@ abstract class CentralController extends PlatformInterface {
   /// Disconnects form the peripheral.
   Future<void> disconnect(Peripheral peripheral);
 
+  /// Gets the maximum write length of the peripheral.
+  ///
+  /// On Android, this value equals MTU - 3.
+  ///
+  /// On iOS and macOS, this value equals maximumWriteValueLength
+  ///
+  /// On Linux, this value returns 20 because the `bluez` plugin has not implemented this yet.
+  Future<int> getMaximumWriteLength(Peripheral peripheral);
+
   /// Discovers GATT of the peripheral.
   Future<void> discoverGATT(Peripheral peripheral);
 

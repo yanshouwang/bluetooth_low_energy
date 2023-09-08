@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
@@ -162,10 +163,10 @@ class _HomeViewState extends State<HomeView> {
     return ValueListenableBuilder(
       valueListenable: discoveredEventArgs,
       builder: (context, discoveredEventArgs, child) {
-        // final items = discoveredEventArgs
-        //     .where((eventArgs) => eventArgs.advertisement.name != null)
-        //     .toList();
-        final items = discoveredEventArgs;
+        // final items = discoveredEventArgs;
+        final items = discoveredEventArgs
+            .where((eventArgs) => eventArgs.advertisement.name != null)
+            .toList();
         return ListView.separated(
           itemBuilder: (context, i) {
             final theme = Theme.of(context);
@@ -305,6 +306,7 @@ class _PeripheralViewState extends State<PeripheralView> {
   late final ValueNotifier<GattCharacteristic?> characteristic;
   late final TextEditingController writeController;
   late final ValueNotifier<List<Log>> logs;
+  late final ValueNotifier<int> maximumWriteLength;
   late final StreamSubscription stateChangedSubscription;
   late final StreamSubscription valueChangedSubscription;
 
@@ -319,6 +321,7 @@ class _PeripheralViewState extends State<PeripheralView> {
     characteristic = ValueNotifier(null);
     writeController = TextEditingController();
     logs = ValueNotifier([]);
+    maximumWriteLength = ValueNotifier(20);
     stateChangedSubscription = centralController.peripheralStateChanged.listen(
       (eventArgs) {
         if (eventArgs.peripheral != this.eventArgs.peripheral) {
@@ -519,6 +522,27 @@ class _PeripheralViewState extends State<PeripheralView> {
               },
             ),
           ),
+          ValueListenableBuilder(
+            valueListenable: state,
+            builder: (context, state, child) {
+              return TextButton(
+                onPressed: state
+                    ? () async {
+                        maximumWriteLength.value =
+                            await centralController.getMaximumWriteLength(
+                          eventArgs.peripheral,
+                        );
+                      }
+                    : null,
+                child: ValueListenableBuilder(
+                  valueListenable: maximumWriteLength,
+                  builder: (context, maximumWriteLength, child) {
+                    return Text('MTU: $maximumWriteLength');
+                  },
+                ),
+              );
+            },
+          ),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 16.0),
             height: 160.0,
@@ -626,6 +650,9 @@ class _PeripheralViewState extends State<PeripheralView> {
     characteristics.dispose();
     service.dispose();
     characteristic.dispose();
+    writeController.dispose();
+    logs.dispose();
+    maximumWriteLength.dispose();
   }
 }
 

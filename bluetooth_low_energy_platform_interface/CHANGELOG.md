@@ -1,3 +1,11 @@
+## 2.0.5
+
+- Optimize project structure.
+
+## 2.0.4
+
+- Add `CentralController#getMaximumWriteLength` method.
+
 ## 2.0.3
 
 - `Android` Migrate to Android 13.

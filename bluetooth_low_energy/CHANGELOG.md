@@ -1,3 +1,7 @@
+## 2.0.5
+
+- Add `CentralController#getMaximumWriteLength` method.
+
 ## 2.0.3
 
 - `Android` Migrate to Android 13.

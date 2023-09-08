@@ -164,6 +164,12 @@ class MyCentralController extends CentralController {
   }
 
   @override
+  Future<int> getMaximumWriteLength(Peripheral peripheral) async {
+    // TODO: 当前版本 `bluez` 插件不支持获取 MTU，返回最小值 20.
+    return 20;
+  }
+
+  @override
   Future<void> discoverGATT(Peripheral peripheral) async {
     await _throwWithoutState(CentralState.poweredOn);
     final myPeripheral = peripheral as MyPeripheral;

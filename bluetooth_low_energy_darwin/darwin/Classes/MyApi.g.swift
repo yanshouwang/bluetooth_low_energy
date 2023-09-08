@@ -254,6 +254,7 @@ protocol MyCentralControllerHostApi {
   func stopDiscovery() throws
   func connect(myPeripheralKey: Int64, completion: @escaping (Result<Void, Error>) -> Void)
   func disconnect(myPeripheralKey: Int64, completion: @escaping (Result<Void, Error>) -> Void)
+  func getMaximumWriteLength(myPeripheralKey: Int64) throws -> Int64
   func discoverGATT(myPeripheralKey: Int64, completion: @escaping (Result<Void, Error>) -> Void)
   func getServices(myPeripheralKey: Int64) throws -> [MyGattServiceArgs]
   func getCharacteristics(myServiceKey: Int64) throws -> [MyGattCharacteristicArgs]
@@ -358,6 +359,21 @@ class MyCentralControllerHostApiSetup {
       }
     } else {
       disconnectChannel.setMessageHandler(nil)
+    }
+    let getMaximumWriteLengthChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.getMaximumWriteLength", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      getMaximumWriteLengthChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let myPeripheralKeyArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
+        do {
+          let result = try api.getMaximumWriteLength(myPeripheralKey: myPeripheralKeyArg)
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      getMaximumWriteLengthChannel.setMessageHandler(nil)
     }
     let discoverGATTChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.discoverGATT", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {

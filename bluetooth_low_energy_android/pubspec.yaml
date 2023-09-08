@@ -1,6 +1,6 @@
 name: bluetooth_low_energy_android
 description: Android implementation of the bluetooth_low_energy plugin.
-version: 2.0.3
+version: 2.0.4
 homepage: https://github.com/yanshouwang/bluetooth_low_energy
 
 environment:
@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  bluetooth_low_energy_platform_interface: ^2.0.3
+  bluetooth_low_energy_platform_interface: ^2.0.5
 
 dev_dependencies:
   flutter_test:

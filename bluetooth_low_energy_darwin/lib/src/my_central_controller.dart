@@ -115,6 +115,16 @@ class MyCentralController extends CentralController
   }
 
   @override
+  Future<int> getMaximumWriteLength(Peripheral peripheral) async {
+    await _throwWithoutState(CentralState.poweredOn);
+    final myPeripheral = peripheral as MyPeripheral;
+    final maximumWriteLength = await _myApi.getMaximumWriteLength(
+      myPeripheral.hashCode,
+    );
+    return maximumWriteLength;
+  }
+
+  @override
   Future<void> discoverGATT(Peripheral peripheral) async {
     await _throwWithoutState(CentralState.poweredOn);
     final myPeripheral = peripheral as MyPeripheral;
