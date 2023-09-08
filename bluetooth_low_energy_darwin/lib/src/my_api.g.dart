@@ -380,12 +380,12 @@ class MyCentralControllerHostApi {
     }
   }
 
-  Future<int> getMaximumWriteLength(int arg_myPeripheralKey) async {
+  Future<int> getMaximumWriteLength(int arg_myPeripheralKey, int arg_myTypeNumber) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralControllerHostApi.getMaximumWriteLength', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_myPeripheralKey]) as List<Object?>?;
+        await channel.send(<Object?>[arg_myPeripheralKey, arg_myTypeNumber]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',

@@ -254,7 +254,7 @@ protocol MyCentralControllerHostApi {
   func stopDiscovery() throws
   func connect(myPeripheralKey: Int64, completion: @escaping (Result<Void, Error>) -> Void)
   func disconnect(myPeripheralKey: Int64, completion: @escaping (Result<Void, Error>) -> Void)
-  func getMaximumWriteLength(myPeripheralKey: Int64) throws -> Int64
+  func getMaximumWriteLength(myPeripheralKey: Int64, myTypeNumber: Int64) throws -> Int64
   func discoverGATT(myPeripheralKey: Int64, completion: @escaping (Result<Void, Error>) -> Void)
   func getServices(myPeripheralKey: Int64) throws -> [MyGattServiceArgs]
   func getCharacteristics(myServiceKey: Int64) throws -> [MyGattCharacteristicArgs]
@@ -365,8 +365,9 @@ class MyCentralControllerHostApiSetup {
       getMaximumWriteLengthChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let myPeripheralKeyArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
+        let myTypeNumberArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
         do {
-          let result = try api.getMaximumWriteLength(myPeripheralKey: myPeripheralKeyArg)
+          let result = try api.getMaximumWriteLength(myPeripheralKey: myPeripheralKeyArg, myTypeNumber: myTypeNumberArg)
           reply(wrapResult(result))
         } catch {
           reply(wrapError(error))

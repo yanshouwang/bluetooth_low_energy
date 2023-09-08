@@ -19,7 +19,7 @@ abstract class MyCentralControllerHostApi {
   void connect(int myPeripheralKey);
   @async
   void disconnect(int myPeripheralKey);
-  int getMaximumWriteLength(int myPeripheralKey);
+  int getMaximumWriteLength(int myPeripheralKey, int myTypeNumber);
   @async
   void discoverGATT(int myPeripheralKey);
   List<MyGattServiceArgs> getServices(int myPeripheralKey);

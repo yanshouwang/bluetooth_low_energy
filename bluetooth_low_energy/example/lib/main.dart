@@ -304,9 +304,10 @@ class _PeripheralViewState extends State<PeripheralView> {
   late final ValueNotifier<List<GattCharacteristic>> characteristics;
   late final ValueNotifier<GattService?> service;
   late final ValueNotifier<GattCharacteristic?> characteristic;
-  late final TextEditingController writeController;
-  late final ValueNotifier<List<Log>> logs;
+  late final ValueNotifier<GattCharacteristicWriteType> writeType;
   late final ValueNotifier<int> maximumWriteLength;
+  late final ValueNotifier<List<Log>> logs;
+  late final TextEditingController writeController;
   late final StreamSubscription stateChangedSubscription;
   late final StreamSubscription valueChangedSubscription;
 
@@ -319,9 +320,10 @@ class _PeripheralViewState extends State<PeripheralView> {
     characteristics = ValueNotifier([]);
     service = ValueNotifier(null);
     characteristic = ValueNotifier(null);
-    writeController = TextEditingController();
-    logs = ValueNotifier([]);
+    writeType = ValueNotifier(GattCharacteristicWriteType.withResponse);
     maximumWriteLength = ValueNotifier(20);
+    logs = ValueNotifier([]);
+    writeController = TextEditingController();
     stateChangedSubscription = centralController.peripheralStateChanged.listen(
       (eventArgs) {
         if (eventArgs.peripheral != this.eventArgs.peripheral) {
@@ -522,26 +524,63 @@ class _PeripheralViewState extends State<PeripheralView> {
               },
             ),
           ),
-          ValueListenableBuilder(
-            valueListenable: state,
-            builder: (context, state, child) {
-              return TextButton(
-                onPressed: state
-                    ? () async {
-                        maximumWriteLength.value =
-                            await centralController.getMaximumWriteLength(
-                          eventArgs.peripheral,
+          Row(
+            children: [
+              Expanded(
+                child: Center(
+                  child: ValueListenableBuilder(
+                    valueListenable: writeType,
+                    builder: (context, writeType, child) {
+                      final items =
+                          GattCharacteristicWriteType.values.map((type) {
+                        return DropdownMenuItem(
+                          value: type,
+                          child: Text(
+                            type.name,
+                            style: theme.textTheme.bodyMedium,
+                          ),
                         );
-                      }
-                    : null,
+                      }).toList();
+                      return DropdownButton(
+                        items: items,
+                        onChanged: (type) {
+                          if (type == null) {
+                            return;
+                          }
+                          this.writeType.value = type;
+                        },
+                        value: writeType,
+                        underline: const Offstage(),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              Expanded(
                 child: ValueListenableBuilder(
-                  valueListenable: maximumWriteLength,
-                  builder: (context, maximumWriteLength, child) {
-                    return Text('MTU: $maximumWriteLength');
+                  valueListenable: state,
+                  builder: (context, state, child) {
+                    return TextButton(
+                      onPressed: state
+                          ? () async {
+                              maximumWriteLength.value =
+                                  await centralController.getMaximumWriteLength(
+                                eventArgs.peripheral,
+                                type: writeType.value,
+                              );
+                            }
+                          : null,
+                      child: ValueListenableBuilder(
+                        valueListenable: maximumWriteLength,
+                        builder: (context, maximumWriteLength, child) {
+                          return Text('MTU: $maximumWriteLength');
+                        },
+                      ),
+                    );
                   },
                 ),
-              );
-            },
+              ),
+            ],
           ),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 16.0),
@@ -650,9 +689,10 @@ class _PeripheralViewState extends State<PeripheralView> {
     characteristics.dispose();
     service.dispose();
     characteristic.dispose();
-    writeController.dispose();
-    logs.dispose();
+    writeType.dispose();
     maximumWriteLength.dispose();
+    logs.dispose();
+    writeController.dispose();
   }
 }
 

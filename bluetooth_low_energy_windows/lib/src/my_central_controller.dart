@@ -60,7 +60,10 @@ class MyCentralController extends CentralController {
   }
 
   @override
-  Future<int> getMaximumWriteLength(Peripheral peripheral) {
+  Future<int> getMaximumWriteLength(
+    Peripheral peripheral, {
+    required GattCharacteristicWriteType type,
+  }) {
     // TODO: implement getMaximumWriteLength
     throw UnimplementedError();
   }
