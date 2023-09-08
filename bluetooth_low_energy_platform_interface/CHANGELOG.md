@@ -1,3 +1,7 @@
+## 2.1.0
+
+- Bump version.
+
 ## 2.0.5
 
 - Optimize project structure.
