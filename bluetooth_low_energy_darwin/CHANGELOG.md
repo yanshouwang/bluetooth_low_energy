@@ -1,4 +1,4 @@
-## 2.0.5
+## 2.1.0
 
 - Add `CentralController#getMaximumWriteLength` method.
 
