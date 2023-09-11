@@ -347,8 +347,7 @@ class _PeripheralViewState extends State<PeripheralView> {
           return;
         }
         const type = LogType.notify;
-        final value = hex.encode(eventArgs.value);
-        final log = Log(type, value);
+        final log = Log(type, eventArgs.value);
         logs.value = [
           ...logs.value,
           log,
@@ -497,9 +496,10 @@ class _PeripheralViewState extends State<PeripheralView> {
                     }
                     final time = DateFormat.Hms().format(log.time);
                     final value = log.value;
+                    final message = hex.encode(value);
                     return Text.rich(
                       TextSpan(
-                        text: '[$type]',
+                        text: '[$type:${value.length}]',
                         children: [
                           TextSpan(
                             text: ' $time: ',
@@ -508,7 +508,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                             ),
                           ),
                           TextSpan(
-                            text: value,
+                            text: message,
                             style: theme.textTheme.bodyMedium,
                           ),
                         ],
@@ -641,8 +641,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                                   final value = await centralController
                                       .readCharacteristic(characteristic);
                                   const type = LogType.read;
-                                  final text = hex.encode(value);
-                                  final log = Log(type, text);
+                                  final log = Log(type, value);
                                   logs.value = [...logs.value, log];
                                 }
                               : null,
@@ -660,7 +659,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                                     type: GattCharacteristicWriteType
                                         .withResponse,
                                   );
-                                  final log = Log(LogType.write, text);
+                                  final log = Log(LogType.write, value);
                                   logs.value = [...logs.value, log];
                                 }
                               : null,
@@ -698,7 +697,7 @@ class _PeripheralViewState extends State<PeripheralView> {
 class Log {
   final DateTime time;
   final LogType type;
-  final String value;
+  final Uint8List value;
 
   Log(this.type, this.value) : time = DateTime.now();
 
@@ -707,7 +706,8 @@ class Log {
     final type = this.type.toString().split('.').last;
     final formatter = DateFormat.Hms();
     final time = formatter.format(this.time);
-    return '[$type]$time: $value';
+    final message = hex.encode(value);
+    return '[$type]$time: $message';
   }
 }
 
