@@ -450,6 +450,10 @@ class MyCentralController(private val context: Context, binaryMessenger: BinaryM
             gatt.close()
             cachedGATTs.remove(deviceKey)
             val error = IllegalStateException("GATT is disconnected with status: $status")
+            val getMaximumWriteLengthCallback = getMaximumWriteLengthCallbacks.remove(deviceKey)
+            if (getMaximumWriteLengthCallback != null) {
+                getMaximumWriteLengthCallback(Result.failure(error))
+            }
             val discoverGattCallback = discoverGattCallbacks.remove(deviceKey)
             if (discoverGattCallback != null) {
                 discoverGattCallback(Result.failure(error))

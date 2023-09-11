@@ -1,3 +1,7 @@
+## 2.2.1
+
+* `Android` Fix the issue that `CentralController#getMaximumWriteLength` may throw.
+
 ## 2.2.0
 
 * Add `CentralController#getMaximumWriteLength` method.
