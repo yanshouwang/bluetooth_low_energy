@@ -28,11 +28,13 @@ dependencies:
 
 Remember to call `await CentralController.setUp()` before use any apis of this plugin.
 
-*Note*: Bluetooth Low Energy doesn't work on emulators, so use physical devices which has bluetooth features for development.
+*Note:* Bluetooth Low Energy doesn't work on emulators, so use physical devices which has bluetooth features for development.
 
 ### Android
 
 Make sure you have a `miniSdkVersion` with 21 or higher in your `android/app/build.gradle` file.
+
+*Note:* Don't call `getMaximumWriteLength` immediately when connected to a peripheral after Android 13, the `onMtuChanged` callback maybe called with connection events after Android 13, and `getMaximumWriteLength` will call `requestMtu` will also triggered `onMtuChanged`, if you called this before the connection `onMtuChanged`, you will get a fake completion and cause all methods you called before the real `onMtuChanged` triggered will never complete!
 
 ### iOS and macOS
 

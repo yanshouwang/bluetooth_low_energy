@@ -12,19 +12,31 @@ import 'package:pigeon/pigeon.dart';
   ),
 )
 @HostApi()
-abstract class MyCentralControllerHostApi {
+abstract class MyBluetoothLowEnergyManagerHostApi {
   @async
-  MyCentralControllerArgs setUp();
-  void tearDown();
+  MyBluetoothLowEnergyManagerArgs setUp();
+}
+
+@FlutterApi()
+abstract class MyBluetoothLowEnergyManagerFlutterApi {
+  void onStateChanged(int myStateNumber);
+}
+
+@HostApi()
+abstract class MyCentralManagerHostApi {
   @async
-  void startDiscovery();
-  void stopDiscovery();
+  void setUp();
+  @async
+  void startScan();
+  void stopScan();
   @async
   void connect(int myPeripheralKey);
   @async
   void disconnect(int myPeripheralKey);
   @async
   int getMaximumWriteLength(int myPeripheralKey);
+  @async
+  int readRSSI(int myPeripheralKey);
   @async
   void discoverGATT(int myPeripheralKey);
   List<MyGattServiceArgs> getServices(int myPeripheralKey);
@@ -67,8 +79,7 @@ abstract class MyCentralControllerHostApi {
 }
 
 @FlutterApi()
-abstract class MyCentralControllerFlutterApi {
-  void onStateChanged(int myStateNumber);
+abstract class MyCentralManagerFlutterApi {
   void onDiscovered(
     MyPeripheralArgs myPeripheralArgs,
     int rssi,
@@ -78,10 +89,10 @@ abstract class MyCentralControllerFlutterApi {
   void onCharacteristicValueChanged(int myCharacteristicKey, Uint8List value);
 }
 
-class MyCentralControllerArgs {
+class MyBluetoothLowEnergyManagerArgs {
   final int myStateNumber;
 
-  MyCentralControllerArgs(this.myStateNumber);
+  MyBluetoothLowEnergyManagerArgs(this.myStateNumber);
 }
 
 class MyPeripheralArgs {
@@ -131,7 +142,7 @@ class MyGattDescriptorArgs {
   MyGattDescriptorArgs(this.key, this.uuid);
 }
 
-enum MyCentralStateArgs {
+enum MyBluetoothLowEnergyStateArgs {
   unknown,
   unsupported,
   unauthorized,

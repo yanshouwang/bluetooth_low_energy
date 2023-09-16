@@ -8,7 +8,7 @@ class MyCentralController extends CentralController {
   CentralState get state => throw UnimplementedError();
   @override
   // TODO: implement stateChanged
-  Stream<CentralStateChangedEventArgs> get stateChanged =>
+  Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       throw UnimplementedError();
   @override
   // TODO: implement discovered

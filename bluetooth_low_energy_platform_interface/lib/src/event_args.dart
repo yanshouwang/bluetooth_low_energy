@@ -1,20 +1,21 @@
 import 'dart:typed_data';
 
 import 'advertisement.dart';
-import 'central_state.dart';
+import 'bluetooth_low_energy_state.dart';
+import 'central.dart';
 import 'gatt_characteristic.dart';
 import 'peripheral.dart';
 
 /// The base event arguments.
 abstract class EventArgs {}
 
-/// The central state changed event arguments.
-class CentralStateChangedEventArgs extends EventArgs {
-  /// The new state of the central.
-  final CentralState state;
+/// The bluetooth low energy state changed event arguments.
+class BluetoothLowEnergyStateChangedEventArgs extends EventArgs {
+  /// The new state of the bluetooth low energy.
+  final BluetoothLowEnergyState state;
 
-  /// Constructs a [CentralStateChangedEventArgs].
-  CentralStateChangedEventArgs(this.state);
+  /// Constructs a [BluetoothLowEnergyStateChangedEventArgs].
+  BluetoothLowEnergyStateChangedEventArgs(this.state);
 }
 
 /// The central discovered event arguments.
@@ -54,4 +55,35 @@ class GattCharacteristicValueChangedEventArgs extends EventArgs {
 
   /// Constructs a [GattCharacteristicValueChangedEventArgs].
   GattCharacteristicValueChangedEventArgs(this.characteristic, this.value);
+}
+
+class NotifyGattCharacteristicCommandEventArgs {
+  final Central central;
+  final GattCharacteristic characteristic;
+  final bool state;
+
+  NotifyGattCharacteristicCommandEventArgs(
+    this.central,
+    this.characteristic,
+    this.state,
+  );
+}
+
+class ReadGattCharacteristicCommandEventArgs {
+  final Central central;
+  final GattCharacteristic characteristic;
+
+  ReadGattCharacteristicCommandEventArgs(this.central, this.characteristic);
+}
+
+class WriteGattCharacteristicCommandEventArgs {
+  final Central central;
+  final GattCharacteristic characteristic;
+  final Uint8List value;
+
+  WriteGattCharacteristicCommandEventArgs(
+    this.central,
+    this.characteristic,
+    this.value,
+  );
 }

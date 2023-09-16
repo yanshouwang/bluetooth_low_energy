@@ -24,7 +24,8 @@ class MyCentralController extends CentralController
         _state = CentralState.unknown;
 
   final MyCentralControllerHostApi _myApi;
-  final StreamController<CentralStateChangedEventArgs> _stateChangedController;
+  final StreamController<BluetoothLowEnergyStateChangedEventArgs>
+      _stateChangedController;
   final StreamController<CentralDiscoveredEventArgs> _discoveredController;
   final StreamController<PeripheralStateChangedEventArgs>
       _peripheralStateChangedController;
@@ -40,7 +41,7 @@ class MyCentralController extends CentralController
   CentralState get state => _state;
 
   @override
-  Stream<CentralStateChangedEventArgs> get stateChanged =>
+  Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
   Stream<CentralDiscoveredEventArgs> get discovered =>
@@ -291,7 +292,7 @@ class MyCentralController extends CentralController
       return;
     }
     _state = state;
-    final eventArgs = CentralStateChangedEventArgs(state);
+    final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
     _stateChangedController.add(eventArgs);
   }
 

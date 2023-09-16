@@ -1,7 +1,12 @@
 export 'src/errors.dart';
 export 'src/event_args.dart';
-export 'src/central_controller.dart';
-export 'src/central_state.dart';
+export 'src/bluetooth_low_energy.dart';
+export 'src/bluetooth_low_energy_manager.dart';
+export 'src/bluetooth_low_energy_state.dart';
+export 'src/central_manager.dart';
+export 'src/peripheral_manager.dart';
+export 'src/bluetooth_low_energy_peer.dart';
+export 'src/central.dart';
 export 'src/peripheral.dart';
 export 'src/uuid.dart';
 export 'src/advertisement.dart';
