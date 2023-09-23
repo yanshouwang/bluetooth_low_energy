@@ -11,7 +11,7 @@ import 'peripheral.dart';
 /// An object that scans for, discovers, connects to, and manages peripherals.
 abstract class CentralManager extends BluetoothLowEnergyManager {
   /// Tells the central manager discovered a peripheral while scanning for devices.
-  Stream<CentralDiscoveredEventArgs> get discovered;
+  Stream<DiscoveredEventArgs> get discovered;
 
   /// Tells that retrieving the specified peripheral's state changed.
   Stream<PeripheralStateChangedEventArgs> get peripheralStateChanged;
@@ -21,10 +21,10 @@ abstract class CentralManager extends BluetoothLowEnergyManager {
       get characteristicValueChanged;
 
   /// Scans for peripherals that are advertising services.
-  Future<void> startScan();
+  Future<void> startDiscovery();
 
   /// Asks the central manager to stop scanning for peripherals.
-  Future<void> stopScan();
+  Future<void> stopDiscovery();
 
   /// Establishes a local connection to a peripheral.
   Future<void> connect(Peripheral peripheral);
@@ -42,18 +42,7 @@ abstract class CentralManager extends BluetoothLowEnergyManager {
   Future<int> readRSSI(Peripheral peripheral);
 
   /// Discovers the GATT services, characteristics and descriptors of the peripheral.
-  Future<void> discoverGATT(Peripheral peripheral);
-
-  /// Gets a list of a peripheral’s discovered services.
-  Future<List<GattService>> getServices(Peripheral peripheral);
-
-  /// Gets a list of characteristics discovered in this service.
-  Future<List<GattCharacteristic>> getCharacteristics(GattService service);
-
-  /// Gets a list of the descriptors discovered in this characteristic.
-  Future<List<GattDescriptor>> getDescriptors(
-    GattCharacteristic characteristic,
-  );
+  Future<List<GattService>> discoverGATT(Peripheral peripheral);
 
   /// Retrieves the value of a specified characteristic.
   Future<Uint8List> readCharacteristic(GattCharacteristic characteristic);

@@ -1,3 +1,11 @@
+## 3.0.0
+
+* Add `PeripheralManager` api.
+* Add `CentralManager#readRSSI` method.
+* Move `CentralController` to `CentralManager`.
+* Move `CentralState` to `BluetoothLowEnergyState`.
+* Move `CentralDiscoveredEventArgs` to `DiscoveredEventArgs`.
+
 ## 2.2.0
 
 * Add `GattCharacteristicWriteType` argument to `CentralController#getMaximumWriteLength` method.

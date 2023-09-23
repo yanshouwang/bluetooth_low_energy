@@ -6,33 +6,39 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 
 /** BluetoothLowEnergyAndroid */
 class BluetoothLowEnergyAndroid : FlutterPlugin, ActivityAware {
-    private lateinit var centralController: MyCentralController
+    private lateinit var centralManager: MyCentralManager
+    private lateinit var peripheralManager: MyPeripheralManager
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         val context = binding.applicationContext
         val binaryMessenger = binding.binaryMessenger
-        centralController = MyCentralController(context, binaryMessenger)
-        MyCentralControllerHostApi.setUp(binaryMessenger, centralController)
+        centralManager = MyCentralManager(context, binaryMessenger)
+        peripheralManager = MyPeripheralManager(context, binaryMessenger)
+        MyCentralManagerHostApi.setUp(binaryMessenger, centralManager)
+        MyPeripheralManagerHostApi.setUp(binaryMessenger, peripheralManager)
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         val binaryMessenger = binding.binaryMessenger
-        MyCentralControllerHostApi.setUp(binaryMessenger, null)
+        MyCentralManagerHostApi.setUp(binaryMessenger, null)
+        MyPeripheralManagerHostApi.setUp(binaryMessenger, null)
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        centralController.onAttachedToActivity(binding)
-    }
-
-    override fun onDetachedFromActivityForConfigChanges() {
-        centralController.onDetachedFromActivity()
-    }
-
-    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-        centralController.onAttachedToActivity(binding)
+        centralManager.onAttachedToActivity(binding)
+        peripheralManager.onAttachedToActivity(binding)
     }
 
     override fun onDetachedFromActivity() {
-        centralController.onDetachedFromActivity()
+        centralManager.onDetachedFromActivity()
+        peripheralManager.onDetachedFromActivity()
+    }
+
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        onAttachedToActivity(binding)
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() {
+        onDetachedFromActivity()
     }
 }

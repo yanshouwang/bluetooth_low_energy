@@ -1,29 +1,26 @@
 import 'dart:typed_data';
 
+import 'gatt_attribute.dart';
 import 'uuid.dart';
 
-/// The GATT characteristic.
-class GattDescriptor {
-  /// The [UUID] of this GATT descriptor.
-  final UUID uuid;
-
-  GattDescriptor._inner(this.uuid);
-
+/// An object that provides further information about a remote peripheral’s characteristic.
+abstract class GattDescriptor extends GattAttribute {
   /// Constructs a [GattDescriptor].
   factory GattDescriptor({
     required UUID uuid,
-    Uint8List? value,
-  }) {
-    if (value == null) {
-      return GattDescriptor._inner(uuid);
-    } else {
-      return CustomGattDescriptor(uuid, value);
-    }
-  }
+    required Uint8List value,
+  }) =>
+      CustomizedGattDescriptor(uuid, value);
 }
 
-class CustomGattDescriptor extends GattDescriptor {
+/// An object that provides additional information about a local peripheral’s characteristic.
+class CustomizedGattDescriptor implements GattDescriptor {
+  @override
+  final UUID uuid;
+
+  /// The value of the descriptor.
   final Uint8List value;
 
-  CustomGattDescriptor(UUID uuid, this.value) : super._inner(uuid);
+  /// Constructs a [CustomizedGattDescriptor].
+  CustomizedGattDescriptor(this.uuid, this.value);
 }

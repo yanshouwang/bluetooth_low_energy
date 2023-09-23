@@ -3,15 +3,15 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 import 'my_api.dart';
 import 'my_object.dart';
 
-class MyPeripheral extends MyObject implements Peripheral {
+class MyCentral extends MyObject implements Central {
   @override
   final UUID uuid;
 
-  MyPeripheral(super.hashCode, this.uuid);
+  MyCentral(super.hashCode, this.uuid);
 
-  factory MyPeripheral.fromMyArgs(MyPeripheralArgs myArgs) {
+  factory MyCentral.fromMyArgs(MyCentralArgs myArgs) {
     final hashCode = myArgs.myKey;
     final uuid = UUID.fromString(myArgs.myUUID);
-    return MyPeripheral(hashCode, uuid);
+    return MyCentral(hashCode, uuid);
   }
 }

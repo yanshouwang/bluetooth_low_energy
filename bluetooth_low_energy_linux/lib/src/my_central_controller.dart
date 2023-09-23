@@ -30,7 +30,7 @@ class MyCentralController extends CentralController {
   final BlueZClient _client;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
-  final StreamController<CentralDiscoveredEventArgs> _discoveredController;
+  final StreamController<DiscoveredEventArgs> _discoveredController;
   final StreamController<PeripheralStateChangedEventArgs>
       _peripheralStateChangedController;
   final StreamController<GattCharacteristicValueChangedEventArgs>
@@ -55,8 +55,7 @@ class MyCentralController extends CentralController {
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
-  Stream<CentralDiscoveredEventArgs> get discovered =>
-      _discoveredController.stream;
+  Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
   @override
   Stream<PeripheralStateChangedEventArgs> get peripheralStateChanged =>
       _peripheralStateChangedController.stream;
@@ -325,7 +324,7 @@ class MyCentralController extends CentralController {
     _myPeripherals[myPeripheral.hashCode] = myPeripheral;
     final rssi = device.rssi;
     final advertisement = device.advertisement;
-    final eventArgs = CentralDiscoveredEventArgs(
+    final eventArgs = DiscoveredEventArgs(
       myPeripheral,
       rssi,
       advertisement,

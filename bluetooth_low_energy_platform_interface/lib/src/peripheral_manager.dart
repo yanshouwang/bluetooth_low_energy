@@ -9,10 +9,6 @@ import 'gatt_service.dart';
 
 /// An object that manages and advertises peripheral services exposed by this app.
 abstract class PeripheralManager extends BluetoothLowEnergyManager {
-  /// Tells that the peripheral manager received a characteristic’s notify changed.
-  Stream<NotifyGattCharacteristicCommandEventArgs>
-      get notifyCharacteristicCommandReceived;
-
   /// Tells that the local peripheral received an Attribute Protocol (ATT) read request for a characteristic with a dynamic value.
   Stream<ReadGattCharacteristicCommandEventArgs>
       get readCharacteristicCommandReceived;
@@ -21,11 +17,19 @@ abstract class PeripheralManager extends BluetoothLowEnergyManager {
   Stream<WriteGattCharacteristicCommandEventArgs>
       get writeCharacteristicCommandReceived;
 
+  /// Tells that the peripheral manager received a characteristic’s notify changed.
+  Stream<NotifyGattCharacteristicCommandEventArgs>
+      get notifyCharacteristicCommandReceived;
+
   Future<void> addService(GattService service);
   Future<void> removeService(GattService service);
-  Future<void> removeAllServices();
+  Future<void> clearServices();
   Future<void> startAdvertising(Advertisement advertisement);
   Future<void> stopAdvertising();
+
+  /// Gets the maximum amount of data, in bytes, that the central can receive in a
+  /// single notification or indication.
+  Future<int> getMaximumWriteLength(Central central);
   Future<void> sendReadCharacteristicReply(
     Central central,
     GattCharacteristic characteristic,
@@ -37,7 +41,7 @@ abstract class PeripheralManager extends BluetoothLowEnergyManager {
     GattCharacteristic characteristic,
     int status,
   );
-  Future<void> sendCharacteristicValueChanged(
+  Future<void> notifyCharacteristicValueChanged(
     Central central,
     GattCharacteristic characteristic,
     Uint8List value,

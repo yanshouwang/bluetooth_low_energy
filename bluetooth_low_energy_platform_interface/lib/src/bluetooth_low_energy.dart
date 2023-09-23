@@ -33,8 +33,8 @@ abstract class BluetoothLowEnergy extends PlatformInterface {
     _instance = instance;
   }
 
-  CentralManager get centralController;
-  PeripheralManager get peripheralController;
+  CentralManager get centralManager;
+  PeripheralManager get peripheralManager;
 
   /// Sets up the bluetooth low energy.
   Future<void> setUp();

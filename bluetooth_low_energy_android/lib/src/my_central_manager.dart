@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
-import 'my_api.g.dart';
+import 'my_api.dart';
 import 'my_bluetooth_low_energy_manager.dart';
 import 'my_gatt_characteristic.dart';
 import 'my_gatt_descriptor.dart';
@@ -12,32 +12,21 @@ import 'my_peripheral.dart';
 
 class MyCentralManager extends MyBluetoothLowEnergyManager
     implements CentralManager, MyCentralManagerFlutterApi {
-  MyCentralManager()
-      : _myApi = MyCentralManagerHostApi(),
-        _stateChangedController = StreamController.broadcast(),
-        _discoveredController = StreamController.broadcast(),
-        _peripheralStateChangedController = StreamController.broadcast(),
-        _characteristicValueChangedController = StreamController.broadcast(),
-        _myPeripherals = {},
-        _myServices = {},
-        _myCharacteristics = {},
-        _myDescriptors = {},
-        _state = CentralState.unknown;
-
   final MyCentralManagerHostApi _myApi;
-  final StreamController<CentralDiscoveredEventArgs> _discoveredController;
+  final StreamController<DiscoveredEventArgs> _discoveredController;
   final StreamController<PeripheralStateChangedEventArgs>
       _peripheralStateChangedController;
   final StreamController<GattCharacteristicValueChangedEventArgs>
       _characteristicValueChangedController;
-  final Map<int, MyPeripheral> _myPeripherals;
-  final Map<int, MyGattService> _myServices;
-  final Map<int, MyGattCharacteristic> _myCharacteristics;
-  final Map<int, MyGattDescriptor> _myDescriptors;
+
+  MyCentralManager()
+      : _myApi = MyCentralManagerHostApi(),
+        _discoveredController = StreamController.broadcast(),
+        _peripheralStateChangedController = StreamController.broadcast(),
+        _characteristicValueChangedController = StreamController.broadcast();
 
   @override
-  Stream<CentralDiscoveredEventArgs> get discovered =>
-      _discoveredController.stream;
+  Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
   @override
   Stream<PeripheralStateChangedEventArgs> get peripheralStateChanged =>
       _peripheralStateChangedController.stream;
@@ -46,47 +35,36 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
       get characteristicValueChanged =>
           _characteristicValueChangedController.stream;
 
-  @override
   Future<void> setUp() async {
-    await super.setUp();
-    await _myApi.setUp();
+    final args = await _myApi.setUp();
+    final myStateArgs =
+        MyBluetoothLowEnergyStateArgs.values[args.myStateNumber];
+    state = myStateArgs.toState();
     MyCentralManagerFlutterApi.setup(this);
   }
 
   @override
-  Future<void> tearDown() async {
-    await throwWithState(CentralState.unknown);
-    await _myApi.tearDown();
-    MyCentralControllerFlutterApi.setup(null);
-    _myPeripherals.clear();
-    _myServices.clear();
-    _myCharacteristics.clear();
-    _myDescriptors.clear();
-    _state = CentralState.unknown;
-  }
-
-  @override
   Future<void> startDiscovery() async {
-    await throwWithoutState(CentralState.poweredOn);
+    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
     await _myApi.startDiscovery();
   }
 
   @override
   Future<void> stopDiscovery() async {
-    await throwWithoutState(CentralState.poweredOn);
+    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
     await _myApi.stopDiscovery();
   }
 
   @override
   Future<void> connect(Peripheral peripheral) async {
-    await throwWithoutState(CentralState.poweredOn);
+    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final myPeripheral = peripheral as MyPeripheral;
     await _myApi.connect(myPeripheral.hashCode);
   }
 
   @override
   Future<void> disconnect(Peripheral peripheral) async {
-    await throwWithoutState(CentralState.poweredOn);
+    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final myPeripheral = peripheral as MyPeripheral;
     await _myApi.disconnect(myPeripheral.hashCode);
   }
@@ -96,7 +74,7 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
     Peripheral peripheral, {
     required GattCharacteristicWriteType type,
   }) async {
-    await throwWithoutState(CentralState.poweredOn);
+    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final myPeripheral = peripheral as MyPeripheral;
     final maximumWriteLength = await _myApi.getMaximumWriteLength(
       myPeripheral.hashCode,
@@ -105,67 +83,33 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
   }
 
   @override
-  Future<void> discoverGATT(Peripheral peripheral) async {
-    await throwWithoutState(CentralState.poweredOn);
+  Future<int> readRSSI(Peripheral peripheral) async {
+    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final myPeripheral = peripheral as MyPeripheral;
-    await _myApi.discoverGATT(myPeripheral.hashCode);
+    final rssi = await _myApi.readRSSI(
+      myPeripheral.hashCode,
+    );
+    return rssi;
   }
 
   @override
-  Future<List<GattService>> getServices(Peripheral peripheral) async {
-    await throwWithoutState(CentralState.poweredOn);
+  Future<List<GattService>> discoverGATT(Peripheral peripheral) async {
+    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final myPeripheral = peripheral as MyPeripheral;
-    final myServiceArgses = await _myApi.getServices(myPeripheral.hashCode);
+    final myServiceArgses = await _myApi.discoverGATT(myPeripheral.hashCode);
     return myServiceArgses.cast<MyGattServiceArgs>().map(
       (myServiceArgs) {
         final myService = MyGattService.fromMyArgs(
-          myPeripheral,
           myServiceArgs,
         );
-        _myServices[myService.hashCode] = myService;
+        for (var myCharactersitic in myService.characteristics) {
+          for (var myDescriptor in myCharactersitic.descriptors) {
+            myDescriptor.myCharacteristic = myCharactersitic;
+          }
+          myCharactersitic.myService = myService;
+        }
+        myService.myPeripheral = myPeripheral;
         return myService;
-      },
-    ).toList();
-  }
-
-  @override
-  Future<List<GattCharacteristic>> getCharacteristics(
-    GattService service,
-  ) async {
-    await throwWithoutState(CentralState.poweredOn);
-    final myService = service as MyGattService;
-    final myCharactersiticArgses = await _myApi.getCharacteristics(
-      myService.hashCode,
-    );
-    return myCharactersiticArgses.cast<MyGattCharacteristicArgs>().map(
-      (myCharacteristicArgs) {
-        final myCharacteristic = MyGattCharacteristic.fromMyArgs(
-          myService,
-          myCharacteristicArgs,
-        );
-        _myCharacteristics[myCharacteristic.hashCode] = myCharacteristic;
-        return myCharacteristic;
-      },
-    ).toList();
-  }
-
-  @override
-  Future<List<GattDescriptor>> getDescriptors(
-    GattCharacteristic characteristic,
-  ) async {
-    await throwWithoutState(CentralState.poweredOn);
-    final myCharacteristic = characteristic as MyGattCharacteristic;
-    final myDescriptorArgses = await _myApi.getDescriptors(
-      myCharacteristic.hashCode,
-    );
-    return myDescriptorArgses.cast<MyGattDescriptorArgs>().map(
-      (myDescriptorArgs) {
-        final myDescriptor = MyGattDescriptor.fromMyArgs(
-          myCharacteristic,
-          myDescriptorArgs,
-        );
-        _myDescriptors[myDescriptor.hashCode] = myDescriptor;
-        return myDescriptor;
       },
     ).toList();
   }
@@ -173,13 +117,12 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
   @override
   Future<Uint8List> readCharacteristic(
       GattCharacteristic characteristic) async {
-    await throwWithoutState(CentralState.poweredOn);
+    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final myCharacteristic = characteristic as MyGattCharacteristic;
     final myService = myCharacteristic.myService;
     final myPeripheral = myService.myPeripheral;
     final value = await _myApi.readCharacteristic(
       myPeripheral.hashCode,
-      myService.hashCode,
       myCharacteristic.hashCode,
     );
     return value;
@@ -191,7 +134,7 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
     required Uint8List value,
     required GattCharacteristicWriteType type,
   }) async {
-    await throwWithoutState(CentralState.poweredOn);
+    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final myCharacteristic = characteristic as MyGattCharacteristic;
     final myService = myCharacteristic.myService;
     final myPeripheral = myService.myPeripheral;
@@ -199,7 +142,6 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
     final myTypeNumber = myTypeArgs.index;
     await _myApi.writeCharacteristic(
       myPeripheral.hashCode,
-      myService.hashCode,
       myCharacteristic.hashCode,
       value,
       myTypeNumber,
@@ -211,13 +153,12 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
     GattCharacteristic characteristic, {
     required bool state,
   }) async {
-    await throwWithoutState(CentralState.poweredOn);
+    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final myCharacteristic = characteristic as MyGattCharacteristic;
     final myService = myCharacteristic.myService;
     final myPeripheral = myService.myPeripheral;
     await _myApi.notifyCharacteristic(
       myPeripheral.hashCode,
-      myService.hashCode,
       myCharacteristic.hashCode,
       state,
     );
@@ -225,14 +166,13 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
 
   @override
   Future<Uint8List> readDescriptor(GattDescriptor descriptor) async {
-    await throwWithoutState(CentralState.poweredOn);
+    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final myDescriptor = descriptor as MyGattDescriptor;
     final myCharacteristic = myDescriptor.myCharacteristic;
     final myService = myCharacteristic.myService;
     final myPeripheral = myService.myPeripheral;
     final value = await _myApi.readDescriptor(
       myPeripheral.hashCode,
-      myCharacteristic.hashCode,
       myDescriptor.hashCode,
     );
     return value;
@@ -243,21 +183,23 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
     GattDescriptor descriptor, {
     required Uint8List value,
   }) async {
-    await throwWithoutState(CentralState.poweredOn);
+    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final myDescriptor = descriptor as MyGattDescriptor;
     final myCharacteristic = myDescriptor.myCharacteristic;
     final myService = myCharacteristic.myService;
     final myPeripheral = myService.myPeripheral;
     await _myApi.writeDescriptor(
       myPeripheral.hashCode,
-      myCharacteristic.hashCode,
       myDescriptor.hashCode,
       value,
     );
   }
 
   @override
-  void onStateChanged(int myStateNumber) {}
+  void onStateChanged(int myStateNumber) {
+    final myStateArgs = MyBluetoothLowEnergyStateArgs.values[myStateNumber];
+    state = myStateArgs.toState();
+  }
 
   @override
   void onDiscovered(
@@ -266,9 +208,8 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
     MyAdvertisementArgs myAdvertisementArgs,
   ) {
     final myPeripheral = MyPeripheral.fromMyArgs(myPeripheralArgs);
-    _myPeripherals[myPeripheral.hashCode] = myPeripheral;
     final advertisement = myAdvertisementArgs.toAdvertisement();
-    final eventArgs = CentralDiscoveredEventArgs(
+    final eventArgs = DiscoveredEventArgs(
       myPeripheral,
       rssi,
       advertisement,
@@ -277,52 +218,24 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
   }
 
   @override
-  void onPeripheralStateChanged(int myPeripheralKey, bool state) {
-    final myPeripheral = _myPeripherals[myPeripheralKey];
-    if (myPeripheral == null) {
-      return;
-    }
+  void onPeripheralStateChanged(MyPeripheralArgs myPeripheralArgs, bool state) {
+    final myPeripheral = MyPeripheral.fromMyArgs(myPeripheralArgs);
     final eventArgs = PeripheralStateChangedEventArgs(myPeripheral, state);
     _peripheralStateChangedController.add(eventArgs);
   }
 
   @override
-  void onCharacteristicValueChanged(int myCharacteristicKey, Uint8List value) {
-    final myCharacteristic =
-        _myCharacteristics[myCharacteristicKey] as MyGattCharacteristic;
+  void onCharacteristicValueChanged(
+    MyGattCharacteristicArgs myCharacteristicArgs,
+    Uint8List value,
+  ) {
+    final myCharacteristic = MyGattCharacteristic.fromMyArgs(
+      myCharacteristicArgs,
+    );
     final eventArgs = GattCharacteristicValueChangedEventArgs(
       myCharacteristic,
       value,
     );
     _characteristicValueChangedController.add(eventArgs);
-  }
-}
-
-extension on MyAdvertisementArgs {
-  Advertisement toAdvertisement() {
-    final serviceUUIDs = this
-        .serviceUUIDs
-        .cast<String>()
-        .map((uuid) => UUID.fromString(uuid))
-        .toList();
-    final serviceData = this.serviceData.cast<String, Uint8List>().map(
-      (uuid, data) {
-        final key = UUID.fromString(uuid);
-        final value = data;
-        return MapEntry(key, value);
-      },
-    );
-    return Advertisement(
-      name: name,
-      manufacturerSpecificData: manufacturerSpecificData.cast<int, Uint8List>(),
-      serviceUUIDs: serviceUUIDs,
-      serviceData: serviceData,
-    );
-  }
-}
-
-extension on GattCharacteristicWriteType {
-  MyGattCharacteristicWriteTypeArgs toMyArgs() {
-    return MyGattCharacteristicWriteTypeArgs.values[index];
   }
 }

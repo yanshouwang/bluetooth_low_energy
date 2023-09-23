@@ -1,17 +1,21 @@
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
+import 'my_central_manager.dart';
+import 'my_peripheral_manager.dart';
+
 class MyBluetoothLowEnergy extends BluetoothLowEnergy {
   @override
-  // TODO: implement centralController
-  CentralManager get centralController => throw UnimplementedError();
+  final MyCentralManager centralManager;
+  @override
+  final MyPeripheralManager peripheralManager;
+
+  MyBluetoothLowEnergy()
+      : centralManager = MyCentralManager(),
+        peripheralManager = MyPeripheralManager();
 
   @override
-  // TODO: implement peripheralController
-  PeripheralManager get peripheralController => throw UnimplementedError();
-
-  @override
-  Future<void> setUp() {
-    // TODO: implement setUp
-    throw UnimplementedError();
+  Future<void> setUp() async {
+    await centralManager.setUp();
+    await peripheralManager.setUp();
   }
 }

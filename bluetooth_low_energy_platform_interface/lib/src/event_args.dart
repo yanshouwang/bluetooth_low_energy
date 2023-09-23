@@ -18,8 +18,8 @@ class BluetoothLowEnergyStateChangedEventArgs extends EventArgs {
   BluetoothLowEnergyStateChangedEventArgs(this.state);
 }
 
-/// The central discovered event arguments.
-class CentralDiscoveredEventArgs extends EventArgs {
+/// The discovered event arguments.
+class DiscoveredEventArgs extends EventArgs {
   /// The disvered peripheral.
   final Peripheral peripheral;
 
@@ -29,8 +29,8 @@ class CentralDiscoveredEventArgs extends EventArgs {
   /// The advertisement of the peripheral.
   final Advertisement advertisement;
 
-  /// Constructs a [CentralDiscoveredEventArgs].
-  CentralDiscoveredEventArgs(this.peripheral, this.rssi, this.advertisement);
+  /// Constructs a [DiscoveredEventArgs].
+  DiscoveredEventArgs(this.peripheral, this.rssi, this.advertisement);
 }
 
 /// The peripheral state changed event arguments.
@@ -57,18 +57,6 @@ class GattCharacteristicValueChangedEventArgs extends EventArgs {
   GattCharacteristicValueChangedEventArgs(this.characteristic, this.value);
 }
 
-class NotifyGattCharacteristicCommandEventArgs {
-  final Central central;
-  final GattCharacteristic characteristic;
-  final bool state;
-
-  NotifyGattCharacteristicCommandEventArgs(
-    this.central,
-    this.characteristic,
-    this.state,
-  );
-}
-
 class ReadGattCharacteristicCommandEventArgs {
   final Central central;
   final GattCharacteristic characteristic;
@@ -85,5 +73,17 @@ class WriteGattCharacteristicCommandEventArgs {
     this.central,
     this.characteristic,
     this.value,
+  );
+}
+
+class NotifyGattCharacteristicCommandEventArgs {
+  final Central central;
+  final GattCharacteristic characteristic;
+  final bool state;
+
+  NotifyGattCharacteristicCommandEventArgs(
+    this.central,
+    this.characteristic,
+    this.state,
   );
 }

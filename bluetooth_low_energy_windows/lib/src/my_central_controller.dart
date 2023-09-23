@@ -12,8 +12,7 @@ class MyCentralController extends CentralController {
       throw UnimplementedError();
   @override
   // TODO: implement discovered
-  Stream<CentralDiscoveredEventArgs> get discovered =>
-      throw UnimplementedError();
+  Stream<DiscoveredEventArgs> get discovered => throw UnimplementedError();
   @override
   // TODO: implement peripheralStateChanged
   Stream<PeripheralStateChangedEventArgs> get peripheralStateChanged =>

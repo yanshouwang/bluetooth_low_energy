@@ -1,22 +1,20 @@
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
-import 'my_api.g.dart';
+import 'my_api.dart';
 import 'my_gatt_characteristic.dart';
 import 'my_object.dart';
 
 class MyGattDescriptor extends MyObject implements GattDescriptor {
-  final MyGattCharacteristic myCharacteristic;
   @override
   final UUID uuid;
 
-  MyGattDescriptor(super.hashCode, this.myCharacteristic, this.uuid);
+  late MyGattCharacteristic myCharacteristic;
 
-  factory MyGattDescriptor.fromMyArgs(
-    MyGattCharacteristic myCharacteristic,
-    MyGattDescriptorArgs myArgs,
-  ) {
-    final hashCode = myArgs.key;
-    final uuid = UUID.fromString(myArgs.uuid);
-    return MyGattDescriptor(hashCode, myCharacteristic, uuid);
+  MyGattDescriptor(super.hashCode, this.uuid);
+
+  factory MyGattDescriptor.fromMyArgs(MyGattDescriptorArgs myArgs) {
+    final hashCode = myArgs.myKey;
+    final uuid = UUID.fromString(myArgs.myUUID);
+    return MyGattDescriptor(hashCode, uuid);
   }
 }

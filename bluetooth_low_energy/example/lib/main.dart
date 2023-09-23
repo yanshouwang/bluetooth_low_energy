@@ -48,8 +48,7 @@ class _MyAppState extends State<MyApp> {
       routes: {
         'peripheral': (context) {
           final route = ModalRoute.of(context);
-          final eventArgs =
-              route!.settings.arguments as CentralDiscoveredEventArgs;
+          final eventArgs = route!.settings.arguments as DiscoveredEventArgs;
           return PeripheralView(
             eventArgs: eventArgs,
           );
@@ -70,8 +69,7 @@ class _HomeViewState extends State<HomeView> {
   CentralController get centralController => CentralController.instance;
   late final ValueNotifier<CentralState> state;
   late final ValueNotifier<bool> discovering;
-  late final ValueNotifier<List<CentralDiscoveredEventArgs>>
-      discoveredEventArgs;
+  late final ValueNotifier<List<DiscoveredEventArgs>> discoveredEventArgs;
   late final StreamSubscription stateChangedSubscription;
   late final StreamSubscription discoveredSubscription;
 
@@ -284,7 +282,7 @@ class _HomeViewState extends State<HomeView> {
 }
 
 class PeripheralView extends StatefulWidget {
-  final CentralDiscoveredEventArgs eventArgs;
+  final DiscoveredEventArgs eventArgs;
 
   const PeripheralView({
     super.key,
@@ -298,7 +296,7 @@ class PeripheralView extends StatefulWidget {
 class _PeripheralViewState extends State<PeripheralView> {
   CentralController get centralController => CentralController.instance;
   late final ValueNotifier<bool> state;
-  late final CentralDiscoveredEventArgs eventArgs;
+  late final DiscoveredEventArgs eventArgs;
   late final ValueNotifier<List<GattService>> services;
   late final ValueNotifier<List<GattCharacteristic>> characteristics;
   late final ValueNotifier<GattService?> service;
