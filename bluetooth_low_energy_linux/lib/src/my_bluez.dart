@@ -4,8 +4,10 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 import 'package:bluez/bluez.dart';
 
 extension MyBlueZAdapter on BlueZAdapter {
-  CentralState get state {
-    return powered ? CentralState.poweredOn : CentralState.poweredOff;
+  BluetoothLowEnergyState get state {
+    return powered
+        ? BluetoothLowEnergyState.poweredOn
+        : BluetoothLowEnergyState.poweredOff;
   }
 }
 

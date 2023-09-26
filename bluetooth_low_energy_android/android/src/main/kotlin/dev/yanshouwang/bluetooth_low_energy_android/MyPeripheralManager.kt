@@ -31,6 +31,7 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
     private val services = mutableMapOf<Long, BluetoothGattService>()
     private val characteristics = mutableMapOf<Long, BluetoothGattCharacteristic>()
     private val descriptors = mutableMapOf<Long, BluetoothGattDescriptor>()
+    private val confirms = mutableMapOf<Long, Boolean>()
 
     // My cache
     private val myCentrals = mutableMapOf<Int, MyCentralArgs>()
@@ -154,6 +155,7 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
             }
             val myCharacteristicKey = myCharacteristic.myKey
             val characteristic = this.characteristics.remove(myCharacteristicKey) ?: continue
+            this.confirms.remove(myCharacteristicKey)
             val characteristicKey = characteristic.hashCode()
             this.myCharacteristics.remove(characteristicKey)
         }
@@ -219,12 +221,29 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         return mtu.toLong()
     }
 
-    override fun sendReadCharacteristicReply(myCentralKey: Long, myCharacteristicKey: Long, myStatusNumber: Long, myValue: ByteArray) {
-        val sent = server.sendResponse(device, requestId, status, offset, value)
+    override fun sendReadCharacteristicReply(myCentralKey: Long, myCharacteristicKey: Long, myId: Long, myOffset: Long, myStatus: Boolean, myValue: ByteArray) {
+        val device = devices[myCentralKey] as BluetoothDevice
+        val requestId = myId.toInt()
+        val status = if (myStatus) BluetoothGatt.GATT_SUCCESS
+        else BluetoothGatt.GATT_FAILURE
+        val offset = myOffset.toInt()
+        val sent = server.sendResponse(device, requestId, status, offset, myValue)
+        if (!sent) {
+            throw IllegalStateException("Send read characteristic reply failed.")
+        }
     }
 
-    override fun sendWriteCharacteristicReply(myCentralKey: Long, myCharacteristicKey: Long, myStatusNumber: Long) {
+    override fun sendWriteCharacteristicReply(myCentralKey: Long, myCharacteristicKey: Long, myId: Long, myOffset: Long, myStatus: Boolean) {
+        val device = devices[myCentralKey] as BluetoothDevice
+        val requestId = myId.toInt()
+        val status = if (myStatus) BluetoothGatt.GATT_SUCCESS
+        else BluetoothGatt.GATT_FAILURE
+        val offset = myOffset.toInt()
+        val value = null
         val sent = server.sendResponse(device, requestId, status, offset, value)
+        if (!sent) {
+            throw IllegalStateException("Send write characteristic reply failed.")
+        }
     }
 
     override fun notifyCharacteristicValueChanged(myCentralKey: Long, myCharacteristicKey: Long, myValue: ByteArray, callback: (Result<Unit>) -> Unit) {
@@ -235,7 +254,8 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
             }
             val device = devices[myCentralKey] as BluetoothDevice
             val characteristic = characteristics[myCharacteristicKey] as BluetoothGattCharacteristic
-            val confirm = // TODO: 获取 confirm
+            val confirm = confirms[myCharacteristicKey]
+                    ?: throw IllegalStateException("The characteristic is not subscribed.")
             val notifying = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 val statusCode = server.notifyCharacteristicChanged(device, characteristic, confirm, myValue)
                 statusCode == BluetoothStatusCodes.SUCCESS
@@ -307,7 +327,9 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         val myCentral = myCentrals.getOrPut(deviceKey) { device.toMyCentralArgs() }
         val characteristicKey = characteristic.hashCode()
         val myCharacteristic = myCharacteristics[characteristicKey] as MyCustomizedGattCharacteristicArgs
-        myApi.onReadCharacteristicCommandReceived(myCentral, myCharacteristic) {}
+        val myId = requestId.toLong()
+        val myOffset = offset.toLong()
+        myApi.onReadCharacteristicCommandReceived(myCentral, myCharacteristic, myId, myOffset) {}
     }
 
     fun onCharacteristicWriteRequest(device: BluetoothDevice, requestId: Int, characteristic: BluetoothGattCharacteristic, preparedWrite: Boolean, responseNeeded: Boolean, offset: Int, value: ByteArray) {
@@ -315,7 +337,9 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         val myCentral = myCentrals.getOrPut(deviceKey) { device.toMyCentralArgs() }
         val characteristicKey = characteristic.hashCode()
         val myCharacteristic = myCharacteristics[characteristicKey] as MyCustomizedGattCharacteristicArgs
-        myApi.onWriteCharacteristicCommandReceived(myCentral, myCharacteristic, value) {}
+        val myId = requestId.toLong()
+        val myOffset = offset.toLong()
+        myApi.onWriteCharacteristicCommandReceived(myCentral, myCharacteristic, myId, myOffset, value) {}
     }
 
     fun onNotificationSent(device: BluetoothDevice, status: Int) {
@@ -343,17 +367,44 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
     }
 
     fun onDescriptorWriteRequest(device: BluetoothDevice, requestId: Int, descriptor: BluetoothGattDescriptor, preparedWrite: Boolean, responseNeeded: Boolean, offset: Int, value: ByteArray) {
-        val status = BluetoothGatt.GATT_SUCCESS
-        if (descriptor.uuid == CLIENT_CHARACTERISTIC_CONFIG_UUID) {
+        val status = if (descriptor.uuid == CLIENT_CHARACTERISTIC_CONFIG_UUID) {
             val deviceKey = device.hashCode()
             val myCentral = myCentrals.getOrPut(deviceKey) { device.toMyCentralArgs() }
             val characteristic = descriptor.characteristic
             val characteristicKey = characteristic.hashCode()
             val myCharacteristic = myCharacteristics[characteristicKey] as MyCustomizedGattCharacteristicArgs
+            val myCharacteristicKey = myCharacteristic.myKey
             // TODO: what is 中缀?
-            val state = value contentEquals BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE || value contentEquals BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
-            myApi.onNotifyCharacteristicCommandReceived(myCentral, myCharacteristic, state) {}
-        }
+//            if (value contentEquals BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE) {
+//            } else if (value contentEquals BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE) {
+//            } else if (value contentEquals BluetoothGattDescriptor.ENABLE_INDICATION_VALUE) {
+//            } else {
+//            }
+            when (value) {
+                BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE -> {
+                    confirms[myCharacteristicKey] = false
+                    val myState = true
+                    myApi.onNotifyCharacteristicCommandReceived(myCentral, myCharacteristic, myState) {}
+                    BluetoothGatt.GATT_SUCCESS
+                }
+
+                BluetoothGattDescriptor.ENABLE_INDICATION_VALUE -> {
+                    confirms[myCharacteristicKey] = true
+                    val myState = true
+                    myApi.onNotifyCharacteristicCommandReceived(myCentral, myCharacteristic, myState) {}
+                    BluetoothGatt.GATT_SUCCESS
+                }
+
+                BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE -> {
+                    confirms.remove(myCharacteristicKey)
+                    val myState = false
+                    myApi.onNotifyCharacteristicCommandReceived(myCentral, myCharacteristic, myState) {}
+                    BluetoothGatt.GATT_SUCCESS
+                }
+
+                else -> BluetoothGatt.GATT_REQUEST_NOT_SUPPORTED
+            }
+        } else BluetoothGatt.GATT_REQUEST_NOT_SUPPORTED
         val sent = server.sendResponse(device, requestId, status, offset, value)
         if (!sent) {
             Log.e(TAG, "onDescriptorReadRequest: send response failed.")

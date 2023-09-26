@@ -97,21 +97,22 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
     await throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final myPeripheral = peripheral as MyPeripheral;
     final myServiceArgses = await _myApi.discoverGATT(myPeripheral.hashCode);
-    return myServiceArgses.cast<MyGattServiceArgs>().map(
-      (myServiceArgs) {
-        final myService = MyGattService.fromMyArgs(
-          myServiceArgs,
-        );
-        for (var myCharactersitic in myService.characteristics) {
-          for (var myDescriptor in myCharactersitic.descriptors) {
-            myDescriptor.myCharacteristic = myCharactersitic;
-          }
-          myCharactersitic.myService = myService;
+    final myServices = myServiceArgses
+        .cast<MyGattServiceArgs>()
+        .map(
+          (myServiceArgs) => MyGattService.fromMyArgs(myServiceArgs),
+        )
+        .toList();
+    for (var myService in myServices) {
+      for (var myCharactersitic in myService.characteristics) {
+        for (var myDescriptor in myCharactersitic.descriptors) {
+          myDescriptor.myCharacteristic = myCharactersitic;
         }
-        myService.myPeripheral = myPeripheral;
-        return myService;
-      },
-    ).toList();
+        myCharactersitic.myService = myService;
+      }
+      myService.myPeripheral = myPeripheral;
+    }
+    return myServices;
   }
 
   @override

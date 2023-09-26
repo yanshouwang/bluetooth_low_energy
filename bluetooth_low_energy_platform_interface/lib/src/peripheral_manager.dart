@@ -33,13 +33,17 @@ abstract class PeripheralManager extends BluetoothLowEnergyManager {
   Future<void> sendReadCharacteristicReply(
     Central central,
     GattCharacteristic characteristic,
-    int status,
+    int id,
+    int offset,
+    bool status,
     Uint8List value,
   );
   Future<void> sendWriteCharacteristicReply(
     Central central,
     GattCharacteristic characteristic,
-    int status,
+    int id,
+    int offset,
+    bool status,
   );
   Future<void> notifyCharacteristicValueChanged(
     Central central,

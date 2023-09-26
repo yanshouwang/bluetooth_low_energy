@@ -14,7 +14,6 @@ dependencies:
   # bluetooth_low_energy_android: ^2.2.1
   # bluetooth_low_energy_darwin: ^2.2.0
   # bluetooth_low_energy_linux: ^2.2.0
-  # bluetooth_low_energy_windows: ^2.2.0
   bluetooth_low_energy_platform_interface:
     path: ../bluetooth_low_energy_platform_interface
   bluetooth_low_energy_android:
@@ -23,8 +22,6 @@ dependencies:
     path: ../bluetooth_low_energy_darwin
   bluetooth_low_energy_linux:
     path: ../bluetooth_low_energy_linux
-  bluetooth_low_energy_windows:
-    path: ../bluetooth_low_energy_windows
 
 dev_dependencies:
   flutter_test:
@@ -42,5 +39,3 @@ flutter:
         default_package: bluetooth_low_energy_darwin
       linux:
         default_package: bluetooth_low_energy_linux
-      windows:
-        default_package: bluetooth_low_energy_windows

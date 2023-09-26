@@ -13,7 +13,7 @@ class MyGattCharacteristic extends MyObject implements GattCharacteristic {
   @override
   final List<GattCharacteristicProperty> properties;
 
-  late MyGattService myService;
+  late final MyGattService myService;
 
   MyGattCharacteristic(
     super.hashCode,
@@ -45,6 +45,7 @@ class MyGattCharacteristic extends MyObject implements GattCharacteristic {
       properties,
     );
   }
+
   factory MyGattCharacteristic.fromMyCustomizedArgs(
     MyCustomizedGattCharacteristicArgs myArgs,
   ) {

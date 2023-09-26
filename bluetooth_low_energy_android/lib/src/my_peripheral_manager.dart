@@ -96,13 +96,17 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
   Future<void> sendReadCharacteristicReply(
     Central central,
     GattCharacteristic characteristic,
-    int status,
+    int id,
+    int offset,
+    bool status,
     Uint8List value,
   ) async {
     await throwWithoutState(BluetoothLowEnergyState.poweredOn);
     await _myApi.sendReadCharacteristicReply(
       central.hashCode,
       characteristic.hashCode,
+      id,
+      offset,
       status,
       value,
     );
@@ -112,12 +116,16 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
   Future<void> sendWriteCharacteristicReply(
     Central central,
     GattCharacteristic characteristic,
-    int status,
+    int id,
+    int offset,
+    bool status,
   ) async {
     await throwWithoutState(BluetoothLowEnergyState.poweredOn);
     await _myApi.sendWriteCharacteristicReply(
       central.hashCode,
       characteristic.hashCode,
+      id,
+      offset,
       status,
     );
   }
@@ -146,6 +154,8 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
   void onReadCharacteristicCommandReceived(
     MyCentralArgs myCentralArgs,
     MyCustomizedGattCharacteristicArgs myCharacteristicArgs,
+    int myId,
+    int myOffset,
   ) {
     final myCentral = MyCentral.fromMyArgs(myCentralArgs);
     final myCharacteristic = MyGattCharacteristic.fromMyCustomizedArgs(
@@ -154,6 +164,8 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
     final eventArgs = ReadGattCharacteristicCommandEventArgs(
       myCentral,
       myCharacteristic,
+      myId,
+      myOffset,
     );
     _readCharacteristicCommandReceivedController.add(eventArgs);
   }
@@ -162,7 +174,9 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
   void onWriteCharacteristicCommandReceived(
     MyCentralArgs myCentralArgs,
     MyCustomizedGattCharacteristicArgs myCharacteristicArgs,
-    Uint8List value,
+    int myId,
+    int myOffset,
+    Uint8List myValue,
   ) {
     final myCentral = MyCentral.fromMyArgs(myCentralArgs);
     final myCharacteristic = MyGattCharacteristic.fromMyCustomizedArgs(
@@ -171,7 +185,9 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
     final eventArgs = WriteGattCharacteristicCommandEventArgs(
       myCentral,
       myCharacteristic,
-      value,
+      myId,
+      myOffset,
+      myValue,
     );
     _writeCharacteristicCommandReceivedController.add(eventArgs);
   }
@@ -180,7 +196,7 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
   void onNotifyCharacteristicCommandReceived(
     MyCentralArgs myCentralArgs,
     MyCustomizedGattCharacteristicArgs myCharacteristicArgs,
-    bool state,
+    bool myState,
   ) {
     final myCentral = MyCentral.fromMyArgs(myCentralArgs);
     final myCharacteristic = MyGattCharacteristic.fromMyCustomizedArgs(
@@ -189,7 +205,7 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
     final eventArgs = NotifyGattCharacteristicCommandEventArgs(
       myCentral,
       myCharacteristic,
-      state,
+      myState,
     );
     _notifyCharacteristicCommandReceivedController.add(eventArgs);
   }

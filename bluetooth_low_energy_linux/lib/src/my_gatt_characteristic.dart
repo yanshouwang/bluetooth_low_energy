@@ -2,16 +2,27 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 import 'package:bluez/bluez.dart';
 
 import 'my_bluez.dart';
+import 'my_gatt_descriptor.dart';
+import 'my_gatt_service.dart';
 import 'my_object.dart';
 
 class MyGattCharacteristic extends MyObject implements GattCharacteristic {
   final BlueZGattCharacteristic characteristic;
 
-  MyGattCharacteristic(this.characteristic) : super(characteristic);
-
   @override
-  UUID get uuid => characteristic.uuid.toUUID();
-
+  final UUID uuid;
   @override
-  List<GattCharacteristicProperty> get properties => characteristic.properties;
+  final List<GattCharacteristicProperty> properties;
+  @override
+  final List<MyGattDescriptor> descriptors;
+
+  late final MyGattService myService;
+
+  MyGattCharacteristic(this.characteristic)
+      : uuid = characteristic.uuid.toUUID(),
+        properties = characteristic.properties,
+        descriptors = characteristic.descriptors
+            .map((descriptor) => MyGattDescriptor(descriptor))
+            .toList(),
+        super(characteristic);
 }

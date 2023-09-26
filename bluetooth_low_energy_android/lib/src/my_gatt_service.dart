@@ -11,7 +11,7 @@ class MyGattService extends MyObject implements GattService {
   @override
   final List<MyGattCharacteristic> characteristics;
 
-  late MyPeripheral myPeripheral;
+  late final MyPeripheral myPeripheral;
 
   MyGattService(super.hashCode, this.uuid, this.characteristics);
 

@@ -92,13 +92,17 @@ abstract class MyPeripheralManagerHostApi {
   void sendReadCharacteristicReply(
     int myCentralKey,
     int myCharacteristicKey,
-    int myStatusNumber,
+    int myId,
+    int myOffset,
+    bool myStatus,
     Uint8List myValue,
   );
   void sendWriteCharacteristicReply(
     int myCentralKey,
     int myCharacteristicKey,
-    int myStatusNumber,
+    int myId,
+    int myOffset,
+    bool myStatus,
   );
   @async
   void notifyCharacteristicValueChanged(
@@ -114,10 +118,14 @@ abstract class MyPeripheralManagerFlutterApi {
   void onReadCharacteristicCommandReceived(
     MyCentralArgs myCentralArgs,
     MyCustomizedGattCharacteristicArgs myCharacteristicArgs,
+    int myId,
+    int myOffset,
   );
   void onWriteCharacteristicCommandReceived(
     MyCentralArgs myCentralArgs,
     MyCustomizedGattCharacteristicArgs myCharacteristicArgs,
+    int myId,
+    int myOffset,
     Uint8List myValue,
   );
   void onNotifyCharacteristicCommandReceived(

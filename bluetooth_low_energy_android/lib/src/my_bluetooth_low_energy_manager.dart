@@ -26,12 +26,6 @@ class MyBluetoothLowEnergyManager extends BluetoothLowEnergyManager {
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
 
-  Future<void> throwWithState(BluetoothLowEnergyState state) async {
-    if (this.state == state) {
-      throw BluetoothLowEnergyError('$state is unexpected.');
-    }
-  }
-
   Future<void> throwWithoutState(BluetoothLowEnergyState state) async {
     if (this.state != state) {
       throw BluetoothLowEnergyError(

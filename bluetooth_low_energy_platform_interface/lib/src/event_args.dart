@@ -60,18 +60,29 @@ class GattCharacteristicValueChangedEventArgs extends EventArgs {
 class ReadGattCharacteristicCommandEventArgs {
   final Central central;
   final GattCharacteristic characteristic;
+  final int id;
+  final int offset;
 
-  ReadGattCharacteristicCommandEventArgs(this.central, this.characteristic);
+  ReadGattCharacteristicCommandEventArgs(
+    this.central,
+    this.characteristic,
+    this.id,
+    this.offset,
+  );
 }
 
 class WriteGattCharacteristicCommandEventArgs {
   final Central central;
   final GattCharacteristic characteristic;
+  final int id;
+  final int offset;
   final Uint8List value;
 
   WriteGattCharacteristicCommandEventArgs(
     this.central,
     this.characteristic,
+    this.id,
+    this.offset,
     this.value,
   );
 }

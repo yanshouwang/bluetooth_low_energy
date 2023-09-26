@@ -7,8 +7,10 @@ import 'my_object.dart';
 class MyPeripheral extends MyObject implements Peripheral {
   final BlueZDevice device;
 
-  MyPeripheral(this.device) : super(device);
-
   @override
-  UUID get uuid => device.uuid.toUUID();
+  final UUID uuid;
+
+  MyPeripheral(this.device)
+      : uuid = device.uuid.toUUID(),
+        super(device);
 }

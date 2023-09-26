@@ -830,8 +830,8 @@ interface MyPeripheralManagerHostApi {
   fun startAdvertising(myAdvertisementArgs: MyAdvertisementArgs, callback: (Result<Unit>) -> Unit)
   fun stopAdvertising()
   fun getMaximumWriteLength(myCentralKey: Long): Long
-  fun sendReadCharacteristicReply(myCentralKey: Long, myCharacteristicKey: Long, myStatusNumber: Long, myValue: ByteArray)
-  fun sendWriteCharacteristicReply(myCentralKey: Long, myCharacteristicKey: Long, myStatusNumber: Long)
+  fun sendReadCharacteristicReply(myCentralKey: Long, myCharacteristicKey: Long, myId: Long, myOffset: Long, myStatus: Boolean, myValue: ByteArray)
+  fun sendWriteCharacteristicReply(myCentralKey: Long, myCharacteristicKey: Long, myId: Long, myOffset: Long, myStatus: Boolean)
   fun notifyCharacteristicValueChanged(myCentralKey: Long, myCharacteristicKey: Long, myValue: ByteArray, callback: (Result<Unit>) -> Unit)
 
   companion object {
@@ -976,11 +976,13 @@ interface MyPeripheralManagerHostApi {
             val args = message as List<Any?>
             val myCentralKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
             val myCharacteristicKeyArg = args[1].let { if (it is Int) it.toLong() else it as Long }
-            val myStatusNumberArg = args[2].let { if (it is Int) it.toLong() else it as Long }
-            val myValueArg = args[3] as ByteArray
+            val myIdArg = args[2].let { if (it is Int) it.toLong() else it as Long }
+            val myOffsetArg = args[3].let { if (it is Int) it.toLong() else it as Long }
+            val myStatusArg = args[4] as Boolean
+            val myValueArg = args[5] as ByteArray
             var wrapped: List<Any?>
             try {
-              api.sendReadCharacteristicReply(myCentralKeyArg, myCharacteristicKeyArg, myStatusNumberArg, myValueArg)
+              api.sendReadCharacteristicReply(myCentralKeyArg, myCharacteristicKeyArg, myIdArg, myOffsetArg, myStatusArg, myValueArg)
               wrapped = listOf<Any?>(null)
             } catch (exception: Throwable) {
               wrapped = wrapError(exception)
@@ -998,10 +1000,12 @@ interface MyPeripheralManagerHostApi {
             val args = message as List<Any?>
             val myCentralKeyArg = args[0].let { if (it is Int) it.toLong() else it as Long }
             val myCharacteristicKeyArg = args[1].let { if (it is Int) it.toLong() else it as Long }
-            val myStatusNumberArg = args[2].let { if (it is Int) it.toLong() else it as Long }
+            val myIdArg = args[2].let { if (it is Int) it.toLong() else it as Long }
+            val myOffsetArg = args[3].let { if (it is Int) it.toLong() else it as Long }
+            val myStatusArg = args[4] as Boolean
             var wrapped: List<Any?>
             try {
-              api.sendWriteCharacteristicReply(myCentralKeyArg, myCharacteristicKeyArg, myStatusNumberArg)
+              api.sendWriteCharacteristicReply(myCentralKeyArg, myCharacteristicKeyArg, myIdArg, myOffsetArg, myStatusArg)
               wrapped = listOf<Any?>(null)
             } catch (exception: Throwable) {
               wrapped = wrapError(exception)
@@ -1092,15 +1096,15 @@ class MyPeripheralManagerFlutterApi(private val binaryMessenger: BinaryMessenger
       callback()
     }
   }
-  fun onReadCharacteristicCommandReceived(myCentralArgsArg: MyCentralArgs, myCharacteristicArgsArg: MyCustomizedGattCharacteristicArgs, callback: () -> Unit) {
+  fun onReadCharacteristicCommandReceived(myCentralArgsArg: MyCentralArgs, myCharacteristicArgsArg: MyCustomizedGattCharacteristicArgs, myIdArg: Long, myOffsetArg: Long, callback: () -> Unit) {
     val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onReadCharacteristicCommandReceived", codec)
-    channel.send(listOf(myCentralArgsArg, myCharacteristicArgsArg)) {
+    channel.send(listOf(myCentralArgsArg, myCharacteristicArgsArg, myIdArg, myOffsetArg)) {
       callback()
     }
   }
-  fun onWriteCharacteristicCommandReceived(myCentralArgsArg: MyCentralArgs, myCharacteristicArgsArg: MyCustomizedGattCharacteristicArgs, myValueArg: ByteArray, callback: () -> Unit) {
+  fun onWriteCharacteristicCommandReceived(myCentralArgsArg: MyCentralArgs, myCharacteristicArgsArg: MyCustomizedGattCharacteristicArgs, myIdArg: Long, myOffsetArg: Long, myValueArg: ByteArray, callback: () -> Unit) {
     val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onWriteCharacteristicCommandReceived", codec)
-    channel.send(listOf(myCentralArgsArg, myCharacteristicArgsArg, myValueArg)) {
+    channel.send(listOf(myCentralArgsArg, myCharacteristicArgsArg, myIdArg, myOffsetArg, myValueArg)) {
       callback()
     }
   }

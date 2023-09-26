@@ -8,7 +8,7 @@ class MyGattDescriptor extends MyObject implements GattDescriptor {
   @override
   final UUID uuid;
 
-  late MyGattCharacteristic myCharacteristic;
+  late final MyGattCharacteristic myCharacteristic;
 
   MyGattDescriptor(super.hashCode, this.uuid);
 
