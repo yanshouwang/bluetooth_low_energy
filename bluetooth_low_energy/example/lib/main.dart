@@ -869,29 +869,29 @@ class _AdvertiserViewState extends State<AdvertiserView> {
       characteristics: [
         GattCharacteristic(
           uuid: UUID.short(200),
-          descriptors: [],
           properties: [
             GattCharacteristicProperty.read,
           ],
+          descriptors: [],
         ),
         GattCharacteristic(
           uuid: UUID.short(201),
-          descriptors: [],
           properties: [
             GattCharacteristicProperty.read,
             GattCharacteristicProperty.write,
             GattCharacteristicProperty.writeWithoutResponse,
           ],
+          descriptors: [],
         ),
         GattCharacteristic(
           uuid: UUID.short(202),
-          descriptors: [],
           properties: [
             GattCharacteristicProperty.read,
             GattCharacteristicProperty.write,
             GattCharacteristicProperty.writeWithoutResponse,
             GattCharacteristicProperty.notify,
           ],
+          descriptors: [],
         ),
       ],
     );

@@ -36,6 +36,19 @@ extension MyAdvertisementArgsX on MyAdvertisementArgs {
   }
 }
 
+extension MyGattCharacteristicPropertyArgsX
+    on MyGattCharacteristicPropertyArgs {
+  GattCharacteristicProperty toProperty() {
+    return GattCharacteristicProperty.values[index];
+  }
+}
+
+extension GattCharacteristicWriteTypeX on GattCharacteristicWriteType {
+  MyGattCharacteristicWriteTypeArgs toMyArgs() {
+    return MyGattCharacteristicWriteTypeArgs.values[index];
+  }
+}
+
 extension AdvertisementX on Advertisement {
   MyAdvertisementArgs toMyArgs() {
     final myName = name;
@@ -60,34 +73,15 @@ extension AdvertisementX on Advertisement {
   }
 }
 
-extension MyGattCharacteristicPropertyArgsX
-    on MyGattCharacteristicPropertyArgs {
-  GattCharacteristicProperty toProperty() {
-    return GattCharacteristicProperty.values[index];
-  }
-}
-
-extension GattCharacteristicPropertyX on GattCharacteristicProperty {
-  MyGattCharacteristicPropertyArgs toMyArgs() {
-    return MyGattCharacteristicPropertyArgs.values[index];
-  }
-}
-
-extension GattCharacteristicWriteTypeX on GattCharacteristicWriteType {
-  MyGattCharacteristicWriteTypeArgs toMyArgs() {
-    return MyGattCharacteristicWriteTypeArgs.values[index];
-  }
-}
-
 extension CustomizedGattServiceX on CustomizedGattService {
-  MyCustomizedGattServiceArgs toMyArgs() {
+  MyGattServiceArgs toMyArgs() {
     final myKey = hashCode;
     final myUUID = uuid.toString();
     final myCharacteristicArgses = characteristics
         .cast<CustomizedGattCharacteristic>()
         .map((characteristic) => characteristic.toMyArgs())
         .toList();
-    return MyCustomizedGattServiceArgs(
+    return MyGattServiceArgs(
       myKey: myKey,
       myUUID: myUUID,
       myCharacteristicArgses: myCharacteristicArgses,
@@ -96,35 +90,41 @@ extension CustomizedGattServiceX on CustomizedGattService {
 }
 
 extension CustomizedGattCharacteristicX on CustomizedGattCharacteristic {
-  MyCustomizedGattCharacteristicArgs toMyArgs() {
+  MyGattCharacteristicArgs toMyArgs() {
     final myKey = hashCode;
     final myUUID = uuid.toString();
-    final myDescriptorArgses = descriptors
-        .cast<CustomizedGattDescriptor>()
-        .map((descriptor) => descriptor.toMyArgs())
-        .toList();
     final myPropertyNumbers = properties.map((property) {
       final myPropertyArgs = property.toMyArgs();
       return myPropertyArgs.index;
     }).toList();
-    return MyCustomizedGattCharacteristicArgs(
+    final myDescriptorArgses = descriptors
+        .cast<CustomizedGattDescriptor>()
+        .map((descriptor) => descriptor.toMyArgs())
+        .toList();
+    return MyGattCharacteristicArgs(
       myKey: myKey,
       myUUID: myUUID,
-      myDescriptorArgses: myDescriptorArgses,
       myPropertyNumbers: myPropertyNumbers,
+      myDescriptorArgses: myDescriptorArgses,
     );
   }
 }
 
 extension CustomizedGattDescriptorX on CustomizedGattDescriptor {
-  MyCustomizedGattDescriptorArgs toMyArgs() {
+  MyGattDescriptorArgs toMyArgs() {
     final myKey = hashCode;
     final myUUID = uuid.toString();
     final myValue = value;
-    return MyCustomizedGattDescriptorArgs(
+    return MyGattDescriptorArgs(
       myKey: myKey,
       myUUID: myUUID,
       myValue: myValue,
     );
+  }
+}
+
+extension GattCharacteristicPropertyX on GattCharacteristicProperty {
+  MyGattCharacteristicPropertyArgs toMyArgs() {
+    return MyGattCharacteristicPropertyArgs.values[index];
   }
 }

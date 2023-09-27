@@ -1,29 +1,30 @@
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
-import 'my_api.g.dart';
+import 'my_api.dart';
+import 'my_gatt_descriptor.dart';
 import 'my_gatt_service.dart';
 import 'my_object.dart';
 
 class MyGattCharacteristic extends MyObject implements GattCharacteristic {
-  final MyGattService myService;
   @override
   final UUID uuid;
   @override
   final List<GattCharacteristicProperty> properties;
+  @override
+  final List<MyGattDescriptor> descriptors;
+
+  late final MyGattService myService;
 
   MyGattCharacteristic(
     super.hashCode,
-    this.myService,
     this.uuid,
     this.properties,
+    this.descriptors,
   );
 
-  factory MyGattCharacteristic.fromMyArgs(
-    MyGattService myService,
-    MyGattCharacteristicArgs myArgs,
-  ) {
-    final hashCode = myArgs.key;
-    final uuid = UUID.fromString(myArgs.uuid);
+  factory MyGattCharacteristic.fromMyArgs(MyGattCharacteristicArgs myArgs) {
+    final hashCode = myArgs.myKey;
+    final uuid = UUID.fromString(myArgs.myUUID);
     final properties = myArgs.myPropertyNumbers.cast<int>().map(
       (myPropertyNumber) {
         final myPropertyArgs =
@@ -31,12 +32,17 @@ class MyGattCharacteristic extends MyObject implements GattCharacteristic {
         return myPropertyArgs.toProperty();
       },
     ).toList();
-    return MyGattCharacteristic(hashCode, myService, uuid, properties);
-  }
-}
-
-extension on MyGattCharacteristicPropertyArgs {
-  GattCharacteristicProperty toProperty() {
-    return GattCharacteristicProperty.values[index];
+    final descriptors = myArgs.myDescriptorArgses
+        .cast<MyGattDescriptorArgs>()
+        .map(
+          (myDescriptorArgs) => MyGattDescriptor.fromMyArgs(myDescriptorArgs),
+        )
+        .toList();
+    return MyGattCharacteristic(
+      hashCode,
+      uuid,
+      properties,
+      descriptors,
+    );
   }
 }

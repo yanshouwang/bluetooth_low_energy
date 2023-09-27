@@ -9,10 +9,9 @@ import 'package:pigeon/pigeon.dart';
   ),
 )
 @HostApi()
-abstract class MyCentralControllerHostApi {
+abstract class MyCentralManagerHostApi {
   @async
-  MyCentralControllerArgs setUp();
-  void tearDown();
+  MyCentralManagerArgs setUp();
   void startDiscovery();
   void stopDiscovery();
   @async
@@ -21,112 +20,124 @@ abstract class MyCentralControllerHostApi {
   void disconnect(int myPeripheralKey);
   int getMaximumWriteLength(int myPeripheralKey, int myTypeNumber);
   @async
-  void discoverGATT(int myPeripheralKey);
-  List<MyGattServiceArgs> getServices(int myPeripheralKey);
-  List<MyGattCharacteristicArgs> getCharacteristics(int myServiceKey);
-  List<MyGattDescriptorArgs> getDescriptors(int myCharacteristicKey);
+  int readRSSI(int myPeripheralKey);
+  @async
+  List<MyGattServiceArgs> discoverGATT(int myPeripheralKey);
   @async
   Uint8List readCharacteristic(
     int myPeripheralKey,
-    int myServiceKey,
     int myCharacteristicKey,
   );
   @async
   void writeCharacteristic(
     int myPeripheralKey,
-    int myServiceKey,
     int myCharacteristicKey,
-    Uint8List value,
+    Uint8List myValue,
     int myTypeNumber,
   );
   @async
   void notifyCharacteristic(
     int myPeripheralKey,
-    int myServiceKey,
     int myCharacteristicKey,
-    bool state,
+    bool myState,
   );
   @async
   Uint8List readDescriptor(
     int myPeripheralKey,
-    int myCharacteristicKey,
     int myDescriptorKey,
   );
   @async
   void writeDescriptor(
     int myPeripheralKey,
-    int myCharacteristicKey,
     int myDescriptorKey,
-    Uint8List value,
+    Uint8List myValue,
   );
 }
 
 @FlutterApi()
-abstract class MyCentralControllerFlutterApi {
+abstract class MyCentralManagerFlutterApi {
   void onStateChanged(int myStateNumber);
   void onDiscovered(
     MyPeripheralArgs myPeripheralArgs,
-    int rssi,
+    int myRSSI,
     MyAdvertisementArgs myAdvertisementArgs,
   );
-  void onPeripheralStateChanged(int myPeripheralKey, bool state);
-  void onCharacteristicValueChanged(int myCharacteristicKey, Uint8List value);
+  void onPeripheralStateChanged(
+    MyPeripheralArgs myPeripheralArgs,
+    bool myState,
+  );
+  void onCharacteristicValueChanged(
+    MyGattCharacteristicArgs myCharacteristicArgs,
+    Uint8List myValue,
+  );
 }
 
-class MyCentralControllerArgs {
+class MyCentralManagerArgs {
   final int myStateNumber;
 
-  MyCentralControllerArgs(this.myStateNumber);
+  MyCentralManagerArgs(this.myStateNumber);
 }
 
 class MyPeripheralArgs {
-  final int key;
-  final String uuid;
+  final int myKey;
+  final String myUUID;
 
-  MyPeripheralArgs(this.key, this.uuid);
+  MyPeripheralArgs(this.myKey, this.myUUID);
 }
 
 class MyAdvertisementArgs {
-  final String? name;
-  final Map<int?, Uint8List?> manufacturerSpecificData;
-  final List<String?> serviceUUIDs;
-  final Map<String?, Uint8List?> serviceData;
+  final String? myName;
+  final Map<int?, Uint8List?> myManufacturerSpecificData;
+  final List<String?> myServiceUUIDs;
+  final Map<String?, Uint8List?> myServiceData;
 
   MyAdvertisementArgs(
-    this.name,
-    this.manufacturerSpecificData,
-    this.serviceUUIDs,
-    this.serviceData,
+    this.myName,
+    this.myManufacturerSpecificData,
+    this.myServiceUUIDs,
+    this.myServiceData,
   );
 }
 
 class MyGattServiceArgs {
-  final int key;
-  final String uuid;
+  final int myKey;
+  final String myUUID;
+  final List<MyGattCharacteristicArgs?> myCharacteristicArgses;
 
-  MyGattServiceArgs(this.key, this.uuid);
+  MyGattServiceArgs(
+    this.myKey,
+    this.myUUID,
+    this.myCharacteristicArgses,
+  );
 }
 
 class MyGattCharacteristicArgs {
-  final int key;
-  final String uuid;
+  final int myKey;
+  final String myUUID;
   final List<int?> myPropertyNumbers;
+  final List<MyGattDescriptorArgs?> myDescriptorArgses;
 
   MyGattCharacteristicArgs(
-    this.key,
-    this.uuid,
+    this.myKey,
+    this.myUUID,
     this.myPropertyNumbers,
+    this.myDescriptorArgses,
   );
 }
 
 class MyGattDescriptorArgs {
-  final int key;
-  final String uuid;
+  final int myKey;
+  final String myUUID;
+  final Uint8List myValue;
 
-  MyGattDescriptorArgs(this.key, this.uuid);
+  MyGattDescriptorArgs(
+    this.myKey,
+    this.myUUID,
+    this.myValue,
+  );
 }
 
-enum MyCentralStateArgs {
+enum MyBluetoothLowEnergyStateArgs {
   unknown,
   unsupported,
   unauthorized,

@@ -194,24 +194,24 @@ class MyGattCharacteristicArgs {
   MyGattCharacteristicArgs({
     required this.myKey,
     required this.myUUID,
-    required this.myDescriptorArgses,
     required this.myPropertyNumbers,
+    required this.myDescriptorArgses,
   });
 
   int myKey;
 
   String myUUID;
 
-  List<MyGattDescriptorArgs?> myDescriptorArgses;
-
   List<int?> myPropertyNumbers;
+
+  List<MyGattDescriptorArgs?> myDescriptorArgses;
 
   Object encode() {
     return <Object?>[
       myKey,
       myUUID,
-      myDescriptorArgses,
       myPropertyNumbers,
+      myDescriptorArgses,
     ];
   }
 
@@ -220,107 +220,14 @@ class MyGattCharacteristicArgs {
     return MyGattCharacteristicArgs(
       myKey: result[0]! as int,
       myUUID: result[1]! as String,
-      myDescriptorArgses: (result[2] as List<Object?>?)!.cast<MyGattDescriptorArgs?>(),
-      myPropertyNumbers: (result[3] as List<Object?>?)!.cast<int?>(),
+      myPropertyNumbers: (result[2] as List<Object?>?)!.cast<int?>(),
+      myDescriptorArgses: (result[3] as List<Object?>?)!.cast<MyGattDescriptorArgs?>(),
     );
   }
 }
 
 class MyGattDescriptorArgs {
   MyGattDescriptorArgs({
-    required this.myKey,
-    required this.myUUID,
-  });
-
-  int myKey;
-
-  String myUUID;
-
-  Object encode() {
-    return <Object?>[
-      myKey,
-      myUUID,
-    ];
-  }
-
-  static MyGattDescriptorArgs decode(Object result) {
-    result as List<Object?>;
-    return MyGattDescriptorArgs(
-      myKey: result[0]! as int,
-      myUUID: result[1]! as String,
-    );
-  }
-}
-
-class MyCustomizedGattServiceArgs {
-  MyCustomizedGattServiceArgs({
-    required this.myKey,
-    required this.myUUID,
-    required this.myCharacteristicArgses,
-  });
-
-  int myKey;
-
-  String myUUID;
-
-  List<MyCustomizedGattCharacteristicArgs?> myCharacteristicArgses;
-
-  Object encode() {
-    return <Object?>[
-      myKey,
-      myUUID,
-      myCharacteristicArgses,
-    ];
-  }
-
-  static MyCustomizedGattServiceArgs decode(Object result) {
-    result as List<Object?>;
-    return MyCustomizedGattServiceArgs(
-      myKey: result[0]! as int,
-      myUUID: result[1]! as String,
-      myCharacteristicArgses: (result[2] as List<Object?>?)!.cast<MyCustomizedGattCharacteristicArgs?>(),
-    );
-  }
-}
-
-class MyCustomizedGattCharacteristicArgs {
-  MyCustomizedGattCharacteristicArgs({
-    required this.myKey,
-    required this.myUUID,
-    required this.myDescriptorArgses,
-    required this.myPropertyNumbers,
-  });
-
-  int myKey;
-
-  String myUUID;
-
-  List<MyCustomizedGattDescriptorArgs?> myDescriptorArgses;
-
-  List<int?> myPropertyNumbers;
-
-  Object encode() {
-    return <Object?>[
-      myKey,
-      myUUID,
-      myDescriptorArgses,
-      myPropertyNumbers,
-    ];
-  }
-
-  static MyCustomizedGattCharacteristicArgs decode(Object result) {
-    result as List<Object?>;
-    return MyCustomizedGattCharacteristicArgs(
-      myKey: result[0]! as int,
-      myUUID: result[1]! as String,
-      myDescriptorArgses: (result[2] as List<Object?>?)!.cast<MyCustomizedGattDescriptorArgs?>(),
-      myPropertyNumbers: (result[3] as List<Object?>?)!.cast<int?>(),
-    );
-  }
-}
-
-class MyCustomizedGattDescriptorArgs {
-  MyCustomizedGattDescriptorArgs({
     required this.myKey,
     required this.myUUID,
     required this.myValue,
@@ -340,9 +247,9 @@ class MyCustomizedGattDescriptorArgs {
     ];
   }
 
-  static MyCustomizedGattDescriptorArgs decode(Object result) {
+  static MyGattDescriptorArgs decode(Object result) {
     result as List<Object?>;
-    return MyCustomizedGattDescriptorArgs(
+    return MyGattDescriptorArgs(
       myKey: result[0]! as int,
       myUUID: result[1]! as String,
       myValue: result[2]! as Uint8List,
@@ -863,13 +770,13 @@ class _MyPeripheralManagerHostApiCodec extends StandardMessageCodec {
     if (value is MyAdvertisementArgs) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
-    } else if (value is MyCustomizedGattCharacteristicArgs) {
+    } else if (value is MyGattCharacteristicArgs) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is MyCustomizedGattDescriptorArgs) {
+    } else if (value is MyGattDescriptorArgs) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    } else if (value is MyCustomizedGattServiceArgs) {
+    } else if (value is MyGattServiceArgs) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
     } else if (value is MyPeripheralManagerArgs) {
@@ -886,11 +793,11 @@ class _MyPeripheralManagerHostApiCodec extends StandardMessageCodec {
       case 128: 
         return MyAdvertisementArgs.decode(readValue(buffer)!);
       case 129: 
-        return MyCustomizedGattCharacteristicArgs.decode(readValue(buffer)!);
+        return MyGattCharacteristicArgs.decode(readValue(buffer)!);
       case 130: 
-        return MyCustomizedGattDescriptorArgs.decode(readValue(buffer)!);
+        return MyGattDescriptorArgs.decode(readValue(buffer)!);
       case 131: 
-        return MyCustomizedGattServiceArgs.decode(readValue(buffer)!);
+        return MyGattServiceArgs.decode(readValue(buffer)!);
       case 132: 
         return MyPeripheralManagerArgs.decode(readValue(buffer)!);
       default:
@@ -936,7 +843,7 @@ class MyPeripheralManagerHostApi {
     }
   }
 
-  Future<void> addService(MyCustomizedGattServiceArgs arg_myServiceArgs) async {
+  Future<void> addService(MyGattServiceArgs arg_myServiceArgs) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostApi.addService', codec,
         binaryMessenger: _binaryMessenger);
@@ -1147,10 +1054,10 @@ class _MyPeripheralManagerFlutterApiCodec extends StandardMessageCodec {
     if (value is MyCentralArgs) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
-    } else if (value is MyCustomizedGattCharacteristicArgs) {
+    } else if (value is MyGattCharacteristicArgs) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is MyCustomizedGattDescriptorArgs) {
+    } else if (value is MyGattDescriptorArgs) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
     } else {
@@ -1164,9 +1071,9 @@ class _MyPeripheralManagerFlutterApiCodec extends StandardMessageCodec {
       case 128: 
         return MyCentralArgs.decode(readValue(buffer)!);
       case 129: 
-        return MyCustomizedGattCharacteristicArgs.decode(readValue(buffer)!);
+        return MyGattCharacteristicArgs.decode(readValue(buffer)!);
       case 130: 
-        return MyCustomizedGattDescriptorArgs.decode(readValue(buffer)!);
+        return MyGattDescriptorArgs.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -1178,11 +1085,11 @@ abstract class MyPeripheralManagerFlutterApi {
 
   void onStateChanged(int myStateNumber);
 
-  void onReadCharacteristicCommandReceived(MyCentralArgs myCentralArgs, MyCustomizedGattCharacteristicArgs myCharacteristicArgs, int myId, int myOffset);
+  void onReadCharacteristicCommandReceived(MyCentralArgs myCentralArgs, MyGattCharacteristicArgs myCharacteristicArgs, int myId, int myOffset);
 
-  void onWriteCharacteristicCommandReceived(MyCentralArgs myCentralArgs, MyCustomizedGattCharacteristicArgs myCharacteristicArgs, int myId, int myOffset, Uint8List myValue);
+  void onWriteCharacteristicCommandReceived(MyCentralArgs myCentralArgs, MyGattCharacteristicArgs myCharacteristicArgs, int myId, int myOffset, Uint8List myValue);
 
-  void onNotifyCharacteristicCommandReceived(MyCentralArgs myCentralArgs, MyCustomizedGattCharacteristicArgs myCharacteristicArgs, bool myState);
+  void onNotifyCharacteristicCommandReceived(MyCentralArgs myCentralArgs, MyGattCharacteristicArgs myCharacteristicArgs, bool myState);
 
   static void setup(MyPeripheralManagerFlutterApi? api, {BinaryMessenger? binaryMessenger}) {
     {
@@ -1218,9 +1125,9 @@ abstract class MyPeripheralManagerFlutterApi {
           final MyCentralArgs? arg_myCentralArgs = (args[0] as MyCentralArgs?);
           assert(arg_myCentralArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onReadCharacteristicCommandReceived was null, expected non-null MyCentralArgs.');
-          final MyCustomizedGattCharacteristicArgs? arg_myCharacteristicArgs = (args[1] as MyCustomizedGattCharacteristicArgs?);
+          final MyGattCharacteristicArgs? arg_myCharacteristicArgs = (args[1] as MyGattCharacteristicArgs?);
           assert(arg_myCharacteristicArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onReadCharacteristicCommandReceived was null, expected non-null MyCustomizedGattCharacteristicArgs.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onReadCharacteristicCommandReceived was null, expected non-null MyGattCharacteristicArgs.');
           final int? arg_myId = (args[2] as int?);
           assert(arg_myId != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onReadCharacteristicCommandReceived was null, expected non-null int.');
@@ -1246,9 +1153,9 @@ abstract class MyPeripheralManagerFlutterApi {
           final MyCentralArgs? arg_myCentralArgs = (args[0] as MyCentralArgs?);
           assert(arg_myCentralArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onWriteCharacteristicCommandReceived was null, expected non-null MyCentralArgs.');
-          final MyCustomizedGattCharacteristicArgs? arg_myCharacteristicArgs = (args[1] as MyCustomizedGattCharacteristicArgs?);
+          final MyGattCharacteristicArgs? arg_myCharacteristicArgs = (args[1] as MyGattCharacteristicArgs?);
           assert(arg_myCharacteristicArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onWriteCharacteristicCommandReceived was null, expected non-null MyCustomizedGattCharacteristicArgs.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onWriteCharacteristicCommandReceived was null, expected non-null MyGattCharacteristicArgs.');
           final int? arg_myId = (args[2] as int?);
           assert(arg_myId != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onWriteCharacteristicCommandReceived was null, expected non-null int.');
@@ -1277,9 +1184,9 @@ abstract class MyPeripheralManagerFlutterApi {
           final MyCentralArgs? arg_myCentralArgs = (args[0] as MyCentralArgs?);
           assert(arg_myCentralArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onNotifyCharacteristicCommandReceived was null, expected non-null MyCentralArgs.');
-          final MyCustomizedGattCharacteristicArgs? arg_myCharacteristicArgs = (args[1] as MyCustomizedGattCharacteristicArgs?);
+          final MyGattCharacteristicArgs? arg_myCharacteristicArgs = (args[1] as MyGattCharacteristicArgs?);
           assert(arg_myCharacteristicArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onNotifyCharacteristicCommandReceived was null, expected non-null MyCustomizedGattCharacteristicArgs.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onNotifyCharacteristicCommandReceived was null, expected non-null MyGattCharacteristicArgs.');
           final bool? arg_myState = (args[2] as bool?);
           assert(arg_myState != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onNotifyCharacteristicCommandReceived was null, expected non-null bool.');

@@ -221,8 +221,8 @@ data class MyGattServiceArgs (
 data class MyGattCharacteristicArgs (
   val myKey: Long,
   val myUUID: String,
-  val myDescriptorArgses: List<MyGattDescriptorArgs?>,
-  val myPropertyNumbers: List<Long?>
+  val myPropertyNumbers: List<Long?>,
+  val myDescriptorArgses: List<MyGattDescriptorArgs?>
 
 ) {
   companion object {
@@ -230,17 +230,17 @@ data class MyGattCharacteristicArgs (
     fun fromList(list: List<Any?>): MyGattCharacteristicArgs {
       val myKey = list[0].let { if (it is Int) it.toLong() else it as Long }
       val myUUID = list[1] as String
-      val myDescriptorArgses = list[2] as List<MyGattDescriptorArgs?>
-      val myPropertyNumbers = list[3] as List<Long?>
-      return MyGattCharacteristicArgs(myKey, myUUID, myDescriptorArgses, myPropertyNumbers)
+      val myPropertyNumbers = list[2] as List<Long?>
+      val myDescriptorArgses = list[3] as List<MyGattDescriptorArgs?>
+      return MyGattCharacteristicArgs(myKey, myUUID, myPropertyNumbers, myDescriptorArgses)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
       myKey,
       myUUID,
-      myDescriptorArgses,
       myPropertyNumbers,
+      myDescriptorArgses,
     )
   }
 }
@@ -248,7 +248,8 @@ data class MyGattCharacteristicArgs (
 /** Generated class from Pigeon that represents data sent in messages. */
 data class MyGattDescriptorArgs (
   val myKey: Long,
-  val myUUID: String
+  val myUUID: String,
+  val myValue: ByteArray
 
 ) {
   companion object {
@@ -256,84 +257,8 @@ data class MyGattDescriptorArgs (
     fun fromList(list: List<Any?>): MyGattDescriptorArgs {
       val myKey = list[0].let { if (it is Int) it.toLong() else it as Long }
       val myUUID = list[1] as String
-      return MyGattDescriptorArgs(myKey, myUUID)
-    }
-  }
-  fun toList(): List<Any?> {
-    return listOf<Any?>(
-      myKey,
-      myUUID,
-    )
-  }
-}
-
-/** Generated class from Pigeon that represents data sent in messages. */
-data class MyCustomizedGattServiceArgs (
-  val myKey: Long,
-  val myUUID: String,
-  val myCharacteristicArgses: List<MyCustomizedGattCharacteristicArgs?>
-
-) {
-  companion object {
-    @Suppress("UNCHECKED_CAST")
-    fun fromList(list: List<Any?>): MyCustomizedGattServiceArgs {
-      val myKey = list[0].let { if (it is Int) it.toLong() else it as Long }
-      val myUUID = list[1] as String
-      val myCharacteristicArgses = list[2] as List<MyCustomizedGattCharacteristicArgs?>
-      return MyCustomizedGattServiceArgs(myKey, myUUID, myCharacteristicArgses)
-    }
-  }
-  fun toList(): List<Any?> {
-    return listOf<Any?>(
-      myKey,
-      myUUID,
-      myCharacteristicArgses,
-    )
-  }
-}
-
-/** Generated class from Pigeon that represents data sent in messages. */
-data class MyCustomizedGattCharacteristicArgs (
-  val myKey: Long,
-  val myUUID: String,
-  val myDescriptorArgses: List<MyCustomizedGattDescriptorArgs?>,
-  val myPropertyNumbers: List<Long?>
-
-) {
-  companion object {
-    @Suppress("UNCHECKED_CAST")
-    fun fromList(list: List<Any?>): MyCustomizedGattCharacteristicArgs {
-      val myKey = list[0].let { if (it is Int) it.toLong() else it as Long }
-      val myUUID = list[1] as String
-      val myDescriptorArgses = list[2] as List<MyCustomizedGattDescriptorArgs?>
-      val myPropertyNumbers = list[3] as List<Long?>
-      return MyCustomizedGattCharacteristicArgs(myKey, myUUID, myDescriptorArgses, myPropertyNumbers)
-    }
-  }
-  fun toList(): List<Any?> {
-    return listOf<Any?>(
-      myKey,
-      myUUID,
-      myDescriptorArgses,
-      myPropertyNumbers,
-    )
-  }
-}
-
-/** Generated class from Pigeon that represents data sent in messages. */
-data class MyCustomizedGattDescriptorArgs (
-  val myKey: Long,
-  val myUUID: String,
-  val myValue: ByteArray
-
-) {
-  companion object {
-    @Suppress("UNCHECKED_CAST")
-    fun fromList(list: List<Any?>): MyCustomizedGattDescriptorArgs {
-      val myKey = list[0].let { if (it is Int) it.toLong() else it as Long }
-      val myUUID = list[1] as String
       val myValue = list[2] as ByteArray
-      return MyCustomizedGattDescriptorArgs(myKey, myUUID, myValue)
+      return MyGattDescriptorArgs(myKey, myUUID, myValue)
     }
   }
   fun toList(): List<Any?> {
@@ -773,17 +698,17 @@ private object MyPeripheralManagerHostApiCodec : StandardMessageCodec() {
       }
       129.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          MyCustomizedGattCharacteristicArgs.fromList(it)
+          MyGattCharacteristicArgs.fromList(it)
         }
       }
       130.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          MyCustomizedGattDescriptorArgs.fromList(it)
+          MyGattDescriptorArgs.fromList(it)
         }
       }
       131.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          MyCustomizedGattServiceArgs.fromList(it)
+          MyGattServiceArgs.fromList(it)
         }
       }
       132.toByte() -> {
@@ -800,15 +725,15 @@ private object MyPeripheralManagerHostApiCodec : StandardMessageCodec() {
         stream.write(128)
         writeValue(stream, value.toList())
       }
-      is MyCustomizedGattCharacteristicArgs -> {
+      is MyGattCharacteristicArgs -> {
         stream.write(129)
         writeValue(stream, value.toList())
       }
-      is MyCustomizedGattDescriptorArgs -> {
+      is MyGattDescriptorArgs -> {
         stream.write(130)
         writeValue(stream, value.toList())
       }
-      is MyCustomizedGattServiceArgs -> {
+      is MyGattServiceArgs -> {
         stream.write(131)
         writeValue(stream, value.toList())
       }
@@ -824,7 +749,7 @@ private object MyPeripheralManagerHostApiCodec : StandardMessageCodec() {
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface MyPeripheralManagerHostApi {
   fun setUp(callback: (Result<MyPeripheralManagerArgs>) -> Unit)
-  fun addService(myServiceArgs: MyCustomizedGattServiceArgs, callback: (Result<Unit>) -> Unit)
+  fun addService(myServiceArgs: MyGattServiceArgs, callback: (Result<Unit>) -> Unit)
   fun removeService(myServiceKey: Long)
   fun clearServices()
   fun startAdvertising(myAdvertisementArgs: MyAdvertisementArgs, callback: (Result<Unit>) -> Unit)
@@ -865,7 +790,7 @@ interface MyPeripheralManagerHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val myServiceArgsArg = args[0] as MyCustomizedGattServiceArgs
+            val myServiceArgsArg = args[0] as MyGattServiceArgs
             api.addService(myServiceArgsArg) { result: Result<Unit> ->
               val error = result.exceptionOrNull()
               if (error != null) {
@@ -1051,12 +976,12 @@ private object MyPeripheralManagerFlutterApiCodec : StandardMessageCodec() {
       }
       129.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          MyCustomizedGattCharacteristicArgs.fromList(it)
+          MyGattCharacteristicArgs.fromList(it)
         }
       }
       130.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          MyCustomizedGattDescriptorArgs.fromList(it)
+          MyGattDescriptorArgs.fromList(it)
         }
       }
       else -> super.readValueOfType(type, buffer)
@@ -1068,11 +993,11 @@ private object MyPeripheralManagerFlutterApiCodec : StandardMessageCodec() {
         stream.write(128)
         writeValue(stream, value.toList())
       }
-      is MyCustomizedGattCharacteristicArgs -> {
+      is MyGattCharacteristicArgs -> {
         stream.write(129)
         writeValue(stream, value.toList())
       }
-      is MyCustomizedGattDescriptorArgs -> {
+      is MyGattDescriptorArgs -> {
         stream.write(130)
         writeValue(stream, value.toList())
       }
@@ -1096,19 +1021,19 @@ class MyPeripheralManagerFlutterApi(private val binaryMessenger: BinaryMessenger
       callback()
     }
   }
-  fun onReadCharacteristicCommandReceived(myCentralArgsArg: MyCentralArgs, myCharacteristicArgsArg: MyCustomizedGattCharacteristicArgs, myIdArg: Long, myOffsetArg: Long, callback: () -> Unit) {
+  fun onReadCharacteristicCommandReceived(myCentralArgsArg: MyCentralArgs, myCharacteristicArgsArg: MyGattCharacteristicArgs, myIdArg: Long, myOffsetArg: Long, callback: () -> Unit) {
     val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onReadCharacteristicCommandReceived", codec)
     channel.send(listOf(myCentralArgsArg, myCharacteristicArgsArg, myIdArg, myOffsetArg)) {
       callback()
     }
   }
-  fun onWriteCharacteristicCommandReceived(myCentralArgsArg: MyCentralArgs, myCharacteristicArgsArg: MyCustomizedGattCharacteristicArgs, myIdArg: Long, myOffsetArg: Long, myValueArg: ByteArray, callback: () -> Unit) {
+  fun onWriteCharacteristicCommandReceived(myCentralArgsArg: MyCentralArgs, myCharacteristicArgsArg: MyGattCharacteristicArgs, myIdArg: Long, myOffsetArg: Long, myValueArg: ByteArray, callback: () -> Unit) {
     val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onWriteCharacteristicCommandReceived", codec)
     channel.send(listOf(myCentralArgsArg, myCharacteristicArgsArg, myIdArg, myOffsetArg, myValueArg)) {
       callback()
     }
   }
-  fun onNotifyCharacteristicCommandReceived(myCentralArgsArg: MyCentralArgs, myCharacteristicArgsArg: MyCustomizedGattCharacteristicArgs, myStateArg: Boolean, callback: () -> Unit) {
+  fun onNotifyCharacteristicCommandReceived(myCentralArgsArg: MyCentralArgs, myCharacteristicArgsArg: MyGattCharacteristicArgs, myStateArg: Boolean, callback: () -> Unit) {
     val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onNotifyCharacteristicCommandReceived", codec)
     channel.send(listOf(myCentralArgsArg, myCharacteristicArgsArg, myStateArg)) {
       callback()

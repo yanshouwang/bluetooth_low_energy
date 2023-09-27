@@ -82,7 +82,7 @@ abstract class MyPeripheralManagerHostApi {
   @async
   MyPeripheralManagerArgs setUp();
   @async
-  void addService(MyCustomizedGattServiceArgs myServiceArgs);
+  void addService(MyGattServiceArgs myServiceArgs);
   void removeService(int myServiceKey);
   void clearServices();
   @async
@@ -117,20 +117,20 @@ abstract class MyPeripheralManagerFlutterApi {
   void onStateChanged(int myStateNumber);
   void onReadCharacteristicCommandReceived(
     MyCentralArgs myCentralArgs,
-    MyCustomizedGattCharacteristicArgs myCharacteristicArgs,
+    MyGattCharacteristicArgs myCharacteristicArgs,
     int myId,
     int myOffset,
   );
   void onWriteCharacteristicCommandReceived(
     MyCentralArgs myCentralArgs,
-    MyCustomizedGattCharacteristicArgs myCharacteristicArgs,
+    MyGattCharacteristicArgs myCharacteristicArgs,
     int myId,
     int myOffset,
     Uint8List myValue,
   );
   void onNotifyCharacteristicCommandReceived(
     MyCentralArgs myCentralArgs,
-    MyCustomizedGattCharacteristicArgs myCharacteristicArgs,
+    MyGattCharacteristicArgs myCharacteristicArgs,
     bool myState,
   );
 }
@@ -190,56 +190,23 @@ class MyGattServiceArgs {
 class MyGattCharacteristicArgs {
   final int myKey;
   final String myUUID;
-  final List<MyGattDescriptorArgs?> myDescriptorArgses;
   final List<int?> myPropertyNumbers;
+  final List<MyGattDescriptorArgs?> myDescriptorArgses;
 
   MyGattCharacteristicArgs(
     this.myKey,
     this.myUUID,
-    this.myDescriptorArgses,
     this.myPropertyNumbers,
+    this.myDescriptorArgses,
   );
 }
 
 class MyGattDescriptorArgs {
   final int myKey;
   final String myUUID;
-
-  MyGattDescriptorArgs(this.myKey, this.myUUID);
-}
-
-class MyCustomizedGattServiceArgs {
-  final int myKey;
-  final String myUUID;
-  final List<MyCustomizedGattCharacteristicArgs?> myCharacteristicArgses;
-
-  MyCustomizedGattServiceArgs(
-    this.myKey,
-    this.myUUID,
-    this.myCharacteristicArgses,
-  );
-}
-
-class MyCustomizedGattCharacteristicArgs {
-  final int myKey;
-  final String myUUID;
-  final List<MyCustomizedGattDescriptorArgs?> myDescriptorArgses;
-  final List<int?> myPropertyNumbers;
-
-  MyCustomizedGattCharacteristicArgs(
-    this.myKey,
-    this.myUUID,
-    this.myDescriptorArgses,
-    this.myPropertyNumbers,
-  );
-}
-
-class MyCustomizedGattDescriptorArgs {
-  final int myKey;
-  final String myUUID;
   final Uint8List myValue;
 
-  MyCustomizedGattDescriptorArgs(
+  MyGattDescriptorArgs(
     this.myKey,
     this.myUUID,
     this.myValue,

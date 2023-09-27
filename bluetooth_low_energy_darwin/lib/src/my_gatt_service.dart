@@ -1,22 +1,30 @@
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
-import 'my_api.g.dart';
+import 'my_api.dart';
+import 'my_gatt_characteristic.dart';
 import 'my_object.dart';
 import 'my_peripheral.dart';
 
 class MyGattService extends MyObject implements GattService {
-  final MyPeripheral myPeripheral;
   @override
   final UUID uuid;
+  @override
+  final List<MyGattCharacteristic> characteristics;
 
-  MyGattService(super.hashCode, this.myPeripheral, this.uuid);
+  late final MyPeripheral myPeripheral;
 
-  factory MyGattService.fromMyArgs(
-    MyPeripheral myPeripheral,
-    MyGattServiceArgs myArgs,
-  ) {
-    final hashCode = myArgs.key;
-    final uuid = UUID.fromString(myArgs.uuid);
-    return MyGattService(hashCode, myPeripheral, uuid);
+  MyGattService(super.hashCode, this.uuid, this.characteristics);
+
+  factory MyGattService.fromMyArgs(MyGattServiceArgs myArgs) {
+    final hashCode = myArgs.myKey;
+    final uuid = UUID.fromString(myArgs.myUUID);
+    final characteristics = myArgs.myCharacteristicArgses
+        .cast<MyGattCharacteristicArgs>()
+        .map(
+          (myCharacteristicArgs) =>
+              MyGattCharacteristic.fromMyArgs(myCharacteristicArgs),
+        )
+        .toList();
+    return MyGattService(hashCode, uuid, characteristics);
   }
 }

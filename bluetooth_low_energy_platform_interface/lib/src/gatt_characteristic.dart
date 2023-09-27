@@ -5,22 +5,22 @@ import 'uuid.dart';
 
 /// A characteristic of a remote peripheral’s service.
 abstract class GattCharacteristic extends GattAttribute {
-  /// A list of the descriptors discovered in this characteristic.
-  List<GattDescriptor> get descriptors;
-
   /// The properties of the characteristic.
   List<GattCharacteristicProperty> get properties;
+
+  /// A list of the descriptors discovered in this characteristic.
+  List<GattDescriptor> get descriptors;
 
   /// Constructs a [GattCharacteristic].
   factory GattCharacteristic({
     required UUID uuid,
-    required List<GattDescriptor> descriptors,
     required List<GattCharacteristicProperty> properties,
+    required List<GattDescriptor> descriptors,
   }) =>
       CustomizedGattCharacteristic(
         uuid,
-        descriptors,
         properties,
+        descriptors,
       );
 }
 
@@ -28,13 +28,13 @@ class CustomizedGattCharacteristic implements GattCharacteristic {
   @override
   final UUID uuid;
   @override
-  final List<GattDescriptor> descriptors;
-  @override
   final List<GattCharacteristicProperty> properties;
+  @override
+  final List<GattDescriptor> descriptors;
 
   CustomizedGattCharacteristic(
     this.uuid,
-    this.descriptors,
     this.properties,
+    this.descriptors,
   );
 }

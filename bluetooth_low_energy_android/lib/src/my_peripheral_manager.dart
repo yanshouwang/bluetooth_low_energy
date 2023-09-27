@@ -153,12 +153,12 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
   @override
   void onReadCharacteristicCommandReceived(
     MyCentralArgs myCentralArgs,
-    MyCustomizedGattCharacteristicArgs myCharacteristicArgs,
+    MyGattCharacteristicArgs myCharacteristicArgs,
     int myId,
     int myOffset,
   ) {
     final myCentral = MyCentral.fromMyArgs(myCentralArgs);
-    final myCharacteristic = MyGattCharacteristic.fromMyCustomizedArgs(
+    final myCharacteristic = MyGattCharacteristic.fromMyArgs(
       myCharacteristicArgs,
     );
     final eventArgs = ReadGattCharacteristicCommandEventArgs(
@@ -173,13 +173,13 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
   @override
   void onWriteCharacteristicCommandReceived(
     MyCentralArgs myCentralArgs,
-    MyCustomizedGattCharacteristicArgs myCharacteristicArgs,
+    MyGattCharacteristicArgs myCharacteristicArgs,
     int myId,
     int myOffset,
     Uint8List myValue,
   ) {
     final myCentral = MyCentral.fromMyArgs(myCentralArgs);
-    final myCharacteristic = MyGattCharacteristic.fromMyCustomizedArgs(
+    final myCharacteristic = MyGattCharacteristic.fromMyArgs(
       myCharacteristicArgs,
     );
     final eventArgs = WriteGattCharacteristicCommandEventArgs(
@@ -195,11 +195,11 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
   @override
   void onNotifyCharacteristicCommandReceived(
     MyCentralArgs myCentralArgs,
-    MyCustomizedGattCharacteristicArgs myCharacteristicArgs,
+    MyGattCharacteristicArgs myCharacteristicArgs,
     bool myState,
   ) {
     final myCentral = MyCentral.fromMyArgs(myCentralArgs);
-    final myCharacteristic = MyGattCharacteristic.fromMyCustomizedArgs(
+    final myCharacteristic = MyGattCharacteristic.fromMyArgs(
       myCharacteristicArgs,
     );
     final eventArgs = NotifyGattCharacteristicCommandEventArgs(
