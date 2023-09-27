@@ -14,6 +14,7 @@ void main() {
 }
 
 void onStartUp() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await BluetoothLowEnergy.instance.setUp();
   runApp(const MyApp());
 }
@@ -101,26 +102,32 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget buildBottomNavigationBar(BuildContext context) {
-    return BottomNavigationBar(
-      onTap: (i) {
-        const duration = Duration(milliseconds: 300);
-        const curve = Curves.ease;
-        controller.animateToPage(
-          i,
-          duration: duration,
-          curve: curve,
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, child) {
+        return BottomNavigationBar(
+          onTap: (i) {
+            const duration = Duration(milliseconds: 300);
+            const curve = Curves.ease;
+            controller.animateToPage(
+              i,
+              duration: duration,
+              curve: curve,
+            );
+          },
+          currentIndex: controller.page?.toInt() ?? 0,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.radar),
+              label: 'scanner',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.sensors),
+              label: 'advertiser',
+            ),
+          ],
         );
       },
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.radar),
-          label: 'scanner',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.sensors),
-          label: 'advertiser',
-        ),
-      ],
     );
   }
 
@@ -640,6 +647,14 @@ class _PeripheralViewState extends State<PeripheralView> {
                   },
                 ),
               ),
+              IconButton(
+                onPressed: () async {
+                  final rssi =
+                      await centralManager.readRSSI(eventArgs.peripheral);
+                  print('RSSI: $rssi');
+                },
+                icon: const Icon(Icons.signal_wifi_4_bar),
+              ),
             ],
           ),
           Container(
@@ -908,7 +923,7 @@ class _AdvertiserViewState extends State<AdvertiserView> {
 
   PreferredSizeWidget buildAppBar(BuildContext context) {
     return AppBar(
-      title: const Text('Scanner'),
+      title: const Text('Advertiser'),
       actions: [
         ValueListenableBuilder(
           valueListenable: state,
@@ -920,9 +935,9 @@ class _AdvertiserViewState extends State<AdvertiserView> {
                   onPressed: state == BluetoothLowEnergyState.poweredOn
                       ? () async {
                           if (advertising) {
-                            await startAdvertising();
-                          } else {
                             await stopAdvertising();
+                          } else {
+                            await startAdvertising();
                           }
                         }
                       : null,

@@ -35,9 +35,9 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
 
     // My cache
     private val myCentrals = mutableMapOf<Int, MyCentralArgs>()
-    private val myServices = mutableMapOf<Int, MyCustomizedGattServiceArgs>()
-    private val myCharacteristics = mutableMapOf<Int, MyCustomizedGattCharacteristicArgs>()
-    private val myDescriptors = mutableMapOf<Int, MyCustomizedGattDescriptorArgs>()
+    private val myServices = mutableMapOf<Int, MyGattServiceArgs>()
+    private val myCharacteristics = mutableMapOf<Int, MyGattCharacteristicArgs>()
+    private val myDescriptors = mutableMapOf<Int, MyGattDescriptorArgs>()
 
     private var registered = false
 
@@ -85,7 +85,7 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         registered = false
     }
 
-    override fun addService(myServiceArgs: MyCustomizedGattServiceArgs, callback: (Result<Unit>) -> Unit) {
+    override fun addService(myServiceArgs: MyGattServiceArgs, callback: (Result<Unit>) -> Unit) {
         try {
             val unfinishedCallback = addServiceCallback
             if (unfinishedCallback != null) {
@@ -102,29 +102,29 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
                     if (!descriptorAdded) {
                         throw IllegalStateException()
                     }
-                    val myDescriptorKey = myDescriptor.myKey
-                    val descriptorKey = descriptor.hashCode()
-                    this.myDescriptors[descriptorKey] = myDescriptor
-                    this.descriptors[myDescriptorKey] = descriptor
+                    val myDescriptorHashCode = myDescriptor.myHashCode
+                    val descriptorHashCode = descriptor.hashCode()
+                    this.myDescriptors[descriptorHashCode] = myDescriptor
+                    this.descriptors[myDescriptorHashCode] = descriptor
                 }
                 val characteristicAdded = service.addCharacteristic(characteristic)
                 if (!characteristicAdded) {
                     throw IllegalStateException()
                 }
-                val myCharacteristicKey = myCharacteristic.myKey
-                val characteristicKey = characteristic.hashCode()
-                this.myCharacteristics[characteristicKey] = myCharacteristic
-                this.characteristics[myCharacteristicKey] = characteristic
+                val myCharacteristicHashCode = myCharacteristic.myHashCode
+                val characteristicHashCode = characteristic.hashCode()
+                this.myCharacteristics[characteristicHashCode] = myCharacteristic
+                this.characteristics[myCharacteristicHashCode] = characteristic
                 // TODO: Notify 可用时是否需要添加 CCCD
             }
             val adding = server.addService(service)
             if (!adding) {
                 throw IllegalStateException()
             }
-            val myServiceKey = myServiceArgs.myKey
-            val serviceKey = service.hashCode()
-            this.myServices[serviceKey] = myServiceArgs
-            this.services[myServiceKey] = service
+            val myServiceHashCode = myServiceArgs.myHashCode
+            val serviceHashCode = service.hashCode()
+            this.myServices[serviceHashCode] = myServiceArgs
+            this.services[myServiceHashCode] = service
             addServiceCallback = callback
         } catch (e: Throwable) {
             freeService(myServiceArgs)
@@ -132,10 +132,10 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         }
     }
 
-    override fun removeService(myServiceKey: Long) {
-        val service = services[myServiceKey] as BluetoothGattService
-        val serviceKey = service.hashCode()
-        val myService = myServices[serviceKey] as MyCustomizedGattServiceArgs
+    override fun removeService(myServiceHashCode: Long) {
+        val service = services[myServiceHashCode] as BluetoothGattService
+        val serviceHashCode = service.hashCode()
+        val myService = myServices[serviceHashCode] as MyGattServiceArgs
         val removed = server.removeService(service)
         if (!removed) {
             throw IllegalStateException()
@@ -143,26 +143,26 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         freeService(myService)
     }
 
-    private fun freeService(myService: MyCustomizedGattServiceArgs) {
+    private fun freeService(myService: MyGattServiceArgs) {
         val myCharacteristics = myService.myCharacteristicArgses.filterNotNull()
         for (myCharacteristic in myCharacteristics) {
             val myDescriptors = myCharacteristic.myDescriptorArgses.filterNotNull()
             for (myDescriptor in myDescriptors) {
-                val myDescriptorKey = myDescriptor.myKey
-                val descriptor = this.descriptors.remove(myDescriptorKey) ?: continue
-                val descriptorKey = descriptor.hashCode()
-                this.myDescriptors.remove(descriptorKey)
+                val myDescriptorHashCode = myDescriptor.myHashCode
+                val descriptor = this.descriptors.remove(myDescriptorHashCode) ?: continue
+                val descriptorHashCode = descriptor.hashCode()
+                this.myDescriptors.remove(descriptorHashCode)
             }
-            val myCharacteristicKey = myCharacteristic.myKey
-            val characteristic = this.characteristics.remove(myCharacteristicKey) ?: continue
-            this.confirms.remove(myCharacteristicKey)
-            val characteristicKey = characteristic.hashCode()
-            this.myCharacteristics.remove(characteristicKey)
+            val myCharacteristicHashCode = myCharacteristic.myHashCode
+            val characteristic = this.characteristics.remove(myCharacteristicHashCode) ?: continue
+            this.confirms.remove(myCharacteristicHashCode)
+            val characteristicHashCode = characteristic.hashCode()
+            this.myCharacteristics.remove(characteristicHashCode)
         }
-        val myServiceKey = myService.myKey
-        val service = services.remove(myServiceKey) ?: return
-        val serviceKey = service.hashCode()
-        myServices.remove(serviceKey)
+        val myServiceHashCode = myService.myHashCode
+        val service = services.remove(myServiceHashCode) ?: return
+        val serviceHashCode = service.hashCode()
+        myServices.remove(serviceHashCode)
     }
 
     override fun clearServices() {
@@ -200,7 +200,9 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
             }
             val myManufacturerSpecificData = myAdvertisementArgs.myManufacturerSpecificData
             for (entry in myManufacturerSpecificData) {
-                val manufacturerId = (entry.key as Long).toInt()
+//                val manufacturerId = (entry.key as Long).toInt()
+                // TODO: Wrong type cast:  java.lang.Integer cannot be cast to java.lang.Long
+                val manufacturerId = entry.key?.toInt() ?: throw IllegalArgumentException()
                 val manufacturerSpecificData = entry.value as ByteArray
                 advertiseDataBuilder.addManufacturerData(manufacturerId, manufacturerSpecificData)
             }
@@ -216,13 +218,13 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         advertiser.stopAdvertising(myAdvertiseCallback)
     }
 
-    override fun getMaximumWriteLength(myCentralKey: Long): Long {
-        val mtu = mtus[myCentralKey] ?: 20
+    override fun getMaximumWriteLength(myCentralHashCode: Long): Long {
+        val mtu = mtus[myCentralHashCode] ?: 20
         return mtu.toLong()
     }
 
-    override fun sendReadCharacteristicReply(myCentralKey: Long, myCharacteristicKey: Long, myId: Long, myOffset: Long, myStatus: Boolean, myValue: ByteArray) {
-        val device = devices[myCentralKey] as BluetoothDevice
+    override fun sendReadCharacteristicReply(myCentralHashCode: Long, myCharacteristicHashCode: Long, myId: Long, myOffset: Long, myStatus: Boolean, myValue: ByteArray) {
+        val device = devices[myCentralHashCode] as BluetoothDevice
         val requestId = myId.toInt()
         val status = if (myStatus) BluetoothGatt.GATT_SUCCESS
         else BluetoothGatt.GATT_FAILURE
@@ -233,8 +235,8 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         }
     }
 
-    override fun sendWriteCharacteristicReply(myCentralKey: Long, myCharacteristicKey: Long, myId: Long, myOffset: Long, myStatus: Boolean) {
-        val device = devices[myCentralKey] as BluetoothDevice
+    override fun sendWriteCharacteristicReply(myCentralHashCode: Long, myCharacteristicHashCode: Long, myId: Long, myOffset: Long, myStatus: Boolean) {
+        val device = devices[myCentralHashCode] as BluetoothDevice
         val requestId = myId.toInt()
         val status = if (myStatus) BluetoothGatt.GATT_SUCCESS
         else BluetoothGatt.GATT_FAILURE
@@ -246,15 +248,15 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         }
     }
 
-    override fun notifyCharacteristicValueChanged(myCentralKey: Long, myCharacteristicKey: Long, myValue: ByteArray, callback: (Result<Unit>) -> Unit) {
+    override fun notifyCharacteristicValueChanged(myCentralHashCode: Long, myCharacteristicHashCode: Long, myValue: ByteArray, callback: (Result<Unit>) -> Unit) {
         try {
-            val unfinishedCallback = notifyCharacteristicValueChangedCallbacks[myCentralKey]
+            val unfinishedCallback = notifyCharacteristicValueChangedCallbacks[myCentralHashCode]
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val device = devices[myCentralKey] as BluetoothDevice
-            val characteristic = characteristics[myCharacteristicKey] as BluetoothGattCharacteristic
-            val confirm = confirms[myCharacteristicKey]
+            val device = devices[myCentralHashCode] as BluetoothDevice
+            val characteristic = characteristics[myCharacteristicHashCode] as BluetoothGattCharacteristic
+            val confirm = confirms[myCharacteristicHashCode]
                     ?: throw IllegalStateException("The characteristic is not subscribed.")
             val notifying = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 val statusCode = server.notifyCharacteristicChanged(device, characteristic, confirm, myValue)
@@ -266,7 +268,7 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
             if (!notifying) {
                 throw IllegalStateException()
             }
-            notifyCharacteristicValueChangedCallbacks[myCentralKey] = callback
+            notifyCharacteristicValueChangedCallbacks[myCentralHashCode] = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
@@ -307,8 +309,8 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         if (status == BluetoothGatt.GATT_SUCCESS) {
             callback(Result.success(Unit))
         } else {
-            val key = service.hashCode()
-            val myService = myServices[key] as MyCustomizedGattServiceArgs
+            val hashCode = service.hashCode()
+            val myService = myServices[hashCode] as MyGattServiceArgs
             freeService(myService)
             val error = IllegalStateException("Read rssi failed with status: $status")
             callback(Result.failure(error))
@@ -316,37 +318,37 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
     }
 
     fun onMtuChanged(device: BluetoothDevice, mtu: Int) {
-        val key = device.hashCode()
-        val myCentral = myCentrals.getOrPut(key) { device.toMyCentralArgs() }
-        val myKey = myCentral.myKey
-        mtus[myKey] = mtu
+        val hashCode = device.hashCode()
+        val myCentral = myCentrals.getOrPut(hashCode) { device.toMyCentralArgs() }
+        val myHashCode = myCentral.myHashCode
+        mtus[myHashCode] = mtu
     }
 
     fun onCharacteristicReadRequest(device: BluetoothDevice, requestId: Int, offset: Int, characteristic: BluetoothGattCharacteristic) {
-        val deviceKey = device.hashCode()
-        val myCentral = myCentrals.getOrPut(deviceKey) { device.toMyCentralArgs() }
-        val characteristicKey = characteristic.hashCode()
-        val myCharacteristic = myCharacteristics[characteristicKey] as MyCustomizedGattCharacteristicArgs
+        val deviceHashCode = device.hashCode()
+        val myCentral = myCentrals.getOrPut(deviceHashCode) { device.toMyCentralArgs() }
+        val characteristicHashCode = characteristic.hashCode()
+        val myCharacteristic = myCharacteristics[characteristicHashCode] as MyGattCharacteristicArgs
         val myId = requestId.toLong()
         val myOffset = offset.toLong()
         myApi.onReadCharacteristicCommandReceived(myCentral, myCharacteristic, myId, myOffset) {}
     }
 
     fun onCharacteristicWriteRequest(device: BluetoothDevice, requestId: Int, characteristic: BluetoothGattCharacteristic, preparedWrite: Boolean, responseNeeded: Boolean, offset: Int, value: ByteArray) {
-        val deviceKey = device.hashCode()
-        val myCentral = myCentrals.getOrPut(deviceKey) { device.toMyCentralArgs() }
-        val characteristicKey = characteristic.hashCode()
-        val myCharacteristic = myCharacteristics[characteristicKey] as MyCustomizedGattCharacteristicArgs
+        val deviceHashCode = device.hashCode()
+        val myCentral = myCentrals.getOrPut(deviceHashCode) { device.toMyCentralArgs() }
+        val characteristicHashCode = characteristic.hashCode()
+        val myCharacteristic = myCharacteristics[characteristicHashCode] as MyGattCharacteristicArgs
         val myId = requestId.toLong()
         val myOffset = offset.toLong()
         myApi.onWriteCharacteristicCommandReceived(myCentral, myCharacteristic, myId, myOffset, value) {}
     }
 
     fun onNotificationSent(device: BluetoothDevice, status: Int) {
-        val key = device.hashCode()
-        val myCentral = myCentrals[key] as MyCentralArgs
-        val myKey = myCentral.myKey
-        val callback = notifyCharacteristicValueChangedCallbacks.remove(myKey) ?: return
+        val hashCode = device.hashCode()
+        val myCentral = myCentrals[hashCode] as MyCentralArgs
+        val myHashCode = myCentral.myHashCode
+        val callback = notifyCharacteristicValueChangedCallbacks.remove(myHashCode) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
             callback(Result.success(Unit))
         } else {
@@ -357,8 +359,8 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
 
     fun onDescriptorReadRequest(device: BluetoothDevice, requestId: Int, offset: Int, descriptor: BluetoothGattDescriptor) {
         val status = BluetoothGatt.GATT_SUCCESS
-        val descriptorKey = descriptor.hashCode()
-        val myDescriptor = myDescriptors[descriptorKey] as MyCustomizedGattDescriptorArgs
+        val hashCode = descriptor.hashCode()
+        val myDescriptor = myDescriptors[hashCode] as MyGattDescriptorArgs
         val value = myDescriptor.myValue
         val sent = server.sendResponse(device, requestId, status, offset, value)
         if (!sent) {
@@ -368,12 +370,12 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
 
     fun onDescriptorWriteRequest(device: BluetoothDevice, requestId: Int, descriptor: BluetoothGattDescriptor, preparedWrite: Boolean, responseNeeded: Boolean, offset: Int, value: ByteArray) {
         val status = if (descriptor.uuid == CLIENT_CHARACTERISTIC_CONFIG_UUID) {
-            val deviceKey = device.hashCode()
-            val myCentral = myCentrals.getOrPut(deviceKey) { device.toMyCentralArgs() }
+            val deviceHashCode = device.hashCode()
+            val myCentral = myCentrals.getOrPut(deviceHashCode) { device.toMyCentralArgs() }
             val characteristic = descriptor.characteristic
-            val characteristicKey = characteristic.hashCode()
-            val myCharacteristic = myCharacteristics[characteristicKey] as MyCustomizedGattCharacteristicArgs
-            val myCharacteristicKey = myCharacteristic.myKey
+            val characteristicHashCode = characteristic.hashCode()
+            val myCharacteristic = myCharacteristics[characteristicHashCode] as MyGattCharacteristicArgs
+            val myCharacteristicHashCode = myCharacteristic.myHashCode
             // TODO: what is 中缀?
 //            if (value contentEquals BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE) {
 //            } else if (value contentEquals BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE) {
@@ -382,21 +384,21 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
 //            }
             when (value) {
                 BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE -> {
-                    confirms[myCharacteristicKey] = false
+                    confirms[myCharacteristicHashCode] = false
                     val myState = true
                     myApi.onNotifyCharacteristicCommandReceived(myCentral, myCharacteristic, myState) {}
                     BluetoothGatt.GATT_SUCCESS
                 }
 
                 BluetoothGattDescriptor.ENABLE_INDICATION_VALUE -> {
-                    confirms[myCharacteristicKey] = true
+                    confirms[myCharacteristicHashCode] = true
                     val myState = true
                     myApi.onNotifyCharacteristicCommandReceived(myCentral, myCharacteristic, myState) {}
                     BluetoothGatt.GATT_SUCCESS
                 }
 
                 BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE -> {
-                    confirms.remove(myCharacteristicKey)
+                    confirms.remove(myCharacteristicHashCode)
                     val myState = false
                     myApi.onNotifyCharacteristicCommandReceived(myCentral, myCharacteristic, myState) {}
                     BluetoothGatt.GATT_SUCCESS

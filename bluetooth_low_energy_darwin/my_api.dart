@@ -15,41 +15,41 @@ abstract class MyCentralManagerHostApi {
   void startDiscovery();
   void stopDiscovery();
   @async
-  void connect(int myPeripheralKey);
+  void connect(int myPeripheralHashCode);
   @async
-  void disconnect(int myPeripheralKey);
-  int getMaximumWriteLength(int myPeripheralKey, int myTypeNumber);
+  void disconnect(int myPeripheralHashCode);
+  int getMaximumWriteLength(int myPeripheralHashCode, int myTypeNumber);
   @async
-  int readRSSI(int myPeripheralKey);
+  int readRSSI(int myPeripheralHashCode);
   @async
-  List<MyGattServiceArgs> discoverGATT(int myPeripheralKey);
+  List<MyGattServiceArgs> discoverGATT(int myPeripheralHashCode);
   @async
   Uint8List readCharacteristic(
-    int myPeripheralKey,
-    int myCharacteristicKey,
+    int myPeripheralHashCode,
+    int myCharacteristicHashCode,
   );
   @async
   void writeCharacteristic(
-    int myPeripheralKey,
-    int myCharacteristicKey,
+    int myPeripheralHashCode,
+    int myCharacteristicHashCode,
     Uint8List myValue,
     int myTypeNumber,
   );
   @async
   void notifyCharacteristic(
-    int myPeripheralKey,
-    int myCharacteristicKey,
+    int myPeripheralHashCode,
+    int myCharacteristicHashCode,
     bool myState,
   );
   @async
   Uint8List readDescriptor(
-    int myPeripheralKey,
-    int myDescriptorKey,
+    int myPeripheralHashCode,
+    int myDescriptorHashCode,
   );
   @async
   void writeDescriptor(
-    int myPeripheralKey,
-    int myDescriptorKey,
+    int myPeripheralHashCode,
+    int myDescriptorHashCode,
     Uint8List myValue,
   );
 }
@@ -79,10 +79,10 @@ class MyCentralManagerArgs {
 }
 
 class MyPeripheralArgs {
-  final int myKey;
+  final int myHashCode;
   final String myUUID;
 
-  MyPeripheralArgs(this.myKey, this.myUUID);
+  MyPeripheralArgs(this.myHashCode, this.myUUID);
 }
 
 class MyAdvertisementArgs {
@@ -100,25 +100,25 @@ class MyAdvertisementArgs {
 }
 
 class MyGattServiceArgs {
-  final int myKey;
+  final int myHashCode;
   final String myUUID;
   final List<MyGattCharacteristicArgs?> myCharacteristicArgses;
 
   MyGattServiceArgs(
-    this.myKey,
+    this.myHashCode,
     this.myUUID,
     this.myCharacteristicArgses,
   );
 }
 
 class MyGattCharacteristicArgs {
-  final int myKey;
+  final int myHashCode;
   final String myUUID;
   final List<int?> myPropertyNumbers;
   final List<MyGattDescriptorArgs?> myDescriptorArgses;
 
   MyGattCharacteristicArgs(
-    this.myKey,
+    this.myHashCode,
     this.myUUID,
     this.myPropertyNumbers,
     this.myDescriptorArgses,
@@ -126,12 +126,12 @@ class MyGattCharacteristicArgs {
 }
 
 class MyGattDescriptorArgs {
-  final int myKey;
+  final int myHashCode;
   final String myUUID;
   final Uint8List myValue;
 
   MyGattDescriptorArgs(
-    this.myKey,
+    this.myHashCode,
     this.myUUID,
     this.myValue,
   );

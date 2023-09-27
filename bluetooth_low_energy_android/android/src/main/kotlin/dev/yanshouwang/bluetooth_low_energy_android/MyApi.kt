@@ -104,7 +104,7 @@ fun BluetoothGattService.toMyArgs(myCharacteristicArgses: List<MyGattCharacteris
 fun BluetoothGattCharacteristic.toMyArgs(myDescriptorArgses: List<MyGattDescriptorArgs>): MyGattCharacteristicArgs {
     val key = hashCode().toLong()
     val uuidValue = this.uuid.toString()
-    return MyGattCharacteristicArgs(key, uuidValue, myDescriptorArgses, myPropertyNumbers)
+    return MyGattCharacteristicArgs(key, uuidValue, myPropertyNumbers, myDescriptorArgses)
 }
 
 val BluetoothGattCharacteristic.myPropertyNumbers: List<Long>
@@ -136,21 +136,21 @@ val BluetoothGattCharacteristic.myPropertyNumbers: List<Long>
 fun BluetoothGattDescriptor.toMyArgs(): MyGattDescriptorArgs {
     val key = hashCode().toLong()
     val uuid = this.uuid.toString()
-    return MyGattDescriptorArgs(key, uuid)
+    return MyGattDescriptorArgs(key, uuid, null)
 }
 
-fun MyCustomizedGattServiceArgs.toService(): BluetoothGattService {
+fun MyGattServiceArgs.toService(): BluetoothGattService {
     val uuid = UUID.fromString(myUUID)
     val serviceType = BluetoothGattService.SERVICE_TYPE_PRIMARY
     return BluetoothGattService(uuid, serviceType)
 }
 
-fun MyCustomizedGattCharacteristicArgs.toCharacteristic(): BluetoothGattCharacteristic {
+fun MyGattCharacteristicArgs.toCharacteristic(): BluetoothGattCharacteristic {
     val uuid = UUID.fromString(myUUID)
     return BluetoothGattCharacteristic(uuid, properties, permissions)
 }
 
-val MyCustomizedGattCharacteristicArgs.properties: Int
+val MyGattCharacteristicArgs.properties: Int
     get() {
         val myProperties = myPropertyNumbers.filterNotNull().map { number ->
             val raw = number.toInt()
@@ -170,7 +170,7 @@ val MyCustomizedGattCharacteristicArgs.properties: Int
         return value
     }
 
-val MyCustomizedGattCharacteristicArgs.permissions: Int
+val MyGattCharacteristicArgs.permissions: Int
     get() {
         val myProperties = myPropertyNumbers.filterNotNull().map { number ->
             val raw = number.toInt()
@@ -185,7 +185,7 @@ val MyCustomizedGattCharacteristicArgs.permissions: Int
         return value
     }
 
-fun MyCustomizedGattDescriptorArgs.toDescriptor(): BluetoothGattDescriptor {
+fun MyGattDescriptorArgs.toDescriptor(): BluetoothGattDescriptor {
     val uuid = UUID.fromString(myUUID)
     val permissions = BluetoothGattDescriptor.PERMISSION_READ or BluetoothGattDescriptor.PERMISSION_WRITE
     return BluetoothGattDescriptor(uuid, permissions)

@@ -6,10 +6,10 @@ import 'package:bluez/bluez.dart';
 
 import 'my_bluez.dart';
 import 'my_event_args.dart';
-import 'my_gatt_characteristic.dart';
-import 'my_gatt_descriptor.dart';
-import 'my_gatt_service.dart';
-import 'my_peripheral.dart';
+import 'my_gatt_characteristic2.dart';
+import 'my_gatt_descriptor2.dart';
+import 'my_gatt_service2.dart';
+import 'my_peripheral2.dart';
 
 class MyCentralManager extends CentralManager {
   MyCentralManager()
@@ -34,7 +34,7 @@ class MyCentralManager extends CentralManager {
   final StreamController<BlueZDeviceServicesResolvedEventArgs>
       _deviceServicesResolvedController;
 
-  final Map<int, List<MyGattService>> _myServicesOfMyPeripherals;
+  final Map<int, List<MyGattService2>> _myServicesOfMyPeripherals;
   final Map<int, StreamSubscription>
       _characteristicPropertiesChangedSubscriptions;
 
@@ -58,12 +58,6 @@ class MyCentralManager extends CentralManager {
   Stream<BlueZDeviceServicesResolvedEventArgs> get _servicesResolved =>
       _deviceServicesResolvedController.stream;
 
-  Future<void> _throwWithState(BluetoothLowEnergyState state) async {
-    if (this.state == state) {
-      throw BluetoothLowEnergyError('$state is unexpected.');
-    }
-  }
-
   Future<void> _throwWithoutState(BluetoothLowEnergyState state) async {
     if (this.state != state) {
       throw BluetoothLowEnergyError(
@@ -77,7 +71,7 @@ class MyCentralManager extends CentralManager {
     await _client.connect();
     _state = _client.adapters.isEmpty
         ? BluetoothLowEnergyState.unsupported
-        : _adapter.state;
+        : _adapter.myState;
     if (_state == BluetoothLowEnergyState.unsupported) {
       return;
     }
@@ -106,7 +100,7 @@ class MyCentralManager extends CentralManager {
   @override
   Future<void> connect(Peripheral peripheral) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final myPeripheral = peripheral as MyPeripheral;
+    final myPeripheral = peripheral as MyPeripheral2;
     final device = myPeripheral.device;
     await device.connect();
   }
@@ -114,7 +108,7 @@ class MyCentralManager extends CentralManager {
   @override
   Future<void> disconnect(Peripheral peripheral) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final myPeripheral = peripheral as MyPeripheral;
+    final myPeripheral = peripheral as MyPeripheral2;
     final device = myPeripheral.device;
     await device.disconnect();
   }
@@ -131,7 +125,7 @@ class MyCentralManager extends CentralManager {
   @override
   Future<int> readRSSI(Peripheral peripheral) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final myPeripheral = peripheral as MyPeripheral;
+    final myPeripheral = peripheral as MyPeripheral2;
     final device = myPeripheral.device;
     return device.rssi;
   }
@@ -139,7 +133,7 @@ class MyCentralManager extends CentralManager {
   @override
   Future<List<GattService>> discoverGATT(Peripheral peripheral) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final myPeripheral = peripheral as MyPeripheral;
+    final myPeripheral = peripheral as MyPeripheral2;
     final device = myPeripheral.device;
     if (!device.connected) {
       throw BluetoothLowEnergyError('Peripheral is disconnected.');
@@ -161,7 +155,7 @@ class MyCentralManager extends CentralManager {
     GattCharacteristic characteristic,
   ) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final myCharacteristic = characteristic as MyGattCharacteristic;
+    final myCharacteristic = characteristic as MyGattCharacteristic2;
     final blueZCharacteristic = myCharacteristic.characteristic;
     final blueZValue = await blueZCharacteristic.readValue();
     return Uint8List.fromList(blueZValue);
@@ -174,11 +168,11 @@ class MyCentralManager extends CentralManager {
     required GattCharacteristicWriteType type,
   }) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final myCharacteristic = characteristic as MyGattCharacteristic;
+    final myCharacteristic = characteristic as MyGattCharacteristic2;
     final blueZCharacteristic = myCharacteristic.characteristic;
     await blueZCharacteristic.writeValue(
       value,
-      type: type.toBlueZ(),
+      type: type.toBlueZWriteType(),
     );
   }
 
@@ -188,7 +182,7 @@ class MyCentralManager extends CentralManager {
     required bool state,
   }) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final myCharacteristic = characteristic as MyGattCharacteristic;
+    final myCharacteristic = characteristic as MyGattCharacteristic2;
     final blueZCharacteristic = myCharacteristic.characteristic;
     if (state) {
       await blueZCharacteristic.startNotify();
@@ -200,7 +194,7 @@ class MyCentralManager extends CentralManager {
   @override
   Future<Uint8List> readDescriptor(GattDescriptor descriptor) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final myDescriptor = descriptor as MyGattDescriptor;
+    final myDescriptor = descriptor as MyGattDescriptor2;
     final blueZDescriptor = myDescriptor.descriptor;
     final blueZValue = await blueZDescriptor.readValue();
     return Uint8List.fromList(blueZValue);
@@ -212,7 +206,7 @@ class MyCentralManager extends CentralManager {
     required Uint8List value,
   }) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final myDescriptor = descriptor as MyGattDescriptor;
+    final myDescriptor = descriptor as MyGattDescriptor2;
     final blueZDescriptor = myDescriptor.descriptor;
     await blueZDescriptor.writeValue(value);
   }
@@ -221,7 +215,7 @@ class MyCentralManager extends CentralManager {
     for (var property in properties) {
       switch (property) {
         case 'Powered':
-          final state = _adapter.state;
+          final state = _adapter.myState;
           if (_state == state) {
             return;
           }
@@ -244,9 +238,9 @@ class MyCentralManager extends CentralManager {
   }
 
   void _onDiscovered(BlueZDevice device) {
-    final myPeripheral = MyPeripheral(device);
+    final myPeripheral = MyPeripheral2(device);
     final rssi = device.rssi;
-    final advertisement = device.advertisement;
+    final advertisement = device.myAdvertisement;
     final eventArgs = DiscoveredEventArgs(
       myPeripheral,
       rssi,
@@ -263,7 +257,7 @@ class MyCentralManager extends CentralManager {
             _onDiscovered(device);
             break;
           case 'Connected':
-            final myPeripheral = MyPeripheral(device);
+            final myPeripheral = MyPeripheral2(device);
             final state = device.connected;
             final eventArgs = PeripheralStateChangedEventArgs(
               myPeripheral,
@@ -278,10 +272,9 @@ class MyCentralManager extends CentralManager {
             break;
           case 'ServicesResolved':
             if (device.servicesResolved) {
-              final myPeripheral = MyPeripheral(device);
-              final myServices = device.gattServices
-                  .map((service) => MyGattService(service))
-                  .toList();
+              final myPeripheral = MyPeripheral2(device);
+              _endCharacteristicPropertiesChangedListener(myPeripheral);
+              final myServices = device.myServices;
               for (var myService in myServices) {
                 for (var myCharactersitic in myService.characteristics) {
                   for (var myDescriptor in myCharactersitic.descriptors) {
@@ -312,7 +305,8 @@ class MyCentralManager extends CentralManager {
       throw ArgumentError.notNull();
     }
     for (var myService in myServices) {
-      final myCharacteristics = myService.characteristics;
+      final myCharacteristics =
+          myService.characteristics.cast<MyGattCharacteristic2>();
       for (var myCharacteristic in myCharacteristics) {
         final characteristic = myCharacteristic.characteristic;
         final subscription = characteristic.propertiesChanged.listen(

@@ -4,10 +4,6 @@ import 'dart:typed_data';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
 import 'my_api.dart';
-import 'my_gatt_characteristic.dart';
-import 'my_gatt_descriptor.dart';
-import 'my_gatt_service.dart';
-import 'my_peripheral.dart';
 
 class MyCentralManager extends CentralManager
     implements MyCentralManagerFlutterApi {
@@ -58,7 +54,7 @@ class MyCentralManager extends CentralManager
     final args = await _myApi.setUp();
     final myStateArgs =
         MyBluetoothLowEnergyStateArgs.values[args.myStateNumber];
-    _state = myStateArgs.toState();
+    _state = myStateArgs.toMyState();
     MyCentralManagerFlutterApi.setup(this);
   }
 
@@ -121,9 +117,7 @@ class MyCentralManager extends CentralManager
     final myServiceArgses = await _myApi.discoverGATT(myPeripheral.hashCode);
     final myServices = myServiceArgses
         .cast<MyGattServiceArgs>()
-        .map(
-          (myServiceArgs) => MyGattService.fromMyArgs(myServiceArgs),
-        )
+        .map((myServiceArgs) => myServiceArgs.toMyService())
         .toList();
     for (var myService in myServices) {
       for (var myCharactersitic in myService.characteristics) {
@@ -222,49 +216,50 @@ class MyCentralManager extends CentralManager
   @override
   void onStateChanged(int myStateNumber) {
     final myStateArgs = MyBluetoothLowEnergyStateArgs.values[myStateNumber];
-    final state = myStateArgs.toState();
-    if (_state == state) {
+    final myState = myStateArgs.toMyState();
+    if (_state == myState) {
       return;
     }
-    _state = state;
-    final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
+    _state = myState;
+    final eventArgs = BluetoothLowEnergyStateChangedEventArgs(myState);
     _stateChangedController.add(eventArgs);
   }
 
   @override
   void onDiscovered(
     MyPeripheralArgs myPeripheralArgs,
-    int rssi,
+    int myRSSI,
     MyAdvertisementArgs myAdvertisementArgs,
   ) {
-    final myPeripheral = MyPeripheral.fromMyArgs(myPeripheralArgs);
-    final advertisement = myAdvertisementArgs.toAdvertisement();
+    final myPeripheral = myPeripheralArgs.toMyPeripheral();
+    final myAdvertisement = myAdvertisementArgs.toMyAdvertisement();
     final eventArgs = DiscoveredEventArgs(
       myPeripheral,
-      rssi,
-      advertisement,
+      myRSSI,
+      myAdvertisement,
     );
     _discoveredController.add(eventArgs);
   }
 
   @override
-  void onPeripheralStateChanged(MyPeripheralArgs myPeripheralArgs, bool state) {
-    final myPeripheral = MyPeripheral.fromMyArgs(myPeripheralArgs);
-    final eventArgs = PeripheralStateChangedEventArgs(myPeripheral, state);
+  void onPeripheralStateChanged(
+    MyPeripheralArgs myPeripheralArgs,
+    bool myState,
+  ) {
+    final myPeripheral = myPeripheralArgs.toMyPeripheral();
+    final eventArgs = PeripheralStateChangedEventArgs(myPeripheral, myState);
     _peripheralStateChangedController.add(eventArgs);
   }
 
   @override
   void onCharacteristicValueChanged(
     MyGattCharacteristicArgs myCharacteristicArgs,
-    Uint8List value,
+    Uint8List myValue,
   ) {
-    final myCharacteristic = MyGattCharacteristic.fromMyArgs(
-      myCharacteristicArgs,
-    );
+    final myCharacteristic = myCharacteristicArgs.toMyCharacteristic();
     final eventArgs = GattCharacteristicValueChangedEventArgs(
       myCharacteristic,
-      value,
+      myValue,
     );
     _characteristicValueChangedController.add(eventArgs);
   }

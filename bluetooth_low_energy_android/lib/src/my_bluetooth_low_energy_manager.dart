@@ -16,10 +16,10 @@ class MyBluetoothLowEnergyManager extends BluetoothLowEnergyManager {
   BluetoothLowEnergyState get state => _state;
   @protected
   set state(BluetoothLowEnergyState value) {
-    if (_state == state) {
+    if (_state == value) {
       return;
     }
-    _state = state;
+    _state = value;
     final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
     _stateChangedController.add(eventArgs);
   }

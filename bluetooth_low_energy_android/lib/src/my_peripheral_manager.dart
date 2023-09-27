@@ -5,8 +5,6 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 
 import 'my_api.dart';
 import 'my_bluetooth_low_energy_manager.dart';
-import 'my_central.dart';
-import 'my_gatt_characteristic.dart';
 
 class MyPeripheralManager extends MyBluetoothLowEnergyManager
     implements PeripheralManager, MyPeripheralManagerFlutterApi {
@@ -46,15 +44,15 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
     final args = await _myApi.setUp();
     final myStateArgs =
         MyBluetoothLowEnergyStateArgs.values[args.myStateNumber];
-    state = myStateArgs.toState();
+    state = myStateArgs.toMyState();
     MyPeripheralManagerFlutterApi.setup(this);
   }
 
   @override
   Future<void> addService(GattService service) async {
     await throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final customizedService = service as CustomizedGattService;
-    final myServiceArgs = customizedService.toMyArgs();
+    final myService = service as MyGattService;
+    final myServiceArgs = myService.toMyArgs();
     await _myApi.addService(myServiceArgs);
   }
 
@@ -147,7 +145,7 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
   @override
   void onStateChanged(int myStateNumber) {
     final myStateArgs = MyBluetoothLowEnergyStateArgs.values[myStateNumber];
-    state = myStateArgs.toState();
+    state = myStateArgs.toMyState();
   }
 
   @override
@@ -157,10 +155,8 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
     int myId,
     int myOffset,
   ) {
-    final myCentral = MyCentral.fromMyArgs(myCentralArgs);
-    final myCharacteristic = MyGattCharacteristic.fromMyArgs(
-      myCharacteristicArgs,
-    );
+    final myCentral = myCentralArgs.toMyCentral();
+    final myCharacteristic = myCharacteristicArgs.toMyCharacteristic();
     final eventArgs = ReadGattCharacteristicCommandEventArgs(
       myCentral,
       myCharacteristic,
@@ -178,10 +174,8 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
     int myOffset,
     Uint8List myValue,
   ) {
-    final myCentral = MyCentral.fromMyArgs(myCentralArgs);
-    final myCharacteristic = MyGattCharacteristic.fromMyArgs(
-      myCharacteristicArgs,
-    );
+    final myCentral = myCentralArgs.toMyCentral();
+    final myCharacteristic = myCharacteristicArgs.toMyCharacteristic();
     final eventArgs = WriteGattCharacteristicCommandEventArgs(
       myCentral,
       myCharacteristic,
@@ -198,10 +192,8 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
     MyGattCharacteristicArgs myCharacteristicArgs,
     bool myState,
   ) {
-    final myCentral = MyCentral.fromMyArgs(myCentralArgs);
-    final myCharacteristic = MyGattCharacteristic.fromMyArgs(
-      myCharacteristicArgs,
-    );
+    final myCentral = myCentralArgs.toMyCentral();
+    final myCharacteristic = myCharacteristicArgs.toMyCharacteristic();
     final eventArgs = NotifyGattCharacteristicCommandEventArgs(
       myCentral,
       myCharacteristic,

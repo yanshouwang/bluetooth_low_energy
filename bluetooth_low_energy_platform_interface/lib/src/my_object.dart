@@ -1,8 +1,10 @@
 abstract class MyObject {
-  @override
-  final int hashCode;
+  final int? myHashCode;
 
-  MyObject(this.hashCode);
+  MyObject({this.myHashCode});
+
+  @override
+  int get hashCode => myHashCode ?? super.hashCode;
 
   @override
   bool operator ==(Object other) {
