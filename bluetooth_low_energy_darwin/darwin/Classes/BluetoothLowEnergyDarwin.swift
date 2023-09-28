@@ -1,23 +1,19 @@
-#if os(iOS)
-import Flutter
-import UIKit
-#elseif os(macOS)
+#if os(macOS)
 import Cocoa
 import FlutterMacOS
 #else
-#error("Unsupported platform.")
+import Flutter
+import UIKit
 #endif
 
 public class BluetoothLowEnergyDarwin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
-#if os(iOS)
-        let binaryMessenger = registrar.messenger()
-#elseif os(macOS)
+#if os(macOS)
         let binaryMessenger = registrar.messenger
 #else
-#error("Unsupported platform.")
+        let binaryMessenger = registrar.messenger()
 #endif
-        let centralController = MyCentralController(binaryMessenger)
-        MyCentralControllerHostApiSetup.setUp(binaryMessenger: binaryMessenger, api: centralController)
+        let centralManager = MyCentralManager(binaryMessenger)
+        MyCentralManagerHostApiSetup.setUp(binaryMessenger: binaryMessenger, api: centralManager)
     }
 }

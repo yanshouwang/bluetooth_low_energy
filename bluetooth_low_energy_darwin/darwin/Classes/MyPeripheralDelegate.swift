@@ -9,41 +9,45 @@ import Foundation
 import CoreBluetooth
 
 class MyPeripheralDelegate: NSObject, CBPeripheralDelegate {
-    private let myCentralController: MyCentralController
+    private let myCentralManager: MyCentralManager
     
-    init(_ myCentralController: MyCentralController) {
-        self.myCentralController = myCentralController
+    init(_ myCentralController: MyCentralManager) {
+        self.myCentralManager = myCentralController
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
+        myCentralManager.didReadRSSI(peripheral, RSSI, error)
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        myCentralController.didDiscoverServices(peripheral, error)
+        myCentralManager.didDiscoverServices(peripheral, error)
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        myCentralController.didDiscoverCharacteristics(peripheral, service, error)
+        myCentralManager.didDiscoverCharacteristics(peripheral, service, error)
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
-        myCentralController.didDiscoverDescriptors(peripheral, characteristic, error)
+        myCentralManager.didDiscoverDescriptors(peripheral, characteristic, error)
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        myCentralController.didUpdateCharacteristicValue(characteristic, error)
+        myCentralManager.didUpdateCharacteristicValue(characteristic, error)
     }
     
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-        myCentralController.didWriteCharacteristicValue(characteristic, error)
+        myCentralManager.didWriteCharacteristicValue(characteristic, error)
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
-        myCentralController.didUpdateNotificationState(characteristic, error)
+        myCentralManager.didUpdateNotificationState(characteristic, error)
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor descriptor: CBDescriptor, error: Error?) {
-        myCentralController.didUpdateDescriptorValue(descriptor, error)
+        myCentralManager.didUpdateDescriptorValue(descriptor, error)
     }
     
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor descriptor: CBDescriptor, error: Error?) {
-        myCentralController.didWriteDescriptorValue(descriptor, error)
+        myCentralManager.didWriteDescriptorValue(descriptor, error)
     }
 }

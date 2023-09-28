@@ -128,7 +128,7 @@ class MyGattCharacteristicArgs {
 class MyGattDescriptorArgs {
   final int myHashCode;
   final String myUUID;
-  final Uint8List myValue;
+  final Uint8List? myValue;
 
   MyGattDescriptorArgs(
     this.myHashCode,

@@ -52,13 +52,6 @@ packages:
       relative: true
     source: path
     version: "3.0.0"
-  bluetooth_low_energy_windows:
-    dependency: transitive
-    description:
-      path: "../../bluetooth_low_energy_windows"
-      relative: true
-    source: path
-    version: "3.0.0"
   bluez:
     dependency: transitive
     description:
@@ -361,14 +354,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
-  win32:
-    dependency: transitive
-    description:
-      name: win32
-      sha256: "9e82a402b7f3d518fb9c02d0e9ae45952df31b9bf34d77baf19da2de03fc2aaa"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.0.7"
   xml:
     dependency: transitive
     description:
