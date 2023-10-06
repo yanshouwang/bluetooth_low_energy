@@ -21,15 +21,26 @@ abstract class PeripheralManager extends BluetoothLowEnergyManager {
   Stream<NotifyGattCharacteristicCommandEventArgs>
       get notifyCharacteristicCommandReceived;
 
+  /// Publishes a service and any of its associated characteristics and characteristic descriptors to the local GATT database.
   Future<void> addService(GattService service);
+
+  /// Removes a specified published service from the local GATT database.
   Future<void> removeService(GattService service);
+
+  /// Removes all published services from the local GATT database.
   Future<void> clearServices();
+
+  /// Advertises peripheral manager data.
   Future<void> startAdvertising(Advertisement advertisement);
+
+  /// Stops advertising peripheral manager data.
   Future<void> stopAdvertising();
 
   /// Gets the maximum amount of data, in bytes, that the central can receive in a
   /// single notification or indication.
   Future<int> getMaximumWriteLength(Central central);
+
+  /// Responds to a read request from a connected central.
   Future<void> sendReadCharacteristicReply(
     Central central,
     GattCharacteristic characteristic,
@@ -38,6 +49,8 @@ abstract class PeripheralManager extends BluetoothLowEnergyManager {
     bool status,
     Uint8List value,
   );
+
+  /// Responds to a write request from a connected central.
   Future<void> sendWriteCharacteristicReply(
     Central central,
     GattCharacteristic characteristic,
@@ -45,6 +58,8 @@ abstract class PeripheralManager extends BluetoothLowEnergyManager {
     int offset,
     bool status,
   );
+
+  /// Send an updated characteristic value to one or more subscribed centrals, using a notification or indication.
   Future<void> notifyCharacteristicValueChanged(
     Central central,
     GattCharacteristic characteristic,
