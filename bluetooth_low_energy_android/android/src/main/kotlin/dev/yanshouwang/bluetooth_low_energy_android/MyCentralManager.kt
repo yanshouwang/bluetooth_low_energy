@@ -20,23 +20,21 @@ import io.flutter.plugin.common.BinaryMessenger
 class MyCentralManager(private val context: Context, binaryMessenger: BinaryMessenger) : MyBluetoothLowEnergyManager(context), MyCentralManagerHostApi {
     private val scanner get() = adapter.bluetoothLeScanner
 
-    private val myApi = MyCentralManagerFlutterApi(binaryMessenger)
-    private val myScanCallback = MyScanCallback(this)
-    private val myBluetoothGattCallback = MyBluetoothGattCallback(this, executor)
+    private val api = MyCentralManagerFlutterApi(binaryMessenger)
+    private val scanCallback = MyScanCallback(this)
+    private val bluetoothGattCallback = MyBluetoothGattCallback(this, executor)
 
-    // Native cache
     private val devices = mutableMapOf<Long, BluetoothDevice>()
     private val bluetoothGATTs = mutableMapOf<Long, BluetoothGatt>()
     private val services = mutableMapOf<Long, BluetoothGattService>()
     private val characteristics = mutableMapOf<Long, BluetoothGattCharacteristic>()
     private val descriptors = mutableMapOf<Long, BluetoothGattDescriptor>()
 
-    // My cache
-    private val myPeripherals = mutableMapOf<Int, MyPeripheralArgs>()
-    private val myServicesOfMyPeripherals = mutableMapOf<Long, List<MyGattServiceArgs>>()
-    private val myServices = mutableMapOf<Int, MyGattServiceArgs>()
-    private val myCharacteristics = mutableMapOf<Int, MyGattCharacteristicArgs>()
-    private val myDescriptors = mutableMapOf<Int, MyGattDescriptorArgs>()
+    private val peripheralsArgs = mutableMapOf<Int, MyPeripheralArgs>()
+    private val servicesArgsOfPeripherals = mutableMapOf<Long, List<MyGattServiceArgs>>()
+    private val servicesArgs = mutableMapOf<Int, MyGattServiceArgs>()
+    private val characteristicsArgs = mutableMapOf<Int, MyGattCharacteristicArgs>()
+    private val descriptorsArgs = mutableMapOf<Int, MyGattDescriptorArgs>()
 
     private var registered = false
     private var discovering = false
@@ -60,8 +58,8 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
             }
             tearDown()
             if (unsupported) {
-                val stateNumber = MyBluetoothLowEnergyStateArgs.UNSUPPORTED.raw.toLong()
-                val args = MyCentralManagerArgs(stateNumber)
+                val stateNumberArgs = MyBluetoothLowEnergyStateArgs.UNSUPPORTED.raw.toLong()
+                val args = MyCentralManagerArgs(stateNumberArgs)
                 callback(Result.success(args))
             }
             authorize()
@@ -116,7 +114,7 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
             }
             val filters = emptyList<ScanFilter>()
             val settings = ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
-            scanner.startScan(filters, settings, myScanCallback)
+            scanner.startScan(filters, settings, scanCallback)
             executor.execute { onScanSucceed() }
             startDiscoveryCallback = callback
         } catch (e: Throwable) {
@@ -125,147 +123,147 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
     }
 
     override fun stopDiscovery() {
-        scanner.stopScan(myScanCallback)
+        scanner.stopScan(scanCallback)
         discovering = false
     }
 
-    override fun connect(myPeripheralHashCode: Long, callback: (Result<Unit>) -> Unit) {
+    override fun connect(peripheralHashCodeArgs: Long, callback: (Result<Unit>) -> Unit) {
         try {
-            val unfinishedCallback = connectCallbacks[myPeripheralHashCode]
+            val unfinishedCallback = connectCallbacks[peripheralHashCodeArgs]
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val device = devices[myPeripheralHashCode] as BluetoothDevice
+            val device = devices[peripheralHashCodeArgs] as BluetoothDevice
             val autoConnect = false
             // Add to bluetoothGATTs cache.
-            bluetoothGATTs[myPeripheralHashCode] = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            bluetoothGATTs[peripheralHashCodeArgs] = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 val transport = BluetoothDevice.TRANSPORT_LE
-                device.connectGatt(context, autoConnect, myBluetoothGattCallback, transport)
+                device.connectGatt(context, autoConnect, bluetoothGattCallback, transport)
             } else {
-                device.connectGatt(context, autoConnect, myBluetoothGattCallback)
+                device.connectGatt(context, autoConnect, bluetoothGattCallback)
             }
-            connectCallbacks[myPeripheralHashCode] = callback
+            connectCallbacks[peripheralHashCodeArgs] = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
     }
 
-    override fun disconnect(myPeripheralHashCode: Long, callback: (Result<Unit>) -> Unit) {
+    override fun disconnect(peripheralHashCodeArgs: Long, callback: (Result<Unit>) -> Unit) {
         try {
-            val unfinishedCallback = disconnectCallbacks[myPeripheralHashCode]
+            val unfinishedCallback = disconnectCallbacks[peripheralHashCodeArgs]
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val gatt = bluetoothGATTs[myPeripheralHashCode] as BluetoothGatt
+            val gatt = bluetoothGATTs[peripheralHashCodeArgs] as BluetoothGatt
             gatt.disconnect()
-            disconnectCallbacks[myPeripheralHashCode] = callback
+            disconnectCallbacks[peripheralHashCodeArgs] = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
     }
 
-    override fun getMaximumWriteLength(myPeripheralHashCode: Long, callback: (Result<Long>) -> Unit) {
+    override fun getMaximumWriteLength(peripheralHashCodeArgs: Long, callback: (Result<Long>) -> Unit) {
         try {
-            val unfinishedCallback = getMaximumWriteLengthCallbacks[myPeripheralHashCode]
+            val unfinishedCallback = getMaximumWriteLengthCallbacks[peripheralHashCodeArgs]
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val gatt = bluetoothGATTs[myPeripheralHashCode] as BluetoothGatt
+            val gatt = bluetoothGATTs[peripheralHashCodeArgs] as BluetoothGatt
             val requesting = gatt.requestMtu(512)
             if (!requesting) {
                 throw IllegalStateException()
             }
-            getMaximumWriteLengthCallbacks[myPeripheralHashCode] = callback
+            getMaximumWriteLengthCallbacks[peripheralHashCodeArgs] = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
     }
 
-    override fun readRSSI(myPeripheralHashCode: Long, callback: (Result<Long>) -> Unit) {
+    override fun readRSSI(peripheralHashCodeArgs: Long, callback: (Result<Long>) -> Unit) {
         try {
-            val unfinishedCallback = readRssiCallbacks[myPeripheralHashCode]
+            val unfinishedCallback = readRssiCallbacks[peripheralHashCodeArgs]
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val gatt = bluetoothGATTs[myPeripheralHashCode] as BluetoothGatt
+            val gatt = bluetoothGATTs[peripheralHashCodeArgs] as BluetoothGatt
             val reading = gatt.readRemoteRssi()
             if (!reading) {
                 throw IllegalStateException()
             }
-            readRssiCallbacks[myPeripheralHashCode] = callback
+            readRssiCallbacks[peripheralHashCodeArgs] = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
     }
 
-    override fun discoverGATT(myPeripheralHashCode: Long, callback: (Result<List<MyGattServiceArgs>>) -> Unit) {
+    override fun discoverGATT(peripheralHashCodeArgs: Long, callback: (Result<List<MyGattServiceArgs>>) -> Unit) {
         try {
-            val unfinishedCallback = discoverGattCallbacks[myPeripheralHashCode]
+            val unfinishedCallback = discoverGattCallbacks[peripheralHashCodeArgs]
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val gatt = bluetoothGATTs[myPeripheralHashCode] as BluetoothGatt
+            val gatt = bluetoothGATTs[peripheralHashCodeArgs] as BluetoothGatt
             val discovering = gatt.discoverServices()
             if (!discovering) {
                 throw IllegalStateException()
             }
-            discoverGattCallbacks[myPeripheralHashCode] = callback
+            discoverGattCallbacks[peripheralHashCodeArgs] = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
     }
 
-    override fun readCharacteristic(myPeripheralHashCode: Long, myCharacteristicHashCode: Long, callback: (Result<ByteArray>) -> Unit) {
+    override fun readCharacteristic(peripheralHashCodeArgs: Long, characteristicHashCodeArgs: Long, callback: (Result<ByteArray>) -> Unit) {
         try {
-            val unfinishedCallback = readCharacteristicCallbacks[myCharacteristicHashCode]
+            val unfinishedCallback = readCharacteristicCallbacks[characteristicHashCodeArgs]
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val gatt = bluetoothGATTs[myPeripheralHashCode] as BluetoothGatt
-            val characteristic = characteristics[myCharacteristicHashCode] as BluetoothGattCharacteristic
+            val gatt = bluetoothGATTs[peripheralHashCodeArgs] as BluetoothGatt
+            val characteristic = characteristics[characteristicHashCodeArgs] as BluetoothGattCharacteristic
             val reading = gatt.readCharacteristic(characteristic)
             if (!reading) {
                 throw IllegalStateException()
             }
-            readCharacteristicCallbacks[myCharacteristicHashCode] = callback
+            readCharacteristicCallbacks[characteristicHashCodeArgs] = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
     }
 
-    override fun writeCharacteristic(myPeripheralHashCode: Long, myCharacteristicHashCode: Long, myValue: ByteArray, myTypeNumber: Long, callback: (Result<Unit>) -> Unit) {
+    override fun writeCharacteristic(peripheralHashCodeArgs: Long, characteristicHashCodeArgs: Long, valueArgs: ByteArray, typeNumberArgs: Long, callback: (Result<Unit>) -> Unit) {
         try {
-            val unfinishedCallback = writeCharacteristicCallbacks[myCharacteristicHashCode]
+            val unfinishedCallback = writeCharacteristicCallbacks[characteristicHashCodeArgs]
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val gatt = bluetoothGATTs[myPeripheralHashCode] as BluetoothGatt
-            val characteristic = characteristics[myCharacteristicHashCode] as BluetoothGattCharacteristic
-            val myTypeArgs = myTypeNumber.toMyGattCharacteristicTypeArgs()
-            val writeType = myTypeArgs.toType()
+            val gatt = bluetoothGATTs[peripheralHashCodeArgs] as BluetoothGatt
+            val characteristic = characteristics[characteristicHashCodeArgs] as BluetoothGattCharacteristic
+            val typeArgs = typeNumberArgs.toWriteTypeArgs()
+            val type = typeArgs.toType()
             val writing = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                val code = gatt.writeCharacteristic(characteristic, myValue, writeType)
+                val code = gatt.writeCharacteristic(characteristic, valueArgs, type)
                 code == BluetoothStatusCodes.SUCCESS
             } else {
                 // TODO: remove this when minSdkVersion >= 33
-                characteristic.value = myValue
-                characteristic.writeType = writeType
+                characteristic.value = valueArgs
+                characteristic.writeType = type
                 gatt.writeCharacteristic(characteristic)
             }
             if (!writing) {
                 throw IllegalStateException()
             }
-            writeCharacteristicCallbacks[myCharacteristicHashCode] = callback
+            writeCharacteristicCallbacks[characteristicHashCodeArgs] = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
     }
 
-    override fun notifyCharacteristic(myPeripheralHashCode: Long, myCharacteristicHashCode: Long, myState: Boolean, callback: (Result<Unit>) -> Unit) {
+    override fun notifyCharacteristic(peripheralHashCodeArgs: Long, characteristicHashCodeArgs: Long, stateArgs: Boolean, callback: (Result<Unit>) -> Unit) {
         try {
-            val gatt = bluetoothGATTs[myPeripheralHashCode] as BluetoothGatt
-            val characteristic = characteristics[myCharacteristicHashCode] as BluetoothGattCharacteristic
-            val notifying = gatt.setCharacteristicNotification(characteristic, myState)
+            val gatt = bluetoothGATTs[peripheralHashCodeArgs] as BluetoothGatt
+            val characteristic = characteristics[characteristicHashCodeArgs] as BluetoothGattCharacteristic
+            val notifying = gatt.setCharacteristicNotification(characteristic, stateArgs)
             if (!notifying) {
                 throw IllegalStateException()
             }
@@ -275,13 +273,13 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
 //            if (characteristic.uuid == UUID_HEART_RATE_MEASUREMENT) {
             val descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG_UUID)
             val descriptorHashCode = descriptor.hashCode()
-            val myDescriptor = myDescriptors[descriptorHashCode] as MyGattDescriptorArgs
-            val myDescriptorHashCode = myDescriptor.myHashCode
-            val unfinishedCallback = writeDescriptorCallbacks[myDescriptorHashCode]
+            val descriptorArgs = descriptorsArgs[descriptorHashCode] as MyGattDescriptorArgs
+            val descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
+            val unfinishedCallback = writeDescriptorCallbacks[descriptorHashCodeArgs]
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val value = if (myState) BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+            val value = if (stateArgs) BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
             else BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
             val writing = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 val code = gatt.writeDescriptor(descriptor, value)
@@ -294,7 +292,7 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
             if (!writing) {
                 throw IllegalStateException()
             }
-            writeDescriptorCallbacks[myDescriptorHashCode] = callback
+            writeDescriptorCallbacks[descriptorHashCodeArgs] = callback
 //            } else {
 //                callback(Result.success(Unit))
 //            }
@@ -303,44 +301,44 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
         }
     }
 
-    override fun readDescriptor(myPeripheralHashCode: Long, myDescriptorHashCode: Long, callback: (Result<ByteArray>) -> Unit) {
+    override fun readDescriptor(peripheralHashCodeArgs: Long, descriptorHashCodeArgs: Long, callback: (Result<ByteArray>) -> Unit) {
         try {
-            val unfinishedCallback = readDescriptorCallbacks[myDescriptorHashCode]
+            val unfinishedCallback = readDescriptorCallbacks[descriptorHashCodeArgs]
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val gatt = bluetoothGATTs[myPeripheralHashCode] as BluetoothGatt
-            val descriptor = descriptors[myDescriptorHashCode] as BluetoothGattDescriptor
+            val gatt = bluetoothGATTs[peripheralHashCodeArgs] as BluetoothGatt
+            val descriptor = descriptors[descriptorHashCodeArgs] as BluetoothGattDescriptor
             val reading = gatt.readDescriptor(descriptor)
             if (!reading) {
                 throw IllegalStateException()
             }
-            readDescriptorCallbacks[myDescriptorHashCode] = callback
+            readDescriptorCallbacks[descriptorHashCodeArgs] = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
     }
 
-    override fun writeDescriptor(myPeripheralHashCode: Long, myDescriptorHashCode: Long, myValue: ByteArray, callback: (Result<Unit>) -> Unit) {
+    override fun writeDescriptor(peripheralHashCodeArgs: Long, descriptorHashCodeArgs: Long, valueArgs: ByteArray, callback: (Result<Unit>) -> Unit) {
         try {
-            val unfinishedCallback = writeDescriptorCallbacks[myDescriptorHashCode]
+            val unfinishedCallback = writeDescriptorCallbacks[descriptorHashCodeArgs]
             if (unfinishedCallback != null) {
                 throw IllegalStateException()
             }
-            val gatt = bluetoothGATTs[myPeripheralHashCode] as BluetoothGatt
-            val descriptor = descriptors[myDescriptorHashCode] as BluetoothGattDescriptor
+            val gatt = bluetoothGATTs[peripheralHashCodeArgs] as BluetoothGatt
+            val descriptor = descriptors[descriptorHashCodeArgs] as BluetoothGattDescriptor
             val writing = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                val code = gatt.writeDescriptor(descriptor, myValue)
+                val code = gatt.writeDescriptor(descriptor, valueArgs)
                 code == BluetoothStatusCodes.SUCCESS
             } else {
                 // TODO: remove this when minSdkVersion >= 33
-                descriptor.value = myValue
+                descriptor.value = valueArgs
                 gatt.writeDescriptor(descriptor)
             }
             if (!writing) {
                 throw IllegalStateException()
             }
-            writeDescriptorCallbacks[myDescriptorHashCode] = callback
+            writeDescriptorCallbacks[descriptorHashCodeArgs] = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
@@ -353,11 +351,11 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
         val authorized = results.all { r -> r == PackageManager.PERMISSION_GRANTED }
         val callback = setUpCallback ?: return false
         setUpCallback = null
-        val myStateArgs = if (authorized) adapter.myStateArgs
+        val stateArgs = if (authorized) adapter.stateArgs
         else MyBluetoothLowEnergyStateArgs.UNAUTHORIZED
-        val myStateNumber = myStateArgs.raw.toLong()
-        val myArgs = MyCentralManagerArgs(myStateNumber)
-        callback(Result.success(myArgs))
+        val stateNumberArgs = stateArgs.raw.toLong()
+        val args = MyCentralManagerArgs(stateNumberArgs)
+        callback(Result.success(args))
         if (authorized) {
             register()
         }
@@ -370,9 +368,9 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
             return
         }
         val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF)
-        val myStateArgs = state.toMyCentralStateArgs()
-        val myStateNumber = myStateArgs.raw.toLong()
-        myApi.onStateChanged(myStateNumber) {}
+        val stateArgs = state.toBluetoothLowEnergyStateArgs()
+        val stateNumberArgs = stateArgs.raw.toLong()
+        api.onStateChanged(stateNumberArgs) {}
     }
 
     private fun onScanSucceed() {
@@ -390,56 +388,56 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
 
     fun onScanResult(result: ScanResult) {
         val device = result.device
-        val myPeripheral = device.toMyPeripheralArgs()
+        val peripheralArgs = device.toPeripheralArgs()
         val hashCode = device.hashCode()
-        val myHashCode = myPeripheral.myHashCode
-        this.devices[myHashCode] = device
-        this.myPeripherals[hashCode] = myPeripheral
-        val rssi = result.rssi.toLong()
-        val myAdvertisementArgs = result.myAdvertisementArgs
-        myApi.onDiscovered(myPeripheral, rssi, myAdvertisementArgs) {}
+        val hashCodeArgs = peripheralArgs.hashCodeArgs
+        this.devices[hashCodeArgs] = device
+        this.peripheralsArgs[hashCode] = peripheralArgs
+        val rssiArgs = result.rssi.toLong()
+        val advertisementArgs = result.advertisementArgs
+        api.onDiscovered(peripheralArgs, rssiArgs, advertisementArgs) {}
     }
 
     fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
         val device = gatt.device
         val deviceHashCode = device.hashCode()
-        val myPeripheral = myPeripherals[deviceHashCode] as MyPeripheralArgs
-        val myPeripheralHashCode = myPeripheral.myHashCode
+        val peripheralArgs = peripheralsArgs[deviceHashCode] as MyPeripheralArgs
+        val peripheralHashCodeArgs = peripheralArgs.hashCodeArgs
         // Check callbacks
         if (newState != BluetoothProfile.STATE_CONNECTED) {
             gatt.close()
-            bluetoothGATTs.remove(myPeripheralHashCode)
+            bluetoothGATTs.remove(peripheralHashCodeArgs)
             val error = IllegalStateException("GATT is disconnected with status: $status")
-            val getMaximumWriteLengthCallback = getMaximumWriteLengthCallbacks.remove(myPeripheralHashCode)
+            val getMaximumWriteLengthCallback = getMaximumWriteLengthCallbacks.remove(peripheralHashCodeArgs)
             if (getMaximumWriteLengthCallback != null) {
                 getMaximumWriteLengthCallback(Result.failure(error))
             }
-            val readRssiCallback = readRssiCallbacks.remove(myPeripheralHashCode)
+            val readRssiCallback = readRssiCallbacks.remove(peripheralHashCodeArgs)
             if (readRssiCallback != null) {
                 readRssiCallback(Result.failure(error))
             }
-            val discoverGattCallback = discoverGattCallbacks.remove(myPeripheralHashCode)
+            val discoverGattCallback = discoverGattCallbacks.remove(peripheralHashCodeArgs)
             if (discoverGattCallback != null) {
                 discoverGattCallback(Result.failure(error))
             }
-            val myServices = myServicesOfMyPeripherals[myPeripheralHashCode] ?: emptyList()
-            for (myService in myServices) {
-                val myCharacteristics = myService.myCharacteristicArgses.filterNotNull()
-                for (myCharacteristic in myCharacteristics) {
-                    val myCharacteristicHashCode = myCharacteristic.myHashCode
-                    val readCharacteristicCallback = readCharacteristicCallbacks.remove(myCharacteristicHashCode)
-                    val writeCharacteristicCallback = writeCharacteristicCallbacks.remove(myCharacteristicHashCode)
+            val servicesArgs = servicesArgsOfPeripherals[peripheralHashCodeArgs] ?: emptyList()
+            for (serviceArgs in servicesArgs) {
+                val characteristicsArgs = serviceArgs.characteristicsArgs.filterNotNull()
+                for (characteristicArgs in characteristicsArgs) {
+                    val characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
+                    val readCharacteristicCallback = readCharacteristicCallbacks.remove(characteristicHashCodeArgs)
+                    val writeCharacteristicCallback = writeCharacteristicCallbacks.remove(characteristicHashCodeArgs)
                     if (readCharacteristicCallback != null) {
                         readCharacteristicCallback(Result.failure(error))
                     }
                     if (writeCharacteristicCallback != null) {
                         writeCharacteristicCallback(Result.failure(error))
                     }
-                    val myDescriptors = myCharacteristic.myDescriptorArgses.filterNotNull()
-                    for (myDescriptor in myDescriptors) {
-                        val myDescriptorHashCode = myDescriptor.myHashCode
-                        val readDescriptorCallback = readDescriptorCallbacks.remove(myDescriptorHashCode)
-                        val writeDescriptorCallback = writeDescriptorCallbacks.remove(myDescriptorHashCode)
+                    val descriptorsArgs = characteristicArgs.descriptorsArgs.filterNotNull()
+                    for (descriptorArgs in descriptorsArgs) {
+                        val descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
+                        val readDescriptorCallback = readDescriptorCallbacks.remove(descriptorHashCodeArgs)
+                        val writeDescriptorCallback = writeDescriptorCallbacks.remove(descriptorHashCodeArgs)
                         if (readDescriptorCallback != null) {
                             readDescriptorCallback(Result.failure(error))
                         }
@@ -451,18 +449,18 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
             }
         }
         // Check state
-        val connectCallback = connectCallbacks.remove(myPeripheralHashCode)
-        val disconnectCallback = disconnectCallbacks.remove(myPeripheralHashCode)
+        val connectCallback = connectCallbacks.remove(peripheralHashCodeArgs)
+        val disconnectCallback = disconnectCallbacks.remove(peripheralHashCodeArgs)
         if (connectCallback == null && disconnectCallback == null) {
             // State changed.
-            val state = newState == BluetoothProfile.STATE_CONNECTED
-            myApi.onPeripheralStateChanged(myPeripheral, state) {}
+            val stateArgs = newState == BluetoothProfile.STATE_CONNECTED
+            api.onPeripheralStateChanged(peripheralArgs, stateArgs) {}
         } else {
             if (connectCallback != null) {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     // Connect succeed.
                     connectCallback(Result.success(Unit))
-                    myApi.onPeripheralStateChanged(myPeripheral, true) {}
+                    api.onPeripheralStateChanged(peripheralArgs, true) {}
                 } else {
                     // Connect failed.
                     val error = IllegalStateException("Connect failed with status: $status")
@@ -473,7 +471,7 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     // Disconnect succeed.
                     disconnectCallback(Result.success(Unit))
-                    myApi.onPeripheralStateChanged(myPeripheral, false) {}
+                    api.onPeripheralStateChanged(peripheralArgs, false) {}
                 } else {
                     // Disconnect failed.
                     val error = IllegalStateException("Connect failed with status: $status")
@@ -486,12 +484,12 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
     fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
         val device = gatt.device
         val hashCode = device.hashCode()
-        val myPeripheral = myPeripherals[hashCode] as MyPeripheralArgs
-        val myHashCode = myPeripheral.myHashCode
-        val callback = getMaximumWriteLengthCallbacks.remove(myHashCode) ?: return
+        val peripheralArgs = peripheralsArgs[hashCode] as MyPeripheralArgs
+        val peripheralHashCodeArgs = peripheralArgs.hashCodeArgs
+        val callback = getMaximumWriteLengthCallbacks.remove(peripheralHashCodeArgs) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
-            val myMaximumWriteLength = (mtu - 3).toLong()
-            callback(Result.success(myMaximumWriteLength))
+            val maximumWriteLengthArgs = (mtu - 3).toLong()
+            callback(Result.success(maximumWriteLengthArgs))
         } else {
             val error = IllegalStateException("Get maximum write length failed with status: $status")
             callback(Result.failure(error))
@@ -501,12 +499,12 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
     fun onReadRemoteRssi(gatt: BluetoothGatt, rssi: Int, status: Int) {
         val device = gatt.device
         val hashCode = device.hashCode()
-        val myPeripheral = myPeripherals[hashCode] as MyPeripheralArgs
-        val myHashCode = myPeripheral.myHashCode
-        val callback = readRssiCallbacks.remove(myHashCode) ?: return
+        val peripheralArgs = peripheralsArgs[hashCode] as MyPeripheralArgs
+        val peripheralHashCodeArgs = peripheralArgs.hashCodeArgs
+        val callback = readRssiCallbacks.remove(peripheralHashCodeArgs) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
-            val myRSSI = rssi.toLong()
-            callback(Result.success(myRSSI))
+            val rssiArgs = rssi.toLong()
+            callback(Result.success(rssiArgs))
         } else {
             val error = IllegalStateException("Read rssi failed with status: $status")
             callback(Result.failure(error))
@@ -516,42 +514,42 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
     fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
         val device = gatt.device
         val deviceHashCode = device.hashCode()
-        val myPeripheral = myPeripherals[deviceHashCode] as MyPeripheralArgs
-        val myPeripheralHashCode = myPeripheral.myHashCode
-        val callback = discoverGattCallbacks.remove(myPeripheralHashCode) ?: return
+        val peripheralArgs = peripheralsArgs[deviceHashCode] as MyPeripheralArgs
+        val peripheralHashCodeArgs = peripheralArgs.hashCodeArgs
+        val callback = discoverGattCallbacks.remove(peripheralHashCodeArgs) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
             val services = gatt.services
-            val myServices = mutableListOf<MyGattServiceArgs>()
+            val servicesArgs = mutableListOf<MyGattServiceArgs>()
             for (service in services) {
                 val characteristics = service.characteristics
-                val myCharacteristics = mutableListOf<MyGattCharacteristicArgs>()
+                val characteristicsArgs = mutableListOf<MyGattCharacteristicArgs>()
                 for (characteristic in characteristics) {
                     val descriptors = characteristic.descriptors
-                    val myDescriptors = mutableListOf<MyGattDescriptorArgs>()
+                    val descriptorsArgs = mutableListOf<MyGattDescriptorArgs>()
                     for (descriptor in descriptors) {
-                        val myDescriptor = descriptor.toMyArgs()
+                        val descriptorArgs = descriptor.toArgs()
                         val descriptorHashCode = descriptor.hashCode()
-                        val myDescriptorHashCode = myDescriptor.myHashCode
-                        this.descriptors[myDescriptorHashCode] = descriptor
-                        this.myDescriptors[descriptorHashCode] = myDescriptor
-                        myDescriptors.add(myDescriptor)
+                        val descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
+                        this.descriptors[descriptorHashCodeArgs] = descriptor
+                        this.descriptorsArgs[descriptorHashCode] = descriptorArgs
+                        descriptorsArgs.add(descriptorArgs)
                     }
-                    val myCharacteristic = characteristic.toMyArgs(myDescriptors)
+                    val characteristicArgs = characteristic.toArgs(descriptorsArgs)
                     val characteristicHashCode = characteristic.hashCode()
-                    val myCharacteristicHashCode = myCharacteristic.myHashCode
-                    this.characteristics[myCharacteristicHashCode] = characteristic
-                    this.myCharacteristics[characteristicHashCode] = myCharacteristic
-                    myCharacteristics.add(myCharacteristic)
+                    val characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
+                    this.characteristics[characteristicHashCodeArgs] = characteristic
+                    this.characteristicsArgs[characteristicHashCode] = characteristicArgs
+                    characteristicsArgs.add(characteristicArgs)
                 }
-                val myService = service.toMyArgs(myCharacteristics)
+                val serviceArgs = service.toArgs(characteristicsArgs)
                 val serviceHashCode = service.hashCode()
-                val myServiceHashCode = myService.myHashCode
-                this.services[myServiceHashCode] = service
-                this.myServices[serviceHashCode] = myService
-                myServices.add(myService)
+                val serviceHashCodeArgs = serviceArgs.hashCodeArgs
+                this.services[serviceHashCodeArgs] = service
+                this.servicesArgs[serviceHashCode] = serviceArgs
+                servicesArgs.add(serviceArgs)
             }
-            myServicesOfMyPeripherals[myPeripheralHashCode] = myServices
-            callback(Result.success(myServices))
+            servicesArgsOfPeripherals[peripheralHashCodeArgs] = servicesArgs
+            callback(Result.success(servicesArgs))
         } else {
             val error = IllegalStateException("Discover GATT failed with status: $status")
             callback(Result.failure(error))
@@ -560,9 +558,9 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
 
     fun onCharacteristicRead(characteristic: BluetoothGattCharacteristic, status: Int, value: ByteArray) {
         val hashCode = characteristic.hashCode()
-        val myCharacteristic = myCharacteristics[hashCode] as MyGattCharacteristicArgs
-        val myHashCode = myCharacteristic.myHashCode
-        val callback = readCharacteristicCallbacks.remove(myHashCode) ?: return
+        val characteristicArgs = characteristicsArgs[hashCode] as MyGattCharacteristicArgs
+        val characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
+        val callback = readCharacteristicCallbacks.remove(characteristicHashCodeArgs) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
             callback(Result.success(value))
         } else {
@@ -573,9 +571,9 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
 
     fun onCharacteristicWrite(characteristic: BluetoothGattCharacteristic, status: Int) {
         val hashCode = characteristic.hashCode()
-        val myCharacteristic = myCharacteristics[hashCode] as MyGattCharacteristicArgs
-        val myHashCode = myCharacteristic.myHashCode
-        val callback = writeCharacteristicCallbacks.remove(myHashCode) ?: return
+        val characteristicArgs = characteristicsArgs[hashCode] as MyGattCharacteristicArgs
+        val characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
+        val callback = writeCharacteristicCallbacks.remove(characteristicHashCodeArgs) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
             callback(Result.success(Unit))
         } else {
@@ -586,15 +584,15 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
 
     fun onCharacteristicChanged(characteristic: BluetoothGattCharacteristic, value: ByteArray) {
         val hashCode = characteristic.hashCode()
-        val myCharacteristic = myCharacteristics[hashCode] as MyGattCharacteristicArgs
-        myApi.onCharacteristicValueChanged(myCharacteristic, value) {}
+        val characteristicArgs = characteristicsArgs[hashCode] as MyGattCharacteristicArgs
+        api.onCharacteristicValueChanged(characteristicArgs, value) {}
     }
 
     fun onDescriptorRead(descriptor: BluetoothGattDescriptor, status: Int, value: ByteArray) {
         val hashCode = descriptor.hashCode()
-        val myDescriptor = myDescriptors[hashCode] as MyGattDescriptorArgs
-        val myHashCode = myDescriptor.myHashCode
-        val callback = readDescriptorCallbacks.remove(myHashCode) ?: return
+        val descriptorArgs = descriptorsArgs[hashCode] as MyGattDescriptorArgs
+        val descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
+        val callback = readDescriptorCallbacks.remove(descriptorHashCodeArgs) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
             callback(Result.success(value))
         } else {
@@ -605,9 +603,9 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
 
     fun onDescriptorWrite(descriptor: BluetoothGattDescriptor, status: Int) {
         val hashCode = descriptor.hashCode()
-        val myDescriptor = myDescriptors[hashCode] as MyGattDescriptorArgs
-        val myHashCode = myDescriptor.myHashCode
-        val callback = writeDescriptorCallbacks.remove(myHashCode) ?: return
+        val descriptorArgs = descriptorsArgs[hashCode] as MyGattDescriptorArgs
+        val descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
+        val callback = writeDescriptorCallbacks.remove(descriptorHashCodeArgs) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
             callback(Result.success(Unit))
         } else {

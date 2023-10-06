@@ -3,27 +3,31 @@ import 'dart:typed_data';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
 import 'my_api.g.dart';
+import 'my_gatt_characteristic2.dart';
+import 'my_gatt_descriptor2.dart';
+import 'my_gatt_service2.dart';
 
 export 'my_api.g.dart';
 
 extension MyBluetoothLowEnergyStateArgsX on MyBluetoothLowEnergyStateArgs {
-  BluetoothLowEnergyState toMyState() {
+  BluetoothLowEnergyState toState() {
     return BluetoothLowEnergyState.values[index];
   }
 }
 
 extension MyAdvertisementArgsX on MyAdvertisementArgs {
-  Advertisement toMyAdvertisement() {
-    final name = myName;
+  Advertisement toAdvertisement() {
+    final name = nameArgs;
     final manufacturerSpecificData =
-        myManufacturerSpecificData.cast<int, Uint8List>();
-    final serviceUUIDs = myServiceUUIDs
+        manufacturerSpecificDataArgs.cast<int, Uint8List>();
+    final serviceUUIDs = serviceUUIDsArgs
         .cast<String>()
-        .map((uuidValue) => UUID.fromString(uuidValue))
+        .map((args) => UUID.fromString(args))
         .toList();
-    final serviceData = myServiceData.cast<String, Uint8List>().map(
-      (uuidValue, data) {
-        final uuid = UUID.fromString(uuidValue);
+    final serviceData = serviceDataArgs.cast<String, Uint8List>().map(
+      (uuidArgs, dataArgs) {
+        final uuid = UUID.fromString(uuidArgs);
+        final data = dataArgs;
         return MapEntry(uuid, data);
       },
     );
@@ -38,37 +42,38 @@ extension MyAdvertisementArgsX on MyAdvertisementArgs {
 
 extension MyGattCharacteristicPropertyArgsX
     on MyGattCharacteristicPropertyArgs {
-  GattCharacteristicProperty toMyProperty() {
+  GattCharacteristicProperty toProperty() {
     return GattCharacteristicProperty.values[index];
   }
 }
 
 extension GattCharacteristicWriteTypeX on GattCharacteristicWriteType {
-  MyGattCharacteristicWriteTypeArgs toMyArgs() {
+  MyGattCharacteristicWriteTypeArgs toArgs() {
     return MyGattCharacteristicWriteTypeArgs.values[index];
   }
 }
 
 extension MyPeripheralArgsX on MyPeripheralArgs {
-  MyPeripheral toMyPeripheral() {
-    final uuid = UUID.fromString(myUUID);
+  Peripheral toPeripheral() {
+    final hashCode = hashCodeArgs;
+    final uuid = UUID.fromString(uuidArgs);
     return MyPeripheral(
-      myHashCode: myHashCode,
+      hashCode: hashCode,
       uuid: uuid,
     );
   }
 }
 
 extension MyGattServiceArgsX on MyGattServiceArgs {
-  MyGattService toMyService() {
-    final uuid = UUID.fromString(myUUID);
-    final characteristics = myCharacteristicArgses
+  MyGattService2 toService2() {
+    final hashCode = hashCodeArgs;
+    final uuid = UUID.fromString(uuidArgs);
+    final characteristics = characteristicsArgs
         .cast<MyGattCharacteristicArgs>()
-        .map(
-            (myCharacteristicArgs) => myCharacteristicArgs.toMyCharacteristic())
+        .map((args) => args.toCharacteristic2())
         .toList();
-    return MyGattService(
-      myHashCode: myHashCode,
+    return MyGattService2(
+      hashCode: hashCode,
       uuid: uuid,
       characteristics: characteristics,
     );
@@ -76,21 +81,21 @@ extension MyGattServiceArgsX on MyGattServiceArgs {
 }
 
 extension MyGattCharacteristicArgsX on MyGattCharacteristicArgs {
-  MyGattCharacteristic toMyCharacteristic() {
-    final uuid = UUID.fromString(myUUID);
-    final properties = myPropertyNumbers.cast<int>().map(
-      (myPropertyNumber) {
-        final myPropertyArgs =
-            MyGattCharacteristicPropertyArgs.values[myPropertyNumber];
-        return myPropertyArgs.toMyProperty();
+  MyGattCharacteristic2 toCharacteristic2() {
+    final hashCode = hashCodeArgs;
+    final uuid = UUID.fromString(uuidArgs);
+    final properties = propertyNumbersArgs.cast<int>().map(
+      (args) {
+        final propertyArgs = MyGattCharacteristicPropertyArgs.values[args];
+        return propertyArgs.toProperty();
       },
     ).toList();
-    final descriptors = myDescriptorArgses
+    final descriptors = descriptorsArgs
         .cast<MyGattDescriptorArgs>()
-        .map((myDescriptorArgs) => myDescriptorArgs.toMyDescriptor())
+        .map((args) => args.toDescriptor2())
         .toList();
-    return MyGattCharacteristic(
-      myHashCode: myHashCode,
+    return MyGattCharacteristic2(
+      hashCode: hashCode,
       uuid: uuid,
       properties: properties,
       descriptors: descriptors,
@@ -99,10 +104,11 @@ extension MyGattCharacteristicArgsX on MyGattCharacteristicArgs {
 }
 
 extension MyGattDescriptorArgsX on MyGattDescriptorArgs {
-  MyGattDescriptor toMyDescriptor() {
-    final uuid = UUID.fromString(myUUID);
-    return MyGattDescriptor(
-      myHashCode: myHashCode,
+  MyGattDescriptor2 toDescriptor2() {
+    final hashCode = hashCodeArgs;
+    final uuid = UUID.fromString(uuidArgs);
+    return MyGattDescriptor2(
+      hashCode: hashCode,
       uuid: uuid,
     );
   }

@@ -7,7 +7,7 @@ class MyPeripheral extends MyObject implements Peripheral {
   final UUID uuid;
 
   MyPeripheral({
-    required super.myHashCode,
+    required super.hashCode,
     required this.uuid,
   });
 }

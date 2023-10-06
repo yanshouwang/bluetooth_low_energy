@@ -8,7 +8,7 @@ class MyGattCharacteristic2 extends MyGattCharacteristic {
 
   MyGattCharacteristic2(this.characteristic)
       : super(
-          myHashCode: characteristic.hashCode,
+          hashCode: characteristic.hashCode,
           uuid: characteristic.myUUID,
           properties: characteristic.myProperties,
           descriptors: characteristic.myDescriptors,

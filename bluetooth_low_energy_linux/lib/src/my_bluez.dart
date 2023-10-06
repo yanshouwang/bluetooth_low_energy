@@ -29,16 +29,16 @@ extension BlueZDeviceX on BlueZDevice {
 
   Advertisement get myAdvertisement {
     final name = this.name.isNotEmpty ? this.name : null;
-    final manufacturerSpecificData = manufacturerData.map((key, value) {
-      final id = key.id;
-      final data = Uint8List.fromList(value);
-      return MapEntry(id, data);
+    final manufacturerSpecificData = manufacturerData.map((id, data) {
+      final myId = id.id;
+      final myData = Uint8List.fromList(data);
+      return MapEntry(myId, myData);
     });
     final serviceUUIDs = uuids.map((uuid) => uuid.toMyUUID()).toList();
     final serviceData = this.serviceData.map((uuid, data) {
-      final key = uuid.toMyUUID();
-      final value = Uint8List.fromList(data);
-      return MapEntry(key, value);
+      final myUUID = uuid.toMyUUID();
+      final myData = Uint8List.fromList(data);
+      return MapEntry(myUUID, myData);
     });
     return Advertisement(
       name: name,

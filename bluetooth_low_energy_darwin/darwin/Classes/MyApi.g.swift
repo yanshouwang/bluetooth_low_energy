@@ -61,152 +61,152 @@ enum MyGattCharacteristicWriteTypeArgs: Int {
 
 /// Generated class from Pigeon that represents data sent in messages.
 struct MyCentralManagerArgs {
-  var myStateNumber: Int64
+  var stateNumberArgs: Int64
 
   static func fromList(_ list: [Any?]) -> MyCentralManagerArgs? {
-    let myStateNumber = list[0] is Int64 ? list[0] as! Int64 : Int64(list[0] as! Int32)
+    let stateNumberArgs = list[0] is Int64 ? list[0] as! Int64 : Int64(list[0] as! Int32)
 
     return MyCentralManagerArgs(
-      myStateNumber: myStateNumber
+      stateNumberArgs: stateNumberArgs
     )
   }
   func toList() -> [Any?] {
     return [
-      myStateNumber,
-    ]
-  }
-}
-
-/// Generated class from Pigeon that represents data sent in messages.
-struct MyPeripheralArgs {
-  var myHashCode: Int64
-  var myUUID: String
-
-  static func fromList(_ list: [Any?]) -> MyPeripheralArgs? {
-    let myHashCode = list[0] is Int64 ? list[0] as! Int64 : Int64(list[0] as! Int32)
-    let myUUID = list[1] as! String
-
-    return MyPeripheralArgs(
-      myHashCode: myHashCode,
-      myUUID: myUUID
-    )
-  }
-  func toList() -> [Any?] {
-    return [
-      myHashCode,
-      myUUID,
+      stateNumberArgs,
     ]
   }
 }
 
 /// Generated class from Pigeon that represents data sent in messages.
 struct MyAdvertisementArgs {
-  var myName: String? = nil
-  var myManufacturerSpecificData: [Int64?: FlutterStandardTypedData?]
-  var myServiceUUIDs: [String?]
-  var myServiceData: [String?: FlutterStandardTypedData?]
+  var nameArgs: String? = nil
+  var manufacturerSpecificDataArgs: [Int64?: FlutterStandardTypedData?]
+  var serviceUUIDsArgs: [String?]
+  var serviceDataArgs: [String?: FlutterStandardTypedData?]
 
   static func fromList(_ list: [Any?]) -> MyAdvertisementArgs? {
-    let myName: String? = nilOrValue(list[0])
-    let myManufacturerSpecificData = list[1] as! [Int64?: FlutterStandardTypedData?]
-    let myServiceUUIDs = list[2] as! [String?]
-    let myServiceData = list[3] as! [String?: FlutterStandardTypedData?]
+    let nameArgs: String? = nilOrValue(list[0])
+    let manufacturerSpecificDataArgs = list[1] as! [Int64?: FlutterStandardTypedData?]
+    let serviceUUIDsArgs = list[2] as! [String?]
+    let serviceDataArgs = list[3] as! [String?: FlutterStandardTypedData?]
 
     return MyAdvertisementArgs(
-      myName: myName,
-      myManufacturerSpecificData: myManufacturerSpecificData,
-      myServiceUUIDs: myServiceUUIDs,
-      myServiceData: myServiceData
+      nameArgs: nameArgs,
+      manufacturerSpecificDataArgs: manufacturerSpecificDataArgs,
+      serviceUUIDsArgs: serviceUUIDsArgs,
+      serviceDataArgs: serviceDataArgs
     )
   }
   func toList() -> [Any?] {
     return [
-      myName,
-      myManufacturerSpecificData,
-      myServiceUUIDs,
-      myServiceData,
+      nameArgs,
+      manufacturerSpecificDataArgs,
+      serviceUUIDsArgs,
+      serviceDataArgs,
+    ]
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct MyPeripheralArgs {
+  var hashCodeArgs: Int64
+  var uuidArgs: String
+
+  static func fromList(_ list: [Any?]) -> MyPeripheralArgs? {
+    let hashCodeArgs = list[0] is Int64 ? list[0] as! Int64 : Int64(list[0] as! Int32)
+    let uuidArgs = list[1] as! String
+
+    return MyPeripheralArgs(
+      hashCodeArgs: hashCodeArgs,
+      uuidArgs: uuidArgs
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      hashCodeArgs,
+      uuidArgs,
     ]
   }
 }
 
 /// Generated class from Pigeon that represents data sent in messages.
 struct MyGattServiceArgs {
-  var myHashCode: Int64
-  var myUUID: String
-  var myCharacteristicArgses: [MyGattCharacteristicArgs?]
+  var hashCodeArgs: Int64
+  var uuidArgs: String
+  var characteristicsArgs: [MyGattCharacteristicArgs?]
 
   static func fromList(_ list: [Any?]) -> MyGattServiceArgs? {
-    let myHashCode = list[0] is Int64 ? list[0] as! Int64 : Int64(list[0] as! Int32)
-    let myUUID = list[1] as! String
-    let myCharacteristicArgses = list[2] as! [MyGattCharacteristicArgs?]
+    let hashCodeArgs = list[0] is Int64 ? list[0] as! Int64 : Int64(list[0] as! Int32)
+    let uuidArgs = list[1] as! String
+    let characteristicsArgs = list[2] as! [MyGattCharacteristicArgs?]
 
     return MyGattServiceArgs(
-      myHashCode: myHashCode,
-      myUUID: myUUID,
-      myCharacteristicArgses: myCharacteristicArgses
+      hashCodeArgs: hashCodeArgs,
+      uuidArgs: uuidArgs,
+      characteristicsArgs: characteristicsArgs
     )
   }
   func toList() -> [Any?] {
     return [
-      myHashCode,
-      myUUID,
-      myCharacteristicArgses,
+      hashCodeArgs,
+      uuidArgs,
+      characteristicsArgs,
     ]
   }
 }
 
 /// Generated class from Pigeon that represents data sent in messages.
 struct MyGattCharacteristicArgs {
-  var myHashCode: Int64
-  var myUUID: String
-  var myPropertyNumbers: [Int64?]
-  var myDescriptorArgses: [MyGattDescriptorArgs?]
+  var hashCodeArgs: Int64
+  var uuidArgs: String
+  var propertyNumbersArgs: [Int64?]
+  var descriptorsArgs: [MyGattDescriptorArgs?]
 
   static func fromList(_ list: [Any?]) -> MyGattCharacteristicArgs? {
-    let myHashCode = list[0] is Int64 ? list[0] as! Int64 : Int64(list[0] as! Int32)
-    let myUUID = list[1] as! String
-    let myPropertyNumbers = list[2] as! [Int64?]
-    let myDescriptorArgses = list[3] as! [MyGattDescriptorArgs?]
+    let hashCodeArgs = list[0] is Int64 ? list[0] as! Int64 : Int64(list[0] as! Int32)
+    let uuidArgs = list[1] as! String
+    let propertyNumbersArgs = list[2] as! [Int64?]
+    let descriptorsArgs = list[3] as! [MyGattDescriptorArgs?]
 
     return MyGattCharacteristicArgs(
-      myHashCode: myHashCode,
-      myUUID: myUUID,
-      myPropertyNumbers: myPropertyNumbers,
-      myDescriptorArgses: myDescriptorArgses
+      hashCodeArgs: hashCodeArgs,
+      uuidArgs: uuidArgs,
+      propertyNumbersArgs: propertyNumbersArgs,
+      descriptorsArgs: descriptorsArgs
     )
   }
   func toList() -> [Any?] {
     return [
-      myHashCode,
-      myUUID,
-      myPropertyNumbers,
-      myDescriptorArgses,
+      hashCodeArgs,
+      uuidArgs,
+      propertyNumbersArgs,
+      descriptorsArgs,
     ]
   }
 }
 
 /// Generated class from Pigeon that represents data sent in messages.
 struct MyGattDescriptorArgs {
-  var myHashCode: Int64
-  var myUUID: String
-  var myValue: FlutterStandardTypedData? = nil
+  var hashCodeArgs: Int64
+  var uuidArgs: String
+  var valueArgs: FlutterStandardTypedData? = nil
 
   static func fromList(_ list: [Any?]) -> MyGattDescriptorArgs? {
-    let myHashCode = list[0] is Int64 ? list[0] as! Int64 : Int64(list[0] as! Int32)
-    let myUUID = list[1] as! String
-    let myValue: FlutterStandardTypedData? = nilOrValue(list[2])
+    let hashCodeArgs = list[0] is Int64 ? list[0] as! Int64 : Int64(list[0] as! Int32)
+    let uuidArgs = list[1] as! String
+    let valueArgs: FlutterStandardTypedData? = nilOrValue(list[2])
 
     return MyGattDescriptorArgs(
-      myHashCode: myHashCode,
-      myUUID: myUUID,
-      myValue: myValue
+      hashCodeArgs: hashCodeArgs,
+      uuidArgs: uuidArgs,
+      valueArgs: valueArgs
     )
   }
   func toList() -> [Any?] {
     return [
-      myHashCode,
-      myUUID,
-      myValue,
+      hashCodeArgs,
+      uuidArgs,
+      valueArgs,
     ]
   }
 }
@@ -267,16 +267,16 @@ protocol MyCentralManagerHostApi {
   func setUp(completion: @escaping (Result<MyCentralManagerArgs, Error>) -> Void)
   func startDiscovery() throws
   func stopDiscovery() throws
-  func connect(myPeripheralHashCode: Int64, completion: @escaping (Result<Void, Error>) -> Void)
-  func disconnect(myPeripheralHashCode: Int64, completion: @escaping (Result<Void, Error>) -> Void)
-  func getMaximumWriteLength(myPeripheralHashCode: Int64, myTypeNumber: Int64) throws -> Int64
-  func readRSSI(myPeripheralHashCode: Int64, completion: @escaping (Result<Int64, Error>) -> Void)
-  func discoverGATT(myPeripheralHashCode: Int64, completion: @escaping (Result<[MyGattServiceArgs], Error>) -> Void)
-  func readCharacteristic(myPeripheralHashCode: Int64, myCharacteristicHashCode: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void)
-  func writeCharacteristic(myPeripheralHashCode: Int64, myCharacteristicHashCode: Int64, myValue: FlutterStandardTypedData, myTypeNumber: Int64, completion: @escaping (Result<Void, Error>) -> Void)
-  func notifyCharacteristic(myPeripheralHashCode: Int64, myCharacteristicHashCode: Int64, myState: Bool, completion: @escaping (Result<Void, Error>) -> Void)
-  func readDescriptor(myPeripheralHashCode: Int64, myDescriptorHashCode: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void)
-  func writeDescriptor(myPeripheralHashCode: Int64, myDescriptorHashCode: Int64, myValue: FlutterStandardTypedData, completion: @escaping (Result<Void, Error>) -> Void)
+  func connect(peripheralHashCodeArgs: Int64, completion: @escaping (Result<Void, Error>) -> Void)
+  func disconnect(peripheralHashCodeArgs: Int64, completion: @escaping (Result<Void, Error>) -> Void)
+  func getMaximumWriteLength(peripheralHashCodeArgs: Int64, typeNumberArgs: Int64) throws -> Int64
+  func readRSSI(peripheralHashCodeArgs: Int64, completion: @escaping (Result<Int64, Error>) -> Void)
+  func discoverGATT(peripheralHashCodeArgs: Int64, completion: @escaping (Result<[MyGattServiceArgs], Error>) -> Void)
+  func readCharacteristic(peripheralHashCodeArgs: Int64, characteristicHashCodeArgs: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void)
+  func writeCharacteristic(peripheralHashCodeArgs: Int64, characteristicHashCodeArgs: Int64, valueArgs: FlutterStandardTypedData, typeNumberArgs: Int64, completion: @escaping (Result<Void, Error>) -> Void)
+  func notifyCharacteristic(peripheralHashCodeArgs: Int64, characteristicHashCodeArgs: Int64, stateArgs: Bool, completion: @escaping (Result<Void, Error>) -> Void)
+  func readDescriptor(peripheralHashCodeArgs: Int64, descriptorHashCodeArgs: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void)
+  func writeDescriptor(peripheralHashCodeArgs: Int64, descriptorHashCodeArgs: Int64, valueArgs: FlutterStandardTypedData, completion: @escaping (Result<Void, Error>) -> Void)
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -330,8 +330,8 @@ class MyCentralManagerHostApiSetup {
     if let api = api {
       connectChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let myPeripheralHashCodeArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
-        api.connect(myPeripheralHashCode: myPeripheralHashCodeArg) { result in
+        let peripheralHashCodeArgsArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
+        api.connect(peripheralHashCodeArgs: peripheralHashCodeArgsArg) { result in
           switch result {
             case .success:
               reply(wrapResult(nil))
@@ -347,8 +347,8 @@ class MyCentralManagerHostApiSetup {
     if let api = api {
       disconnectChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let myPeripheralHashCodeArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
-        api.disconnect(myPeripheralHashCode: myPeripheralHashCodeArg) { result in
+        let peripheralHashCodeArgsArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
+        api.disconnect(peripheralHashCodeArgs: peripheralHashCodeArgsArg) { result in
           switch result {
             case .success:
               reply(wrapResult(nil))
@@ -364,10 +364,10 @@ class MyCentralManagerHostApiSetup {
     if let api = api {
       getMaximumWriteLengthChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let myPeripheralHashCodeArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
-        let myTypeNumberArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
+        let peripheralHashCodeArgsArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
+        let typeNumberArgsArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
         do {
-          let result = try api.getMaximumWriteLength(myPeripheralHashCode: myPeripheralHashCodeArg, myTypeNumber: myTypeNumberArg)
+          let result = try api.getMaximumWriteLength(peripheralHashCodeArgs: peripheralHashCodeArgsArg, typeNumberArgs: typeNumberArgsArg)
           reply(wrapResult(result))
         } catch {
           reply(wrapError(error))
@@ -380,8 +380,8 @@ class MyCentralManagerHostApiSetup {
     if let api = api {
       readRSSIChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let myPeripheralHashCodeArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
-        api.readRSSI(myPeripheralHashCode: myPeripheralHashCodeArg) { result in
+        let peripheralHashCodeArgsArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
+        api.readRSSI(peripheralHashCodeArgs: peripheralHashCodeArgsArg) { result in
           switch result {
             case .success(let res):
               reply(wrapResult(res))
@@ -397,8 +397,8 @@ class MyCentralManagerHostApiSetup {
     if let api = api {
       discoverGATTChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let myPeripheralHashCodeArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
-        api.discoverGATT(myPeripheralHashCode: myPeripheralHashCodeArg) { result in
+        let peripheralHashCodeArgsArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
+        api.discoverGATT(peripheralHashCodeArgs: peripheralHashCodeArgsArg) { result in
           switch result {
             case .success(let res):
               reply(wrapResult(res))
@@ -414,9 +414,9 @@ class MyCentralManagerHostApiSetup {
     if let api = api {
       readCharacteristicChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let myPeripheralHashCodeArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
-        let myCharacteristicHashCodeArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
-        api.readCharacteristic(myPeripheralHashCode: myPeripheralHashCodeArg, myCharacteristicHashCode: myCharacteristicHashCodeArg) { result in
+        let peripheralHashCodeArgsArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
+        let characteristicHashCodeArgsArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
+        api.readCharacteristic(peripheralHashCodeArgs: peripheralHashCodeArgsArg, characteristicHashCodeArgs: characteristicHashCodeArgsArg) { result in
           switch result {
             case .success(let res):
               reply(wrapResult(res))
@@ -432,11 +432,11 @@ class MyCentralManagerHostApiSetup {
     if let api = api {
       writeCharacteristicChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let myPeripheralHashCodeArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
-        let myCharacteristicHashCodeArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
-        let myValueArg = args[2] as! FlutterStandardTypedData
-        let myTypeNumberArg = args[3] is Int64 ? args[3] as! Int64 : Int64(args[3] as! Int32)
-        api.writeCharacteristic(myPeripheralHashCode: myPeripheralHashCodeArg, myCharacteristicHashCode: myCharacteristicHashCodeArg, myValue: myValueArg, myTypeNumber: myTypeNumberArg) { result in
+        let peripheralHashCodeArgsArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
+        let characteristicHashCodeArgsArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
+        let valueArgsArg = args[2] as! FlutterStandardTypedData
+        let typeNumberArgsArg = args[3] is Int64 ? args[3] as! Int64 : Int64(args[3] as! Int32)
+        api.writeCharacteristic(peripheralHashCodeArgs: peripheralHashCodeArgsArg, characteristicHashCodeArgs: characteristicHashCodeArgsArg, valueArgs: valueArgsArg, typeNumberArgs: typeNumberArgsArg) { result in
           switch result {
             case .success:
               reply(wrapResult(nil))
@@ -452,10 +452,10 @@ class MyCentralManagerHostApiSetup {
     if let api = api {
       notifyCharacteristicChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let myPeripheralHashCodeArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
-        let myCharacteristicHashCodeArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
-        let myStateArg = args[2] as! Bool
-        api.notifyCharacteristic(myPeripheralHashCode: myPeripheralHashCodeArg, myCharacteristicHashCode: myCharacteristicHashCodeArg, myState: myStateArg) { result in
+        let peripheralHashCodeArgsArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
+        let characteristicHashCodeArgsArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
+        let stateArgsArg = args[2] as! Bool
+        api.notifyCharacteristic(peripheralHashCodeArgs: peripheralHashCodeArgsArg, characteristicHashCodeArgs: characteristicHashCodeArgsArg, stateArgs: stateArgsArg) { result in
           switch result {
             case .success:
               reply(wrapResult(nil))
@@ -471,9 +471,9 @@ class MyCentralManagerHostApiSetup {
     if let api = api {
       readDescriptorChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let myPeripheralHashCodeArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
-        let myDescriptorHashCodeArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
-        api.readDescriptor(myPeripheralHashCode: myPeripheralHashCodeArg, myDescriptorHashCode: myDescriptorHashCodeArg) { result in
+        let peripheralHashCodeArgsArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
+        let descriptorHashCodeArgsArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
+        api.readDescriptor(peripheralHashCodeArgs: peripheralHashCodeArgsArg, descriptorHashCodeArgs: descriptorHashCodeArgsArg) { result in
           switch result {
             case .success(let res):
               reply(wrapResult(res))
@@ -489,10 +489,10 @@ class MyCentralManagerHostApiSetup {
     if let api = api {
       writeDescriptorChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let myPeripheralHashCodeArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
-        let myDescriptorHashCodeArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
-        let myValueArg = args[2] as! FlutterStandardTypedData
-        api.writeDescriptor(myPeripheralHashCode: myPeripheralHashCodeArg, myDescriptorHashCode: myDescriptorHashCodeArg, myValue: myValueArg) { result in
+        let peripheralHashCodeArgsArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
+        let descriptorHashCodeArgsArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
+        let valueArgsArg = args[2] as! FlutterStandardTypedData
+        api.writeDescriptor(peripheralHashCodeArgs: peripheralHashCodeArgsArg, descriptorHashCodeArgs: descriptorHashCodeArgsArg, valueArgs: valueArgsArg) { result in
           switch result {
             case .success:
               reply(wrapResult(nil))
@@ -566,27 +566,27 @@ class MyCentralManagerFlutterApi {
   var codec: FlutterStandardMessageCodec {
     return MyCentralManagerFlutterApiCodec.shared
   }
-  func onStateChanged(myStateNumber myStateNumberArg: Int64, completion: @escaping () -> Void) {
+  func onStateChanged(stateNumberArgs stateNumberArgsArg: Int64, completion: @escaping () -> Void) {
     let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerFlutterApi.onStateChanged", binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([myStateNumberArg] as [Any?]) { _ in
+    channel.sendMessage([stateNumberArgsArg] as [Any?]) { _ in
       completion()
     }
   }
-  func onDiscovered(myPeripheralArgs myPeripheralArgsArg: MyPeripheralArgs, myRSSI myRSSIArg: Int64, myAdvertisementArgs myAdvertisementArgsArg: MyAdvertisementArgs, completion: @escaping () -> Void) {
+  func onDiscovered(peripheralArgs peripheralArgsArg: MyPeripheralArgs, rssiArgs rssiArgsArg: Int64, advertisementArgs advertisementArgsArg: MyAdvertisementArgs, completion: @escaping () -> Void) {
     let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerFlutterApi.onDiscovered", binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([myPeripheralArgsArg, myRSSIArg, myAdvertisementArgsArg] as [Any?]) { _ in
+    channel.sendMessage([peripheralArgsArg, rssiArgsArg, advertisementArgsArg] as [Any?]) { _ in
       completion()
     }
   }
-  func onPeripheralStateChanged(myPeripheralArgs myPeripheralArgsArg: MyPeripheralArgs, myState myStateArg: Bool, completion: @escaping () -> Void) {
+  func onPeripheralStateChanged(peripheralArgs peripheralArgsArg: MyPeripheralArgs, stateArgs stateArgsArg: Bool, completion: @escaping () -> Void) {
     let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerFlutterApi.onPeripheralStateChanged", binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([myPeripheralArgsArg, myStateArg] as [Any?]) { _ in
+    channel.sendMessage([peripheralArgsArg, stateArgsArg] as [Any?]) { _ in
       completion()
     }
   }
-  func onCharacteristicValueChanged(myCharacteristicArgs myCharacteristicArgsArg: MyGattCharacteristicArgs, myValue myValueArg: FlutterStandardTypedData, completion: @escaping () -> Void) {
+  func onCharacteristicValueChanged(characteristicArgs characteristicArgsArg: MyGattCharacteristicArgs, valueArgs valueArgsArg: FlutterStandardTypedData, completion: @escaping () -> Void) {
     let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerFlutterApi.onCharacteristicValueChanged", binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([myCharacteristicArgsArg, myValueArg] as [Any?]) { _ in
+    channel.sendMessage([characteristicArgsArg, valueArgsArg] as [Any?]) { _ in
       completion()
     }
   }

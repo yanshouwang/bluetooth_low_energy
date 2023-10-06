@@ -275,15 +275,6 @@ class MyCentralManager extends CentralManager {
               final myPeripheral = MyPeripheral2(device);
               _endCharacteristicPropertiesChangedListener(myPeripheral);
               final myServices = device.myServices;
-              for (var myService in myServices) {
-                for (var myCharactersitic in myService.characteristics) {
-                  for (var myDescriptor in myCharactersitic.descriptors) {
-                    myDescriptor.myCharacteristic = myCharactersitic;
-                  }
-                  myCharactersitic.myService = myService;
-                }
-                myService.myPeripheral = myPeripheral;
-              }
               _myServicesOfMyPeripherals[myPeripheral.hashCode] = myServices;
               _beginCharacteristicPropertiesChangedListener(myPeripheral);
               final eventArgs = BlueZDeviceServicesResolvedEventArgs(device);

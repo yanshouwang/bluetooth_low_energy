@@ -7,7 +7,7 @@ class MyCentral extends MyObject implements Central {
   final UUID uuid;
 
   MyCentral({
-    required super.myHashCode,
+    required super.hashCode,
     required this.uuid,
   });
 }

@@ -8,7 +8,7 @@ import 'my_bluetooth_low_energy_manager.dart';
 
 class MyPeripheralManager extends MyBluetoothLowEnergyManager
     implements PeripheralManager, MyPeripheralManagerFlutterApi {
-  final MyPeripheralManagerHostApi _myApi;
+  final MyPeripheralManagerHostApi _api;
   final StreamController<ReadGattCharacteristicCommandEventArgs>
       _readCharacteristicCommandReceivedController;
   final StreamController<WriteGattCharacteristicCommandEventArgs>
@@ -17,7 +17,7 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
       _notifyCharacteristicCommandReceivedController;
 
   MyPeripheralManager()
-      : _myApi = MyPeripheralManagerHostApi(),
+      : _api = MyPeripheralManagerHostApi(),
         _readCharacteristicCommandReceivedController =
             StreamController.broadcast(),
         _writeCharacteristicCommandReceivedController =
@@ -41,52 +41,55 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
           _notifyCharacteristicCommandReceivedController.stream;
 
   Future<void> setUp() async {
-    final args = await _myApi.setUp();
-    final myStateArgs =
-        MyBluetoothLowEnergyStateArgs.values[args.myStateNumber];
-    state = myStateArgs.toMyState();
+    final args = await _api.setUp();
+    final stateArgs =
+        MyBluetoothLowEnergyStateArgs.values[args.stateNumberArgs];
+    state = stateArgs.toState();
     MyPeripheralManagerFlutterApi.setup(this);
   }
 
   @override
   Future<void> addService(GattService service) async {
     await throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final myService = service as MyGattService;
-    final myServiceArgs = myService.toMyArgs();
-    await _myApi.addService(myServiceArgs);
+    if (service is! MyGattService) {
+      throw TypeError();
+    }
+    final serviceArgs = service.toArgs();
+    await _api.addService(serviceArgs);
   }
 
   @override
   Future<void> removeService(GattService service) async {
     await throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    await _myApi.removeService(service.hashCode);
+    final serviceHashCodeArgs = service.hashCode;
+    await _api.removeService(serviceHashCodeArgs);
   }
 
   @override
   Future<void> clearServices() async {
     await throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    await _myApi.clearServices();
+    await _api.clearServices();
   }
 
   @override
   Future<void> startAdvertising(Advertisement advertisement) async {
     await throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final myAdvertisementArgs = advertisement.toMyArgs();
-    await _myApi.startAdvertising(myAdvertisementArgs);
+    final advertisementArgs = advertisement.toArgs();
+    await _api.startAdvertising(advertisementArgs);
   }
 
   @override
   Future<void> stopAdvertising() async {
     await throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    await _myApi.stopAdvertising();
+    await _api.stopAdvertising();
   }
 
   @override
   Future<int> getMaximumWriteLength(Central central) async {
     await throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final maximumWriteLength = await _myApi.getMaximumWriteLength(
-      central.hashCode,
-    );
+    final centralHashCodeArgs = central.hashCode;
+    final maximumWriteLength =
+        await _api.getMaximumWriteLength(centralHashCodeArgs);
     return maximumWriteLength;
   }
 
@@ -100,13 +103,19 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
     Uint8List value,
   ) async {
     await throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    await _myApi.sendReadCharacteristicReply(
-      central.hashCode,
-      characteristic.hashCode,
-      id,
-      offset,
-      status,
-      value,
+    final centralHashCodeArgs = central.hashCode;
+    final characteristicHashCodeArgs = characteristic.hashCode;
+    final idArgs = id;
+    final offsetArgs = offset;
+    final statusArgs = status;
+    final valueArgs = value;
+    await _api.sendReadCharacteristicReply(
+      centralHashCodeArgs,
+      characteristicHashCodeArgs,
+      idArgs,
+      offsetArgs,
+      statusArgs,
+      valueArgs,
     );
   }
 
@@ -119,12 +128,17 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
     bool status,
   ) async {
     await throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    await _myApi.sendWriteCharacteristicReply(
-      central.hashCode,
-      characteristic.hashCode,
-      id,
-      offset,
-      status,
+    final centralHashCodeArgs = central.hashCode;
+    final characteristicHashCodeArgs = characteristic.hashCode;
+    final idArgs = id;
+    final offsetArgs = offset;
+    final statusArgs = status;
+    await _api.sendWriteCharacteristicReply(
+      centralHashCodeArgs,
+      characteristicHashCodeArgs,
+      idArgs,
+      offsetArgs,
+      statusArgs,
     );
   }
 
@@ -135,69 +149,78 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
     Uint8List value,
   ) async {
     await throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    await _myApi.notifyCharacteristicValueChanged(
-      central.hashCode,
-      characteristic.hashCode,
-      value,
+    final centralHashCodeArgs = central.hashCode;
+    final characteristicHashCodeArgs = characteristic.hashCode;
+    final valueArgs = value;
+    await _api.notifyCharacteristicValueChanged(
+      centralHashCodeArgs,
+      characteristicHashCodeArgs,
+      valueArgs,
     );
   }
 
   @override
-  void onStateChanged(int myStateNumber) {
-    final myStateArgs = MyBluetoothLowEnergyStateArgs.values[myStateNumber];
-    state = myStateArgs.toMyState();
+  void onStateChanged(int stateNumberArgs) {
+    final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
+    state = stateArgs.toState();
   }
 
   @override
   void onReadCharacteristicCommandReceived(
-    MyCentralArgs myCentralArgs,
-    MyGattCharacteristicArgs myCharacteristicArgs,
-    int myId,
-    int myOffset,
+    MyCentralArgs centralArgs,
+    MyGattCharacteristicArgs characteristicArgs,
+    int idArgs,
+    int offsetArgs,
   ) {
-    final myCentral = myCentralArgs.toMyCentral();
-    final myCharacteristic = myCharacteristicArgs.toMyCharacteristic();
+    final central = centralArgs.toCentral();
+    final characteristic = characteristicArgs.toCharacteristic2();
+    final id = idArgs;
+    final offset = offsetArgs;
     final eventArgs = ReadGattCharacteristicCommandEventArgs(
-      myCentral,
-      myCharacteristic,
-      myId,
-      myOffset,
+      central,
+      characteristic,
+      id,
+      offset,
     );
     _readCharacteristicCommandReceivedController.add(eventArgs);
   }
 
   @override
   void onWriteCharacteristicCommandReceived(
-    MyCentralArgs myCentralArgs,
-    MyGattCharacteristicArgs myCharacteristicArgs,
-    int myId,
-    int myOffset,
-    Uint8List myValue,
+    MyCentralArgs centralArgs,
+    MyGattCharacteristicArgs characteristicArgs,
+    int idArgs,
+    int offsetArgs,
+    Uint8List valueArgs,
   ) {
-    final myCentral = myCentralArgs.toMyCentral();
-    final myCharacteristic = myCharacteristicArgs.toMyCharacteristic();
+    final central = centralArgs.toCentral();
+    final characteristic = characteristicArgs.toCharacteristic2();
+    final id = idArgs;
+    final offset = offsetArgs;
+    final value = valueArgs;
     final eventArgs = WriteGattCharacteristicCommandEventArgs(
-      myCentral,
-      myCharacteristic,
-      myId,
-      myOffset,
-      myValue,
+      central,
+      characteristic,
+      id,
+      offset,
+      value,
     );
     _writeCharacteristicCommandReceivedController.add(eventArgs);
   }
 
   @override
   void onNotifyCharacteristicCommandReceived(
-    MyCentralArgs myCentralArgs,
-    MyGattCharacteristicArgs myCharacteristicArgs,
-    bool myState,
+    MyCentralArgs centralArgs,
+    MyGattCharacteristicArgs characteristicArgs,
+    bool stateArgs,
   ) {
-    final myCentral = myCentralArgs.toMyCentral();
-    final myCharacteristic = myCharacteristicArgs.toMyCharacteristic();
+    final central = centralArgs.toCentral();
+    final characteristic = characteristicArgs.toCharacteristic2();
+    final state = stateArgs;
     final eventArgs = NotifyGattCharacteristicCommandEventArgs(
-      myCentral,
-      myCharacteristic,
-      myState,
+      central,
+      characteristic,
+      state,
     );
     _notifyCharacteristicCommandReceivedController.add(eventArgs);
   }

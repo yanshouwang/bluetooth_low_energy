@@ -9,7 +9,7 @@ import Foundation
 import CoreBluetooth
 
 extension CBManagerState {
-    func toMyArgs() -> MyBluetoothLowEnergyStateArgs {
+    func toArgs() -> MyBluetoothLowEnergyStateArgs {
         switch self {
         case .unauthorized:
             return .unauthorized
@@ -24,59 +24,59 @@ extension CBManagerState {
 }
 
 extension CBAttribute {
-    var myUUID: String { uuid.uuidString }
+    var uuidArgs: String { uuid.uuidString }
 }
 
 extension CBPeer {
-    var myUUID: String { identifier.uuidString }
+    var uuidArgs: String { identifier.uuidString }
 }
 
 extension CBPeripheral {
-    func toMyArgs() -> MyPeripheralArgs {
-        let myHashCode = Int64(hash)
-        return MyPeripheralArgs(myHashCode: myHashCode, myUUID: myUUID)
+    func toArgs() -> MyPeripheralArgs {
+        let hashCodeArgs = Int64(hash)
+        return MyPeripheralArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs)
     }
 }
 
 extension CBService {
-    func toMyArgs(_ myCharacteristicArgses: [MyGattCharacteristicArgs]) -> MyGattServiceArgs {
-        let myHashCode = Int64(hash)
-        return MyGattServiceArgs(myHashCode: myHashCode, myUUID: myUUID, myCharacteristicArgses: myCharacteristicArgses)
+    func toArgs(_ characteristicsArgs: [MyGattCharacteristicArgs]) -> MyGattServiceArgs {
+        let hashCodeArgs = Int64(hash)
+        return MyGattServiceArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, characteristicsArgs: characteristicsArgs)
     }
 }
 
 extension CBCharacteristic {
-    func toMyArgs(_ myDescriptorArgses: [MyGattDescriptorArgs]) -> MyGattCharacteristicArgs {
-        let myHashCode = Int64(hash)
-        return MyGattCharacteristicArgs(myHashCode: myHashCode, myUUID: myUUID, myPropertyNumbers: myPropertyNumbers, myDescriptorArgses: myDescriptorArgses)
+    func toArgs(_ descriptorsArgs: [MyGattDescriptorArgs]) -> MyGattCharacteristicArgs {
+        let hashCodeArgs = Int64(hash)
+        return MyGattCharacteristicArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, propertyNumbersArgs: propertyNumbersArgs, descriptorsArgs: descriptorsArgs)
     }
     
-    var myPropertyNumbers: [Int64] {
-        var myPropertyArgses = [MyGattCharacteristicPropertyArgs]()
+    var propertyNumbersArgs: [Int64] {
+        var propertiesArgs = [MyGattCharacteristicPropertyArgs]()
         let properties = self.properties
         if properties.contains(.read) {
-            myPropertyArgses.append(.read)
+            propertiesArgs.append(.read)
         }
         if properties.contains(.write) {
-            myPropertyArgses.append(.write)
+            propertiesArgs.append(.write)
         }
         if properties.contains(.writeWithoutResponse) {
-            myPropertyArgses.append(.writeWithoutResponse)
+            propertiesArgs.append(.writeWithoutResponse)
         }
         if properties.contains(.notify) {
-            myPropertyArgses.append(.notify)
+            propertiesArgs.append(.notify)
         }
         if properties.contains(.indicate) {
-            myPropertyArgses.append(.indicate)
+            propertiesArgs.append(.indicate)
         }
-        return myPropertyArgses.map { args in Int64(args.rawValue) }
+        return propertiesArgs.map { args in Int64(args.rawValue) }
     }
 }
 
 extension CBDescriptor {
-    func toMyArgs() -> MyGattDescriptorArgs {
-        let myHashCode = Int64(hash)
-        return MyGattDescriptorArgs(myHashCode: myHashCode, myUUID: myUUID)
+    func toArgs() -> MyGattDescriptorArgs {
+        let hashCodeArgs = Int64(hash)
+        return MyGattDescriptorArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs)
     }
 }
 

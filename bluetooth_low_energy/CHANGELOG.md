@@ -1,3 +1,11 @@
+## 3.0.0-dev.1
+
+* Add `PeripheralManager` api.
+* Add `CentralManager#readRSSI` method.
+* Move `CentralController` to `CentralManager`.
+* Move `CentralState` to `BluetoothLowEnergyState`.
+* Move `CentralDiscoveredEventArgs` to `DiscoveredEventArgs`.
+
 ## 2.2.1
 
 * `Android` Fix the issue that `CentralController#getMaximumWriteLength` may throw.

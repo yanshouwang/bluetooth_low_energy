@@ -1,4 +1,4 @@
-## 3.0.0
+## 3.0.0-dev.1
 
 * Add `PeripheralManager` api.
 * Add `CentralManager#readRSSI` method.

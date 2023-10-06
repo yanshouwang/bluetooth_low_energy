@@ -8,7 +8,7 @@ class MyGattService2 extends MyGattService {
 
   MyGattService2(this.service)
       : super(
-          myHashCode: service.hashCode,
+          hashCode: service.hashCode,
           uuid: service.myUUID,
           characteristics: service.myCharacteristics,
         );

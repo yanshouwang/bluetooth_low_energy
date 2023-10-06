@@ -8,7 +8,7 @@ class MyGattDescriptor2 extends MyGattDescriptor {
 
   MyGattDescriptor2(this.descriptor)
       : super(
-          myHashCode: descriptor.hashCode,
+          hashCode: descriptor.hashCode,
           uuid: descriptor.myUUID,
         );
 }

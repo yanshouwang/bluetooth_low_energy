@@ -21,20 +21,20 @@ class MyCentralManager: MyCentralManagerHostApi {
     private let binaryMessenger: FlutterBinaryMessenger
     private let centralManager = CBCentralManager()
 
-    private lazy var myApi = MyCentralManagerFlutterApi(binaryMessenger: binaryMessenger)
-    private lazy var myCentralManagerDelegate = MyCentralManagerDelegate(self)
-    private lazy var myPeripheralDelegate = MyPeripheralDelegate(self)
+    private lazy var api = MyCentralManagerFlutterApi(binaryMessenger: binaryMessenger)
+    private lazy var centralManagerDelegate = MyCentralManagerDelegate(self)
+    private lazy var peripheralDelegate = MyPeripheralDelegate(self)
     
     private var peripherals = [Int64: CBPeripheral]()
     private var services = [Int64: CBService]()
     private var characteristics = [Int64: CBCharacteristic]()
     private var descriptors = [Int64: CBDescriptor]()
     
-    private var myPeripherals = [Int: MyPeripheralArgs]()
-    private var myServicesOfMyPeripherals = [Int64: [MyGattServiceArgs]]()
-    private var myServices = [Int: MyGattServiceArgs]()
-    private var myCharacteristics = [Int: MyGattCharacteristicArgs]()
-    private var myDescriptors = [Int: MyGattDescriptorArgs]()
+    private var peripheralsArgs = [Int: MyPeripheralArgs]()
+    private var servicesArgsOfPeripheralsArgs = [Int64: [MyGattServiceArgs]]()
+    private var servicesArgs = [Int: MyGattServiceArgs]()
+    private var characteristicsArgs = [Int: MyGattCharacteristicArgs]()
+    private var descriptorsArgs = [Int: MyGattDescriptorArgs]()
     
     private var setUpCompletion: ((Result<MyCentralManagerArgs, Error>) -> Void)?
     private var connectCompletions = [Int64: (Result<Void, Error>) -> Void]()
@@ -55,14 +55,14 @@ class MyCentralManager: MyCentralManagerHostApi {
                 throw MyError.illegalState
             }
             try tearDown()
-            centralManager.delegate = myCentralManagerDelegate
+            centralManager.delegate = centralManagerDelegate
             if centralManager.state == .unknown {
                 setUpCompletion = completion
             } else {
-                let myStateArgs = centralManager.state.toMyArgs()
-                let myStateNumber = Int64(myStateArgs.rawValue)
-                let myArgs = MyCentralManagerArgs(myStateNumber: myStateNumber)
-                completion(.success(myArgs))
+                let stateArgs = centralManager.state.toArgs()
+                let stateNumberArgs = Int64(stateArgs.rawValue)
+                let args = MyCentralManagerArgs(stateNumberArgs: stateNumberArgs)
+                completion(.success(args))
             }
         } catch {
             completion(.failure(error))
@@ -82,11 +82,11 @@ class MyCentralManager: MyCentralManagerHostApi {
         services.removeAll()
         characteristics.removeAll()
         descriptors.removeAll()
-        myPeripherals.removeAll()
-        myServicesOfMyPeripherals.removeAll()
-        myServices.removeAll()
-        myCharacteristics.removeAll()
-        myDescriptors.removeAll()
+        peripheralsArgs.removeAll()
+        servicesArgsOfPeripheralsArgs.removeAll()
+        servicesArgs.removeAll()
+        characteristicsArgs.removeAll()
+        descriptorsArgs.removeAll()
         setUpCompletion = nil
         connectCompletions.removeAll()
         disconnectCompletions.removeAll()
@@ -110,296 +110,290 @@ class MyCentralManager: MyCentralManagerHostApi {
         centralManager.stopScan()
     }
     
-    func connect(myPeripheralHashCode: Int64, completion: @escaping (Result<Void, Error>) -> Void) {
+    func connect(peripheralHashCodeArgs: Int64, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
-            let unfinishedCompletion = connectCompletions[myPeripheralHashCode]
+            let unfinishedCompletion = connectCompletions[peripheralHashCodeArgs]
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
             }
-            guard let peripheral = peripherals[myPeripheralHashCode] else {
+            guard let peripheral = peripherals[peripheralHashCodeArgs] else {
                 throw MyError.illegalArgument
             }
             centralManager.connect(peripheral)
-            connectCompletions[myPeripheralHashCode] = completion
+            connectCompletions[peripheralHashCodeArgs] = completion
         } catch {
             completion(.failure(error))
         }
     }
     
-    func disconnect(myPeripheralHashCode: Int64, completion: @escaping (Result<Void, Error>) -> Void) {
+    func disconnect(peripheralHashCodeArgs: Int64, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
-            let unfinishedCompletion = disconnectCompletions[myPeripheralHashCode]
+            let unfinishedCompletion = disconnectCompletions[peripheralHashCodeArgs]
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
             }
-            guard let peripheral = peripherals[myPeripheralHashCode] else {
+            guard let peripheral = peripherals[peripheralHashCodeArgs] else {
                 throw MyError.illegalArgument
             }
             centralManager.cancelPeripheralConnection(peripheral)
-            disconnectCompletions[myPeripheralHashCode] = completion
+            disconnectCompletions[peripheralHashCodeArgs] = completion
         } catch {
             completion(.failure(error))
         }
     }
     
-    func getMaximumWriteLength(myPeripheralHashCode: Int64, myTypeNumber: Int64) throws -> Int64 {
-        guard let peripheral = peripherals[myPeripheralHashCode] else {
+    func getMaximumWriteLength(peripheralHashCodeArgs: Int64, typeNumberArgs: Int64) throws -> Int64 {
+        guard let peripheral = peripherals[peripheralHashCodeArgs] else {
             throw MyError.illegalArgument
         }
-        let myTypeRawValue = Int(myTypeNumber)
-        guard let myTypeArgs = MyGattCharacteristicWriteTypeArgs(rawValue: myTypeRawValue) else {
+        let typeRawValue = Int(typeNumberArgs)
+        guard let typeArgs = MyGattCharacteristicWriteTypeArgs(rawValue: typeRawValue) else {
             throw MyError.illegalArgument
         }
-        let type = myTypeArgs.toWriteType()
+        let type = typeArgs.toWriteType()
         let maximumWriteLength = peripheral.maximumWriteValueLength(for: type)
-        let myMaximumWriteLength = Int64(maximumWriteLength)
-        return myMaximumWriteLength
+        let maximumWriteLengthArgs = Int64(maximumWriteLength)
+        return maximumWriteLengthArgs
     }
     
-    func readRSSI(myPeripheralHashCode: Int64, completion: @escaping (Result<Int64, Error>) -> Void) {
+    func readRSSI(peripheralHashCodeArgs: Int64, completion: @escaping (Result<Int64, Error>) -> Void) {
         do {
-            let unfinishedCompletion = readRssiCompletions[myPeripheralHashCode]
+            let unfinishedCompletion = readRssiCompletions[peripheralHashCodeArgs]
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
             }
-            guard let peripheral = peripherals[myPeripheralHashCode] else {
+            guard let peripheral = peripherals[peripheralHashCodeArgs] else {
                 throw MyError.illegalArgument
             }
             peripheral.readRSSI()
-            readRssiCompletions[myPeripheralHashCode] = completion
+            readRssiCompletions[peripheralHashCodeArgs] = completion
         } catch {
             completion(.failure(error))
         }
     }
     
-    func discoverGATT(myPeripheralHashCode: Int64, completion: @escaping (Result<[MyGattServiceArgs], Error>) -> Void) {
+    func discoverGATT(peripheralHashCodeArgs: Int64, completion: @escaping (Result<[MyGattServiceArgs], Error>) -> Void) {
         do {
-            let unfinishedCompletion = discoverGattCompletions[myPeripheralHashCode]
+            let unfinishedCompletion = discoverGattCompletions[peripheralHashCodeArgs]
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
             }
-            guard let peripheral = peripherals[myPeripheralHashCode] else {
+            guard let peripheral = peripherals[peripheralHashCodeArgs] else {
                 throw MyError.illegalArgument
             }
             peripheral.discoverServices(nil)
-            discoverGattCompletions[myPeripheralHashCode] = completion
+            discoverGattCompletions[peripheralHashCodeArgs] = completion
         } catch {
             completion(.failure(error))
         }
     }
     
-    func readCharacteristic(myPeripheralHashCode: Int64, myCharacteristicHashCode: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void) {
+    func readCharacteristic(peripheralHashCodeArgs: Int64, characteristicHashCodeArgs: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void) {
         do {
-            let unfinishedCompletion = readCharacteristicCompletions[myCharacteristicHashCode]
+            let unfinishedCompletion = readCharacteristicCompletions[characteristicHashCodeArgs]
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
             }
-            guard let peripheral = peripherals[myPeripheralHashCode] else {
+            guard let peripheral = peripherals[peripheralHashCodeArgs] else {
                 throw MyError.illegalArgument
             }
-            guard let characteristic = characteristics[myCharacteristicHashCode] else {
+            guard let characteristic = characteristics[characteristicHashCodeArgs] else {
                 throw MyError.illegalArgument
             }
             peripheral.readValue(for: characteristic)
-            readCharacteristicCompletions[myCharacteristicHashCode] = completion
+            readCharacteristicCompletions[characteristicHashCodeArgs] = completion
         } catch {
             completion(.failure(error))
         }
     }
     
-    func writeCharacteristic(myPeripheralHashCode: Int64, myCharacteristicHashCode: Int64, myValue: FlutterStandardTypedData, myTypeNumber: Int64, completion: @escaping (Result<Void, Error>) -> Void) {
+    func writeCharacteristic(peripheralHashCodeArgs: Int64, characteristicHashCodeArgs: Int64, valueArgs: FlutterStandardTypedData, typeNumberArgs: Int64, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
-            let unfinishedCompletion = writeCharacteristicCompletions[myCharacteristicHashCode]
+            let unfinishedCompletion = writeCharacteristicCompletions[characteristicHashCodeArgs]
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
             }
-            guard let peripheral = peripherals[myPeripheralHashCode] else {
+            guard let peripheral = peripherals[peripheralHashCodeArgs] else {
                 throw MyError.illegalArgument
             }
-            guard let characteristic = characteristics[myCharacteristicHashCode] else {
+            guard let characteristic = characteristics[characteristicHashCodeArgs] else {
                 throw MyError.illegalArgument
             }
-            let data = myValue.data
-            let myTypeRawValue = Int(myTypeNumber)
-            guard let myTypeArgs = MyGattCharacteristicWriteTypeArgs(rawValue: myTypeRawValue) else {
+            let data = valueArgs.data
+            let typeRawValue = Int(typeNumberArgs)
+            guard let typeArgs = MyGattCharacteristicWriteTypeArgs(rawValue: typeRawValue) else {
                 throw MyError.illegalArgument
             }
-            let type = myTypeArgs.toWriteType()
+            let type = typeArgs.toWriteType()
             peripheral.writeValue(data, for: characteristic, type: type)
-            writeCharacteristicCompletions[myCharacteristicHashCode] = completion
+            writeCharacteristicCompletions[characteristicHashCodeArgs] = completion
         } catch {
             completion(.failure(error))
         }
     }
     
-    func notifyCharacteristic(myPeripheralHashCode: Int64, myCharacteristicHashCode: Int64, myState: Bool, completion: @escaping (Result<Void, Error>) -> Void) {
+    func notifyCharacteristic(peripheralHashCodeArgs: Int64, characteristicHashCodeArgs: Int64, stateArgs: Bool, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
-            let unfinishedCompletion = notifyCharacteristicCompletions[myCharacteristicHashCode]
+            let unfinishedCompletion = notifyCharacteristicCompletions[characteristicHashCodeArgs]
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
             }
-            guard let peripheral = peripherals[myPeripheralHashCode] else {
+            guard let peripheral = peripherals[peripheralHashCodeArgs] else {
                 throw MyError.illegalArgument
             }
-            guard let characteristic = characteristics[myCharacteristicHashCode] else {
+            guard let characteristic = characteristics[characteristicHashCodeArgs] else {
                 throw MyError.illegalArgument
             }
-            peripheral.setNotifyValue(myState, for: characteristic)
-            notifyCharacteristicCompletions[myCharacteristicHashCode] = completion
+            let enabled = stateArgs
+            peripheral.setNotifyValue(enabled, for: characteristic)
+            notifyCharacteristicCompletions[characteristicHashCodeArgs] = completion
         } catch {
             completion(.failure(error))
         }
     }
     
-    func readDescriptor(myPeripheralHashCode: Int64, myDescriptorHashCode: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void) {
+    func readDescriptor(peripheralHashCodeArgs: Int64, descriptorHashCodeArgs: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void) {
         do {
-            let unfinishedCompletion = readDescriptorCompletions[myDescriptorHashCode]
+            let unfinishedCompletion = readDescriptorCompletions[descriptorHashCodeArgs]
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
             }
-            guard let peripheral = peripherals[myPeripheralHashCode] else {
+            guard let peripheral = peripherals[peripheralHashCodeArgs] else {
                 throw MyError.illegalArgument
             }
-            guard let descriptor = descriptors[myDescriptorHashCode] else {
+            guard let descriptor = descriptors[descriptorHashCodeArgs] else {
                 throw MyError.illegalArgument
             }
             peripheral.readValue(for: descriptor)
-            readDescriptorCompletions[myDescriptorHashCode] = completion
+            readDescriptorCompletions[descriptorHashCodeArgs] = completion
         } catch {
             completion(.failure(error))
         }
     }
     
-    func writeDescriptor(myPeripheralHashCode: Int64, myDescriptorHashCode: Int64, myValue: FlutterStandardTypedData, completion: @escaping (Result<Void, Error>) -> Void) {
+    func writeDescriptor(peripheralHashCodeArgs: Int64, descriptorHashCodeArgs: Int64, valueArgs: FlutterStandardTypedData, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
-            let unfinishedCompletion = writeDescriptorCompletions[myDescriptorHashCode]
+            let unfinishedCompletion = writeDescriptorCompletions[descriptorHashCodeArgs]
             if unfinishedCompletion != nil {
                 throw MyError.illegalState
             }
-            guard let peripheral = peripherals[myPeripheralHashCode] else {
+            guard let peripheral = peripherals[peripheralHashCodeArgs] else {
                 throw MyError.illegalArgument
             }
-            guard let descriptor = descriptors[myDescriptorHashCode] else {
+            guard let descriptor = descriptors[descriptorHashCodeArgs] else {
                 throw MyError.illegalArgument
             }
-            let data = myValue.data
+            let data = valueArgs.data
             peripheral.writeValue(data, for: descriptor)
-            writeDescriptorCompletions[myDescriptorHashCode] = completion
+            writeDescriptorCompletions[descriptorHashCodeArgs] = completion
         } catch {
             completion(.failure(error))
         }
     }
     
     func didUpdateState(_ state: CBManagerState) {
+        let stateArgs = state.toArgs()
+        let stateNumberArgs = Int64(stateArgs.rawValue)
         if state != .unknown && setUpCompletion != nil {
-            let myStateArgs = state.toMyArgs()
-            let myStateNumber = Int64(myStateArgs.rawValue)
-            let myArgs = MyCentralManagerArgs(myStateNumber: myStateNumber)
-            setUpCompletion!(.success(myArgs))
+            let args = MyCentralManagerArgs(stateNumberArgs: stateNumberArgs)
+            setUpCompletion!(.success(args))
             setUpCompletion = nil
         }
-        let myStateArgs = state.toMyArgs()
-        let myStateNumber = Int64(myStateArgs.rawValue)
-        myApi.onStateChanged(myStateNumber: myStateNumber) {}
+        api.onStateChanged(stateNumberArgs: stateNumberArgs) {}
     }
     
     
     func didDiscover(_ peripheral: CBPeripheral, _ advertisementData: [String : Any], _ rssi: NSNumber) {
-        let myPeripheral = peripheral.toMyArgs()
+        let peripheralArgs = peripheral.toArgs()
         let peripheralHashCode = peripheral.hash
-        let myPeripheralHashCode = myPeripheral.myHashCode
-        peripheral.delegate = myPeripheralDelegate
-        peripherals[myPeripheralHashCode] = peripheral
-        myPeripherals[peripheralHashCode] = myPeripheral
-        let myRSSI = rssi.int64Value
-        let myName = advertisementData[CBAdvertisementDataLocalNameKey] as? String
+        let peripheralHashCodeArgs = peripheralArgs.hashCodeArgs
+        peripheral.delegate = peripheralDelegate
+        peripherals[peripheralHashCodeArgs] = peripheral
+        peripheralsArgs[peripheralHashCode] = peripheralArgs
+        let rssiArgs = rssi.int64Value
+        let nameArgs = advertisementData[CBAdvertisementDataLocalNameKey] as? String
+        var manufacturerSpecificDataArgs = [Int64: FlutterStandardTypedData]()
         let manufacturerSpecificData = advertisementData[CBAdvertisementDataManufacturerDataKey] as? Data
-        var myManufacturerSpecificData = [Int64: FlutterStandardTypedData]()
         if manufacturerSpecificData != nil {
-            do {
-                guard let data = manufacturerSpecificData else {
-                    throw MyError.illegalArgument
-                }
-                guard data.count >= 2 else {
-                    throw MyError.illegalArgument
-                }
-                let key = Int64(data[0]) | (Int64(data[1]) << 8)
-                let bytes = data.count > 2 ? data[2...data.count-1] : Data()
-                let value = FlutterStandardTypedData(bytes: bytes)
-                myManufacturerSpecificData[key] = value
-            } catch {
-                myManufacturerSpecificData = [:]
+            let bytes = manufacturerSpecificData!
+            if bytes.count >= 2 {
+                let idArgs = Int64(bytes[0]) | (Int64(bytes[1]) << 8)
+                let data = bytes.count > 2 ? bytes[2...bytes.count - 1] : Data()
+                let dataArgs = FlutterStandardTypedData(bytes: data)
+                manufacturerSpecificDataArgs[idArgs] = dataArgs
             }
         }
         let serviceUUIDs = advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID] ?? []
-        let myServiceUUIDs = serviceUUIDs.map { uuid in uuid.uuidString }
+        let serviceUUIDsArgs = serviceUUIDs.map { uuid in uuid.uuidString }
         let serviceData = advertisementData[CBAdvertisementDataServiceDataKey] as? [CBUUID: Data] ?? [:]
-        let myServiceDataEntries = serviceData.map { (uuid, data) in
-            let key = uuid.uuidString
-            let value = FlutterStandardTypedData(bytes: data)
-            return (key, value)
+        let serviceDataArgsKeyWithValues = serviceData.map { (uuid, data) in
+            let uuidArgs = uuid.uuidString
+            let dataArgs = FlutterStandardTypedData(bytes: data)
+            return (uuidArgs, dataArgs)
         }
-        let myServiceData = [String?: FlutterStandardTypedData?](uniqueKeysWithValues: myServiceDataEntries)
-        let myAdvertisementArgs = MyAdvertisementArgs(myName: myName, myManufacturerSpecificData: myManufacturerSpecificData, myServiceUUIDs: myServiceUUIDs, myServiceData: myServiceData)
-        myApi.onDiscovered(myPeripheralArgs: myPeripheral, myRSSI: myRSSI, myAdvertisementArgs: myAdvertisementArgs) {}
+        let serviceDataArgs = [String?: FlutterStandardTypedData?](uniqueKeysWithValues: serviceDataArgsKeyWithValues)
+        let advertisementArgs = MyAdvertisementArgs(nameArgs: nameArgs, manufacturerSpecificDataArgs: manufacturerSpecificDataArgs, serviceUUIDsArgs: serviceUUIDsArgs, serviceDataArgs: serviceDataArgs)
+        api.onDiscovered(peripheralArgs: peripheralArgs, rssiArgs: rssiArgs, advertisementArgs: advertisementArgs) {}
     }
     
     func didConnect(_ peripheral: CBPeripheral) {
-        let hashCode = peripheral.hash
-        guard let myPeripheral = myPeripherals[hashCode] else {
+        let peripheralHashCode = peripheral.hash
+        guard let peripheralArgs = peripheralsArgs[peripheralHashCode] else {
             return
         }
-        let myHashCode = myPeripheral.myHashCode
-        let completion = connectCompletions.removeValue(forKey: myHashCode)
+        let peripheralHashCodeArgs = peripheralArgs.hashCodeArgs
+        let completion = connectCompletions.removeValue(forKey: peripheralHashCodeArgs)
         completion?(.success(()))
-        myApi.onPeripheralStateChanged(myPeripheralArgs: myPeripheral, myState: true) {}
+        let stateArgs = true
+        api.onPeripheralStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) {}
     }
     
     func didFailToConnect(_ peripheral: CBPeripheral, _ error: Error?) {
-        let hashCode = peripheral.hash
-        guard let myPeripheral = myPeripherals[hashCode] else {
+        let peripheralHashCode = peripheral.hash
+        guard let peripheralArgs = peripheralsArgs[peripheralHashCode] else {
             return
         }
-        let myHashCode = myPeripheral.myHashCode
-        let completion = connectCompletions.removeValue(forKey: myHashCode)
+        let peripheralHashCodeArgs = peripheralArgs.hashCodeArgs
+        let completion = connectCompletions.removeValue(forKey: peripheralHashCodeArgs)
         completion?(.failure(error ?? MyError.unknown))
     }
     
     func didDisconnectPeripheral(_ peripheral: CBPeripheral, _ error: Error?) {
         let peripheralHashCode = peripheral.hash
-        guard let myPeripheral = myPeripherals[peripheralHashCode] else {
+        guard let peripheralArgs = peripheralsArgs[peripheralHashCode] else {
             return
         }
-        let myPeripheralHashCode = myPeripheral.myHashCode
-        let readRssiCompletion = readRssiCompletions.removeValue(forKey: myPeripheralHashCode)
+        let peripheralHashCodeArgs = peripheralArgs.hashCodeArgs
+        let readRssiCompletion = readRssiCompletions.removeValue(forKey: peripheralHashCodeArgs)
         readRssiCompletion?(.failure(error ?? MyError.unknown))
-        let discoverGattCompletion = discoverGattCompletions.removeValue(forKey: myPeripheralHashCode)
+        let discoverGattCompletion = discoverGattCompletions.removeValue(forKey: peripheralHashCodeArgs)
         discoverGattCompletion?(.failure(error ?? MyError.unknown))
-        unfinishedServices.removeValue(forKey: myPeripheralHashCode)
-        unfinishedCharacteristics.removeValue(forKey: myPeripheralHashCode)
-        let myServices = myServicesOfMyPeripherals[myPeripheralHashCode] ?? []
-        for myService in myServices {
-            let myCharacteristics = myService.myCharacteristicArgses.map { args in args! }
-            for myCharacteristic in myCharacteristics {
-                let myCharacteristicHashCode = myCharacteristic.myHashCode
-                let readCharacteristicCompletion = readCharacteristicCompletions.removeValue(forKey: myCharacteristicHashCode)
-                let writeCharacteristicCompletion = writeCharacteristicCompletions.removeValue(forKey: myCharacteristicHashCode)
-                let notifyCharacteristicCompletion = notifyCharacteristicCompletions.removeValue(forKey: myCharacteristicHashCode)
+        unfinishedServices.removeValue(forKey: peripheralHashCodeArgs)
+        unfinishedCharacteristics.removeValue(forKey: peripheralHashCodeArgs)
+        let servicesArgs = servicesArgsOfPeripheralsArgs[peripheralHashCodeArgs] ?? []
+        for serviceArgs in servicesArgs {
+            let characteristicsArgs = serviceArgs.characteristicsArgs.map { args in args! }
+            for characteristicArgs in characteristicsArgs {
+                let characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
+                let readCharacteristicCompletion = readCharacteristicCompletions.removeValue(forKey: characteristicHashCodeArgs)
+                let writeCharacteristicCompletion = writeCharacteristicCompletions.removeValue(forKey: characteristicHashCodeArgs)
+                let notifyCharacteristicCompletion = notifyCharacteristicCompletions.removeValue(forKey: characteristicHashCodeArgs)
                 readCharacteristicCompletion?(.failure(error ?? MyError.unknown))
                 writeCharacteristicCompletion?(.failure(error ?? MyError.unknown))
                 notifyCharacteristicCompletion?(.failure(error ?? MyError.unknown))
-                let myDescriptors = myCharacteristic.myDescriptorArgses.map { args in args! }
-                for myDescriptor in myDescriptors {
-                    let myDescriptorHashCode = myDescriptor.myHashCode
-                    let readDescriptorCompletion = readDescriptorCompletions.removeValue(forKey: myDescriptorHashCode)
-                    let writeDescriptorCompletion = writeDescriptorCompletions.removeValue(forKey: myDescriptorHashCode)
+                let descriptorsArgs = characteristicArgs.descriptorsArgs.map { args in args! }
+                for descriptorArgs in descriptorsArgs {
+                    let descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
+                    let readDescriptorCompletion = readDescriptorCompletions.removeValue(forKey: descriptorHashCodeArgs)
+                    let writeDescriptorCompletion = writeDescriptorCompletions.removeValue(forKey: descriptorHashCodeArgs)
                     readDescriptorCompletion?(.failure(error ?? MyError.unknown))
                     writeDescriptorCompletion?(.failure(error ?? MyError.unknown))
                 }
             }
         }
-        myApi.onPeripheralStateChanged(myPeripheralArgs: myPeripheral, myState: false) {}
-        guard let completion = disconnectCompletions.removeValue(forKey: myPeripheralHashCode) else {
+        let stateArgs = false
+        api.onPeripheralStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) {}
+        guard let completion = disconnectCompletions.removeValue(forKey: peripheralHashCodeArgs) else {
             return
         }
         if error == nil {
@@ -410,35 +404,35 @@ class MyCentralManager: MyCentralManagerHostApi {
     }
     
     func didReadRSSI(_ peripheral: CBPeripheral, _ rssi: NSNumber, _ error: Error?) {
-        let hashCode = peripheral.hash
-        guard let myPeripheral = myPeripherals[hashCode] else {
+        let peripheralHashCode = peripheral.hash
+        guard let peripheralArgs = peripheralsArgs[peripheralHashCode] else {
             return
         }
-        let myHashCode = myPeripheral.myHashCode
-        guard let completion = readRssiCompletions.removeValue(forKey: myHashCode) else {
+        let peripheralHashCodeArgs = peripheralArgs.hashCodeArgs
+        guard let completion = readRssiCompletions.removeValue(forKey: peripheralHashCodeArgs) else {
             return
         }
         if error == nil {
-            let myRSSI = rssi.int64Value
-            completion(.success((myRSSI)))
+            let rssiArgs = rssi.int64Value
+            completion(.success((rssiArgs)))
         } else {
             completion(.failure(error!))
         }
     }
     
     func didDiscoverServices(_ peripheral: CBPeripheral, _ error: Error?) {
-        let hashCode = peripheral.hash
-        guard let myPeripheral = myPeripherals[hashCode] else {
+        let peripheralHashCode = peripheral.hash
+        guard let peripheralArgs = peripheralsArgs[peripheralHashCode] else {
             return
         }
-        let myHashCode = myPeripheral.myHashCode
+        let peripheralHashCodeArgs = peripheralArgs.hashCodeArgs
         if error == nil {
             var services = peripheral.services ?? []
             if services.isEmpty {
                 didDiscoverGATT(peripheral, error)
             } else {
                 let service = services.removeFirst()
-                unfinishedServices[myHashCode] = services
+                unfinishedServices[peripheralHashCodeArgs] = services
                 peripheral.discoverCharacteristics(nil, for: service)
             }
         } else {
@@ -447,25 +441,25 @@ class MyCentralManager: MyCentralManagerHostApi {
     }
     
     func didDiscoverCharacteristics(_ peripheral: CBPeripheral, _ service: CBService, _ error: Error?) {
-        let hashCode = peripheral.hash
-        guard let myPeripheral = myPeripherals[hashCode] else {
+        let peripheralHashCode = peripheral.hash
+        guard let peripheralArgs = peripheralsArgs[peripheralHashCode] else {
             return
         }
-        let myHashCode = myPeripheral.myHashCode
+        let peripheralHashCodeArgs = peripheralArgs.hashCodeArgs
         if error == nil {
             var characteristics = service.characteristics ?? []
             if characteristics.isEmpty {
-                var services = unfinishedServices.removeValue(forKey: myHashCode) ?? []
+                var services = unfinishedServices.removeValue(forKey: peripheralHashCodeArgs) ?? []
                 if services.isEmpty {
                     didDiscoverGATT(peripheral, error)
                 } else {
                     let service = services.removeFirst()
-                    unfinishedServices[myHashCode] = services
+                    unfinishedServices[peripheralHashCodeArgs] = services
                     peripheral.discoverCharacteristics(nil, for: service)
                 }
             } else {
                 let characteristic = characteristics.removeFirst()
-                unfinishedCharacteristics[myHashCode] = characteristics
+                unfinishedCharacteristics[peripheralHashCodeArgs] = characteristics
                 peripheral.discoverDescriptors(for: characteristic)
             }
         } else {
@@ -474,25 +468,25 @@ class MyCentralManager: MyCentralManagerHostApi {
     }
     
     func didDiscoverDescriptors(_ peripheral: CBPeripheral, _ characteristic: CBCharacteristic, _ error: Error?) {
-        let hashCode = peripheral.hash
-        guard let myPeripheral = myPeripherals[hashCode] else {
+        let peripheralHashCode = peripheral.hash
+        guard let peripheralArgs = peripheralsArgs[peripheralHashCode] else {
             return
         }
-        let myHashCode = myPeripheral.myHashCode
+        let peripheralHashCodeArgs = peripheralArgs.hashCodeArgs
         if error == nil {
-            var characteristics = unfinishedCharacteristics.removeValue(forKey: myHashCode) ?? []
+            var characteristics = unfinishedCharacteristics.removeValue(forKey: peripheralHashCodeArgs) ?? []
             if (characteristics.isEmpty) {
-                var services = unfinishedServices.removeValue(forKey: myHashCode) ?? []
+                var services = unfinishedServices.removeValue(forKey: peripheralHashCodeArgs) ?? []
                 if services.isEmpty {
                     didDiscoverGATT(peripheral, error)
                 } else {
                     let service = services.removeFirst()
-                    unfinishedServices[myHashCode] = services
+                    unfinishedServices[peripheralHashCodeArgs] = services
                     peripheral.discoverCharacteristics(nil, for: service)
                 }
             } else {
                 let characteristic = characteristics.removeFirst()
-                unfinishedCharacteristics[myHashCode] = characteristics
+                unfinishedCharacteristics[peripheralHashCodeArgs] = characteristics
                 peripheral.discoverDescriptors(for: characteristic)
             }
         } else {
@@ -502,81 +496,81 @@ class MyCentralManager: MyCentralManagerHostApi {
     
     private func didDiscoverGATT(_ peripheral: CBPeripheral, _ error: Error?) {
         let peripheralHashCode = peripheral.hash
-        guard let myPeripheral = myPeripherals[peripheralHashCode] else {
+        guard let peripheralArgs = peripheralsArgs[peripheralHashCode] else {
             return
         }
-        let myPeripheralhashCode = myPeripheral.myHashCode
-        guard let completion = discoverGattCompletions.removeValue(forKey: myPeripheralhashCode) else {
+        let peripheralhashCodeArgs = peripheralArgs.hashCodeArgs
+        guard let completion = discoverGattCompletions.removeValue(forKey: peripheralhashCodeArgs) else {
             return
         }
         if error == nil {
             let services = peripheral.services ?? []
-            var myServices = [MyGattServiceArgs]()
+            var servicesArgs = [MyGattServiceArgs]()
             for service in services {
                 let characteristics = service.characteristics ?? []
-                var myCharacteristics = [MyGattCharacteristicArgs]()
+                var characteristicsArgs = [MyGattCharacteristicArgs]()
                 for characteristic in characteristics {
                     let descriptors = characteristic.descriptors ?? []
-                    var myDescriptors = [MyGattDescriptorArgs]()
+                    var descriptorsArgs = [MyGattDescriptorArgs]()
                     for descriptor in descriptors {
-                        let myDescriptor = descriptor.toMyArgs()
+                        let descriptorArgs = descriptor.toArgs()
                         let descriptorHashCode = descriptor.hash
-                        let myDescriptorHashCode = myDescriptor.myHashCode
-                        self.descriptors[myDescriptorHashCode] = descriptor
-                        self.myDescriptors[descriptorHashCode] = myDescriptor
-                        myDescriptors.append(myDescriptor)
+                        let descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
+                        self.descriptors[descriptorHashCodeArgs] = descriptor
+                        self.descriptorsArgs[descriptorHashCode] = descriptorArgs
+                        descriptorsArgs.append(descriptorArgs)
                     }
-                    let myCharacteristic = characteristic.toMyArgs(myDescriptors)
+                    let characteristicArgs = characteristic.toArgs(descriptorsArgs)
                     let characteristicHashCode = characteristic.hash
-                    let myCharacteristicHashCode = myCharacteristic.myHashCode
-                    self.characteristics[myCharacteristicHashCode] = characteristic
-                    self.myCharacteristics[characteristicHashCode] = myCharacteristic
-                    myCharacteristics.append(myCharacteristic)
+                    let characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
+                    self.characteristics[characteristicHashCodeArgs] = characteristic
+                    self.characteristicsArgs[characteristicHashCode] = characteristicArgs
+                    characteristicsArgs.append(characteristicArgs)
                 }
-                let myService = service.toMyArgs(myCharacteristics)
+                let serviceArgs = service.toArgs(characteristicsArgs)
                 let serviceHashCode = service.hash
-                let myServiceHashCode = myService.myHashCode
-                self.services[myServiceHashCode] = service
-                self.myServices[serviceHashCode] = myService
-                myServices.append(myService)
+                let servcieHashCodeArgs = serviceArgs.hashCodeArgs
+                self.services[servcieHashCodeArgs] = service
+                self.servicesArgs[serviceHashCode] = serviceArgs
+                servicesArgs.append(serviceArgs)
             }
-            myServicesOfMyPeripherals[myPeripheralhashCode] = myServices
-            completion(.success((myServices)))
+            servicesArgsOfPeripheralsArgs[peripheralhashCodeArgs] = servicesArgs
+            completion(.success((servicesArgs)))
         } else {
             completion(.failure(error!))
-            unfinishedServices.removeValue(forKey: myPeripheralhashCode)
-            unfinishedCharacteristics.removeValue(forKey: myPeripheralhashCode)
+            unfinishedServices.removeValue(forKey: peripheralhashCodeArgs)
+            unfinishedCharacteristics.removeValue(forKey: peripheralhashCodeArgs)
         }
     }
     
     func didUpdateCharacteristicValue(_ characteristic: CBCharacteristic, _ error: Error?) {
-        let hashCode = characteristic.hash
-        guard let myCharacteristic = myCharacteristics[hashCode] else {
+        let characteristicHashCode = characteristic.hash
+        guard let characteristicArgs = characteristicsArgs[characteristicHashCode] else {
             return
         }
-        let myHashCode = myCharacteristic.myHashCode
-        guard let completion = readCharacteristicCompletions.removeValue(forKey: myHashCode) else {
+        let characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
+        guard let completion = readCharacteristicCompletions.removeValue(forKey: characteristicHashCodeArgs) else {
             let value = characteristic.value ?? Data()
-            let myValue = FlutterStandardTypedData(bytes: value)
-            myApi.onCharacteristicValueChanged(myCharacteristicArgs: myCharacteristic, myValue: myValue) {}
+            let valueArgs = FlutterStandardTypedData(bytes: value)
+            api.onCharacteristicValueChanged(characteristicArgs: characteristicArgs, valueArgs: valueArgs) {}
             return
         }
         if error == nil {
             let value = characteristic.value ?? Data()
-            let myValue = FlutterStandardTypedData(bytes: value)
-            completion(.success(myValue))
+            let valueArgs = FlutterStandardTypedData(bytes: value)
+            completion(.success(valueArgs))
         } else {
             completion(.failure(error!))
         }
     }
     
     func didWriteCharacteristicValue(_ characteristic: CBCharacteristic, _ error: Error?) {
-        let hashCode = characteristic.hash
-        guard let myCharacteristic = myCharacteristics[hashCode] else {
+        let characteristicHashCode = characteristic.hash
+        guard let characteristicArgs = characteristicsArgs[characteristicHashCode] else {
             return
         }
-        let myHashCode = myCharacteristic.myHashCode
-        guard let completion = writeCharacteristicCompletions.removeValue(forKey: myHashCode) else {
+        let characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
+        guard let completion = writeCharacteristicCompletions.removeValue(forKey: characteristicHashCodeArgs) else {
             return
         }
         if error == nil {
@@ -587,12 +581,12 @@ class MyCentralManager: MyCentralManagerHostApi {
     }
     
     func didUpdateNotificationState(_ characteristic: CBCharacteristic, _ error: Error?) {
-        let hashCode = characteristic.hash
-        guard let myCharacteristic = myCharacteristics[hashCode] else {
+        let characteristicHashCode = characteristic.hash
+        guard let characteristicArgs = characteristicsArgs[characteristicHashCode] else {
             return
         }
-        let myHashCode = myCharacteristic.myHashCode
-        guard let completion = notifyCharacteristicCompletions.removeValue(forKey: myHashCode) else {
+        let characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
+        guard let completion = notifyCharacteristicCompletions.removeValue(forKey: characteristicHashCodeArgs) else {
             return
         }
         if error == nil {
@@ -603,18 +597,18 @@ class MyCentralManager: MyCentralManagerHostApi {
     }
     
     func didUpdateDescriptorValue(_ descriptor: CBDescriptor, _ error: Error?) {
-        let hashCode = descriptor.hash
-        guard let myDescriptor = myDescriptors[hashCode] else {
+        let descriptorHashCode = descriptor.hash
+        guard let descriptorArgs = descriptorsArgs[descriptorHashCode] else {
             return
         }
-        let myHashCode = myDescriptor.myHashCode
-        guard let completion = readDescriptorCompletions.removeValue(forKey: myHashCode) else {
+        let descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
+        guard let completion = readDescriptorCompletions.removeValue(forKey: descriptorHashCodeArgs) else {
             return
         }
         if error == nil {
             // TODO: Need to confirm wheather the corresponding descriptor type and value is correct.
-            let value: FlutterStandardTypedData
-            let rawValue = descriptor.value
+            let valueArgs: FlutterStandardTypedData
+            let value = descriptor.value
             do {
                 switch descriptor.uuid.uuidString {
                 case CBUUIDCharacteristicExtendedPropertiesString:
@@ -622,46 +616,46 @@ class MyCentralManager: MyCentralManagerHostApi {
                 case CBUUIDClientCharacteristicConfigurationString:
                     fallthrough
                 case CBUUIDServerCharacteristicConfigurationString:
-                    guard let rawNumber = rawValue as? NSNumber else {
+                    guard let numberValue = value as? NSNumber else {
                         throw MyError.illegalArgument
                     }
-                    value = FlutterStandardTypedData(bytes: rawNumber.data)
+                    valueArgs = FlutterStandardTypedData(bytes: numberValue.data)
                 case CBUUIDCharacteristicUserDescriptionString:
                     fallthrough
                 case CBUUIDCharacteristicAggregateFormatString:
-                    guard let rawString = rawValue as? String else {
+                    guard let stringValue = value as? String else {
                         throw MyError.illegalArgument
                     }
-                    value = FlutterStandardTypedData(bytes: rawString.data)
+                    valueArgs = FlutterStandardTypedData(bytes: stringValue.data)
                 case CBUUIDCharacteristicFormatString:
-                    guard let rawData = rawValue as? Data else {
+                    guard let bytes = value as? Data else {
                         throw MyError.illegalArgument
                     }
-                    value = FlutterStandardTypedData(bytes: rawData)
+                    valueArgs = FlutterStandardTypedData(bytes: bytes)
                 case CBUUIDL2CAPPSMCharacteristicString:
-                    guard let rawU16 = rawValue as? UInt16 else {
+                    guard let uint16Value = value as? UInt16 else {
                         throw MyError.illegalArgument
                     }
-                    value = FlutterStandardTypedData(bytes: rawU16.data)
+                    valueArgs = FlutterStandardTypedData(bytes: uint16Value.data)
                 default:
                     throw MyError.illegalArgument
                 }
             } catch {
-                value = FlutterStandardTypedData()
+                valueArgs = FlutterStandardTypedData()
             }
-            completion(.success((value)))
+            completion(.success((valueArgs)))
         } else {
             completion(.failure(error!))
         }
     }
     
     func didWriteDescriptorValue(_ descriptor: CBDescriptor, _ error: Error?) {
-        let hashCode = descriptor.hash
-        guard let myDescriptor = myDescriptors[hashCode] else {
+        let descriptorHashCode = descriptor.hash
+        guard let descriptorArgs = descriptorsArgs[descriptorHashCode] else {
             return
         }
-        let myHashCode = myDescriptor.myHashCode
-        guard let completion = writeDescriptorCompletions.removeValue(forKey: myHashCode) else {
+        let descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
+        guard let completion = writeDescriptorCompletions.removeValue(forKey: descriptorHashCodeArgs) else {
             return
         }
         if error == nil {

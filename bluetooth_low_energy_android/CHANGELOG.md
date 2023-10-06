@@ -1,3 +1,7 @@
+## 3.0.0-dev.1
+
+* Implement new api.
+
 ## 2.2.1
 
 * Fix the issue that `CentralController#getMaximumWriteLength` may throw.

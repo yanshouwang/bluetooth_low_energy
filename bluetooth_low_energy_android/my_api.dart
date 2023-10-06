@@ -19,61 +19,61 @@ abstract class MyCentralManagerHostApi {
   void startDiscovery();
   void stopDiscovery();
   @async
-  void connect(int myPeripheralHashCode);
+  void connect(int peripheralHashCodeArgs);
   @async
-  void disconnect(int myPeripheralHashCode);
+  void disconnect(int peripheralHashCodeArgs);
   @async
-  int getMaximumWriteLength(int myPeripheralHashCode);
+  int getMaximumWriteLength(int peripheralHashCodeArgs);
   @async
-  int readRSSI(int myPeripheralHashCode);
+  int readRSSI(int peripheralHashCodeArgs);
   @async
-  List<MyGattServiceArgs> discoverGATT(int myPeripheralHashCode);
+  List<MyGattServiceArgs> discoverGATT(int peripheralHashCodeArgs);
   @async
   Uint8List readCharacteristic(
-    int myPeripheralHashCode,
-    int myCharacteristicHashCode,
+    int peripheralHashCodeArgs,
+    int characteristicHashCodeArgs,
   );
   @async
   void writeCharacteristic(
-    int myPeripheralHashCode,
-    int myCharacteristicHashCode,
-    Uint8List myValue,
-    int myTypeNumber,
+    int peripheralHashCodeArgs,
+    int characteristicHashCodeArgs,
+    Uint8List valueArgs,
+    int typeNumberArgs,
   );
   @async
   void notifyCharacteristic(
-    int myPeripheralHashCode,
-    int myCharacteristicHashCode,
-    bool myState,
+    int peripheralHashCodeArgs,
+    int characteristicHashCodeArgs,
+    bool stateArgs,
   );
   @async
   Uint8List readDescriptor(
-    int myPeripheralHashCode,
-    int myDescriptorHashCode,
+    int peripheralHashCodeArgs,
+    int descriptorHashCodeArgs,
   );
   @async
   void writeDescriptor(
-    int myPeripheralHashCode,
-    int myDescriptorHashCode,
-    Uint8List myValue,
+    int peripheralHashCodeArgs,
+    int descriptorHashCodeArgs,
+    Uint8List valueArgs,
   );
 }
 
 @FlutterApi()
 abstract class MyCentralManagerFlutterApi {
-  void onStateChanged(int myStateNumber);
+  void onStateChanged(int stateNumberArgs);
   void onDiscovered(
-    MyPeripheralArgs myPeripheralArgs,
-    int myRSSI,
-    MyAdvertisementArgs myAdvertisementArgs,
+    MyPeripheralArgs peripheralArgs,
+    int rssiArgs,
+    MyAdvertisementArgs advertisementArgs,
   );
   void onPeripheralStateChanged(
-    MyPeripheralArgs myPeripheralArgs,
-    bool myState,
+    MyPeripheralArgs peripheralArgs,
+    bool stateArgs,
   );
   void onCharacteristicValueChanged(
-    MyGattCharacteristicArgs myCharacteristicArgs,
-    Uint8List myValue,
+    MyGattCharacteristicArgs characteristicArgs,
+    Uint8List valueArgs,
   );
 }
 
@@ -82,134 +82,134 @@ abstract class MyPeripheralManagerHostApi {
   @async
   MyPeripheralManagerArgs setUp();
   @async
-  void addService(MyGattServiceArgs myServiceArgs);
-  void removeService(int myServiceHashCode);
+  void addService(MyGattServiceArgs serviceArgs);
+  void removeService(int serviceHashCodeArgs);
   void clearServices();
   @async
-  void startAdvertising(MyAdvertisementArgs myAdvertisementArgs);
+  void startAdvertising(MyAdvertisementArgs advertisementArgs);
   void stopAdvertising();
-  int getMaximumWriteLength(int myCentralHashCode);
+  int getMaximumWriteLength(int centralHashCodeArgs);
   void sendReadCharacteristicReply(
-    int myCentralHashCode,
-    int myCharacteristicHashCode,
-    int myId,
-    int myOffset,
-    bool myStatus,
-    Uint8List myValue,
+    int centralHashCodeArgs,
+    int characteristicHashCodeArgs,
+    int idArgs,
+    int offsetArgs,
+    bool statusArgs,
+    Uint8List valueArgs,
   );
   void sendWriteCharacteristicReply(
-    int myCentralHashCode,
-    int myCharacteristicHashCode,
-    int myId,
-    int myOffset,
-    bool myStatus,
+    int centralHashCodeArgs,
+    int characteristicHashCodeArgs,
+    int idArgs,
+    int offsetArgs,
+    bool statusArgs,
   );
   @async
   void notifyCharacteristicValueChanged(
-    int myCentralHashCode,
-    int myCharacteristicHashCode,
-    Uint8List myValue,
+    int centralHashCodeArgs,
+    int characteristicHashCodeArgs,
+    Uint8List valueArgs,
   );
 }
 
 @FlutterApi()
 abstract class MyPeripheralManagerFlutterApi {
-  void onStateChanged(int myStateNumber);
+  void onStateChanged(int stateNumberArgs);
   void onReadCharacteristicCommandReceived(
-    MyCentralArgs myCentralArgs,
-    MyGattCharacteristicArgs myCharacteristicArgs,
-    int myId,
-    int myOffset,
+    MyCentralArgs centralArgs,
+    MyGattCharacteristicArgs characteristicArgs,
+    int idArgs,
+    int offsetArgs,
   );
   void onWriteCharacteristicCommandReceived(
-    MyCentralArgs myCentralArgs,
-    MyGattCharacteristicArgs myCharacteristicArgs,
-    int myId,
-    int myOffset,
-    Uint8List myValue,
+    MyCentralArgs centralArgs,
+    MyGattCharacteristicArgs characteristicArgs,
+    int idArgs,
+    int offsetArgs,
+    Uint8List valueArgs,
   );
   void onNotifyCharacteristicCommandReceived(
-    MyCentralArgs myCentralArgs,
-    MyGattCharacteristicArgs myCharacteristicArgs,
-    bool myState,
+    MyCentralArgs centralArgs,
+    MyGattCharacteristicArgs characteristicArgs,
+    bool stateArgs,
   );
 }
 
 class MyCentralManagerArgs {
-  final int myStateNumber;
+  final int stateNumberArgs;
 
-  MyCentralManagerArgs(this.myStateNumber);
+  MyCentralManagerArgs(this.stateNumberArgs);
 }
 
 class MyPeripheralManagerArgs {
-  final int myStateNumber;
+  final int stateNumberArgs;
 
-  MyPeripheralManagerArgs(this.myStateNumber);
+  MyPeripheralManagerArgs(this.stateNumberArgs);
 }
 
 class MyPeripheralArgs {
-  final int myHashCode;
-  final String myUUID;
+  final int hashCodeArgs;
+  final String uuidArgs;
 
-  MyPeripheralArgs(this.myHashCode, this.myUUID);
+  MyPeripheralArgs(this.hashCodeArgs, this.uuidArgs);
 }
 
 class MyCentralArgs {
-  final int myHashCode;
-  final String myUUID;
+  final int hashCodeArgs;
+  final String uuidArgs;
 
-  MyCentralArgs(this.myHashCode, this.myUUID);
+  MyCentralArgs(this.hashCodeArgs, this.uuidArgs);
 }
 
 class MyAdvertisementArgs {
-  final String? myName;
-  final Map<int?, Uint8List?> myManufacturerSpecificData;
-  final List<String?> myServiceUUIDs;
-  final Map<String?, Uint8List?> myServiceData;
+  final String? nameArgs;
+  final Map<int?, Uint8List?> manufacturerSpecificDataArgs;
+  final List<String?> serviceUUIDsArgs;
+  final Map<String?, Uint8List?> serviceDataArgs;
 
   MyAdvertisementArgs(
-    this.myName,
-    this.myManufacturerSpecificData,
-    this.myServiceUUIDs,
-    this.myServiceData,
+    this.nameArgs,
+    this.manufacturerSpecificDataArgs,
+    this.serviceUUIDsArgs,
+    this.serviceDataArgs,
   );
 }
 
 class MyGattServiceArgs {
-  final int myHashCode;
-  final String myUUID;
-  final List<MyGattCharacteristicArgs?> myCharacteristicArgses;
+  final int hashCodeArgs;
+  final String uuidArgs;
+  final List<MyGattCharacteristicArgs?> characteristicsArgs;
 
   MyGattServiceArgs(
-    this.myHashCode,
-    this.myUUID,
-    this.myCharacteristicArgses,
+    this.hashCodeArgs,
+    this.uuidArgs,
+    this.characteristicsArgs,
   );
 }
 
 class MyGattCharacteristicArgs {
-  final int myHashCode;
-  final String myUUID;
-  final List<int?> myPropertyNumbers;
-  final List<MyGattDescriptorArgs?> myDescriptorArgses;
+  final int hashCodeArgs;
+  final String uuidArgs;
+  final List<int?> propertyNumbersArgs;
+  final List<MyGattDescriptorArgs?> descriptorsArgs;
 
   MyGattCharacteristicArgs(
-    this.myHashCode,
-    this.myUUID,
-    this.myPropertyNumbers,
-    this.myDescriptorArgses,
+    this.hashCodeArgs,
+    this.uuidArgs,
+    this.propertyNumbersArgs,
+    this.descriptorsArgs,
   );
 }
 
 class MyGattDescriptorArgs {
-  final int myHashCode;
-  final String myUUID;
-  final Uint8List? myValue;
+  final int hashCodeArgs;
+  final String uuidArgs;
+  final Uint8List? valueArgs;
 
   MyGattDescriptorArgs(
-    this.myHashCode,
-    this.myUUID,
-    this.myValue,
+    this.hashCodeArgs,
+    this.uuidArgs,
+    this.valueArgs,
   );
 }
 

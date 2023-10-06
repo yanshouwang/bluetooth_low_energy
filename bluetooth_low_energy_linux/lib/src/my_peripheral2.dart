@@ -8,7 +8,7 @@ class MyPeripheral2 extends MyPeripheral {
 
   MyPeripheral2(this.device)
       : super(
-          myHashCode: device.hashCode,
+          hashCode: device.hashCode,
           uuid: device.myUUID,
         );
 }

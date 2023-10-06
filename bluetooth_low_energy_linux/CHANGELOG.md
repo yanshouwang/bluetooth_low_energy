@@ -1,3 +1,7 @@
+## 3.0.0-dev.1
+
+* Implement new central manager api.
+
 ## 2.2.0
 
 * Add `CentralController#getMaximumWriteLength` method.
