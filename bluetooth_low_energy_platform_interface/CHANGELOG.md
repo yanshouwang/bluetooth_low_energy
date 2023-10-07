@@ -1,3 +1,7 @@
+## 3.0.0-dev.3
+
+* [Fix the issue that `UUID.fromString()` throw FormatException with 32 bits UUID string.](https://github.com/yanshouwang/bluetooth_low_energy/issues/13)
+
 ## 3.0.0-dev.2
 
 * Move `setUp` method from `BluetoothLowEnergy` class to `BluetoothLowEnergyManger` class.
