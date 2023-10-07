@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 
-class MyBluetoothLowEnergyManager extends BluetoothLowEnergyManager {
+abstract class MyBluetoothLowEnergyManager extends BluetoothLowEnergyManager {
   MyBluetoothLowEnergyManager()
       : _state = BluetoothLowEnergyState.unknown,
         _stateChangedController = StreamController.broadcast();

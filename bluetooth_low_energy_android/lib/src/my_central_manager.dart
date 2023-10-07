@@ -33,6 +33,7 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
       get characteristicValueChanged =>
           _characteristicValueChangedController.stream;
 
+  @override
   Future<void> setUp() async {
     final args = await _api.setUp();
     final stateArgs =

@@ -8,4 +8,7 @@ abstract class BluetoothLowEnergyManager {
 
   /// Tells the manager’s state updated.
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged;
+
+  /// Sets up this bluetooth low energy manager.
+  Future<void> setUp();
 }

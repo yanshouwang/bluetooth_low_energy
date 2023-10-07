@@ -66,6 +66,7 @@ class MyCentralManager extends CentralManager {
     }
   }
 
+  @override
   Future<void> setUp() async {
     // TODO: hot restart is not handled.
     await _client.connect();

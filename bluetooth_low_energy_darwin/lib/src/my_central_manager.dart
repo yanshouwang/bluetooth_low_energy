@@ -51,6 +51,7 @@ class MyCentralManager extends CentralManager
     }
   }
 
+  @override
   Future<void> setUp() async {
     await _throwWithoutState(BluetoothLowEnergyState.unknown);
     final args = await _api.setUp();

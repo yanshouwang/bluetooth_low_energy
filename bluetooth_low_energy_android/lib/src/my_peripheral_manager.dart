@@ -40,6 +40,7 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
       get notifyCharacteristicCommandReceived =>
           _notifyCharacteristicCommandReceivedController.stream;
 
+  @override
   Future<void> setUp() async {
     final args = await _api.setUp();
     final stateArgs =

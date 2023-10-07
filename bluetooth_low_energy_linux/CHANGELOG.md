@@ -1,3 +1,9 @@
+## 3.0.0-dev.2
+
+* Move `setUp` method from `BluetoothLowEnergy` class to `BluetoothLowEnergyManger` class.
+* Add `CentralManager.instance` api.
+* Add `PeripheralManager.instance` api.
+
 ## 3.0.0-dev.1
 
 * Implement new central manager api.

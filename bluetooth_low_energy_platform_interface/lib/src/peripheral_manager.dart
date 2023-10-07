@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'advertisement.dart';
+import 'bluetooth_low_energy.dart';
 import 'bluetooth_low_energy_manager.dart';
 import 'central.dart';
 import 'event_args.dart';
@@ -9,6 +10,10 @@ import 'gatt_service.dart';
 
 /// An object that manages and advertises peripheral services exposed by this app.
 abstract class PeripheralManager extends BluetoothLowEnergyManager {
+  /// Gets the instance of [PeripheralManager].
+  static PeripheralManager get instance =>
+      BluetoothLowEnergy.instance.peripheralManager;
+
   /// Tells that the local peripheral received an Attribute Protocol (ATT) read request for a characteristic with a dynamic value.
   Stream<ReadGattCharacteristicCommandEventArgs>
       get readCharacteristicCommandReceived;

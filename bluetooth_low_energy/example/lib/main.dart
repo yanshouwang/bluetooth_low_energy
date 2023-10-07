@@ -15,7 +15,8 @@ void main() {
 
 void onStartUp() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await BluetoothLowEnergy.instance.setUp();
+  await CentralManager.instance.setUp();
+  await PeripheralManager.instance.setUp();
   runApp(const MyApp());
 }
 
@@ -138,7 +139,7 @@ class _HomeViewState extends State<HomeView> {
   }
 }
 
-CentralManager get centralManager => BluetoothLowEnergy.instance.centralManager;
+CentralManager get centralManager => CentralManager.instance;
 
 class ScannerView extends StatefulWidget {
   const ScannerView({super.key});
@@ -770,8 +771,7 @@ class _PeripheralViewState extends State<PeripheralView> {
   }
 }
 
-PeripheralManager get peripheralManager =>
-    BluetoothLowEnergy.instance.peripheralManager;
+PeripheralManager get peripheralManager => PeripheralManager.instance;
 
 class AdvertiserView extends StatefulWidget {
   const AdvertiserView({super.key});

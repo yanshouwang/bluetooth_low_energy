@@ -9,9 +9,4 @@ class MyBluetoothLowEnergy extends BluetoothLowEnergy {
   PeripheralManager get peripheralManager => throw UnimplementedError();
 
   MyBluetoothLowEnergy() : centralManager = MyCentralManager();
-
-  @override
-  Future<void> setUp() async {
-    await centralManager.setUp();
-  }
 }
