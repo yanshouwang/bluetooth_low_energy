@@ -9,15 +9,14 @@ import Foundation
 import CoreBluetooth
 
 class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate {
-    private let centralManager: MyCentralManager
-    
     init(_ centralManager: MyCentralManager) {
         self.centralManager = centralManager
     }
     
+    private let centralManager: MyCentralManager
+    
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        let state = central.state
-        centralManager.didUpdateState(state)
+        centralManager.didUpdateState()
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {

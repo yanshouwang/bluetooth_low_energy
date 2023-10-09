@@ -295,11 +295,10 @@ class _ScannerViewState extends State<ScannerView> {
                                 ],
                               );
                             } else {
-                              final entry = manufacturerSpecificData.entries
-                                  .elementAt(i - 1);
                               final id =
-                                  '0x${entry.key.toRadixString(16).padLeft(4, '0')}';
-                              final value = hex.encode(entry.value);
+                                  '0x${manufacturerSpecificData!.id.toRadixString(16).padLeft(4, '0')}';
+                              final value =
+                                  hex.encode(manufacturerSpecificData.data);
                               return Row(
                                 children: [
                                   SizedBox(
@@ -316,7 +315,7 @@ class _ScannerViewState extends State<ScannerView> {
                           separatorBuilder: (context, i) {
                             return const Divider();
                           },
-                          itemCount: manufacturerSpecificData.length + 1,
+                          itemCount: manufacturerSpecificData == null ? 1 : 2,
                         );
                       },
                     );
@@ -860,7 +859,7 @@ class _AdvertiserViewState extends State<AdvertiserView> {
     );
     notifyCharacteristicCommandReceivedSubscription =
         peripheralManager.notifyCharacteristicCommandReceived.listen(
-      (eventArgs) {
+      (eventArgs) async {
         final central = eventArgs.central;
         final characteristic = eventArgs.characteristic;
         final state = eventArgs.state;
@@ -873,6 +872,13 @@ class _AdvertiserViewState extends State<AdvertiserView> {
           ...logs.value,
           log,
         ];
+        // Write someting to the central.
+        final value = Uint8List.fromList([0x03, 0x02, 0x01]);
+        await peripheralManager.notifyCharacteristicValueChanged(
+          central,
+          characteristic,
+          value,
+        );
       },
     );
     setUp();
@@ -955,10 +961,11 @@ class _AdvertiserViewState extends State<AdvertiserView> {
 
   Future<void> startAdvertising() async {
     final advertisement = Advertisement(
-      name: 'flutter',
-      manufacturerSpecificData: {
-        0x2e19: Uint8List.fromList([0x01, 0x02, 0x03]),
-      },
+      name: 'bluetooth_low_energy',
+      manufacturerSpecificData: ManufacturerSpecificData(
+        id: 0x2e19,
+        data: Uint8List.fromList([0x01, 0x02, 0x03]),
+      ),
     );
     await peripheralManager.startAdvertising(advertisement);
     advertising.value = true;

@@ -28,23 +28,28 @@ extension BlueZDeviceX on BlueZDevice {
       gattServices.map((service) => MyGattService2(service)).toList();
 
   Advertisement get myAdvertisement {
-    final name = this.name.isNotEmpty ? this.name : null;
-    final manufacturerSpecificData = manufacturerData.map((id, data) {
-      final myId = id.id;
-      final myData = Uint8List.fromList(data);
-      return MapEntry(myId, myData);
-    });
-    final serviceUUIDs = uuids.map((uuid) => uuid.toMyUUID()).toList();
-    final serviceData = this.serviceData.map((uuid, data) {
+    final myName = name.isNotEmpty ? name : null;
+    final myServiceUUIDs = uuids.map((uuid) => uuid.toMyUUID()).toList();
+    final myServiceData = serviceData.map((uuid, data) {
       final myUUID = uuid.toMyUUID();
       final myData = Uint8List.fromList(data);
       return MapEntry(myUUID, myData);
     });
     return Advertisement(
-      name: name,
-      manufacturerSpecificData: manufacturerSpecificData,
-      serviceUUIDs: serviceUUIDs,
-      serviceData: serviceData,
+      name: myName,
+      manufacturerSpecificData: myManufacturerSpecificData,
+      serviceUUIDs: myServiceUUIDs,
+      serviceData: myServiceData,
+    );
+  }
+
+  ManufacturerSpecificData get myManufacturerSpecificData {
+    final entry = manufacturerData.entries.last;
+    final myId = entry.key.id;
+    final myData = Uint8List.fromList(entry.value);
+    return ManufacturerSpecificData(
+      id: myId,
+      data: myData,
     );
   }
 }

@@ -147,13 +147,6 @@ class MyPeripheralManagerArgs {
   MyPeripheralManagerArgs(this.stateNumberArgs);
 }
 
-class MyPeripheralArgs {
-  final int hashCodeArgs;
-  final String uuidArgs;
-
-  MyPeripheralArgs(this.hashCodeArgs, this.uuidArgs);
-}
-
 class MyCentralArgs {
   final int hashCodeArgs;
   final String uuidArgs;
@@ -161,9 +154,16 @@ class MyCentralArgs {
   MyCentralArgs(this.hashCodeArgs, this.uuidArgs);
 }
 
+class MyPeripheralArgs {
+  final int hashCodeArgs;
+  final String uuidArgs;
+
+  MyPeripheralArgs(this.hashCodeArgs, this.uuidArgs);
+}
+
 class MyAdvertisementArgs {
   final String? nameArgs;
-  final Map<int?, Uint8List?> manufacturerSpecificDataArgs;
+  final MyManufacturerSpecificDataArgs? manufacturerSpecificDataArgs;
   final List<String?> serviceUUIDsArgs;
   final Map<String?, Uint8List?> serviceDataArgs;
 
@@ -173,6 +173,13 @@ class MyAdvertisementArgs {
     this.serviceUUIDsArgs,
     this.serviceDataArgs,
   );
+}
+
+class MyManufacturerSpecificDataArgs {
+  final int idArgs;
+  final Uint8List dataArgs;
+
+  MyManufacturerSpecificDataArgs(this.idArgs, this.dataArgs);
 }
 
 class MyGattServiceArgs {

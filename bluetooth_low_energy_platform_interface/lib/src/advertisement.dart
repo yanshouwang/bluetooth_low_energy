@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'manufacturer_specific_data.dart';
 import 'uuid.dart';
 
 /// The advertisement discovered from a peripheral.
@@ -8,7 +9,7 @@ class Advertisement {
   final String? name;
 
   /// The manufacturer specific data of the peripheral.
-  final Map<int, Uint8List> manufacturerSpecificData;
+  final ManufacturerSpecificData? manufacturerSpecificData;
 
   /// The GATT service uuids of the peripheral.
   final List<UUID> serviceUUIDs;
@@ -19,7 +20,7 @@ class Advertisement {
   /// Constructs an [Advertisement].
   Advertisement({
     this.name,
-    this.manufacturerSpecificData = const {},
+    this.manufacturerSpecificData,
     this.serviceUUIDs = const [],
     this.serviceData = const {},
   });

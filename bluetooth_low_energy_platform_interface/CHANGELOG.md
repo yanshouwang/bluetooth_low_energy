@@ -1,6 +1,11 @@
+## 3.0.0-dev.4
+
+* Fix issues.
+
 ## 3.0.0-dev.3
 
 * [Fix the issue that `UUID.fromString()` throw FormatException with 32 bits UUID string.](https://github.com/yanshouwang/bluetooth_low_energy/issues/13)
+* Change the type of `manufacturerSpecificData` from `Map<int, Uint8List>` to `ManufacturerSpecificData`.
 
 ## 3.0.0-dev.2
 

@@ -72,15 +72,93 @@ abstract class MyCentralManagerFlutterApi {
   );
 }
 
+@HostApi()
+abstract class MyPeripheralManagerHostApi {
+  @async
+  MyPeripheralManagerArgs setUp();
+  @async
+  void addService(MyGattServiceArgs serviceArgs);
+  void removeService(int serviceHashCodeArgs);
+  void clearServices();
+  @async
+  void startAdvertising(MyAdvertisementArgs advertisementArgs);
+  void stopAdvertising();
+  int getMaximumWriteLength(int centralHashCodeArgs);
+  void sendReadCharacteristicReply(
+    int centralHashCodeArgs,
+    int characteristicHashCodeArgs,
+    int idArgs,
+    int offsetArgs,
+    bool statusArgs,
+    Uint8List valueArgs,
+  );
+  void sendWriteCharacteristicReply(
+    int centralHashCodeArgs,
+    int characteristicHashCodeArgs,
+    int idArgs,
+    int offsetArgs,
+    bool statusArgs,
+  );
+  @async
+  void notifyCharacteristicValueChanged(
+    int centralHashCodeArgs,
+    int characteristicHashCodeArgs,
+    Uint8List valueArgs,
+  );
+}
+
+@FlutterApi()
+abstract class MyPeripheralManagerFlutterApi {
+  void onStateChanged(int stateNumberArgs);
+  void onReadCharacteristicCommandReceived(
+    MyCentralArgs centralArgs,
+    MyGattCharacteristicArgs characteristicArgs,
+    int idArgs,
+    int offsetArgs,
+  );
+  void onWriteCharacteristicCommandReceived(
+    MyCentralArgs centralArgs,
+    MyGattCharacteristicArgs characteristicArgs,
+    int idArgs,
+    int offsetArgs,
+    Uint8List valueArgs,
+  );
+  void onNotifyCharacteristicCommandReceived(
+    MyCentralArgs centralArgs,
+    MyGattCharacteristicArgs characteristicArgs,
+    bool stateArgs,
+  );
+}
+
 class MyCentralManagerArgs {
   final int stateNumberArgs;
 
   MyCentralManagerArgs(this.stateNumberArgs);
 }
 
+class MyPeripheralManagerArgs {
+  final int stateNumberArgs;
+
+  MyPeripheralManagerArgs(this.stateNumberArgs);
+}
+
+class MyCentralArgs {
+  final int hashCodeArgs;
+  final String uuidArgs;
+
+  MyCentralArgs(this.hashCodeArgs, this.uuidArgs);
+}
+
+class MyPeripheralArgs {
+  final int hashCodeArgs;
+  final String uuidArgs;
+
+  MyPeripheralArgs(this.hashCodeArgs, this.uuidArgs);
+}
+
 class MyAdvertisementArgs {
   final String? nameArgs;
-  final Map<int?, Uint8List?> manufacturerSpecificDataArgs;
+  final MyManufacturerSpecificDataArgs? manufacturerSpecificDataArgs;
   final List<String?> serviceUUIDsArgs;
   final Map<String?, Uint8List?> serviceDataArgs;
 
@@ -92,11 +170,11 @@ class MyAdvertisementArgs {
   );
 }
 
-class MyPeripheralArgs {
-  final int hashCodeArgs;
-  final String uuidArgs;
+class MyManufacturerSpecificDataArgs {
+  final int idArgs;
+  final Uint8List dataArgs;
 
-  MyPeripheralArgs(this.hashCodeArgs, this.uuidArgs);
+  MyManufacturerSpecificDataArgs(this.idArgs, this.dataArgs);
 }
 
 class MyGattServiceArgs {

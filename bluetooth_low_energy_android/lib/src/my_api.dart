@@ -19,7 +19,7 @@ extension MyAdvertisementArgsX on MyAdvertisementArgs {
   Advertisement toAdvertisement() {
     final name = nameArgs;
     final manufacturerSpecificData =
-        manufacturerSpecificDataArgs.cast<int, Uint8List>();
+        manufacturerSpecificDataArgs?.toManufacturerSpecificData();
     final serviceUUIDs = serviceUUIDsArgs
         .cast<String>()
         .map((args) => UUID.fromString(args))
@@ -36,6 +36,17 @@ extension MyAdvertisementArgsX on MyAdvertisementArgs {
       manufacturerSpecificData: manufacturerSpecificData,
       serviceUUIDs: serviceUUIDs,
       serviceData: serviceData,
+    );
+  }
+}
+
+extension MyManufacturerSpecificDataArgsX on MyManufacturerSpecificDataArgs {
+  ManufacturerSpecificData toManufacturerSpecificData() {
+    final id = idArgs;
+    final data = dataArgs;
+    return ManufacturerSpecificData(
+      id: id,
+      data: data,
     );
   }
 }
@@ -128,7 +139,7 @@ extension MyCentralArgsX on MyCentralArgs {
 extension AdvertisementX on Advertisement {
   MyAdvertisementArgs toArgs() {
     final nameArgs = name;
-    final manufacturerSpecificDataArgs = manufacturerSpecificData;
+    final manufacturerSpecificDataArgs = manufacturerSpecificData?.toArgs();
     final serviceUUIDsArgs =
         serviceUUIDs.map((uuid) => uuid.toString()).toList();
     final serviceDataArgs = serviceData.map((uuid, data) {
@@ -141,6 +152,17 @@ extension AdvertisementX on Advertisement {
       manufacturerSpecificDataArgs: manufacturerSpecificDataArgs,
       serviceUUIDsArgs: serviceUUIDsArgs,
       serviceDataArgs: serviceDataArgs,
+    );
+  }
+}
+
+extension ManufacturerSpecificDataX on ManufacturerSpecificData {
+  MyManufacturerSpecificDataArgs toArgs() {
+    final idArgs = id;
+    final dataArgs = data;
+    return MyManufacturerSpecificDataArgs(
+      idArgs: idArgs,
+      dataArgs: dataArgs,
     );
   }
 }

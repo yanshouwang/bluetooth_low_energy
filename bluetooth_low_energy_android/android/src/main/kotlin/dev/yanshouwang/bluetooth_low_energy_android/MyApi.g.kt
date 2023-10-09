@@ -121,28 +121,6 @@ data class MyPeripheralManagerArgs (
 }
 
 /** Generated class from Pigeon that represents data sent in messages. */
-data class MyPeripheralArgs (
-  val hashCodeArgs: Long,
-  val uuidArgs: String
-
-) {
-  companion object {
-    @Suppress("UNCHECKED_CAST")
-    fun fromList(list: List<Any?>): MyPeripheralArgs {
-      val hashCodeArgs = list[0].let { if (it is Int) it.toLong() else it as Long }
-      val uuidArgs = list[1] as String
-      return MyPeripheralArgs(hashCodeArgs, uuidArgs)
-    }
-  }
-  fun toList(): List<Any?> {
-    return listOf<Any?>(
-      hashCodeArgs,
-      uuidArgs,
-    )
-  }
-}
-
-/** Generated class from Pigeon that represents data sent in messages. */
 data class MyCentralArgs (
   val hashCodeArgs: Long,
   val uuidArgs: String
@@ -165,9 +143,31 @@ data class MyCentralArgs (
 }
 
 /** Generated class from Pigeon that represents data sent in messages. */
+data class MyPeripheralArgs (
+  val hashCodeArgs: Long,
+  val uuidArgs: String
+
+) {
+  companion object {
+    @Suppress("UNCHECKED_CAST")
+    fun fromList(list: List<Any?>): MyPeripheralArgs {
+      val hashCodeArgs = list[0].let { if (it is Int) it.toLong() else it as Long }
+      val uuidArgs = list[1] as String
+      return MyPeripheralArgs(hashCodeArgs, uuidArgs)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf<Any?>(
+      hashCodeArgs,
+      uuidArgs,
+    )
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
 data class MyAdvertisementArgs (
   val nameArgs: String? = null,
-  val manufacturerSpecificDataArgs: Map<Long?, ByteArray?>,
+  val manufacturerSpecificDataArgs: MyManufacturerSpecificDataArgs? = null,
   val serviceUUIDsArgs: List<String?>,
   val serviceDataArgs: Map<String?, ByteArray?>
 
@@ -176,7 +176,9 @@ data class MyAdvertisementArgs (
     @Suppress("UNCHECKED_CAST")
     fun fromList(list: List<Any?>): MyAdvertisementArgs {
       val nameArgs = list[0] as String?
-      val manufacturerSpecificDataArgs = list[1] as Map<Long?, ByteArray?>
+      val manufacturerSpecificDataArgs: MyManufacturerSpecificDataArgs? = (list[1] as List<Any?>?)?.let {
+        MyManufacturerSpecificDataArgs.fromList(it)
+      }
       val serviceUUIDsArgs = list[2] as List<String?>
       val serviceDataArgs = list[3] as Map<String?, ByteArray?>
       return MyAdvertisementArgs(nameArgs, manufacturerSpecificDataArgs, serviceUUIDsArgs, serviceDataArgs)
@@ -185,9 +187,31 @@ data class MyAdvertisementArgs (
   fun toList(): List<Any?> {
     return listOf<Any?>(
       nameArgs,
-      manufacturerSpecificDataArgs,
+      manufacturerSpecificDataArgs?.toList(),
       serviceUUIDsArgs,
       serviceDataArgs,
+    )
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class MyManufacturerSpecificDataArgs (
+  val idArgs: Long,
+  val dataArgs: ByteArray
+
+) {
+  companion object {
+    @Suppress("UNCHECKED_CAST")
+    fun fromList(list: List<Any?>): MyManufacturerSpecificDataArgs {
+      val idArgs = list[0].let { if (it is Int) it.toLong() else it as Long }
+      val dataArgs = list[1] as ByteArray
+      return MyManufacturerSpecificDataArgs(idArgs, dataArgs)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf<Any?>(
+      idArgs,
+      dataArgs,
     )
   }
 }
@@ -624,6 +648,11 @@ private object MyCentralManagerFlutterApiCodec : StandardMessageCodec() {
       }
       131.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
+          MyManufacturerSpecificDataArgs.fromList(it)
+        }
+      }
+      132.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
           MyPeripheralArgs.fromList(it)
         }
       }
@@ -644,8 +673,12 @@ private object MyCentralManagerFlutterApiCodec : StandardMessageCodec() {
         stream.write(130)
         writeValue(stream, value.toList())
       }
-      is MyPeripheralArgs -> {
+      is MyManufacturerSpecificDataArgs -> {
         stream.write(131)
+        writeValue(stream, value.toList())
+      }
+      is MyPeripheralArgs -> {
+        stream.write(132)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -713,6 +746,11 @@ private object MyPeripheralManagerHostApiCodec : StandardMessageCodec() {
       }
       132.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
+          MyManufacturerSpecificDataArgs.fromList(it)
+        }
+      }
+      133.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
           MyPeripheralManagerArgs.fromList(it)
         }
       }
@@ -737,8 +775,12 @@ private object MyPeripheralManagerHostApiCodec : StandardMessageCodec() {
         stream.write(131)
         writeValue(stream, value.toList())
       }
-      is MyPeripheralManagerArgs -> {
+      is MyManufacturerSpecificDataArgs -> {
         stream.write(132)
+        writeValue(stream, value.toList())
+      }
+      is MyPeripheralManagerArgs -> {
+        stream.write(133)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)

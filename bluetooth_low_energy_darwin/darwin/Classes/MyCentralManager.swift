@@ -7,10 +7,13 @@
 
 import Foundation
 import CoreBluetooth
-#if os(macOS)
+
+#if os(iOS)
+import Flutter
+#elseif os(macOS)
 import FlutterMacOS
 #else
-import Flutter
+#error("Unsupported platform.")
 #endif
 
 class MyCentralManager: MyCentralManagerHostApi {
@@ -291,7 +294,8 @@ class MyCentralManager: MyCentralManagerHostApi {
         }
     }
     
-    func didUpdateState(_ state: CBManagerState) {
+    func didUpdateState() {
+        let state = centralManager.state
         let stateArgs = state.toArgs()
         let stateNumberArgs = Int64(stateArgs.rawValue)
         if state != .unknown && setUpCompletion != nil {
@@ -311,28 +315,7 @@ class MyCentralManager: MyCentralManagerHostApi {
         peripherals[peripheralHashCodeArgs] = peripheral
         peripheralsArgs[peripheralHashCode] = peripheralArgs
         let rssiArgs = rssi.int64Value
-        let nameArgs = advertisementData[CBAdvertisementDataLocalNameKey] as? String
-        var manufacturerSpecificDataArgs = [Int64: FlutterStandardTypedData]()
-        let manufacturerSpecificData = advertisementData[CBAdvertisementDataManufacturerDataKey] as? Data
-        if manufacturerSpecificData != nil {
-            let bytes = manufacturerSpecificData!
-            if bytes.count >= 2 {
-                let idArgs = Int64(bytes[0]) | (Int64(bytes[1]) << 8)
-                let data = bytes.count > 2 ? bytes[2...bytes.count - 1] : Data()
-                let dataArgs = FlutterStandardTypedData(bytes: data)
-                manufacturerSpecificDataArgs[idArgs] = dataArgs
-            }
-        }
-        let serviceUUIDs = advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID] ?? []
-        let serviceUUIDsArgs = serviceUUIDs.map { uuid in uuid.uuidString }
-        let serviceData = advertisementData[CBAdvertisementDataServiceDataKey] as? [CBUUID: Data] ?? [:]
-        let serviceDataArgsKeyWithValues = serviceData.map { (uuid, data) in
-            let uuidArgs = uuid.uuidString
-            let dataArgs = FlutterStandardTypedData(bytes: data)
-            return (uuidArgs, dataArgs)
-        }
-        let serviceDataArgs = [String?: FlutterStandardTypedData?](uniqueKeysWithValues: serviceDataArgsKeyWithValues)
-        let advertisementArgs = MyAdvertisementArgs(nameArgs: nameArgs, manufacturerSpecificDataArgs: manufacturerSpecificDataArgs, serviceUUIDsArgs: serviceUUIDsArgs, serviceDataArgs: serviceDataArgs)
+        let advertisementArgs = advertisementData.toAdvertisementArgs()
         api.onDiscovered(peripheralArgs: peripheralArgs, rssiArgs: rssiArgs, advertisementArgs: advertisementArgs) {}
     }
     

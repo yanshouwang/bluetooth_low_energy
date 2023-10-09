@@ -78,31 +78,41 @@ struct MyCentralManagerArgs {
 }
 
 /// Generated class from Pigeon that represents data sent in messages.
-struct MyAdvertisementArgs {
-  var nameArgs: String? = nil
-  var manufacturerSpecificDataArgs: [Int64?: FlutterStandardTypedData?]
-  var serviceUUIDsArgs: [String?]
-  var serviceDataArgs: [String?: FlutterStandardTypedData?]
+struct MyPeripheralManagerArgs {
+  var stateNumberArgs: Int64
 
-  static func fromList(_ list: [Any?]) -> MyAdvertisementArgs? {
-    let nameArgs: String? = nilOrValue(list[0])
-    let manufacturerSpecificDataArgs = list[1] as! [Int64?: FlutterStandardTypedData?]
-    let serviceUUIDsArgs = list[2] as! [String?]
-    let serviceDataArgs = list[3] as! [String?: FlutterStandardTypedData?]
+  static func fromList(_ list: [Any?]) -> MyPeripheralManagerArgs? {
+    let stateNumberArgs = list[0] is Int64 ? list[0] as! Int64 : Int64(list[0] as! Int32)
 
-    return MyAdvertisementArgs(
-      nameArgs: nameArgs,
-      manufacturerSpecificDataArgs: manufacturerSpecificDataArgs,
-      serviceUUIDsArgs: serviceUUIDsArgs,
-      serviceDataArgs: serviceDataArgs
+    return MyPeripheralManagerArgs(
+      stateNumberArgs: stateNumberArgs
     )
   }
   func toList() -> [Any?] {
     return [
-      nameArgs,
-      manufacturerSpecificDataArgs,
-      serviceUUIDsArgs,
-      serviceDataArgs,
+      stateNumberArgs,
+    ]
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct MyCentralArgs {
+  var hashCodeArgs: Int64
+  var uuidArgs: String
+
+  static func fromList(_ list: [Any?]) -> MyCentralArgs? {
+    let hashCodeArgs = list[0] is Int64 ? list[0] as! Int64 : Int64(list[0] as! Int32)
+    let uuidArgs = list[1] as! String
+
+    return MyCentralArgs(
+      hashCodeArgs: hashCodeArgs,
+      uuidArgs: uuidArgs
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      hashCodeArgs,
+      uuidArgs,
     ]
   }
 }
@@ -125,6 +135,61 @@ struct MyPeripheralArgs {
     return [
       hashCodeArgs,
       uuidArgs,
+    ]
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct MyAdvertisementArgs {
+  var nameArgs: String? = nil
+  var manufacturerSpecificDataArgs: MyManufacturerSpecificDataArgs? = nil
+  var serviceUUIDsArgs: [String?]
+  var serviceDataArgs: [String?: FlutterStandardTypedData?]
+
+  static func fromList(_ list: [Any?]) -> MyAdvertisementArgs? {
+    let nameArgs: String? = nilOrValue(list[0])
+    var manufacturerSpecificDataArgs: MyManufacturerSpecificDataArgs? = nil
+    if let manufacturerSpecificDataArgsList: [Any?] = nilOrValue(list[1]) {
+      manufacturerSpecificDataArgs = MyManufacturerSpecificDataArgs.fromList(manufacturerSpecificDataArgsList)
+    }
+    let serviceUUIDsArgs = list[2] as! [String?]
+    let serviceDataArgs = list[3] as! [String?: FlutterStandardTypedData?]
+
+    return MyAdvertisementArgs(
+      nameArgs: nameArgs,
+      manufacturerSpecificDataArgs: manufacturerSpecificDataArgs,
+      serviceUUIDsArgs: serviceUUIDsArgs,
+      serviceDataArgs: serviceDataArgs
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      nameArgs,
+      manufacturerSpecificDataArgs?.toList(),
+      serviceUUIDsArgs,
+      serviceDataArgs,
+    ]
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct MyManufacturerSpecificDataArgs {
+  var idArgs: Int64
+  var dataArgs: FlutterStandardTypedData
+
+  static func fromList(_ list: [Any?]) -> MyManufacturerSpecificDataArgs? {
+    let idArgs = list[0] is Int64 ? list[0] as! Int64 : Int64(list[0] as! Int32)
+    let dataArgs = list[1] as! FlutterStandardTypedData
+
+    return MyManufacturerSpecificDataArgs(
+      idArgs: idArgs,
+      dataArgs: dataArgs
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      idArgs,
+      dataArgs,
     ]
   }
 }
@@ -516,6 +581,8 @@ private class MyCentralManagerFlutterApiCodecReader: FlutterStandardReader {
       case 130:
         return MyGattDescriptorArgs.fromList(self.readValue() as! [Any?])
       case 131:
+        return MyManufacturerSpecificDataArgs.fromList(self.readValue() as! [Any?])
+      case 132:
         return MyPeripheralArgs.fromList(self.readValue() as! [Any?])
       default:
         return super.readValue(ofType: type)
@@ -534,8 +601,11 @@ private class MyCentralManagerFlutterApiCodecWriter: FlutterStandardWriter {
     } else if let value = value as? MyGattDescriptorArgs {
       super.writeByte(130)
       super.writeValue(value.toList())
-    } else if let value = value as? MyPeripheralArgs {
+    } else if let value = value as? MyManufacturerSpecificDataArgs {
       super.writeByte(131)
+      super.writeValue(value.toList())
+    } else if let value = value as? MyPeripheralArgs {
+      super.writeByte(132)
       super.writeValue(value.toList())
     } else {
       super.writeValue(value)
@@ -587,6 +657,332 @@ class MyCentralManagerFlutterApi {
   func onCharacteristicValueChanged(characteristicArgs characteristicArgsArg: MyGattCharacteristicArgs, valueArgs valueArgsArg: FlutterStandardTypedData, completion: @escaping () -> Void) {
     let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerFlutterApi.onCharacteristicValueChanged", binaryMessenger: binaryMessenger, codec: codec)
     channel.sendMessage([characteristicArgsArg, valueArgsArg] as [Any?]) { _ in
+      completion()
+    }
+  }
+}
+private class MyPeripheralManagerHostApiCodecReader: FlutterStandardReader {
+  override func readValue(ofType type: UInt8) -> Any? {
+    switch type {
+      case 128:
+        return MyAdvertisementArgs.fromList(self.readValue() as! [Any?])
+      case 129:
+        return MyGattCharacteristicArgs.fromList(self.readValue() as! [Any?])
+      case 130:
+        return MyGattDescriptorArgs.fromList(self.readValue() as! [Any?])
+      case 131:
+        return MyGattServiceArgs.fromList(self.readValue() as! [Any?])
+      case 132:
+        return MyManufacturerSpecificDataArgs.fromList(self.readValue() as! [Any?])
+      case 133:
+        return MyPeripheralManagerArgs.fromList(self.readValue() as! [Any?])
+      default:
+        return super.readValue(ofType: type)
+    }
+  }
+}
+
+private class MyPeripheralManagerHostApiCodecWriter: FlutterStandardWriter {
+  override func writeValue(_ value: Any) {
+    if let value = value as? MyAdvertisementArgs {
+      super.writeByte(128)
+      super.writeValue(value.toList())
+    } else if let value = value as? MyGattCharacteristicArgs {
+      super.writeByte(129)
+      super.writeValue(value.toList())
+    } else if let value = value as? MyGattDescriptorArgs {
+      super.writeByte(130)
+      super.writeValue(value.toList())
+    } else if let value = value as? MyGattServiceArgs {
+      super.writeByte(131)
+      super.writeValue(value.toList())
+    } else if let value = value as? MyManufacturerSpecificDataArgs {
+      super.writeByte(132)
+      super.writeValue(value.toList())
+    } else if let value = value as? MyPeripheralManagerArgs {
+      super.writeByte(133)
+      super.writeValue(value.toList())
+    } else {
+      super.writeValue(value)
+    }
+  }
+}
+
+private class MyPeripheralManagerHostApiCodecReaderWriter: FlutterStandardReaderWriter {
+  override func reader(with data: Data) -> FlutterStandardReader {
+    return MyPeripheralManagerHostApiCodecReader(data: data)
+  }
+
+  override func writer(with data: NSMutableData) -> FlutterStandardWriter {
+    return MyPeripheralManagerHostApiCodecWriter(data: data)
+  }
+}
+
+class MyPeripheralManagerHostApiCodec: FlutterStandardMessageCodec {
+  static let shared = MyPeripheralManagerHostApiCodec(readerWriter: MyPeripheralManagerHostApiCodecReaderWriter())
+}
+
+/// Generated protocol from Pigeon that represents a handler of messages from Flutter.
+protocol MyPeripheralManagerHostApi {
+  func setUp(completion: @escaping (Result<MyPeripheralManagerArgs, Error>) -> Void)
+  func addService(serviceArgs: MyGattServiceArgs, completion: @escaping (Result<Void, Error>) -> Void)
+  func removeService(serviceHashCodeArgs: Int64) throws
+  func clearServices() throws
+  func startAdvertising(advertisementArgs: MyAdvertisementArgs, completion: @escaping (Result<Void, Error>) -> Void)
+  func stopAdvertising() throws
+  func getMaximumWriteLength(centralHashCodeArgs: Int64) throws -> Int64
+  func sendReadCharacteristicReply(centralHashCodeArgs: Int64, characteristicHashCodeArgs: Int64, idArgs: Int64, offsetArgs: Int64, statusArgs: Bool, valueArgs: FlutterStandardTypedData) throws
+  func sendWriteCharacteristicReply(centralHashCodeArgs: Int64, characteristicHashCodeArgs: Int64, idArgs: Int64, offsetArgs: Int64, statusArgs: Bool) throws
+  func notifyCharacteristicValueChanged(centralHashCodeArgs: Int64, characteristicHashCodeArgs: Int64, valueArgs: FlutterStandardTypedData, completion: @escaping (Result<Void, Error>) -> Void)
+}
+
+/// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
+class MyPeripheralManagerHostApiSetup {
+  /// The codec used by MyPeripheralManagerHostApi.
+  static var codec: FlutterStandardMessageCodec { MyPeripheralManagerHostApiCodec.shared }
+  /// Sets up an instance of `MyPeripheralManagerHostApi` to handle messages through the `binaryMessenger`.
+  static func setUp(binaryMessenger: FlutterBinaryMessenger, api: MyPeripheralManagerHostApi?) {
+    let setUpChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerHostApi.setUp", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      setUpChannel.setMessageHandler { _, reply in
+        api.setUp() { result in
+          switch result {
+            case .success(let res):
+              reply(wrapResult(res))
+            case .failure(let error):
+              reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      setUpChannel.setMessageHandler(nil)
+    }
+    let addServiceChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerHostApi.addService", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      addServiceChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let serviceArgsArg = args[0] as! MyGattServiceArgs
+        api.addService(serviceArgs: serviceArgsArg) { result in
+          switch result {
+            case .success:
+              reply(wrapResult(nil))
+            case .failure(let error):
+              reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      addServiceChannel.setMessageHandler(nil)
+    }
+    let removeServiceChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerHostApi.removeService", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      removeServiceChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let serviceHashCodeArgsArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
+        do {
+          try api.removeService(serviceHashCodeArgs: serviceHashCodeArgsArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      removeServiceChannel.setMessageHandler(nil)
+    }
+    let clearServicesChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerHostApi.clearServices", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      clearServicesChannel.setMessageHandler { _, reply in
+        do {
+          try api.clearServices()
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      clearServicesChannel.setMessageHandler(nil)
+    }
+    let startAdvertisingChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerHostApi.startAdvertising", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      startAdvertisingChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let advertisementArgsArg = args[0] as! MyAdvertisementArgs
+        api.startAdvertising(advertisementArgs: advertisementArgsArg) { result in
+          switch result {
+            case .success:
+              reply(wrapResult(nil))
+            case .failure(let error):
+              reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      startAdvertisingChannel.setMessageHandler(nil)
+    }
+    let stopAdvertisingChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerHostApi.stopAdvertising", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      stopAdvertisingChannel.setMessageHandler { _, reply in
+        do {
+          try api.stopAdvertising()
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      stopAdvertisingChannel.setMessageHandler(nil)
+    }
+    let getMaximumWriteLengthChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerHostApi.getMaximumWriteLength", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      getMaximumWriteLengthChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let centralHashCodeArgsArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
+        do {
+          let result = try api.getMaximumWriteLength(centralHashCodeArgs: centralHashCodeArgsArg)
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      getMaximumWriteLengthChannel.setMessageHandler(nil)
+    }
+    let sendReadCharacteristicReplyChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerHostApi.sendReadCharacteristicReply", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      sendReadCharacteristicReplyChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let centralHashCodeArgsArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
+        let characteristicHashCodeArgsArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
+        let idArgsArg = args[2] is Int64 ? args[2] as! Int64 : Int64(args[2] as! Int32)
+        let offsetArgsArg = args[3] is Int64 ? args[3] as! Int64 : Int64(args[3] as! Int32)
+        let statusArgsArg = args[4] as! Bool
+        let valueArgsArg = args[5] as! FlutterStandardTypedData
+        do {
+          try api.sendReadCharacteristicReply(centralHashCodeArgs: centralHashCodeArgsArg, characteristicHashCodeArgs: characteristicHashCodeArgsArg, idArgs: idArgsArg, offsetArgs: offsetArgsArg, statusArgs: statusArgsArg, valueArgs: valueArgsArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      sendReadCharacteristicReplyChannel.setMessageHandler(nil)
+    }
+    let sendWriteCharacteristicReplyChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerHostApi.sendWriteCharacteristicReply", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      sendWriteCharacteristicReplyChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let centralHashCodeArgsArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
+        let characteristicHashCodeArgsArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
+        let idArgsArg = args[2] is Int64 ? args[2] as! Int64 : Int64(args[2] as! Int32)
+        let offsetArgsArg = args[3] is Int64 ? args[3] as! Int64 : Int64(args[3] as! Int32)
+        let statusArgsArg = args[4] as! Bool
+        do {
+          try api.sendWriteCharacteristicReply(centralHashCodeArgs: centralHashCodeArgsArg, characteristicHashCodeArgs: characteristicHashCodeArgsArg, idArgs: idArgsArg, offsetArgs: offsetArgsArg, statusArgs: statusArgsArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      sendWriteCharacteristicReplyChannel.setMessageHandler(nil)
+    }
+    let notifyCharacteristicValueChangedChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerHostApi.notifyCharacteristicValueChanged", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      notifyCharacteristicValueChangedChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let centralHashCodeArgsArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
+        let characteristicHashCodeArgsArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
+        let valueArgsArg = args[2] as! FlutterStandardTypedData
+        api.notifyCharacteristicValueChanged(centralHashCodeArgs: centralHashCodeArgsArg, characteristicHashCodeArgs: characteristicHashCodeArgsArg, valueArgs: valueArgsArg) { result in
+          switch result {
+            case .success:
+              reply(wrapResult(nil))
+            case .failure(let error):
+              reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      notifyCharacteristicValueChangedChannel.setMessageHandler(nil)
+    }
+  }
+}
+private class MyPeripheralManagerFlutterApiCodecReader: FlutterStandardReader {
+  override func readValue(ofType type: UInt8) -> Any? {
+    switch type {
+      case 128:
+        return MyCentralArgs.fromList(self.readValue() as! [Any?])
+      case 129:
+        return MyGattCharacteristicArgs.fromList(self.readValue() as! [Any?])
+      case 130:
+        return MyGattDescriptorArgs.fromList(self.readValue() as! [Any?])
+      default:
+        return super.readValue(ofType: type)
+    }
+  }
+}
+
+private class MyPeripheralManagerFlutterApiCodecWriter: FlutterStandardWriter {
+  override func writeValue(_ value: Any) {
+    if let value = value as? MyCentralArgs {
+      super.writeByte(128)
+      super.writeValue(value.toList())
+    } else if let value = value as? MyGattCharacteristicArgs {
+      super.writeByte(129)
+      super.writeValue(value.toList())
+    } else if let value = value as? MyGattDescriptorArgs {
+      super.writeByte(130)
+      super.writeValue(value.toList())
+    } else {
+      super.writeValue(value)
+    }
+  }
+}
+
+private class MyPeripheralManagerFlutterApiCodecReaderWriter: FlutterStandardReaderWriter {
+  override func reader(with data: Data) -> FlutterStandardReader {
+    return MyPeripheralManagerFlutterApiCodecReader(data: data)
+  }
+
+  override func writer(with data: NSMutableData) -> FlutterStandardWriter {
+    return MyPeripheralManagerFlutterApiCodecWriter(data: data)
+  }
+}
+
+class MyPeripheralManagerFlutterApiCodec: FlutterStandardMessageCodec {
+  static let shared = MyPeripheralManagerFlutterApiCodec(readerWriter: MyPeripheralManagerFlutterApiCodecReaderWriter())
+}
+
+/// Generated class from Pigeon that represents Flutter messages that can be called from Swift.
+class MyPeripheralManagerFlutterApi {
+  private let binaryMessenger: FlutterBinaryMessenger
+  init(binaryMessenger: FlutterBinaryMessenger){
+    self.binaryMessenger = binaryMessenger
+  }
+  var codec: FlutterStandardMessageCodec {
+    return MyPeripheralManagerFlutterApiCodec.shared
+  }
+  func onStateChanged(stateNumberArgs stateNumberArgsArg: Int64, completion: @escaping () -> Void) {
+    let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerFlutterApi.onStateChanged", binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([stateNumberArgsArg] as [Any?]) { _ in
+      completion()
+    }
+  }
+  func onReadCharacteristicCommandReceived(centralArgs centralArgsArg: MyCentralArgs, characteristicArgs characteristicArgsArg: MyGattCharacteristicArgs, idArgs idArgsArg: Int64, offsetArgs offsetArgsArg: Int64, completion: @escaping () -> Void) {
+    let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerFlutterApi.onReadCharacteristicCommandReceived", binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([centralArgsArg, characteristicArgsArg, idArgsArg, offsetArgsArg] as [Any?]) { _ in
+      completion()
+    }
+  }
+  func onWriteCharacteristicCommandReceived(centralArgs centralArgsArg: MyCentralArgs, characteristicArgs characteristicArgsArg: MyGattCharacteristicArgs, idArgs idArgsArg: Int64, offsetArgs offsetArgsArg: Int64, valueArgs valueArgsArg: FlutterStandardTypedData, completion: @escaping () -> Void) {
+    let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerFlutterApi.onWriteCharacteristicCommandReceived", binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([centralArgsArg, characteristicArgsArg, idArgsArg, offsetArgsArg, valueArgsArg] as [Any?]) { _ in
+      completion()
+    }
+  }
+  func onNotifyCharacteristicCommandReceived(centralArgs centralArgsArg: MyCentralArgs, characteristicArgs characteristicArgsArg: MyGattCharacteristicArgs, stateArgs stateArgsArg: Bool, completion: @escaping () -> Void) {
+    let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerFlutterApi.onNotifyCharacteristicCommandReceived", binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([centralArgsArg, characteristicArgsArg, stateArgsArg] as [Any?]) { _ in
       completion()
     }
   }

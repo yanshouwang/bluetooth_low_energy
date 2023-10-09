@@ -71,32 +71,6 @@ class MyPeripheralManagerArgs {
   }
 }
 
-class MyPeripheralArgs {
-  MyPeripheralArgs({
-    required this.hashCodeArgs,
-    required this.uuidArgs,
-  });
-
-  int hashCodeArgs;
-
-  String uuidArgs;
-
-  Object encode() {
-    return <Object?>[
-      hashCodeArgs,
-      uuidArgs,
-    ];
-  }
-
-  static MyPeripheralArgs decode(Object result) {
-    result as List<Object?>;
-    return MyPeripheralArgs(
-      hashCodeArgs: result[0]! as int,
-      uuidArgs: result[1]! as String,
-    );
-  }
-}
-
 class MyCentralArgs {
   MyCentralArgs({
     required this.hashCodeArgs,
@@ -123,17 +97,43 @@ class MyCentralArgs {
   }
 }
 
+class MyPeripheralArgs {
+  MyPeripheralArgs({
+    required this.hashCodeArgs,
+    required this.uuidArgs,
+  });
+
+  int hashCodeArgs;
+
+  String uuidArgs;
+
+  Object encode() {
+    return <Object?>[
+      hashCodeArgs,
+      uuidArgs,
+    ];
+  }
+
+  static MyPeripheralArgs decode(Object result) {
+    result as List<Object?>;
+    return MyPeripheralArgs(
+      hashCodeArgs: result[0]! as int,
+      uuidArgs: result[1]! as String,
+    );
+  }
+}
+
 class MyAdvertisementArgs {
   MyAdvertisementArgs({
     this.nameArgs,
-    required this.manufacturerSpecificDataArgs,
+    this.manufacturerSpecificDataArgs,
     required this.serviceUUIDsArgs,
     required this.serviceDataArgs,
   });
 
   String? nameArgs;
 
-  Map<int?, Uint8List?> manufacturerSpecificDataArgs;
+  MyManufacturerSpecificDataArgs? manufacturerSpecificDataArgs;
 
   List<String?> serviceUUIDsArgs;
 
@@ -142,7 +142,7 @@ class MyAdvertisementArgs {
   Object encode() {
     return <Object?>[
       nameArgs,
-      manufacturerSpecificDataArgs,
+      manufacturerSpecificDataArgs?.encode(),
       serviceUUIDsArgs,
       serviceDataArgs,
     ];
@@ -152,9 +152,37 @@ class MyAdvertisementArgs {
     result as List<Object?>;
     return MyAdvertisementArgs(
       nameArgs: result[0] as String?,
-      manufacturerSpecificDataArgs: (result[1] as Map<Object?, Object?>?)!.cast<int?, Uint8List?>(),
+      manufacturerSpecificDataArgs: result[1] != null
+          ? MyManufacturerSpecificDataArgs.decode(result[1]! as List<Object?>)
+          : null,
       serviceUUIDsArgs: (result[2] as List<Object?>?)!.cast<String?>(),
       serviceDataArgs: (result[3] as Map<Object?, Object?>?)!.cast<String?, Uint8List?>(),
+    );
+  }
+}
+
+class MyManufacturerSpecificDataArgs {
+  MyManufacturerSpecificDataArgs({
+    required this.idArgs,
+    required this.dataArgs,
+  });
+
+  int idArgs;
+
+  Uint8List dataArgs;
+
+  Object encode() {
+    return <Object?>[
+      idArgs,
+      dataArgs,
+    ];
+  }
+
+  static MyManufacturerSpecificDataArgs decode(Object result) {
+    result as List<Object?>;
+    return MyManufacturerSpecificDataArgs(
+      idArgs: result[0]! as int,
+      dataArgs: result[1]! as Uint8List,
     );
   }
 }
@@ -635,8 +663,11 @@ class _MyCentralManagerFlutterApiCodec extends StandardMessageCodec {
     } else if (value is MyGattDescriptorArgs) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    } else if (value is MyPeripheralArgs) {
+    } else if (value is MyManufacturerSpecificDataArgs) {
       buffer.putUint8(131);
+      writeValue(buffer, value.encode());
+    } else if (value is MyPeripheralArgs) {
+      buffer.putUint8(132);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -653,6 +684,8 @@ class _MyCentralManagerFlutterApiCodec extends StandardMessageCodec {
       case 130: 
         return MyGattDescriptorArgs.decode(readValue(buffer)!);
       case 131: 
+        return MyManufacturerSpecificDataArgs.decode(readValue(buffer)!);
+      case 132: 
         return MyPeripheralArgs.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -779,8 +812,11 @@ class _MyPeripheralManagerHostApiCodec extends StandardMessageCodec {
     } else if (value is MyGattServiceArgs) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
-    } else if (value is MyPeripheralManagerArgs) {
+    } else if (value is MyManufacturerSpecificDataArgs) {
       buffer.putUint8(132);
+      writeValue(buffer, value.encode());
+    } else if (value is MyPeripheralManagerArgs) {
+      buffer.putUint8(133);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -799,6 +835,8 @@ class _MyPeripheralManagerHostApiCodec extends StandardMessageCodec {
       case 131: 
         return MyGattServiceArgs.decode(readValue(buffer)!);
       case 132: 
+        return MyManufacturerSpecificDataArgs.decode(readValue(buffer)!);
+      case 133: 
         return MyPeripheralManagerArgs.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
