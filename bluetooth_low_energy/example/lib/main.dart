@@ -883,40 +883,6 @@ class _AdvertiserViewState extends State<AdvertiserView> {
         }
       },
     );
-    setUp();
-  }
-
-  void setUp() async {
-    final service = GattService(
-      uuid: UUID.short(100),
-      characteristics: [
-        GattCharacteristic(
-          uuid: UUID.short(200),
-          properties: [
-            GattCharacteristicProperty.read,
-          ],
-          descriptors: [],
-        ),
-        GattCharacteristic(
-          uuid: UUID.short(201),
-          properties: [
-            GattCharacteristicProperty.read,
-            GattCharacteristicProperty.write,
-            GattCharacteristicProperty.writeWithoutResponse,
-          ],
-          descriptors: [],
-        ),
-        GattCharacteristic(
-          uuid: UUID.short(202),
-          properties: [
-            GattCharacteristicProperty.notify,
-            GattCharacteristicProperty.indicate,
-          ],
-          descriptors: [],
-        ),
-      ],
-    );
-    await peripheralManager.addService(service);
   }
 
   @override
@@ -960,6 +926,37 @@ class _AdvertiserViewState extends State<AdvertiserView> {
   }
 
   Future<void> startAdvertising() async {
+    await peripheralManager.clearServices();
+    final service = GattService(
+      uuid: UUID.short(100),
+      characteristics: [
+        GattCharacteristic(
+          uuid: UUID.short(200),
+          properties: [
+            GattCharacteristicProperty.read,
+          ],
+          descriptors: [],
+        ),
+        GattCharacteristic(
+          uuid: UUID.short(201),
+          properties: [
+            GattCharacteristicProperty.read,
+            GattCharacteristicProperty.write,
+            GattCharacteristicProperty.writeWithoutResponse,
+          ],
+          descriptors: [],
+        ),
+        GattCharacteristic(
+          uuid: UUID.short(202),
+          properties: [
+            GattCharacteristicProperty.notify,
+            GattCharacteristicProperty.indicate,
+          ],
+          descriptors: [],
+        ),
+      ],
+    );
+    await peripheralManager.addService(service);
     final advertiseData = AdvertiseData(
       name: 'flutter',
       manufacturerSpecificData: ManufacturerSpecificData(

@@ -66,7 +66,7 @@ val ScanResult.advertiseDataArgs: MyAdvertiseDataArgs
         }
     }
 
-fun SparseArray<ByteArray>.toManufacturerSpecificDataArgs(): MyManufacturerSpecificDataArgs {
+fun SparseArray<ByteArray>.toManufacturerSpecificDataArgs(): MyManufacturerSpecificDataArgs? {
     var index = 0
     val size = size()
     val itemsArgs = mutableListOf<MyManufacturerSpecificDataArgs>()
@@ -77,7 +77,7 @@ fun SparseArray<ByteArray>.toManufacturerSpecificDataArgs(): MyManufacturerSpeci
         itemsArgs.add(itemArgs)
         index++
     }
-    return itemsArgs.last()
+    return itemsArgs.lastOrNull()
 }
 
 val ScanRecord.rawValues: Map<Byte, ByteArray>
