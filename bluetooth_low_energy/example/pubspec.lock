@@ -23,30 +23,31 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "3.0.0-dev.4"
+    version: "3.0.0"
   bluetooth_low_energy_android:
     dependency: transitive
     description:
-      path: "../../bluetooth_low_energy_android"
-      relative: true
-    source: path
+      name: bluetooth_low_energy_android
+      sha256: "227468652811e769d7ff8836aa5c3f7bd0455246785c3eaf0fab2b3c31daed16"
+      url: "https://pub.dev"
+    source: hosted
     version: "3.0.0"
   bluetooth_low_energy_darwin:
     dependency: transitive
     description:
       name: bluetooth_low_energy_darwin
-      sha256: "4bb8ece43be77200ff47c8a34e9c5be1df5deebf704385f3a218dbf6e0527ff1"
+      sha256: f19903e1ad14da6a16de57996ca808064cb690add8b0aecc6ffecdf8da6f7eab
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0-dev.4"
+    version: "3.0.0"
   bluetooth_low_energy_linux:
     dependency: transitive
     description:
       name: bluetooth_low_energy_linux
-      sha256: "50fc8efcd365c2f51a3c9cdbe85a63ff12876fd9fe5b747cd3915f3503e01d54"
+      sha256: "31a23704a4b34e7f6cea61d94c24b3e1c6698928645aaeaf1af947e4870996d7"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0-dev.4"
+    version: "3.0.0"
   bluetooth_low_energy_platform_interface:
     dependency: transitive
     description:
