@@ -1,17 +1,27 @@
+import 'gatt_attribute.dart';
 import 'gatt_characteristic_property.dart';
+import 'gatt_descriptor.dart';
+import 'my_gatt_characteristic.dart';
+import 'my_gatt_descriptor.dart';
 import 'uuid.dart';
 
-/// The GATT characteristic.
-class GattCharacteristic {
-  /// The [UUID] of this GATT characteristic.
-  final UUID uuid;
+/// A characteristic of a remote peripheral’s service.
+abstract class GattCharacteristic extends GattAttribute {
+  /// The properties of the characteristic.
+  List<GattCharacteristicProperty> get properties;
 
-  /// The properties of this GATT characteristic.
-  final List<GattCharacteristicProperty> properties;
+  /// A list of the descriptors discovered in this characteristic.
+  List<GattDescriptor> get descriptors;
 
   /// Constructs a [GattCharacteristic].
-  GattCharacteristic({
-    required this.uuid,
-    required this.properties,
-  });
+  factory GattCharacteristic({
+    required UUID uuid,
+    required List<GattCharacteristicProperty> properties,
+    required List<GattDescriptor> descriptors,
+  }) =>
+      MyGattCharacteristic(
+        uuid: uuid,
+        properties: properties,
+        descriptors: descriptors.cast<MyGattDescriptor>(),
+      );
 }

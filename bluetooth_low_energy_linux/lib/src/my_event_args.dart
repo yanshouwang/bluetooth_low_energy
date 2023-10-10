@@ -1,9 +1,8 @@
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
+import 'package:bluez/bluez.dart';
 
-import 'my_peripheral.dart';
+class BlueZDeviceServicesResolvedEventArgs extends EventArgs {
+  final BlueZDevice device;
 
-class MyPeripheralDiscoveredEventArgs extends EventArgs {
-  final MyPeripheral myPeripheral;
-
-  MyPeripheralDiscoveredEventArgs(this.myPeripheral);
+  BlueZDeviceServicesResolvedEventArgs(this.device);
 }

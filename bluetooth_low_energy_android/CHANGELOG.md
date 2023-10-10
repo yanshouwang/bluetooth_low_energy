@@ -1,3 +1,48 @@
+## 3.0.0
+
+* Add `PeripheralManager` api.
+* Add `CentralManager#readRSSI` method.
+* Add `CentralManager.instance` api.
+* Add `PeripheralManager.instance` api.
+* Move `CentralController` to `CentralManager`.
+* Move `CentralState` to `BluetoothLowEnergyState`.
+* Move `CentralDiscoveredEventArgs` to `DiscoveredEventArgs`.
+* Move `Advertisement` class to `AdvertiseData` class.
+* Move `setUp` method from `BluetoothLowEnergy` class to `BluetoothLowEnergyManger` class.
+* Change the type of `manufacturerSpecificData` from `Map<int, Uint8List>` to `ManufacturerSpecificData`.
+* [Fix the issue that `UUID.fromString()` throw FormatException with 32 bits UUID string.](https://github.com/yanshouwang/bluetooth_low_energy/issues/13)
+* Fix known issues.
+
+## 3.0.0-dev.6
+
+* Add default `CCCD` to GATT characteristic for notify and indicate.
+* Fix the issue that callbacks must run on ui thread.
+* Change requested MTU from 512 to 517 when get the maximum write length of characteristic.
+
+## 3.0.0-dev.5
+
+* Fix the issue that the `BLUETOOTH_ADVERTISE` permission is not requested.
+
+## 3.0.0-dev.4
+
+* Move `Advertisement` class to `AdvertiseData` class.
+* Fix known issues.
+
+## 3.0.0-dev.3
+
+* [Fix the issue that `UUID.fromString()` throw FormatException with 32 bits UUID string.](https://github.com/yanshouwang/bluetooth_low_energy/issues/13)
+* Change the type of `manufacturerSpecificData` from `Map<int, Uint8List>` to `ManufacturerSpecificData`.
+
+## 3.0.0-dev.2
+
+* Move `setUp` method from `BluetoothLowEnergy` class to `BluetoothLowEnergyManger` class.
+* Add `CentralManager.instance` api.
+* Add `PeripheralManager.instance` api.
+
+## 3.0.0-dev.1
+
+* Implement new api.
+
 ## 2.2.1
 
 * Fix the issue that `CentralController#getMaximumWriteLength` may throw.

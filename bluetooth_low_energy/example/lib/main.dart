@@ -14,6 +14,9 @@ void main() {
 }
 
 void onStartUp() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await CentralManager.instance.setUp();
+  await PeripheralManager.instance.setUp();
   runApp(const MyApp());
 }
 
@@ -48,8 +51,7 @@ class _MyAppState extends State<MyApp> {
       routes: {
         'peripheral': (context) {
           final route = ModalRoute.of(context);
-          final eventArgs =
-              route!.settings.arguments as CentralDiscoveredEventArgs;
+          final eventArgs = route!.settings.arguments as DiscoveredEventArgs;
           return PeripheralView(
             eventArgs: eventArgs,
           );
@@ -67,26 +69,104 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  CentralController get centralController => CentralController.instance;
-  late final ValueNotifier<CentralState> state;
+  late final PageController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = PageController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: buildBody(context),
+      bottomNavigationBar: buildBottomNavigationBar(context),
+    );
+  }
+
+  Widget buildBody(BuildContext context) {
+    return PageView.builder(
+      controller: controller,
+      itemBuilder: (context, i) {
+        switch (i) {
+          case 0:
+            return const ScannerView();
+          case 1:
+            return const AdvertiserView();
+          default:
+            throw ArgumentError.value(i);
+        }
+      },
+      itemCount: 2,
+    );
+  }
+
+  Widget buildBottomNavigationBar(BuildContext context) {
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, child) {
+        return BottomNavigationBar(
+          onTap: (i) {
+            const duration = Duration(milliseconds: 300);
+            const curve = Curves.ease;
+            controller.animateToPage(
+              i,
+              duration: duration,
+              curve: curve,
+            );
+          },
+          currentIndex: controller.page?.toInt() ?? 0,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.radar),
+              label: 'scanner',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.sensors),
+              label: 'advertiser',
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+}
+
+CentralManager get centralManager => CentralManager.instance;
+
+class ScannerView extends StatefulWidget {
+  const ScannerView({super.key});
+
+  @override
+  State<ScannerView> createState() => _ScannerViewState();
+}
+
+class _ScannerViewState extends State<ScannerView> {
+  late final ValueNotifier<BluetoothLowEnergyState> state;
   late final ValueNotifier<bool> discovering;
-  late final ValueNotifier<List<CentralDiscoveredEventArgs>>
-      discoveredEventArgs;
+  late final ValueNotifier<List<DiscoveredEventArgs>> discoveredEventArgs;
   late final StreamSubscription stateChangedSubscription;
   late final StreamSubscription discoveredSubscription;
 
   @override
   void initState() {
     super.initState();
-    state = ValueNotifier(centralController.state);
+    state = ValueNotifier(centralManager.state);
     discovering = ValueNotifier(false);
     discoveredEventArgs = ValueNotifier([]);
-    stateChangedSubscription = centralController.stateChanged.listen(
+    stateChangedSubscription = centralManager.stateChanged.listen(
       (eventArgs) {
         state.value = eventArgs.state;
       },
     );
-    discoveredSubscription = centralController.discovered.listen(
+    discoveredSubscription = centralManager.discovered.listen(
       (eventArgs) {
         final items = discoveredEventArgs.value;
         final i = items.indexWhere(
@@ -100,22 +180,6 @@ class _HomeViewState extends State<HomeView> {
         }
       },
     );
-    setUp();
-  }
-
-  void setUp() async {
-    await centralController.setUp();
-    state.value = centralController.state;
-  }
-
-  Future<void> startDiscovery() async {
-    await centralController.startDiscovery();
-    discovering.value = true;
-  }
-
-  Future<void> stopDiscovery() async {
-    await centralController.stopDiscovery();
-    discovering.value = false;
   }
 
   @override
@@ -128,7 +192,7 @@ class _HomeViewState extends State<HomeView> {
 
   PreferredSizeWidget buildAppBar(BuildContext context) {
     return AppBar(
-      title: const Text('Bluetooth LowEnergy'),
+      title: const Text('Scanner'),
       actions: [
         ValueListenableBuilder(
           valueListenable: state,
@@ -137,7 +201,7 @@ class _HomeViewState extends State<HomeView> {
               valueListenable: discovering,
               builder: (context, discovering, child) {
                 return TextButton(
-                  onPressed: state == CentralState.poweredOn
+                  onPressed: state == BluetoothLowEnergyState.poweredOn
                       ? () async {
                           if (discovering) {
                             await stopDiscovery();
@@ -158,13 +222,23 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
+  Future<void> startDiscovery() async {
+    await centralManager.startDiscovery();
+    discovering.value = true;
+  }
+
+  Future<void> stopDiscovery() async {
+    await centralManager.stopDiscovery();
+    discovering.value = false;
+  }
+
   Widget buildBody(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: discoveredEventArgs,
       builder: (context, discoveredEventArgs, child) {
         // final items = discoveredEventArgs;
         final items = discoveredEventArgs
-            .where((eventArgs) => eventArgs.advertisement.name != null)
+            .where((eventArgs) => eventArgs.advertiseData.name != null)
             .toList();
         return ListView.separated(
           itemBuilder: (context, i) {
@@ -172,8 +246,8 @@ class _HomeViewState extends State<HomeView> {
             final item = items[i];
             final uuid = item.peripheral.uuid;
             final rssi = item.rssi;
-            final advertisement = item.advertisement;
-            final name = advertisement.name;
+            final advertiseData = item.advertiseData;
+            final name = advertiseData.name;
             return ListTile(
               onTap: () async {
                 final discovering = this.discovering.value;
@@ -200,7 +274,7 @@ class _HomeViewState extends State<HomeView> {
                       clipBehavior: Clip.antiAlias,
                       builder: (context) {
                         final manufacturerSpecificData =
-                            advertisement.manufacturerSpecificData;
+                            advertiseData.manufacturerSpecificData;
                         return ListView.separated(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16.0,
@@ -221,11 +295,10 @@ class _HomeViewState extends State<HomeView> {
                                 ],
                               );
                             } else {
-                              final entry = manufacturerSpecificData.entries
-                                  .elementAt(i - 1);
                               final id =
-                                  '0x${entry.key.toRadixString(16).padLeft(4, '0')}';
-                              final value = hex.encode(entry.value);
+                                  '0x${manufacturerSpecificData!.id.toRadixString(16).padLeft(4, '0')}';
+                              final value =
+                                  hex.encode(manufacturerSpecificData.data);
                               return Row(
                                 children: [
                                   SizedBox(
@@ -242,7 +315,7 @@ class _HomeViewState extends State<HomeView> {
                           separatorBuilder: (context, i) {
                             return const Divider();
                           },
-                          itemCount: manufacturerSpecificData.length + 1,
+                          itemCount: manufacturerSpecificData == null ? 1 : 2,
                         );
                       },
                     );
@@ -274,7 +347,6 @@ class _HomeViewState extends State<HomeView> {
   @override
   void dispose() {
     super.dispose();
-    centralController.tearDown().ignore();
     stateChangedSubscription.cancel();
     discoveredSubscription.cancel();
     state.dispose();
@@ -284,7 +356,7 @@ class _HomeViewState extends State<HomeView> {
 }
 
 class PeripheralView extends StatefulWidget {
-  final CentralDiscoveredEventArgs eventArgs;
+  final DiscoveredEventArgs eventArgs;
 
   const PeripheralView({
     super.key,
@@ -296,9 +368,8 @@ class PeripheralView extends StatefulWidget {
 }
 
 class _PeripheralViewState extends State<PeripheralView> {
-  CentralController get centralController => CentralController.instance;
   late final ValueNotifier<bool> state;
-  late final CentralDiscoveredEventArgs eventArgs;
+  late final DiscoveredEventArgs eventArgs;
   late final ValueNotifier<List<GattService>> services;
   late final ValueNotifier<List<GattCharacteristic>> characteristics;
   late final ValueNotifier<GattService?> service;
@@ -323,7 +394,7 @@ class _PeripheralViewState extends State<PeripheralView> {
     maximumWriteLength = ValueNotifier(20);
     logs = ValueNotifier([]);
     writeController = TextEditingController();
-    stateChangedSubscription = centralController.peripheralStateChanged.listen(
+    stateChangedSubscription = centralManager.peripheralStateChanged.listen(
       (eventArgs) {
         if (eventArgs.peripheral != this.eventArgs.peripheral) {
           return;
@@ -339,8 +410,7 @@ class _PeripheralViewState extends State<PeripheralView> {
         }
       },
     );
-    valueChangedSubscription =
-        centralController.characteristicValueChanged.listen(
+    valueChangedSubscription = centralManager.characteristicValueChanged.listen(
       (eventArgs) {
         final characteristic = this.characteristic.value;
         if (eventArgs.characteristic != characteristic) {
@@ -362,7 +432,7 @@ class _PeripheralViewState extends State<PeripheralView> {
       onWillPop: () async {
         if (state.value) {
           final peripheral = eventArgs.peripheral;
-          await centralController.disconnect(peripheral);
+          await centralManager.disconnect(peripheral);
         }
         return true;
       },
@@ -374,7 +444,7 @@ class _PeripheralViewState extends State<PeripheralView> {
   }
 
   PreferredSizeWidget buildAppBar(BuildContext context) {
-    final title = eventArgs.advertisement.name ?? '<EMPTY NAME>';
+    final title = eventArgs.advertiseData.name ?? '<EMPTY NAME>';
     return AppBar(
       title: Text(title),
       actions: [
@@ -385,12 +455,11 @@ class _PeripheralViewState extends State<PeripheralView> {
               onPressed: () async {
                 final peripheral = eventArgs.peripheral;
                 if (state) {
-                  await centralController.disconnect(peripheral);
+                  await centralManager.disconnect(peripheral);
                 } else {
-                  await centralController.connect(peripheral);
-                  await centralController.discoverGATT(peripheral);
+                  await centralManager.connect(peripheral);
                   services.value =
-                      await centralController.getServices(peripheral);
+                      await centralManager.discoverGATT(peripheral);
                 }
               },
               child: Text(state ? 'DISCONNECT' : 'CONNECT'),
@@ -436,8 +505,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                       if (service == null) {
                         return;
                       }
-                      characteristics.value =
-                          await centralController.getCharacteristics(service);
+                      characteristics.value = service.characteristics;
                     },
                   );
                 },
@@ -563,7 +631,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                       onPressed: state
                           ? () async {
                               maximumWriteLength.value =
-                                  await centralController.getMaximumWriteLength(
+                                  await centralManager.getMaximumWriteLength(
                                 eventArgs.peripheral,
                                 type: writeType.value,
                               );
@@ -578,6 +646,14 @@ class _PeripheralViewState extends State<PeripheralView> {
                     );
                   },
                 ),
+              ),
+              IconButton(
+                onPressed: () async {
+                  final rssi =
+                      await centralManager.readRSSI(eventArgs.peripheral);
+                  print('RSSI: $rssi');
+                },
+                icon: const Icon(Icons.signal_wifi_4_bar),
               ),
             ],
           ),
@@ -627,7 +703,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                         TextButton(
                           onPressed: characteristic != null && canNotify
                               ? () async {
-                                  await centralController.notifyCharacteristic(
+                                  await centralManager.notifyCharacteristic(
                                     characteristic,
                                     state: true,
                                   );
@@ -638,7 +714,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                         TextButton(
                           onPressed: characteristic != null && canRead
                               ? () async {
-                                  final value = await centralController
+                                  final value = await centralManager
                                       .readCharacteristic(characteristic);
                                   const type = LogType.read;
                                   final log = Log(type, value);
@@ -653,7 +729,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                                   final text = writeController.text;
                                   final elements = utf8.encode(text);
                                   final value = Uint8List.fromList(elements);
-                                  await centralController.writeCharacteristic(
+                                  await centralManager.writeCharacteristic(
                                     characteristic,
                                     value: value,
                                     type: GattCharacteristicWriteType
@@ -694,12 +770,286 @@ class _PeripheralViewState extends State<PeripheralView> {
   }
 }
 
+PeripheralManager get peripheralManager => PeripheralManager.instance;
+
+class AdvertiserView extends StatefulWidget {
+  const AdvertiserView({super.key});
+
+  @override
+  State<AdvertiserView> createState() => _AdvertiserViewState();
+}
+
+class _AdvertiserViewState extends State<AdvertiserView> {
+  late final ValueNotifier<BluetoothLowEnergyState> state;
+  late final ValueNotifier<bool> advertising;
+  late final ValueNotifier<List<Log>> logs;
+  late final StreamSubscription stateChangedSubscription;
+  late final StreamSubscription readCharacteristicCommandReceivedSubscription;
+  late final StreamSubscription writeCharacteristicCommandReceivedSubscription;
+  late final StreamSubscription notifyCharacteristicCommandReceivedSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    state = ValueNotifier(peripheralManager.state);
+    advertising = ValueNotifier(false);
+    logs = ValueNotifier([]);
+    stateChangedSubscription = peripheralManager.stateChanged.listen(
+      (eventArgs) {
+        state.value = eventArgs.state;
+      },
+    );
+    readCharacteristicCommandReceivedSubscription =
+        peripheralManager.readCharacteristicCommandReceived.listen(
+      (eventArgs) async {
+        final central = eventArgs.central;
+        final characteristic = eventArgs.characteristic;
+        final id = eventArgs.id;
+        final offset = eventArgs.offset;
+        final log = Log(
+          LogType.read,
+          Uint8List.fromList([]),
+          'central: ${central.uuid}; characteristic: ${characteristic.uuid}; id: $id; offset: $offset',
+        );
+        logs.value = [
+          ...logs.value,
+          log,
+        ];
+        // final maximumWriteLength = peripheralManager.getMaximumWriteLength(
+        //   central,
+        // );
+        const status = true;
+        final value = Uint8List.fromList([0x01, 0x02, 0x03]);
+        await peripheralManager.sendReadCharacteristicReply(
+          central,
+          characteristic,
+          id,
+          offset,
+          status,
+          value,
+        );
+      },
+    );
+    writeCharacteristicCommandReceivedSubscription =
+        peripheralManager.writeCharacteristicCommandReceived.listen(
+      (eventArgs) async {
+        final central = eventArgs.central;
+        final characteristic = eventArgs.characteristic;
+        final id = eventArgs.id;
+        final offset = eventArgs.offset;
+        final value = eventArgs.value;
+        final log = Log(
+          LogType.write,
+          value,
+          'central: ${central.uuid}; characteristic: ${characteristic.uuid}; id: $id; offset: $offset',
+        );
+        logs.value = [
+          ...logs.value,
+          log,
+        ];
+        const status = true;
+        await peripheralManager.sendWriteCharacteristicReply(
+          central,
+          characteristic,
+          id,
+          offset,
+          status,
+        );
+      },
+    );
+    notifyCharacteristicCommandReceivedSubscription =
+        peripheralManager.notifyCharacteristicCommandReceived.listen(
+      (eventArgs) async {
+        final central = eventArgs.central;
+        final characteristic = eventArgs.characteristic;
+        final state = eventArgs.state;
+        final log = Log(
+          LogType.write,
+          Uint8List.fromList([]),
+          'central: ${central.uuid}; characteristic: ${characteristic.uuid}; state: $state',
+        );
+        logs.value = [
+          ...logs.value,
+          log,
+        ];
+        // Write someting to the central when notify started.
+        if (state) {
+          final value = Uint8List.fromList([0x03, 0x02, 0x01]);
+          await peripheralManager.notifyCharacteristicValueChanged(
+            central,
+            characteristic,
+            value,
+          );
+        }
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: buildAppBar(context),
+      body: buildBody(context),
+    );
+  }
+
+  PreferredSizeWidget buildAppBar(BuildContext context) {
+    return AppBar(
+      title: const Text('Advertiser'),
+      actions: [
+        ValueListenableBuilder(
+          valueListenable: state,
+          builder: (context, state, child) {
+            return ValueListenableBuilder(
+              valueListenable: advertising,
+              builder: (context, advertising, child) {
+                return TextButton(
+                  onPressed: state == BluetoothLowEnergyState.poweredOn
+                      ? () async {
+                          if (advertising) {
+                            await stopAdvertising();
+                          } else {
+                            await startAdvertising();
+                          }
+                        }
+                      : null,
+                  child: Text(
+                    advertising ? 'END' : 'BEGIN',
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Future<void> startAdvertising() async {
+    await peripheralManager.clearServices();
+    final service = GattService(
+      uuid: UUID.short(100),
+      characteristics: [
+        GattCharacteristic(
+          uuid: UUID.short(200),
+          properties: [
+            GattCharacteristicProperty.read,
+          ],
+          descriptors: [],
+        ),
+        GattCharacteristic(
+          uuid: UUID.short(201),
+          properties: [
+            GattCharacteristicProperty.read,
+            GattCharacteristicProperty.write,
+            GattCharacteristicProperty.writeWithoutResponse,
+          ],
+          descriptors: [],
+        ),
+        GattCharacteristic(
+          uuid: UUID.short(202),
+          properties: [
+            GattCharacteristicProperty.notify,
+            GattCharacteristicProperty.indicate,
+          ],
+          descriptors: [],
+        ),
+      ],
+    );
+    await peripheralManager.addService(service);
+    final advertiseData = AdvertiseData(
+      name: 'flutter',
+      manufacturerSpecificData: ManufacturerSpecificData(
+        id: 0x2e19,
+        data: Uint8List.fromList([0x01, 0x02, 0x03]),
+      ),
+    );
+    await peripheralManager.startAdvertising(advertiseData);
+    advertising.value = true;
+  }
+
+  Future<void> stopAdvertising() async {
+    await peripheralManager.stopAdvertising();
+    advertising.value = false;
+  }
+
+  Widget buildBody(BuildContext context) {
+    final theme = Theme.of(context);
+    return ValueListenableBuilder(
+      valueListenable: logs,
+      builder: (context, logs, child) {
+        return ListView.builder(
+          itemBuilder: (context, i) {
+            final log = logs[i];
+            final type = log.type.name.toUpperCase().characters.first;
+            final Color typeColor;
+            switch (log.type) {
+              case LogType.read:
+                typeColor = Colors.blue;
+                break;
+              case LogType.write:
+                typeColor = Colors.amber;
+                break;
+              case LogType.notify:
+                typeColor = Colors.red;
+                break;
+              default:
+                typeColor = Colors.black;
+            }
+            final time = DateFormat.Hms().format(log.time);
+            final value = log.value;
+            final message = '${log.detail}; ${hex.encode(value)}';
+            return Text.rich(
+              TextSpan(
+                text: '[$type:${value.length}]',
+                children: [
+                  TextSpan(
+                    text: ' $time: ',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.green,
+                    ),
+                  ),
+                  TextSpan(
+                    text: message,
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                ],
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: typeColor,
+                ),
+              ),
+            );
+          },
+          itemCount: logs.length,
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    stateChangedSubscription.cancel();
+    readCharacteristicCommandReceivedSubscription.cancel();
+    writeCharacteristicCommandReceivedSubscription.cancel();
+    notifyCharacteristicCommandReceivedSubscription.cancel();
+    state.dispose();
+    advertising.dispose();
+    logs.dispose();
+  }
+}
+
 class Log {
   final DateTime time;
   final LogType type;
   final Uint8List value;
+  final String? detail;
 
-  Log(this.type, this.value) : time = DateTime.now();
+  Log(
+    this.type,
+    this.value, [
+    this.detail,
+  ]) : time = DateTime.now();
 
   @override
   String toString() {
@@ -707,7 +1057,11 @@ class Log {
     final formatter = DateFormat.Hms();
     final time = formatter.format(this.time);
     final message = hex.encode(value);
-    return '[$type]$time: $message';
+    if (detail == null) {
+      return '[$type]$time: $message';
+    } else {
+      return '[$type]$time: $message /* $detail */';
+    }
   }
 }
 

@@ -1,3 +1,42 @@
+## 3.0.0
+
+* Add `PeripheralManager` api.
+* Add `CentralManager#readRSSI` method.
+* Add `CentralManager.instance` api.
+* Add `PeripheralManager.instance` api.
+* Move `CentralController` to `CentralManager`.
+* Move `CentralState` to `BluetoothLowEnergyState`.
+* Move `CentralDiscoveredEventArgs` to `DiscoveredEventArgs`.
+* Move `Advertisement` class to `AdvertiseData` class.
+* Move `setUp` method from `BluetoothLowEnergy` class to `BluetoothLowEnergyManger` class.
+* Change the type of `manufacturerSpecificData` from `Map<int, Uint8List>` to `ManufacturerSpecificData`.
+* [Fix the issue that `UUID.fromString()` throw FormatException with 32 bits UUID string.](https://github.com/yanshouwang/bluetooth_low_energy/issues/13)
+* Fix known issues.
+
+## 3.0.0-dev.4
+
+* Move `Advertisement` class to `AdvertiseData` class.
+* Fix known issues.
+
+## 3.0.0-dev.3
+
+* [Fix the issue that `UUID.fromString()` throw FormatException with 32 bits UUID string.](https://github.com/yanshouwang/bluetooth_low_energy/issues/13)
+* Change the type of `manufacturerSpecificData` from `Map<int, Uint8List>` to `ManufacturerSpecificData`.
+
+## 3.0.0-dev.2
+
+* Move `setUp` method from `BluetoothLowEnergy` class to `BluetoothLowEnergyManger` class.
+* Add `CentralManager.instance` api.
+* Add `PeripheralManager.instance` api.
+
+## 3.0.0-dev.1
+
+* Add `PeripheralManager` api.
+* Add `CentralManager#readRSSI` method.
+* Move `CentralController` to `CentralManager`.
+* Move `CentralState` to `BluetoothLowEnergyState`.
+* Move `CentralDiscoveredEventArgs` to `DiscoveredEventArgs`.
+
 ## 2.2.1
 
 * `Android` Fix the issue that `CentralController#getMaximumWriteLength` may throw.

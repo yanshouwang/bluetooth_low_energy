@@ -1,7 +1,4 @@
-import 'uuid.dart';
+import 'bluetooth_low_energy_peer.dart';
 
-/// The peripheral.
-abstract class Peripheral {
-  /// The [UUID] of this peripheral.
-  UUID get uuid;
-}
+/// A remote peripheral device.
+abstract class Peripheral extends BluetoothLowEnergyPeer {}

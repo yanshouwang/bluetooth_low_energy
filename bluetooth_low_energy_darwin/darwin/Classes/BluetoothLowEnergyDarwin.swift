@@ -17,7 +17,9 @@ public class BluetoothLowEnergyDarwin: NSObject, FlutterPlugin {
 #else
 #error("Unsupported platform.")
 #endif
-        let centralController = MyCentralController(binaryMessenger)
-        MyCentralControllerHostApiSetup.setUp(binaryMessenger: binaryMessenger, api: centralController)
+        let centralManager = MyCentralManager(binaryMessenger)
+        let peripheralManager = MyPeripheralManager(binaryMessenger)
+        MyCentralManagerHostApiSetup.setUp(binaryMessenger: binaryMessenger, api: centralManager)
+        MyPeripheralManagerHostApiSetup.setUp(binaryMessenger: binaryMessenger, api: peripheralManager)
     }
 }

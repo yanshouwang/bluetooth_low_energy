@@ -23,47 +23,39 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "2.2.1"
+    version: "3.0.0"
   bluetooth_low_energy_android:
     dependency: transitive
     description:
       name: bluetooth_low_energy_android
-      sha256: "2098167f30a05cff40313fd49c459d326590b54dc6ea953cbe7ff145ce940e04"
+      sha256: "227468652811e769d7ff8836aa5c3f7bd0455246785c3eaf0fab2b3c31daed16"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.1"
+    version: "3.0.0"
   bluetooth_low_energy_darwin:
     dependency: transitive
     description:
       name: bluetooth_low_energy_darwin
-      sha256: "876f2d4a288739091296bc22ea574e64451f592154e4201b5999f174120a8b55"
+      sha256: f19903e1ad14da6a16de57996ca808064cb690add8b0aecc6ffecdf8da6f7eab
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
+    version: "3.0.0"
   bluetooth_low_energy_linux:
     dependency: transitive
     description:
       name: bluetooth_low_energy_linux
-      sha256: dc3062991e0a408941829326f0a3b2e1244a8138dca7f6c4c6beadbc26deecb2
+      sha256: "31a23704a4b34e7f6cea61d94c24b3e1c6698928645aaeaf1af947e4870996d7"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
+    version: "3.0.0"
   bluetooth_low_energy_platform_interface:
     dependency: transitive
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: eecaa2c37ebd536339c292d5566cf4360c9ea3861188342791eb3a0cf65cc64c
+      sha256: "200e686247808591b6d3e355642ba296f0f651466c72efdd701be34116971473"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
-  bluetooth_low_energy_windows:
-    dependency: transitive
-    description:
-      name: bluetooth_low_energy_windows
-      sha256: a1b5d5d5ad935f15618e6a86334c1ec682c40ffbe6a78173c3f19b67ff0edcfb
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.0"
+    version: "3.0.0"
   bluez:
     dependency: transitive
     description:
@@ -366,14 +358,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
-  win32:
-    dependency: transitive
-    description:
-      name: win32
-      sha256: "9e82a402b7f3d518fb9c02d0e9ae45952df31b9bf34d77baf19da2de03fc2aaa"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.0.7"
   xml:
     dependency: transitive
     description:
