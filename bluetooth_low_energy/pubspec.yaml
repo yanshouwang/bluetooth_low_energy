@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   bluetooth_low_energy_platform_interface: ^3.0.0-dev.5
-  bluetooth_low_energy_android: ^3.0.0-dev.4
+  bluetooth_low_energy_android: ^3.0.0-dev.6
   bluetooth_low_energy_darwin: ^3.0.0-dev.4
   bluetooth_low_energy_linux: ^3.0.0-dev.4
 

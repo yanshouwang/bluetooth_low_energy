@@ -1,3 +1,13 @@
+## 3.0.0-dev.6
+
+* Add default `CCCD` to GATT characteristic for notify and indicate.
+* Fix the issue that callbacks must run on ui thread.
+* Change requested MTU from 512 to 517 when get the maximum write length of characteristic.
+
+## 3.0.0-dev.5
+
+* Fix the issue that the `BLUETOOTH_ADVERTISE` permission is not requested.
+
 ## 3.0.0-dev.4
 
 * Move `Advertisement` class to `AdvertiseData` class.

@@ -62,7 +62,12 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
                 val args = MyCentralManagerArgs(stateNumberArgs)
                 callback(Result.success(args))
             }
-            authorize()
+            val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.BLUETOOTH_SCAN, android.Manifest.permission.BLUETOOTH_CONNECT)
+            } else {
+                arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION)
+            }
+            authorize(permissions)
             setUpCallback = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
@@ -174,7 +179,7 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
                 throw IllegalStateException()
             }
             val gatt = bluetoothGATTs[peripheralHashCodeArgs] as BluetoothGatt
-            val requesting = gatt.requestMtu(512)
+            val requesting = gatt.requestMtu(517)
             if (!requesting) {
                 throw IllegalStateException()
             }

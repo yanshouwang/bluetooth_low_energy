@@ -246,8 +246,8 @@ class _ScannerViewState extends State<ScannerView> {
             final item = items[i];
             final uuid = item.peripheral.uuid;
             final rssi = item.rssi;
-            final advertisement = item.advertiseData;
-            final name = advertisement.name;
+            final advertiseData = item.advertiseData;
+            final name = advertiseData.name;
             return ListTile(
               onTap: () async {
                 final discovering = this.discovering.value;
@@ -274,7 +274,7 @@ class _ScannerViewState extends State<ScannerView> {
                       clipBehavior: Clip.antiAlias,
                       builder: (context) {
                         final manufacturerSpecificData =
-                            advertisement.manufacturerSpecificData;
+                            advertiseData.manufacturerSpecificData;
                         return ListView.separated(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16.0,
@@ -872,13 +872,15 @@ class _AdvertiserViewState extends State<AdvertiserView> {
           ...logs.value,
           log,
         ];
-        // Write someting to the central.
-        final value = Uint8List.fromList([0x03, 0x02, 0x01]);
-        await peripheralManager.notifyCharacteristicValueChanged(
-          central,
-          characteristic,
-          value,
-        );
+        // Write someting to the central when notify started.
+        if (state) {
+          final value = Uint8List.fromList([0x03, 0x02, 0x01]);
+          await peripheralManager.notifyCharacteristicValueChanged(
+            central,
+            characteristic,
+            value,
+          );
+        }
       },
     );
     setUp();
@@ -907,10 +909,8 @@ class _AdvertiserViewState extends State<AdvertiserView> {
         GattCharacteristic(
           uuid: UUID.short(202),
           properties: [
-            GattCharacteristicProperty.read,
-            GattCharacteristicProperty.write,
-            GattCharacteristicProperty.writeWithoutResponse,
             GattCharacteristicProperty.notify,
+            GattCharacteristicProperty.indicate,
           ],
           descriptors: [],
         ),
@@ -960,14 +960,14 @@ class _AdvertiserViewState extends State<AdvertiserView> {
   }
 
   Future<void> startAdvertising() async {
-    final advertisement = AdvertiseData(
-      name: 'bluetooth_low_energy',
+    final advertiseData = AdvertiseData(
+      name: 'flutter',
       manufacturerSpecificData: ManufacturerSpecificData(
         id: 0x2e19,
         data: Uint8List.fromList([0x01, 0x02, 0x03]),
       ),
     );
-    await peripheralManager.startAdvertising(advertisement);
+    await peripheralManager.startAdvertising(advertiseData);
     advertising.value = true;
   }
 

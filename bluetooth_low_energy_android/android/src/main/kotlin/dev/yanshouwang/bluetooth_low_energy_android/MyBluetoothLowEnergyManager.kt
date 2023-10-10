@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.os.Build
 import androidx.annotation.CallSuper
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -43,12 +42,7 @@ abstract class MyBluetoothLowEnergyManager(private val context: Context) {
         binding.removeRequestPermissionsResultListener(listener)
     }
 
-    protected fun authorize() {
-        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.BLUETOOTH_SCAN, android.Manifest.permission.BLUETOOTH_CONNECT)
-        } else {
-            arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION)
-        }
+    protected fun authorize(permissions: Array<String>) {
         val activity = binding.activity
         ActivityCompat.requestPermissions(activity, permissions, REQUEST_CODE)
     }

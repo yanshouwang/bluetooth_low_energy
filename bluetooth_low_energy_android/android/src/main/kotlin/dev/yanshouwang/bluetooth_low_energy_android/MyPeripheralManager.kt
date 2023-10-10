@@ -55,7 +55,12 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
                 val args = MyPeripheralManagerArgs(stateNumberArgs)
                 callback(Result.success(args))
             }
-            authorize()
+            val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.BLUETOOTH_ADVERTISE, android.Manifest.permission.BLUETOOTH_CONNECT)
+            } else {
+                arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION)
+            }
+            authorize(permissions)
             setUpCallback = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
@@ -105,9 +110,18 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
             val characteristicsArgs = serviceArgs.characteristicsArgs.filterNotNull()
             for (characteristicArgs in characteristicsArgs) {
                 val characteristic = characteristicArgs.toCharacteristic()
+                val cccDescriptor = BluetoothGattDescriptor(CLIENT_CHARACTERISTIC_CONFIG_UUID, BluetoothGattDescriptor.PERMISSION_READ or BluetoothGattDescriptor.PERMISSION_WRITE)
+                val cccDescriptorAdded = characteristic.addDescriptor(cccDescriptor)
+                if (!cccDescriptorAdded) {
+                    throw IllegalStateException()
+                }
                 val descriptorsArgs = characteristicArgs.descriptorsArgs.filterNotNull()
                 for (descriptorArgs in descriptorsArgs) {
                     val descriptor = descriptorArgs.toDescriptor()
+                    if (descriptor.uuid == CLIENT_CHARACTERISTIC_CONFIG_UUID) {
+                        // Already added.
+                        continue
+                    }
                     val descriptorAdded = characteristic.addDescriptor(descriptor)
                     if (!descriptorAdded) {
                         throw IllegalStateException()
@@ -125,7 +139,6 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
                 val characteristicHashCode = characteristic.hashCode()
                 this.characteristicsArgs[characteristicHashCode] = characteristicArgs
                 this.characteristics[characteristicHashCodeArgs] = characteristic
-                // TODO: Notify 可用时是否需要添加 CCCD
             }
             val adding = server.addService(service)
             if (!adding) {
@@ -347,25 +360,10 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         api.onWriteCharacteristicCommandReceived(centralArgs, characteristicArgs, idArgs, offsetArgs, value) {}
     }
 
-    fun onNotificationSent(device: BluetoothDevice, status: Int) {
-        val hashCode = device.hashCode()
-        val centralArgs = centralsArgs[hashCode] as MyCentralArgs
-        val centralHashCodeArgs = centralArgs.hashCodeArgs
-        devices[centralHashCodeArgs] = device
-        val callback = notifyCharacteristicValueChangedCallbacks.remove(centralHashCodeArgs)
-                ?: return
-        if (status == BluetoothGatt.GATT_SUCCESS) {
-            callback(Result.success(Unit))
-        } else {
-            val error = IllegalStateException("Notify characteristic value changed failed with status: $status")
-            callback(Result.failure(error))
-        }
-    }
-
     fun onDescriptorReadRequest(device: BluetoothDevice, requestId: Int, offset: Int, descriptor: BluetoothGattDescriptor) {
         val status = BluetoothGatt.GATT_SUCCESS
-        val hashCode = descriptor.hashCode()
-        val descriptorArgs = descriptorsArgs[hashCode] as MyGattDescriptorArgs
+        val descriptorHashCode = descriptor.hashCode()
+        val descriptorArgs = descriptorsArgs[descriptorHashCode] as MyGattDescriptorArgs
         val value = descriptorArgs.valueArgs
         val sent = server.sendResponse(device, requestId, status, offset, value)
         if (!sent) {
@@ -377,44 +375,49 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         val status = if (descriptor.uuid == CLIENT_CHARACTERISTIC_CONFIG_UUID) {
             val deviceHashCode = device.hashCode()
             val centralArgs = centralsArgs.getOrPut(deviceHashCode) { device.toCentralArgs() }
+            val centralHashCodeArgs = centralArgs.hashCodeArgs
+            devices[centralHashCodeArgs] = device
             val characteristic = descriptor.characteristic
             val characteristicHashCode = characteristic.hashCode()
             val characteristicArgs = characteristicsArgs[characteristicHashCode] as MyGattCharacteristicArgs
             val characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
             // TODO: what is 中缀?
-//            if (value contentEquals BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE) {
-//            } else if (value contentEquals BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE) {
-//            } else if (value contentEquals BluetoothGattDescriptor.ENABLE_INDICATION_VALUE) {
-//            } else {
-//            }
-            when (value) {
-                BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE -> {
-                    confirms[characteristicHashCodeArgs] = false
-                    val stateArgs = true
-                    api.onNotifyCharacteristicCommandReceived(centralArgs, characteristicArgs, stateArgs) {}
-                    BluetoothGatt.GATT_SUCCESS
-                }
-
-                BluetoothGattDescriptor.ENABLE_INDICATION_VALUE -> {
-                    confirms[characteristicHashCodeArgs] = true
-                    val stateArgs = true
-                    api.onNotifyCharacteristicCommandReceived(centralArgs, characteristicArgs, stateArgs) {}
-                    BluetoothGatt.GATT_SUCCESS
-                }
-
-                BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE -> {
-                    confirms.remove(characteristicHashCodeArgs)
-                    val stateArgs = false
-                    api.onNotifyCharacteristicCommandReceived(centralArgs, characteristicArgs, stateArgs) {}
-                    BluetoothGatt.GATT_SUCCESS
-                }
-
-                else -> BluetoothGatt.GATT_REQUEST_NOT_SUPPORTED
+            if (value contentEquals BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE) {
+                confirms[characteristicHashCodeArgs] = false
+                val stateArgs = true
+                api.onNotifyCharacteristicCommandReceived(centralArgs, characteristicArgs, stateArgs) {}
+                BluetoothGatt.GATT_SUCCESS
+            } else if (value contentEquals BluetoothGattDescriptor.ENABLE_INDICATION_VALUE) {
+                confirms[characteristicHashCodeArgs] = true
+                val stateArgs = true
+                api.onNotifyCharacteristicCommandReceived(centralArgs, characteristicArgs, stateArgs) {}
+                BluetoothGatt.GATT_SUCCESS
+            } else if (value contentEquals BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE) {
+                confirms.remove(characteristicHashCodeArgs)
+                val stateArgs = false
+                api.onNotifyCharacteristicCommandReceived(centralArgs, characteristicArgs, stateArgs) {}
+                BluetoothGatt.GATT_SUCCESS
+            } else {
+                BluetoothGatt.GATT_REQUEST_NOT_SUPPORTED
             }
-        } else BluetoothGatt.GATT_REQUEST_NOT_SUPPORTED
+        } else BluetoothGatt.GATT_SUCCESS
         val sent = server.sendResponse(device, requestId, status, offset, value)
         if (!sent) {
             Log.e(TAG, "onDescriptorReadRequest: send response failed.")
+        }
+    }
+
+    fun onNotificationSent(device: BluetoothDevice, status: Int) {
+        val deviceHashCode = device.hashCode()
+        val centralArgs = centralsArgs[deviceHashCode] as MyCentralArgs
+        val centralHashCodeArgs = centralArgs.hashCodeArgs
+        val callback = notifyCharacteristicValueChangedCallbacks.remove(centralHashCodeArgs)
+                ?: return
+        if (status == BluetoothGatt.GATT_SUCCESS) {
+            callback(Result.success(Unit))
+        } else {
+            val error = IllegalStateException("Notify characteristic value changed failed with status: $status")
+            callback(Result.failure(error))
         }
     }
 }
