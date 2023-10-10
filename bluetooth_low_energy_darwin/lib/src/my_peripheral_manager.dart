@@ -73,10 +73,10 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
   }
 
   @override
-  Future<void> startAdvertising(Advertisement advertisement) async {
+  Future<void> startAdvertising(AdvertiseData advertiseData) async {
     await throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final advertisementArgs = advertisement.toArgs();
-    await _api.startAdvertising(advertisementArgs);
+    final advertiseDataArgs = advertiseData.toArgs();
+    await _api.startAdvertising(advertiseDataArgs);
   }
 
   @override

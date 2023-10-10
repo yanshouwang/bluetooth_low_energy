@@ -7,13 +7,11 @@ import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothStatusCodes
-import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.ParcelUuid
 import android.util.Log
 import io.flutter.plugin.common.BinaryMessenger
 
@@ -26,10 +24,10 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
     private val advertiseCallback = MyAdvertiseCallback(this)
 
     private val devices = mutableMapOf<Long, BluetoothDevice>()
-    private val mtus = mutableMapOf<Long, Int>()
     private val services = mutableMapOf<Long, BluetoothGattService>()
     private val characteristics = mutableMapOf<Long, BluetoothGattCharacteristic>()
     private val descriptors = mutableMapOf<Long, BluetoothGattDescriptor>()
+    private val mtus = mutableMapOf<Long, Int>()
     private val confirms = mutableMapOf<Long, Boolean>()
 
     private val centralsArgs = mutableMapOf<Int, MyCentralArgs>()
@@ -38,6 +36,7 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
     private val descriptorsArgs = mutableMapOf<Int, MyGattDescriptorArgs>()
 
     private var registered = false
+    private var advertising = false
 
     private var setUpCallback: ((Result<MyPeripheralManagerArgs>) -> Unit)? = null
     private var addServiceCallback: ((Result<Unit>) -> Unit)? = null
@@ -67,6 +66,19 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         if (registered) {
             unregister()
         }
+        if (advertising) {
+            stopAdvertising()
+        }
+        devices.clear()
+        services.clear()
+        characteristics.clear()
+        descriptors.clear()
+        mtus.clear()
+        confirms.clear()
+        centralsArgs.clear()
+        servicesArgs.clear()
+        characteristicsArgs.clear()
+        descriptorsArgs.clear()
         setUpCallback = null
         addServiceCallback = null
         startAdvertisingCallback = null
@@ -171,40 +183,13 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         }
     }
 
-    override fun startAdvertising(advertisementArgs: MyAdvertisementArgs, callback: (Result<Unit>) -> Unit) {
+    override fun startAdvertising(advertiseDataArgs: MyAdvertiseDataArgs, callback: (Result<Unit>) -> Unit) {
         try {
             if (startAdvertisingCallback != null) {
                 throw IllegalStateException()
             }
             val settings = AdvertiseSettings.Builder().setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED).setConnectable(true).build()
-            val advertiseDataBuilder = AdvertiseData.Builder()
-            val name = advertisementArgs.nameArgs
-            if (name == null) {
-                advertiseDataBuilder.setIncludeDeviceName(false)
-            } else {
-                adapter.name = name
-                advertiseDataBuilder.setIncludeDeviceName(true)
-            }
-            val serviceUUIDsArgs = advertisementArgs.serviceUUIDsArgs.filterNotNull()
-            for (serviceUuidArgs in serviceUUIDsArgs) {
-                val serviceUUID = ParcelUuid.fromString(serviceUuidArgs)
-                advertiseDataBuilder.addServiceUuid(serviceUUID)
-            }
-            val serviceDataArgs = advertisementArgs.serviceDataArgs
-            for (entry in serviceDataArgs) {
-                val serviceDataUUID = ParcelUuid.fromString(entry.key as String)
-                val serviceData = entry.value as ByteArray
-                advertiseDataBuilder.addServiceData(serviceDataUUID, serviceData)
-            }
-            val manufacturerSpecificDataArgs = advertisementArgs.manufacturerSpecificDataArgs
-            for (entry in manufacturerSpecificDataArgs) {
-//                val manufacturerId = (entry.key as Long).toInt()
-                // TODO: Wrong type cast:  java.lang.Integer cannot be cast to java.lang.Long
-                val manufacturerId = entry.key?.toInt() ?: throw IllegalArgumentException()
-                val manufacturerSpecificData = entry.value as ByteArray
-                advertiseDataBuilder.addManufacturerData(manufacturerId, manufacturerSpecificData)
-            }
-            val advertiseData = advertiseDataBuilder.build()
+            val advertiseData = advertiseDataArgs.toAdvertiseData(adapter)
             advertiser.startAdvertising(settings, advertiseData, advertiseCallback)
             startAdvertisingCallback = callback
         } catch (e: Throwable) {
@@ -214,6 +199,7 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
 
     override fun stopAdvertising() {
         advertiser.stopAdvertising(advertiseCallback)
+        advertising = false
     }
 
     override fun getMaximumWriteLength(centralHashCodeArgs: Long): Long {
@@ -315,16 +301,33 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         }
     }
 
+    fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
+        advertising = true
+        val callback = startAdvertisingCallback ?: return
+        startAdvertisingCallback = null
+        callback(Result.success(Unit))
+    }
+
+    fun onStartFailure(errorCode: Int) {
+        val callback = startAdvertisingCallback ?: return
+        startAdvertisingCallback = null
+        val error = IllegalStateException("Start advertising failed with error code: $errorCode")
+        callback(Result.failure(error))
+    }
+
     fun onMtuChanged(device: BluetoothDevice, mtu: Int) {
         val hashCode = device.hashCode()
         val centralArgs = centralsArgs.getOrPut(hashCode) { device.toCentralArgs() }
         val centralHashCodeArgs = centralArgs.hashCodeArgs
+        devices[centralHashCodeArgs] = device
         mtus[centralHashCodeArgs] = mtu
     }
 
     fun onCharacteristicReadRequest(device: BluetoothDevice, requestId: Int, offset: Int, characteristic: BluetoothGattCharacteristic) {
         val deviceHashCode = device.hashCode()
         val centralArgs = centralsArgs.getOrPut(deviceHashCode) { device.toCentralArgs() }
+        val centralHashCodeArgs = centralArgs.hashCodeArgs
+        devices[centralHashCodeArgs] = device
         val characteristicHashCode = characteristic.hashCode()
         val characteristicArgs = characteristicsArgs[characteristicHashCode] as MyGattCharacteristicArgs
         val idArgs = requestId.toLong()
@@ -335,6 +338,8 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
     fun onCharacteristicWriteRequest(device: BluetoothDevice, requestId: Int, characteristic: BluetoothGattCharacteristic, preparedWrite: Boolean, responseNeeded: Boolean, offset: Int, value: ByteArray) {
         val deviceHashCode = device.hashCode()
         val centralArgs = centralsArgs.getOrPut(deviceHashCode) { device.toCentralArgs() }
+        val centralHashCodeArgs = centralArgs.hashCodeArgs
+        devices[centralHashCodeArgs] = device
         val characteristicHashCode = characteristic.hashCode()
         val characteristicArgs = characteristicsArgs[characteristicHashCode] as MyGattCharacteristicArgs
         val idArgs = requestId.toLong()
@@ -346,7 +351,9 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         val hashCode = device.hashCode()
         val centralArgs = centralsArgs[hashCode] as MyCentralArgs
         val centralHashCodeArgs = centralArgs.hashCodeArgs
-        val callback = notifyCharacteristicValueChangedCallbacks.remove(centralHashCodeArgs) ?: return
+        devices[centralHashCodeArgs] = device
+        val callback = notifyCharacteristicValueChangedCallbacks.remove(centralHashCodeArgs)
+                ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
             callback(Result.success(Unit))
         } else {
@@ -409,18 +416,5 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         if (!sent) {
             Log.e(TAG, "onDescriptorReadRequest: send response failed.")
         }
-    }
-
-    fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
-        val callback = startAdvertisingCallback ?: return
-        startAdvertisingCallback = null
-        callback(Result.success(Unit))
-    }
-
-    fun onStartFailure(errorCode: Int) {
-        val callback = startAdvertisingCallback ?: return
-        startAdvertisingCallback = null
-        val error = IllegalStateException("Start advertising failed with error code: $errorCode")
-        callback(Result.failure(error))
     }
 }

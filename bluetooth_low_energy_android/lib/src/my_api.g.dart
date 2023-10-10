@@ -123,40 +123,40 @@ class MyPeripheralArgs {
   }
 }
 
-class MyAdvertisementArgs {
-  MyAdvertisementArgs({
+class MyAdvertiseDataArgs {
+  MyAdvertiseDataArgs({
     this.nameArgs,
-    this.manufacturerSpecificDataArgs,
     required this.serviceUUIDsArgs,
     required this.serviceDataArgs,
+    this.manufacturerSpecificDataArgs,
   });
 
   String? nameArgs;
-
-  MyManufacturerSpecificDataArgs? manufacturerSpecificDataArgs;
 
   List<String?> serviceUUIDsArgs;
 
   Map<String?, Uint8List?> serviceDataArgs;
 
+  MyManufacturerSpecificDataArgs? manufacturerSpecificDataArgs;
+
   Object encode() {
     return <Object?>[
       nameArgs,
-      manufacturerSpecificDataArgs?.encode(),
       serviceUUIDsArgs,
       serviceDataArgs,
+      manufacturerSpecificDataArgs?.encode(),
     ];
   }
 
-  static MyAdvertisementArgs decode(Object result) {
+  static MyAdvertiseDataArgs decode(Object result) {
     result as List<Object?>;
-    return MyAdvertisementArgs(
+    return MyAdvertiseDataArgs(
       nameArgs: result[0] as String?,
-      manufacturerSpecificDataArgs: result[1] != null
-          ? MyManufacturerSpecificDataArgs.decode(result[1]! as List<Object?>)
+      serviceUUIDsArgs: (result[1] as List<Object?>?)!.cast<String?>(),
+      serviceDataArgs: (result[2] as Map<Object?, Object?>?)!.cast<String?, Uint8List?>(),
+      manufacturerSpecificDataArgs: result[3] != null
+          ? MyManufacturerSpecificDataArgs.decode(result[3]! as List<Object?>)
           : null,
-      serviceUUIDsArgs: (result[2] as List<Object?>?)!.cast<String?>(),
-      serviceDataArgs: (result[3] as Map<Object?, Object?>?)!.cast<String?, Uint8List?>(),
     );
   }
 }
@@ -654,7 +654,7 @@ class _MyCentralManagerFlutterApiCodec extends StandardMessageCodec {
   const _MyCentralManagerFlutterApiCodec();
   @override
   void writeValue(WriteBuffer buffer, Object? value) {
-    if (value is MyAdvertisementArgs) {
+    if (value is MyAdvertiseDataArgs) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
     } else if (value is MyGattCharacteristicArgs) {
@@ -678,7 +678,7 @@ class _MyCentralManagerFlutterApiCodec extends StandardMessageCodec {
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
       case 128: 
-        return MyAdvertisementArgs.decode(readValue(buffer)!);
+        return MyAdvertiseDataArgs.decode(readValue(buffer)!);
       case 129: 
         return MyGattCharacteristicArgs.decode(readValue(buffer)!);
       case 130: 
@@ -698,7 +698,7 @@ abstract class MyCentralManagerFlutterApi {
 
   void onStateChanged(int stateNumberArgs);
 
-  void onDiscovered(MyPeripheralArgs peripheralArgs, int rssiArgs, MyAdvertisementArgs advertisementArgs);
+  void onDiscovered(MyPeripheralArgs peripheralArgs, int rssiArgs, MyAdvertiseDataArgs advertiseDataArgs);
 
   void onPeripheralStateChanged(MyPeripheralArgs peripheralArgs, bool stateArgs);
 
@@ -741,10 +741,10 @@ abstract class MyCentralManagerFlutterApi {
           final int? arg_rssiArgs = (args[1] as int?);
           assert(arg_rssiArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterApi.onDiscovered was null, expected non-null int.');
-          final MyAdvertisementArgs? arg_advertisementArgs = (args[2] as MyAdvertisementArgs?);
-          assert(arg_advertisementArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterApi.onDiscovered was null, expected non-null MyAdvertisementArgs.');
-          api.onDiscovered(arg_peripheralArgs!, arg_rssiArgs!, arg_advertisementArgs!);
+          final MyAdvertiseDataArgs? arg_advertiseDataArgs = (args[2] as MyAdvertiseDataArgs?);
+          assert(arg_advertiseDataArgs != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterApi.onDiscovered was null, expected non-null MyAdvertiseDataArgs.');
+          api.onDiscovered(arg_peripheralArgs!, arg_rssiArgs!, arg_advertiseDataArgs!);
           return;
         });
       }
@@ -800,7 +800,7 @@ class _MyPeripheralManagerHostApiCodec extends StandardMessageCodec {
   const _MyPeripheralManagerHostApiCodec();
   @override
   void writeValue(WriteBuffer buffer, Object? value) {
-    if (value is MyAdvertisementArgs) {
+    if (value is MyAdvertiseDataArgs) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
     } else if (value is MyGattCharacteristicArgs) {
@@ -827,7 +827,7 @@ class _MyPeripheralManagerHostApiCodec extends StandardMessageCodec {
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
       case 128: 
-        return MyAdvertisementArgs.decode(readValue(buffer)!);
+        return MyAdvertiseDataArgs.decode(readValue(buffer)!);
       case 129: 
         return MyGattCharacteristicArgs.decode(readValue(buffer)!);
       case 130: 
@@ -947,12 +947,12 @@ class MyPeripheralManagerHostApi {
     }
   }
 
-  Future<void> startAdvertising(MyAdvertisementArgs arg_advertisementArgs) async {
+  Future<void> startAdvertising(MyAdvertiseDataArgs arg_advertiseDataArgs) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostApi.startAdvertising', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_advertisementArgs]) as List<Object?>?;
+        await channel.send(<Object?>[arg_advertiseDataArgs]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',

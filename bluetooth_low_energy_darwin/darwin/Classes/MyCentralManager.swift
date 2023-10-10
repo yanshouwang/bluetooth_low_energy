@@ -315,8 +315,8 @@ class MyCentralManager: MyCentralManagerHostApi {
         peripherals[peripheralHashCodeArgs] = peripheral
         peripheralsArgs[peripheralHashCode] = peripheralArgs
         let rssiArgs = rssi.int64Value
-        let advertisementArgs = advertisementData.toAdvertisementArgs()
-        api.onDiscovered(peripheralArgs: peripheralArgs, rssiArgs: rssiArgs, advertisementArgs: advertisementArgs) {}
+        let advertiseDataArgs = advertisementData.toAdvertiseDataArgs()
+        api.onDiscovered(peripheralArgs: peripheralArgs, rssiArgs: rssiArgs, advertiseDataArgs: advertiseDataArgs) {}
     }
     
     func didConnect(_ peripheral: CBPeripheral) {

@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'advertisement.dart';
+import 'advertise_data.dart';
 import 'bluetooth_low_energy_state.dart';
 import 'central.dart';
 import 'gatt_characteristic.dart';
@@ -26,11 +26,11 @@ class DiscoveredEventArgs extends EventArgs {
   /// The rssi of the peripheral.
   final int rssi;
 
-  /// The advertisement of the peripheral.
-  final Advertisement advertisement;
+  /// The advertise data of the peripheral.
+  final AdvertiseData advertiseData;
 
   /// Constructs a [DiscoveredEventArgs].
-  DiscoveredEventArgs(this.peripheral, this.rssi, this.advertisement);
+  DiscoveredEventArgs(this.peripheral, this.rssi, this.advertiseData);
 }
 
 /// The peripheral state changed event arguments.

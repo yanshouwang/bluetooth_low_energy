@@ -216,12 +216,12 @@ class MyCentralManager extends CentralManager {
     for (var property in properties) {
       switch (property) {
         case 'Powered':
-          final state = _adapter.myState;
-          if (_state == state) {
+          final myState = _adapter.myState;
+          if (_state == myState) {
             return;
           }
-          _state = state;
-          final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
+          _state = myState;
+          final eventArgs = BluetoothLowEnergyStateChangedEventArgs(myState);
           _stateChangedController.add(eventArgs);
           break;
         default:
@@ -240,12 +240,12 @@ class MyCentralManager extends CentralManager {
 
   void _onDiscovered(BlueZDevice device) {
     final myPeripheral = MyPeripheral2(device);
-    final rssi = device.rssi;
-    final advertisement = device.myAdvertisement;
+    final myRSSI = device.rssi;
+    final myAdvertiseData = device.myAdvertiseData;
     final eventArgs = DiscoveredEventArgs(
       myPeripheral,
-      rssi,
-      advertisement,
+      myRSSI,
+      myAdvertiseData,
     );
     _discoveredController.add(eventArgs);
   }
@@ -306,10 +306,10 @@ class MyCentralManager extends CentralManager {
             for (var property in properties) {
               switch (property) {
                 case 'Value':
-                  final value = Uint8List.fromList(characteristic.value);
+                  final myValue = Uint8List.fromList(characteristic.value);
                   final eventArgs = GattCharacteristicValueChangedEventArgs(
                     myCharacteristic,
-                    value,
+                    myValue,
                   );
                   _characteristicValueChangedController.add(eventArgs);
                   break;

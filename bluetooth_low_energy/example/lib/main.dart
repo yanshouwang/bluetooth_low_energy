@@ -238,7 +238,7 @@ class _ScannerViewState extends State<ScannerView> {
       builder: (context, discoveredEventArgs, child) {
         // final items = discoveredEventArgs;
         final items = discoveredEventArgs
-            .where((eventArgs) => eventArgs.advertisement.name != null)
+            .where((eventArgs) => eventArgs.advertiseData.name != null)
             .toList();
         return ListView.separated(
           itemBuilder: (context, i) {
@@ -246,7 +246,7 @@ class _ScannerViewState extends State<ScannerView> {
             final item = items[i];
             final uuid = item.peripheral.uuid;
             final rssi = item.rssi;
-            final advertisement = item.advertisement;
+            final advertisement = item.advertiseData;
             final name = advertisement.name;
             return ListTile(
               onTap: () async {
@@ -444,7 +444,7 @@ class _PeripheralViewState extends State<PeripheralView> {
   }
 
   PreferredSizeWidget buildAppBar(BuildContext context) {
-    final title = eventArgs.advertisement.name ?? '<EMPTY NAME>';
+    final title = eventArgs.advertiseData.name ?? '<EMPTY NAME>';
     return AppBar(
       title: Text(title),
       actions: [
@@ -960,7 +960,7 @@ class _AdvertiserViewState extends State<AdvertiserView> {
   }
 
   Future<void> startAdvertising() async {
-    final advertisement = Advertisement(
+    final advertisement = AdvertiseData(
       name: 'bluetooth_low_energy',
       manufacturerSpecificData: ManufacturerSpecificData(
         id: 0x2e19,

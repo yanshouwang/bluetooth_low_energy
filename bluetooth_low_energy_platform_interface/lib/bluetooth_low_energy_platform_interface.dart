@@ -9,7 +9,7 @@ export 'src/bluetooth_low_energy_peer.dart';
 export 'src/central.dart';
 export 'src/peripheral.dart';
 export 'src/uuid.dart';
-export 'src/advertisement.dart';
+export 'src/advertise_data.dart';
 export 'src/manufacturer_specific_data.dart';
 export 'src/gatt_service.dart';
 export 'src/gatt_characteristic.dart';

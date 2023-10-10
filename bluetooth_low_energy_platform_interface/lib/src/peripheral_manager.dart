@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'advertisement.dart';
+import 'advertise_data.dart';
 import 'bluetooth_low_energy.dart';
 import 'bluetooth_low_energy_manager.dart';
 import 'central.dart';
@@ -36,7 +36,7 @@ abstract class PeripheralManager extends BluetoothLowEnergyManager {
   Future<void> clearServices();
 
   /// Advertises peripheral manager data.
-  Future<void> startAdvertising(Advertisement advertisement);
+  Future<void> startAdvertising(AdvertiseData advertiseData);
 
   /// Stops advertising peripheral manager data.
   Future<void> stopAdvertising();

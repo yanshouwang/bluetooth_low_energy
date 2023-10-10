@@ -27,7 +27,7 @@ extension BlueZDeviceX on BlueZDevice {
   List<MyGattService2> get myServices =>
       gattServices.map((service) => MyGattService2(service)).toList();
 
-  Advertisement get myAdvertisement {
+  AdvertiseData get myAdvertiseData {
     final myName = name.isNotEmpty ? name : null;
     final myServiceUUIDs = uuids.map((uuid) => uuid.toMyUUID()).toList();
     final myServiceData = serviceData.map((uuid, data) {
@@ -35,11 +35,11 @@ extension BlueZDeviceX on BlueZDevice {
       final myData = Uint8List.fromList(data);
       return MapEntry(myUUID, myData);
     });
-    return Advertisement(
+    return AdvertiseData(
       name: myName,
-      manufacturerSpecificData: myManufacturerSpecificData,
       serviceUUIDs: myServiceUUIDs,
       serviceData: myServiceData,
+      manufacturerSpecificData: myManufacturerSpecificData,
     );
   }
 

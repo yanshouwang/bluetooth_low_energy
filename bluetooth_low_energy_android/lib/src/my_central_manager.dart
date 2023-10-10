@@ -227,15 +227,15 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
   void onDiscovered(
     MyPeripheralArgs peripheralArgs,
     int rssiArgs,
-    MyAdvertisementArgs advertisementArgs,
+    MyAdvertiseDataArgs advertiseDataArgs,
   ) {
     final peripheral = peripheralArgs.toPeripheral();
     final rssi = rssiArgs;
-    final advertisement = advertisementArgs.toAdvertisement();
+    final advertiseData = advertiseDataArgs.toAdvertiseData();
     final eventArgs = DiscoveredEventArgs(
       peripheral,
       rssi,
-      advertisement,
+      advertiseData,
     );
     _discoveredController.add(eventArgs);
   }

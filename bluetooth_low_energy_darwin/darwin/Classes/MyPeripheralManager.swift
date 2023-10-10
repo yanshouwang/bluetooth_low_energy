@@ -181,12 +181,12 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
         self.servicesArgs.removeValue(forKey: serviceHashCode)
     }
     
-    func startAdvertising(advertisementArgs: MyAdvertisementArgs, completion: @escaping (Result<Void, Error>) -> Void) {
+    func startAdvertising(advertiseDataArgs: MyAdvertiseDataArgs, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             if startAdvertisingCompletion != nil {
                 throw MyError.illegalState
             }
-            let advertisementData = try advertisementArgs.toAdvertisementData()
+            let advertisementData = try advertiseDataArgs.toAdvertiseData()
             peripheralManager.startAdvertising(advertisementData)
             startAdvertisingCompletion = completion
         } catch {

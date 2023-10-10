@@ -1,3 +1,8 @@
+## 3.0.0-dev.4
+
+* Move `Advertisement` class to `AdvertiseData` class.
+* Fix known issues.
+
 ## 3.0.0-dev.3
 
 * [Fix the issue that `UUID.fromString()` throw FormatException with 32 bits UUID string.](https://github.com/yanshouwang/bluetooth_low_energy/issues/13)

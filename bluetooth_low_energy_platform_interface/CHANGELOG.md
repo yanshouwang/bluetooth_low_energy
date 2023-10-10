@@ -1,3 +1,7 @@
+## 3.0.0-dev.5
+
+* Move `Advertisement` class to `AdvertiseData` class.
+
 ## 3.0.0-dev.4
 
 * Fix issues.

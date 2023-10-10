@@ -140,34 +140,34 @@ struct MyPeripheralArgs {
 }
 
 /// Generated class from Pigeon that represents data sent in messages.
-struct MyAdvertisementArgs {
+struct MyAdvertiseDataArgs {
   var nameArgs: String? = nil
-  var manufacturerSpecificDataArgs: MyManufacturerSpecificDataArgs? = nil
   var serviceUUIDsArgs: [String?]
   var serviceDataArgs: [String?: FlutterStandardTypedData?]
+  var manufacturerSpecificDataArgs: MyManufacturerSpecificDataArgs? = nil
 
-  static func fromList(_ list: [Any?]) -> MyAdvertisementArgs? {
+  static func fromList(_ list: [Any?]) -> MyAdvertiseDataArgs? {
     let nameArgs: String? = nilOrValue(list[0])
+    let serviceUUIDsArgs = list[1] as! [String?]
+    let serviceDataArgs = list[2] as! [String?: FlutterStandardTypedData?]
     var manufacturerSpecificDataArgs: MyManufacturerSpecificDataArgs? = nil
-    if let manufacturerSpecificDataArgsList: [Any?] = nilOrValue(list[1]) {
+    if let manufacturerSpecificDataArgsList: [Any?] = nilOrValue(list[3]) {
       manufacturerSpecificDataArgs = MyManufacturerSpecificDataArgs.fromList(manufacturerSpecificDataArgsList)
     }
-    let serviceUUIDsArgs = list[2] as! [String?]
-    let serviceDataArgs = list[3] as! [String?: FlutterStandardTypedData?]
 
-    return MyAdvertisementArgs(
+    return MyAdvertiseDataArgs(
       nameArgs: nameArgs,
-      manufacturerSpecificDataArgs: manufacturerSpecificDataArgs,
       serviceUUIDsArgs: serviceUUIDsArgs,
-      serviceDataArgs: serviceDataArgs
+      serviceDataArgs: serviceDataArgs,
+      manufacturerSpecificDataArgs: manufacturerSpecificDataArgs
     )
   }
   func toList() -> [Any?] {
     return [
       nameArgs,
-      manufacturerSpecificDataArgs?.toList(),
       serviceUUIDsArgs,
       serviceDataArgs,
+      manufacturerSpecificDataArgs?.toList(),
     ]
   }
 }
@@ -575,7 +575,7 @@ private class MyCentralManagerFlutterApiCodecReader: FlutterStandardReader {
   override func readValue(ofType type: UInt8) -> Any? {
     switch type {
       case 128:
-        return MyAdvertisementArgs.fromList(self.readValue() as! [Any?])
+        return MyAdvertiseDataArgs.fromList(self.readValue() as! [Any?])
       case 129:
         return MyGattCharacteristicArgs.fromList(self.readValue() as! [Any?])
       case 130:
@@ -592,7 +592,7 @@ private class MyCentralManagerFlutterApiCodecReader: FlutterStandardReader {
 
 private class MyCentralManagerFlutterApiCodecWriter: FlutterStandardWriter {
   override func writeValue(_ value: Any) {
-    if let value = value as? MyAdvertisementArgs {
+    if let value = value as? MyAdvertiseDataArgs {
       super.writeByte(128)
       super.writeValue(value.toList())
     } else if let value = value as? MyGattCharacteristicArgs {
@@ -642,9 +642,9 @@ class MyCentralManagerFlutterApi {
       completion()
     }
   }
-  func onDiscovered(peripheralArgs peripheralArgsArg: MyPeripheralArgs, rssiArgs rssiArgsArg: Int64, advertisementArgs advertisementArgsArg: MyAdvertisementArgs, completion: @escaping () -> Void) {
+  func onDiscovered(peripheralArgs peripheralArgsArg: MyPeripheralArgs, rssiArgs rssiArgsArg: Int64, advertiseDataArgs advertiseDataArgsArg: MyAdvertiseDataArgs, completion: @escaping () -> Void) {
     let channel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerFlutterApi.onDiscovered", binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([peripheralArgsArg, rssiArgsArg, advertisementArgsArg] as [Any?]) { _ in
+    channel.sendMessage([peripheralArgsArg, rssiArgsArg, advertiseDataArgsArg] as [Any?]) { _ in
       completion()
     }
   }
@@ -665,7 +665,7 @@ private class MyPeripheralManagerHostApiCodecReader: FlutterStandardReader {
   override func readValue(ofType type: UInt8) -> Any? {
     switch type {
       case 128:
-        return MyAdvertisementArgs.fromList(self.readValue() as! [Any?])
+        return MyAdvertiseDataArgs.fromList(self.readValue() as! [Any?])
       case 129:
         return MyGattCharacteristicArgs.fromList(self.readValue() as! [Any?])
       case 130:
@@ -684,7 +684,7 @@ private class MyPeripheralManagerHostApiCodecReader: FlutterStandardReader {
 
 private class MyPeripheralManagerHostApiCodecWriter: FlutterStandardWriter {
   override func writeValue(_ value: Any) {
-    if let value = value as? MyAdvertisementArgs {
+    if let value = value as? MyAdvertiseDataArgs {
       super.writeByte(128)
       super.writeValue(value.toList())
     } else if let value = value as? MyGattCharacteristicArgs {
@@ -728,7 +728,7 @@ protocol MyPeripheralManagerHostApi {
   func addService(serviceArgs: MyGattServiceArgs, completion: @escaping (Result<Void, Error>) -> Void)
   func removeService(serviceHashCodeArgs: Int64) throws
   func clearServices() throws
-  func startAdvertising(advertisementArgs: MyAdvertisementArgs, completion: @escaping (Result<Void, Error>) -> Void)
+  func startAdvertising(advertiseDataArgs: MyAdvertiseDataArgs, completion: @escaping (Result<Void, Error>) -> Void)
   func stopAdvertising() throws
   func getMaximumWriteLength(centralHashCodeArgs: Int64) throws -> Int64
   func sendReadCharacteristicReply(centralHashCodeArgs: Int64, characteristicHashCodeArgs: Int64, idArgs: Int64, offsetArgs: Int64, statusArgs: Bool, valueArgs: FlutterStandardTypedData) throws
@@ -806,8 +806,8 @@ class MyPeripheralManagerHostApiSetup {
     if let api = api {
       startAdvertisingChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
-        let advertisementArgsArg = args[0] as! MyAdvertisementArgs
-        api.startAdvertising(advertisementArgs: advertisementArgsArg) { result in
+        let advertiseDataArgsArg = args[0] as! MyAdvertiseDataArgs
+        api.startAdvertising(advertiseDataArgs: advertiseDataArgsArg) { result in
           switch result {
             case .success:
               reply(wrapResult(nil))

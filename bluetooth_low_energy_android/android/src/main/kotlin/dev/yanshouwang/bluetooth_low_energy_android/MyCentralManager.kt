@@ -84,6 +84,11 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
         services.clear()
         characteristics.clear()
         descriptors.clear()
+        peripheralsArgs.clear()
+        servicesArgsOfPeripherals.clear()
+        servicesArgs.clear()
+        characteristicsArgs.clear()
+        descriptorsArgs.clear()
         setUpCallback = null
         startDiscoveryCallback = null
         connectCallbacks.clear()
@@ -374,6 +379,7 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
     }
 
     private fun onScanSucceed() {
+        discovering = true
         val callback = startDiscoveryCallback ?: return
         startDiscoveryCallback = null
         callback(Result.success(Unit))
@@ -394,8 +400,8 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
         this.devices[hashCodeArgs] = device
         this.peripheralsArgs[hashCode] = peripheralArgs
         val rssiArgs = result.rssi.toLong()
-        val advertisementArgs = result.advertisementArgs
-        api.onDiscovered(peripheralArgs, rssiArgs, advertisementArgs) {}
+        val advertiseDataArgs = result.advertiseDataArgs
+        api.onDiscovered(peripheralArgs, rssiArgs, advertiseDataArgs) {}
     }
 
     fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
@@ -527,21 +533,21 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
                     val descriptors = characteristic.descriptors
                     val descriptorsArgs = mutableListOf<MyGattDescriptorArgs>()
                     for (descriptor in descriptors) {
-                        val descriptorArgs = descriptor.toArgs()
+                        val descriptorArgs = descriptor.toManufacturerSpecificDataArgs()
                         val descriptorHashCode = descriptor.hashCode()
                         val descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
                         this.descriptors[descriptorHashCodeArgs] = descriptor
                         this.descriptorsArgs[descriptorHashCode] = descriptorArgs
                         descriptorsArgs.add(descriptorArgs)
                     }
-                    val characteristicArgs = characteristic.toArgs(descriptorsArgs)
+                    val characteristicArgs = characteristic.toManufacturerSpecificDataArgs(descriptorsArgs)
                     val characteristicHashCode = characteristic.hashCode()
                     val characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
                     this.characteristics[characteristicHashCodeArgs] = characteristic
                     this.characteristicsArgs[characteristicHashCode] = characteristicArgs
                     characteristicsArgs.add(characteristicArgs)
                 }
-                val serviceArgs = service.toArgs(characteristicsArgs)
+                val serviceArgs = service.toManufacturerSpecificDataArgs(characteristicsArgs)
                 val serviceHashCode = service.hashCode()
                 val serviceHashCodeArgs = serviceArgs.hashCodeArgs
                 this.services[serviceHashCodeArgs] = service

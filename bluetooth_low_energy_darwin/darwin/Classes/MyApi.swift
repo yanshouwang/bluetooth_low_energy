@@ -125,10 +125,8 @@ extension UInt16 {
 }
 
 extension [String: Any] {
-    func toAdvertisementArgs() -> MyAdvertisementArgs {
+    func toAdvertiseDataArgs() -> MyAdvertiseDataArgs {
         let nameArgs = self[CBAdvertisementDataLocalNameKey] as? String
-        let manufacturerSpecificData = self[CBAdvertisementDataManufacturerDataKey] as? Data
-        let manufacturerSpecificDataArgs = manufacturerSpecificData?.toManufacturerSpecificDataArgs()
         let serviceUUIDs = self[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID] ?? []
         let serviceUUIDsArgs = serviceUUIDs.map { uuid in uuid.uuidString }
         let serviceData = self[CBAdvertisementDataServiceDataKey] as? [CBUUID: Data] ?? [:]
@@ -138,7 +136,9 @@ extension [String: Any] {
             return (uuidArgs, dataArgs)
         }
         let serviceDataArgs = [String?: FlutterStandardTypedData?](uniqueKeysWithValues: serviceDataArgsKeyWithValues)
-        return MyAdvertisementArgs(nameArgs: nameArgs, manufacturerSpecificDataArgs: manufacturerSpecificDataArgs, serviceUUIDsArgs: serviceUUIDsArgs, serviceDataArgs: serviceDataArgs)
+        let manufacturerSpecificData = self[CBAdvertisementDataManufacturerDataKey] as? Data
+        let manufacturerSpecificDataArgs = manufacturerSpecificData?.toManufacturerSpecificDataArgs()
+        return MyAdvertiseDataArgs(nameArgs: nameArgs, serviceUUIDsArgs: serviceUUIDsArgs, serviceDataArgs: serviceDataArgs, manufacturerSpecificDataArgs: manufacturerSpecificDataArgs)
     }
 }
 
@@ -155,13 +155,13 @@ extension Data {
     }
 }
 
-extension MyAdvertisementArgs {
-    func toAdvertisementData() throws -> [String : Any] {
+extension MyAdvertiseDataArgs {
+    func toAdvertiseData() throws -> [String : Any] {
         // CoreBluetooth only support `CBAdvertisementDataLocalNameKey` and `CBAdvertisementDataServiceUUIDsKey`, see https://developer.apple.com/documentation/corebluetooth/cbperipheralmanager/1393252-startadvertising
-        var advertisementData = [String: Any]()
+        var advertiseData = [String: Any]()
         if nameArgs != nil {
             let name = nameArgs!
-            advertisementData[CBAdvertisementDataLocalNameKey] = name
+            advertiseData[CBAdvertisementDataLocalNameKey] = name
         }
         if serviceUUIDsArgs.count > 0 {
             var serviceUUIDs = [CBUUID]()
@@ -172,7 +172,7 @@ extension MyAdvertisementArgs {
                 let uuid = CBUUID(string: uuidArgs)
                 serviceUUIDs.append(uuid)
             }
-            advertisementData[CBAdvertisementDataServiceUUIDsKey] = serviceUUIDs
+            advertiseData[CBAdvertisementDataServiceUUIDsKey] = serviceUUIDs
         }
 //        if serviceDataArgs.count > 0 {
 //            var serviceData = [CBUUID: Data]()
@@ -187,13 +187,13 @@ extension MyAdvertisementArgs {
 //                let data = dataArgs.data
 //                serviceData[uuid] = data
 //            }
-//            advertisementData[CBAdvertisementDataServiceDataKey] = serviceData
+//            advertiseData[CBAdvertisementDataServiceDataKey] = serviceData
 //        }
 //        if manufacturerSpecificDataArgs != nil {
 //            let manufacturerSpecificData = manufacturerSpecificDataArgs!.toManufacturerSpecificData()
-//            advertisementData[CBAdvertisementDataManufacturerDataKey] = manufacturerSpecificData
+//            advertiseData[CBAdvertisementDataManufacturerDataKey] = manufacturerSpecificData
 //        }
-        return advertisementData
+        return advertiseData
     }
 }
 

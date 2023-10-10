@@ -165,31 +165,31 @@ data class MyPeripheralArgs (
 }
 
 /** Generated class from Pigeon that represents data sent in messages. */
-data class MyAdvertisementArgs (
+data class MyAdvertiseDataArgs (
   val nameArgs: String? = null,
-  val manufacturerSpecificDataArgs: MyManufacturerSpecificDataArgs? = null,
   val serviceUUIDsArgs: List<String?>,
-  val serviceDataArgs: Map<String?, ByteArray?>
+  val serviceDataArgs: Map<String?, ByteArray?>,
+  val manufacturerSpecificDataArgs: MyManufacturerSpecificDataArgs? = null
 
 ) {
   companion object {
     @Suppress("UNCHECKED_CAST")
-    fun fromList(list: List<Any?>): MyAdvertisementArgs {
+    fun fromList(list: List<Any?>): MyAdvertiseDataArgs {
       val nameArgs = list[0] as String?
-      val manufacturerSpecificDataArgs: MyManufacturerSpecificDataArgs? = (list[1] as List<Any?>?)?.let {
+      val serviceUUIDsArgs = list[1] as List<String?>
+      val serviceDataArgs = list[2] as Map<String?, ByteArray?>
+      val manufacturerSpecificDataArgs: MyManufacturerSpecificDataArgs? = (list[3] as List<Any?>?)?.let {
         MyManufacturerSpecificDataArgs.fromList(it)
       }
-      val serviceUUIDsArgs = list[2] as List<String?>
-      val serviceDataArgs = list[3] as Map<String?, ByteArray?>
-      return MyAdvertisementArgs(nameArgs, manufacturerSpecificDataArgs, serviceUUIDsArgs, serviceDataArgs)
+      return MyAdvertiseDataArgs(nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
       nameArgs,
-      manufacturerSpecificDataArgs?.toList(),
       serviceUUIDsArgs,
       serviceDataArgs,
+      manufacturerSpecificDataArgs?.toList(),
     )
   }
 }
@@ -633,7 +633,7 @@ private object MyCentralManagerFlutterApiCodec : StandardMessageCodec() {
     return when (type) {
       128.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          MyAdvertisementArgs.fromList(it)
+          MyAdvertiseDataArgs.fromList(it)
         }
       }
       129.toByte() -> {
@@ -661,7 +661,7 @@ private object MyCentralManagerFlutterApiCodec : StandardMessageCodec() {
   }
   override fun writeValue(stream: ByteArrayOutputStream, value: Any?)   {
     when (value) {
-      is MyAdvertisementArgs -> {
+      is MyAdvertiseDataArgs -> {
         stream.write(128)
         writeValue(stream, value.toList())
       }
@@ -701,9 +701,9 @@ class MyCentralManagerFlutterApi(private val binaryMessenger: BinaryMessenger) {
       callback()
     }
   }
-  fun onDiscovered(peripheralArgsArg: MyPeripheralArgs, rssiArgsArg: Long, advertisementArgsArg: MyAdvertisementArgs, callback: () -> Unit) {
+  fun onDiscovered(peripheralArgsArg: MyPeripheralArgs, rssiArgsArg: Long, advertiseDataArgsArg: MyAdvertiseDataArgs, callback: () -> Unit) {
     val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterApi.onDiscovered", codec)
-    channel.send(listOf(peripheralArgsArg, rssiArgsArg, advertisementArgsArg)) {
+    channel.send(listOf(peripheralArgsArg, rssiArgsArg, advertiseDataArgsArg)) {
       callback()
     }
   }
@@ -726,7 +726,7 @@ private object MyPeripheralManagerHostApiCodec : StandardMessageCodec() {
     return when (type) {
       128.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          MyAdvertisementArgs.fromList(it)
+          MyAdvertiseDataArgs.fromList(it)
         }
       }
       129.toByte() -> {
@@ -759,7 +759,7 @@ private object MyPeripheralManagerHostApiCodec : StandardMessageCodec() {
   }
   override fun writeValue(stream: ByteArrayOutputStream, value: Any?)   {
     when (value) {
-      is MyAdvertisementArgs -> {
+      is MyAdvertiseDataArgs -> {
         stream.write(128)
         writeValue(stream, value.toList())
       }
@@ -794,7 +794,7 @@ interface MyPeripheralManagerHostApi {
   fun addService(serviceArgs: MyGattServiceArgs, callback: (Result<Unit>) -> Unit)
   fun removeService(serviceHashCodeArgs: Long)
   fun clearServices()
-  fun startAdvertising(advertisementArgs: MyAdvertisementArgs, callback: (Result<Unit>) -> Unit)
+  fun startAdvertising(advertiseDataArgs: MyAdvertiseDataArgs, callback: (Result<Unit>) -> Unit)
   fun stopAdvertising()
   fun getMaximumWriteLength(centralHashCodeArgs: Long): Long
   fun sendReadCharacteristicReply(centralHashCodeArgs: Long, characteristicHashCodeArgs: Long, idArgs: Long, offsetArgs: Long, statusArgs: Boolean, valueArgs: ByteArray)
@@ -887,8 +887,8 @@ interface MyPeripheralManagerHostApi {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val advertisementArgsArg = args[0] as MyAdvertisementArgs
-            api.startAdvertising(advertisementArgsArg) { result: Result<Unit> ->
+            val advertiseDataArgsArg = args[0] as MyAdvertiseDataArgs
+            api.startAdvertising(advertiseDataArgsArg) { result: Result<Unit> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))

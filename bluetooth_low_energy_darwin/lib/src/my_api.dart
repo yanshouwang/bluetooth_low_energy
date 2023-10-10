@@ -15,11 +15,9 @@ extension MyBluetoothLowEnergyStateArgsX on MyBluetoothLowEnergyStateArgs {
   }
 }
 
-extension MyAdvertisementArgsX on MyAdvertisementArgs {
-  Advertisement toAdvertisement() {
+extension MyAdvertiseDataArgsX on MyAdvertiseDataArgs {
+  AdvertiseData toAdvertiseData() {
     final name = nameArgs;
-    final manufacturerSpecificData =
-        manufacturerSpecificDataArgs?.toManufacturerSpecificData();
     final serviceUUIDs = serviceUUIDsArgs
         .cast<String>()
         .map((args) => UUID.fromString(args))
@@ -31,11 +29,13 @@ extension MyAdvertisementArgsX on MyAdvertisementArgs {
         return MapEntry(uuid, data);
       },
     );
-    return Advertisement(
+    final manufacturerSpecificData =
+        manufacturerSpecificDataArgs?.toManufacturerSpecificData();
+    return AdvertiseData(
       name: name,
-      manufacturerSpecificData: manufacturerSpecificData,
       serviceUUIDs: serviceUUIDs,
       serviceData: serviceData,
+      manufacturerSpecificData: manufacturerSpecificData,
     );
   }
 }
@@ -136,10 +136,9 @@ extension MyCentralArgsX on MyCentralArgs {
   }
 }
 
-extension AdvertisementX on Advertisement {
-  MyAdvertisementArgs toArgs() {
+extension AdvertiseDataX on AdvertiseData {
+  MyAdvertiseDataArgs toArgs() {
     final nameArgs = name;
-    final manufacturerSpecificDataArgs = manufacturerSpecificData?.toArgs();
     final serviceUUIDsArgs =
         serviceUUIDs.map((uuid) => uuid.toString()).toList();
     final serviceDataArgs = serviceData.map((uuid, data) {
@@ -147,11 +146,12 @@ extension AdvertisementX on Advertisement {
       final dataArgs = data;
       return MapEntry(uuidArgs, dataArgs);
     });
-    return MyAdvertisementArgs(
+    final manufacturerSpecificDataArgs = manufacturerSpecificData?.toArgs();
+    return MyAdvertiseDataArgs(
       nameArgs: nameArgs,
-      manufacturerSpecificDataArgs: manufacturerSpecificDataArgs,
       serviceUUIDsArgs: serviceUUIDsArgs,
       serviceDataArgs: serviceDataArgs,
+      manufacturerSpecificDataArgs: manufacturerSpecificDataArgs,
     );
   }
 }
