@@ -1,3 +1,8 @@
+## 3.0.1
+
+* Clear cache when disconnected.
+* Fix GATT server error aftter bluetooth reopened.
+
 ## 3.0.0
 
 * Add `PeripheralManager` api.

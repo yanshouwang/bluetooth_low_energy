@@ -650,7 +650,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                 onPressed: () async {
                   final rssi =
                       await centralManager.readRSSI(eventArgs.peripheral);
-                  print('RSSI: $rssi');
+                  log('RSSI: $rssi');
                 },
                 icon: const Icon(Icons.signal_wifi_4_bar),
               ),
