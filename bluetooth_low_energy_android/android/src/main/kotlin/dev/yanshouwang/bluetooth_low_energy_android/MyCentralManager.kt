@@ -431,11 +431,19 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
             if (discoverGattCallback != null) {
                 discoverGattCallback(Result.failure(error))
             }
-            val servicesArgs = servicesArgsOfPeripherals[peripheralHashCodeArgs] ?: emptyList()
+            val servicesArgs = servicesArgsOfPeripherals.remove(peripheralHashCodeArgs)
+                    ?: emptyList()
             for (serviceArgs in servicesArgs) {
+                val serviceHashCodeArgs = serviceArgs.hashCodeArgs
+                val service = services.remove(serviceHashCodeArgs) as BluetoothGattService
+                val serviceHashCode = service.hashCode()
+                this.servicesArgs.remove(serviceHashCode)
                 val characteristicsArgs = serviceArgs.characteristicsArgs.filterNotNull()
                 for (characteristicArgs in characteristicsArgs) {
                     val characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
+                    val characteristic = characteristics.remove(characteristicHashCodeArgs) as BluetoothGattCharacteristic
+                    val characteristicHashCode = characteristic.hashCode()
+                    this.characteristicsArgs.remove(characteristicHashCode)
                     val readCharacteristicCallback = readCharacteristicCallbacks.remove(characteristicHashCodeArgs)
                     val writeCharacteristicCallback = writeCharacteristicCallbacks.remove(characteristicHashCodeArgs)
                     if (readCharacteristicCallback != null) {
@@ -447,6 +455,9 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
                     val descriptorsArgs = characteristicArgs.descriptorsArgs.filterNotNull()
                     for (descriptorArgs in descriptorsArgs) {
                         val descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
+                        val descriptor = descriptors.remove(descriptorHashCodeArgs) as BluetoothGattDescriptor
+                        val descriptorHashCode = descriptor.hashCode()
+                        this.descriptorsArgs.remove(descriptorHashCode)
                         val readDescriptorCallback = readDescriptorCallbacks.remove(descriptorHashCodeArgs)
                         val writeDescriptorCallback = writeDescriptorCallbacks.remove(descriptorHashCodeArgs)
                         if (readDescriptorCallback != null) {
