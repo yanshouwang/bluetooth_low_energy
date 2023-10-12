@@ -1,3 +1,10 @@
+## 3.0.1
+
+* [Android] Clear cache when disconnected.
+* [Android] Fix GATT server error aftter bluetooth reopened.
+* [iOS] Fix the issue that write characteristic will never complete when write without response.
+* [iOS] Fix the issue that write characteristic will never complete after disconnected.
+
 ## 3.0.0
 
 * Add `PeripheralManager` api.

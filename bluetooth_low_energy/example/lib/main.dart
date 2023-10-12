@@ -1,12 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:typed_data';
 
+import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
 import 'package:convert/convert.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
-
-import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
 import 'package:intl/intl.dart';
 
 void main() {
@@ -651,7 +650,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                 onPressed: () async {
                   final rssi =
                       await centralManager.readRSSI(eventArgs.peripheral);
-                  print('RSSI: $rssi');
+                  log('RSSI: $rssi');
                 },
                 icon: const Icon(Icons.signal_wifi_4_bar),
               ),
@@ -729,11 +728,11 @@ class _PeripheralViewState extends State<PeripheralView> {
                                   final text = writeController.text;
                                   final elements = utf8.encode(text);
                                   final value = Uint8List.fromList(elements);
+                                  final type = writeType.value;
                                   await centralManager.writeCharacteristic(
                                     characteristic,
                                     value: value,
-                                    type: GattCharacteristicWriteType
-                                        .withResponse,
+                                    type: type,
                                   );
                                   final log = Log(LogType.write, value);
                                   logs.value = [...logs.value, log];

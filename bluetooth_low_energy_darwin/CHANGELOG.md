@@ -1,3 +1,8 @@
+## 3.0.1
+
+* Fix the issue that write characteristic will never complete when write without response.
+* Fix the issue that write characteristic will never complete after disconnected.
+
 ## 3.0.0
 
 * Add `PeripheralManager` api.

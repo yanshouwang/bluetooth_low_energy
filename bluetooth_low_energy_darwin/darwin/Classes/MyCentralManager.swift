@@ -229,7 +229,11 @@ class MyCentralManager: MyCentralManagerHostApi {
             }
             let type = typeArgs.toWriteType()
             peripheral.writeValue(data, for: characteristic, type: type)
-            writeCharacteristicCompletions[characteristicHashCodeArgs] = completion
+            if type == .withResponse {
+                writeCharacteristicCompletions[characteristicHashCodeArgs] = completion
+            } else {
+                completion(.success(()))
+            }
         } catch {
             completion(.failure(error))
         }
@@ -353,11 +357,18 @@ class MyCentralManager: MyCentralManagerHostApi {
         discoverGattCompletion?(.failure(error ?? MyError.unknown))
         unfinishedServices.removeValue(forKey: peripheralHashCodeArgs)
         unfinishedCharacteristics.removeValue(forKey: peripheralHashCodeArgs)
-        let servicesArgs = servicesArgsOfPeripheralsArgs[peripheralHashCodeArgs] ?? []
+        let servicesArgs = servicesArgsOfPeripheralsArgs.removeValue(forKey: peripheralHashCodeArgs) ?? []
         for serviceArgs in servicesArgs {
+            let serviceHashCodeArgs = serviceArgs.hashCodeArgs
+            let service = services.removeValue(forKey: serviceHashCodeArgs)!
+            let serviceHashCode = service.hash
+            self.servicesArgs.removeValue(forKey: serviceHashCode)
             let characteristicsArgs = serviceArgs.characteristicsArgs.map { args in args! }
             for characteristicArgs in characteristicsArgs {
                 let characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
+                let characteristic = characteristics.removeValue(forKey: characteristicHashCodeArgs)!
+                let characteristicHashCode = characteristic.hash
+                self.characteristicsArgs.removeValue(forKey: characteristicHashCode)
                 let readCharacteristicCompletion = readCharacteristicCompletions.removeValue(forKey: characteristicHashCodeArgs)
                 let writeCharacteristicCompletion = writeCharacteristicCompletions.removeValue(forKey: characteristicHashCodeArgs)
                 let notifyCharacteristicCompletion = notifyCharacteristicCompletions.removeValue(forKey: characteristicHashCodeArgs)
@@ -367,6 +378,9 @@ class MyCentralManager: MyCentralManagerHostApi {
                 let descriptorsArgs = characteristicArgs.descriptorsArgs.map { args in args! }
                 for descriptorArgs in descriptorsArgs {
                     let descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
+                    let descriptor = descriptors.removeValue(forKey: descriptorHashCodeArgs)!
+                    let descriptorHashCode = descriptor.hash
+                    self.descriptorsArgs.removeValue(forKey: descriptorHashCode)
                     let readDescriptorCompletion = readDescriptorCompletions.removeValue(forKey: descriptorHashCodeArgs)
                     let writeDescriptorCompletion = writeDescriptorCompletions.removeValue(forKey: descriptorHashCodeArgs)
                     readDescriptorCompletion?(.failure(error ?? MyError.unknown))

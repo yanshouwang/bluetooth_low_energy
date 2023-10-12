@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
+import android.bluetooth.BluetoothGattServer
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothStatusCodes
 import android.bluetooth.le.AdvertiseSettings
@@ -16,7 +17,6 @@ import android.util.Log
 import io.flutter.plugin.common.BinaryMessenger
 
 class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryMessenger) : MyBluetoothLowEnergyManager(context), MyPeripheralManagerHostApi {
-    private val server by lazy { manager.openGattServer(context, bluetoothGattServerCallback) }
     private val advertiser get() = adapter.bluetoothLeAdvertiser
 
     private val api = MyPeripheralManagerFlutterApi(binaryMessenger)
@@ -35,6 +35,7 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
     private val characteristicsArgs = mutableMapOf<Int, MyGattCharacteristicArgs>()
     private val descriptorsArgs = mutableMapOf<Int, MyGattDescriptorArgs>()
 
+    private lateinit var server: BluetoothGattServer
     private var registered = false
     private var advertising = false
 
@@ -282,6 +283,9 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         else MyBluetoothLowEnergyStateArgs.UNAUTHORIZED
         val stateNumberArgs = stateArgs.raw.toLong()
         val args = MyPeripheralManagerArgs(stateNumberArgs)
+        if (stateArgs == MyBluetoothLowEnergyStateArgs.POWEREDON) {
+            server = manager.openGattServer(context, bluetoothGattServerCallback)
+        }
         callback(Result.success(args))
         if (authorized) {
             register()
@@ -296,6 +300,9 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         }
         val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF)
         val stateArgs = state.toBluetoothLowEnergyStateArgs()
+        if (stateArgs == MyBluetoothLowEnergyStateArgs.POWEREDON) {
+            server = manager.openGattServer(context, bluetoothGattServerCallback)
+        }
         val stateNumberArgs = stateArgs.raw.toLong()
         api.onStateChanged(stateNumberArgs) {}
     }
