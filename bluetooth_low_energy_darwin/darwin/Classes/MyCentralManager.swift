@@ -310,7 +310,6 @@ class MyCentralManager: MyCentralManagerHostApi {
         api.onStateChanged(stateNumberArgs: stateNumberArgs) {}
     }
     
-    
     func didDiscover(_ peripheral: CBPeripheral, _ advertisementData: [String : Any], _ rssi: NSNumber) {
         let peripheralArgs = peripheral.toArgs()
         let peripheralHashCode = peripheral.hash
@@ -329,10 +328,12 @@ class MyCentralManager: MyCentralManagerHostApi {
             return
         }
         let peripheralHashCodeArgs = peripheralArgs.hashCodeArgs
-        let completion = connectCompletions.removeValue(forKey: peripheralHashCodeArgs)
-        completion?(.success(()))
         let stateArgs = true
         api.onPeripheralStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) {}
+        guard let completion = connectCompletions.removeValue(forKey: peripheralHashCodeArgs) else {
+            return
+        }
+        completion(.success(()))
     }
     
     func didFailToConnect(_ peripheral: CBPeripheral, _ error: Error?) {
