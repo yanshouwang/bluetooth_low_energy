@@ -154,7 +154,7 @@ class MyCentralManager: MyCentralManagerHostApi {
             throw MyError.illegalArgument
         }
         let type = typeArgs.toWriteType()
-        let maximumWriteLength = peripheral.maximumWriteValueLength(for: type)
+        let maximumWriteLength = try peripheral.maximumWriteValueLength(for: type).coerceIn(20, 512)
         let maximumWriteLengthArgs = Int64(maximumWriteLength)
         return maximumWriteLengthArgs
     }
