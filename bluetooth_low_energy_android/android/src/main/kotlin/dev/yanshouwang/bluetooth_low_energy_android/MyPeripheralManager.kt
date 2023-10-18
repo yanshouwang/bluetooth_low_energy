@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattServer
 import android.bluetooth.BluetoothGattService
-import android.bluetooth.BluetoothProfile
 import android.bluetooth.BluetoothStatusCodes
 import android.bluetooth.le.AdvertiseSettings
 import android.content.Context
@@ -28,7 +27,7 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
     private val services = mutableMapOf<Long, BluetoothGattService>()
     private val characteristics = mutableMapOf<Long, BluetoothGattCharacteristic>()
     private val descriptors = mutableMapOf<Long, BluetoothGattDescriptor>()
-    private val maximumWriteLengths = mutableMapOf<Long, Int>()
+    private val mtus = mutableMapOf<Long, Int>()
     private val confirms = mutableMapOf<Long, Boolean>()
     private val preparedCharacteristics = mutableMapOf<Int, BluetoothGattCharacteristic>()
     private val preparedValues = mutableMapOf<Int, ByteArray>()
@@ -83,7 +82,7 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         services.clear()
         characteristics.clear()
         descriptors.clear()
-        maximumWriteLengths.clear()
+        mtus.clear()
         confirms.clear()
         preparedCharacteristics.clear()
         preparedValues.clear()
@@ -224,7 +223,8 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
     }
 
     override fun getMaximumWriteLength(centralHashCodeArgs: Long): Long {
-        val maximumWriteLength = maximumWriteLengths[centralHashCodeArgs] as Int
+        val mtu = mtus[centralHashCodeArgs] ?: 23
+        val maximumWriteLength = (mtu - 3).coerceIn(20, 512)
         return maximumWriteLength.toLong()
     }
 
@@ -347,7 +347,6 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         val centralArgs = centralsArgs.getOrPut(hashCode) { device.toCentralArgs() }
         val centralHashCodeArgs = centralArgs.hashCodeArgs
         devices[centralHashCodeArgs] = device
-        maximumWriteLengths[centralHashCodeArgs] = 20
     }
 
     fun onMtuChanged(device: BluetoothDevice, mtu: Int) {
@@ -355,7 +354,7 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         val centralArgs = centralsArgs.getOrPut(hashCode) { device.toCentralArgs() }
         val centralHashCodeArgs = centralArgs.hashCodeArgs
         devices[centralHashCodeArgs] = device
-        maximumWriteLengths[centralHashCodeArgs] = (mtu - 3).coerceIn(20, 512)
+        mtus[centralHashCodeArgs] = mtu
     }
 
     fun onCharacteristicReadRequest(device: BluetoothDevice, requestId: Int, offset: Int, characteristic: BluetoothGattCharacteristic) {

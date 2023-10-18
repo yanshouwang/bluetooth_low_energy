@@ -1,3 +1,7 @@
+## 3.0.3
+
+* Fix the issue that `getMaximumWriteLength` is wrong and coerce the value from 20 to 512.
+
 ## 3.0.2
 
 * Request MTU with 517 automatically.

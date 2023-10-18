@@ -29,7 +29,7 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
     private val services = mutableMapOf<Long, BluetoothGattService>()
     private val characteristics = mutableMapOf<Long, BluetoothGattCharacteristic>()
     private val descriptors = mutableMapOf<Long, BluetoothGattDescriptor>()
-    private val maximumWriteLengths = mutableMapOf<Long, Int>()
+    private val mtus = mutableMapOf<Long, Int>()
 
     private val peripheralsArgs = mutableMapOf<Int, MyPeripheralArgs>()
     private val servicesArgsOfPeripherals = mutableMapOf<Long, List<MyGattServiceArgs>>()
@@ -90,7 +90,7 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
         services.clear()
         characteristics.clear()
         descriptors.clear()
-        maximumWriteLengths.clear()
+        mtus.clear()
         peripheralsArgs.clear()
         servicesArgsOfPeripherals.clear()
         servicesArgs.clear()
@@ -193,9 +193,10 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
     }
 
     override fun getMaximumWriteLength(peripheralHashCodeArgs: Long, typeNumberArgs: Long): Long {
+        val mtu = mtus[peripheralHashCodeArgs] ?: 23
         val maximumWriteLength = when (typeNumberArgs.toWriteTypeArgs()) {
             MyGattCharacteristicWriteTypeArgs.WITHRESPONSE -> 512
-            MyGattCharacteristicWriteTypeArgs.WITHOUTRESPONSE -> maximumWriteLengths[peripheralHashCodeArgs] as Int
+            MyGattCharacteristicWriteTypeArgs.WITHOUTRESPONSE -> (mtu - 3).coerceIn(20, 512)
         }
         return maximumWriteLength.toLong()
     }
@@ -429,7 +430,7 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
         if (newState == BluetoothProfile.STATE_DISCONNECTED) {
             gatt.close()
             bluetoothGATTs.remove(peripheralHashCodeArgs)
-            maximumWriteLengths.remove(peripheralHashCodeArgs)
+            mtus.remove(peripheralHashCodeArgs)
             val error = IllegalStateException("GATT is disconnected with status: $status")
             val requestMtuCallback = requestMtuCallbacks.remove(peripheralHashCodeArgs)
             if (requestMtuCallback != null) {
@@ -489,7 +490,6 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
         val disconnectCallback = disconnectCallbacks.remove(peripheralHashCodeArgs)
         if (connectCallback != null) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                maximumWriteLengths[peripheralHashCodeArgs] = 20
                 connectCallback(Result.success(Unit))
             } else {
                 val error = IllegalStateException("Connect failed with status: $status")
@@ -512,7 +512,7 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
         val peripheralArgs = peripheralsArgs[hashCode] as MyPeripheralArgs
         val peripheralHashCodeArgs = peripheralArgs.hashCodeArgs
         if (status == BluetoothGatt.GATT_SUCCESS) {
-            maximumWriteLengths[peripheralHashCodeArgs] = (mtu - 3).coerceIn(20, 512)
+            mtus[peripheralHashCodeArgs] = mtu
         }
         val callback = requestMtuCallbacks.remove(peripheralHashCodeArgs) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
