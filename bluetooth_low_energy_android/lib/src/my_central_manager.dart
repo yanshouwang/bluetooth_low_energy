@@ -75,8 +75,12 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
   }) async {
     await throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final peripheralHashCodeArgs = peripheral.hashCode;
-    final maximumWriteLength =
-        await _api.getMaximumWriteLength(peripheralHashCodeArgs);
+    final typeArgs = type.toArgs();
+    final typeNumberArgs = typeArgs.index;
+    final maximumWriteLength = await _api.getMaximumWriteLength(
+      peripheralHashCodeArgs,
+      typeNumberArgs,
+    );
     return maximumWriteLength;
   }
 
@@ -96,6 +100,12 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
     }
     final peripheralHashCodeArgs = peripheral.hashCode;
     final servicesArgs = await _api.discoverGATT(peripheralHashCodeArgs);
+    // 部分外围设备连接后会触发 onMtuChanged 回调，若在此之前调用协商 MTU 的方法，会在协商完成前返回，
+    // 此时如果继续调用其他方法（如发现服务）会导致回调无法触发，
+    // 因此为避免此情况发生，需要延迟到发现服务完成后再协商 MTU。
+    // TODO: 思考更好的解决方式，可以在连接后立即协商 MTU。
+    const mtuArgs = 517;
+    await _api.requestMTU(peripheralHashCodeArgs, mtuArgs);
     final services = servicesArgs
         .cast<MyGattServiceArgs>()
         .map((args) => args.toService2())
