@@ -1,3 +1,9 @@
+## 3.0.2
+
+* [Android, iOS] Fix the issue that `getMaximumWriteLength` is wrong and coerce the value from 20 to 512.
+* [Android, iOS] Fix the issue that the peripheral manager response is wrong.
+* [Android] Request MTU with 517 automatically.
+
 ## 3.0.1
 
 * [Android] Clear cache when disconnected.

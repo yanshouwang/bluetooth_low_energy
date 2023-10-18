@@ -47,13 +47,11 @@ Remember to call `await CentralController.setUp()` before use any apis of this p
 
 Make sure you have a `miniSdkVersion` with 21 or higher in your `android/app/build.gradle` file.
 
-*Note:* Don't call `getMaximumWriteLength` immediately when connected to a peripheral after Android 13, the `onMtuChanged` callback maybe called with connection events after Android 13, and `getMaximumWriteLength` will call `requestMtu` will also triggered `onMtuChanged`, if you called this before the connection `onMtuChanged`, you will get a fake completion and cause all methods you called before the real `onMtuChanged` triggered will never complete!
-
 ### iOS and macOS
 
 According to Apple's [documents](https://developer.apple.com/documentation/corebluetooth/), you must include the [`NSBluetoothAlwaysUsageDescription`](https://developer.apple.com/documentation/bundleresources/information_property_list/nsbluetoothalwaysusagedescription) on or after iOS 13, and include the [`NSBluetoothPeripheralUsageDescription`](https://developer.apple.com/documentation/bundleresources/information_property_list/nsbluetoothperipheralusagedescription) key before iOS 13.
 
-The `PeripheralManager#startAdvertising` only support `name` and `serviceUUIDs`, see [the startAdvertising document](https://developer.apple.com/documentation/corebluetooth/cbperipheralmanager/1393252-startadvertising)
+*Note:* The `PeripheralManager#startAdvertising` only support `name` and `serviceUUIDs`, see [the startAdvertising document](https://developer.apple.com/documentation/corebluetooth/cbperipheralmanager/1393252-startadvertising)
 
 ### Linux
 
