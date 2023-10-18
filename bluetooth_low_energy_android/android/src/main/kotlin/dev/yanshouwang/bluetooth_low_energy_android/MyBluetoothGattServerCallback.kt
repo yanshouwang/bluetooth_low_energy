@@ -15,6 +15,13 @@ class MyBluetoothGattServerCallback(private val peripheralManager: MyPeripheralM
         }
     }
 
+    override fun onConnectionStateChange(device: BluetoothDevice, status: Int, newState: Int) {
+        super.onConnectionStateChange(device, status, newState)
+        executor.execute {
+            peripheralManager.onConnectionStateChange(device, status, newState)
+        }
+    }
+
     override fun onMtuChanged(device: BluetoothDevice, mtu: Int) {
         super.onMtuChanged(device, mtu)
         executor.execute {
@@ -33,6 +40,13 @@ class MyBluetoothGattServerCallback(private val peripheralManager: MyPeripheralM
         super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value)
         executor.execute {
             peripheralManager.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value)
+        }
+    }
+
+    override fun onExecuteWrite(device: BluetoothDevice, requestId: Int, execute: Boolean) {
+        super.onExecuteWrite(device, requestId, execute)
+        executor.execute {
+            peripheralManager.onExecuteWrite(device, requestId, execute)
         }
     }
 

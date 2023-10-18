@@ -351,9 +351,10 @@ interface MyCentralManagerHostApi {
   fun stopDiscovery()
   fun connect(peripheralHashCodeArgs: Long, callback: (Result<Unit>) -> Unit)
   fun disconnect(peripheralHashCodeArgs: Long, callback: (Result<Unit>) -> Unit)
-  fun getMaximumWriteLength(peripheralHashCodeArgs: Long, callback: (Result<Long>) -> Unit)
+  fun getMaximumWriteLength(peripheralHashCodeArgs: Long, typeNumberArgs: Long): Long
   fun readRSSI(peripheralHashCodeArgs: Long, callback: (Result<Long>) -> Unit)
   fun discoverGATT(peripheralHashCodeArgs: Long, callback: (Result<List<MyGattServiceArgs>>) -> Unit)
+  fun requestMTU(peripheralHashCodeArgs: Long, mtuArgs: Long, callback: (Result<Long>) -> Unit)
   fun readCharacteristic(peripheralHashCodeArgs: Long, characteristicHashCodeArgs: Long, callback: (Result<ByteArray>) -> Unit)
   fun writeCharacteristic(peripheralHashCodeArgs: Long, characteristicHashCodeArgs: Long, valueArgs: ByteArray, typeNumberArgs: Long, callback: (Result<Unit>) -> Unit)
   fun notifyCharacteristic(peripheralHashCodeArgs: Long, characteristicHashCodeArgs: Long, stateArgs: Boolean, callback: (Result<Unit>) -> Unit)
@@ -464,15 +465,14 @@ interface MyCentralManagerHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val peripheralHashCodeArgsArg = args[0].let { if (it is Int) it.toLong() else it as Long }
-            api.getMaximumWriteLength(peripheralHashCodeArgsArg) { result: Result<Long> ->
-              val error = result.exceptionOrNull()
-              if (error != null) {
-                reply.reply(wrapError(error))
-              } else {
-                val data = result.getOrNull()
-                reply.reply(wrapResult(data))
-              }
+            val typeNumberArgsArg = args[1].let { if (it is Int) it.toLong() else it as Long }
+            var wrapped: List<Any?>
+            try {
+              wrapped = listOf<Any?>(api.getMaximumWriteLength(peripheralHashCodeArgsArg, typeNumberArgsArg))
+            } catch (exception: Throwable) {
+              wrapped = wrapError(exception)
             }
+            reply.reply(wrapped)
           }
         } else {
           channel.setMessageHandler(null)
@@ -505,6 +505,27 @@ interface MyCentralManagerHostApi {
             val args = message as List<Any?>
             val peripheralHashCodeArgsArg = args[0].let { if (it is Int) it.toLong() else it as Long }
             api.discoverGATT(peripheralHashCodeArgsArg) { result: Result<List<MyGattServiceArgs>> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostApi.requestMTU", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val peripheralHashCodeArgsArg = args[0].let { if (it is Int) it.toLong() else it as Long }
+            val mtuArgsArg = args[1].let { if (it is Int) it.toLong() else it as Long }
+            api.requestMTU(peripheralHashCodeArgsArg, mtuArgsArg) { result: Result<Long> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))

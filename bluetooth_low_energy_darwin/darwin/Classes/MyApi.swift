@@ -274,6 +274,21 @@ extension MyGattDescriptorArgs {
     }
 }
 
+extension Int {
+    func coerceIn(_ minimum: Int, _ maximum: Int) throws -> Int {
+        if minimum > maximum {
+            throw MyError.illegalArgument
+        }
+        if self < minimum {
+            return minimum
+        }
+        if self > maximum {
+            return maximum
+        }
+        return self
+    }
+}
+
 extension Dictionary {
     mutating func getOrPut(_ key: Key, _ defaultValue: () -> Value) -> Value {
         guard let value = self[key] else {

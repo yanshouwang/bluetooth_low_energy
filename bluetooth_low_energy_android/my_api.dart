@@ -22,12 +22,13 @@ abstract class MyCentralManagerHostApi {
   void connect(int peripheralHashCodeArgs);
   @async
   void disconnect(int peripheralHashCodeArgs);
-  @async
-  int getMaximumWriteLength(int peripheralHashCodeArgs);
+  int getMaximumWriteLength(int peripheralHashCodeArgs, int typeNumberArgs);
   @async
   int readRSSI(int peripheralHashCodeArgs);
   @async
   List<MyGattServiceArgs> discoverGATT(int peripheralHashCodeArgs);
+  @async
+  int requestMTU(int peripheralHashCodeArgs, int mtuArgs);
   @async
   Uint8List readCharacteristic(
     int peripheralHashCodeArgs,

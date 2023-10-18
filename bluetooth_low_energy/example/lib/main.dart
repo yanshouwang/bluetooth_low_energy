@@ -329,7 +329,7 @@ class _ScannerViewState extends State<ScannerView> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              trailing: Text('$rssi'),
+              trailing: RssiWidget(rssi),
             );
           },
           separatorBuilder: (context, i) {
@@ -375,10 +375,13 @@ class _PeripheralViewState extends State<PeripheralView> {
   late final ValueNotifier<GattCharacteristic?> characteristic;
   late final ValueNotifier<GattCharacteristicWriteType> writeType;
   late final ValueNotifier<int> maximumWriteLength;
+  late final ValueNotifier<int> rssi;
   late final ValueNotifier<List<Log>> logs;
   late final TextEditingController writeController;
   late final StreamSubscription stateChangedSubscription;
   late final StreamSubscription valueChangedSubscription;
+  late final StreamSubscription rssiChangedSubscription;
+  late final Timer rssiTimer;
 
   @override
   void initState() {
@@ -390,7 +393,8 @@ class _PeripheralViewState extends State<PeripheralView> {
     service = ValueNotifier(null);
     characteristic = ValueNotifier(null);
     writeType = ValueNotifier(GattCharacteristicWriteType.withResponse);
-    maximumWriteLength = ValueNotifier(20);
+    maximumWriteLength = ValueNotifier(0);
+    rssi = ValueNotifier(-100);
     logs = ValueNotifier([]);
     writeController = TextEditingController();
     stateChangedSubscription = centralManager.peripheralStateChanged.listen(
@@ -421,6 +425,17 @@ class _PeripheralViewState extends State<PeripheralView> {
           ...logs.value,
           log,
         ];
+      },
+    );
+    rssiTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (timer) async {
+        final state = this.state.value;
+        if (state) {
+          rssi.value = await centralManager.readRSSI(eventArgs.peripheral);
+        } else {
+          rssi.value = -100;
+        }
       },
     );
   }
@@ -455,10 +470,18 @@ class _PeripheralViewState extends State<PeripheralView> {
                 final peripheral = eventArgs.peripheral;
                 if (state) {
                   await centralManager.disconnect(peripheral);
+                  maximumWriteLength.value = 0;
+                  rssi.value = 0;
                 } else {
                   await centralManager.connect(peripheral);
                   services.value =
                       await centralManager.discoverGATT(peripheral);
+                  maximumWriteLength.value =
+                      await centralManager.getMaximumWriteLength(
+                    peripheral,
+                    type: writeType.value,
+                  );
+                  rssi.value = await centralManager.readRSSI(peripheral);
                 }
               },
               child: Text(state ? 'DISCONNECT' : 'CONNECT'),
@@ -592,72 +615,82 @@ class _PeripheralViewState extends State<PeripheralView> {
           ),
           Row(
             children: [
-              Expanded(
-                child: Center(
-                  child: ValueListenableBuilder(
-                    valueListenable: writeType,
-                    builder: (context, writeType, child) {
-                      final items =
-                          GattCharacteristicWriteType.values.map((type) {
-                        return DropdownMenuItem(
-                          value: type,
-                          child: Text(
-                            type.name,
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        );
-                      }).toList();
-                      return DropdownButton(
-                        items: items,
-                        onChanged: (type) {
-                          if (type == null) {
-                            return;
-                          }
-                          this.writeType.value = type;
-                        },
-                        value: writeType,
-                        underline: const Offstage(),
+              ValueListenableBuilder(
+                valueListenable: writeType,
+                builder: (context, writeType, child) {
+                  return ToggleButtons(
+                    onPressed: (i) async {
+                      final type = GattCharacteristicWriteType.values[i];
+                      this.writeType.value = type;
+                      maximumWriteLength.value =
+                          await centralManager.getMaximumWriteLength(
+                        eventArgs.peripheral,
+                        type: type,
                       );
                     },
-                  ),
-                ),
-              ),
-              Expanded(
-                child: ValueListenableBuilder(
-                  valueListenable: state,
-                  builder: (context, state, child) {
-                    return TextButton(
-                      onPressed: state
-                          ? () async {
-                              maximumWriteLength.value =
-                                  await centralManager.getMaximumWriteLength(
-                                eventArgs.peripheral,
-                                type: writeType.value,
-                              );
-                            }
-                          : null,
-                      child: ValueListenableBuilder(
-                        valueListenable: maximumWriteLength,
-                        builder: (context, maximumWriteLength, child) {
-                          return Text('MTU: $maximumWriteLength');
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
-              IconButton(
-                onPressed: () async {
-                  final rssi =
-                      await centralManager.readRSSI(eventArgs.peripheral);
-                  log('RSSI: $rssi');
+                    constraints: const BoxConstraints(
+                      minWidth: 0.0,
+                      minHeight: 0.0,
+                    ),
+                    borderRadius: BorderRadius.circular(4.0),
+                    isSelected: GattCharacteristicWriteType.values
+                        .map((type) => type == writeType)
+                        .toList(),
+                    children: GattCharacteristicWriteType.values.map((type) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 4.0,
+                        ),
+                        child: Text(type.name),
+                      );
+                    }).toList(),
+                  );
+                  // final segments =
+                  //     GattCharacteristicWriteType.values.map((type) {
+                  //   return ButtonSegment(
+                  //     value: type,
+                  //     label: Text(type.name),
+                  //   );
+                  // }).toList();
+                  // return SegmentedButton(
+                  //   segments: segments,
+                  //   selected: {writeType},
+                  //   showSelectedIcon: false,
+                  //   style: OutlinedButton.styleFrom(
+                  //     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  //     padding: EdgeInsets.zero,
+                  //     visualDensity: VisualDensity.compact,
+                  //     shape: RoundedRectangleBorder(
+                  //       borderRadius: BorderRadius.circular(8.0),
+                  //     ),
+                  //   ),
+                  // );
                 },
-                icon: const Icon(Icons.signal_wifi_4_bar),
+              ),
+              const SizedBox(width: 8.0),
+              ValueListenableBuilder(
+                valueListenable: state,
+                builder: (context, state, child) {
+                  return ValueListenableBuilder(
+                    valueListenable: maximumWriteLength,
+                    builder: (context, maximumWriteLength, child) {
+                      return Text('$maximumWriteLength');
+                    },
+                  );
+                },
+              ),
+              const Spacer(),
+              ValueListenableBuilder(
+                valueListenable: rssi,
+                builder: (context, rssi, child) {
+                  return RssiWidget(rssi);
+                },
               ),
             ],
           ),
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 16.0),
+            margin: const EdgeInsets.only(bottom: 16.0),
             height: 160.0,
             child: ValueListenableBuilder(
               valueListenable: characteristic,
@@ -755,6 +788,7 @@ class _PeripheralViewState extends State<PeripheralView> {
   @override
   void dispose() {
     super.dispose();
+    rssiTimer.cancel();
     stateChangedSubscription.cancel();
     valueChangedSubscription.cancel();
     state.dispose();
@@ -764,6 +798,7 @@ class _PeripheralViewState extends State<PeripheralView> {
     characteristic.dispose();
     writeType.dispose();
     maximumWriteLength.dispose();
+    rssi.dispose();
     logs.dispose();
     writeController.dispose();
   }
@@ -1069,4 +1104,26 @@ enum LogType {
   write,
   notify,
   error,
+}
+
+class RssiWidget extends StatelessWidget {
+  final int rssi;
+
+  const RssiWidget(
+    this.rssi, {
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final IconData icon;
+    if (rssi > -70) {
+      icon = Icons.wifi_rounded;
+    } else if (rssi > -100) {
+      icon = Icons.wifi_2_bar_rounded;
+    } else {
+      icon = Icons.wifi_1_bar_rounded;
+    }
+    return Icon(icon);
+  }
 }

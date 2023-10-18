@@ -1,3 +1,13 @@
+## 3.0.3
+
+* Fix the issue that `getMaximumWriteLength` is wrong and coerce the value from 20 to 512.
+
+## 3.0.2
+
+* Request MTU with 517 automatically.
+* Fix the issue taht `CentralManager#getMaximumWriteLength` is wrong when write with response and coerce the value from 20 to 512.
+* Fix the issue that the GATT server response is wrong.
+
 ## 3.0.1
 
 * Clear cache when disconnected.

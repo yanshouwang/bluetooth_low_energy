@@ -202,13 +202,13 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
         guard let central = centrals[centralHashCodeArgs] else {
             throw MyError.illegalArgument
         }
-        let maximumWriteLength = central.maximumUpdateValueLength
+        let maximumWriteLength = try central.maximumUpdateValueLength.coerceIn(20, 512)
         let maximumWriteLengthArgs = Int64(maximumWriteLength)
         return maximumWriteLengthArgs
     }
     
     func sendReadCharacteristicReply(centralHashCodeArgs: Int64, characteristicHashCodeArgs: Int64, idArgs: Int64, offsetArgs: Int64, statusArgs: Bool, valueArgs: FlutterStandardTypedData) throws {
-        guard let request = requests[idArgs] else {
+        guard let request = requests.removeValue(forKey: idArgs) else {
             throw MyError.illegalArgument
         }
         request.value = valueArgs.data
@@ -217,7 +217,7 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
     }
     
     func sendWriteCharacteristicReply(centralHashCodeArgs: Int64, characteristicHashCodeArgs: Int64, idArgs: Int64, offsetArgs: Int64, statusArgs: Bool) throws {
-        guard let request = requests[idArgs] else {
+        guard let request = requests.removeValue(forKey: idArgs) else {
             throw MyError.illegalArgument
         }
         let result = statusArgs ? CBATTError.Code.success : CBATTError.Code.requestNotSupported
@@ -315,28 +315,35 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
     }
     
     func didReceiveWrite(_ requests: [CBATTRequest]) {
-        for request in requests {
-            let central = request.central
-            let centralHashCode = central.hash
-            let centralArgs = centralsArgs.getOrPut(centralHashCode) { central.toArgs() }
-            let centralHashCodeArgs = centralArgs.hashCodeArgs
-            centrals[centralHashCodeArgs] = central
-            let characteristic = request.characteristic
-            let characteristicHashCode = characteristic.hash
-            guard let characteristicArgs = characteristicsArgs[characteristicHashCode] else {
-                peripheralManager.respond(to: request, withResult: .attributeNotFound)
-                return
-            }
-            let idArgs = Int64(request.hash)
-            self.requests[idArgs] = request
-            let offsetArgs = Int64(request.offset)
-            guard let value = request.value else {
-                peripheralManager.respond(to: request, withResult: .requestNotSupported)
-                return
-            }
-            let valueArgs = FlutterStandardTypedData(bytes: value)
-            api.onWriteCharacteristicCommandReceived(centralArgs: centralArgs, characteristicArgs: characteristicArgs, idArgs: idArgs, offsetArgs: offsetArgs, valueArgs: valueArgs) {}
+        // 根据官方文档，仅响应第一个写入请求
+        guard let request = requests.first else {
+            return
         }
+        if requests.count > 1 {
+            // TODO: 支持多写入请求，暂时不清楚此处应如何处理
+            let result = CBATTError.requestNotSupported
+            peripheralManager.respond(to: request, withResult: result)
+        }
+        let central = request.central
+        let centralHashCode = central.hash
+        let centralArgs = centralsArgs.getOrPut(centralHashCode) { central.toArgs() }
+        let centralHashCodeArgs = centralArgs.hashCodeArgs
+        centrals[centralHashCodeArgs] = central
+        let characteristic = request.characteristic
+        let characteristicHashCode = characteristic.hash
+        guard let characteristicArgs = characteristicsArgs[characteristicHashCode] else {
+            peripheralManager.respond(to: request, withResult: .attributeNotFound)
+            return
+        }
+        let idArgs = Int64(request.hash)
+        self.requests[idArgs] = request
+        let offsetArgs = Int64(request.offset)
+        guard let value = request.value else {
+            peripheralManager.respond(to: request, withResult: .requestNotSupported)
+            return
+        }
+        let valueArgs = FlutterStandardTypedData(bytes: value)
+        api.onWriteCharacteristicCommandReceived(centralArgs: centralArgs, characteristicArgs: characteristicArgs, idArgs: idArgs, offsetArgs: offsetArgs, valueArgs: valueArgs) {}
     }
     
     func didSubscribeTo(_ central: CBCentral, _ characteristic: CBCharacteristic) {

@@ -154,7 +154,7 @@ class MyCentralManager: MyCentralManagerHostApi {
             throw MyError.illegalArgument
         }
         let type = typeArgs.toWriteType()
-        let maximumWriteLength = peripheral.maximumWriteValueLength(for: type)
+        let maximumWriteLength = try peripheral.maximumWriteValueLength(for: type).coerceIn(20, 512)
         let maximumWriteLengthArgs = Int64(maximumWriteLength)
         return maximumWriteLengthArgs
     }
@@ -310,7 +310,6 @@ class MyCentralManager: MyCentralManagerHostApi {
         api.onStateChanged(stateNumberArgs: stateNumberArgs) {}
     }
     
-    
     func didDiscover(_ peripheral: CBPeripheral, _ advertisementData: [String : Any], _ rssi: NSNumber) {
         let peripheralArgs = peripheral.toArgs()
         let peripheralHashCode = peripheral.hash
@@ -329,10 +328,12 @@ class MyCentralManager: MyCentralManagerHostApi {
             return
         }
         let peripheralHashCodeArgs = peripheralArgs.hashCodeArgs
-        let completion = connectCompletions.removeValue(forKey: peripheralHashCodeArgs)
-        completion?(.success(()))
         let stateArgs = true
         api.onPeripheralStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) {}
+        guard let completion = connectCompletions.removeValue(forKey: peripheralHashCodeArgs) else {
+            return
+        }
+        completion(.success(()))
     }
     
     func didFailToConnect(_ peripheral: CBPeripheral, _ error: Error?) {

@@ -1,3 +1,8 @@
+## 3.0.2
+
+* Fix the issue that `getMaximumWriteLength` is wrong and coerce the value from 20 to 512.
+* Fix the issue that the peripheral manager response is wrong.
+
 ## 3.0.1
 
 * Fix the issue that write characteristic will never complete when write without response.

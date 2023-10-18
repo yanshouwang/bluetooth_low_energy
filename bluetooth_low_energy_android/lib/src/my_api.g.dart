@@ -448,12 +448,12 @@ class MyCentralManagerHostApi {
     }
   }
 
-  Future<int> getMaximumWriteLength(int arg_peripheralHashCodeArgs) async {
+  Future<int> getMaximumWriteLength(int arg_peripheralHashCodeArgs, int arg_typeNumberArgs) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostApi.getMaximumWriteLength', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_peripheralHashCodeArgs]) as List<Object?>?;
+        await channel.send(<Object?>[arg_peripheralHashCodeArgs, arg_typeNumberArgs]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -526,6 +526,33 @@ class MyCentralManagerHostApi {
       );
     } else {
       return (replyList[0] as List<Object?>?)!.cast<MyGattServiceArgs?>();
+    }
+  }
+
+  Future<int> requestMTU(int arg_peripheralHashCodeArgs, int arg_mtuArgs) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostApi.requestMTU', codec,
+        binaryMessenger: _binaryMessenger);
+    final List<Object?>? replyList =
+        await channel.send(<Object?>[arg_peripheralHashCodeArgs, arg_mtuArgs]) as List<Object?>?;
+    if (replyList == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyList.length > 1) {
+      throw PlatformException(
+        code: replyList[0]! as String,
+        message: replyList[1] as String?,
+        details: replyList[2],
+      );
+    } else if (replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (replyList[0] as int?)!;
     }
   }
 
