@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
+import 'package:logging/logging.dart';
 
 import 'my_api.dart';
 import 'my_bluetooth_low_energy_manager.dart';
@@ -10,6 +11,7 @@ import 'my_gatt_descriptor2.dart';
 
 class MyCentralManager extends MyBluetoothLowEnergyManager
     implements CentralManager, MyCentralManagerFlutterApi {
+  final Logger _logger;
   final MyCentralManagerHostApi _api;
   final StreamController<DiscoveredEventArgs> _discoveredController;
   final StreamController<PeripheralStateChangedEventArgs>
@@ -18,7 +20,8 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
       _characteristicValueChangedController;
 
   MyCentralManager()
-      : _api = MyCentralManagerHostApi(),
+      : _logger = Logger('MyCentralManager'),
+        _api = MyCentralManagerHostApi(),
         _discoveredController = StreamController.broadcast(),
         _peripheralStateChangedController = StreamController.broadcast(),
         _characteristicValueChangedController = StreamController.broadcast();
@@ -100,12 +103,6 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
     }
     final peripheralHashCodeArgs = peripheral.hashCode;
     final servicesArgs = await _api.discoverGATT(peripheralHashCodeArgs);
-    // 部分外围设备连接后会触发 onMtuChanged 回调，若在此之前调用协商 MTU 的方法，会在协商完成前返回，
-    // 此时如果继续调用其他方法（如发现服务）会导致回调无法触发，
-    // 因此为避免此情况发生，需要延迟到发现服务完成后再协商 MTU。
-    // TODO: 思考更好的解决方式，可以在连接后立即协商 MTU。
-    const mtuArgs = 517;
-    await _api.requestMTU(peripheralHashCodeArgs, mtuArgs);
     final services = servicesArgs
         .cast<MyGattServiceArgs>()
         .map((args) => args.toService2())
@@ -118,6 +115,17 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
         charactersitic.service = service;
       }
       service.peripheral = peripheral;
+    }
+    try {
+      // 部分外围设备连接后会触发 onMtuChanged 回调，若在此之前调用协商 MTU 的方法，会在协商完成前返回，
+      // 此时如果继续调用其他方法（如发现服务）会导致回调无法触发，
+      // 因此为避免此情况发生，需要延迟到发现服务完成后再协商 MTU。
+      // TODO: 思考更好的解决方式，可以在连接后立即协商 MTU。
+      const mtuArgs = 517;
+      await _api.requestMTU(peripheralHashCodeArgs, mtuArgs);
+    } catch (error, stack) {
+      // 忽略协商 MTU 错误
+      _logger.warning('requst MTU failed.', error, stack);
     }
     return services;
   }

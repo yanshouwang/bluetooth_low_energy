@@ -1,3 +1,7 @@
+## 3.0.3
+
+* `Android` Fix the issue [android device: requestMtu issue #22](https://github.com/yanshouwang/bluetooth_low_energy/issues/22)
+
 ## 3.0.2
 
 * `Android` `iOS` Fix the issue that `getMaximumWriteLength` is wrong and coerce the value from 20 to 512.
