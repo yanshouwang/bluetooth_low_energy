@@ -3,14 +3,13 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:typed_data';
 
-import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart'
-    hide CentralManager, PeripheralManager;
 import 'package:convert/convert.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'central_manager.dart';
 import 'peripheral_manager.dart';
+import 'types.dart';
 
 void main() {
   runZonedGuarded(onStartUp, onCrashed);
