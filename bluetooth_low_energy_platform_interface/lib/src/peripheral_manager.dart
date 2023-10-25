@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'advertise_data.dart';
+import 'advertisement.dart';
 import 'bluetooth_low_energy_manager.dart';
 import 'central.dart';
 import 'gatt_characteristic.dart';
@@ -60,7 +60,7 @@ abstract class PeripheralManager extends PlatformInterface
   Future<void> clearServices();
 
   /// Advertises peripheral manager data.
-  Future<void> startAdvertising(AdvertiseData data);
+  Future<void> startAdvertising(Advertisement advertisement);
 
   /// Stops advertising peripheral manager data.
   Future<void> stopAdvertising();

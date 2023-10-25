@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'advertise_data.dart';
+import 'advertisement.dart';
 import 'event_args.dart';
 import 'gatt_characteristic.dart';
 import 'peripheral.dart';
@@ -13,11 +13,11 @@ class DiscoveredEventArgs extends EventArgs {
   /// The rssi of the peripheral.
   final int rssi;
 
-  /// The advertise data of the peripheral.
-  final AdvertiseData data;
+  /// The advertisement of the peripheral.
+  final Advertisement advertisement;
 
   /// Constructs a [DiscoveredEventArgs].
-  DiscoveredEventArgs(this.peripheral, this.rssi, this.data);
+  DiscoveredEventArgs(this.peripheral, this.rssi, this.advertisement);
 }
 
 /// The peripheral state changed event arguments.

@@ -1,3 +1,7 @@
+## 4.0.0-dev.6
+
+* Move `AdvertiseData` class to `Advertisement` class.
+
 ## 4.0.0-dev.5
 
 * Fix export error.
