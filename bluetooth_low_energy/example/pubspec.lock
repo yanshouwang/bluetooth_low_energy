@@ -23,39 +23,39 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "3.0.3"
+    version: "4.0.0-dev.1"
   bluetooth_low_energy_android:
     dependency: transitive
     description:
       name: bluetooth_low_energy_android
-      sha256: "86e10541532c96607a0525edba1fd75516543e9beac2e391ac8a50c467aebf88"
+      sha256: e6d5b1666c61f713637f9324e0b0ac84d311bd9b1527403681179b55bd323b6b
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.4"
+    version: "4.0.0-dev.2"
   bluetooth_low_energy_darwin:
     dependency: transitive
     description:
       name: bluetooth_low_energy_darwin
-      sha256: "797d3803de3b124ffb13267910f8d727ae4884fdcc621ccc0995076107468bb6"
+      sha256: d412d7f421681daf936e80f84688f871789878c5b19945541489e5bc7be14891
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.2"
+    version: "4.0.0-dev.1"
   bluetooth_low_energy_linux:
     dependency: transitive
     description:
       name: bluetooth_low_energy_linux
-      sha256: "31a23704a4b34e7f6cea61d94c24b3e1c6698928645aaeaf1af947e4870996d7"
+      sha256: "212ad37d92f3498b0bf7501abd1a5f92ac99618da692420223fb16070be203a2"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0"
+    version: "4.0.0-dev.1"
   bluetooth_low_energy_platform_interface:
     dependency: transitive
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: "200e686247808591b6d3e355642ba296f0f651466c72efdd701be34116971473"
+      sha256: "328c0ae29918a38d2ab6122ba9805cdf4dcd031f6f50a9ab22b33074797ca24a"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0"
+    version: "4.0.0-dev.7"
   bluez:
     dependency: transitive
     description:
@@ -158,10 +158,10 @@ packages:
     dependency: "direct dev"
     description:
       name: flutter_lints
-      sha256: a25a15ebbdfc33ab1cd26c63a6ee519df92338a9c10f122adda92938253bef04
+      sha256: ad76540d21c066228ee3f9d1dad64a9f7e46530e8bb7c85011a88bc1fd874bc5
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.3"
+    version: "3.0.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -189,10 +189,10 @@ packages:
     dependency: transitive
     description:
       name: lints
-      sha256: "0a217c6c989d21039f1498c3ed9f3ed71b354e69873f13a8dfc3c9fe76f1b452"
+      sha256: cbf8d4b858bb0134ef3ef87841abdf8d63bfc255c266b7bf6b39daa1085c4290
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
+    version: "3.0.0"
   logging:
     dependency: transitive
     description:
