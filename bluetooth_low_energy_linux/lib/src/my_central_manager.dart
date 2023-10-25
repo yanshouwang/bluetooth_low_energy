@@ -241,7 +241,7 @@ class MyCentralManager extends CentralManager {
   void _onDiscovered(BlueZDevice device) {
     final myPeripheral = MyPeripheral2(device);
     final myRSSI = device.rssi;
-    final myAdvertiseData = device.myAdvertiseData;
+    final myAdvertiseData = device.myAdvertisement;
     final eventArgs = DiscoveredEventArgs(
       myPeripheral,
       myRSSI,
