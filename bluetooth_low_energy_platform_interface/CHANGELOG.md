@@ -1,3 +1,7 @@
+## 4.0.0-dev.7
+
+* Remove `Logger.level` filed, as the level of `logging` package is a global option, which can be changed by anyone.
+
 ## 4.0.0-dev.6
 
 * Move `AdvertiseData` class to `Advertisement` class.

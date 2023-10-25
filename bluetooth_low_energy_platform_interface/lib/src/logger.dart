@@ -1,25 +1,12 @@
 import 'dart:developer';
 
-import 'package:logging/logging.dart' as logging;
-
-/// [LogLevel]s to control logging output. Logging can be enabled to include all
-/// levels above certain [LogLevel]. [LogLevel]s are ordered using an integer
-/// value [LogLevel.value]. The predefined [LogLevel] constants below are sorted as
-/// follows (in descending order): [LogLevel.SHOUT], [LogLevel.SEVERE],
-/// [LogLevel.WARNING], [LogLevel.INFO], [LogLevel.CONFIG], [LogLevel.FINE], [LogLevel.FINER],
-/// [LogLevel.FINEST], and [LogLevel.ALL].
-///
-/// We recommend using one of the predefined logging levels. If you define your
-/// own level, make sure you use a value between those used in [LogLevel.ALL] and
-/// [LogLevel.OFF].
-typedef LogLevel = logging.Level;
+import 'package:logging/logging.dart' as inner;
 
 /// Use a [Logger] to log debug messages.
 ///
 /// [Logger]s are named using a hierarchical dot-separated name convention.
 abstract class Logger {
-  static final _logger = logging.Logger('BluetoothLowEnergy')
-    ..level = LogLevel.ALL
+  static final _logger = inner.Logger('BluetoothLowEnergy')
     ..onRecord.listen((record) {
       log(
         record.message,
@@ -32,14 +19,6 @@ abstract class Logger {
         stackTrace: record.stackTrace,
       );
     });
-
-  /// Get the level of the [Logger].
-  static LogLevel get level => _logger.level;
-
-  /// Set the level of the [Logger].
-  static set level(LogLevel level) {
-    _logger.level = level;
-  }
 
   /// Log message at level [LogLevel.CONFIG].
   static void config(
