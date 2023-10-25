@@ -1,3 +1,12 @@
+## 4.0.0-dev.1
+
+* Remove `BluetoothLowEnergy` class.
+* Update `CentralManger` to extends `PlatformInterface`.
+* Update `PeripheralManager` to extends `PlatformInterface`.
+* Move `AdvertiseData` class to `Advertisement` class.
+* Remove `logging` dependency.
+* Update `example`.
+
 ## 3.0.4
 
 * Fix the issue [android device: requestMtu issue #22](https://github.com/yanshouwang/bluetooth_low_energy/issues/22)

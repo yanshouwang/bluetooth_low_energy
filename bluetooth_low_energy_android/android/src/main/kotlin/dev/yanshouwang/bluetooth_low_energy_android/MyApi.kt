@@ -43,7 +43,7 @@ val BluetoothDevice.uuid: UUID
         return UUID.fromString("00000000-0000-0000-0000-$node")
     }
 
-val ScanResult.advertiseDataArgs: MyAdvertiseDataArgs
+val ScanResult.advertisementArgs: MyAdvertisementArgs
     get() {
         val record = scanRecord
         return if (record == null) {
@@ -51,7 +51,7 @@ val ScanResult.advertiseDataArgs: MyAdvertiseDataArgs
             val serviceUUIDsArgs = emptyList<String?>()
             val serviceDataArgs = emptyMap<String?, ByteArray>()
             val manufacturerSpecificDataArgs = null
-            MyAdvertiseDataArgs(nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs)
+            MyAdvertisementArgs(nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs)
         } else {
             val nameArgs = record.deviceName
             val serviceUUIDsArgs = record.serviceUuids?.map { uuid -> uuid.toString() }
@@ -62,7 +62,7 @@ val ScanResult.advertiseDataArgs: MyAdvertiseDataArgs
             }.toTypedArray()
             val serviceDataArgs = mapOf<String?, ByteArray?>(*pairs)
             val manufacturerSpecificDataArgs = record.manufacturerSpecificData.toManufacturerSpecificDataArgs()
-            MyAdvertiseDataArgs(nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs)
+            MyAdvertisementArgs(nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs)
         }
     }
 
@@ -99,7 +99,7 @@ val ScanRecord.rawValues: Map<Byte, ByteArray>
         return rawValues.toMap()
     }
 
-fun MyAdvertiseDataArgs.toAdvertiseData(adapter: BluetoothAdapter): AdvertiseData {
+fun MyAdvertisementArgs.toAdvertiseData(adapter: BluetoothAdapter): AdvertiseData {
     val advertiseDataBuilder = AdvertiseData.Builder()
     if (nameArgs == null) {
         advertiseDataBuilder.setIncludeDeviceName(false)

@@ -66,7 +66,7 @@ abstract class MyCentralManagerFlutterApi {
   void onDiscovered(
     MyPeripheralArgs peripheralArgs,
     int rssiArgs,
-    MyAdvertiseDataArgs advertiseDataArgs,
+    MyAdvertisementArgs advertisementArgs,
   );
   void onPeripheralStateChanged(
     MyPeripheralArgs peripheralArgs,
@@ -87,7 +87,7 @@ abstract class MyPeripheralManagerHostApi {
   void removeService(int serviceHashCodeArgs);
   void clearServices();
   @async
-  void startAdvertising(MyAdvertiseDataArgs advertiseDataArgs);
+  void startAdvertising(MyAdvertisementArgs advertisementArgs);
   void stopAdvertising();
   int getMaximumWriteLength(int centralHashCodeArgs);
   void sendReadCharacteristicReply(
@@ -162,13 +162,13 @@ class MyPeripheralArgs {
   MyPeripheralArgs(this.hashCodeArgs, this.uuidArgs);
 }
 
-class MyAdvertiseDataArgs {
+class MyAdvertisementArgs {
   final String? nameArgs;
   final List<String?> serviceUUIDsArgs;
   final Map<String?, Uint8List?> serviceDataArgs;
   final MyManufacturerSpecificDataArgs? manufacturerSpecificDataArgs;
 
-  MyAdvertiseDataArgs(
+  MyAdvertisementArgs(
     this.nameArgs,
     this.serviceUUIDsArgs,
     this.serviceDataArgs,

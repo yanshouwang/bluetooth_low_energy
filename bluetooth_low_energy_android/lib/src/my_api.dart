@@ -15,8 +15,8 @@ extension MyBluetoothLowEnergyStateArgsX on MyBluetoothLowEnergyStateArgs {
   }
 }
 
-extension MyAdvertiseDataArgsX on MyAdvertiseDataArgs {
-  AdvertiseData toAdvertiseData() {
+extension MyAdvertisementArgsX on MyAdvertisementArgs {
+  Advertisement toAdvertisement() {
     final name = nameArgs;
     final serviceUUIDs = serviceUUIDsArgs
         .cast<String>()
@@ -31,7 +31,7 @@ extension MyAdvertiseDataArgsX on MyAdvertiseDataArgs {
     );
     final manufacturerSpecificData =
         manufacturerSpecificDataArgs?.toManufacturerSpecificData();
-    return AdvertiseData(
+    return Advertisement(
       name: name,
       serviceUUIDs: serviceUUIDs,
       serviceData: serviceData,
@@ -136,8 +136,8 @@ extension MyCentralArgsX on MyCentralArgs {
   }
 }
 
-extension AdvertiseDataX on AdvertiseData {
-  MyAdvertiseDataArgs toArgs() {
+extension AdvertisementX on Advertisement {
+  MyAdvertisementArgs toArgs() {
     final nameArgs = name;
     final serviceUUIDsArgs =
         serviceUUIDs.map((uuid) => uuid.toString()).toList();
@@ -147,7 +147,7 @@ extension AdvertiseDataX on AdvertiseData {
       return MapEntry(uuidArgs, dataArgs);
     });
     final manufacturerSpecificDataArgs = manufacturerSpecificData?.toArgs();
-    return MyAdvertiseDataArgs(
+    return MyAdvertisementArgs(
       nameArgs: nameArgs,
       serviceUUIDsArgs: serviceUUIDsArgs,
       serviceDataArgs: serviceDataArgs,
