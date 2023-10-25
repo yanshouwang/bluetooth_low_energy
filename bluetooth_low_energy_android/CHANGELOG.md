@@ -1,3 +1,7 @@
+## 4.0.0-dev.2
+
+* Optimize the import method of the `example`.
+
 ## 4.0.0-dev.1
 
 * Remove `BluetoothLowEnergy` class.
