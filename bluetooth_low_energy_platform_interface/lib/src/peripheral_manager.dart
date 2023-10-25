@@ -60,7 +60,7 @@ abstract class PeripheralManager extends PlatformInterface
   Future<void> clearServices();
 
   /// Advertises peripheral manager data.
-  Future<void> startAdvertising(AdvertiseData advertiseData);
+  Future<void> startAdvertising(AdvertiseData data);
 
   /// Stops advertising peripheral manager data.
   Future<void> stopAdvertising();
@@ -71,27 +71,27 @@ abstract class PeripheralManager extends PlatformInterface
 
   /// Responds to a read request from a connected central.
   Future<void> sendReadCharacteristicReply(
-    Central central,
-    GattCharacteristic characteristic,
-    int id,
-    int offset,
-    bool status,
-    Uint8List value,
-  );
+    Central central, {
+    required GattCharacteristic characteristic,
+    required int id,
+    required int offset,
+    required bool status,
+    required Uint8List value,
+  });
 
   /// Responds to a write request from a connected central.
   Future<void> sendWriteCharacteristicReply(
-    Central central,
-    GattCharacteristic characteristic,
-    int id,
-    int offset,
-    bool status,
-  );
+    Central central, {
+    required GattCharacteristic characteristic,
+    required int id,
+    required int offset,
+    required bool status,
+  });
 
   /// Send an updated characteristic value to one or more subscribed centrals, using a notification or indication.
   Future<void> notifyCharacteristicValueChanged(
-    Central central,
-    GattCharacteristic characteristic,
-    Uint8List value,
-  );
+    Central central, {
+    required GattCharacteristic characteristic,
+    required Uint8List value,
+  });
 }

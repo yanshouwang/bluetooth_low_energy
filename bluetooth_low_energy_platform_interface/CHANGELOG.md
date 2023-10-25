@@ -1,3 +1,7 @@
+## 4.0.0-dev.3
+
+* Change some `PeripheralManager` methods' arguments to required optional arguments.
+
 ## 4.0.0-dev.2
 
 * Add `Logger` class.
