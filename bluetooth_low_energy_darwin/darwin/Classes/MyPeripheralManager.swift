@@ -181,13 +181,13 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
         self.servicesArgs.removeValue(forKey: serviceHashCode)
     }
     
-    func startAdvertising(advertiseDataArgs: MyAdvertiseDataArgs, completion: @escaping (Result<Void, Error>) -> Void) {
+    func startAdvertising(advertisementArgs: MyAdvertisementArgs, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             if startAdvertisingCompletion != nil {
                 throw MyError.illegalState
             }
-            let advertisementData = try advertiseDataArgs.toAdvertiseData()
-            peripheralManager.startAdvertising(advertisementData)
+            let advertisement = try advertisementArgs.toAdvertisement()
+            peripheralManager.startAdvertising(advertisement)
             startAdvertisingCompletion = completion
         } catch {
             completion(.failure(error))
@@ -264,7 +264,7 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
             setUpCompletion!(.success(args))
             setUpCompletion = nil
         }
-        api.onStateChanged(stateNumberArgs: stateNumberArgs) {}
+        api.onStateChanged(stateNumberArgs: stateNumberArgs) {_ in }
     }
     
     func didAdd(_ service: CBService, _ error: Error?) {
@@ -311,7 +311,7 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
         let idArgs = Int64(request.hash)
         requests[idArgs] = request
         let offsetArgs = Int64(request.offset)
-        api.onReadCharacteristicCommandReceived(centralArgs: centralArgs, characteristicArgs: characteristicArgs, idArgs: idArgs, offsetArgs: offsetArgs) {}
+        api.onReadCharacteristicCommandReceived(centralArgs: centralArgs, characteristicArgs: characteristicArgs, idArgs: idArgs, offsetArgs: offsetArgs) {_ in }
     }
     
     func didReceiveWrite(_ requests: [CBATTRequest]) {
@@ -343,7 +343,7 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
             return
         }
         let valueArgs = FlutterStandardTypedData(bytes: value)
-        api.onWriteCharacteristicCommandReceived(centralArgs: centralArgs, characteristicArgs: characteristicArgs, idArgs: idArgs, offsetArgs: offsetArgs, valueArgs: valueArgs) {}
+        api.onWriteCharacteristicCommandReceived(centralArgs: centralArgs, characteristicArgs: characteristicArgs, idArgs: idArgs, offsetArgs: offsetArgs, valueArgs: valueArgs) {_ in }
     }
     
     func didSubscribeTo(_ central: CBCentral, _ characteristic: CBCharacteristic) {
@@ -356,7 +356,7 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
             return
         }
         let stateArgs = true
-        api.onNotifyCharacteristicCommandReceived(centralArgs: centralArgs, characteristicArgs: characteristicArgs, stateArgs: stateArgs) {}
+        api.onNotifyCharacteristicCommandReceived(centralArgs: centralArgs, characteristicArgs: characteristicArgs, stateArgs: stateArgs) {_ in }
     }
     
     func didUnsubscribeFrom(_ central: CBCentral, _ characteristic: CBCharacteristic) {
@@ -369,7 +369,7 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
             return
         }
         let stateArgs = false
-        api.onNotifyCharacteristicCommandReceived(centralArgs: centralArgs, characteristicArgs: characteristicArgs, stateArgs: stateArgs) {}
+        api.onNotifyCharacteristicCommandReceived(centralArgs: centralArgs, characteristicArgs: characteristicArgs, stateArgs: stateArgs) {_ in }
     }
     
     func isReadyToUpdateSubscribers() {
