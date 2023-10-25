@@ -1,14 +1,16 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
+import 'package:flutter/foundation.dart';
 
 import 'my_api.dart';
-import 'my_bluetooth_low_energy_manager.dart';
 
-class MyPeripheralManager extends MyBluetoothLowEnergyManager
-    implements PeripheralManager, MyPeripheralManagerFlutterApi {
+class MyPeripheralManager extends PeripheralManager
+    implements MyPeripheralManagerFlutterApi {
   final MyPeripheralManagerHostApi _api;
+  BluetoothLowEnergyState _state;
+  final StreamController<BluetoothLowEnergyStateChangedEventArgs>
+      _stateChangedController;
   final StreamController<ReadGattCharacteristicCommandEventArgs>
       _readCharacteristicCommandReceivedController;
   final StreamController<WriteGattCharacteristicCommandEventArgs>
@@ -18,6 +20,8 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
 
   MyPeripheralManager()
       : _api = MyPeripheralManagerHostApi(),
+        _state = BluetoothLowEnergyState.unknown,
+        _stateChangedController = StreamController.broadcast(),
         _readCharacteristicCommandReceivedController =
             StreamController.broadcast(),
         _writeCharacteristicCommandReceivedController =
@@ -26,19 +30,40 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
             StreamController.broadcast();
 
   @override
+  BluetoothLowEnergyState get state => _state;
+  @protected
+  set state(BluetoothLowEnergyState value) {
+    if (_state == value) {
+      return;
+    }
+    _state = value;
+    final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
+    _stateChangedController.add(eventArgs);
+  }
+
+  @override
+  Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
+      _stateChangedController.stream;
+  @override
   Stream<ReadGattCharacteristicCommandEventArgs>
       get readCharacteristicCommandReceived =>
           _readCharacteristicCommandReceivedController.stream;
-
   @override
   Stream<WriteGattCharacteristicCommandEventArgs>
       get writeCharacteristicCommandReceived =>
           _writeCharacteristicCommandReceivedController.stream;
-
   @override
   Stream<NotifyGattCharacteristicCommandEventArgs>
       get notifyCharacteristicCommandReceived =>
           _notifyCharacteristicCommandReceivedController.stream;
+
+  Future<void> _throwWithoutState(BluetoothLowEnergyState state) async {
+    if (this.state != state) {
+      throw BluetoothLowEnergyError(
+        '$state is expected, but current state is ${this.state}.',
+      );
+    }
+  }
 
   @override
   Future<void> setUp() async {
@@ -51,7 +76,7 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
 
   @override
   Future<void> addService(GattService service) async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     if (service is! MyGattService) {
       throw TypeError();
     }
@@ -61,33 +86,33 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
 
   @override
   Future<void> removeService(GattService service) async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final serviceHashCodeArgs = service.hashCode;
     await _api.removeService(serviceHashCodeArgs);
   }
 
   @override
   Future<void> clearServices() async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     await _api.clearServices();
   }
 
   @override
-  Future<void> startAdvertising(AdvertiseData advertiseData) async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final advertiseDataArgs = advertiseData.toArgs();
-    await _api.startAdvertising(advertiseDataArgs);
+  Future<void> startAdvertising(Advertisement advertisement) async {
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    final advertisementArgs = advertisement.toArgs();
+    await _api.startAdvertising(advertisementArgs);
   }
 
   @override
   Future<void> stopAdvertising() async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     await _api.stopAdvertising();
   }
 
   @override
   Future<int> getMaximumWriteLength(Central central) async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final centralHashCodeArgs = central.hashCode;
     final maximumWriteLength =
         await _api.getMaximumWriteLength(centralHashCodeArgs);
@@ -96,14 +121,14 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
 
   @override
   Future<void> sendReadCharacteristicReply(
-    Central central,
-    GattCharacteristic characteristic,
-    int id,
-    int offset,
-    bool status,
-    Uint8List value,
-  ) async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    Central central, {
+    required GattCharacteristic characteristic,
+    required int id,
+    required int offset,
+    required bool status,
+    required Uint8List value,
+  }) async {
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final centralHashCodeArgs = central.hashCode;
     final characteristicHashCodeArgs = characteristic.hashCode;
     final idArgs = id;
@@ -122,13 +147,13 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
 
   @override
   Future<void> sendWriteCharacteristicReply(
-    Central central,
-    GattCharacteristic characteristic,
-    int id,
-    int offset,
-    bool status,
-  ) async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    Central central, {
+    required GattCharacteristic characteristic,
+    required int id,
+    required int offset,
+    required bool status,
+  }) async {
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final centralHashCodeArgs = central.hashCode;
     final characteristicHashCodeArgs = characteristic.hashCode;
     final idArgs = id;
@@ -145,11 +170,11 @@ class MyPeripheralManager extends MyBluetoothLowEnergyManager
 
   @override
   Future<void> notifyCharacteristicValueChanged(
-    Central central,
-    GattCharacteristic characteristic,
-    Uint8List value,
-  ) async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    Central central, {
+    required GattCharacteristic characteristic,
+    required Uint8List value,
+  }) async {
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final centralHashCodeArgs = central.hashCode;
     final characteristicHashCodeArgs = characteristic.hashCode;
     final valueArgs = value;

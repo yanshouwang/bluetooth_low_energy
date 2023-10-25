@@ -1,3 +1,11 @@
+## 4.0.0-dev.1
+
+* Remove `BluetoothLowEnergy` class.
+* Update `CentralManger` to extends `PlatformInterface`.
+* Update `PeripheralManager` to extends `PlatformInterface`.
+* Move `AdvertiseData` class to `Advertisement` class.
+* Update `example`.
+
 ## 3.0.2
 
 * Fix the issue that `getMaximumWriteLength` is wrong and coerce the value from 20 to 512.
