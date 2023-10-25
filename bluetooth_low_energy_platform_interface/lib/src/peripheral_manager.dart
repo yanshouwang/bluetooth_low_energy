@@ -5,9 +5,9 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'advertise_data.dart';
 import 'bluetooth_low_energy_manager.dart';
 import 'central.dart';
-import 'event_args.dart';
 import 'gatt_characteristic.dart';
 import 'gatt_service.dart';
+import 'peripheral_manager_event_args.dart';
 
 /// An object that manages and advertises peripheral services exposed by this app.
 abstract class PeripheralManager extends PlatformInterface

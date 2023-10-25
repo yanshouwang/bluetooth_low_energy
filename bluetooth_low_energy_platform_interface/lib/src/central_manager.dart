@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'bluetooth_low_energy_manager.dart';
-import 'event_args.dart';
+import 'central_manager_event_args.dart';
 import 'gatt_characteristic.dart';
 import 'gatt_characteristic_write_type.dart';
 import 'gatt_descriptor.dart';

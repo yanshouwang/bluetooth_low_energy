@@ -1,6 +1,8 @@
+export 'src/logger.dart';
 export 'src/errors.dart';
 export 'src/event_args.dart';
-export 'src/logger.dart';
+export 'src/central_manager_event_args.dart';
+export 'src/peripheral_manager_event_args.dart';
 export 'src/bluetooth_low_energy_state.dart';
 export 'src/bluetooth_low_energy_manager.dart';
 export 'src/bluetooth_low_energy_peer.dart';

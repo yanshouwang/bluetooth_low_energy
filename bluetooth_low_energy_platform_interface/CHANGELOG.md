@@ -1,3 +1,11 @@
+## 4.0.0-dev.5
+
+* Fix export error.
+
+## 4.0.0-dev.4
+
+* Optimize project's structure.
+
 ## 4.0.0-dev.3
 
 * Change some `PeripheralManager` methods' arguments to required optional arguments.
