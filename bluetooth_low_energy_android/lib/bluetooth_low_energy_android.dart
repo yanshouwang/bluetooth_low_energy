@@ -1,11 +1,11 @@
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
-import 'src/my_central_manager.dart';
-import 'src/my_peripheral_manager.dart';
+import 'src/my_central_manager2.dart';
+import 'src/my_peripheral_manager2.dart';
 
 abstract class BluetoothLowEnergyAndroid {
   static void registerWith() {
-    CentralManager.instance = MyCentralManager();
-    PeripheralManager.instance = MyPeripheralManager();
+    MyCentralManager.instance = MyCentralManager2();
+    MyPeripheralManager.instance = MyPeripheralManager2();
   }
 }

@@ -2,12 +2,13 @@ import 'dart:async';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 import 'my_api.dart';
 import 'my_gatt_characteristic2.dart';
 import 'my_gatt_descriptor2.dart';
 
-class MyCentralManager extends CentralManager
+class MyCentralManager2 extends MyCentralManager
     implements MyCentralManagerFlutterApi {
   final MyCentralManagerHostApi _api;
   BluetoothLowEnergyState _state;
@@ -19,7 +20,7 @@ class MyCentralManager extends CentralManager
   final StreamController<GattCharacteristicValueChangedEventArgs>
       _characteristicValueChangedController;
 
-  MyCentralManager()
+  MyCentralManager2()
       : _api = MyCentralManagerHostApi(),
         _state = BluetoothLowEnergyState.unknown,
         _stateChangedController = StreamController.broadcast(),
@@ -54,14 +55,16 @@ class MyCentralManager extends CentralManager
 
   Future<void> _throwWithoutState(BluetoothLowEnergyState state) async {
     if (this.state != state) {
-      throw BluetoothLowEnergyError(
-        '$state is expected, but current state is ${this.state}.',
+      throw PlatformException(
+        code: 'state-error',
+        message: '$state is expected, but current state is ${this.state}.',
       );
     }
   }
 
   @override
   Future<void> setUp() async {
+    await super.setUp();
     final args = await _api.setUp();
     final stateArgs =
         MyBluetoothLowEnergyStateArgs.values[args.stateNumberArgs];
@@ -149,7 +152,7 @@ class MyCentralManager extends CentralManager
       await _api.requestMTU(peripheralHashCodeArgs, mtuArgs);
     } catch (error, stackTrace) {
       // 忽略协商 MTU 错误
-      Logger.warning('requst MTU failed.', error, stackTrace);
+      logger.warning('requst MTU failed.', error, stackTrace);
     }
     return services;
   }
