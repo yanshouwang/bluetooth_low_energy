@@ -17,11 +17,13 @@ mixin MyLoggerController on SetUp implements LoggerController {
   Level get logLevel => logger.level;
   @override
   set logLevel(Level? value) {
+    hierarchicalLoggingEnabled = true;
     logger.level = value;
   }
 
   @override
   Future<void> setUp() async {
+    hierarchicalLoggingEnabled = true;
     _subscription?.cancel();
     _subscription = logger.onRecord.listen(_onRecord);
   }
