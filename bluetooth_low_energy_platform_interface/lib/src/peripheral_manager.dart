@@ -1,42 +1,17 @@
 import 'dart:typed_data';
 
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
 import 'advertisement.dart';
 import 'bluetooth_low_energy_manager.dart';
 import 'central.dart';
 import 'gatt_characteristic.dart';
 import 'gatt_service.dart';
+import 'my_peripheral_manager.dart';
 import 'peripheral_manager_event_args.dart';
 
 /// An object that manages and advertises peripheral services exposed by this app.
-abstract class PeripheralManager extends PlatformInterface
-    implements BluetoothLowEnergyManager {
-  /// Constructs a [PeripheralManager].
-  PeripheralManager() : super(token: _token);
-
-  static final Object _token = Object();
-
-  static PeripheralManager? _instance;
-
-  /// The default instance of [PeripheralManager] to use.
-  static PeripheralManager get instance {
-    final instance = _instance;
-    if (instance == null) {
-      throw UnimplementedError(
-        'PeripheralManager is not implemented on this platform.',
-      );
-    }
-    return instance;
-  }
-
-  /// Platform-specific implementations should set this with their own
-  /// platform-specific class that extends [PeripheralManager] when
-  /// they register themselves.
-  static set instance(PeripheralManager instance) {
-    PlatformInterface.verifyToken(instance, _token);
-    _instance = instance;
-  }
+abstract class PeripheralManager extends BluetoothLowEnergyManager {
+  /// The instance of [PeripheralManger] to use.
+  static PeripheralManager get instance => MyPeripheralManager.instance;
 
   /// Tells that the local peripheral received an Attribute Protocol (ATT) read request for a characteristic with a dynamic value.
   Stream<ReadGattCharacteristicCommandEventArgs>

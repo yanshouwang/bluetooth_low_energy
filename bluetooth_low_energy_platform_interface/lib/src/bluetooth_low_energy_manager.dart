@@ -1,5 +1,5 @@
+import 'bluetooth_low_energy_event_args.dart';
 import 'bluetooth_low_energy_state.dart';
-import 'event_args.dart';
 
 /// The abstract base class that manages central and peripheral objects.
 abstract class BluetoothLowEnergyManager {
