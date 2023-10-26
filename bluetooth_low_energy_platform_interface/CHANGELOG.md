@@ -1,3 +1,11 @@
+## 4.0.0-dev.9
+
+* Remove `Logger`, use `logging` package instead.
+* Add `SetUp` interface class and `MySetUp` mixin.
+* Add `LoggerController` interface class and `MyLoggerController` mixin.
+* Update `CentralManager` to implements `SetUp` and `LoggerController`.
+* Update `PeripheralManager` to implements `SetUp` and `LoggerController`.
+
 ## 4.0.0-dev.8
 
 * Remove `BluetoothLowEnergyError`, use `PlatformException` instead.

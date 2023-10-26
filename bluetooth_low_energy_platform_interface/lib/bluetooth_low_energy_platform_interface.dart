@@ -1,4 +1,7 @@
-export 'src/logger.dart';
+export 'package:logging/logging.dart';
+
+export 'src/set_up.dart';
+export 'src/logger_controller.dart';
 export 'src/event_args.dart';
 export 'src/bluetooth_low_energy_state.dart';
 export 'src/bluetooth_low_energy_event_args.dart';
@@ -18,6 +21,8 @@ export 'src/gatt_characteristic.dart';
 export 'src/gatt_characteristic_property.dart';
 export 'src/gatt_characteristic_write_type.dart';
 export 'src/gatt_descriptor.dart';
+export 'src/my_set_up.dart';
+export 'src/my_logger_controller.dart';
 export 'src/my_central_manager.dart';
 export 'src/my_peripheral_manager.dart';
 export 'src/my_object.dart';
