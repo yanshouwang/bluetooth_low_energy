@@ -1,7 +1,7 @@
 import 'package:logging/logging.dart';
 
 /// Settings of the logger instance.
-abstract class LoggerController {
+abstract class LogController {
   /// Effective level considering the levels established in this logger's
   /// parents (when [hierarchicalLoggingEnabled] is true).
   Level get logLevel;

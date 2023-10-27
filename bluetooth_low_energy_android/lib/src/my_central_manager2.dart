@@ -63,7 +63,7 @@ class MyCentralManager2 extends MyCentralManager
   }
 
   @override
-  Future<void> setUp() async {
+  Future<void> _setUp() async {
     await super.setUp();
     final args = await _api.setUp();
     final stateArgs =

@@ -1,7 +1,14 @@
-export 'package:logging/logging.dart';
+/// A common platform interface for the [`bluetooth_low_energy`][1] plugin.
+///
+/// This interface allows platform-specific implementations of the `bluetooth_low_energy`
+/// plugin, as well as the plugin itself, to ensure they are supporting the
+/// same interface.
+///
+/// [1]: https://pub.dev/packages/bluetooth_low_energy
+library;
 
-export 'src/set_up.dart';
-export 'src/logger_controller.dart';
+export 'src/log_controller.dart';
+export 'src/log_service.dart';
 export 'src/event_args.dart';
 export 'src/bluetooth_low_energy_state.dart';
 export 'src/bluetooth_low_energy_event_args.dart';
@@ -21,8 +28,7 @@ export 'src/gatt_characteristic.dart';
 export 'src/gatt_characteristic_property.dart';
 export 'src/gatt_characteristic_write_type.dart';
 export 'src/gatt_descriptor.dart';
-export 'src/my_set_up.dart';
-export 'src/my_logger_controller.dart';
+export 'src/log_service.dart';
 export 'src/my_central_manager.dart';
 export 'src/my_peripheral_manager.dart';
 export 'src/my_object.dart';

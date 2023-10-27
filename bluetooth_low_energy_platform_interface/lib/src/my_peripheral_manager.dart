@@ -1,14 +1,12 @@
-import 'package:logging/logging.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'my_logger_controller.dart';
-import 'my_set_up.dart';
+import 'log_service.dart';
 import 'peripheral_manager.dart';
 
 /// Platform-specific implementations should implement this class to support
 /// [PeripheralManager].
 abstract class MyPeripheralManager extends PlatformInterface
-    with MySetUp, MyLoggerController
+    with LogService
     implements PeripheralManager {
   static final Object _token = Object();
 
@@ -33,11 +31,6 @@ abstract class MyPeripheralManager extends PlatformInterface
     _instance = instance;
   }
 
-  @override
-  final Logger logger;
-
   /// Constructs a [MyPeripheralManager].
-  MyPeripheralManager()
-      : logger = Logger('MyPeripheralManager'),
-        super(token: _token);
+  MyPeripheralManager() : super(token: _token);
 }

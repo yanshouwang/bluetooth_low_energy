@@ -2,13 +2,12 @@ import 'package:logging/logging.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'central_manager.dart';
-import 'my_logger_controller.dart';
-import 'my_set_up.dart';
+import 'log_service.dart';
 
 /// Platform-specific implementations should implement this class to support
 /// [CentralManager].
 abstract class MyCentralManager extends PlatformInterface
-    with MySetUp, MyLoggerController
+    with LogService
     implements CentralManager {
   static final Object _token = Object();
 

@@ -13,6 +13,7 @@ dependencies:
   plugin_platform_interface: ^2.0.2
   logging: ^1.2.0
   meta: ^1.9.1
+  ansicolor: ^2.0.2
 
 dev_dependencies:
   flutter_test:
