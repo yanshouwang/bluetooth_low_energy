@@ -23,39 +23,39 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "4.0.0-dev.1"
+    version: "4.0.0"
   bluetooth_low_energy_android:
     dependency: transitive
     description:
       name: bluetooth_low_energy_android
-      sha256: e6d5b1666c61f713637f9324e0b0ac84d311bd9b1527403681179b55bd323b6b
+      sha256: "7668f695f195ed67b9985a76a21f10d181a26ebfc2124b4cd272fb6f202c1ee9"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.0-dev.2"
+    version: "4.0.0"
   bluetooth_low_energy_darwin:
     dependency: transitive
     description:
       name: bluetooth_low_energy_darwin
-      sha256: d412d7f421681daf936e80f84688f871789878c5b19945541489e5bc7be14891
+      sha256: "027b46d8efea5c726cc32ab6b2ca387f0ef15507afcd1077d75712ad4e7f941d"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.0-dev.1"
+    version: "4.0.0"
   bluetooth_low_energy_linux:
     dependency: transitive
     description:
       name: bluetooth_low_energy_linux
-      sha256: "212ad37d92f3498b0bf7501abd1a5f92ac99618da692420223fb16070be203a2"
+      sha256: "548a869579684ce7602577ef5e0498d18eef552fb2abb3ee7909814bef57807f"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.0-dev.1"
+    version: "4.0.0"
   bluetooth_low_energy_platform_interface:
     dependency: transitive
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: "328c0ae29918a38d2ab6122ba9805cdf4dcd031f6f50a9ab22b33074797ca24a"
+      sha256: a01819f4ef89d033edaa979465ec8c3af13b2618dc718d90fe681be91b6c4356
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.0-dev.7"
+    version: "4.0.0"
   bluez:
     dependency: transitive
     description:
@@ -193,6 +193,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  log_service:
+    dependency: transitive
+    description:
+      name: log_service
+      sha256: "21124936899e227d1779268077921d46d57456e2592d1562e455be273594e2e4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   logging:
     dependency: transitive
     description:
