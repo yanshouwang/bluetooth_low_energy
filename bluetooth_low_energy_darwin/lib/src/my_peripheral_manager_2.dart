@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 
 import 'my_api.dart';
 
-class MyPeripheralManager extends PeripheralManager
+class MyPeripheralManager2 extends MyPeripheralManager
     implements MyPeripheralManagerFlutterApi {
   final MyPeripheralManagerHostApi _api;
   BluetoothLowEnergyState _state;
@@ -18,7 +18,7 @@ class MyPeripheralManager extends PeripheralManager
   final StreamController<NotifyGattCharacteristicCommandEventArgs>
       _notifyCharacteristicCommandReceivedController;
 
-  MyPeripheralManager()
+  MyPeripheralManager2()
       : _api = MyPeripheralManagerHostApi(),
         _state = BluetoothLowEnergyState.unknown,
         _stateChangedController = StreamController.broadcast(),
@@ -59,9 +59,8 @@ class MyPeripheralManager extends PeripheralManager
 
   Future<void> _throwWithoutState(BluetoothLowEnergyState state) async {
     if (this.state != state) {
-      throw BluetoothLowEnergyError(
-        '$state is expected, but current state is ${this.state}.',
-      );
+      throw StateError(
+          '$state is expected, but current state is ${this.state}.');
     }
   }
 

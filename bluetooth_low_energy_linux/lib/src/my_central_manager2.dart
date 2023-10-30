@@ -11,8 +11,8 @@ import 'my_gatt_descriptor2.dart';
 import 'my_gatt_service2.dart';
 import 'my_peripheral2.dart';
 
-class MyCentralManager extends CentralManager {
-  MyCentralManager()
+class MyCentralManager2 extends MyCentralManager {
+  MyCentralManager2()
       : _client = BlueZClient(),
         _stateChangedController = StreamController.broadcast(),
         _discoveredController = StreamController.broadcast(),
@@ -60,9 +60,8 @@ class MyCentralManager extends CentralManager {
 
   Future<void> _throwWithoutState(BluetoothLowEnergyState state) async {
     if (this.state != state) {
-      throw BluetoothLowEnergyError(
-        '$state is expected, but current state is ${this.state}.',
-      );
+      throw StateError(
+          '$state is expected, but current state is ${this.state}.');
     }
   }
 
@@ -137,7 +136,7 @@ class MyCentralManager extends CentralManager {
     final myPeripheral = peripheral as MyPeripheral2;
     final device = myPeripheral.device;
     if (!device.connected) {
-      throw BluetoothLowEnergyError('Peripheral is disconnected.');
+      throw StateError('Peripheral is disconnected.');
     }
     if (!device.servicesResolved) {
       await _servicesResolved.firstWhere(

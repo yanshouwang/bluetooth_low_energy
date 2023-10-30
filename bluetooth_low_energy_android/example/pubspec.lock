@@ -15,15 +15,15 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "4.0.0-dev.3"
+    version: "4.0.0"
   bluetooth_low_energy_platform_interface:
     dependency: "direct main"
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: "9b4227a0e79b5e00a13ec56a3efb1b682088cb87a65a85a121d9d1ca56283f51"
+      sha256: a01819f4ef89d033edaa979465ec8c3af13b2618dc718d90fe681be91b6c4356
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.0-dev.10"
+    version: "4.0.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -137,6 +137,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  log_service:
+    dependency: transitive
+    description:
+      name: log_service
+      sha256: "21124936899e227d1779268077921d46d57456e2592d1562e455be273594e2e4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   logging:
     dependency: transitive
     description:

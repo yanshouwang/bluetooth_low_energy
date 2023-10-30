@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 
 import 'my_api.dart';
 import 'my_gatt_characteristic2.dart';
@@ -55,16 +54,13 @@ class MyCentralManager2 extends MyCentralManager
 
   Future<void> _throwWithoutState(BluetoothLowEnergyState state) async {
     if (this.state != state) {
-      throw PlatformException(
-        code: 'state-error',
-        message: '$state is expected, but current state is ${this.state}.',
-      );
+      throw StateError(
+          '$state is expected, but current state is ${this.state}.');
     }
   }
 
   @override
-  Future<void> _setUp() async {
-    await super.setUp();
+  Future<void> setUp() async {
     final args = await _api.setUp();
     final stateArgs =
         MyBluetoothLowEnergyStateArgs.values[args.stateNumberArgs];

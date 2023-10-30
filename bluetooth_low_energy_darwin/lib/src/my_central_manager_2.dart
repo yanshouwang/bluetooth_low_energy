@@ -7,7 +7,7 @@ import 'my_api.dart';
 import 'my_gatt_characteristic2.dart';
 import 'my_gatt_descriptor2.dart';
 
-class MyCentralManager extends CentralManager
+class MyCentralManager2 extends MyCentralManager
     implements MyCentralManagerFlutterApi {
   final MyCentralManagerHostApi _api;
   BluetoothLowEnergyState _state;
@@ -19,7 +19,7 @@ class MyCentralManager extends CentralManager
   final StreamController<GattCharacteristicValueChangedEventArgs>
       _characteristicValueChangedController;
 
-  MyCentralManager()
+  MyCentralManager2()
       : _api = MyCentralManagerHostApi(),
         _state = BluetoothLowEnergyState.unknown,
         _stateChangedController = StreamController.broadcast(),
@@ -54,9 +54,8 @@ class MyCentralManager extends CentralManager
 
   Future<void> _throwWithoutState(BluetoothLowEnergyState state) async {
     if (this.state != state) {
-      throw BluetoothLowEnergyError(
-        '$state is expected, but current state is ${this.state}.',
-      );
+      throw StateError(
+          '$state is expected, but current state is ${this.state}.');
     }
   }
 

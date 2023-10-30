@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer' as developer;
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
@@ -16,6 +16,7 @@ void main() {
 }
 
 void onStartUp() async {
+  Logger.root.onRecord.listen(onLogRecord);
   WidgetsFlutterBinding.ensureInitialized();
   await centralManager.setUp();
   await peripheralManager.setUp();
@@ -23,10 +24,19 @@ void onStartUp() async {
 }
 
 void onCrashed(Object error, StackTrace stackTrace) {
-  developer.log(
-    '$error',
-    error: error,
-    stackTrace: stackTrace,
+  Logger.root.shout('App crached.', error, stackTrace);
+}
+
+void onLogRecord(LogRecord record) {
+  log(
+    record.message,
+    time: record.time,
+    sequenceNumber: record.sequenceNumber,
+    level: record.level.value,
+    name: record.loggerName,
+    zone: record.zone,
+    error: record.error,
+    stackTrace: record.stackTrace,
   );
 }
 
