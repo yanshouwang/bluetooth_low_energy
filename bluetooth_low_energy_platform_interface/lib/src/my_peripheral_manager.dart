@@ -1,6 +1,6 @@
+import 'package:log_service/log_service.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'log_service.dart';
 import 'peripheral_manager.dart';
 
 /// Platform-specific implementations should implement this class to support

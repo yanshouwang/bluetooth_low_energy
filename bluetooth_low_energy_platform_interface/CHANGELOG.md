@@ -1,3 +1,7 @@
+## 4.0.0-dev.11
+
+* Use `log_service` instead of `logging` to simplify project structure.
+
 ## 4.0.0-dev.10
 
 * Fix the issue that messages were logged twice and other logger's messages were also logged by this logger.
