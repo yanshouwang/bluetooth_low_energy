@@ -8,11 +8,13 @@ same interface.
 
 # Usage
 
-To implement a new platform-specific implementation of `bluetooth_low_energy`, extend
-[`CentralController`][2] with an implementation that performs the
+To implement a new platform-specific implementation of `bluetooth_low_energy`, 
+extend [`MyCentralManager`][2] with an implementation that performs the
 platform-specific behavior, and when you register your plugin, set the default
-`CentralController` by calling
-`CentralController.instance = MyCentralController()`.
+`MyCentralManager` by calling `MyCentralManager.instance = MyCentralManagerImpl()`, 
+extend [`MyPeripheralManager`][3] with an implementation that performs the
+platform-specific behavior, and when you register your plugin, set the default
+`MyPeripheralManager` by calling `MyPeripheralManager.instance = MyPeripheralManagerImpl()`.
 
 # Note on breaking changes
 
@@ -23,4 +25,5 @@ See https://flutter.dev/go/platform-interface-breaking-changes for a discussion
 on why a less-clean interface is preferable to a breaking change.
 
 [1]: https://pub.dev/packages/bluetooth_low_energy
-[2]: lib/src/central_controller.dart
+[2]: lib/src/central_manager.dart
+[3]: lib/src/peripheral_manager.dart

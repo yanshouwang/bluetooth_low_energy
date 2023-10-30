@@ -203,13 +203,13 @@ class MyPeripheralManager(private val context: Context, binaryMessenger: BinaryM
         }
     }
 
-    override fun startAdvertising(advertiseDataArgs: MyAdvertiseDataArgs, callback: (Result<Unit>) -> Unit) {
+    override fun startAdvertising(advertisementArgs: MyAdvertisementArgs, callback: (Result<Unit>) -> Unit) {
         try {
             if (startAdvertisingCallback != null) {
                 throw IllegalStateException()
             }
             val settings = AdvertiseSettings.Builder().setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED).setConnectable(true).build()
-            val advertiseData = advertiseDataArgs.toAdvertiseData(adapter)
+            val advertiseData = advertisementArgs.toAdvertiseData(adapter)
             advertiser.startAdvertising(settings, advertiseData, advertiseCallback)
             startAdvertisingCallback = callback
         } catch (e: Throwable) {

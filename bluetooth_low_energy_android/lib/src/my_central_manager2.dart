@@ -1,31 +1,47 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
-import 'package:logging/logging.dart';
+import 'package:flutter/foundation.dart';
 
 import 'my_api.dart';
-import 'my_bluetooth_low_energy_manager.dart';
 import 'my_gatt_characteristic2.dart';
 import 'my_gatt_descriptor2.dart';
 
-class MyCentralManager extends MyBluetoothLowEnergyManager
-    implements CentralManager, MyCentralManagerFlutterApi {
-  final Logger _logger;
+class MyCentralManager2 extends MyCentralManager
+    implements MyCentralManagerFlutterApi {
   final MyCentralManagerHostApi _api;
+  BluetoothLowEnergyState _state;
+  final StreamController<BluetoothLowEnergyStateChangedEventArgs>
+      _stateChangedController;
   final StreamController<DiscoveredEventArgs> _discoveredController;
   final StreamController<PeripheralStateChangedEventArgs>
       _peripheralStateChangedController;
   final StreamController<GattCharacteristicValueChangedEventArgs>
       _characteristicValueChangedController;
 
-  MyCentralManager()
-      : _logger = Logger('MyCentralManager'),
-        _api = MyCentralManagerHostApi(),
+  MyCentralManager2()
+      : _api = MyCentralManagerHostApi(),
+        _state = BluetoothLowEnergyState.unknown,
+        _stateChangedController = StreamController.broadcast(),
         _discoveredController = StreamController.broadcast(),
         _peripheralStateChangedController = StreamController.broadcast(),
         _characteristicValueChangedController = StreamController.broadcast();
 
+  @override
+  BluetoothLowEnergyState get state => _state;
+  @protected
+  set state(BluetoothLowEnergyState value) {
+    if (_state == value) {
+      return;
+    }
+    _state = value;
+    final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
+    _stateChangedController.add(eventArgs);
+  }
+
+  @override
+  Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
+      _stateChangedController.stream;
   @override
   Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
   @override
@@ -35,6 +51,13 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
   Stream<GattCharacteristicValueChangedEventArgs>
       get characteristicValueChanged =>
           _characteristicValueChangedController.stream;
+
+  Future<void> _throwWithoutState(BluetoothLowEnergyState state) async {
+    if (this.state != state) {
+      throw StateError(
+          '$state is expected, but current state is ${this.state}.');
+    }
+  }
 
   @override
   Future<void> setUp() async {
@@ -47,26 +70,26 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
 
   @override
   Future<void> startDiscovery() async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     await _api.startDiscovery();
   }
 
   @override
   Future<void> stopDiscovery() async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     await _api.stopDiscovery();
   }
 
   @override
   Future<void> connect(Peripheral peripheral) async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final peripheralHashCodeArgs = peripheral.hashCode;
     await _api.connect(peripheralHashCodeArgs);
   }
 
   @override
   Future<void> disconnect(Peripheral peripheral) async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final peripheralHashCodeArgs = peripheral.hashCode;
     await _api.disconnect(peripheralHashCodeArgs);
   }
@@ -76,7 +99,7 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
     Peripheral peripheral, {
     required GattCharacteristicWriteType type,
   }) async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final peripheralHashCodeArgs = peripheral.hashCode;
     final typeArgs = type.toArgs();
     final typeNumberArgs = typeArgs.index;
@@ -89,7 +112,7 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
 
   @override
   Future<int> readRSSI(Peripheral peripheral) async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final peripheralHashCodeArgs = peripheral.hashCode;
     final rssi = await _api.readRSSI(peripheralHashCodeArgs);
     return rssi;
@@ -97,7 +120,7 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
 
   @override
   Future<List<GattService>> discoverGATT(Peripheral peripheral) async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
@@ -123,9 +146,9 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
       // TODO: 思考更好的解决方式，可以在连接后立即协商 MTU。
       const mtuArgs = 517;
       await _api.requestMTU(peripheralHashCodeArgs, mtuArgs);
-    } catch (error, stack) {
+    } catch (error, stackTrace) {
       // 忽略协商 MTU 错误
-      _logger.warning('requst MTU failed.', error, stack);
+      logger.warning('requst MTU failed.', error, stackTrace);
     }
     return services;
   }
@@ -134,7 +157,7 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
   Future<Uint8List> readCharacteristic(
     GattCharacteristic characteristic,
   ) async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     if (characteristic is! MyGattCharacteristic2) {
       throw TypeError();
     }
@@ -155,7 +178,7 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
     required Uint8List value,
     required GattCharacteristicWriteType type,
   }) async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     if (characteristic is! MyGattCharacteristic2) {
       throw TypeError();
     }
@@ -179,7 +202,7 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
     GattCharacteristic characteristic, {
     required bool state,
   }) async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     if (characteristic is! MyGattCharacteristic2) {
       throw TypeError();
     }
@@ -197,7 +220,7 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
 
   @override
   Future<Uint8List> readDescriptor(GattDescriptor descriptor) async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     if (descriptor is! MyGattDescriptor2) {
       throw TypeError();
     }
@@ -218,7 +241,7 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
     GattDescriptor descriptor, {
     required Uint8List value,
   }) async {
-    await throwWithoutState(BluetoothLowEnergyState.poweredOn);
+    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     if (descriptor is! MyGattDescriptor2) {
       throw TypeError();
     }
@@ -245,15 +268,15 @@ class MyCentralManager extends MyBluetoothLowEnergyManager
   void onDiscovered(
     MyPeripheralArgs peripheralArgs,
     int rssiArgs,
-    MyAdvertiseDataArgs advertiseDataArgs,
+    MyAdvertisementArgs advertisementArgs,
   ) {
     final peripheral = peripheralArgs.toPeripheral();
     final rssi = rssiArgs;
-    final advertiseData = advertiseDataArgs.toAdvertiseData();
+    final advertisement = advertisementArgs.toAdvertisement();
     final eventArgs = DiscoveredEventArgs(
       peripheral,
       rssi,
-      advertiseData,
+      advertisement,
     );
     _discoveredController.add(eventArgs);
   }

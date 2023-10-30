@@ -39,7 +39,7 @@ dependencies:
   bluetooth_low_energy: ^<latest-version>
 ```
 
-Remember to call `await CentralController.setUp()` before use any apis of this plugin.
+Remember to call `await CentralManager.setUp()` and `await PeripheralManager.setUp()` before use any apis of this plugin.
 
 *Note:* Bluetooth Low Energy doesn't work on emulators, so use physical devices which has bluetooth features for development.
 

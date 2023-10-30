@@ -1,18 +1,17 @@
 import 'dart:typed_data';
 
-import 'advertise_data.dart';
-import 'bluetooth_low_energy.dart';
+import 'advertisement.dart';
 import 'bluetooth_low_energy_manager.dart';
 import 'central.dart';
-import 'event_args.dart';
 import 'gatt_characteristic.dart';
 import 'gatt_service.dart';
+import 'my_peripheral_manager.dart';
+import 'peripheral_manager_event_args.dart';
 
 /// An object that manages and advertises peripheral services exposed by this app.
 abstract class PeripheralManager extends BluetoothLowEnergyManager {
-  /// Gets the instance of [PeripheralManager].
-  static PeripheralManager get instance =>
-      BluetoothLowEnergy.instance.peripheralManager;
+  /// The instance of [PeripheralManger] to use.
+  static PeripheralManager get instance => MyPeripheralManager.instance;
 
   /// Tells that the local peripheral received an Attribute Protocol (ATT) read request for a characteristic with a dynamic value.
   Stream<ReadGattCharacteristicCommandEventArgs>
@@ -36,7 +35,7 @@ abstract class PeripheralManager extends BluetoothLowEnergyManager {
   Future<void> clearServices();
 
   /// Advertises peripheral manager data.
-  Future<void> startAdvertising(AdvertiseData advertiseData);
+  Future<void> startAdvertising(Advertisement advertisement);
 
   /// Stops advertising peripheral manager data.
   Future<void> stopAdvertising();
@@ -47,27 +46,27 @@ abstract class PeripheralManager extends BluetoothLowEnergyManager {
 
   /// Responds to a read request from a connected central.
   Future<void> sendReadCharacteristicReply(
-    Central central,
-    GattCharacteristic characteristic,
-    int id,
-    int offset,
-    bool status,
-    Uint8List value,
-  );
+    Central central, {
+    required GattCharacteristic characteristic,
+    required int id,
+    required int offset,
+    required bool status,
+    required Uint8List value,
+  });
 
   /// Responds to a write request from a connected central.
   Future<void> sendWriteCharacteristicReply(
-    Central central,
-    GattCharacteristic characteristic,
-    int id,
-    int offset,
-    bool status,
-  );
+    Central central, {
+    required GattCharacteristic characteristic,
+    required int id,
+    required int offset,
+    required bool status,
+  });
 
   /// Send an updated characteristic value to one or more subscribed centrals, using a notification or indication.
   Future<void> notifyCharacteristicValueChanged(
-    Central central,
-    GattCharacteristic characteristic,
-    Uint8List value,
-  );
+    Central central, {
+    required GattCharacteristic characteristic,
+    required Uint8List value,
+  });
 }

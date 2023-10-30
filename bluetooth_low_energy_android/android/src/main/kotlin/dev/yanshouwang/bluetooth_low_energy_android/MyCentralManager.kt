@@ -417,8 +417,8 @@ class MyCentralManager(private val context: Context, binaryMessenger: BinaryMess
         this.devices[hashCodeArgs] = device
         this.peripheralsArgs[hashCode] = peripheralArgs
         val rssiArgs = result.rssi.toLong()
-        val advertiseDataArgs = result.advertiseDataArgs
-        api.onDiscovered(peripheralArgs, rssiArgs, advertiseDataArgs) {}
+        val advertisementArgs = result.advertisementArgs
+        api.onDiscovered(peripheralArgs, rssiArgs, advertisementArgs) {}
     }
 
     fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {

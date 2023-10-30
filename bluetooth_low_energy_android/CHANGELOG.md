@@ -1,3 +1,32 @@
+## 4.0.0
+
+* Remove `BluetoothLowEnergy` class.
+* Update `CentralManger` to extends `PlatformInterface`.
+* Update `PeripheralManager` to extends `PlatformInterface`.
+* Change some `PeripheralManager` methods' arguments to required optional arguments.
+* Move `AdvertiseData` class to `Advertisement` class.
+* Remove `BluetoothLowEnergyError` class.
+* Add `MyCentralManager` and `MyPeripheralManager` abstract classes.
+* Add `LogController` interface to `BluetoothLowEnergyManager`.
+* Fix issues.
+
+## 4.0.0-dev.3
+
+* Optimize project structure.
+
+## 4.0.0-dev.2
+
+* Optimize the import method of the `example`.
+
+## 4.0.0-dev.1
+
+* Remove `BluetoothLowEnergy` class.
+* Update `CentralManger` to extends `PlatformInterface`.
+* Update `PeripheralManager` to extends `PlatformInterface`.
+* Move `AdvertiseData` class to `Advertisement` class.
+* Remove `logging` dependency.
+* Update `example`.
+
 ## 3.0.4
 
 * Fix the issue [android device: requestMtu issue #22](https://github.com/yanshouwang/bluetooth_low_energy/issues/22)

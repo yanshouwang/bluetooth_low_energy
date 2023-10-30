@@ -1,19 +1,18 @@
 import 'dart:typed_data';
 
-import 'bluetooth_low_energy.dart';
 import 'bluetooth_low_energy_manager.dart';
-import 'event_args.dart';
+import 'central_manager_event_args.dart';
 import 'gatt_characteristic.dart';
 import 'gatt_characteristic_write_type.dart';
 import 'gatt_descriptor.dart';
 import 'gatt_service.dart';
+import 'my_central_manager.dart';
 import 'peripheral.dart';
 
 /// An object that scans for, discovers, connects to, and manages peripherals.
 abstract class CentralManager extends BluetoothLowEnergyManager {
-  /// Gets the instance of [CentralManager].
-  static CentralManager get instance =>
-      BluetoothLowEnergy.instance.centralManager;
+  /// The instance of [CentralManager] to use.
+  static CentralManager get instance => MyCentralManager.instance;
 
   /// Tells the central manager discovered a peripheral while scanning for devices.
   Stream<DiscoveredEventArgs> get discovered;

@@ -1,3 +1,23 @@
+## 4.0.0
+
+* Remove `BluetoothLowEnergy` class.
+* Update `CentralManger` to extends `PlatformInterface`.
+* Update `PeripheralManager` to extends `PlatformInterface`.
+* Change some `PeripheralManager` methods' arguments to required optional arguments.
+* Move `AdvertiseData` class to `Advertisement` class.
+* Remove `BluetoothLowEnergyError` class.
+* Add `MyCentralManager` and `MyPeripheralManager` abstract classes.
+* Add `LogController` interface to `BluetoothLowEnergyManager`.
+* Fix issues.
+
+## 4.0.0-dev.1
+
+* Remove `BluetoothLowEnergy` class.
+* Update `CentralManger` to extends `PlatformInterface`.
+* Update `PeripheralManager` to extends `PlatformInterface`.
+* Move `AdvertiseData` class to `Advertisement` class.
+* Update `example`.
+
 ## 3.0.0
 
 * Add `PeripheralManager` api.

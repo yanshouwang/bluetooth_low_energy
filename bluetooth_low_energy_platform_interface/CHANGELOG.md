@@ -1,3 +1,73 @@
+## 4.0.0
+
+* Remove `BluetoothLowEnergy` class.
+* Update `CentralManger` to extends `PlatformInterface`.
+* Update `PeripheralManager` to extends `PlatformInterface`.
+* Update `README.md`.
+* Change some `PeripheralManager` methods' arguments to required optional arguments.
+* Move `AdvertiseData` class to `Advertisement` class.
+* Remove `BluetoothLowEnergyError` class.
+* Add `MyCentralManager` and `MyPeripheralManager` abstract classes.
+* Add `LogController` interface to `BluetoothLowEnergyManager`.
+* Fix issues.
+
+## 4.0.0-dev.12
+
+* Update `log_service` dependency.
+
+## 4.0.0-dev.11
+
+* Use `log_service` instead of `logging` to simplify project structure.
+
+## 4.0.0-dev.10
+
+* Fix the issue that messages were logged twice and other logger's messages were also logged by this logger.
+
+## 4.0.0-dev.9
+
+* Remove `Logger`, use `logging` package instead.
+* Add `SetUp` interface class and `MySetUp` mixin.
+* Add `LoggerController` interface class and `MyLoggerController` mixin.
+* Update `CentralManager` to implements `SetUp` and `LoggerController`.
+* Update `PeripheralManager` to implements `SetUp` and `LoggerController`.
+
+## 4.0.0-dev.8
+
+* Remove `BluetoothLowEnergyError`, use `PlatformException` instead.
+* Add `MyCentralManager` and `MyPeripheralManager` abstract classes.
+* Optimize project's structure.
+
+## 4.0.0-dev.7
+
+* Remove `Logger.level` filed, as the level of `logging` package is a global option, which can be changed by anyone.
+
+## 4.0.0-dev.6
+
+* Move `AdvertiseData` class to `Advertisement` class.
+
+## 4.0.0-dev.5
+
+* Fix export error.
+
+## 4.0.0-dev.4
+
+* Optimize project's structure.
+
+## 4.0.0-dev.3
+
+* Change some `PeripheralManager` methods' arguments to required optional arguments.
+
+## 4.0.0-dev.2
+
+* Add `Logger` class.
+
+## 4.0.0-dev.1
+
+* Remove `BluetoothLowEnergy` class.
+* Update `CentralManger` to extends `PlatformInterface`.
+* Update `PeripheralManager` to extends `PlatformInterface`.
+* Update `README.md`.
+
 ## 3.0.0
 
 * Add `PeripheralManager` api.

@@ -307,7 +307,7 @@ class MyCentralManager: MyCentralManagerHostApi {
             setUpCompletion!(.success(args))
             setUpCompletion = nil
         }
-        api.onStateChanged(stateNumberArgs: stateNumberArgs) {}
+        api.onStateChanged(stateNumberArgs: stateNumberArgs) {_ in }
     }
     
     func didDiscover(_ peripheral: CBPeripheral, _ advertisementData: [String : Any], _ rssi: NSNumber) {
@@ -318,8 +318,8 @@ class MyCentralManager: MyCentralManagerHostApi {
         peripherals[peripheralHashCodeArgs] = peripheral
         peripheralsArgs[peripheralHashCode] = peripheralArgs
         let rssiArgs = rssi.int64Value
-        let advertiseDataArgs = advertisementData.toAdvertiseDataArgs()
-        api.onDiscovered(peripheralArgs: peripheralArgs, rssiArgs: rssiArgs, advertiseDataArgs: advertiseDataArgs) {}
+        let advertisementArgs = advertisementData.toAdvertisementArgs()
+        api.onDiscovered(peripheralArgs: peripheralArgs, rssiArgs: rssiArgs, advertisementArgs: advertisementArgs) {_ in }
     }
     
     func didConnect(_ peripheral: CBPeripheral) {
@@ -329,7 +329,7 @@ class MyCentralManager: MyCentralManagerHostApi {
         }
         let peripheralHashCodeArgs = peripheralArgs.hashCodeArgs
         let stateArgs = true
-        api.onPeripheralStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) {}
+        api.onPeripheralStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) {_ in }
         guard let completion = connectCompletions.removeValue(forKey: peripheralHashCodeArgs) else {
             return
         }
@@ -390,7 +390,7 @@ class MyCentralManager: MyCentralManagerHostApi {
             }
         }
         let stateArgs = false
-        api.onPeripheralStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) {}
+        api.onPeripheralStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) {_ in }
         guard let completion = disconnectCompletions.removeValue(forKey: peripheralHashCodeArgs) else {
             return
         }
@@ -550,7 +550,7 @@ class MyCentralManager: MyCentralManagerHostApi {
         guard let completion = readCharacteristicCompletions.removeValue(forKey: characteristicHashCodeArgs) else {
             let value = characteristic.value ?? Data()
             let valueArgs = FlutterStandardTypedData(bytes: value)
-            api.onCharacteristicValueChanged(characteristicArgs: characteristicArgs, valueArgs: valueArgs) {}
+            api.onCharacteristicValueChanged(characteristicArgs: characteristicArgs, valueArgs: valueArgs) {_ in }
             return
         }
         if error == nil {

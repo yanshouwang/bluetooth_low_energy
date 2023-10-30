@@ -1,9 +1,11 @@
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
-import 'src/my_bluetooth_low_energy.dart';
+import 'src/my_central_manager_2.dart';
+import 'src/my_peripheral_manager_2.dart';
 
 abstract class BluetoothLowEnergyDarwin {
   static void registerWith() {
-    BluetoothLowEnergy.instance = MyBluetoothLowEnergy();
+    MyCentralManager.instance = MyCentralManager2();
+    MyPeripheralManager.instance = MyPeripheralManager2();
   }
 }
