@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:log_service/log_service.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -6,7 +7,7 @@ import 'peripheral_manager.dart';
 /// Platform-specific implementations should implement this class to support
 /// [PeripheralManager].
 abstract class MyPeripheralManager extends PlatformInterface
-    with LogService
+    with LoggerController
     implements PeripheralManager {
   static final Object _token = Object();
 
@@ -33,4 +34,8 @@ abstract class MyPeripheralManager extends PlatformInterface
 
   /// Constructs a [MyPeripheralManager].
   MyPeripheralManager() : super(token: _token);
+
+  @protected
+  @override
+  Logger get logger => Logger('$PeripheralManager');
 }
