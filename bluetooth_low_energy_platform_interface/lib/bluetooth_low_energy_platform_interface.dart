@@ -7,6 +7,8 @@
 /// [1]: https://pub.dev/packages/bluetooth_low_energy
 library;
 
+export 'package:log_service/log_service.dart';
+
 export 'src/event_args.dart';
 export 'src/bluetooth_low_energy_state.dart';
 export 'src/bluetooth_low_energy_event_args.dart';

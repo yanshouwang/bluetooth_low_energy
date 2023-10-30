@@ -1,3 +1,7 @@
+## 4.0.0-dev.12
+
+* Update `log_service` dependency.
+
 ## 4.0.0-dev.11
 
 * Use `log_service` instead of `logging` to simplify project structure.
