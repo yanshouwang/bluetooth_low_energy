@@ -8,22 +8,35 @@ import 'package:convert/convert.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+CentralManager get centralManager => CentralManager.instance;
+PeripheralManager get peripheralManager => PeripheralManager.instance;
+
 void main() {
   runZonedGuarded(onStartUp, onCrashed);
 }
 
 void onStartUp() async {
+  Logger.root.onRecord.listen(onLogRecord);
   WidgetsFlutterBinding.ensureInitialized();
-  await CentralManager.instance.setUp();
-  await PeripheralManager.instance.setUp();
+  await centralManager.setUp();
+  await peripheralManager.setUp();
   runApp(const MyApp());
 }
 
 void onCrashed(Object error, StackTrace stackTrace) {
+  Logger.root.shout('App crached.', error, stackTrace);
+}
+
+void onLogRecord(LogRecord record) {
   log(
-    '$error',
-    error: error,
-    stackTrace: stackTrace,
+    record.message,
+    time: record.time,
+    sequenceNumber: record.sequenceNumber,
+    level: record.level.value,
+    name: record.loggerName,
+    zone: record.zone,
+    error: record.error,
+    stackTrace: record.stackTrace,
   );
 }
 
@@ -138,8 +151,6 @@ class _HomeViewState extends State<HomeView> {
   }
 }
 
-CentralManager get centralManager => CentralManager.instance;
-
 class ScannerView extends StatefulWidget {
   const ScannerView({super.key});
 
@@ -237,7 +248,7 @@ class _ScannerViewState extends State<ScannerView> {
       builder: (context, discoveredEventArgs, child) {
         // final items = discoveredEventArgs;
         final items = discoveredEventArgs
-            .where((eventArgs) => eventArgs.advertiseData.name != null)
+            .where((eventArgs) => eventArgs.advertisement.name != null)
             .toList();
         return ListView.separated(
           itemBuilder: (context, i) {
@@ -245,8 +256,8 @@ class _ScannerViewState extends State<ScannerView> {
             final item = items[i];
             final uuid = item.peripheral.uuid;
             final rssi = item.rssi;
-            final advertiseData = item.advertiseData;
-            final name = advertiseData.name;
+            final advertisement = item.advertisement;
+            final name = advertisement.name;
             return ListTile(
               onTap: () async {
                 final discovering = this.discovering.value;
@@ -273,7 +284,7 @@ class _ScannerViewState extends State<ScannerView> {
                       clipBehavior: Clip.antiAlias,
                       builder: (context) {
                         final manufacturerSpecificData =
-                            advertiseData.manufacturerSpecificData;
+                            advertisement.manufacturerSpecificData;
                         return ListView.separated(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16.0,
@@ -428,7 +439,7 @@ class _PeripheralViewState extends State<PeripheralView> {
       },
     );
     rssiTimer = Timer.periodic(
-      const Duration(seconds: 1),
+      const Duration(seconds: 5),
       (timer) async {
         final state = this.state.value;
         if (state) {
@@ -458,7 +469,7 @@ class _PeripheralViewState extends State<PeripheralView> {
   }
 
   PreferredSizeWidget buildAppBar(BuildContext context) {
-    final title = eventArgs.advertiseData.name ?? '<EMPTY NAME>';
+    final title = eventArgs.advertisement.name ?? '';
     return AppBar(
       title: Text(title),
       actions: [
@@ -804,8 +815,6 @@ class _PeripheralViewState extends State<PeripheralView> {
   }
 }
 
-PeripheralManager get peripheralManager => PeripheralManager.instance;
-
 class AdvertiserView extends StatefulWidget {
   const AdvertiserView({super.key});
 
@@ -813,7 +822,8 @@ class AdvertiserView extends StatefulWidget {
   State<AdvertiserView> createState() => _AdvertiserViewState();
 }
 
-class _AdvertiserViewState extends State<AdvertiserView> {
+class _AdvertiserViewState extends State<AdvertiserView>
+    with SingleTickerProviderStateMixin {
   late final ValueNotifier<BluetoothLowEnergyState> state;
   late final ValueNotifier<bool> advertising;
   late final ValueNotifier<List<Log>> logs;
@@ -856,11 +866,11 @@ class _AdvertiserViewState extends State<AdvertiserView> {
         final value = Uint8List.fromList([0x01, 0x02, 0x03]);
         await peripheralManager.sendReadCharacteristicReply(
           central,
-          characteristic,
-          id,
-          offset,
-          status,
-          value,
+          characteristic: characteristic,
+          id: id,
+          offset: offset,
+          status: status,
+          value: value,
         );
       },
     );
@@ -884,10 +894,10 @@ class _AdvertiserViewState extends State<AdvertiserView> {
         const status = true;
         await peripheralManager.sendWriteCharacteristicReply(
           central,
-          characteristic,
-          id,
-          offset,
-          status,
+          characteristic: characteristic,
+          id: id,
+          offset: offset,
+          status: status,
         );
       },
     );
@@ -911,8 +921,8 @@ class _AdvertiserViewState extends State<AdvertiserView> {
           final value = Uint8List.fromList([0x03, 0x02, 0x01]);
           await peripheralManager.notifyCharacteristicValueChanged(
             central,
-            characteristic,
-            value,
+            characteristic: characteristic,
+            value: value,
           );
         }
       },
@@ -991,14 +1001,14 @@ class _AdvertiserViewState extends State<AdvertiserView> {
       ],
     );
     await peripheralManager.addService(service);
-    final advertiseData = AdvertiseData(
+    final advertisement = Advertisement(
       name: 'flutter',
       manufacturerSpecificData: ManufacturerSpecificData(
         id: 0x2e19,
         data: Uint8List.fromList([0x01, 0x02, 0x03]),
       ),
     );
-    await peripheralManager.startAdvertising(advertiseData);
+    await peripheralManager.startAdvertising(advertisement);
     advertising.value = true;
   }
 
