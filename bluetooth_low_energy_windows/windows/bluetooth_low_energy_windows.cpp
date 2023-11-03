@@ -1,20 +1,23 @@
+// This must be included before many other Windows headers.
+#include <windows.h>
+
 #include "bluetooth_low_energy_windows.h"
-#include "my_central_manager.h"
 
 namespace bluetooth_low_energy_windows {
 	// static
-	void BluetoothLowEnergyWindows::RegisterWithRegistrar(
-		flutter::PluginRegistrarWindows* registrar) {
-		auto messenger_pointer = registrar->messenger();
-		auto my_central_manager = std::make_unique<MyCentralManager>();
-		auto my_central_manager_pointer = my_central_manager.get();
-		MyCentralManagerHostApi::SetUp(messenger_pointer, my_central_manager_pointer);
+	void BluetoothLowEnergyWindows::RegisterWithRegistrar(flutter::PluginRegistrarWindows* registrar) {
+		auto messenger = registrar->messenger();
+		auto central_manager = std::make_unique<MyCentralManager>(messenger);
+		MyCentralManagerHostApi::SetUp(messenger, central_manager.get());
 
-		auto plugin = std::make_unique<BluetoothLowEnergyWindows>();
+		auto plugin = std::make_unique<BluetoothLowEnergyWindows>(std::move(central_manager));
 		registrar->AddPlugin(std::move(plugin));
 	}
 
-	BluetoothLowEnergyWindows::BluetoothLowEnergyWindows() {}
+	BluetoothLowEnergyWindows::BluetoothLowEnergyWindows(std::unique_ptr<MyCentralManager> central_manager)
+	{
+		m_central_manager = std::move(central_manager);
+	}
 
 	BluetoothLowEnergyWindows::~BluetoothLowEnergyWindows() {}
 

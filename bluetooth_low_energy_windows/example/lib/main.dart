@@ -19,7 +19,7 @@ void onStartUp() async {
   Logger.root.onRecord.listen(onLogRecord);
   WidgetsFlutterBinding.ensureInitialized();
   await centralManager.setUp();
-  await peripheralManager.setUp();
+  // await peripheralManager.setUp();
   runApp(const MyApp());
 }
 
