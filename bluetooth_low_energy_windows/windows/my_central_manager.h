@@ -59,6 +59,15 @@ namespace bluetooth_low_energy_windows
 		winrt::event_token m_radio_state_changed_token;
 
 		winrt::fire_and_forget m_set_up(std::function<void(ErrorOr<MyCentralManagerArgs> reply)> result);
+		winrt::fire_and_forget m_connect(int64_t peripheral_hash_code_args, std::function<void(std::optional<FlutterError> reply)> result);
+		winrt::fire_and_forget m_disconnect(int64_t peripheral_hash_code_args, std::function<void(std::optional<FlutterError> reply)> result);
+		winrt::fire_and_forget m_read_rssi(int64_t peripheral_hash_code_args, std::function<void(ErrorOr<int64_t> reply)> result);
+		winrt::fire_and_forget m_discover_gatt(int64_t peripheral_hash_code_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
+		winrt::fire_and_forget m_read_characteristic(int64_t peripheral_hash_code_args, int64_t characteristic_hash_code_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result);
+		winrt::fire_and_forget m_write_characteristic(int64_t peripheral_hash_code_args, int64_t characteristic_hash_code_args, const std::vector<uint8_t>& value_args, int64_t type_number_args, std::function<void(std::optional<FlutterError> reply)> result);
+		winrt::fire_and_forget m_notify_characteristic(int64_t peripheral_hash_code_args, int64_t characteristic_hash_code_args, bool state_args, std::function<void(std::optional<FlutterError> reply)> result);
+		winrt::fire_and_forget m_read_descriptor(int64_t peripheral_hash_code_args, int64_t descriptor_hash_code_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result);
+		winrt::fire_and_forget m_write_descriptor(int64_t peripheral_hash_code_args, int64_t descriptor_hash_code_args, const std::vector<uint8_t>& value_args, std::function<void(std::optional<FlutterError> reply)> result);
 
 		MyBluetoothLowEnergyStateArgs m_format_radio_state(RadioState state);
 		std::string m_format_address(uint64_t address);

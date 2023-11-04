@@ -60,10 +60,12 @@ namespace bluetooth_low_energy_windows
 
 	void MyCentralManager::Connect(int64_t peripheral_hash_code_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
+		m_connect(peripheral_hash_code_args, result);
 	}
 
 	void MyCentralManager::Disconnect(int64_t peripheral_hash_code_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
+		m_disconnect(peripheral_hash_code_args, result);
 	}
 
 	ErrorOr<int64_t> MyCentralManager::GetMaximumWriteLength(int64_t peripheral_hash_code_args, int64_t type_number_args)
@@ -73,30 +75,37 @@ namespace bluetooth_low_energy_windows
 
 	void MyCentralManager::ReadRSSI(int64_t peripheral_hash_code_args, std::function<void(ErrorOr<int64_t> reply)> result)
 	{
+		m_read_rssi(peripheral_hash_code_args, result);
 	}
 
 	void MyCentralManager::DiscoverGATT(int64_t peripheral_hash_code_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
 	{
+		m_discover_gatt(peripheral_hash_code_args, result);
 	}
 
 	void MyCentralManager::ReadCharacteristic(int64_t peripheral_hash_code_args, int64_t characteristic_hash_code_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result)
 	{
+		m_read_characteristic(peripheral_hash_code_args, characteristic_hash_code_args, result);
 	}
 
 	void MyCentralManager::WriteCharacteristic(int64_t peripheral_hash_code_args, int64_t characteristic_hash_code_args, const std::vector<uint8_t>& value_args, int64_t type_number_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
+		m_write_characteristic(peripheral_hash_code_args, characteristic_hash_code_args, value_args, type_number_args, result);
 	}
 
 	void MyCentralManager::NotifyCharacteristic(int64_t peripheral_hash_code_args, int64_t characteristic_hash_code_args, bool state_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
+		m_notify_characteristic(peripheral_hash_code_args, characteristic_hash_code_args, state_args, result);
 	}
 
 	void MyCentralManager::ReadDescriptor(int64_t peripheral_hash_code_args, int64_t descriptor_hash_code_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result)
 	{
+		m_read_descriptor(peripheral_hash_code_args, descriptor_hash_code_args, result);
 	}
 
 	void MyCentralManager::WriteDescriptor(int64_t peripheral_hash_code_args, int64_t descriptor_hash_code_args, const std::vector<uint8_t>& value_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
+		m_write_descriptor(peripheral_hash_code_args, descriptor_hash_code_args, value_args, result);
 	}
 
 	winrt::fire_and_forget MyCentralManager::m_set_up(std::function<void(ErrorOr<MyCentralManagerArgs> reply)> result)
@@ -126,6 +135,51 @@ namespace bluetooth_low_energy_windows
 				m_api->OnStateChanged(state_number_args, [] {}, [](auto error) {});
 			});
 		co_return;
+	}
+
+	winrt::fire_and_forget MyCentralManager::m_connect(int64_t peripheral_hash_code_args, std::function<void(std::optional<FlutterError> reply)> result)
+	{
+		return winrt::fire_and_forget();
+	}
+
+	winrt::fire_and_forget MyCentralManager::m_disconnect(int64_t peripheral_hash_code_args, std::function<void(std::optional<FlutterError> reply)> result)
+	{
+		return winrt::fire_and_forget();
+	}
+
+	winrt::fire_and_forget MyCentralManager::m_read_rssi(int64_t peripheral_hash_code_args, std::function<void(ErrorOr<int64_t>reply)> result)
+	{
+		return winrt::fire_and_forget();
+	}
+
+	winrt::fire_and_forget MyCentralManager::m_discover_gatt(int64_t peripheral_hash_code_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result)
+	{
+		return winrt::fire_and_forget();
+	}
+
+	winrt::fire_and_forget MyCentralManager::m_read_characteristic(int64_t peripheral_hash_code_args, int64_t characteristic_hash_code_args, std::function<void(ErrorOr<std::vector<uint8_t>>reply)> result)
+	{
+		return winrt::fire_and_forget();
+	}
+
+	winrt::fire_and_forget MyCentralManager::m_write_characteristic(int64_t peripheral_hash_code_args, int64_t characteristic_hash_code_args, const std::vector<uint8_t>& value_args, int64_t type_number_args, std::function<void(std::optional<FlutterError>reply)> result)
+	{
+		return winrt::fire_and_forget();
+	}
+
+	winrt::fire_and_forget MyCentralManager::m_notify_characteristic(int64_t peripheral_hash_code_args, int64_t characteristic_hash_code_args, bool state_args, std::function<void(std::optional<FlutterError>reply)> result)
+	{
+		return winrt::fire_and_forget();
+	}
+
+	winrt::fire_and_forget MyCentralManager::m_read_descriptor(int64_t peripheral_hash_code_args, int64_t descriptor_hash_code_args, std::function<void(ErrorOr<std::vector<uint8_t>>reply)> result)
+	{
+		return winrt::fire_and_forget();
+	}
+
+	winrt::fire_and_forget MyCentralManager::m_write_descriptor(int64_t peripheral_hash_code_args, int64_t descriptor_hash_code_args, const std::vector<uint8_t>& value_args, std::function<void(std::optional<FlutterError>reply)> result)
+	{
+		return winrt::fire_and_forget();
 	}
 
 	MyBluetoothLowEnergyStateArgs MyCentralManager::m_format_radio_state(RadioState state)
@@ -159,7 +213,8 @@ namespace bluetooth_low_energy_windows
 		auto service_uuids_args = flutter::EncodableList();
 		auto service_data_args = flutter::EncodableMap();
 		auto sections = advertisement.DataSections();
-		for (const auto& section : sections) {
+		for (const auto& section : sections)
+		{
 			auto section_type = section.DataType();
 			auto section_buffer = section.Data();
 			auto section_data_length = section_buffer.Length();
@@ -173,7 +228,7 @@ namespace bluetooth_low_energy_windows
 				std::memcpy(&data1, section_data, 2Ui64);
 				auto data2 = static_cast<uint16_t>(0x0000);
 				auto data3 = static_cast<uint16_t>(0x1000);
-				auto data4 = std::to_array<uint8_t>({ 0x80,0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb });
+				auto data4 = std::to_array<uint8_t>({ 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb });
 				auto uuid = winrt::guid(data1, data2, data3, data4);
 				auto formatted_uuid = std::format("{}", uuid);
 				auto uuid_args = flutter::EncodableValue(formatted_uuid);
@@ -189,7 +244,7 @@ namespace bluetooth_low_energy_windows
 				std::memcpy(&data1, section_data, 4Ui64);
 				auto data2 = static_cast<uint16_t>(0x0000);
 				auto data3 = static_cast<uint16_t>(0x1000);
-				auto data4 = std::to_array<uint8_t>({ 0x80,0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb });
+				auto data4 = std::to_array<uint8_t>({ 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb });
 				auto uuid = winrt::guid(data1, data2, data3, data4);
 				auto formatted_uuid = std::format("{}", uuid);
 				auto uuid_args = flutter::EncodableValue(formatted_uuid);
@@ -239,10 +294,11 @@ namespace bluetooth_low_energy_windows
 	}
 }
 
-template<>
+template <>
 struct std::formatter<winrt::guid> : std::formatter<string>
 {
-	auto format(const winrt::guid& guid, std::format_context& context) {
+	auto format(const winrt::guid& guid, std::format_context& context)
+	{
 		auto formatted = context.out();
 		formatted = std::format_to(formatted, "{:08X}-", guid.Data1);
 		formatted = std::format_to(formatted, "{:04X}-", guid.Data2);
