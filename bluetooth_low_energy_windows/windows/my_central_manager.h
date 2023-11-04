@@ -1,5 +1,5 @@
-#ifndef PIGEON_MY_CENTRAL_MANAGER_API_H_
-#define PIGEON_MY_CENTRAL_MANAGER_API_H_
+#ifndef BLEW_MY_CENTRAL_MANAGER_H_
+#define BLEW_MY_CENTRAL_MANAGER_H_
 
 #include "winrt/Windows.Devices.Bluetooth.h"
 #include "winrt/Windows.Devices.Bluetooth.Advertisement.h"
