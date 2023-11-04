@@ -17,14 +17,21 @@ namespace bluetooth_low_energy_windows
 		m_watcher = BluetoothLEAdvertisementWatcher();
 		m_watcher_received_token = m_watcher->Received([this](BluetoothLEAdvertisementWatcher watcher, BluetoothLEAdvertisementReceivedEventArgs event_args)
 			{
+				auto type = event_args.AdvertisementType();
+				// TODO: 支持扫描响应和扫描扩展
+				if (type == BluetoothLEAdvertisementType::ScanResponse ||
+					type == BluetoothLEAdvertisementType::Extended)
+				{
+					return;
+				}
 				auto address = event_args.BluetoothAddress();
 				auto hash_code_args = static_cast<int64_t>(address);
-				auto uuid_args = m_address_to_uuid_args(address);
+				auto uuid_args = m_format_address(address);
 				auto peripheral_args = MyPeripheralArgs(hash_code_args, uuid_args);
 				auto rssi = event_args.RawSignalStrengthInDBm();
 				auto rssi_args = static_cast<int64_t>(rssi);
 				auto advertisement = event_args.Advertisement();
-				auto advertisement_args = m_advertisement_args(advertisement);
+				auto advertisement_args = m_format_advertisement(advertisement);
 				m_api->OnDiscovered(peripheral_args, rssi_args, advertisement_args, [] {}, [](auto error) {});
 			});
 	}
@@ -107,21 +114,21 @@ namespace bluetooth_low_energy_windows
 		}
 		m_radio = co_await m_adapter->GetRadioAsync();
 		auto state = m_radio->State();
-		auto state_args = m_state_args(state);
+		auto state_args = m_format_radio_state(state);
 		auto state_number_args = static_cast<int64_t>(state_args);
 		auto args = MyCentralManagerArgs(state_number_args);
 		result(args);
 		m_radio_state_changed_token = m_radio->StateChanged([this](Radio radio, auto obj)
 			{
 				auto state = radio.State();
-				auto state_args = m_state_args(state);
+				auto state_args = m_format_radio_state(state);
 				auto state_number_args = static_cast<int64_t>(state_args);
 				m_api->OnStateChanged(state_number_args, [] {}, [](auto error) {});
 			});
 		co_return;
 	}
 
-	MyBluetoothLowEnergyStateArgs MyCentralManager::m_state_args(RadioState state)
+	MyBluetoothLowEnergyStateArgs MyCentralManager::m_format_radio_state(RadioState state)
 	{
 		switch (state)
 		{
@@ -137,31 +144,14 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	std::string MyCentralManager::m_address_to_uuid_args(uint64_t address)
+	std::string MyCentralManager::m_format_address(uint64_t address)
 	{
 		auto stream = std::stringstream();
 		stream << "00000000-0000-0000-0000-" << std::setfill('0') << std::setw(12) << std::hex << address;
 		return stream.str();
 	}
 
-	std::string MyCentralManager::m_data_to_uuid_args(uint32_t data0, uint16_t data1, uint16_t data2, uint16_t data3, std::vector<uint8_t> data4)
-	{
-		auto stream = std::stringstream();
-		stream << std::setfill('0') << std::setw(8) << std::hex << data0;
-		stream << "-";
-		stream << std::setfill('0') << std::setw(4) << std::hex << data1;
-		stream << "-";
-		stream << std::setfill('0') << std::setw(4) << std::hex << data2;
-		stream << "-";
-		stream << std::setfill('0') << std::setw(4) << std::hex << data3;
-		stream << "-";
-		for (auto i : data4) {
-			stream << std::setfill('0') << std::setw(2) << std::hex << static_cast<uint16_t>(i);
-		}
-		return stream.str();
-	}
-
-	MyAdvertisementArgs MyCentralManager::m_advertisement_args(BluetoothLEAdvertisement advertisement)
+	MyAdvertisementArgs MyCentralManager::m_format_advertisement(BluetoothLEAdvertisement advertisement)
 	{
 		auto name = advertisement.LocalName();
 		auto name_args = winrt::to_string(name);
@@ -179,16 +169,14 @@ namespace bluetooth_low_energy_windows
 			if (section_type == type16 && section_data_length > 2)
 			{
 				auto section_data = section_buffer.data();
-				auto item = uint16_t();
-				auto item_size = sizeof(item);
-				std::memcpy(&item, section_data, item_size);
-				auto data0 = static_cast<uint32_t>(item);
-				auto data1 = static_cast<uint16_t>(0x0000);
-				auto data2 = static_cast<uint16_t>(0x1000);
-				auto data3 = static_cast<uint16_t>(0x8000);
-				auto data4 = std::vector<uint8_t>({ 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb });
-				auto uuid = m_data_to_uuid_args(data0, data1, data2, data3, data4);
-				auto uuid_args = flutter::EncodableValue(uuid);
+				auto data1 = uint32_t();
+				std::memcpy(&data1, section_data, 2Ui64);
+				auto data2 = static_cast<uint16_t>(0x0000);
+				auto data3 = static_cast<uint16_t>(0x1000);
+				auto data4 = std::to_array<uint8_t>({ 0x80,0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb });
+				auto uuid = winrt::guid(data1, data2, data3, data4);
+				auto formatted_uuid = std::format("{}", uuid);
+				auto uuid_args = flutter::EncodableValue(formatted_uuid);
 				auto data = std::vector<uint8_t>(section_data + 2, section_data + section_data_length);
 				auto data_args = flutter::EncodableValue(data);
 				auto args = std::make_pair(uuid_args, data_args);
@@ -197,15 +185,14 @@ namespace bluetooth_low_energy_windows
 			else if (section_type == type32 && section_data_length > 4)
 			{
 				auto section_data = section_buffer.data();
-				auto data0 = uint32_t();
-				auto data0_size = sizeof(data0);
-				std::memcpy(&data0, section_data, data0_size);
-				auto data1 = static_cast<uint16_t>(0x0000);
-				auto data2 = static_cast<uint16_t>(0x1000);
-				auto data3 = static_cast<uint16_t>(0x8000);
-				auto data4 = std::vector<uint8_t>({ 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb });
-				auto uuid = m_data_to_uuid_args(data0, data1, data2, data3, data4);
-				auto uuid_args = flutter::EncodableValue(uuid);
+				auto data1 = uint32_t();
+				std::memcpy(&data1, section_data, 4Ui64);
+				auto data2 = static_cast<uint16_t>(0x0000);
+				auto data3 = static_cast<uint16_t>(0x1000);
+				auto data4 = std::to_array<uint8_t>({ 0x80,0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb });
+				auto uuid = winrt::guid(data1, data2, data3, data4);
+				auto formatted_uuid = std::format("{}", uuid);
+				auto uuid_args = flutter::EncodableValue(formatted_uuid);
 				auto data = std::vector<uint8_t>(section_data + 4, section_data + section_data_length);
 				auto data_args = flutter::EncodableValue(data);
 				auto args = std::make_pair(uuid_args, data_args);
@@ -214,21 +201,17 @@ namespace bluetooth_low_energy_windows
 			else if (section_type == type128 && section_data_length > 16)
 			{
 				auto section_data = section_buffer.data();
-				auto data0 = uint32_t();
-				auto data0_size = sizeof(data0);
-				std::memcpy(&data0, section_data, data0_size);
-				auto data1 = uint16_t();
-				auto data1_size = sizeof(data1);
-				std::memcpy(&data1, section_data + 4, data1_size);
+				auto data1 = uint32_t();
+				std::memcpy(&data1, section_data, 4Ui64);
 				auto data2 = uint16_t();
-				auto data2_size = sizeof(data2);
-				std::memcpy(&data2, section_data + 6, data2_size);
+				std::memcpy(&data2, section_data + 4, 2Ui64);
 				auto data3 = uint16_t();
-				auto data3_size = sizeof(data3);
-				std::memcpy(&data3, section_data + 8, data3_size);
-				auto data4 = std::vector<uint8_t>(section_data + 10, section_data + 16);
-				auto uuid = m_data_to_uuid_args(data0, data1, data2, data3, data4);
-				auto uuid_args = flutter::EncodableValue(uuid);
+				std::memcpy(&data3, section_data + 6, 2Ui64);
+				auto data4 = std::array<uint8_t, 8Ui64>();
+				std::memcpy(&data4, section_data + 8, 8Ui64);
+				auto uuid = winrt::guid(data1, data2, data3, data4);
+				auto formatted_uuid = std::format("{}", uuid);
+				auto uuid_args = flutter::EncodableValue(formatted_uuid);
 				auto data = std::vector<uint8_t>(section_data + 16, section_data + section_data_length);
 				auto data_args = flutter::EncodableValue(data);
 				auto args = std::make_pair(uuid_args, data_args);
@@ -255,3 +238,17 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 }
+
+template<>
+struct std::formatter<winrt::guid> : std::formatter<string>
+{
+	auto format(const winrt::guid& guid, std::format_context& context) {
+		auto formatted = context.out();
+		formatted = std::format_to(formatted, "{:08X}-", guid.Data1);
+		formatted = std::format_to(formatted, "{:04X}-", guid.Data2);
+		formatted = std::format_to(formatted, "{:04X}-", guid.Data3);
+		formatted = std::format_to(formatted, "{:02X}{:02X}-", guid.Data4[0], guid.Data4[1]);
+		formatted = std::format_to(formatted, "{:02X}{:02X}{:02X}{:02X}{:02X}{:02X}", guid.Data4[2], guid.Data4[3], guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
+		return formatted;
+	}
+};

@@ -60,10 +60,9 @@ namespace bluetooth_low_energy_windows
 
 		winrt::fire_and_forget m_set_up(std::function<void(ErrorOr<MyCentralManagerArgs> reply)> result);
 
-		MyBluetoothLowEnergyStateArgs m_state_args(RadioState state);
-		std::string m_address_to_uuid_args(uint64_t address);
-		std::string m_data_to_uuid_args(uint32_t data0, uint16_t data1, uint16_t data2, uint16_t data3, std::vector<uint8_t> data4);
-		MyAdvertisementArgs m_advertisement_args(BluetoothLEAdvertisement advertisement);
+		MyBluetoothLowEnergyStateArgs m_format_radio_state(RadioState state);
+		std::string m_format_address(uint64_t address);
+		MyAdvertisementArgs m_format_advertisement(BluetoothLEAdvertisement advertisement);
 	};
 
 }
