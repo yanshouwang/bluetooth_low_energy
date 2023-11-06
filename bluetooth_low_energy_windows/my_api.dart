@@ -133,13 +133,18 @@ abstract class MyCentralManagerHostApi {
   void stopDiscovery();
   @async
   void connect(int peripheralHashCodeArgs);
-  @async
   void disconnect(int peripheralHashCodeArgs);
   int getMaximumWriteLength(int peripheralHashCodeArgs, int typeNumberArgs);
   @async
   int readRSSI(int peripheralHashCodeArgs);
   @async
-  List<MyGattServiceArgs> discoverGATT(int peripheralHashCodeArgs);
+  List<MyGattServiceArgs> discoverServices(int peripheralHashCodeArgs);
+  @async
+  List<MyGattCharacteristicArgs> discoverCharacteristics(
+    int serviceHashCodeArgs,
+  );
+  @async
+  List<MyGattDescriptorArgs> discoverDescriptors(characteristicHashCodeArgs);
   @async
   Uint8List readCharacteristic(
     int peripheralHashCodeArgs,
