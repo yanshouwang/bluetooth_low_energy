@@ -1,4 +1,4 @@
-## 4.0.1
+## 4.1.0
 
 * Remove `MyObject` base class.
 * Use `LoggerProvider` instead of custom logger.
