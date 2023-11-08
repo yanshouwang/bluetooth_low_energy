@@ -1,13 +1,11 @@
-import 'my_object.dart';
 import 'peripheral.dart';
 import 'uuid.dart';
 
-class MyPeripheral extends MyObject implements Peripheral {
+class MyPeripheral extends Peripheral {
   @override
   final UUID uuid;
 
   MyPeripheral({
-    required super.hashCode,
     required this.uuid,
   });
 }

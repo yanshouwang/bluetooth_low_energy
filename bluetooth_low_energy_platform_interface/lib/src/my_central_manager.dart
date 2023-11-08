@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:log_service/log_service.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -7,7 +6,7 @@ import 'central_manager.dart';
 /// Platform-specific implementations should implement this class to support
 /// [CentralManager].
 abstract class MyCentralManager extends PlatformInterface
-    with LoggerController
+    with LoggerProvider, LoggerController
     implements CentralManager {
   static final Object _token = Object();
 
@@ -34,8 +33,4 @@ abstract class MyCentralManager extends PlatformInterface
 
   /// Constructs a [MyCentralManager].
   MyCentralManager() : super(token: _token);
-
-  @protected
-  @override
-  Logger get logger => Logger('$CentralManager');
 }

@@ -1,3 +1,8 @@
+## 4.0.1
+
+* Remove `MyObject` base class.
+* Use `LoggerProvider` instead of custom logger.
+
 ## 4.0.0
 
 * Remove `BluetoothLowEnergy` class.

@@ -30,7 +30,6 @@ export 'src/gatt_characteristic_write_type.dart';
 export 'src/gatt_descriptor.dart';
 export 'src/my_central_manager.dart';
 export 'src/my_peripheral_manager.dart';
-export 'src/my_object.dart';
 export 'src/my_central.dart';
 export 'src/my_peripheral.dart';
 export 'src/my_gatt_service.dart';
