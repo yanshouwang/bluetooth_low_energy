@@ -1,11 +1,8 @@
 import 'central.dart';
-import 'uuid.dart';
+import 'my_bluetooth_low_energy_peer.dart';
 
-class MyCentral implements Central {
-  @override
-  final UUID uuid;
-
+class MyCentral extends MyBluetoothLowEnergyPeer implements Central {
   MyCentral({
-    required this.uuid,
+    required super.uuid,
   });
 }

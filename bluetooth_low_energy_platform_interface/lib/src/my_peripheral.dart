@@ -1,11 +1,8 @@
+import 'my_bluetooth_low_energy_peer.dart';
 import 'peripheral.dart';
-import 'uuid.dart';
 
-class MyPeripheral extends Peripheral {
-  @override
-  final UUID uuid;
-
+class MyPeripheral extends MyBluetoothLowEnergyPeer implements Peripheral {
   MyPeripheral({
-    required this.uuid,
+    required super.uuid,
   });
 }
