@@ -74,39 +74,37 @@ class MyPeripheralManagerArgs {
 }
 
 class MyCentralArgs {
-  final int hashCodeArgs;
   final String uuidArgs;
 
-  MyCentralArgs(this.hashCodeArgs, this.uuidArgs);
+  MyCentralArgs(this.uuidArgs);
 }
 
 class MyPeripheralArgs {
-  final int hashCodeArgs;
   final String uuidArgs;
 
-  MyPeripheralArgs(this.hashCodeArgs, this.uuidArgs);
+  MyPeripheralArgs(this.uuidArgs);
 }
 
 class MyGattDescriptorArgs {
-  final int hashCodeArgs;
+  final String idArgs;
   final String uuidArgs;
   final Uint8List? valueArgs;
 
   MyGattDescriptorArgs(
-    this.hashCodeArgs,
+    this.idArgs,
     this.uuidArgs,
     this.valueArgs,
   );
 }
 
 class MyGattCharacteristicArgs {
-  final int hashCodeArgs;
+  final String idArgs;
   final String uuidArgs;
   final List<int?> propertyNumbersArgs;
   final List<MyGattDescriptorArgs?> descriptorsArgs;
 
   MyGattCharacteristicArgs(
-    this.hashCodeArgs,
+    this.idArgs,
     this.uuidArgs,
     this.propertyNumbersArgs,
     this.descriptorsArgs,
@@ -114,12 +112,12 @@ class MyGattCharacteristicArgs {
 }
 
 class MyGattServiceArgs {
-  final int hashCodeArgs;
+  final String idArgs;
   final String uuidArgs;
   final List<MyGattCharacteristicArgs?> characteristicsArgs;
 
   MyGattServiceArgs(
-    this.hashCodeArgs,
+    this.idArgs,
     this.uuidArgs,
     this.characteristicsArgs,
   );
@@ -132,46 +130,42 @@ abstract class MyCentralManagerHostApi {
   void startDiscovery();
   void stopDiscovery();
   @async
-  void connect(int peripheralHashCodeArgs);
-  void disconnect(int peripheralHashCodeArgs);
-  int getMaximumWriteLength(int peripheralHashCodeArgs, int typeNumberArgs);
+  void connect(MyPeripheralArgs peripheralArgs);
+  void disconnect(MyPeripheralArgs peripheralArgs);
+  int getMaximumWriteLength(
+    MyPeripheralArgs peripheralArgs,
+    int typeNumberArgs,
+  );
   @async
-  int readRSSI(int peripheralHashCodeArgs);
+  int readRSSI(MyPeripheralArgs peripheralArgs);
   @async
-  List<MyGattServiceArgs> discoverServices(int peripheralHashCodeArgs);
+  List<MyGattServiceArgs> discoverServices(MyPeripheralArgs peripheralArgs);
   @async
   List<MyGattCharacteristicArgs> discoverCharacteristics(
-    int serviceHashCodeArgs,
+    MyGattServiceArgs serviceArgs,
   );
   @async
-  List<MyGattDescriptorArgs> discoverDescriptors(characteristicHashCodeArgs);
-  @async
-  Uint8List readCharacteristic(
-    int peripheralHashCodeArgs,
-    int characteristicHashCodeArgs,
+  List<MyGattDescriptorArgs> discoverDescriptors(
+    MyGattCharacteristicArgs characteristicArgs,
   );
+  @async
+  Uint8List readCharacteristic(MyGattCharacteristicArgs characteristicArgs);
   @async
   void writeCharacteristic(
-    int peripheralHashCodeArgs,
-    int characteristicHashCodeArgs,
+    MyGattCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
     int typeNumberArgs,
   );
   @async
   void notifyCharacteristic(
-    int peripheralHashCodeArgs,
-    int characteristicHashCodeArgs,
+    MyGattCharacteristicArgs characteristicArgs,
     bool stateArgs,
   );
   @async
-  Uint8List readDescriptor(
-    int peripheralHashCodeArgs,
-    int descriptorHashCodeArgs,
-  );
+  Uint8List readDescriptor(MyGattDescriptorArgs descriptorArgs);
   @async
   void writeDescriptor(
-    int peripheralHashCodeArgs,
-    int descriptorHashCodeArgs,
+    MyGattDescriptorArgs descriptorArgs,
     Uint8List valueArgs,
   );
 }
@@ -200,31 +194,31 @@ abstract class MyPeripheralManagerHostApi {
   MyPeripheralManagerArgs setUp();
   @async
   void addService(MyGattServiceArgs serviceArgs);
-  void removeService(int serviceHashCodeArgs);
+  void removeService(MyGattServiceArgs serviceArgs);
   void clearServices();
   @async
   void startAdvertising(MyAdvertisementArgs advertisementArgs);
   void stopAdvertising();
-  int getMaximumWriteLength(int centralHashCodeArgs);
+  int getMaximumWriteLength(MyCentralArgs centralArgs);
   void sendReadCharacteristicReply(
-    int centralHashCodeArgs,
-    int characteristicHashCodeArgs,
+    MyCentralArgs centralArgs,
+    MyGattCharacteristicArgs characteristicArgs,
     int idArgs,
     int offsetArgs,
     bool statusArgs,
     Uint8List valueArgs,
   );
   void sendWriteCharacteristicReply(
-    int centralHashCodeArgs,
-    int characteristicHashCodeArgs,
+    MyCentralArgs centralArgs,
+    MyGattCharacteristicArgs characteristicArgs,
     int idArgs,
     int offsetArgs,
     bool statusArgs,
   );
   @async
   void notifyCharacteristicValueChanged(
-    int centralHashCodeArgs,
-    int characteristicHashCodeArgs,
+    MyCentralArgs centralArgs,
+    MyGattCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
   );
 }

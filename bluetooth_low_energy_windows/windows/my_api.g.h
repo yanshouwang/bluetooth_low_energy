@@ -218,12 +218,7 @@ class MyPeripheralManagerArgs {
 class MyCentralArgs {
  public:
   // Constructs an object setting all fields.
-  explicit MyCentralArgs(
-    int64_t hash_code_args,
-    const std::string& uuid_args);
-
-  int64_t hash_code_args() const;
-  void set_hash_code_args(int64_t value_arg);
+  explicit MyCentralArgs(const std::string& uuid_args);
 
   const std::string& uuid_args() const;
   void set_uuid_args(std::string_view value_arg);
@@ -240,7 +235,6 @@ class MyCentralArgs {
   friend class MyPeripheralManagerHostApiCodecSerializer;
   friend class MyPeripheralManagerFlutterApi;
   friend class MyPeripheralManagerFlutterApiCodecSerializer;
-  int64_t hash_code_args_;
   std::string uuid_args_;
 
 };
@@ -250,12 +244,7 @@ class MyCentralArgs {
 class MyPeripheralArgs {
  public:
   // Constructs an object setting all fields.
-  explicit MyPeripheralArgs(
-    int64_t hash_code_args,
-    const std::string& uuid_args);
-
-  int64_t hash_code_args() const;
-  void set_hash_code_args(int64_t value_arg);
+  explicit MyPeripheralArgs(const std::string& uuid_args);
 
   const std::string& uuid_args() const;
   void set_uuid_args(std::string_view value_arg);
@@ -272,7 +261,6 @@ class MyPeripheralArgs {
   friend class MyPeripheralManagerHostApiCodecSerializer;
   friend class MyPeripheralManagerFlutterApi;
   friend class MyPeripheralManagerFlutterApiCodecSerializer;
-  int64_t hash_code_args_;
   std::string uuid_args_;
 
 };
@@ -283,17 +271,17 @@ class MyGattDescriptorArgs {
  public:
   // Constructs an object setting all non-nullable fields.
   explicit MyGattDescriptorArgs(
-    int64_t hash_code_args,
+    const std::string& id_args,
     const std::string& uuid_args);
 
   // Constructs an object setting all fields.
   explicit MyGattDescriptorArgs(
-    int64_t hash_code_args,
+    const std::string& id_args,
     const std::string& uuid_args,
     const std::vector<uint8_t>* value_args);
 
-  int64_t hash_code_args() const;
-  void set_hash_code_args(int64_t value_arg);
+  const std::string& id_args() const;
+  void set_id_args(std::string_view value_arg);
 
   const std::string& uuid_args() const;
   void set_uuid_args(std::string_view value_arg);
@@ -314,7 +302,7 @@ class MyGattDescriptorArgs {
   friend class MyPeripheralManagerHostApiCodecSerializer;
   friend class MyPeripheralManagerFlutterApi;
   friend class MyPeripheralManagerFlutterApiCodecSerializer;
-  int64_t hash_code_args_;
+  std::string id_args_;
   std::string uuid_args_;
   std::optional<std::vector<uint8_t>> value_args_;
 
@@ -326,13 +314,13 @@ class MyGattCharacteristicArgs {
  public:
   // Constructs an object setting all fields.
   explicit MyGattCharacteristicArgs(
-    int64_t hash_code_args,
+    const std::string& id_args,
     const std::string& uuid_args,
     const flutter::EncodableList& property_numbers_args,
     const flutter::EncodableList& descriptors_args);
 
-  int64_t hash_code_args() const;
-  void set_hash_code_args(int64_t value_arg);
+  const std::string& id_args() const;
+  void set_id_args(std::string_view value_arg);
 
   const std::string& uuid_args() const;
   void set_uuid_args(std::string_view value_arg);
@@ -355,7 +343,7 @@ class MyGattCharacteristicArgs {
   friend class MyPeripheralManagerHostApiCodecSerializer;
   friend class MyPeripheralManagerFlutterApi;
   friend class MyPeripheralManagerFlutterApiCodecSerializer;
-  int64_t hash_code_args_;
+  std::string id_args_;
   std::string uuid_args_;
   flutter::EncodableList property_numbers_args_;
   flutter::EncodableList descriptors_args_;
@@ -368,12 +356,12 @@ class MyGattServiceArgs {
  public:
   // Constructs an object setting all fields.
   explicit MyGattServiceArgs(
-    int64_t hash_code_args,
+    const std::string& id_args,
     const std::string& uuid_args,
     const flutter::EncodableList& characteristics_args);
 
-  int64_t hash_code_args() const;
-  void set_hash_code_args(int64_t value_arg);
+  const std::string& id_args() const;
+  void set_id_args(std::string_view value_arg);
 
   const std::string& uuid_args() const;
   void set_uuid_args(std::string_view value_arg);
@@ -393,7 +381,7 @@ class MyGattServiceArgs {
   friend class MyPeripheralManagerHostApiCodecSerializer;
   friend class MyPeripheralManagerFlutterApi;
   friend class MyPeripheralManagerFlutterApiCodecSerializer;
-  int64_t hash_code_args_;
+  std::string id_args_;
   std::string uuid_args_;
   flutter::EncodableList characteristics_args_;
 
@@ -428,42 +416,41 @@ class MyCentralManagerHostApi {
   virtual std::optional<FlutterError> StartDiscovery() = 0;
   virtual std::optional<FlutterError> StopDiscovery() = 0;
   virtual void Connect(
-    int64_t peripheral_hash_code_args,
+    const MyPeripheralArgs& peripheral_args,
     std::function<void(std::optional<FlutterError> reply)> result) = 0;
-  virtual void Disconnect(
-    int64_t peripheral_hash_code_args,
-    std::function<void(std::optional<FlutterError> reply)> result) = 0;
+  virtual std::optional<FlutterError> Disconnect(const MyPeripheralArgs& peripheral_args) = 0;
   virtual ErrorOr<int64_t> GetMaximumWriteLength(
-    int64_t peripheral_hash_code_args,
+    const MyPeripheralArgs& peripheral_args,
     int64_t type_number_args) = 0;
   virtual void ReadRSSI(
-    int64_t peripheral_hash_code_args,
+    const MyPeripheralArgs& peripheral_args,
     std::function<void(ErrorOr<int64_t> reply)> result) = 0;
-  virtual void DiscoverGATT(
-    int64_t peripheral_hash_code_args,
+  virtual void DiscoverServices(
+    const MyPeripheralArgs& peripheral_args,
+    std::function<void(ErrorOr<flutter::EncodableList> reply)> result) = 0;
+  virtual void DiscoverCharacteristics(
+    const MyGattServiceArgs& service_args,
+    std::function<void(ErrorOr<flutter::EncodableList> reply)> result) = 0;
+  virtual void DiscoverDescriptors(
+    const MyGattCharacteristicArgs& characteristic_args,
     std::function<void(ErrorOr<flutter::EncodableList> reply)> result) = 0;
   virtual void ReadCharacteristic(
-    int64_t peripheral_hash_code_args,
-    int64_t characteristic_hash_code_args,
+    const MyGattCharacteristicArgs& characteristic_args,
     std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result) = 0;
   virtual void WriteCharacteristic(
-    int64_t peripheral_hash_code_args,
-    int64_t characteristic_hash_code_args,
+    const MyGattCharacteristicArgs& characteristic_args,
     const std::vector<uint8_t>& value_args,
     int64_t type_number_args,
     std::function<void(std::optional<FlutterError> reply)> result) = 0;
   virtual void NotifyCharacteristic(
-    int64_t peripheral_hash_code_args,
-    int64_t characteristic_hash_code_args,
+    const MyGattCharacteristicArgs& characteristic_args,
     bool state_args,
     std::function<void(std::optional<FlutterError> reply)> result) = 0;
   virtual void ReadDescriptor(
-    int64_t peripheral_hash_code_args,
-    int64_t descriptor_hash_code_args,
+    const MyGattDescriptorArgs& descriptor_args,
     std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result) = 0;
   virtual void WriteDescriptor(
-    int64_t peripheral_hash_code_args,
-    int64_t descriptor_hash_code_args,
+    const MyGattDescriptorArgs& descriptor_args,
     const std::vector<uint8_t>& value_args,
     std::function<void(std::optional<FlutterError> reply)> result) = 0;
 
@@ -558,29 +545,29 @@ class MyPeripheralManagerHostApi {
   virtual void AddService(
     const MyGattServiceArgs& service_args,
     std::function<void(std::optional<FlutterError> reply)> result) = 0;
-  virtual std::optional<FlutterError> RemoveService(int64_t service_hash_code_args) = 0;
+  virtual std::optional<FlutterError> RemoveService(const MyGattServiceArgs& service_args) = 0;
   virtual std::optional<FlutterError> ClearServices() = 0;
   virtual void StartAdvertising(
     const MyAdvertisementArgs& advertisement_args,
     std::function<void(std::optional<FlutterError> reply)> result) = 0;
   virtual std::optional<FlutterError> StopAdvertising() = 0;
-  virtual ErrorOr<int64_t> GetMaximumWriteLength(int64_t central_hash_code_args) = 0;
+  virtual ErrorOr<int64_t> GetMaximumWriteLength(const MyCentralArgs& central_args) = 0;
   virtual std::optional<FlutterError> SendReadCharacteristicReply(
-    int64_t central_hash_code_args,
-    int64_t characteristic_hash_code_args,
+    const MyCentralArgs& central_args,
+    const MyGattCharacteristicArgs& characteristic_args,
     int64_t id_args,
     int64_t offset_args,
     bool status_args,
     const std::vector<uint8_t>& value_args) = 0;
   virtual std::optional<FlutterError> SendWriteCharacteristicReply(
-    int64_t central_hash_code_args,
-    int64_t characteristic_hash_code_args,
+    const MyCentralArgs& central_args,
+    const MyGattCharacteristicArgs& characteristic_args,
     int64_t id_args,
     int64_t offset_args,
     bool status_args) = 0;
   virtual void NotifyCharacteristicValueChanged(
-    int64_t central_hash_code_args,
-    int64_t characteristic_hash_code_args,
+    const MyCentralArgs& central_args,
+    const MyGattCharacteristicArgs& characteristic_args,
     const std::vector<uint8_t>& value_args,
     std::function<void(std::optional<FlutterError> reply)> result) = 0;
 

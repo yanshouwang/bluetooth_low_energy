@@ -1,13 +1,6 @@
-## 4.1.1
+## 5.0.0-dev.1
 
 * Add `MyBluetoothLowEnergyPeer` and `MyGattAttribute`.
-
-## 4.1.0
-
-* Bump version.
-
-## 4.0.1
-
 * Remove `MyObject` base class.
 * Use `LoggerProvider` instead of custom logger.
 

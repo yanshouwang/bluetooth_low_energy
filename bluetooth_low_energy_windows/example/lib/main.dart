@@ -414,6 +414,7 @@ class _PeripheralViewState extends State<PeripheralView> {
           return;
         }
         final state = eventArgs.state;
+        print('$state');
         this.state.value = state;
         if (!state) {
           services.value = [];

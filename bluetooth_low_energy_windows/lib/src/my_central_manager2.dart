@@ -19,13 +19,22 @@ class MyCentralManager2 extends MyCentralManager
   final StreamController<GattCharacteristicValueChangedEventArgs>
       _characteristicValueChangedController;
 
+  final Map<UUID, MyPeripheralArgs> _peripheralsArgs;
+  final Map<String, MyGattServiceArgs> _servicesArgs;
+  final Map<String, MyGattCharacteristicArgs> _characteristicsArgs;
+  final Map<String, MyGattDescriptorArgs> _descriptorsArgs;
+
   MyCentralManager2()
       : _api = MyCentralManagerHostApi(),
         _state = BluetoothLowEnergyState.unknown,
         _stateChangedController = StreamController.broadcast(),
         _discoveredController = StreamController.broadcast(),
         _peripheralStateChangedController = StreamController.broadcast(),
-        _characteristicValueChangedController = StreamController.broadcast();
+        _characteristicValueChangedController = StreamController.broadcast(),
+        _peripheralsArgs = {},
+        _servicesArgs = {},
+        _characteristicsArgs = {},
+        _descriptorsArgs = {};
 
   @override
   BluetoothLowEnergyState get state => _state;
@@ -83,15 +92,21 @@ class MyCentralManager2 extends MyCentralManager
   @override
   Future<void> connect(Peripheral peripheral) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final peripheralHashCodeArgs = peripheral.hashCode;
-    await _api.connect(peripheralHashCodeArgs);
+    final peripheralArgs = _peripheralsArgs[peripheral.uuid];
+    if (peripheralArgs == null) {
+      throw ArgumentError.value(peripheral);
+    }
+    await _api.connect(peripheralArgs);
   }
 
   @override
   Future<void> disconnect(Peripheral peripheral) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final peripheralHashCodeArgs = peripheral.hashCode;
-    await _api.disconnect(peripheralHashCodeArgs);
+    final peripheralArgs = _peripheralsArgs[peripheral.uuid];
+    if (peripheralArgs == null) {
+      throw ArgumentError.value(peripheral);
+    }
+    await _api.disconnect(peripheralArgs);
   }
 
   @override
@@ -100,11 +115,14 @@ class MyCentralManager2 extends MyCentralManager
     required GattCharacteristicWriteType type,
   }) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final peripheralHashCodeArgs = peripheral.hashCode;
+    final peripheralArgs = _peripheralsArgs[peripheral.uuid];
+    if (peripheralArgs == null) {
+      throw ArgumentError.value(peripheral);
+    }
     final typeArgs = type.toArgs();
     final typeNumberArgs = typeArgs.index;
     final maximumWriteLength = await _api.getMaximumWriteLength(
-      peripheralHashCodeArgs,
+      peripheralArgs,
       typeNumberArgs,
     );
     return maximumWriteLength;
@@ -113,30 +131,49 @@ class MyCentralManager2 extends MyCentralManager
   @override
   Future<int> readRSSI(Peripheral peripheral) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final peripheralHashCodeArgs = peripheral.hashCode;
-    final rssi = await _api.readRSSI(peripheralHashCodeArgs);
+    final peripheralArgs = _peripheralsArgs[peripheral.uuid];
+    if (peripheralArgs == null) {
+      throw ArgumentError.value(peripheral);
+    }
+    final rssi = await _api.readRSSI(peripheralArgs);
     return rssi;
   }
 
   @override
   Future<List<GattService>> discoverGATT(Peripheral peripheral) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    if (peripheral is! MyPeripheral) {
-      throw TypeError();
+    // 发现 GATT 服务
+    final peripheralArgs = _peripheralsArgs[peripheral.uuid];
+    if (peripheralArgs == null) {
+      throw ArgumentError.value(peripheral);
     }
-    final peripheralHashCodeArgs = peripheral.hashCode;
-    final servicesArgs = await _api.discoverGATT(peripheralHashCodeArgs);
-    final services = servicesArgs
-        .cast<MyGattServiceArgs>()
-        .map((args) => args.toService2())
-        .toList();
-    for (var service in services) {
-      for (var charactersitic in service.characteristics) {
-        for (var descriptor in charactersitic.descriptors) {
-          descriptor.characteristic = charactersitic;
+    final servicesArgs = await _api
+        .discoverServices(peripheralArgs)
+        .then((args) => args.cast<MyGattServiceArgs>());
+    final services = <GattService>[];
+    for (var serviceArgs in servicesArgs) {
+      // 发现 GATT 特征值
+      final characteristicsArgs = await _api
+          .discoverCharacteristics(serviceArgs)
+          .then((args) => args.cast<MyGattCharacteristicArgs>());
+      final characteristics =
+          characteristicsArgs.map((args) => args.toCharacteristic());
+      for (var characteristicArgs in characteristicsArgs) {
+        // 发现 GATT 描述值
+        final descriptorsArgs = await _api
+            .discoverDescriptors(characteristicArgs)
+            .then((value) => value.cast<MyGattDescriptorArgs>());
+        final descriptors = descriptorsArgs
+            .cast<MyGattDescriptorArgs>()
+            .map((args) => args.toDescriptor())
+            .toList();
+        for (var descriptor in characteristic.descriptors) {
+          descriptor.characteristic = characteristic;
         }
-        charactersitic.service = service;
+        characteristic.descriptors.addAll(descriptors);
+        characteristic.service = service;
       }
+      service.characteristics.addAll(characteristics);
       service.peripheral = peripheral;
     }
     return services;
