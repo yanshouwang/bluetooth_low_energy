@@ -74,37 +74,37 @@ class MyPeripheralManagerArgs {
 }
 
 class MyCentralArgs {
-  final String uuidArgs;
+  final int addressArgs;
 
-  MyCentralArgs(this.uuidArgs);
+  MyCentralArgs(this.addressArgs);
 }
 
 class MyPeripheralArgs {
-  final String uuidArgs;
+  final int addressArgs;
 
-  MyPeripheralArgs(this.uuidArgs);
+  MyPeripheralArgs(this.addressArgs);
 }
 
 class MyGattDescriptorArgs {
-  final String idArgs;
+  final int handleArgs;
   final String uuidArgs;
   final Uint8List? valueArgs;
 
   MyGattDescriptorArgs(
-    this.idArgs,
+    this.handleArgs,
     this.uuidArgs,
     this.valueArgs,
   );
 }
 
 class MyGattCharacteristicArgs {
-  final String idArgs;
+  final int handleArgs;
   final String uuidArgs;
   final List<int?> propertyNumbersArgs;
   final List<MyGattDescriptorArgs?> descriptorsArgs;
 
   MyGattCharacteristicArgs(
-    this.idArgs,
+    this.handleArgs,
     this.uuidArgs,
     this.propertyNumbersArgs,
     this.descriptorsArgs,
@@ -112,12 +112,12 @@ class MyGattCharacteristicArgs {
 }
 
 class MyGattServiceArgs {
-  final String idArgs;
+  final int handleArgs;
   final String uuidArgs;
   final List<MyGattCharacteristicArgs?> characteristicsArgs;
 
   MyGattServiceArgs(
-    this.idArgs,
+    this.handleArgs,
     this.uuidArgs,
     this.characteristicsArgs,
   );
@@ -142,29 +142,40 @@ abstract class MyCentralManagerHostApi {
   List<MyGattServiceArgs> discoverServices(MyPeripheralArgs peripheralArgs);
   @async
   List<MyGattCharacteristicArgs> discoverCharacteristics(
+    MyPeripheralArgs peripheralArgs,
     MyGattServiceArgs serviceArgs,
   );
   @async
   List<MyGattDescriptorArgs> discoverDescriptors(
+    MyPeripheralArgs peripheralArgs,
     MyGattCharacteristicArgs characteristicArgs,
   );
   @async
-  Uint8List readCharacteristic(MyGattCharacteristicArgs characteristicArgs);
+  Uint8List readCharacteristic(
+    MyPeripheralArgs peripheralArgs,
+    MyGattCharacteristicArgs characteristicArgs,
+  );
   @async
   void writeCharacteristic(
+    MyPeripheralArgs peripheralArgs,
     MyGattCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
     int typeNumberArgs,
   );
   @async
   void notifyCharacteristic(
+    MyPeripheralArgs peripheralArgs,
     MyGattCharacteristicArgs characteristicArgs,
     bool stateArgs,
   );
   @async
-  Uint8List readDescriptor(MyGattDescriptorArgs descriptorArgs);
+  Uint8List readDescriptor(
+    MyPeripheralArgs peripheralArgs,
+    MyGattDescriptorArgs descriptorArgs,
+  );
   @async
   void writeDescriptor(
+    MyPeripheralArgs peripheralArgs,
     MyGattDescriptorArgs descriptorArgs,
     Uint8List valueArgs,
   );
@@ -183,6 +194,7 @@ abstract class MyCentralManagerFlutterApi {
     bool stateArgs,
   );
   void onCharacteristicValueChanged(
+    MyPeripheralArgs peripheralArgs,
     MyGattCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
   );

@@ -3,6 +3,11 @@ import 'dart:typed_data';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
 import 'my_api.g.dart';
+import 'my_central2.dart';
+import 'my_gatt_characteristic2.dart';
+import 'my_gatt_descriptor2.dart';
+import 'my_gatt_service2.dart';
+import 'my_peripheral2.dart';
 
 export 'my_api.g.dart';
 
@@ -48,36 +53,42 @@ extension MyManufacturerSpecificDataArgsX on MyManufacturerSpecificDataArgs {
   }
 }
 
-extension MyGattCharacteristicPropertyArgsX
-    on MyGattCharacteristicPropertyArgs {
-  GattCharacteristicProperty toProperty() {
-    return GattCharacteristicProperty.values[index];
-  }
-}
-
-extension GattCharacteristicWriteTypeX on GattCharacteristicWriteType {
-  MyGattCharacteristicWriteTypeArgs toArgs() {
-    return MyGattCharacteristicWriteTypeArgs.values[index];
+extension MyCentralArgsX on MyCentralArgs {
+  MyCentral2 toCentral() {
+    final address = addressArgs;
+    return MyCentral2(
+      address: address,
+    );
   }
 }
 
 extension MyPeripheralArgsX on MyPeripheralArgs {
-  Peripheral toPeripheral() {
-    final uuid = UUID.fromString(uuidArgs);
+  MyPeripheral toPeripheral() {
+    final uuid = addressArgs.toUUID();
     return MyPeripheral(
       uuid: uuid,
     );
   }
 }
 
+extension MyAddressArgsX on int {
+  UUID toUUID() {
+    final node = (this & 0xFFFFFFFFFFFF).toRadixString(16).padLeft(12, '0');
+    return UUID.fromString('00000000-0000-0000-0000-$node');
+  }
+}
+
 extension MyGattServiceArgsX on MyGattServiceArgs {
-  MyGattService toService() {
+  MyGattService2 toService2(MyPeripheral peripheral) {
+    final handle = handleArgs;
     final uuid = UUID.fromString(uuidArgs);
     final characteristics = characteristicsArgs
         .cast<MyGattCharacteristicArgs>()
-        .map((args) => args.toCharacteristic())
+        .map((args) => args.toCharacteristic2(peripheral))
         .toList();
-    return MyGattService(
+    return MyGattService2(
+      peripheral: peripheral,
+      handle: handle,
       uuid: uuid,
       characteristics: characteristics,
     );
@@ -85,7 +96,8 @@ extension MyGattServiceArgsX on MyGattServiceArgs {
 }
 
 extension MyGattCharacteristicArgsX on MyGattCharacteristicArgs {
-  MyGattCharacteristic toCharacteristic() {
+  MyGattCharacteristic2 toCharacteristic2(MyPeripheral peripheral) {
+    final handle = handleArgs;
     final uuid = UUID.fromString(uuidArgs);
     final properties = propertyNumbersArgs.cast<int>().map(
       (args) {
@@ -95,9 +107,11 @@ extension MyGattCharacteristicArgsX on MyGattCharacteristicArgs {
     ).toList();
     final descriptors = descriptorsArgs
         .cast<MyGattDescriptorArgs>()
-        .map((args) => args.toDescriptor())
+        .map((args) => args.toDescriptor2(peripheral))
         .toList();
-    return MyGattCharacteristic(
+    return MyGattCharacteristic2(
+      peripheral: peripheral,
+      handle: handle,
       uuid: uuid,
       properties: properties,
       descriptors: descriptors,
@@ -105,19 +119,20 @@ extension MyGattCharacteristicArgsX on MyGattCharacteristicArgs {
   }
 }
 
-extension MyGattDescriptorArgsX on MyGattDescriptorArgs {
-  MyGattDescriptor toDescriptor() {
-    final uuid = UUID.fromString(uuidArgs);
-    return MyGattDescriptor(
-      uuid: uuid,
-    );
+extension MyGattCharacteristicPropertyArgsX
+    on MyGattCharacteristicPropertyArgs {
+  GattCharacteristicProperty toProperty() {
+    return GattCharacteristicProperty.values[index];
   }
 }
 
-extension MyCentralArgsX on MyCentralArgs {
-  MyCentral toCentral() {
+extension MyGattDescriptorArgsX on MyGattDescriptorArgs {
+  MyGattDescriptor2 toDescriptor2(MyPeripheral peripheral) {
+    final handle = handleArgs;
     final uuid = UUID.fromString(uuidArgs);
-    return MyCentral(
+    return MyGattDescriptor2(
+      peripheral: peripheral,
+      handle: handle,
       uuid: uuid,
     );
   }
@@ -154,8 +169,34 @@ extension ManufacturerSpecificDataX on ManufacturerSpecificData {
   }
 }
 
+extension MyPeripheralX on MyPeripheral {
+  MyPeripheralArgs toArgs() {
+    final addressArgs = uuid.toAddressArgs();
+    return MyPeripheralArgs(
+      addressArgs: addressArgs,
+    );
+  }
+}
+
+extension UuidX on UUID {
+  int toAddressArgs() {
+    final node = toString().split('-').last;
+    final address = int.parse(
+      node,
+      radix: 16,
+    );
+    return address;
+  }
+}
+
 extension GattCharacteristicPropertyX on GattCharacteristicProperty {
   MyGattCharacteristicPropertyArgs toArgs() {
     return MyGattCharacteristicPropertyArgs.values[index];
+  }
+}
+
+extension GattCharacteristicWriteTypeX on GattCharacteristicWriteType {
+  MyGattCharacteristicWriteTypeArgs toArgs() {
+    return MyGattCharacteristicWriteTypeArgs.values[index];
   }
 }
