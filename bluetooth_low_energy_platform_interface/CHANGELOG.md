@@ -1,4 +1,4 @@
-## 5.0.0-dve.2
+## 5.0.0-dev.2
 
 * Add `UUID#fromAddress` constructor.
 * Override `hashCode` and `==` of `MyCentral` and `MyPeripheral`.
