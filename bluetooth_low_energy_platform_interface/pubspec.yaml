@@ -1,6 +1,6 @@
 name: bluetooth_low_energy_platform_interface
 description: A common platform interface for the bluetooth_low_energy plugin.
-version: 5.0.0-dev.1
+version: 5.0.0-dev.2
 homepage: https://github.com/yanshouwang/bluetooth_low_energy
 
 environment:

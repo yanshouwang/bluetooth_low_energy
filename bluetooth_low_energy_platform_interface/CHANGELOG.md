@@ -1,3 +1,8 @@
+## 5.0.0-dve.2
+
+* Add `UUID#fromAddress` constructor.
+* Override `hashCode` and `==` of `MyCentral` and `MyPeripheral`.
+
 ## 5.0.0-dev.1
 
 * Add `MyBluetoothLowEnergyPeer` and `MyGattAttribute`.

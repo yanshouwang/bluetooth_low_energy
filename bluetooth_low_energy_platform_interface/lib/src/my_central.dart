@@ -5,4 +5,12 @@ class MyCentral extends MyBluetoothLowEnergyPeer implements Central {
   MyCentral({
     required super.uuid,
   });
+
+  @override
+  int get hashCode => uuid.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other is Central && other.uuid == uuid;
+  }
 }
