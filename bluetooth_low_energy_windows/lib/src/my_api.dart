@@ -3,11 +3,9 @@ import 'dart:typed_data';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
 import 'my_api.g.dart';
-import 'my_central2.dart';
 import 'my_gatt_characteristic2.dart';
 import 'my_gatt_descriptor2.dart';
 import 'my_gatt_service2.dart';
-import 'my_peripheral2.dart';
 
 export 'my_api.g.dart';
 
@@ -54,10 +52,10 @@ extension MyManufacturerSpecificDataArgsX on MyManufacturerSpecificDataArgs {
 }
 
 extension MyCentralArgsX on MyCentralArgs {
-  MyCentral2 toCentral() {
-    final address = addressArgs;
-    return MyCentral2(
-      address: address,
+  MyCentral toCentral() {
+    final uuid = addressArgs.toUUID();
+    return MyCentral(
+      uuid: uuid,
     );
   }
 }
@@ -178,7 +176,56 @@ extension MyPeripheralX on MyPeripheral {
   }
 }
 
+extension MyGattService2X on MyGattService2 {
+  MyGattServiceArgs toArgs() {
+    final handleArgs = handle;
+    final uuidArgs = uuid.toArgs();
+    final characteristicsArgs = characteristics
+        .map((characteristic) => characteristic.toArgs())
+        .toList();
+    return MyGattServiceArgs(
+      handleArgs: handleArgs,
+      uuidArgs: uuidArgs,
+      characteristicsArgs: characteristicsArgs,
+    );
+  }
+}
+
+extension MyGattCharacteristic2X on MyGattCharacteristic2 {
+  MyGattCharacteristicArgs toArgs() {
+    final handleArgs = handle;
+    final uuidArgs = uuid.toArgs();
+    final propertyNumbersArgs =
+        properties.map((property) => property.toArgs().index).toList();
+    final descriptorsArgs =
+        descriptors.map((descriptor) => descriptor.toArgs()).toList();
+    return MyGattCharacteristicArgs(
+      handleArgs: handleArgs,
+      uuidArgs: uuidArgs,
+      propertyNumbersArgs: propertyNumbersArgs,
+      descriptorsArgs: descriptorsArgs,
+    );
+  }
+}
+
+extension MyGattDescriptor2X on MyGattDescriptor2 {
+  MyGattDescriptorArgs toArgs() {
+    final handleArgs = handle;
+    final uuidArgs = uuid.toArgs();
+    final valueArgs = value;
+    return MyGattDescriptorArgs(
+      handleArgs: handleArgs,
+      uuidArgs: uuidArgs,
+      valueArgs: valueArgs,
+    );
+  }
+}
+
 extension UuidX on UUID {
+  String toArgs() {
+    return toString();
+  }
+
   int toAddressArgs() {
     final node = toString().split('-').last;
     final address = int.parse(

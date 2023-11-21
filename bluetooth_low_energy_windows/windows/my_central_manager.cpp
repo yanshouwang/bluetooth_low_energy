@@ -5,10 +5,10 @@
 #include <sstream>
 
 #include "winrt/Windows.Devices.Enumeration.h"
-#include "winrt/Windows.Foundation.Collections.h"
 #include "winrt/Windows.Storage.Streams.h"
 
 #include "my_central_manager.h"
+#include "my_exception.h"
 
 namespace bluetooth_low_energy_windows
 {
@@ -39,114 +39,111 @@ namespace bluetooth_low_energy_windows
 		return std::nullopt;
 	}
 
-	void MyCentralManager::Connect(int64_t peripheral_hash_code_args, std::function<void(std::optional<FlutterError> reply)> result)
+	void MyCentralManager::Connect(const MyPeripheralArgs& peripheral_args, std::function<void(std::optional<FlutterError>reply)> result)
 	{
-		m_connect(peripheral_hash_code_args, std::move(result));
+		m_connect(peripheral_args, std::move(result));
 	}
 
-	std::optional<FlutterError>  MyCentralManager::Disconnect(int64_t peripheral_hash_code_args)
+	std::optional<FlutterError> MyCentralManager::Disconnect(const MyPeripheralArgs& peripheral_args)
 	{
-		auto& device_connection_status_changed_token = m_device_connection_status_changed_tokens[peripheral_hash_code_args];
-		auto& device = m_devices[peripheral_hash_code_args];
-		auto& gatt_session = m_gatt_sessions[peripheral_hash_code_args];
-		auto address = device->BluetoothAddress();
-		device->ConnectionStatusChanged(*device_connection_status_changed_token);
-		device->Close();
-		gatt_session->Close();
-		// 通过释放连接实例，触发断开连接
-		auto& service_hash_codes = m_service_hash_codes[peripheral_hash_code_args];
-		m_service_hash_codes.erase(peripheral_hash_code_args);
-		for (const auto& service_hash_code : service_hash_codes) {
-			auto& characteristic_hash_codes = m_characteristic_hash_codes[service_hash_code];
-			m_characteristic_hash_codes.erase(service_hash_code);
-			for (const auto& characteristic_hash_code : characteristic_hash_codes) {
-				auto& descriptor_hash_codes = m_descriptor_hash_codes[characteristic_hash_code];
-				m_descriptor_hash_codes.erase(characteristic_hash_code);
-				for (const auto& descriptor_hash_code : descriptor_hash_codes) {
-					m_descriptors.erase(descriptor_hash_code);
-				}
-				m_characteristics.erase(characteristic_hash_code);
-			}
-			m_services.erase(service_hash_code);
-		}
-		m_device_connection_status_changed_tokens.erase(peripheral_hash_code_args);
-		m_devices.erase(peripheral_hash_code_args);
-		m_gatt_sessions.erase(peripheral_hash_code_args);
-		auto uuid_args = m_format_address(address);
-		auto peripheral_args = MyPeripheralArgs(peripheral_hash_code_args, uuid_args);
-		auto state_args = false;
-		m_api->OnPeripheralStateChanged(peripheral_args, state_args, [] {}, [](auto error) {});
+		auto address_args = peripheral_args.address_args();
+		auto address = static_cast<uint64_t>(address_args);
+		m_on_device_connection_status_changed(address, BluetoothConnectionStatus::Disconnected);
 		return std::nullopt;
 	}
 
-	ErrorOr<int64_t> MyCentralManager::GetMaximumWriteLength(int64_t peripheral_hash_code_args, int64_t type_number_args)
+	ErrorOr<int64_t> MyCentralManager::GetMaximumWriteLength(const MyPeripheralArgs& peripheral_args, int64_t type_number_args)
 	{
-		auto type = static_cast<MyGattCharacteristicWriteTypeArgs>(type_number_args);
-		switch (type)
+		try
 		{
-		case bluetooth_low_energy_windows::MyGattCharacteristicWriteTypeArgs::withResponse:
-			return 512;
-		case bluetooth_low_energy_windows::MyGattCharacteristicWriteTypeArgs::withoutResponse:
-		default:
-			auto& gatt_session = m_gatt_sessions[peripheral_hash_code_args];
-			auto max_pdu_size = gatt_session->MaxPduSize();
-			auto maximum_write_length = max_pdu_size - 3;
-			if (maximum_write_length < 20)
+			auto type = static_cast<MyGattCharacteristicWriteTypeArgs>(type_number_args);
+			switch (type)
 			{
-				maximum_write_length = 20;
+			case bluetooth_low_energy_windows::MyGattCharacteristicWriteTypeArgs::withResponse:
+				return 512;
+			case bluetooth_low_energy_windows::MyGattCharacteristicWriteTypeArgs::withoutResponse:
+			default:
+				auto address_args = peripheral_args.address_args();
+				auto address = static_cast<uint64_t>(address_args);
+				const auto& gatt_session = m_gatt_sessions[address];
+				auto max_pdu_size = gatt_session->MaxPduSize();
+				auto maximum_write_length = max_pdu_size - 3;
+				if (maximum_write_length < 20)
+				{
+					maximum_write_length = 20;
+				}
+				else if (maximum_write_length > 512)
+				{
+					maximum_write_length = 512;
+				}
+				auto maximum_write_length_args = static_cast<int64_t>(maximum_write_length);
+				return maximum_write_length_args;
 			}
-			else if (maximum_write_length > 512)
-			{
-				maximum_write_length = 512;
-			}
-			auto maximum_write_length_args = static_cast<int64_t>(maximum_write_length);
-			return maximum_write_length_args;
+		}
+		catch (const winrt::hresult_error& ex) {
+			auto code = "winrt::hresult_error";
+			auto winrt_message = ex.message();
+			auto message = winrt::to_string(winrt_message);
+			return FlutterError(code, message);
+		}
+		catch (const std::exception& ex)
+		{
+			auto code = "std::exception";
+			auto message = ex.what();
+			auto error = FlutterError(code, message);
+			return FlutterError(code, message);
+		}
+		catch (...) {
+			auto code = "unhandled exception";
+			auto message = "Get maximum write length failed with unhandled exception.";
+			auto error = FlutterError(code, message);
+			return FlutterError(code, message);
 		}
 	}
 
-	void MyCentralManager::ReadRSSI(int64_t peripheral_hash_code_args, std::function<void(ErrorOr<int64_t> reply)> result)
+	void MyCentralManager::ReadRSSI(const MyPeripheralArgs& peripheral_args, std::function<void(ErrorOr<int64_t>reply)> result)
 	{
-		m_read_rssi(peripheral_hash_code_args, std::move(result));
+		m_read_rssi(peripheral_args, std::move(result));
 	}
 
-	void MyCentralManager::DiscoverServices(int64_t peripheral_hash_code_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
+	void MyCentralManager::DiscoverServices(const MyPeripheralArgs& peripheral_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result)
 	{
-		m_discover_services(peripheral_hash_code_args, std::move(result));
+		m_discover_services(peripheral_args, std::move(result));
 	}
 
-	void MyCentralManager::DiscoverCharacteristics(int64_t service_hash_code_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
+	void MyCentralManager::DiscoverCharacteristics(const MyPeripheralArgs& peripheral_args, const MyGattServiceArgs& service_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result)
 	{
-		m_discover_characteristics(service_hash_code_args, std::move(result));
+		m_discover_characteristics(peripheral_args, service_args, std::move(result));
 	}
 
-	void MyCentralManager::DiscoverDescriptors(int64_t characteristic_hash_code_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
+	void MyCentralManager::DiscoverDescriptors(const MyPeripheralArgs& peripheral_args, const MyGattCharacteristicArgs& characteristic_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result)
 	{
-		m_discover_descriptors(characteristic_hash_code_args, std::move(result));
+		m_discover_descriptors(peripheral_args, characteristic_args, std::move(result));
 	}
 
-	void MyCentralManager::ReadCharacteristic(int64_t peripheral_hash_code_args, int64_t characteristic_hash_code_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result)
+	void MyCentralManager::ReadCharacteristic(const MyPeripheralArgs& peripheral_args, const MyGattCharacteristicArgs& characteristic_args, std::function<void(ErrorOr<std::vector<uint8_t>>reply)> result)
 	{
-		m_read_characteristic(peripheral_hash_code_args, characteristic_hash_code_args, std::move(result));
+		m_read_characteristic(peripheral_args, characteristic_args, std::move(result));
 	}
 
-	void MyCentralManager::WriteCharacteristic(int64_t peripheral_hash_code_args, int64_t characteristic_hash_code_args, const std::vector<uint8_t>& value_args, int64_t type_number_args, std::function<void(std::optional<FlutterError> reply)> result)
+	void MyCentralManager::WriteCharacteristic(const MyPeripheralArgs& peripheral_args, const MyGattCharacteristicArgs& characteristic_args, const std::vector<uint8_t>& value_args, int64_t type_number_args, std::function<void(std::optional<FlutterError>reply)> result)
 	{
-		m_write_characteristic(peripheral_hash_code_args, characteristic_hash_code_args, value_args, type_number_args, std::move(result));
+		m_write_characteristic(peripheral_args, characteristic_args, value_args, type_number_args, std::move(result));
 	}
 
-	void MyCentralManager::NotifyCharacteristic(int64_t peripheral_hash_code_args, int64_t characteristic_hash_code_args, bool state_args, std::function<void(std::optional<FlutterError> reply)> result)
+	void MyCentralManager::NotifyCharacteristic(const MyPeripheralArgs& peripheral_args, const MyGattCharacteristicArgs& characteristic_args, bool state_args, std::function<void(std::optional<FlutterError>reply)> result)
 	{
-		m_notify_characteristic(peripheral_hash_code_args, characteristic_hash_code_args, state_args, std::move(result));
+		m_notify_characteristic(peripheral_args, characteristic_args, state_args, std::move(result));
 	}
 
-	void MyCentralManager::ReadDescriptor(int64_t peripheral_hash_code_args, int64_t descriptor_hash_code_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result)
+	void MyCentralManager::ReadDescriptor(const MyPeripheralArgs& peripheral_args, const MyGattDescriptorArgs& descriptor_args, std::function<void(ErrorOr<std::vector<uint8_t>>reply)> result)
 	{
-		m_read_descriptor(peripheral_hash_code_args, descriptor_hash_code_args, std::move(result));
+		m_read_descriptor(peripheral_args, descriptor_args, std::move(result));
 	}
 
-	void MyCentralManager::WriteDescriptor(int64_t peripheral_hash_code_args, int64_t descriptor_hash_code_args, const std::vector<uint8_t>& value_args, std::function<void(std::optional<FlutterError> reply)> result)
+	void MyCentralManager::WriteDescriptor(const MyPeripheralArgs& peripheral_args, const MyGattDescriptorArgs& descriptor_args, const std::vector<uint8_t>& value_args, std::function<void(std::optional<FlutterError>reply)> result)
 	{
-		m_write_descriptor(peripheral_hash_code_args, descriptor_hash_code_args, value_args, std::move(result));
+		m_write_descriptor(peripheral_args, descriptor_args, value_args, std::move(result));
 	}
 
 	fire_and_forget MyCentralManager::m_set_up(std::function<void(ErrorOr<MyCentralManagerArgs> reply)> result)
@@ -159,13 +156,13 @@ namespace bluetooth_low_energy_windows
 				m_watcher->Stop();
 			}
 			for (const auto& item : m_device_connection_status_changed_tokens) {
-				auto& peripheral_hash_code_args = item.first;
-				auto& device_connection_status_changed_token = item.second;
-				auto& device = m_devices[peripheral_hash_code_args];
-				auto& gatt_session = m_gatt_sessions[peripheral_hash_code_args];
+				auto address = item.first;
+				const auto& device = m_devices[address];
+				const auto& device_connection_status_changed_token = item.second;
+				const auto& gatt_session = m_gatt_sessions[address];
+				gatt_session->Close();
 				device->ConnectionStatusChanged(*device_connection_status_changed_token);
 				device->Close();
-				gatt_session->Close();
 			}
 			m_device_connection_status_changed_tokens.clear();
 			m_devices.clear();
@@ -173,112 +170,128 @@ namespace bluetooth_low_energy_windows
 			m_services.clear();
 			m_characteristics.clear();
 			m_descriptors.clear();
-			if (!m_watcher_received_token)
-			{
-				m_watcher_received_token = m_watcher->Received([this](BluetoothLEAdvertisementWatcher watcher, BluetoothLEAdvertisementReceivedEventArgs event_args)
-					{
-						try
-						{
-							auto type = event_args.AdvertisementType();
-							// TODO: 支持扫描响应和扫描扩展
-							if (type == BluetoothLEAdvertisementType::ScanResponse ||
-								type == BluetoothLEAdvertisementType::Extended)
-							{
-								return;
-							}
-							auto address = event_args.BluetoothAddress();
-							auto hash_code_args = static_cast<int64_t>(address);
-							auto uuid_args = m_format_address(address);
-							auto peripheral_args = MyPeripheralArgs(hash_code_args, uuid_args);
-							auto rssi = event_args.RawSignalStrengthInDBm();
-							auto rssi_args = static_cast<int64_t>(rssi);
-							auto advertisement = event_args.Advertisement();
-							auto advertisement_args = m_format_advertisement(advertisement);
-							m_api->OnDiscovered(peripheral_args, rssi_args, advertisement_args, [] {}, [](auto error) {});
-						}
-						catch (const std::exception& e)
-						{
-							std::cout << e.what() << std::endl;
-						}
-					});
-			}
 			if (!m_radio_state_changed_token) {
 				m_adapter = co_await BluetoothAdapter::GetDefaultAsync();
 				m_radio = co_await m_adapter->GetRadioAsync();
 				m_radio_state_changed_token = m_radio->StateChanged([this](Radio radio, auto obj)
 					{
-						try
+						auto state = radio.State();
+						auto state_args = m_radio_state_to_args(state);
+						auto state_number_args = static_cast<int64_t>(state_args);
+						m_api->OnStateChanged(state_number_args, [] {}, [](auto error) {});
+					});
+			}
+			if (!m_watcher_received_token)
+			{
+				m_watcher_received_token = m_watcher->Received([this](BluetoothLEAdvertisementWatcher watcher, BluetoothLEAdvertisementReceivedEventArgs event_args)
+					{
+						auto type = event_args.AdvertisementType();
+						// TODO: 支持扫描响应和扫描扩展
+						if (type == BluetoothLEAdvertisementType::ScanResponse ||
+							type == BluetoothLEAdvertisementType::Extended)
 						{
-							auto state = radio.State();
-							auto state_args = m_format_radio_state(state);
-							auto state_number_args = static_cast<int64_t>(state_args);
-							m_api->OnStateChanged(state_number_args, [] {}, [](auto error) {});
+							return;
 						}
-						catch (const std::exception& e)
-						{
-							std::cout << e.what() << std::endl;
-						}
+						auto address = event_args.BluetoothAddress();
+						auto peripheral_args = m_address_to_peripheral_args(address);
+						auto rssi = event_args.RawSignalStrengthInDBm();
+						auto rssi_args = static_cast<int64_t>(rssi);
+						auto advertisement = event_args.Advertisement();
+						auto advertisement_args = m_advertisement_to_args(advertisement);
+						m_api->OnDiscovered(peripheral_args, rssi_args, advertisement_args, [] {}, [](auto error) {});
 					});
 			}
 			auto state = m_radio->State();
-			auto state_args = m_format_radio_state(state);
+			auto state_args = m_radio_state_to_args(state);
 			auto state_number_args = static_cast<int64_t>(state_args);
 			auto args = MyCentralManagerArgs(state_number_args);
 			result(args);
 		}
-		catch (const std::exception& e)
+		catch (const winrt::hresult_error& ex) {
+			auto code = "winrt::hresult_error";
+			auto winrt_message = ex.message();
+			auto message = winrt::to_string(winrt_message);
+			auto error = FlutterError(code, message);
+			result(error);
+		}
+		catch (const std::exception& ex)
 		{
-			auto code = e.what();
-			auto error = FlutterError(code);
+			auto code = "std::exception";
+			auto message = ex.what();
+			auto error = FlutterError(code, message);
+			result(error);
+		}
+		catch (...) {
+			auto code = "unhandled exception";
+			auto message = "Set up failed with unhandled exception.";
+			auto error = FlutterError(code, message);
 			result(error);
 		}
 	}
 
-	fire_and_forget MyCentralManager::m_connect(int64_t peripheral_hash_code_args, std::function<void(std::optional<FlutterError> reply)> result)
+	fire_and_forget MyCentralManager::m_connect(const MyPeripheralArgs& peripheral_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
 		try
 		{
-			auto address = static_cast<uint64_t>(peripheral_hash_code_args);
-			auto device = co_await BluetoothLEDevice::FromBluetoothAddressAsync(address);
+			auto address_args = peripheral_args.address_args();
+			auto address = static_cast<uint64_t>(address_args);
+			const auto& device = co_await BluetoothLEDevice::FromBluetoothAddressAsync(address);
 			auto device_id = device.BluetoothDeviceId();
-			auto gatt_session = co_await GattSession::FromDeviceIdAsync(device_id);
+			const auto& gatt_session = co_await GattSession::FromDeviceIdAsync(device_id);
 			auto device_information = device.DeviceInformation();
 			auto device_properties = device_information.Properties();
 			for (const auto& device_property : device_properties) {
 				auto key = device_property.Key();
 				std::cout << to_string(key) << std::endl;
 			}
+			// 判断 device 状态，未连接时通过获取服务触发连接机制。
+			auto status = device.ConnectionStatus();
+			if (status != BluetoothConnectionStatus::Connected)
+			{
+				const auto& r = co_await device.GetGattServicesAsync();
+				const auto r_status = r.Status();
+				if (r_status != GattCommunicationStatus::Success)
+				{
+					auto r_status_code = static_cast<int32_t>(r_status);
+					auto message = "Connect failed with status: " + std::to_string(r_status_code);
+					throw MyException(message);
+				}
+			}
 			auto device_connection_status_changed_token = device.ConnectionStatusChanged([this](BluetoothLEDevice device, auto obj)
 				{
-					try
-					{
-						auto address = device.BluetoothAddress();
-						auto hash_code_args = static_cast<int64_t>(address);
-						auto uuid_args = m_format_address(address);
-						auto peripheral_args = MyPeripheralArgs(hash_code_args, uuid_args);
-						auto status = device.ConnectionStatus();
-						auto state_args = status == BluetoothConnectionStatus::Connected;
-						m_api->OnPeripheralStateChanged(peripheral_args, state_args, [] {}, [](auto error) {});
-					}
-					catch (const std::exception& e)
-					{
-						std::cout << e.what() << std::endl;
-					}
+					auto address = device.BluetoothAddress();
+					auto status = device.ConnectionStatus();
+					m_on_device_connection_status_changed(device, status);
 				});
-			m_devices[peripheral_hash_code_args] = device;
-			m_gatt_sessions[peripheral_hash_code_args] = gatt_session;
-			m_device_connection_status_changed_tokens[peripheral_hash_code_args] = device_connection_status_changed_token;
+			m_devices[address] = device;
+			m_gatt_sessions[address] = gatt_session;
+			m_device_connection_status_changed_tokens[address] = device_connection_status_changed_token;
+			m_on_device_connection_status_changed(address, BluetoothConnectionStatus::Connected);
 			result(std::nullopt);
 		}
-		catch (const std::exception& e)
+		catch (const winrt::hresult_error& ex) {
+			auto code = "winrt::hresult_error";
+			auto winrt_message = ex.message();
+			auto message = winrt::to_string(winrt_message);
+			auto error = FlutterError(code, message);
+			result(error);
+		}
+		catch (const std::exception& ex)
 		{
-			auto code = e.what();
-			auto error = FlutterError(code);
+			auto code = "std::exception";
+			auto message = ex.what();
+			auto error = FlutterError(code, message);
+			result(error);
+		}
+		catch (...) {
+			auto code = "unhandled exception";
+			auto message = "Connect failed with unhandled exception.";
+			auto error = FlutterError(code, message);
 			result(error);
 		}
 	}
 
-	fire_and_forget MyCentralManager::m_read_rssi(int64_t peripheral_hash_code_args, std::function<void(ErrorOr<int64_t>reply)> result)
+	fire_and_forget MyCentralManager::m_read_rssi(const MyPeripheralArgs& peripheral_args, std::function<void(ErrorOr<int64_t>reply)> result)
 	{
 		try
 		{
@@ -293,180 +306,178 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	fire_and_forget MyCentralManager::m_discover_services(int64_t peripheral_hash_code_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result)
+	fire_and_forget MyCentralManager::m_discover_services(const MyPeripheralArgs& peripheral_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result)
 	{
 		try
 		{
-			auto& device = m_devices[peripheral_hash_code_args];
-			auto get_services_result = co_await device->GetGattServicesAsync();
+			auto address_args = peripheral_args.address_args();
+			auto address = static_cast<uint64_t>(address_args);
+			const auto& device = m_devices[address];
+			if (!device)
+			{
+				auto message = "Discover services failed as the device has disposed";
+				throw MyException(message);
+			}
+			const auto& get_services_result = co_await device->GetGattServicesAsync();
 			auto status = get_services_result.Status();
 			if (status != GattCommunicationStatus::Success)
 			{
-				auto stream = std::stringstream();
-				stream << "Discover services failed with status: " << static_cast<int32_t>(status);
-				auto message = stream.str();
-				auto message_c_str = message.c_str();
-				throw std::bad_exception(message_c_str);
+				auto status_code = static_cast<int32_t>(status);
+				auto message = "Discover services failed with status: " + std::to_string(status_code);
+				throw MyException(message);
 			}
 			// 检查设备是否已经释放
-			auto disposed = !m_devices.contains(peripheral_hash_code_args);
+			auto disposed = !m_devices.contains(address);
 			if (disposed)
 			{
 				auto message = "Discover services failed as the device has disposed";
-				throw std::bad_exception(message);
+				throw MyException(message);
 			}
 			auto services = get_services_result.Services();
-			auto servicesArgs = flutter::EncodableList();
+			auto services_args = flutter::EncodableList();
 			for (const auto& service : services) {
-				auto hash_code = &service;
-				auto hash_code_args = reinterpret_cast<int64_t>(hash_code);
-				std::cout << hash_code_args << std::endl;
-				auto uuid = service.Uuid();
-				auto uuid_args = std::format("{}", uuid);
-				auto characteristics_args = flutter::EncodableList();
-				auto service_args_value = MyGattServiceArgs(hash_code_args, uuid_args, characteristics_args);
+				auto service_args_value = m_service_to_args(service);
 				auto service_args = flutter::CustomEncodableValue(service_args_value);
-				servicesArgs.push_back(service_args);
-				m_services[hash_code_args] = service;
-				auto& service_hash_codes = m_service_hash_codes[peripheral_hash_code_args];
-				service_hash_codes.push_back(hash_code_args);
+				services_args.push_back(service_args);
 			}
-			result(servicesArgs);
+			m_services[address] = services;
+			result(services_args);
 		}
-		catch (const std::exception& e)
+		catch (const winrt::hresult_error& ex) {
+			auto code = "winrt::hresult_error";
+			auto winrt_message = ex.message();
+			auto message = winrt::to_string(winrt_message);
+			auto error = FlutterError(code, message);
+			result(error);
+		}
+		catch (const std::exception& ex)
 		{
-			auto code = e.what();
-			auto error = FlutterError(code);
+			auto code = "std::exception";
+			auto message = ex.what();
+			auto error = FlutterError(code, message);
+			result(error);
+		}
+		catch (...) {
+			auto code = "unhandled exception";
+			auto message = "Discover services failed with unhandled exception.";
+			auto error = FlutterError(code, message);
 			result(error);
 		}
 	}
 
-	fire_and_forget MyCentralManager::m_discover_characteristics(int64_t service_hash_code_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result)
+	fire_and_forget MyCentralManager::m_discover_characteristics(const MyPeripheralArgs& peripheral_args, const MyGattServiceArgs& service_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result)
 	{
 		try
 		{
-			auto& service = m_services[service_hash_code_args];
-			auto get_characteristics_result = co_await service->GetCharacteristicsAsync();
+			auto address_args = peripheral_args.address_args();
+			auto address = static_cast<uint64_t>(address_args);
+			auto handle_args = service_args.handle_args();
+			auto handle = static_cast<uint64_t>(handle_args);
+			const auto& service = m_find_service(address, handle);
+			const auto& get_characteristics_result = co_await service.GetCharacteristicsAsync();
 			auto status = get_characteristics_result.Status();
 			if (status != GattCommunicationStatus::Success)
 			{
-				auto stream = std::stringstream();
-				stream << "Discover characteristics failed with status: " << static_cast<int32_t>(status);
-				auto message = stream.str();
-				auto message_c_str = message.c_str();
-				throw std::bad_exception(message_c_str);
+				auto status_code = static_cast<int32_t>(status);
+				auto message = "Discover characteristics failed with status: " + std::to_string(status_code);
+				throw MyException(message);
 			}
-			// 检查服务是否已经释放
-			auto disposed = !m_services.contains(service_hash_code_args);
+			// 检查设备是否已经释放
+			auto disposed = !m_devices.contains(address);
 			if (disposed)
 			{
-				auto message = "Discover characteristics failed as the service has disposed";
-				throw std::bad_exception(message);
+				auto message = "Discover characteristics failed as the device has disposed";
+				throw MyException(message);
 			}
 			auto characteristics = get_characteristics_result.Characteristics();
-			auto characteristicsArgs = flutter::EncodableList();
+			auto characteristics_args = flutter::EncodableList();
 			for (const auto& characteristic : characteristics) {
-				auto hash_code = &characteristic;
-				auto hash_code_args = reinterpret_cast<int64_t>(hash_code);
-				auto uuid = characteristic.Uuid();
-				auto uuid_args = std::format("{}", uuid);
-				auto property_numbers_args = flutter::EncodableList();
-				auto properties = characteristic.CharacteristicProperties();
-				auto readProperty = static_cast<int>(properties & GattCharacteristicProperties::Read);
-				auto writeProperty = static_cast<int>(properties & GattCharacteristicProperties::Write);
-				auto writeWithoutResponseProperty = static_cast<int>(properties & GattCharacteristicProperties::WriteWithoutResponse);
-				auto notifyProperty = static_cast<int>(properties & GattCharacteristicProperties::Notify);
-				auto indicateProperty = static_cast<int>(properties & GattCharacteristicProperties::Indicate);
-				if (readProperty)
-				{
-					auto property_number_args = static_cast<int>(MyGattCharacteristicPropertyArgs::read);
-					property_numbers_args.push_back(property_number_args);
-				}
-				if (writeProperty)
-				{
-					auto property_number_args = static_cast<int>(MyGattCharacteristicPropertyArgs::write);
-					property_numbers_args.push_back(property_number_args);
-				}
-				if (writeWithoutResponseProperty)
-				{
-					auto property_number_args = static_cast<int>(MyGattCharacteristicPropertyArgs::writeWithoutResponse);
-					property_numbers_args.push_back(property_number_args);
-				}
-				if (notifyProperty)
-				{
-					auto property_number_args = static_cast<int>(MyGattCharacteristicPropertyArgs::notify);
-					property_numbers_args.push_back(property_number_args);
-				}
-				if (indicateProperty)
-				{
-					auto property_number_args = static_cast<int>(MyGattCharacteristicPropertyArgs::indicate);
-					property_numbers_args.push_back(property_number_args);
-				}
-				auto descriptors_args = flutter::EncodableList();
-				auto characteristic_args_value = MyGattCharacteristicArgs(hash_code_args, uuid_args, property_numbers_args, descriptors_args);
+				auto characteristic_args_value = m_characteristic_to_args(characteristic);
 				auto characteristic_args = flutter::CustomEncodableValue(characteristic_args_value);
-				characteristicsArgs.push_back(characteristic_args);
-				m_characteristics[hash_code_args] = characteristic;
-				auto& characteristic_hash_codes = m_characteristic_hash_codes[service_hash_code_args];
-				characteristic_hash_codes.push_back(hash_code_args);
+				characteristics_args.push_back(characteristic_args);
 			}
-			result(characteristicsArgs);
+			m_characteristics[address] = characteristics;
+			result(characteristics_args);
 		}
-		catch (const std::exception& e)
+		catch (const winrt::hresult_error& ex) {
+			auto code = "winrt::hresult_error";
+			auto winrt_message = ex.message();
+			auto message = winrt::to_string(winrt_message);
+			auto error = FlutterError(code, message);
+			result(error);
+		}
+		catch (const std::exception& ex)
 		{
-			auto code = e.what();
-			auto error = FlutterError(code);
+			auto code = "std::exception";
+			auto message = ex.what();
+			auto error = FlutterError(code, message);
+			result(error);
+		}
+		catch (...) {
+			auto code = "unhandled exception";
+			auto message = "Discover characteristics failed with unhandled exception.";
+			auto error = FlutterError(code, message);
 			result(error);
 		}
 	}
 
-	fire_and_forget MyCentralManager::m_discover_descriptors(int64_t characteristic_hash_code_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result)
+	fire_and_forget MyCentralManager::m_discover_descriptors(const MyPeripheralArgs& peripheral_args, const MyGattCharacteristicArgs& characteristic_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result)
 	{
 		try
 		{
-			auto& characteristic = m_characteristics[characteristic_hash_code_args];
-			auto get_descriptors_result = co_await characteristic->GetDescriptorsAsync();
+			auto address_args = peripheral_args.address_args();
+			auto address = static_cast<uint64_t>(address_args);
+			auto handle_args = characteristic_args.handle_args();
+			auto handle = static_cast<uint64_t>(handle_args);
+			const auto& characteristic = m_find_characteristic(address, handle);
+			const auto& get_descriptors_result = co_await characteristic.GetDescriptorsAsync();
 			auto status = get_descriptors_result.Status();
 			if (status != GattCommunicationStatus::Success)
 			{
-				auto stream = std::stringstream();
-				stream << "Discover descriptors failed with status: " << static_cast<int32_t>(status);
-				auto message = stream.str();
-				auto message_c_str = message.c_str();
-				throw std::bad_exception(message_c_str);
+				auto status_code = static_cast<int32_t>(status);
+				auto message = "Discover descriptors failed with status: " + std::to_string(status_code);
+				throw MyException(message);
 			}
-			// 检查特征值是否已经释放
-			auto disposed = !m_characteristics.contains(characteristic_hash_code_args);
+			// 检查设备是否已经释放
+			auto disposed = !m_devices.contains(address);
 			if (disposed)
 			{
-				auto message = "Discover descriptor failed as the characteristic has disposed";
-				throw std::bad_exception(message);
+				auto message = "Discover descriptors failed as the device has disposed";
+				throw MyException(message);
 			}
 			auto descriptors = get_descriptors_result.Descriptors();
-			auto descriptorsArgs = flutter::EncodableList();
+			auto descriptors_args = flutter::EncodableList();
 			for (const auto& descriptor : descriptors) {
-				auto hash_code = &descriptor;
-				auto hash_code_args = reinterpret_cast<int64_t>(hash_code);
-				auto uuid = descriptor.Uuid();
-				auto uuid_args = std::format("{}", uuid);
-				auto descriptor_args_value = MyGattDescriptorArgs(hash_code_args, uuid_args);
+				auto descriptor_args_value = m_descriptor_to_args(descriptor);
 				auto descriptor_args = flutter::CustomEncodableValue(descriptor_args_value);
-				descriptorsArgs.push_back(descriptor_args);
-				m_descriptors[hash_code_args] = descriptor;
-				auto& descriptor_hash_codes = m_descriptor_hash_codes[characteristic_hash_code_args];
-				descriptor_hash_codes.push_back(hash_code_args);
+				descriptors_args.push_back(descriptor_args);
 			}
-			result(descriptorsArgs);
+			m_descriptors[address] = descriptors;
+			result(descriptors_args);
 		}
-		catch (const std::exception& e)
+		catch (const winrt::hresult_error& ex) {
+			auto code = "winrt::hresult_error";
+			auto winrt_message = ex.message();
+			auto message = winrt::to_string(winrt_message);
+			auto error = FlutterError(code, message);
+			result(error);
+		}
+		catch (const std::exception& ex)
 		{
-			auto code = e.what();
-			auto error = FlutterError(code);
+			auto code = "std::exception";
+			auto message = ex.what();
+			auto error = FlutterError(code, message);
+			result(error);
+		}
+		catch (...) {
+			auto code = "unhandled exception";
+			auto message = "Discover descriptors failed with unhandled exception.";
+			auto error = FlutterError(code, message);
 			result(error);
 		}
 	}
 
-	fire_and_forget MyCentralManager::m_read_characteristic(int64_t peripheral_hash_code_args, int64_t characteristic_hash_code_args, std::function<void(ErrorOr<std::vector<uint8_t>>reply)> result)
+	fire_and_forget MyCentralManager::m_read_characteristic(const MyPeripheralArgs& peripheral_args, const MyGattCharacteristicArgs& characteristic_args, std::function<void(ErrorOr<std::vector<uint8_t>>reply)> result)
 	{
 		try
 		{
@@ -480,7 +491,7 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	fire_and_forget MyCentralManager::m_write_characteristic(int64_t peripheral_hash_code_args, int64_t characteristic_hash_code_args, const std::vector<uint8_t>& value_args, int64_t type_number_args, std::function<void(std::optional<FlutterError>reply)> result)
+	fire_and_forget MyCentralManager::m_write_characteristic(const MyPeripheralArgs& peripheral_args, const MyGattCharacteristicArgs& characteristic_args, const std::vector<uint8_t>& value_args, int64_t type_number_args, std::function<void(std::optional<FlutterError>reply)> result)
 	{
 		try
 		{
@@ -494,7 +505,7 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	fire_and_forget MyCentralManager::m_notify_characteristic(int64_t peripheral_hash_code_args, int64_t characteristic_hash_code_args, bool state_args, std::function<void(std::optional<FlutterError>reply)> result)
+	fire_and_forget MyCentralManager::m_notify_characteristic(const MyPeripheralArgs& peripheral_args, const MyGattCharacteristicArgs& characteristic_args, bool state_args, std::function<void(std::optional<FlutterError>reply)> result)
 	{
 		try
 		{
@@ -508,7 +519,7 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	fire_and_forget MyCentralManager::m_read_descriptor(int64_t peripheral_hash_code_args, int64_t descriptor_hash_code_args, std::function<void(ErrorOr<std::vector<uint8_t>>reply)> result)
+	fire_and_forget MyCentralManager::m_read_descriptor(const MyPeripheralArgs& peripheral_args, const MyGattDescriptorArgs& descriptor_args, std::function<void(ErrorOr<std::vector<uint8_t>>reply)> result)
 	{
 		try
 		{
@@ -522,7 +533,7 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	fire_and_forget MyCentralManager::m_write_descriptor(int64_t peripheral_hash_code_args, int64_t descriptor_hash_code_args, const std::vector<uint8_t>& value_args, std::function<void(std::optional<FlutterError>reply)> result)
+	fire_and_forget MyCentralManager::m_write_descriptor(const MyPeripheralArgs& peripheral_args, const MyGattDescriptorArgs& descriptor_args, const std::vector<uint8_t>& value_args, std::function<void(std::optional<FlutterError>reply)> result)
 	{
 		try
 		{
@@ -536,7 +547,38 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	MyBluetoothLowEnergyStateArgs MyCentralManager::m_format_radio_state(RadioState state)
+	void MyCentralManager::m_on_device_connection_status_changed(uint64_t address, BluetoothConnectionStatus status)
+	{
+		if (status == BluetoothConnectionStatus::Disconnected) {
+			const auto& device_connection_status_changed_token = m_device_connection_status_changed_tokens[address];
+			const auto& gatt_session = m_gatt_sessions[address];
+			const auto& device = m_devices[address];
+			if (device_connection_status_changed_token)
+			{
+				device->ConnectionStatusChanged(*device_connection_status_changed_token);
+			}
+			if (gatt_session)
+			{
+				gatt_session->Close();
+			}
+			if (device)
+			{
+				device->Close();
+			}
+			// 通过释放连接实例，触发断开连接
+			m_gatt_sessions.erase(address);
+			m_device_connection_status_changed_tokens.erase(address);
+			m_devices.erase(address);
+			m_services.erase(address);
+			m_characteristics.erase(address);
+			m_descriptors.erase(address);
+		}
+		auto peripheral_args = m_address_to_peripheral_args(address);
+		auto state_args = status == BluetoothConnectionStatus::Connected;
+		m_api->OnPeripheralStateChanged(peripheral_args, state_args, [] {}, [](auto error) {});
+	}
+
+	MyBluetoothLowEnergyStateArgs MyCentralManager::m_radio_state_to_args(RadioState state)
 	{
 		switch (state)
 		{
@@ -552,14 +594,7 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	std::string MyCentralManager::m_format_address(uint64_t address)
-	{
-		auto stream = std::stringstream();
-		stream << "00000000-0000-0000-0000-" << std::setfill('0') << std::setw(12) << std::hex << address;
-		return stream.str();
-	}
-
-	MyAdvertisementArgs MyCentralManager::m_format_advertisement(BluetoothLEAdvertisement& advertisement)
+	MyAdvertisementArgs MyCentralManager::m_advertisement_to_args(const BluetoothLEAdvertisement& advertisement)
 	{
 		auto name = advertisement.LocalName();
 		auto name_args = to_string(name);
@@ -642,25 +677,142 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	int64_t MyCentralManager::m_get_device_hash_code(BluetoothLEDevice& device)
+	MyPeripheralArgs MyCentralManager::m_address_to_peripheral_args(uint64_t address)
+	{
+		auto address_args = static_cast<int64_t>(address);
+		return MyPeripheralArgs(address_args);
+	}
+
+	MyPeripheralArgs MyCentralManager::m_device_to_args(const BluetoothLEDevice& device)
 	{
 		auto address = device.BluetoothAddress();
-		return std::hash<int>()(address);
+		return m_address_to_peripheral_args(address);
 	}
 
-	int64_t MyCentralManager::m_get_service_hash_code(GattDeviceService& service)
+	MyGattServiceArgs MyCentralManager::m_service_to_args(const GattDeviceService& service)
 	{
-		return 0;
+		auto handle = service.AttributeHandle();
+		auto handle_args = static_cast<int64_t>(handle);
+		auto uuid = service.Uuid();
+		auto uuid_args = m_uuid_to_args(uuid);
+		auto characteristics_args = flutter::EncodableList();
+		return MyGattServiceArgs(handle_args, uuid_args, characteristics_args);
 	}
 
-	int64_t MyCentralManager::m_get_characteristic_hash_code(GattCharacteristic& characteristic)
+	MyGattCharacteristicArgs MyCentralManager::m_characteristic_to_args(const GattCharacteristic& characteristic)
 	{
-		return 0;
+		auto handle = characteristic.AttributeHandle();
+		auto handle_args = static_cast<int64_t>(handle);
+		auto uuid = characteristic.Uuid();
+		auto uuid_args = m_uuid_to_args(uuid);
+		auto properties = characteristic.CharacteristicProperties();
+		auto property_numbers_args = m_characteristic_properties_to_args(properties);
+		auto descriptors_args = flutter::EncodableList();
+		return MyGattCharacteristicArgs(handle_args, uuid_args, property_numbers_args, descriptors_args);
 	}
 
-	int64_t MyCentralManager::m_get_descriptor_hash_code(GattDescriptor& descriptor)
+	flutter::EncodableList MyCentralManager::m_characteristic_properties_to_args(GattCharacteristicProperties properties)
 	{
-		return 0;
+		auto property_numbers_args = flutter::EncodableList();
+		auto readProperty = static_cast<int>(properties & GattCharacteristicProperties::Read);
+		auto writeProperty = static_cast<int>(properties & GattCharacteristicProperties::Write);
+		auto writeWithoutResponseProperty = static_cast<int>(properties & GattCharacteristicProperties::WriteWithoutResponse);
+		auto notifyProperty = static_cast<int>(properties & GattCharacteristicProperties::Notify);
+		auto indicateProperty = static_cast<int>(properties & GattCharacteristicProperties::Indicate);
+		if (readProperty)
+		{
+			auto property_number_args = static_cast<int>(MyGattCharacteristicPropertyArgs::read);
+			property_numbers_args.push_back(property_number_args);
+		}
+		if (writeProperty)
+		{
+			auto property_number_args = static_cast<int>(MyGattCharacteristicPropertyArgs::write);
+			property_numbers_args.push_back(property_number_args);
+		}
+		if (writeWithoutResponseProperty)
+		{
+			auto property_number_args = static_cast<int>(MyGattCharacteristicPropertyArgs::writeWithoutResponse);
+			property_numbers_args.push_back(property_number_args);
+		}
+		if (notifyProperty)
+		{
+			auto property_number_args = static_cast<int>(MyGattCharacteristicPropertyArgs::notify);
+			property_numbers_args.push_back(property_number_args);
+		}
+		if (indicateProperty)
+		{
+			auto property_number_args = static_cast<int>(MyGattCharacteristicPropertyArgs::indicate);
+			property_numbers_args.push_back(property_number_args);
+		}
+		return property_numbers_args;
+	}
+
+	MyGattDescriptorArgs MyCentralManager::m_descriptor_to_args(const GattDescriptor& descriptor)
+	{
+		auto handle = descriptor.AttributeHandle();
+		auto handle_args = static_cast<int64_t>(handle);
+		auto uuid = descriptor.Uuid();
+		auto uuid_args = m_uuid_to_args(uuid);
+		return MyGattDescriptorArgs(handle_args, uuid_args);
+	}
+
+	std::string MyCentralManager::m_uuid_to_args(const guid& uuid)
+	{
+		return std::format("{}", uuid);
+	}
+
+	GattDeviceService MyCentralManager::m_find_service(uint64_t address, uint64_t handle)
+	{
+		const auto& services = m_services[address];
+		auto begin = services->begin();
+		auto end = services->end();
+		auto i = std::find_if(begin, end, [handle](GattDeviceService service)
+			{
+				auto service_handle = service.AttributeHandle();
+				return service_handle == handle;
+			});
+		if (i == end)
+		{
+			auto message = "Find service failed with address: " + std::to_string(address) + " and handle: " + std::to_string(handle);
+			throw MyException(message);
+		}
+		return *i;
+	}
+
+	GattCharacteristic MyCentralManager::m_find_characteristic(uint64_t address, uint64_t handle)
+	{
+		const auto& characteristics = m_characteristics[address];
+		auto begin = characteristics->begin();
+		auto end = characteristics->end();
+		auto i = std::find_if(begin, end, [handle](GattCharacteristic characteristic)
+			{
+				auto characteristic_handle = characteristic.AttributeHandle();
+				return characteristic_handle == handle;
+			});
+		if (i == end)
+		{
+			auto message = "Find characteristic failed with address: " + std::to_string(address) + " and handle: " + std::to_string(handle);
+			throw MyException(message);
+		}
+		return *i;
+	}
+
+	GattDescriptor MyCentralManager::m_find_descriptor(uint64_t address, uint64_t handle)
+	{
+		const auto& descriptors = m_descriptors[address];
+		auto begin = descriptors->begin();
+		auto end = descriptors->end();
+		auto i = std::find_if(begin, end, [handle](GattDescriptor descriptor)
+			{
+				auto descriptor_handle = descriptor.AttributeHandle();
+				return descriptor_handle == handle;
+			});
+		if (i == end)
+		{
+			auto message = "Find descriptor failed with address: " + std::to_string(address) + " and handle: " + std::to_string(handle);
+			throw MyException(message);
+		}
+		return *i;
 	}
 }
 

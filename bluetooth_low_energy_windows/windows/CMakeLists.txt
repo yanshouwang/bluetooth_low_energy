@@ -49,6 +49,8 @@ list(APPEND PLUGIN_SOURCES
   "bluetooth_low_energy_windows.h"
   "my_api.g.cpp"
   "my_api.g.h"
+  "my_exception.cpp"
+  "my_exception.h"
   "my_central_manager.cpp"
   "my_central_manager.h"
 )
