@@ -261,7 +261,7 @@ namespace bluetooth_low_energy_windows
 				{
 					auto address = device.BluetoothAddress();
 					auto status = device.ConnectionStatus();
-					m_on_device_connection_status_changed(device, status);
+					m_on_device_connection_status_changed(address, status);
 				});
 			m_devices[address] = device;
 			m_gatt_sessions[address] = gatt_session;
