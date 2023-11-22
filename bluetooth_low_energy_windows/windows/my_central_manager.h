@@ -70,6 +70,7 @@ namespace bluetooth_low_energy_windows
 		fire_and_forget m_read_descriptor(const MyPeripheralArgs& peripheral_args, const MyGattDescriptorArgs& descriptor_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result);
 		fire_and_forget m_write_descriptor(const MyPeripheralArgs& peripheral_args, const MyGattDescriptorArgs& descriptor_args, const std::vector<uint8_t>& value_args, std::function<void(std::optional<FlutterError> reply)> result);
 
+		void m_clear_device(uint64_t address);
 		void m_on_device_connection_status_changed(uint64_t address, BluetoothConnectionStatus status);
 		MyBluetoothLowEnergyStateArgs m_radio_state_to_args(RadioState state);
 		MyAdvertisementArgs m_advertisement_to_args(const BluetoothLEAdvertisement& advertisement);
