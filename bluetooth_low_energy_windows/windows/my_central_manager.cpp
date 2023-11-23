@@ -663,13 +663,9 @@ namespace bluetooth_low_energy_windows
 			if (section_type == type16 && section_data_length > 2)
 			{
 				const auto& section_data = section_buffer.data();
-				auto data1 = uint32_t();
+				auto data1 = uint16_t();
 				std::memcpy(&data1, section_data, 2Ui64);
-				const auto data2 = static_cast<uint16_t>(0x0000);
-				const auto data3 = static_cast<uint16_t>(0x1000);
-				const auto data4 = std::to_array<uint8_t>({ 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb });
-				const auto uuid = guid(data1, data2, data3, data4);
-				const auto uuid_args = m_uuid_to_args(uuid);
+				const auto uuid_args = std::format("{:04X}", data1);
 				const auto data_args = std::vector<uint8_t>(section_data + 2, section_data + section_data_length);
 				service_data_args[uuid_args] = data_args;
 			}
@@ -678,11 +674,7 @@ namespace bluetooth_low_energy_windows
 				const auto& section_data = section_buffer.data();
 				auto data1 = uint32_t();
 				std::memcpy(&data1, section_data, 4Ui64);
-				const auto data2 = static_cast<uint16_t>(0x0000);
-				const auto data3 = static_cast<uint16_t>(0x1000);
-				const auto data4 = std::to_array<uint8_t>({ 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb });
-				const auto uuid = guid(data1, data2, data3, data4);
-				const auto uuid_args = m_uuid_to_args(uuid);
+				const auto uuid_args = std::format("{:08X}", data1);
 				const auto data_args = std::vector<uint8_t>(section_data + 4, section_data + section_data_length);
 				service_data_args[uuid_args] = data_args;
 			}
