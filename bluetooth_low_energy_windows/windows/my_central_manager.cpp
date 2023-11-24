@@ -304,8 +304,26 @@ namespace bluetooth_low_energy_windows
 	{
 		try
 		{
-			result(-50);
+			// TODO: 目前 WinRT 蓝牙不支持读取 BluetoothLEDevice 的信号强度
+			// 此方法目前会引发异常：`该操作尝试访问的数据超出了有效范围`
+			// 待新 API 支持后再添加
+			// See: https://stackoverflow.com/questions/64096245/how-to-get-rssi-of-a-connected-bluetoothledevice-in-uwp
+			const auto address_args = peripheral_args.address_args();
+			const auto address = static_cast<uint64_t>(address_args);
+			const auto& device = m_devices[address];
+			const auto& properties = device->DeviceInformation().Properties();
+			const auto& rssi_value = properties.Lookup(L"System.Devices.Aep.SignalStrength");
+			const auto rssi = unbox_value<int32_t>(rssi_value);
+			const auto rssi_args = static_cast<int64_t>(rssi);
+			result(rssi_args);
 			co_return;
+		}
+		catch (const winrt::hresult_error& ex) {
+			const auto code = "winrt::hresult_error";
+			const auto winrt_message = ex.message();
+			const auto message = winrt::to_string(winrt_message);
+			const auto error = FlutterError(code, message);
+			result(error);
 		}
 		catch (const std::exception& ex)
 		{
