@@ -1,3 +1,8 @@
+## 5.0.0-dev.3
+
+* Remove `CentralManager#getMaximumWriteLength` method.
+* Remove `PeripheralManager#getMaximumWriteLength` method.
+
 ## 5.0.0-dev.2
 
 * Add `UUID#fromAddress` constructor.
