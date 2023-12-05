@@ -40,10 +40,6 @@ abstract class PeripheralManager extends BluetoothLowEnergyManager {
   /// Stops advertising peripheral manager data.
   Future<void> stopAdvertising();
 
-  /// Gets the maximum amount of data, in bytes, that the central can receive in a
-  /// single notification or indication.
-  Future<int> getMaximumWriteLength(Central central);
-
   /// Responds to a read request from a connected central.
   Future<void> sendReadCharacteristicReply(
     Central central, {

@@ -36,12 +36,6 @@ abstract class CentralManager extends BluetoothLowEnergyManager {
   /// Cancels an active or pending local connection to a peripheral.
   Future<void> disconnect(Peripheral peripheral);
 
-  /// Gets the maximum amount of data, in bytes, you can send to a characteristic in a single write type.
-  Future<int> getMaximumWriteLength(
-    Peripheral peripheral, {
-    required GattCharacteristicWriteType type,
-  });
-
   /// Retrieves the current RSSI value for the peripheral while connected to the central manager.
   Future<int> readRSSI(Peripheral peripheral);
 
