@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'my_api.dart';
 import 'my_gatt_characteristic2.dart';
 import 'my_gatt_descriptor2.dart';
+import 'my_gatt_service2.dart';
 
 class MyCentralManager2 extends MyCentralManager
     implements MyCentralManagerFlutterApi {
@@ -19,13 +20,22 @@ class MyCentralManager2 extends MyCentralManager
   final StreamController<GattCharacteristicValueChangedEventArgs>
       _characteristicValueChangedController;
 
+  final Map<int, MyPeripheral> _peripherals;
+  final Map<int, List<MyGattService2>> _services;
+  final Map<int, List<MyGattCharacteristic2>> _characteristics;
+  final Map<int, List<MyGattDescriptor2>> _descriptors;
+
   MyCentralManager2()
       : _api = MyCentralManagerHostApi(),
         _state = BluetoothLowEnergyState.unknown,
         _stateChangedController = StreamController.broadcast(),
         _discoveredController = StreamController.broadcast(),
         _peripheralStateChangedController = StreamController.broadcast(),
-        _characteristicValueChangedController = StreamController.broadcast();
+        _characteristicValueChangedController = StreamController.broadcast(),
+        _peripherals = {},
+        _services = {},
+        _characteristics = {},
+        _descriptors = {};
 
   @override
   BluetoothLowEnergyState get state => _state;
@@ -86,8 +96,8 @@ class MyCentralManager2 extends MyCentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final peripheralArgs = peripheral.toArgs();
-    await _api.connect(peripheralArgs);
+    final addressArgs = peripheral.uuid.toAddressArgs();
+    await _api.connect(addressArgs);
   }
 
   @override
@@ -96,38 +106,14 @@ class MyCentralManager2 extends MyCentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final peripheralArgs = peripheral.toArgs();
-    await _api.disconnect(peripheralArgs);
-  }
-
-  @override
-  Future<int> getMaximumWriteLength(
-    Peripheral peripheral, {
-    required GattCharacteristicWriteType type,
-  }) async {
-    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    if (peripheral is! MyPeripheral) {
-      throw TypeError();
-    }
-    final peripheralArgs = peripheral.toArgs();
-    final typeArgs = type.toArgs();
-    final typeNumberArgs = typeArgs.index;
-    final maximumWriteLength = await _api.getMaximumWriteLength(
-      peripheralArgs,
-      typeNumberArgs,
-    );
-    return maximumWriteLength;
+    final addressArgs = peripheral.uuid.toAddressArgs();
+    await _api.disconnect(addressArgs);
   }
 
   @override
   Future<int> readRSSI(Peripheral peripheral) async {
-    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    if (peripheral is! MyPeripheral) {
-      throw TypeError();
-    }
-    final peripheralArgs = peripheral.toArgs();
-    final rssi = await _api.readRSSI(peripheralArgs);
-    return rssi;
+    // TODO: Windows doesn't support read RSSI after connected.
+    throw UnimplementedError();
   }
 
   @override
@@ -136,20 +122,22 @@ class MyCentralManager2 extends MyCentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final peripheralArgs = peripheral.toArgs();
+    final addressArgs = peripheral.uuid.toAddressArgs();
+    // 释放 GATT 缓存
+    await _api.clearGATT(addressArgs);
     // 发现 GATT 服务
     final servicesArgs = await _api
-        .discoverServices(peripheralArgs)
+        .discoverServices(addressArgs)
         .then((args) => args.cast<MyGattServiceArgs>());
     for (var serviceArgs in servicesArgs) {
       // 发现 GATT 特征值
       final characteristicsArgs = await _api
-          .discoverCharacteristics(peripheralArgs, serviceArgs)
+          .discoverCharacteristics(addressArgs, serviceArgs.handleArgs)
           .then((args) => args.cast<MyGattCharacteristicArgs>());
       for (var characteristicArgs in characteristicsArgs) {
         // 发现 GATT 描述值
         final descriptorsArgs = await _api
-            .discoverDescriptors(peripheralArgs, characteristicArgs)
+            .discoverDescriptors(addressArgs, characteristicArgs.handleArgs)
             .then((args) => args.cast<MyGattDescriptorArgs>());
         characteristicArgs.descriptorsArgs = descriptorsArgs;
       }
@@ -157,6 +145,14 @@ class MyCentralManager2 extends MyCentralManager
     }
     final services =
         servicesArgs.map((args) => args.toService2(peripheral)).toList();
+    final characteristics =
+        services.expand((service) => service.characteristics).toList();
+    final descriptors = characteristics
+        .expand((characteristic) => characteristic.descriptors)
+        .toList();
+    _services[addressArgs] = services;
+    _characteristics[addressArgs] = characteristics;
+    _descriptors[addressArgs] = descriptors;
     return services;
   }
 
@@ -169,12 +165,9 @@ class MyCentralManager2 extends MyCentralManager
       throw TypeError();
     }
     final peripheral = characteristic.peripheral;
-    final peripheralArgs = peripheral.toArgs();
-    final characteristicArgs = characteristic.toArgs();
-    final value = await _api.readCharacteristic(
-      peripheralArgs,
-      characteristicArgs,
-    );
+    final addressArgs = peripheral.uuid.toAddressArgs();
+    final handleArgs = characteristic.handle;
+    final value = await _api.readCharacteristic(addressArgs, handleArgs);
     return value;
   }
 
@@ -189,17 +182,35 @@ class MyCentralManager2 extends MyCentralManager
       throw TypeError();
     }
     final peripheral = characteristic.peripheral;
-    final peripheralArgs = peripheral.toArgs();
-    final characteristicArgs = characteristic.toArgs();
+    final addressArgs = peripheral.uuid.toAddressArgs();
+    final handleArgs = characteristic.handle;
     final valueArgs = value;
     final typeArgs = type.toArgs();
     final typeNumberArgs = typeArgs.index;
-    await _api.writeCharacteristic(
-      peripheralArgs,
-      characteristicArgs,
-      valueArgs,
-      typeNumberArgs,
-    );
+    if (type == GattCharacteristicWriteType.withoutResponse) {
+      // When write without response, fragments the value by 512 bytes.
+      var start = 0;
+      while (start < valueArgs.length) {
+        final end = start + 512;
+        final trimmedValueArgs = end < valueArgs.length
+            ? valueArgs.sublist(start, end)
+            : valueArgs.sublist(start);
+        await _api.writeCharacteristic(
+          addressArgs,
+          handleArgs,
+          trimmedValueArgs,
+          typeNumberArgs,
+        );
+        start = end;
+      }
+    } else {
+      await _api.writeCharacteristic(
+        addressArgs,
+        handleArgs,
+        valueArgs,
+        typeNumberArgs,
+      );
+    }
   }
 
   @override
@@ -212,14 +223,15 @@ class MyCentralManager2 extends MyCentralManager
       throw TypeError();
     }
     final peripheral = characteristic.peripheral;
-    final peripheralArgs = peripheral.toArgs();
-    final characteristicArgs = characteristic.toArgs();
-    final stateArgs = state;
-    await _api.notifyCharacteristic(
-      peripheralArgs,
-      characteristicArgs,
-      stateArgs,
-    );
+    final addressArgs = peripheral.uuid.toAddressArgs();
+    final handleArgs = characteristic.handle;
+    final stateArgs = state
+        ? characteristic.properties.contains(GattCharacteristicProperty.notify)
+            ? MyGattCharacteristicNotifyStateArgs.notify
+            : MyGattCharacteristicNotifyStateArgs.indicate
+        : MyGattCharacteristicNotifyStateArgs.none;
+    final stateNumberArgs = stateArgs.index;
+    await _api.notifyCharacteristic(addressArgs, handleArgs, stateNumberArgs);
   }
 
   @override
@@ -229,12 +241,9 @@ class MyCentralManager2 extends MyCentralManager
       throw TypeError();
     }
     final peripheral = descriptor.peripheral;
-    final peripheralArgs = peripheral.toArgs();
-    final descriptorArgs = descriptor.toArgs();
-    final value = await _api.readDescriptor(
-      peripheralArgs,
-      descriptorArgs,
-    );
+    final addressArgs = peripheral.uuid.toAddressArgs();
+    final handleArgs = descriptor.handle;
+    final value = await _api.readDescriptor(addressArgs, handleArgs);
     return value;
   }
 
@@ -248,14 +257,10 @@ class MyCentralManager2 extends MyCentralManager
       throw TypeError();
     }
     final peripheral = descriptor.peripheral;
-    final peripheralArgs = peripheral.toArgs();
-    final descriptorArgs = descriptor.toArgs();
+    final addressArgs = peripheral.uuid.toAddressArgs();
+    final handleArgs = descriptor.handle;
     final valueArgs = value;
-    await _api.writeDescriptor(
-      peripheralArgs,
-      descriptorArgs,
-      valueArgs,
-    );
+    await _api.writeDescriptor(addressArgs, handleArgs, valueArgs);
   }
 
   @override
@@ -270,6 +275,7 @@ class MyCentralManager2 extends MyCentralManager
     int rssiArgs,
     MyAdvertisementArgs advertisementArgs,
   ) {
+    final addressArgs = peripheralArgs.addressArgs;
     final peripheral = peripheralArgs.toPeripheral();
     final rssi = rssiArgs;
     final advertisement = advertisementArgs.toAdvertisement();
@@ -278,33 +284,83 @@ class MyCentralManager2 extends MyCentralManager
       rssi,
       advertisement,
     );
+    _peripherals[addressArgs] = peripheral;
     _discoveredController.add(eventArgs);
   }
 
   @override
-  void onPeripheralStateChanged(
-    MyPeripheralArgs peripheralArgs,
-    bool stateArgs,
-  ) {
-    final peripheral = peripheralArgs.toPeripheral();
+  void onPeripheralStateChanged(int addressArgs, bool stateArgs) {
+    final peripheral = retrievePeripheral(addressArgs);
+    if (peripheral == null) {
+      return;
+    }
     final state = stateArgs;
     final eventArgs = PeripheralStateChangedEventArgs(peripheral, state);
     _peripheralStateChangedController.add(eventArgs);
+    if (!state) {
+      _services.remove(addressArgs);
+      _characteristics.remove(addressArgs);
+      _descriptors.remove(addressArgs);
+    }
   }
 
   @override
   void onCharacteristicValueChanged(
-    MyPeripheralArgs peripheralArgs,
-    MyGattCharacteristicArgs characteristicArgs,
+    int addressArgs,
+    int handleArgs,
     Uint8List valueArgs,
   ) {
-    final peripheral = peripheralArgs.toPeripheral();
-    final characteristic = characteristicArgs.toCharacteristic2(peripheral);
+    final characteristic = retrieveCharacteristic(addressArgs, handleArgs);
+    if (characteristic == null) {
+      return;
+    }
     final value = valueArgs;
     final eventArgs = GattCharacteristicValueChangedEventArgs(
       characteristic,
       value,
     );
     _characteristicValueChangedController.add(eventArgs);
+  }
+
+  Peripheral? retrievePeripheral(int addressArgs) {
+    return _peripherals[addressArgs];
+  }
+
+  GattService? retrieveService(int addressArgs, int handleArgs) {
+    final services = _services[addressArgs];
+    if (services == null) {
+      return null;
+    }
+    final i = services.indexWhere((service) => service.handle == handleArgs);
+    if (i < 0) {
+      return null;
+    }
+    return services[i];
+  }
+
+  GattCharacteristic? retrieveCharacteristic(int addressArgs, int handleArgs) {
+    final characteristics = _characteristics[addressArgs];
+    if (characteristics == null) {
+      return null;
+    }
+    final i = characteristics
+        .indexWhere((characteristic) => characteristic.handle == handleArgs);
+    if (i < 0) {
+      return null;
+    }
+    return characteristics[i];
+  }
+
+  GattDescriptor? retrieveDescriptor(int addressArgs, int handleArgs) {
+    final descriptors = _descriptors[addressArgs];
+    if (descriptors == null) {
+      return null;
+    }
+    final i =
+        descriptors.indexWhere((descriptor) => descriptor.handle == handleArgs);
+    if (i < 0) {
+      return null;
+    }
+    return descriptors[i];
   }
 }

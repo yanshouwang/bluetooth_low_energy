@@ -80,6 +80,12 @@ enum class MyGattCharacteristicWriteTypeArgs {
   withoutResponse = 1
 };
 
+enum class MyGattCharacteristicNotifyStateArgs {
+  none = 0,
+  notify = 1,
+  indicate = 2
+};
+
 // Generated class from Pigeon that represents data sent in messages.
 class MyManufacturerSpecificDataArgs {
  public:
@@ -416,48 +422,43 @@ class MyCentralManagerHostApi {
   virtual std::optional<FlutterError> StartDiscovery() = 0;
   virtual std::optional<FlutterError> StopDiscovery() = 0;
   virtual void Connect(
-    const MyPeripheralArgs& peripheral_args,
+    int64_t address_args,
     std::function<void(std::optional<FlutterError> reply)> result) = 0;
-  virtual std::optional<FlutterError> Disconnect(const MyPeripheralArgs& peripheral_args) = 0;
-  virtual ErrorOr<int64_t> GetMaximumWriteLength(
-    const MyPeripheralArgs& peripheral_args,
-    int64_t type_number_args) = 0;
-  virtual void ReadRSSI(
-    const MyPeripheralArgs& peripheral_args,
-    std::function<void(ErrorOr<int64_t> reply)> result) = 0;
+  virtual std::optional<FlutterError> Disconnect(int64_t address_args) = 0;
+  virtual std::optional<FlutterError> ClearGATT(int64_t address_args) = 0;
   virtual void DiscoverServices(
-    const MyPeripheralArgs& peripheral_args,
+    int64_t address_args,
     std::function<void(ErrorOr<flutter::EncodableList> reply)> result) = 0;
   virtual void DiscoverCharacteristics(
-    const MyPeripheralArgs& peripheral_args,
-    const MyGattServiceArgs& service_args,
+    int64_t address_args,
+    int64_t handle_args,
     std::function<void(ErrorOr<flutter::EncodableList> reply)> result) = 0;
   virtual void DiscoverDescriptors(
-    const MyPeripheralArgs& peripheral_args,
-    const MyGattCharacteristicArgs& characteristic_args,
+    int64_t address_args,
+    int64_t handle_args,
     std::function<void(ErrorOr<flutter::EncodableList> reply)> result) = 0;
   virtual void ReadCharacteristic(
-    const MyPeripheralArgs& peripheral_args,
-    const MyGattCharacteristicArgs& characteristic_args,
+    int64_t address_args,
+    int64_t handle_args,
     std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result) = 0;
   virtual void WriteCharacteristic(
-    const MyPeripheralArgs& peripheral_args,
-    const MyGattCharacteristicArgs& characteristic_args,
+    int64_t address_args,
+    int64_t handle_args,
     const std::vector<uint8_t>& value_args,
     int64_t type_number_args,
     std::function<void(std::optional<FlutterError> reply)> result) = 0;
   virtual void NotifyCharacteristic(
-    const MyPeripheralArgs& peripheral_args,
-    const MyGattCharacteristicArgs& characteristic_args,
-    bool state_args,
+    int64_t address_args,
+    int64_t handle_args,
+    int64_t state_number_args,
     std::function<void(std::optional<FlutterError> reply)> result) = 0;
   virtual void ReadDescriptor(
-    const MyPeripheralArgs& peripheral_args,
-    const MyGattDescriptorArgs& descriptor_args,
+    int64_t address_args,
+    int64_t handle_args,
     std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result) = 0;
   virtual void WriteDescriptor(
-    const MyPeripheralArgs& peripheral_args,
-    const MyGattDescriptorArgs& descriptor_args,
+    int64_t address_args,
+    int64_t handle_args,
     const std::vector<uint8_t>& value_args,
     std::function<void(std::optional<FlutterError> reply)> result) = 0;
 
@@ -509,13 +510,13 @@ class MyCentralManagerFlutterApi {
     std::function<void(void)>&& on_success,
     std::function<void(const FlutterError&)>&& on_error);
   void OnPeripheralStateChanged(
-    const MyPeripheralArgs& peripheral_args,
+    int64_t address_args,
     bool state_args,
     std::function<void(void)>&& on_success,
     std::function<void(const FlutterError&)>&& on_error);
   void OnCharacteristicValueChanged(
-    const MyPeripheralArgs& peripheral_args,
-    const MyGattCharacteristicArgs& characteristic_args,
+    int64_t address_args,
+    int64_t handle_args,
     const std::vector<uint8_t>& value_args,
     std::function<void(void)>&& on_success,
     std::function<void(const FlutterError&)>&& on_error);
@@ -553,29 +554,28 @@ class MyPeripheralManagerHostApi {
   virtual void AddService(
     const MyGattServiceArgs& service_args,
     std::function<void(std::optional<FlutterError> reply)> result) = 0;
-  virtual std::optional<FlutterError> RemoveService(const MyGattServiceArgs& service_args) = 0;
+  virtual std::optional<FlutterError> RemoveService(int64_t handle_args) = 0;
   virtual std::optional<FlutterError> ClearServices() = 0;
   virtual void StartAdvertising(
     const MyAdvertisementArgs& advertisement_args,
     std::function<void(std::optional<FlutterError> reply)> result) = 0;
   virtual std::optional<FlutterError> StopAdvertising() = 0;
-  virtual ErrorOr<int64_t> GetMaximumWriteLength(const MyCentralArgs& central_args) = 0;
   virtual std::optional<FlutterError> SendReadCharacteristicReply(
-    const MyCentralArgs& central_args,
-    const MyGattCharacteristicArgs& characteristic_args,
+    int64_t address_args,
+    int64_t handle_args,
     int64_t id_args,
     int64_t offset_args,
     bool status_args,
     const std::vector<uint8_t>& value_args) = 0;
   virtual std::optional<FlutterError> SendWriteCharacteristicReply(
-    const MyCentralArgs& central_args,
-    const MyGattCharacteristicArgs& characteristic_args,
+    int64_t address_args,
+    int64_t handle_args,
     int64_t id_args,
     int64_t offset_args,
     bool status_args) = 0;
   virtual void NotifyCharacteristicValueChanged(
-    const MyCentralArgs& central_args,
-    const MyGattCharacteristicArgs& characteristic_args,
+    int64_t address_args,
+    int64_t handle_args,
     const std::vector<uint8_t>& value_args,
     std::function<void(std::optional<FlutterError> reply)> result) = 0;
 
@@ -622,14 +622,14 @@ class MyPeripheralManagerFlutterApi {
     std::function<void(const FlutterError&)>&& on_error);
   void OnReadCharacteristicCommandReceived(
     const MyCentralArgs& central_args,
-    const MyGattCharacteristicArgs& characteristic_args,
+    int64_t handle_args,
     int64_t id_args,
     int64_t offset_args,
     std::function<void(void)>&& on_success,
     std::function<void(const FlutterError&)>&& on_error);
   void OnWriteCharacteristicCommandReceived(
     const MyCentralArgs& central_args,
-    const MyGattCharacteristicArgs& characteristic_args,
+    int64_t handle_args,
     int64_t id_args,
     int64_t offset_args,
     const std::vector<uint8_t>& value_args,
@@ -637,7 +637,7 @@ class MyPeripheralManagerFlutterApi {
     std::function<void(const FlutterError&)>&& on_error);
   void OnNotifyCharacteristicCommandReceived(
     const MyCentralArgs& central_args,
-    const MyGattCharacteristicArgs& characteristic_args,
+    int64_t handle_args,
     bool state_args,
     std::function<void(void)>&& on_success,
     std::function<void(const FlutterError&)>&& on_error);

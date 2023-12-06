@@ -1,6 +1,3 @@
-// TODO: 由于此文件中的类型定义顺序会影响生成的 C++ 文件中的类型顺序，需要将依赖类型放在前面，
-// 参见：https://github.com/flutter/flutter/issues/128330
-// 当此问题解决时恢复之前的顺序。
 import 'package:pigeon/pigeon.dart';
 
 @ConfigurePigeon(
@@ -32,12 +29,14 @@ enum MyGattCharacteristicPropertyArgs {
 }
 
 enum MyGattCharacteristicWriteTypeArgs {
-  // Write with response
   withResponse,
-  // Write without response
   withoutResponse,
-  // Write with response and waiting for confirmation
-  // reliable,
+}
+
+enum MyGattCharacteristicNotifyStateArgs {
+  none,
+  notify,
+  indicate,
 }
 
 class MyManufacturerSpecificDataArgs {
@@ -130,55 +129,40 @@ abstract class MyCentralManagerHostApi {
   void startDiscovery();
   void stopDiscovery();
   @async
-  void connect(MyPeripheralArgs peripheralArgs);
-  void disconnect(MyPeripheralArgs peripheralArgs);
-  int getMaximumWriteLength(
-    MyPeripheralArgs peripheralArgs,
-    int typeNumberArgs,
-  );
+  void connect(int addressArgs);
+  void disconnect(int addressArgs);
+  void clearGATT(int addressArgs);
   @async
-  int readRSSI(MyPeripheralArgs peripheralArgs);
-  @async
-  List<MyGattServiceArgs> discoverServices(MyPeripheralArgs peripheralArgs);
+  List<MyGattServiceArgs> discoverServices(int addressArgs);
   @async
   List<MyGattCharacteristicArgs> discoverCharacteristics(
-    MyPeripheralArgs peripheralArgs,
-    MyGattServiceArgs serviceArgs,
+    int addressArgs,
+    int handleArgs,
   );
   @async
   List<MyGattDescriptorArgs> discoverDescriptors(
-    MyPeripheralArgs peripheralArgs,
-    MyGattCharacteristicArgs characteristicArgs,
+    int addressArgs,
+    int handleArgs,
   );
   @async
-  Uint8List readCharacteristic(
-    MyPeripheralArgs peripheralArgs,
-    MyGattCharacteristicArgs characteristicArgs,
-  );
+  Uint8List readCharacteristic(int addressArgs, int handleArgs);
   @async
   void writeCharacteristic(
-    MyPeripheralArgs peripheralArgs,
-    MyGattCharacteristicArgs characteristicArgs,
+    int addressArgs,
+    int handleArgs,
     Uint8List valueArgs,
     int typeNumberArgs,
   );
   @async
   void notifyCharacteristic(
-    MyPeripheralArgs peripheralArgs,
-    MyGattCharacteristicArgs characteristicArgs,
-    bool stateArgs,
+    int addressArgs,
+    int handleArgs,
+    int stateNumberArgs,
   );
   @async
-  Uint8List readDescriptor(
-    MyPeripheralArgs peripheralArgs,
-    MyGattDescriptorArgs descriptorArgs,
-  );
+  Uint8List readDescriptor(int addressArgs, int handleArgs);
   @async
-  void writeDescriptor(
-    MyPeripheralArgs peripheralArgs,
-    MyGattDescriptorArgs descriptorArgs,
-    Uint8List valueArgs,
-  );
+  void writeDescriptor(int addressArgs, int handleArgs, Uint8List valueArgs);
 }
 
 @FlutterApi()
@@ -190,12 +174,12 @@ abstract class MyCentralManagerFlutterApi {
     MyAdvertisementArgs advertisementArgs,
   );
   void onPeripheralStateChanged(
-    MyPeripheralArgs peripheralArgs,
+    int addressArgs,
     bool stateArgs,
   );
   void onCharacteristicValueChanged(
-    MyPeripheralArgs peripheralArgs,
-    MyGattCharacteristicArgs characteristicArgs,
+    int addressArgs,
+    int handleArgs,
     Uint8List valueArgs,
   );
 }
@@ -206,31 +190,30 @@ abstract class MyPeripheralManagerHostApi {
   MyPeripheralManagerArgs setUp();
   @async
   void addService(MyGattServiceArgs serviceArgs);
-  void removeService(MyGattServiceArgs serviceArgs);
+  void removeService(int handleArgs);
   void clearServices();
   @async
   void startAdvertising(MyAdvertisementArgs advertisementArgs);
   void stopAdvertising();
-  int getMaximumWriteLength(MyCentralArgs centralArgs);
   void sendReadCharacteristicReply(
-    MyCentralArgs centralArgs,
-    MyGattCharacteristicArgs characteristicArgs,
+    int addressArgs,
+    int handleArgs,
     int idArgs,
     int offsetArgs,
     bool statusArgs,
     Uint8List valueArgs,
   );
   void sendWriteCharacteristicReply(
-    MyCentralArgs centralArgs,
-    MyGattCharacteristicArgs characteristicArgs,
+    int addressArgs,
+    int handleArgs,
     int idArgs,
     int offsetArgs,
     bool statusArgs,
   );
   @async
   void notifyCharacteristicValueChanged(
-    MyCentralArgs centralArgs,
-    MyGattCharacteristicArgs characteristicArgs,
+    int addressArgs,
+    int handleArgs,
     Uint8List valueArgs,
   );
 }
@@ -240,20 +223,20 @@ abstract class MyPeripheralManagerFlutterApi {
   void onStateChanged(int stateNumberArgs);
   void onReadCharacteristicCommandReceived(
     MyCentralArgs centralArgs,
-    MyGattCharacteristicArgs characteristicArgs,
+    int handleArgs,
     int idArgs,
     int offsetArgs,
   );
   void onWriteCharacteristicCommandReceived(
     MyCentralArgs centralArgs,
-    MyGattCharacteristicArgs characteristicArgs,
+    int handleArgs,
     int idArgs,
     int offsetArgs,
     Uint8List valueArgs,
   );
   void onNotifyCharacteristicCommandReceived(
     MyCentralArgs centralArgs,
-    MyGattCharacteristicArgs characteristicArgs,
+    int handleArgs,
     bool stateArgs,
   );
 }

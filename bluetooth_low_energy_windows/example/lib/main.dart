@@ -178,6 +178,10 @@ class _ScannerViewState extends State<ScannerView> {
     );
     discoveredSubscription = centralManager.discovered.listen(
       (eventArgs) {
+        final name = eventArgs.advertisement.name;
+        if (name == null || name.isEmpty) {
+          return;
+        }
         final items = discoveredEventArgs.value;
         final i = items.indexWhere(
           (item) => item.peripheral == eventArgs.peripheral,
@@ -216,6 +220,7 @@ class _ScannerViewState extends State<ScannerView> {
                           if (discovering) {
                             await stopDiscovery();
                           } else {
+                            discoveredEventArgs.value = [];
                             await startDiscovery();
                           }
                         }
@@ -340,7 +345,13 @@ class _ScannerViewState extends State<ScannerView> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              trailing: RssiWidget(rssi),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  RssiWidget(rssi),
+                  Text('$rssi'),
+                ],
+              ),
             );
           },
           separatorBuilder: (context, i) {
@@ -385,14 +396,11 @@ class _PeripheralViewState extends State<PeripheralView> {
   late final ValueNotifier<GattService?> service;
   late final ValueNotifier<GattCharacteristic?> characteristic;
   late final ValueNotifier<GattCharacteristicWriteType> writeType;
-  late final ValueNotifier<int> maximumWriteLength;
   late final ValueNotifier<int> rssi;
   late final ValueNotifier<List<Log>> logs;
   late final TextEditingController writeController;
   late final StreamSubscription stateChangedSubscription;
   late final StreamSubscription valueChangedSubscription;
-  late final StreamSubscription rssiChangedSubscription;
-  late final Timer rssiTimer;
 
   @override
   void initState() {
@@ -404,7 +412,6 @@ class _PeripheralViewState extends State<PeripheralView> {
     service = ValueNotifier(null);
     characteristic = ValueNotifier(null);
     writeType = ValueNotifier(GattCharacteristicWriteType.withResponse);
-    maximumWriteLength = ValueNotifier(0);
     rssi = ValueNotifier(-100);
     logs = ValueNotifier([]);
     writeController = TextEditingController();
@@ -414,7 +421,6 @@ class _PeripheralViewState extends State<PeripheralView> {
           return;
         }
         final state = eventArgs.state;
-        print('$state');
         this.state.value = state;
         if (!state) {
           services.value = [];
@@ -427,10 +433,10 @@ class _PeripheralViewState extends State<PeripheralView> {
     );
     valueChangedSubscription = centralManager.characteristicValueChanged.listen(
       (eventArgs) {
-        final characteristic = this.characteristic.value;
-        if (eventArgs.characteristic != characteristic) {
-          return;
-        }
+        // final characteristic = this.characteristic.value;
+        // if (eventArgs.characteristic != characteristic) {
+        //   return;
+        // }
         const type = LogType.notify;
         final log = Log(type, eventArgs.value);
         logs.value = [
@@ -439,28 +445,16 @@ class _PeripheralViewState extends State<PeripheralView> {
         ];
       },
     );
-    rssiTimer = Timer.periodic(
-      const Duration(seconds: 5),
-      (timer) async {
-        final state = this.state.value;
-        if (state) {
-          rssi.value = await centralManager.readRSSI(eventArgs.peripheral);
-        } else {
-          rssi.value = -100;
-        }
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      onPopInvoked: (didPop) async {
         if (state.value) {
           final peripheral = eventArgs.peripheral;
           await centralManager.disconnect(peripheral);
         }
-        return true;
       },
       child: Scaffold(
         appBar: buildAppBar(context),
@@ -482,18 +476,11 @@ class _PeripheralViewState extends State<PeripheralView> {
                 final peripheral = eventArgs.peripheral;
                 if (state) {
                   await centralManager.disconnect(peripheral);
-                  maximumWriteLength.value = 0;
                   rssi.value = 0;
                 } else {
                   await centralManager.connect(peripheral);
                   services.value =
                       await centralManager.discoverGATT(peripheral);
-                  maximumWriteLength.value =
-                      await centralManager.getMaximumWriteLength(
-                    peripheral,
-                    type: writeType.value,
-                  );
-                  rssi.value = await centralManager.readRSSI(peripheral);
                 }
               },
               child: Text(state ? 'DISCONNECT' : 'CONNECT'),
@@ -631,14 +618,9 @@ class _PeripheralViewState extends State<PeripheralView> {
                 valueListenable: writeType,
                 builder: (context, writeType, child) {
                   return ToggleButtons(
-                    onPressed: (i) async {
+                    onPressed: (i) {
                       final type = GattCharacteristicWriteType.values[i];
                       this.writeType.value = type;
-                      maximumWriteLength.value =
-                          await centralManager.getMaximumWriteLength(
-                        eventArgs.peripheral,
-                        type: type,
-                      );
                     },
                     constraints: const BoxConstraints(
                       minWidth: 0.0,
@@ -678,18 +660,6 @@ class _PeripheralViewState extends State<PeripheralView> {
                   //     ),
                   //   ),
                   // );
-                },
-              ),
-              const SizedBox(width: 8.0),
-              ValueListenableBuilder(
-                valueListenable: state,
-                builder: (context, state, child) {
-                  return ValueListenableBuilder(
-                    valueListenable: maximumWriteLength,
-                    builder: (context, maximumWriteLength, child) {
-                      return Text('$maximumWriteLength');
-                    },
-                  );
                 },
               ),
               const Spacer(),
@@ -800,7 +770,6 @@ class _PeripheralViewState extends State<PeripheralView> {
   @override
   void dispose() {
     super.dispose();
-    rssiTimer.cancel();
     stateChangedSubscription.cancel();
     valueChangedSubscription.cancel();
     state.dispose();
@@ -809,7 +778,6 @@ class _PeripheralViewState extends State<PeripheralView> {
     service.dispose();
     characteristic.dispose();
     writeType.dispose();
-    maximumWriteLength.dispose();
     rssi.dispose();
     logs.dispose();
     writeController.dispose();

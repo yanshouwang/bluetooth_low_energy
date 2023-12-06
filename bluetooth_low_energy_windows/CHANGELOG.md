@@ -1,3 +1,7 @@
+## 5.0.0-dev.1
+
+* Implement the `CentralManager` api.
+
 ## 2.2.0
 
 * Add `CentralController#getMaximumWriteLength` method.

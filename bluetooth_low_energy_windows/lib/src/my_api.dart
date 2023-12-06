@@ -167,15 +167,6 @@ extension ManufacturerSpecificDataX on ManufacturerSpecificData {
   }
 }
 
-extension MyPeripheralX on MyPeripheral {
-  MyPeripheralArgs toArgs() {
-    final addressArgs = uuid.toAddressArgs();
-    return MyPeripheralArgs(
-      addressArgs: addressArgs,
-    );
-  }
-}
-
 extension MyGattService2X on MyGattService2 {
   MyGattServiceArgs toArgs() {
     final handleArgs = handle;

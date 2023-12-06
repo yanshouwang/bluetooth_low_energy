@@ -46,6 +46,12 @@ enum MyGattCharacteristicWriteTypeArgs {
   withoutResponse,
 }
 
+enum MyGattCharacteristicNotifyStateArgs {
+  none,
+  notify,
+  indicate,
+}
+
 class MyManufacturerSpecificDataArgs {
   MyManufacturerSpecificDataArgs({
     required this.idArgs,
@@ -308,9 +314,6 @@ class _MyCentralManagerHostApiCodec extends StandardMessageCodec {
     } else if (value is MyGattServiceArgs) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
-    } else if (value is MyPeripheralArgs) {
-      buffer.putUint8(132);
-      writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
     }
@@ -327,8 +330,6 @@ class _MyCentralManagerHostApiCodec extends StandardMessageCodec {
         return MyGattDescriptorArgs.decode(readValue(buffer)!);
       case 131: 
         return MyGattServiceArgs.decode(readValue(buffer)!);
-      case 132: 
-        return MyPeripheralArgs.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -416,7 +417,7 @@ class MyCentralManagerHostApi {
     }
   }
 
-  Future<void> connect(MyPeripheralArgs arg_peripheralArgs) async {
+  Future<void> connect(int arg_addressArgs) async {
     const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostApi.connect';
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       channelName,
@@ -424,7 +425,7 @@ class MyCentralManagerHostApi {
       binaryMessenger: _binaryMessenger,
     );
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_peripheralArgs]) as List<Object?>?;
+        await channel.send(<Object?>[arg_addressArgs]) as List<Object?>?;
     if (replyList == null) {
       throw _createConnectionError(channelName);
     } else if (replyList.length > 1) {
@@ -438,7 +439,7 @@ class MyCentralManagerHostApi {
     }
   }
 
-  Future<void> disconnect(MyPeripheralArgs arg_peripheralArgs) async {
+  Future<void> disconnect(int arg_addressArgs) async {
     const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostApi.disconnect';
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       channelName,
@@ -446,7 +447,7 @@ class MyCentralManagerHostApi {
       binaryMessenger: _binaryMessenger,
     );
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_peripheralArgs]) as List<Object?>?;
+        await channel.send(<Object?>[arg_addressArgs]) as List<Object?>?;
     if (replyList == null) {
       throw _createConnectionError(channelName);
     } else if (replyList.length > 1) {
@@ -460,15 +461,15 @@ class MyCentralManagerHostApi {
     }
   }
 
-  Future<int> getMaximumWriteLength(MyPeripheralArgs arg_peripheralArgs, int arg_typeNumberArgs) async {
-    const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostApi.getMaximumWriteLength';
+  Future<void> clearGATT(int arg_addressArgs) async {
+    const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostApi.clearGATT';
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       channelName,
       codec,
       binaryMessenger: _binaryMessenger,
     );
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_peripheralArgs, arg_typeNumberArgs]) as List<Object?>?;
+        await channel.send(<Object?>[arg_addressArgs]) as List<Object?>?;
     if (replyList == null) {
       throw _createConnectionError(channelName);
     } else if (replyList.length > 1) {
@@ -477,44 +478,12 @@ class MyCentralManagerHostApi {
         message: replyList[1] as String?,
         details: replyList[2],
       );
-    } else if (replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
     } else {
-      return (replyList[0] as int?)!;
+      return;
     }
   }
 
-  Future<int> readRSSI(MyPeripheralArgs arg_peripheralArgs) async {
-    const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostApi.readRSSI';
-    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-      channelName,
-      codec,
-      binaryMessenger: _binaryMessenger,
-    );
-    final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_peripheralArgs]) as List<Object?>?;
-    if (replyList == null) {
-      throw _createConnectionError(channelName);
-    } else if (replyList.length > 1) {
-      throw PlatformException(
-        code: replyList[0]! as String,
-        message: replyList[1] as String?,
-        details: replyList[2],
-      );
-    } else if (replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
-    } else {
-      return (replyList[0] as int?)!;
-    }
-  }
-
-  Future<List<MyGattServiceArgs?>> discoverServices(MyPeripheralArgs arg_peripheralArgs) async {
+  Future<List<MyGattServiceArgs?>> discoverServices(int arg_addressArgs) async {
     const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostApi.discoverServices';
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       channelName,
@@ -522,7 +491,7 @@ class MyCentralManagerHostApi {
       binaryMessenger: _binaryMessenger,
     );
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_peripheralArgs]) as List<Object?>?;
+        await channel.send(<Object?>[arg_addressArgs]) as List<Object?>?;
     if (replyList == null) {
       throw _createConnectionError(channelName);
     } else if (replyList.length > 1) {
@@ -541,7 +510,7 @@ class MyCentralManagerHostApi {
     }
   }
 
-  Future<List<MyGattCharacteristicArgs?>> discoverCharacteristics(MyPeripheralArgs arg_peripheralArgs, MyGattServiceArgs arg_serviceArgs) async {
+  Future<List<MyGattCharacteristicArgs?>> discoverCharacteristics(int arg_addressArgs, int arg_handleArgs) async {
     const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostApi.discoverCharacteristics';
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       channelName,
@@ -549,7 +518,7 @@ class MyCentralManagerHostApi {
       binaryMessenger: _binaryMessenger,
     );
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_peripheralArgs, arg_serviceArgs]) as List<Object?>?;
+        await channel.send(<Object?>[arg_addressArgs, arg_handleArgs]) as List<Object?>?;
     if (replyList == null) {
       throw _createConnectionError(channelName);
     } else if (replyList.length > 1) {
@@ -568,7 +537,7 @@ class MyCentralManagerHostApi {
     }
   }
 
-  Future<List<MyGattDescriptorArgs?>> discoverDescriptors(MyPeripheralArgs arg_peripheralArgs, MyGattCharacteristicArgs arg_characteristicArgs) async {
+  Future<List<MyGattDescriptorArgs?>> discoverDescriptors(int arg_addressArgs, int arg_handleArgs) async {
     const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostApi.discoverDescriptors';
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       channelName,
@@ -576,7 +545,7 @@ class MyCentralManagerHostApi {
       binaryMessenger: _binaryMessenger,
     );
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_peripheralArgs, arg_characteristicArgs]) as List<Object?>?;
+        await channel.send(<Object?>[arg_addressArgs, arg_handleArgs]) as List<Object?>?;
     if (replyList == null) {
       throw _createConnectionError(channelName);
     } else if (replyList.length > 1) {
@@ -595,7 +564,7 @@ class MyCentralManagerHostApi {
     }
   }
 
-  Future<Uint8List> readCharacteristic(MyPeripheralArgs arg_peripheralArgs, MyGattCharacteristicArgs arg_characteristicArgs) async {
+  Future<Uint8List> readCharacteristic(int arg_addressArgs, int arg_handleArgs) async {
     const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostApi.readCharacteristic';
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       channelName,
@@ -603,7 +572,7 @@ class MyCentralManagerHostApi {
       binaryMessenger: _binaryMessenger,
     );
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_peripheralArgs, arg_characteristicArgs]) as List<Object?>?;
+        await channel.send(<Object?>[arg_addressArgs, arg_handleArgs]) as List<Object?>?;
     if (replyList == null) {
       throw _createConnectionError(channelName);
     } else if (replyList.length > 1) {
@@ -622,7 +591,7 @@ class MyCentralManagerHostApi {
     }
   }
 
-  Future<void> writeCharacteristic(MyPeripheralArgs arg_peripheralArgs, MyGattCharacteristicArgs arg_characteristicArgs, Uint8List arg_valueArgs, int arg_typeNumberArgs) async {
+  Future<void> writeCharacteristic(int arg_addressArgs, int arg_handleArgs, Uint8List arg_valueArgs, int arg_typeNumberArgs) async {
     const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostApi.writeCharacteristic';
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       channelName,
@@ -630,7 +599,7 @@ class MyCentralManagerHostApi {
       binaryMessenger: _binaryMessenger,
     );
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_peripheralArgs, arg_characteristicArgs, arg_valueArgs, arg_typeNumberArgs]) as List<Object?>?;
+        await channel.send(<Object?>[arg_addressArgs, arg_handleArgs, arg_valueArgs, arg_typeNumberArgs]) as List<Object?>?;
     if (replyList == null) {
       throw _createConnectionError(channelName);
     } else if (replyList.length > 1) {
@@ -644,7 +613,7 @@ class MyCentralManagerHostApi {
     }
   }
 
-  Future<void> notifyCharacteristic(MyPeripheralArgs arg_peripheralArgs, MyGattCharacteristicArgs arg_characteristicArgs, bool arg_stateArgs) async {
+  Future<void> notifyCharacteristic(int arg_addressArgs, int arg_handleArgs, int arg_stateNumberArgs) async {
     const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostApi.notifyCharacteristic';
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       channelName,
@@ -652,7 +621,7 @@ class MyCentralManagerHostApi {
       binaryMessenger: _binaryMessenger,
     );
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_peripheralArgs, arg_characteristicArgs, arg_stateArgs]) as List<Object?>?;
+        await channel.send(<Object?>[arg_addressArgs, arg_handleArgs, arg_stateNumberArgs]) as List<Object?>?;
     if (replyList == null) {
       throw _createConnectionError(channelName);
     } else if (replyList.length > 1) {
@@ -666,7 +635,7 @@ class MyCentralManagerHostApi {
     }
   }
 
-  Future<Uint8List> readDescriptor(MyPeripheralArgs arg_peripheralArgs, MyGattDescriptorArgs arg_descriptorArgs) async {
+  Future<Uint8List> readDescriptor(int arg_addressArgs, int arg_handleArgs) async {
     const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostApi.readDescriptor';
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       channelName,
@@ -674,7 +643,7 @@ class MyCentralManagerHostApi {
       binaryMessenger: _binaryMessenger,
     );
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_peripheralArgs, arg_descriptorArgs]) as List<Object?>?;
+        await channel.send(<Object?>[arg_addressArgs, arg_handleArgs]) as List<Object?>?;
     if (replyList == null) {
       throw _createConnectionError(channelName);
     } else if (replyList.length > 1) {
@@ -693,7 +662,7 @@ class MyCentralManagerHostApi {
     }
   }
 
-  Future<void> writeDescriptor(MyPeripheralArgs arg_peripheralArgs, MyGattDescriptorArgs arg_descriptorArgs, Uint8List arg_valueArgs) async {
+  Future<void> writeDescriptor(int arg_addressArgs, int arg_handleArgs, Uint8List arg_valueArgs) async {
     const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostApi.writeDescriptor';
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       channelName,
@@ -701,7 +670,7 @@ class MyCentralManagerHostApi {
       binaryMessenger: _binaryMessenger,
     );
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_peripheralArgs, arg_descriptorArgs, arg_valueArgs]) as List<Object?>?;
+        await channel.send(<Object?>[arg_addressArgs, arg_handleArgs, arg_valueArgs]) as List<Object?>?;
     if (replyList == null) {
       throw _createConnectionError(channelName);
     } else if (replyList.length > 1) {
@@ -723,17 +692,11 @@ class _MyCentralManagerFlutterApiCodec extends StandardMessageCodec {
     if (value is MyAdvertisementArgs) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
-    } else if (value is MyGattCharacteristicArgs) {
+    } else if (value is MyManufacturerSpecificDataArgs) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is MyGattDescriptorArgs) {
-      buffer.putUint8(130);
-      writeValue(buffer, value.encode());
-    } else if (value is MyManufacturerSpecificDataArgs) {
-      buffer.putUint8(131);
-      writeValue(buffer, value.encode());
     } else if (value is MyPeripheralArgs) {
-      buffer.putUint8(132);
+      buffer.putUint8(130);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -746,12 +709,8 @@ class _MyCentralManagerFlutterApiCodec extends StandardMessageCodec {
       case 128: 
         return MyAdvertisementArgs.decode(readValue(buffer)!);
       case 129: 
-        return MyGattCharacteristicArgs.decode(readValue(buffer)!);
-      case 130: 
-        return MyGattDescriptorArgs.decode(readValue(buffer)!);
-      case 131: 
         return MyManufacturerSpecificDataArgs.decode(readValue(buffer)!);
-      case 132: 
+      case 130: 
         return MyPeripheralArgs.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -766,9 +725,9 @@ abstract class MyCentralManagerFlutterApi {
 
   void onDiscovered(MyPeripheralArgs peripheralArgs, int rssiArgs, MyAdvertisementArgs advertisementArgs);
 
-  void onPeripheralStateChanged(MyPeripheralArgs peripheralArgs, bool stateArgs);
+  void onPeripheralStateChanged(int addressArgs, bool stateArgs);
 
-  void onCharacteristicValueChanged(MyPeripheralArgs peripheralArgs, MyGattCharacteristicArgs characteristicArgs, Uint8List valueArgs);
+  void onCharacteristicValueChanged(int addressArgs, int handleArgs, Uint8List valueArgs);
 
   static void setup(MyCentralManagerFlutterApi? api, {BinaryMessenger? binaryMessenger}) {
     {
@@ -838,14 +797,14 @@ abstract class MyCentralManagerFlutterApi {
           assert(message != null,
           'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterApi.onPeripheralStateChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final MyPeripheralArgs? arg_peripheralArgs = (args[0] as MyPeripheralArgs?);
-          assert(arg_peripheralArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterApi.onPeripheralStateChanged was null, expected non-null MyPeripheralArgs.');
+          final int? arg_addressArgs = (args[0] as int?);
+          assert(arg_addressArgs != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterApi.onPeripheralStateChanged was null, expected non-null int.');
           final bool? arg_stateArgs = (args[1] as bool?);
           assert(arg_stateArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterApi.onPeripheralStateChanged was null, expected non-null bool.');
           try {
-            api.onPeripheralStateChanged(arg_peripheralArgs!, arg_stateArgs!);
+            api.onPeripheralStateChanged(arg_addressArgs!, arg_stateArgs!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
@@ -866,17 +825,17 @@ abstract class MyCentralManagerFlutterApi {
           assert(message != null,
           'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterApi.onCharacteristicValueChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final MyPeripheralArgs? arg_peripheralArgs = (args[0] as MyPeripheralArgs?);
-          assert(arg_peripheralArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterApi.onCharacteristicValueChanged was null, expected non-null MyPeripheralArgs.');
-          final MyGattCharacteristicArgs? arg_characteristicArgs = (args[1] as MyGattCharacteristicArgs?);
-          assert(arg_characteristicArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterApi.onCharacteristicValueChanged was null, expected non-null MyGattCharacteristicArgs.');
+          final int? arg_addressArgs = (args[0] as int?);
+          assert(arg_addressArgs != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterApi.onCharacteristicValueChanged was null, expected non-null int.');
+          final int? arg_handleArgs = (args[1] as int?);
+          assert(arg_handleArgs != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterApi.onCharacteristicValueChanged was null, expected non-null int.');
           final Uint8List? arg_valueArgs = (args[2] as Uint8List?);
           assert(arg_valueArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterApi.onCharacteristicValueChanged was null, expected non-null Uint8List.');
           try {
-            api.onCharacteristicValueChanged(arg_peripheralArgs!, arg_characteristicArgs!, arg_valueArgs!);
+            api.onCharacteristicValueChanged(arg_addressArgs!, arg_handleArgs!, arg_valueArgs!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
@@ -896,23 +855,20 @@ class _MyPeripheralManagerHostApiCodec extends StandardMessageCodec {
     if (value is MyAdvertisementArgs) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
-    } else if (value is MyCentralArgs) {
+    } else if (value is MyGattCharacteristicArgs) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is MyGattCharacteristicArgs) {
+    } else if (value is MyGattDescriptorArgs) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    } else if (value is MyGattDescriptorArgs) {
+    } else if (value is MyGattServiceArgs) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
-    } else if (value is MyGattServiceArgs) {
+    } else if (value is MyManufacturerSpecificDataArgs) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    } else if (value is MyManufacturerSpecificDataArgs) {
-      buffer.putUint8(133);
-      writeValue(buffer, value.encode());
     } else if (value is MyPeripheralManagerArgs) {
-      buffer.putUint8(134);
+      buffer.putUint8(133);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -925,16 +881,14 @@ class _MyPeripheralManagerHostApiCodec extends StandardMessageCodec {
       case 128: 
         return MyAdvertisementArgs.decode(readValue(buffer)!);
       case 129: 
-        return MyCentralArgs.decode(readValue(buffer)!);
-      case 130: 
         return MyGattCharacteristicArgs.decode(readValue(buffer)!);
-      case 131: 
+      case 130: 
         return MyGattDescriptorArgs.decode(readValue(buffer)!);
-      case 132: 
+      case 131: 
         return MyGattServiceArgs.decode(readValue(buffer)!);
-      case 133: 
+      case 132: 
         return MyManufacturerSpecificDataArgs.decode(readValue(buffer)!);
-      case 134: 
+      case 133: 
         return MyPeripheralManagerArgs.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -1001,7 +955,7 @@ class MyPeripheralManagerHostApi {
     }
   }
 
-  Future<void> removeService(MyGattServiceArgs arg_serviceArgs) async {
+  Future<void> removeService(int arg_handleArgs) async {
     const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostApi.removeService';
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       channelName,
@@ -1009,7 +963,7 @@ class MyPeripheralManagerHostApi {
       binaryMessenger: _binaryMessenger,
     );
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_serviceArgs]) as List<Object?>?;
+        await channel.send(<Object?>[arg_handleArgs]) as List<Object?>?;
     if (replyList == null) {
       throw _createConnectionError(channelName);
     } else if (replyList.length > 1) {
@@ -1089,34 +1043,7 @@ class MyPeripheralManagerHostApi {
     }
   }
 
-  Future<int> getMaximumWriteLength(MyCentralArgs arg_centralArgs) async {
-    const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostApi.getMaximumWriteLength';
-    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
-      channelName,
-      codec,
-      binaryMessenger: _binaryMessenger,
-    );
-    final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_centralArgs]) as List<Object?>?;
-    if (replyList == null) {
-      throw _createConnectionError(channelName);
-    } else if (replyList.length > 1) {
-      throw PlatformException(
-        code: replyList[0]! as String,
-        message: replyList[1] as String?,
-        details: replyList[2],
-      );
-    } else if (replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
-    } else {
-      return (replyList[0] as int?)!;
-    }
-  }
-
-  Future<void> sendReadCharacteristicReply(MyCentralArgs arg_centralArgs, MyGattCharacteristicArgs arg_characteristicArgs, int arg_idArgs, int arg_offsetArgs, bool arg_statusArgs, Uint8List arg_valueArgs) async {
+  Future<void> sendReadCharacteristicReply(int arg_addressArgs, int arg_handleArgs, int arg_idArgs, int arg_offsetArgs, bool arg_statusArgs, Uint8List arg_valueArgs) async {
     const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostApi.sendReadCharacteristicReply';
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       channelName,
@@ -1124,7 +1051,7 @@ class MyPeripheralManagerHostApi {
       binaryMessenger: _binaryMessenger,
     );
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_centralArgs, arg_characteristicArgs, arg_idArgs, arg_offsetArgs, arg_statusArgs, arg_valueArgs]) as List<Object?>?;
+        await channel.send(<Object?>[arg_addressArgs, arg_handleArgs, arg_idArgs, arg_offsetArgs, arg_statusArgs, arg_valueArgs]) as List<Object?>?;
     if (replyList == null) {
       throw _createConnectionError(channelName);
     } else if (replyList.length > 1) {
@@ -1138,7 +1065,7 @@ class MyPeripheralManagerHostApi {
     }
   }
 
-  Future<void> sendWriteCharacteristicReply(MyCentralArgs arg_centralArgs, MyGattCharacteristicArgs arg_characteristicArgs, int arg_idArgs, int arg_offsetArgs, bool arg_statusArgs) async {
+  Future<void> sendWriteCharacteristicReply(int arg_addressArgs, int arg_handleArgs, int arg_idArgs, int arg_offsetArgs, bool arg_statusArgs) async {
     const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostApi.sendWriteCharacteristicReply';
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       channelName,
@@ -1146,7 +1073,7 @@ class MyPeripheralManagerHostApi {
       binaryMessenger: _binaryMessenger,
     );
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_centralArgs, arg_characteristicArgs, arg_idArgs, arg_offsetArgs, arg_statusArgs]) as List<Object?>?;
+        await channel.send(<Object?>[arg_addressArgs, arg_handleArgs, arg_idArgs, arg_offsetArgs, arg_statusArgs]) as List<Object?>?;
     if (replyList == null) {
       throw _createConnectionError(channelName);
     } else if (replyList.length > 1) {
@@ -1160,7 +1087,7 @@ class MyPeripheralManagerHostApi {
     }
   }
 
-  Future<void> notifyCharacteristicValueChanged(MyCentralArgs arg_centralArgs, MyGattCharacteristicArgs arg_characteristicArgs, Uint8List arg_valueArgs) async {
+  Future<void> notifyCharacteristicValueChanged(int arg_addressArgs, int arg_handleArgs, Uint8List arg_valueArgs) async {
     const String channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostApi.notifyCharacteristicValueChanged';
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
       channelName,
@@ -1168,7 +1095,7 @@ class MyPeripheralManagerHostApi {
       binaryMessenger: _binaryMessenger,
     );
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_centralArgs, arg_characteristicArgs, arg_valueArgs]) as List<Object?>?;
+        await channel.send(<Object?>[arg_addressArgs, arg_handleArgs, arg_valueArgs]) as List<Object?>?;
     if (replyList == null) {
       throw _createConnectionError(channelName);
     } else if (replyList.length > 1) {
@@ -1190,12 +1117,6 @@ class _MyPeripheralManagerFlutterApiCodec extends StandardMessageCodec {
     if (value is MyCentralArgs) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
-    } else if (value is MyGattCharacteristicArgs) {
-      buffer.putUint8(129);
-      writeValue(buffer, value.encode());
-    } else if (value is MyGattDescriptorArgs) {
-      buffer.putUint8(130);
-      writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
     }
@@ -1206,10 +1127,6 @@ class _MyPeripheralManagerFlutterApiCodec extends StandardMessageCodec {
     switch (type) {
       case 128: 
         return MyCentralArgs.decode(readValue(buffer)!);
-      case 129: 
-        return MyGattCharacteristicArgs.decode(readValue(buffer)!);
-      case 130: 
-        return MyGattDescriptorArgs.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -1221,11 +1138,11 @@ abstract class MyPeripheralManagerFlutterApi {
 
   void onStateChanged(int stateNumberArgs);
 
-  void onReadCharacteristicCommandReceived(MyCentralArgs centralArgs, MyGattCharacteristicArgs characteristicArgs, int idArgs, int offsetArgs);
+  void onReadCharacteristicCommandReceived(MyCentralArgs centralArgs, int handleArgs, int idArgs, int offsetArgs);
 
-  void onWriteCharacteristicCommandReceived(MyCentralArgs centralArgs, MyGattCharacteristicArgs characteristicArgs, int idArgs, int offsetArgs, Uint8List valueArgs);
+  void onWriteCharacteristicCommandReceived(MyCentralArgs centralArgs, int handleArgs, int idArgs, int offsetArgs, Uint8List valueArgs);
 
-  void onNotifyCharacteristicCommandReceived(MyCentralArgs centralArgs, MyGattCharacteristicArgs characteristicArgs, bool stateArgs);
+  void onNotifyCharacteristicCommandReceived(MyCentralArgs centralArgs, int handleArgs, bool stateArgs);
 
   static void setup(MyPeripheralManagerFlutterApi? api, {BinaryMessenger? binaryMessenger}) {
     {
@@ -1267,9 +1184,9 @@ abstract class MyPeripheralManagerFlutterApi {
           final MyCentralArgs? arg_centralArgs = (args[0] as MyCentralArgs?);
           assert(arg_centralArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterApi.onReadCharacteristicCommandReceived was null, expected non-null MyCentralArgs.');
-          final MyGattCharacteristicArgs? arg_characteristicArgs = (args[1] as MyGattCharacteristicArgs?);
-          assert(arg_characteristicArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterApi.onReadCharacteristicCommandReceived was null, expected non-null MyGattCharacteristicArgs.');
+          final int? arg_handleArgs = (args[1] as int?);
+          assert(arg_handleArgs != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterApi.onReadCharacteristicCommandReceived was null, expected non-null int.');
           final int? arg_idArgs = (args[2] as int?);
           assert(arg_idArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterApi.onReadCharacteristicCommandReceived was null, expected non-null int.');
@@ -1277,7 +1194,7 @@ abstract class MyPeripheralManagerFlutterApi {
           assert(arg_offsetArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterApi.onReadCharacteristicCommandReceived was null, expected non-null int.');
           try {
-            api.onReadCharacteristicCommandReceived(arg_centralArgs!, arg_characteristicArgs!, arg_idArgs!, arg_offsetArgs!);
+            api.onReadCharacteristicCommandReceived(arg_centralArgs!, arg_handleArgs!, arg_idArgs!, arg_offsetArgs!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
@@ -1301,9 +1218,9 @@ abstract class MyPeripheralManagerFlutterApi {
           final MyCentralArgs? arg_centralArgs = (args[0] as MyCentralArgs?);
           assert(arg_centralArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterApi.onWriteCharacteristicCommandReceived was null, expected non-null MyCentralArgs.');
-          final MyGattCharacteristicArgs? arg_characteristicArgs = (args[1] as MyGattCharacteristicArgs?);
-          assert(arg_characteristicArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterApi.onWriteCharacteristicCommandReceived was null, expected non-null MyGattCharacteristicArgs.');
+          final int? arg_handleArgs = (args[1] as int?);
+          assert(arg_handleArgs != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterApi.onWriteCharacteristicCommandReceived was null, expected non-null int.');
           final int? arg_idArgs = (args[2] as int?);
           assert(arg_idArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterApi.onWriteCharacteristicCommandReceived was null, expected non-null int.');
@@ -1314,7 +1231,7 @@ abstract class MyPeripheralManagerFlutterApi {
           assert(arg_valueArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterApi.onWriteCharacteristicCommandReceived was null, expected non-null Uint8List.');
           try {
-            api.onWriteCharacteristicCommandReceived(arg_centralArgs!, arg_characteristicArgs!, arg_idArgs!, arg_offsetArgs!, arg_valueArgs!);
+            api.onWriteCharacteristicCommandReceived(arg_centralArgs!, arg_handleArgs!, arg_idArgs!, arg_offsetArgs!, arg_valueArgs!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
@@ -1338,14 +1255,14 @@ abstract class MyPeripheralManagerFlutterApi {
           final MyCentralArgs? arg_centralArgs = (args[0] as MyCentralArgs?);
           assert(arg_centralArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterApi.onNotifyCharacteristicCommandReceived was null, expected non-null MyCentralArgs.');
-          final MyGattCharacteristicArgs? arg_characteristicArgs = (args[1] as MyGattCharacteristicArgs?);
-          assert(arg_characteristicArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterApi.onNotifyCharacteristicCommandReceived was null, expected non-null MyGattCharacteristicArgs.');
+          final int? arg_handleArgs = (args[1] as int?);
+          assert(arg_handleArgs != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterApi.onNotifyCharacteristicCommandReceived was null, expected non-null int.');
           final bool? arg_stateArgs = (args[2] as bool?);
           assert(arg_stateArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterApi.onNotifyCharacteristicCommandReceived was null, expected non-null bool.');
           try {
-            api.onNotifyCharacteristicCommandReceived(arg_centralArgs!, arg_characteristicArgs!, arg_stateArgs!);
+            api.onNotifyCharacteristicCommandReceived(arg_centralArgs!, arg_handleArgs!, arg_stateArgs!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
