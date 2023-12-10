@@ -149,6 +149,7 @@ class _ScannerViewState extends State<ScannerView> {
                           if (discovering) {
                             await stopDiscovery();
                           } else {
+                            discoveredEventArgs.value = [];
                             await startDiscovery();
                           }
                         }
