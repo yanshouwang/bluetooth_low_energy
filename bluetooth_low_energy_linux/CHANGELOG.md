@@ -1,3 +1,9 @@
+## 5.0.0-dev.1
+
+* Implement the `5.0.0` api.
+* [Fix the issue that the same device was discovered multi times.](https://github.com/yanshouwang/bluetooth_low_energy/issues/32)
+* [Fix the issue that some devices can't be discovered.](https://github.com/yanshouwang/bluetooth_low_energy/issues/32)
+
 ## 4.0.0
 
 * Remove `BluetoothLowEnergy` class.
