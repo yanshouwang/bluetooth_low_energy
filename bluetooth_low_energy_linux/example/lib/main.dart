@@ -149,7 +149,6 @@ class _ScannerViewState extends State<ScannerView> {
                           if (discovering) {
                             await stopDiscovery();
                           } else {
-                            discoveredEventArgs.value = [];
                             await startDiscovery();
                           }
                         }
@@ -167,6 +166,7 @@ class _ScannerViewState extends State<ScannerView> {
   }
 
   Future<void> startDiscovery() async {
+    discoveredEventArgs.value = [];
     await CentralManager.instance.startDiscovery();
     discovering.value = true;
   }
