@@ -4,11 +4,10 @@ import 'package:bluez/bluez.dart';
 import 'my_bluez.dart';
 
 class MyPeripheral2 extends MyPeripheral {
-  final BlueZDevice device;
+  final BlueZDevice blueZDevice;
 
-  MyPeripheral2(this.device)
+  MyPeripheral2(this.blueZDevice)
       : super(
-          hashCode: device.hashCode,
-          uuid: device.myUUID,
+          uuid: blueZDevice.myUUID,
         );
 }

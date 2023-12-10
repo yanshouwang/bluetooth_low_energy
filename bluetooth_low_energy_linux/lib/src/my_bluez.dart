@@ -16,13 +16,7 @@ extension BlueZAdapterX on BlueZAdapter {
 }
 
 extension BlueZDeviceX on BlueZDevice {
-  BlueZUUID get uuid {
-    final node = address.replaceAll(':', '');
-    // We don't know the timestamp of the bluetooth device, use nil UUID as prefix.
-    return BlueZUUID.fromString("00000000-0000-0000-0000-$node");
-  }
-
-  UUID get myUUID => uuid.toMyUUID();
+  UUID get myUUID => UUID.fromAddress(address);
 
   List<MyGattService2> get myServices =>
       gattServices.map((service) => MyGattService2(service)).toList();
@@ -43,8 +37,11 @@ extension BlueZDeviceX on BlueZDevice {
     );
   }
 
-  ManufacturerSpecificData get myManufacturerSpecificData {
-    final entry = manufacturerData.entries.last;
+  ManufacturerSpecificData? get myManufacturerSpecificData {
+    final entry = manufacturerData.entries.lastOrNull;
+    if (entry == null) {
+      return null;
+    }
     final myId = entry.key.id;
     final myData = Uint8List.fromList(entry.value);
     return ManufacturerSpecificData(
