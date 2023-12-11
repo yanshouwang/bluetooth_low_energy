@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'my_api.dart';
 import 'my_gatt_characteristic2.dart';
 import 'my_gatt_descriptor2.dart';
+import 'my_peripheral2.dart';
 
 class MyCentralManager2 extends MyCentralManager
     implements MyCentralManagerFlutterApi {
@@ -18,6 +19,9 @@ class MyCentralManager2 extends MyCentralManager
       _peripheralStateChangedController;
   final StreamController<GattCharacteristicValueChangedEventArgs>
       _characteristicValueChangedController;
+  final Map<String, MyPeripheral2> _peripherals;
+  final Map<String, List<MyGattCharacteristic2>> _characteristics;
+  final Map<String, int> _mtus;
 
   MyCentralManager2()
       : _api = MyCentralManagerHostApi(),
@@ -25,7 +29,10 @@ class MyCentralManager2 extends MyCentralManager
         _stateChangedController = StreamController.broadcast(),
         _discoveredController = StreamController.broadcast(),
         _peripheralStateChangedController = StreamController.broadcast(),
-        _characteristicValueChangedController = StreamController.broadcast();
+        _characteristicValueChangedController = StreamController.broadcast(),
+        _peripherals = {},
+        _characteristics = {},
+        _mtus = {};
 
   @override
   BluetoothLowEnergyState get state => _state;
@@ -83,73 +90,64 @@ class MyCentralManager2 extends MyCentralManager
   @override
   Future<void> connect(Peripheral peripheral) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final peripheralHashCodeArgs = peripheral.hashCode;
-    await _api.connect(peripheralHashCodeArgs);
+    if (peripheral is! MyPeripheral2) {
+      throw TypeError();
+    }
+    final addressArgs = peripheral.address;
+    await _api.connect(addressArgs);
+    try {
+      await _api.requestMTU(addressArgs, 517);
+    } catch (error, stackTrace) {
+      // 忽略协商 MTU 错误
+      logger.warning('requstMTU failed.', error, stackTrace);
+    }
   }
 
   @override
   Future<void> disconnect(Peripheral peripheral) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final peripheralHashCodeArgs = peripheral.hashCode;
-    await _api.disconnect(peripheralHashCodeArgs);
-  }
-
-  @override
-  Future<int> getMaximumWriteLength(
-    Peripheral peripheral, {
-    required GattCharacteristicWriteType type,
-  }) async {
-    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final peripheralHashCodeArgs = peripheral.hashCode;
-    final typeArgs = type.toArgs();
-    final typeNumberArgs = typeArgs.index;
-    final maximumWriteLength = await _api.getMaximumWriteLength(
-      peripheralHashCodeArgs,
-      typeNumberArgs,
-    );
-    return maximumWriteLength;
+    if (peripheral is! MyPeripheral2) {
+      throw TypeError();
+    }
+    final addressArgs = peripheral.address;
+    await _api.disconnect(addressArgs);
   }
 
   @override
   Future<int> readRSSI(Peripheral peripheral) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final peripheralHashCodeArgs = peripheral.hashCode;
-    final rssi = await _api.readRSSI(peripheralHashCodeArgs);
+    if (peripheral is! MyPeripheral2) {
+      throw TypeError();
+    }
+    final addressArgs = peripheral.address;
+    final rssi = await _api.readRSSI(addressArgs);
     return rssi;
   }
 
   @override
   Future<List<GattService>> discoverGATT(Peripheral peripheral) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    if (peripheral is! MyPeripheral) {
+    if (peripheral is! MyPeripheral2) {
       throw TypeError();
     }
-    final peripheralHashCodeArgs = peripheral.hashCode;
-    final servicesArgs = await _api.discoverGATT(peripheralHashCodeArgs);
+    final addressArgs = peripheral.address;
+    final servicesArgs = await _api.discoverGATT(addressArgs);
     final services = servicesArgs
         .cast<MyGattServiceArgs>()
         .map((args) => args.toService2())
         .toList();
     for (var service in services) {
-      for (var charactersitic in service.characteristics) {
-        for (var descriptor in charactersitic.descriptors) {
-          descriptor.characteristic = charactersitic;
+      for (var characteristic in service.characteristics) {
+        for (var descriptor in characteristic.descriptors) {
+          descriptor.characteristic = characteristic;
         }
-        charactersitic.service = service;
+        characteristic.service = service;
       }
       service.peripheral = peripheral;
     }
-    try {
-      // 部分外围设备连接后会触发 onMtuChanged 回调，若在此之前调用协商 MTU 的方法，会在协商完成前返回，
-      // 此时如果继续调用其他方法（如发现服务）会导致回调无法触发，
-      // 因此为避免此情况发生，需要延迟到发现服务完成后再协商 MTU。
-      // TODO: 思考更好的解决方式，可以在连接后立即协商 MTU。
-      const mtuArgs = 517;
-      await _api.requestMTU(peripheralHashCodeArgs, mtuArgs);
-    } catch (error, stackTrace) {
-      // 忽略协商 MTU 错误
-      logger.warning('requst MTU failed.', error, stackTrace);
-    }
+    final characteristics =
+        services.expand((service) => service.characteristics).toList();
+    _characteristics[addressArgs] = characteristics;
     return services;
   }
 
@@ -163,12 +161,9 @@ class MyCentralManager2 extends MyCentralManager
     }
     final service = characteristic.service;
     final peripheral = service.peripheral;
-    final peripheralHashCodeArgs = peripheral.hashCode;
-    final characteristcHashCodeArgs = characteristic.hashCode;
-    final value = await _api.readCharacteristic(
-      peripheralHashCodeArgs,
-      characteristcHashCodeArgs,
-    );
+    final addressArgs = peripheral.address;
+    final hashCodeArgs = characteristic.hashCode;
+    final value = await _api.readCharacteristic(addressArgs, hashCodeArgs);
     return value;
   }
 
@@ -184,14 +179,14 @@ class MyCentralManager2 extends MyCentralManager
     }
     final service = characteristic.service;
     final peripheral = service.peripheral;
-    final peripheralHashCodeArgs = peripheral.hashCode;
-    final characteristcHashCodeArgs = characteristic.hashCode;
+    final addressArgs = peripheral.address;
+    final hashCodeArgs = characteristic.hashCode;
     final valueArgs = value;
     final typeArgs = type.toArgs();
     final typeNumberArgs = typeArgs.index;
     await _api.writeCharacteristic(
-      peripheralHashCodeArgs,
-      characteristcHashCodeArgs,
+      addressArgs,
+      hashCodeArgs,
       valueArgs,
       typeNumberArgs,
     );
@@ -208,12 +203,12 @@ class MyCentralManager2 extends MyCentralManager
     }
     final service = characteristic.service;
     final peripheral = service.peripheral;
-    final peripheralHashCodeArgs = peripheral.hashCode;
-    final characteristcHashCodeArgs = characteristic.hashCode;
+    final addressArgs = peripheral.address;
+    final hashCodeArgs = characteristic.hashCode;
     final stateArgs = state;
     await _api.notifyCharacteristic(
-      peripheralHashCodeArgs,
-      characteristcHashCodeArgs,
+      addressArgs,
+      hashCodeArgs,
       stateArgs,
     );
   }
@@ -227,12 +222,9 @@ class MyCentralManager2 extends MyCentralManager
     final characteristic = descriptor.characteristic;
     final service = characteristic.service;
     final peripheral = service.peripheral;
-    final peripheralHashCodeArgs = peripheral.hashCode;
-    final descriptorHashCodeArgs = descriptor.hashCode;
-    final value = await _api.readDescriptor(
-      peripheralHashCodeArgs,
-      descriptorHashCodeArgs,
-    );
+    final addressArgs = peripheral.address;
+    final hashCodeArgs = descriptor.hashCode;
+    final value = await _api.readDescriptor(addressArgs, hashCodeArgs);
     return value;
   }
 
@@ -248,14 +240,10 @@ class MyCentralManager2 extends MyCentralManager
     final characteristic = descriptor.characteristic;
     final service = characteristic.service;
     final peripheral = service.peripheral;
-    final peripheralHashCodeArgs = peripheral.hashCode;
-    final descriptorHashCodeArgs = descriptor.hashCode;
+    final addressArgs = peripheral.address;
+    final hashCodeArgs = descriptor.hashCode;
     final valueArgs = value;
-    await _api.writeDescriptor(
-      peripheralHashCodeArgs,
-      descriptorHashCodeArgs,
-      valueArgs,
-    );
+    await _api.writeDescriptor(addressArgs, hashCodeArgs, valueArgs);
   }
 
   @override
@@ -270,7 +258,10 @@ class MyCentralManager2 extends MyCentralManager
     int rssiArgs,
     MyAdvertisementArgs advertisementArgs,
   ) {
-    final peripheral = peripheralArgs.toPeripheral();
+    final peripheral = _peripherals.putIfAbsent(
+      peripheralArgs.addressArgs,
+      () => peripheralArgs.toPeripheral(),
+    );
     final rssi = rssiArgs;
     final advertisement = advertisementArgs.toAdvertisement();
     final eventArgs = DiscoveredEventArgs(
@@ -282,27 +273,50 @@ class MyCentralManager2 extends MyCentralManager
   }
 
   @override
-  void onPeripheralStateChanged(
-    MyPeripheralArgs peripheralArgs,
-    bool stateArgs,
-  ) {
-    final peripheral = peripheralArgs.toPeripheral();
+  void onPeripheralStateChanged(String addressArgs, bool stateArgs) {
+    final peripheral = _peripherals[addressArgs];
+    if (peripheral == null) {
+      return;
+    }
     final state = stateArgs;
     final eventArgs = PeripheralStateChangedEventArgs(peripheral, state);
     _peripheralStateChangedController.add(eventArgs);
+    if (!state) {
+      _characteristics.remove(addressArgs);
+    }
   }
 
   @override
-  void onCharacteristicValueChanged(
-    MyGattCharacteristicArgs characteristicArgs,
-    Uint8List valueArgs,
-  ) {
-    final characteristic = characteristicArgs.toCharacteristic2();
+  void onMtuChanged(String addressArgs, int mtuArgs) {
+    final address = addressArgs;
+    final mtu = mtuArgs;
+    _mtus[address] = mtu;
+    logger.info('onMtuChanged: $addressArgs - $mtu');
+  }
+
+  @override
+  void onCharacteristicValueChanged(int hashCodeArgs, Uint8List valueArgs) {
+    final characteristic = _retrieveCharacteristic(hashCodeArgs);
+    if (characteristic == null) {
+      return;
+    }
     final value = valueArgs;
     final eventArgs = GattCharacteristicValueChangedEventArgs(
       characteristic,
       value,
     );
     _characteristicValueChangedController.add(eventArgs);
+  }
+
+  MyGattCharacteristic2? _retrieveCharacteristic(int hashCodeArgs) {
+    final characteristics = _characteristics.values
+        .expand((characteristics) => characteristics)
+        .toList();
+    final i = characteristics.indexWhere(
+        (characteristic) => characteristic.hashCode == hashCodeArgs);
+    if (i < 0) {
+      return null;
+    }
+    return characteristics[i];
   }
 }

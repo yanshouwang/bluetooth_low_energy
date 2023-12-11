@@ -3,9 +3,11 @@ import 'dart:typed_data';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
 import 'my_api.g.dart';
+import 'my_central2.dart';
 import 'my_gatt_characteristic2.dart';
 import 'my_gatt_descriptor2.dart';
 import 'my_gatt_service2.dart';
+import 'my_peripheral2.dart';
 
 export 'my_api.g.dart';
 
@@ -65,12 +67,9 @@ extension GattCharacteristicWriteTypeX on GattCharacteristicWriteType {
 }
 
 extension MyPeripheralArgsX on MyPeripheralArgs {
-  MyPeripheral toPeripheral() {
-    final hashCode = hashCodeArgs;
-    final uuid = UUID.fromString(uuidArgs);
-    return MyPeripheral(
-      hashCode: hashCode,
-      uuid: uuid,
+  MyPeripheral2 toPeripheral() {
+    return MyPeripheral2(
+      address: addressArgs,
     );
   }
 }
@@ -126,12 +125,9 @@ extension MyGattDescriptorArgsX on MyGattDescriptorArgs {
 }
 
 extension MyCentralArgsX on MyCentralArgs {
-  MyCentral toCentral() {
-    final hashCode = hashCodeArgs;
-    final uuid = UUID.fromString(uuidArgs);
-    return MyCentral(
-      hashCode: hashCode,
-      uuid: uuid,
+  MyCentral2 toCentral() {
+    return MyCentral2(
+      address: addressArgs,
     );
   }
 }

@@ -385,7 +385,6 @@ class _PeripheralViewState extends State<PeripheralView> {
   late final ValueNotifier<GattService?> service;
   late final ValueNotifier<GattCharacteristic?> characteristic;
   late final ValueNotifier<GattCharacteristicWriteType> writeType;
-  late final ValueNotifier<int> maximumWriteLength;
   late final ValueNotifier<int> rssi;
   late final ValueNotifier<List<Log>> logs;
   late final TextEditingController writeController;
@@ -404,7 +403,6 @@ class _PeripheralViewState extends State<PeripheralView> {
     service = ValueNotifier(null);
     characteristic = ValueNotifier(null);
     writeType = ValueNotifier(GattCharacteristicWriteType.withResponse);
-    maximumWriteLength = ValueNotifier(0);
     rssi = ValueNotifier(-100);
     logs = ValueNotifier([]);
     writeController = TextEditingController();
@@ -453,13 +451,12 @@ class _PeripheralViewState extends State<PeripheralView> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      onPopInvoked: (didPop) async {
         if (state.value) {
           final peripheral = eventArgs.peripheral;
           await centralManager.disconnect(peripheral);
         }
-        return true;
       },
       child: Scaffold(
         appBar: buildAppBar(context),
@@ -481,17 +478,11 @@ class _PeripheralViewState extends State<PeripheralView> {
                 final peripheral = eventArgs.peripheral;
                 if (state) {
                   await centralManager.disconnect(peripheral);
-                  maximumWriteLength.value = 0;
                   rssi.value = 0;
                 } else {
                   await centralManager.connect(peripheral);
                   services.value =
                       await centralManager.discoverGATT(peripheral);
-                  maximumWriteLength.value =
-                      await centralManager.getMaximumWriteLength(
-                    peripheral,
-                    type: writeType.value,
-                  );
                   rssi.value = await centralManager.readRSSI(peripheral);
                 }
               },
@@ -633,11 +624,6 @@ class _PeripheralViewState extends State<PeripheralView> {
                     onPressed: (i) async {
                       final type = GattCharacteristicWriteType.values[i];
                       this.writeType.value = type;
-                      maximumWriteLength.value =
-                          await centralManager.getMaximumWriteLength(
-                        eventArgs.peripheral,
-                        type: type,
-                      );
                     },
                     constraints: const BoxConstraints(
                       minWidth: 0.0,
@@ -677,18 +663,6 @@ class _PeripheralViewState extends State<PeripheralView> {
                   //     ),
                   //   ),
                   // );
-                },
-              ),
-              const SizedBox(width: 8.0),
-              ValueListenableBuilder(
-                valueListenable: state,
-                builder: (context, state, child) {
-                  return ValueListenableBuilder(
-                    valueListenable: maximumWriteLength,
-                    builder: (context, maximumWriteLength, child) {
-                      return Text('$maximumWriteLength');
-                    },
-                  );
                 },
               ),
               const Spacer(),
@@ -808,7 +782,6 @@ class _PeripheralViewState extends State<PeripheralView> {
     service.dispose();
     characteristic.dispose();
     writeType.dispose();
-    maximumWriteLength.dispose();
     rssi.dispose();
     logs.dispose();
     writeController.dispose();
