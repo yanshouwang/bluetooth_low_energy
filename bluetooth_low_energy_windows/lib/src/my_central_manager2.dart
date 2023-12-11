@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'my_api.dart';
 import 'my_gatt_characteristic2.dart';
 import 'my_gatt_descriptor2.dart';
-import 'my_gatt_service2.dart';
 
 class MyCentralManager2 extends MyCentralManager
     implements MyCentralManagerFlutterApi {
@@ -21,9 +20,7 @@ class MyCentralManager2 extends MyCentralManager
       _characteristicValueChangedController;
 
   final Map<int, MyPeripheral> _peripherals;
-  final Map<int, List<MyGattService2>> _services;
   final Map<int, List<MyGattCharacteristic2>> _characteristics;
-  final Map<int, List<MyGattDescriptor2>> _descriptors;
 
   MyCentralManager2()
       : _api = MyCentralManagerHostApi(),
@@ -33,9 +30,7 @@ class MyCentralManager2 extends MyCentralManager
         _peripheralStateChangedController = StreamController.broadcast(),
         _characteristicValueChangedController = StreamController.broadcast(),
         _peripherals = {},
-        _services = {},
-        _characteristics = {},
-        _descriptors = {};
+        _characteristics = {};
 
   @override
   BluetoothLowEnergyState get state => _state;
@@ -147,12 +142,7 @@ class MyCentralManager2 extends MyCentralManager
         servicesArgs.map((args) => args.toService2(peripheral)).toList();
     final characteristics =
         services.expand((service) => service.characteristics).toList();
-    final descriptors = characteristics
-        .expand((characteristic) => characteristic.descriptors)
-        .toList();
-    _services[addressArgs] = services;
     _characteristics[addressArgs] = characteristics;
-    _descriptors[addressArgs] = descriptors;
     return services;
   }
 
@@ -275,8 +265,10 @@ class MyCentralManager2 extends MyCentralManager
     int rssiArgs,
     MyAdvertisementArgs advertisementArgs,
   ) {
-    final addressArgs = peripheralArgs.addressArgs;
-    final peripheral = peripheralArgs.toPeripheral();
+    final peripheral = _peripherals.putIfAbsent(
+      peripheralArgs.addressArgs,
+      () => peripheralArgs.toPeripheral(),
+    );
     final rssi = rssiArgs;
     final advertisement = advertisementArgs.toAdvertisement();
     final eventArgs = DiscoveredEventArgs(
@@ -284,13 +276,12 @@ class MyCentralManager2 extends MyCentralManager
       rssi,
       advertisement,
     );
-    _peripherals[addressArgs] = peripheral;
     _discoveredController.add(eventArgs);
   }
 
   @override
   void onPeripheralStateChanged(int addressArgs, bool stateArgs) {
-    final peripheral = retrievePeripheral(addressArgs);
+    final peripheral = _peripherals[addressArgs];
     if (peripheral == null) {
       return;
     }
@@ -298,9 +289,7 @@ class MyCentralManager2 extends MyCentralManager
     final eventArgs = PeripheralStateChangedEventArgs(peripheral, state);
     _peripheralStateChangedController.add(eventArgs);
     if (!state) {
-      _services.remove(addressArgs);
       _characteristics.remove(addressArgs);
-      _descriptors.remove(addressArgs);
     }
   }
 
@@ -310,7 +299,7 @@ class MyCentralManager2 extends MyCentralManager
     int handleArgs,
     Uint8List valueArgs,
   ) {
-    final characteristic = retrieveCharacteristic(addressArgs, handleArgs);
+    final characteristic = _retrieveCharacteristic(addressArgs, handleArgs);
     if (characteristic == null) {
       return;
     }
@@ -322,23 +311,7 @@ class MyCentralManager2 extends MyCentralManager
     _characteristicValueChangedController.add(eventArgs);
   }
 
-  Peripheral? retrievePeripheral(int addressArgs) {
-    return _peripherals[addressArgs];
-  }
-
-  GattService? retrieveService(int addressArgs, int handleArgs) {
-    final services = _services[addressArgs];
-    if (services == null) {
-      return null;
-    }
-    final i = services.indexWhere((service) => service.handle == handleArgs);
-    if (i < 0) {
-      return null;
-    }
-    return services[i];
-  }
-
-  GattCharacteristic? retrieveCharacteristic(int addressArgs, int handleArgs) {
+  GattCharacteristic? _retrieveCharacteristic(int addressArgs, int handleArgs) {
     final characteristics = _characteristics[addressArgs];
     if (characteristics == null) {
       return null;
@@ -349,18 +322,5 @@ class MyCentralManager2 extends MyCentralManager
       return null;
     }
     return characteristics[i];
-  }
-
-  GattDescriptor? retrieveDescriptor(int addressArgs, int handleArgs) {
-    final descriptors = _descriptors[addressArgs];
-    if (descriptors == null) {
-      return null;
-    }
-    final i =
-        descriptors.indexWhere((descriptor) => descriptor.handle == handleArgs);
-    if (i < 0) {
-      return null;
-    }
-    return descriptors[i];
   }
 }

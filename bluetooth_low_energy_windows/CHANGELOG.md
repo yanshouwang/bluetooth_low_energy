@@ -1,3 +1,8 @@
+## 5.0.0-dev.2
+
+* Optimize CentralManager's cache.
+* Remove AdvertiserView form example.
+
 ## 5.0.0-dev.1
 
 * Implement the `CentralManager` api.
