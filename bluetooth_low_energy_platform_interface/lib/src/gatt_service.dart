@@ -1,5 +1,6 @@
 import 'gatt_attribute.dart';
 import 'gatt_characteristic.dart';
+import 'my_gatt_characteristic.dart';
 import 'my_gatt_service.dart';
 import 'uuid.dart';
 
@@ -15,6 +16,6 @@ abstract class GattService extends GattAttribute {
   }) =>
       MyGattService(
         uuid: uuid,
-        characteristics: characteristics,
+        characteristics: characteristics.cast<MyGattCharacteristic>(),
       );
 }

@@ -1,3 +1,7 @@
+## 5.0.0-dev.4
+
+* Optimize `MyGattService` and `MyGattCharacteristic`.
+
 ## 5.0.0-dev.3
 
 * Remove `CentralManager#getMaximumWriteLength` method.

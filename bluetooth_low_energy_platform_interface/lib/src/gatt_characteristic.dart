@@ -2,6 +2,7 @@ import 'gatt_attribute.dart';
 import 'gatt_characteristic_property.dart';
 import 'gatt_descriptor.dart';
 import 'my_gatt_characteristic.dart';
+import 'my_gatt_descriptor.dart';
 import 'uuid.dart';
 
 /// A characteristic of a remote peripheral’s service.
@@ -21,6 +22,6 @@ abstract class GattCharacteristic extends GattAttribute {
       MyGattCharacteristic(
         uuid: uuid,
         properties: properties,
-        descriptors: descriptors,
+        descriptors: descriptors.cast<MyGattDescriptor>(),
       );
 }
