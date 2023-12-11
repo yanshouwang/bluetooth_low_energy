@@ -1,3 +1,7 @@
+## 5.0.0-dev.2
+
+* Update interface to 5.0.0-dev.4.
+
 ## 5.0.0-dev.1
 
 * Implement the `5.0.0` api.
