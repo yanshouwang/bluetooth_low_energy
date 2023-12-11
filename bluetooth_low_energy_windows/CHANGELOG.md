@@ -1,3 +1,7 @@
+## 5.0.0-dev.3
+
+* Update interface to 5.0.0-dev.4.
+
 ## 5.0.0-dev.2
 
 * Optimize CentralManager's cache.
