@@ -330,7 +330,6 @@ class _PeripheralViewState extends State<PeripheralView> {
   late final ValueNotifier<GattService?> service;
   late final ValueNotifier<GattCharacteristic?> characteristic;
   late final ValueNotifier<GattCharacteristicWriteType> writeType;
-  late final ValueNotifier<int> rssi;
   late final ValueNotifier<List<Log>> logs;
   late final TextEditingController writeController;
   late final StreamSubscription stateChangedSubscription;
@@ -346,7 +345,6 @@ class _PeripheralViewState extends State<PeripheralView> {
     service = ValueNotifier(null);
     characteristic = ValueNotifier(null);
     writeType = ValueNotifier(GattCharacteristicWriteType.withResponse);
-    rssi = ValueNotifier(-100);
     logs = ValueNotifier([]);
     writeController = TextEditingController();
     stateChangedSubscription =
@@ -412,7 +410,6 @@ class _PeripheralViewState extends State<PeripheralView> {
                 final peripheral = eventArgs.peripheral;
                 if (state) {
                   await CentralManager.instance.disconnect(peripheral);
-                  rssi.value = 0;
                 } else {
                   await CentralManager.instance.connect(peripheral);
                   services.value =
@@ -599,12 +596,6 @@ class _PeripheralViewState extends State<PeripheralView> {
                 },
               ),
               const Spacer(),
-              ValueListenableBuilder(
-                valueListenable: rssi,
-                builder: (context, rssi, child) {
-                  return RssiWidget(rssi);
-                },
-              ),
             ],
           ),
           Container(
@@ -716,7 +707,6 @@ class _PeripheralViewState extends State<PeripheralView> {
     service.dispose();
     characteristic.dispose();
     writeType.dispose();
-    rssi.dispose();
     logs.dispose();
     writeController.dispose();
   }
