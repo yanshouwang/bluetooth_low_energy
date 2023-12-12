@@ -32,6 +32,12 @@ enum MyGattCharacteristicWriteTypeArgs {
   withoutResponse,
 }
 
+enum MyGattCharacteristicNotifyStateArgs {
+  none,
+  notify,
+  indicate,
+}
+
 class MyManufacturerSpecificDataArgs {
   final int idArgs;
   final Uint8List dataArgs;
@@ -126,8 +132,7 @@ abstract class MyCentralManagerHostApi {
   void connect(String addressArgs);
   @async
   void disconnect(String addressArgs);
-  @async
-  int requestMTU(String addressArgs, int mtuArgs);
+  void requestMTU(String addressArgs, int mtuArgs);
   @async
   int readRSSI(String addressArgs);
   @async
@@ -145,7 +150,7 @@ abstract class MyCentralManagerHostApi {
   void notifyCharacteristic(
     String addressArgs,
     int hashCodeArgs,
-    bool stateArgs,
+    int stateNumberArgs,
   );
   @async
   Uint8List readDescriptor(String addressArgs, int hashCodeArgs);
@@ -167,7 +172,11 @@ abstract class MyCentralManagerFlutterApi {
   );
   void onPeripheralStateChanged(String addressArgs, bool stateArgs);
   void onMtuChanged(String addressArgs, int mtuArgs);
-  void onCharacteristicValueChanged(int hashCodeArgs, Uint8List valueArgs);
+  void onCharacteristicValueChanged(
+    String addressArgs,
+    int hashCodeArgs,
+    Uint8List valueArgs,
+  );
 }
 
 @HostApi()
@@ -182,23 +191,21 @@ abstract class MyPeripheralManagerHostApi {
   void startAdvertising(MyAdvertisementArgs advertisementArgs);
   void stopAdvertising();
   void sendReadCharacteristicReply(
-    int addressArgs,
-    int hashCodeArgs,
+    String addressArgs,
     int idArgs,
     int offsetArgs,
     bool statusArgs,
     Uint8List valueArgs,
   );
   void sendWriteCharacteristicReply(
-    int addressArgs,
-    int hashCodeArgs,
+    String addressArgs,
     int idArgs,
     int offsetArgs,
     bool statusArgs,
   );
   @async
   void notifyCharacteristicValueChanged(
-    int addressArgs,
+    String addressArgs,
     int hashCodeArgs,
     Uint8List valueArgs,
   );
@@ -207,6 +214,7 @@ abstract class MyPeripheralManagerHostApi {
 @FlutterApi()
 abstract class MyPeripheralManagerFlutterApi {
   void onStateChanged(int stateNumberArgs);
+  void onMtuChanged(MyCentralArgs centralArgs, int mtuArgs);
   void onReadCharacteristicCommandReceived(
     MyCentralArgs centralArgs,
     int hashCodeArgs,

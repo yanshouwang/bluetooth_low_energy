@@ -4,6 +4,7 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 import 'package:flutter/foundation.dart';
 
 import 'my_api.dart';
+import 'my_central2.dart';
 
 class MyPeripheralManager2 extends MyPeripheralManager
     implements MyPeripheralManagerFlutterApi {
@@ -18,6 +19,7 @@ class MyPeripheralManager2 extends MyPeripheralManager
   final StreamController<NotifyGattCharacteristicCommandEventArgs>
       _notifyCharacteristicCommandReceivedController;
   final Map<int, List<MyGattCharacteristic>> _characteristics;
+  final Map<String, int> _mtus;
 
   MyPeripheralManager2()
       : _api = MyPeripheralManagerHostApi(),
@@ -29,7 +31,8 @@ class MyPeripheralManager2 extends MyPeripheralManager
             StreamController.broadcast(),
         _notifyCharacteristicCommandReceivedController =
             StreamController.broadcast(),
-        _characteristics = {};
+        _characteristics = {},
+        _mtus = {};
 
   @override
   BluetoothLowEnergyState get state => _state;
@@ -124,15 +127,16 @@ class MyPeripheralManager2 extends MyPeripheralManager
     required Uint8List value,
   }) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final centralHashCodeArgs = central.hashCode;
-    final characteristicHashCodeArgs = characteristic.hashCode;
+    if (central is! MyCentral2) {
+      throw TypeError();
+    }
+    final addressArgs = central.address;
     final idArgs = id;
     final offsetArgs = offset;
     final statusArgs = status;
     final valueArgs = value;
     await _api.sendReadCharacteristicReply(
-      centralHashCodeArgs,
-      characteristicHashCodeArgs,
+      addressArgs,
       idArgs,
       offsetArgs,
       statusArgs,
@@ -149,14 +153,15 @@ class MyPeripheralManager2 extends MyPeripheralManager
     required bool status,
   }) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final centralHashCodeArgs = central.hashCode;
-    final characteristicHashCodeArgs = characteristic.hashCode;
+    if (central is! MyCentral2) {
+      throw TypeError();
+    }
+    final addressArgs = central.address;
     final idArgs = id;
     final offsetArgs = offset;
     final statusArgs = status;
     await _api.sendWriteCharacteristicReply(
-      centralHashCodeArgs,
-      characteristicHashCodeArgs,
+      addressArgs,
       idArgs,
       offsetArgs,
       statusArgs,
@@ -170,12 +175,16 @@ class MyPeripheralManager2 extends MyPeripheralManager
     required Uint8List value,
   }) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final centralHashCodeArgs = central.hashCode;
-    final characteristicHashCodeArgs = characteristic.hashCode;
+    if (central is! MyCentral2) {
+      throw TypeError();
+    }
+    final addressArgs = central.address;
+    final hashCodeArgs = characteristic.hashCode;
     final valueArgs = value;
+    // TODO: 测试是否需要按照 MTU 分包
     await _api.notifyCharacteristicValueChanged(
-      centralHashCodeArgs,
-      characteristicHashCodeArgs,
+      addressArgs,
+      hashCodeArgs,
       valueArgs,
     );
   }
@@ -184,6 +193,14 @@ class MyPeripheralManager2 extends MyPeripheralManager
   void onStateChanged(int stateNumberArgs) {
     final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
     state = stateArgs.toState();
+  }
+
+  @override
+  void onMtuChanged(MyCentralArgs centralArgs, int mtuArgs) {
+    final address = centralArgs.addressArgs;
+    final mtu = mtuArgs;
+    _mtus[address] = mtu;
+    logger.info('onMtuChanged: $address - $mtu');
   }
 
   @override

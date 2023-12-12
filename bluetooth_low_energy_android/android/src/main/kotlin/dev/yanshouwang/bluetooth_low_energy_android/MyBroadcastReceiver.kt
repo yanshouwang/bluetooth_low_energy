@@ -4,8 +4,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 
-class MyBroadcastReceiver(private val bluetoothLowEnergyManager: MyBluetoothLowEnergyManager) : BroadcastReceiver() {
+class MyBroadcastReceiver(manager: MyBluetoothLowEnergyManager) : BroadcastReceiver() {
+    private val mManager: MyBluetoothLowEnergyManager
+
+    init {
+        mManager = manager
+    }
+
     override fun onReceive(context: Context, intent: Intent) {
-        bluetoothLowEnergyManager.onReceive(intent)
+        mManager.onReceive(context, intent)
     }
 }

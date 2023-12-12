@@ -25,23 +25,14 @@ fun Int.toBluetoothLowEnergyStateArgs(): MyBluetoothLowEnergyStateArgs {
 }
 
 fun BluetoothDevice.toPeripheralArgs(): MyPeripheralArgs {
-    val hashCodeArgs = hashCode().toLong()
-    val uuid = this.uuid.toString()
-    return MyPeripheralArgs(hashCodeArgs, uuid)
+    val addressArgs = address
+    return MyPeripheralArgs(addressArgs)
 }
 
 fun BluetoothDevice.toCentralArgs(): MyCentralArgs {
-    val hashCodeArgs = hashCode().toLong()
-    val uuid = this.uuid.toString()
-    return MyCentralArgs(hashCodeArgs, uuid)
+    val addressArgs = address
+    return MyCentralArgs(addressArgs)
 }
-
-val BluetoothDevice.uuid: UUID
-    get() {
-        val node = address.filter { char -> char != ':' }
-        // We don't know the timestamp of the bluetooth device, use nil UUID as prefix.
-        return UUID.fromString("00000000-0000-0000-0000-$node")
-    }
 
 val ScanResult.advertisementArgs: MyAdvertisementArgs
     get() {
@@ -51,18 +42,23 @@ val ScanResult.advertisementArgs: MyAdvertisementArgs
             val serviceUUIDsArgs = emptyList<String?>()
             val serviceDataArgs = emptyMap<String?, ByteArray>()
             val manufacturerSpecificDataArgs = null
-            MyAdvertisementArgs(nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs)
+            MyAdvertisementArgs(
+                nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs
+            )
         } else {
             val nameArgs = record.deviceName
-            val serviceUUIDsArgs = record.serviceUuids?.map { uuid -> uuid.toString() }
-                    ?: emptyList()
+            val serviceUUIDsArgs =
+                record.serviceUuids?.map { uuid -> uuid.toString() } ?: emptyList()
             val pairs = record.serviceData.map { (uuid, value) ->
                 val key = uuid.toString()
                 return@map Pair(key, value)
             }.toTypedArray()
             val serviceDataArgs = mapOf<String?, ByteArray?>(*pairs)
-            val manufacturerSpecificDataArgs = record.manufacturerSpecificData.toManufacturerSpecificDataArgs()
-            MyAdvertisementArgs(nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs)
+            val manufacturerSpecificDataArgs =
+                record.manufacturerSpecificData.toManufacturerSpecificDataArgs()
+            MyAdvertisementArgs(
+                nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs
+            )
         }
     }
 
@@ -99,40 +95,17 @@ val ScanRecord.rawValues: Map<Byte, ByteArray>
         return rawValues.toMap()
     }
 
-fun MyAdvertisementArgs.toAdvertiseData(adapter: BluetoothAdapter): AdvertiseData {
-    val advertiseDataBuilder = AdvertiseData.Builder()
-    if (nameArgs == null) {
-        advertiseDataBuilder.setIncludeDeviceName(false)
-    } else {
-        adapter.name = nameArgs
-        advertiseDataBuilder.setIncludeDeviceName(true)
-    }
-    for (serviceUuidArgs in serviceUUIDsArgs) {
-        val serviceUUID = ParcelUuid.fromString(serviceUuidArgs)
-        advertiseDataBuilder.addServiceUuid(serviceUUID)
-    }
-    for (entry in serviceDataArgs) {
-        val serviceDataUUID = ParcelUuid.fromString(entry.key as String)
-        val serviceData = entry.value as ByteArray
-        advertiseDataBuilder.addServiceData(serviceDataUUID, serviceData)
-    }
-    if (manufacturerSpecificDataArgs != null) {
-        val manufacturerId = manufacturerSpecificDataArgs.idArgs.toInt()
-        val manufacturerSpecificData = manufacturerSpecificDataArgs.dataArgs
-        advertiseDataBuilder.addManufacturerData(manufacturerId, manufacturerSpecificData)
-    }
-    return advertiseDataBuilder.build()
-}
-
-fun BluetoothGattService.toManufacturerSpecificDataArgs(characteristicsArgs: List<MyGattCharacteristicArgs>): MyGattServiceArgs {
+fun BluetoothGattService.toArgs(): MyGattServiceArgs {
     val hashCodeArgs = hashCode().toLong()
     val uuidArgs = this.uuid.toString()
+    val characteristicsArgs = characteristics.map { it.toArgs() }
     return MyGattServiceArgs(hashCodeArgs, uuidArgs, characteristicsArgs)
 }
 
-fun BluetoothGattCharacteristic.toManufacturerSpecificDataArgs(descriptorsArgs: List<MyGattDescriptorArgs>): MyGattCharacteristicArgs {
+fun BluetoothGattCharacteristic.toArgs(): MyGattCharacteristicArgs {
     val hashCodeArgs = hashCode().toLong()
     val uuidArgs = this.uuid.toString()
+    val descriptorsArgs = descriptors.map { it.toArgs() }
     return MyGattCharacteristicArgs(hashCodeArgs, uuidArgs, propertyNumbersArgs, descriptorsArgs)
 }
 
@@ -162,10 +135,45 @@ val BluetoothGattCharacteristic.propertyNumbersArgs: List<Long>
         return numbersArgs
     }
 
-fun BluetoothGattDescriptor.toManufacturerSpecificDataArgs(): MyGattDescriptorArgs {
+fun BluetoothGattDescriptor.toArgs(): MyGattDescriptorArgs {
     val hashCodeArgs = hashCode().toLong()
     val uuidArgs = this.uuid.toString()
     return MyGattDescriptorArgs(hashCodeArgs, uuidArgs, null)
+}
+
+fun Long.toWriteTypeArgs(): MyGattCharacteristicWriteTypeArgs {
+    val raw = toInt()
+    return MyGattCharacteristicWriteTypeArgs.ofRaw(raw) ?: throw IllegalArgumentException()
+}
+
+fun Long.toNotifyStateArgs(): MyGattCharacteristicNotifyStateArgs {
+    val raw = toInt()
+    return MyGattCharacteristicNotifyStateArgs.ofRaw(raw) ?: throw IllegalArgumentException()
+}
+
+fun MyAdvertisementArgs.toAdvertiseData(adapter: BluetoothAdapter): AdvertiseData {
+    val advertiseDataBuilder = AdvertiseData.Builder()
+    if (nameArgs == null) {
+        advertiseDataBuilder.setIncludeDeviceName(false)
+    } else {
+        adapter.name = nameArgs
+        advertiseDataBuilder.setIncludeDeviceName(true)
+    }
+    for (serviceUuidArgs in serviceUUIDsArgs) {
+        val serviceUUID = ParcelUuid.fromString(serviceUuidArgs)
+        advertiseDataBuilder.addServiceUuid(serviceUUID)
+    }
+    for (entry in serviceDataArgs) {
+        val serviceDataUUID = ParcelUuid.fromString(entry.key as String)
+        val serviceData = entry.value as ByteArray
+        advertiseDataBuilder.addServiceData(serviceDataUUID, serviceData)
+    }
+    if (manufacturerSpecificDataArgs != null) {
+        val manufacturerId = manufacturerSpecificDataArgs.idArgs.toInt()
+        val manufacturerSpecificData = manufacturerSpecificDataArgs.dataArgs
+        advertiseDataBuilder.addManufacturerData(manufacturerId, manufacturerSpecificData)
+    }
+    return advertiseDataBuilder.build()
 }
 
 fun MyGattServiceArgs.toService(): BluetoothGattService {
@@ -187,13 +195,15 @@ val MyGattCharacteristicArgs.properties: Int
         }
         val read = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.READ)
         val write = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.WRITE)
-        val writeWithoutResponse = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.WRITEWITHOUTRESPONSE)
+        val writeWithoutResponse =
+            propertiesArgs.contains(MyGattCharacteristicPropertyArgs.WRITEWITHOUTRESPONSE)
         val notify = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.NOTIFY)
         val indicate = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.INDICATE)
         var properties = 0
         if (read) properties = properties or BluetoothGattCharacteristic.PROPERTY_READ
         if (write) properties = properties or BluetoothGattCharacteristic.PROPERTY_WRITE
-        if (writeWithoutResponse) properties = properties or BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
+        if (writeWithoutResponse) properties =
+            properties or BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
         if (notify) properties = properties or BluetoothGattCharacteristic.PROPERTY_NOTIFY
         if (indicate) properties = properties or BluetoothGattCharacteristic.PROPERTY_INDICATE
         return properties
@@ -207,27 +217,33 @@ val MyGattCharacteristicArgs.permissions: Int
         }
         val read = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.READ)
         val write = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.WRITE)
-        val writeWithoutResponse = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.WRITEWITHOUTRESPONSE)
+        val writeWithoutResponse =
+            propertiesArgs.contains(MyGattCharacteristicPropertyArgs.WRITEWITHOUTRESPONSE)
         var permissions = 0
         if (read) permissions = permissions or BluetoothGattCharacteristic.PERMISSION_READ
-        if (write || writeWithoutResponse) permissions = permissions or BluetoothGattCharacteristic.PERMISSION_WRITE
+        if (write || writeWithoutResponse) permissions =
+            permissions or BluetoothGattCharacteristic.PERMISSION_WRITE
         return permissions
     }
 
 fun MyGattDescriptorArgs.toDescriptor(): BluetoothGattDescriptor {
     val uuid = UUID.fromString(uuidArgs)
-    val permissions = BluetoothGattDescriptor.PERMISSION_READ or BluetoothGattDescriptor.PERMISSION_WRITE
+    val permissions =
+        BluetoothGattDescriptor.PERMISSION_READ or BluetoothGattDescriptor.PERMISSION_WRITE
     return BluetoothGattDescriptor(uuid, permissions)
-}
-
-fun Long.toWriteTypeArgs(): MyGattCharacteristicWriteTypeArgs {
-    val raw = toInt()
-    return MyGattCharacteristicWriteTypeArgs.ofRaw(raw) ?: throw IllegalArgumentException()
 }
 
 fun MyGattCharacteristicWriteTypeArgs.toType(): Int {
     return when (this) {
         MyGattCharacteristicWriteTypeArgs.WITHRESPONSE -> BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
         MyGattCharacteristicWriteTypeArgs.WITHOUTRESPONSE -> BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+    }
+}
+
+fun MyGattCharacteristicNotifyStateArgs.toValue(): ByteArray {
+    return when (this) {
+        MyGattCharacteristicNotifyStateArgs.NONE -> BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
+        MyGattCharacteristicNotifyStateArgs.NOTIFY -> BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+        MyGattCharacteristicNotifyStateArgs.INDICATE -> BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
     }
 }

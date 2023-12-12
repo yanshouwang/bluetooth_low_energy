@@ -1,3 +1,10 @@
+## 5.0.0-dev.1
+
+* Implement the `5.0.0` api.
+* Optimize example
+* Remove `CentralManager#getMaximumWriteLength` method.
+* Remove `PeripheralManager#getMaximumWriteLength` method.
+
 ## 4.0.0
 
 * Remove `BluetoothLowEnergy` class.

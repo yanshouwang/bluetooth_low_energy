@@ -95,12 +95,6 @@ class MyCentralManager2 extends MyCentralManager
     }
     final addressArgs = peripheral.address;
     await _api.connect(addressArgs);
-    try {
-      await _api.requestMTU(addressArgs, 517);
-    } catch (error, stackTrace) {
-      // 忽略协商 MTU 错误
-      logger.warning('requstMTU failed.', error, stackTrace);
-    }
   }
 
   @override
@@ -132,6 +126,13 @@ class MyCentralManager2 extends MyCentralManager
     }
     final addressArgs = peripheral.address;
     final servicesArgs = await _api.discoverGATT(addressArgs);
+    // 发现 GATT 后再协商 MTU，不可以先协商 MTU，会造成发现 GATT 无法完成
+    try {
+      await _api.requestMTU(addressArgs, 517);
+    } catch (error, stackTrace) {
+      // 忽略协商 MTU 错误
+      logger.warning('requstMTU failed.', error, stackTrace);
+    }
     final services = servicesArgs
         .cast<MyGattServiceArgs>()
         .map((args) => args.toService2())
@@ -184,12 +185,28 @@ class MyCentralManager2 extends MyCentralManager
     final valueArgs = value;
     final typeArgs = type.toArgs();
     final typeNumberArgs = typeArgs.index;
-    await _api.writeCharacteristic(
-      addressArgs,
-      hashCodeArgs,
-      valueArgs,
-      typeNumberArgs,
-    );
+    // When write without response, fragments the value by MTU - 3 size.
+    // If mtu is null, use 23 as default MTU size.
+    //
+    // When write with response, fragments the value by 512 bytes.
+    final mtu = type == GattCharacteristicWriteType.withoutResponse
+        ? _mtus[addressArgs] ?? 23
+        : 517;
+    final trimmedSize = (mtu - 3).clamp(20, 512);
+    var start = 0;
+    while (start < valueArgs.length) {
+      final end = start + trimmedSize;
+      final trimmedValueArgs = end < valueArgs.length
+          ? valueArgs.sublist(start, end)
+          : valueArgs.sublist(start);
+      await _api.writeCharacteristic(
+        addressArgs,
+        hashCodeArgs,
+        trimmedValueArgs,
+        typeNumberArgs,
+      );
+      start = end;
+    }
   }
 
   @override
@@ -205,11 +222,16 @@ class MyCentralManager2 extends MyCentralManager
     final peripheral = service.peripheral;
     final addressArgs = peripheral.address;
     final hashCodeArgs = characteristic.hashCode;
-    final stateArgs = state;
+    final stateArgs = state
+        ? characteristic.properties.contains(GattCharacteristicProperty.notify)
+            ? MyGattCharacteristicNotifyStateArgs.notify
+            : MyGattCharacteristicNotifyStateArgs.indicate
+        : MyGattCharacteristicNotifyStateArgs.none;
+    final stateNumberArgs = stateArgs.index;
     await _api.notifyCharacteristic(
       addressArgs,
       hashCodeArgs,
-      stateArgs,
+      stateNumberArgs,
     );
   }
 
@@ -283,6 +305,7 @@ class MyCentralManager2 extends MyCentralManager
     _peripheralStateChangedController.add(eventArgs);
     if (!state) {
       _characteristics.remove(addressArgs);
+      _mtus.remove(addressArgs);
     }
   }
 
@@ -291,12 +314,16 @@ class MyCentralManager2 extends MyCentralManager
     final address = addressArgs;
     final mtu = mtuArgs;
     _mtus[address] = mtu;
-    logger.info('onMtuChanged: $addressArgs - $mtu');
+    logger.info('onMtuChanged: $address - $mtu');
   }
 
   @override
-  void onCharacteristicValueChanged(int hashCodeArgs, Uint8List valueArgs) {
-    final characteristic = _retrieveCharacteristic(hashCodeArgs);
+  void onCharacteristicValueChanged(
+    String addressArgs,
+    int hashCodeArgs,
+    Uint8List valueArgs,
+  ) {
+    final characteristic = _retrieveCharacteristic(addressArgs, hashCodeArgs);
     if (characteristic == null) {
       return;
     }
@@ -308,10 +335,14 @@ class MyCentralManager2 extends MyCentralManager
     _characteristicValueChangedController.add(eventArgs);
   }
 
-  MyGattCharacteristic2? _retrieveCharacteristic(int hashCodeArgs) {
-    final characteristics = _characteristics.values
-        .expand((characteristics) => characteristics)
-        .toList();
+  MyGattCharacteristic2? _retrieveCharacteristic(
+    String addressArgs,
+    int hashCodeArgs,
+  ) {
+    final characteristics = _characteristics[addressArgs];
+    if (characteristics == null) {
+      return null;
+    }
     final i = characteristics.indexWhere(
         (characteristic) => characteristic.hashCode == hashCodeArgs);
     if (i < 0) {
