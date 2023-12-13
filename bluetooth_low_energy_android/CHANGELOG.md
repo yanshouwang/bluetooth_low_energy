@@ -5,6 +5,7 @@
 * Fix the issue that PeripheralManager's service duplicated after hot reload.
 * Fix the issue that PeripheralManager#notifyCharacteristicChanged lost data when value is larger then the MTU size.
 * Optimize instances' retrieve speed.
+* Update dependency.
 
 ## 5.0.0-dev.1
 
