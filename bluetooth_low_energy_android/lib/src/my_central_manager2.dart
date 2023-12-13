@@ -20,7 +20,7 @@ class MyCentralManager2 extends MyCentralManager
   final StreamController<GattCharacteristicValueChangedEventArgs>
       _characteristicValueChangedController;
   final Map<String, MyPeripheral2> _peripherals;
-  final Map<String, List<MyGattCharacteristic2>> _characteristics;
+  final Map<String, Map<int, MyGattCharacteristic2>> _characteristics;
   final Map<String, int> _mtus;
 
   MyCentralManager2()
@@ -148,7 +148,10 @@ class MyCentralManager2 extends MyCentralManager
     }
     final characteristics =
         services.expand((service) => service.characteristics).toList();
-    _characteristics[addressArgs] = characteristics;
+    _characteristics[addressArgs] = {
+      for (var characteristic in characteristics)
+        characteristic.hashCode: characteristic
+    };
     return services;
   }
 
@@ -271,6 +274,7 @@ class MyCentralManager2 extends MyCentralManager
   @override
   void onStateChanged(int stateNumberArgs) {
     final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
+    logger.info('onStateChanged: $stateArgs');
     state = stateArgs.toState();
   }
 
@@ -280,6 +284,8 @@ class MyCentralManager2 extends MyCentralManager
     int rssiArgs,
     MyAdvertisementArgs advertisementArgs,
   ) {
+    final addressArgs = peripheralArgs.addressArgs;
+    logger.info('onDiscovered: $addressArgs - $rssiArgs, $advertisementArgs');
     final peripheral = _peripherals.putIfAbsent(
       peripheralArgs.addressArgs,
       () => peripheralArgs.toPeripheral(),
@@ -296,6 +302,7 @@ class MyCentralManager2 extends MyCentralManager
 
   @override
   void onPeripheralStateChanged(String addressArgs, bool stateArgs) {
+    logger.info('onPeripheralStateChanged: $addressArgs - $stateArgs');
     final peripheral = _peripherals[addressArgs];
     if (peripheral == null) {
       return;
@@ -311,10 +318,9 @@ class MyCentralManager2 extends MyCentralManager
 
   @override
   void onMtuChanged(String addressArgs, int mtuArgs) {
-    final address = addressArgs;
+    logger.info('onMtuChanged: $addressArgs - $mtuArgs');
     final mtu = mtuArgs;
-    _mtus[address] = mtu;
-    logger.info('onMtuChanged: $address - $mtu');
+    _mtus[addressArgs] = mtu;
   }
 
   @override
@@ -323,6 +329,8 @@ class MyCentralManager2 extends MyCentralManager
     int hashCodeArgs,
     Uint8List valueArgs,
   ) {
+    logger.info(
+        'onCharacteristicValueChanged: $addressArgs.$hashCodeArgs - $valueArgs');
     final characteristic = _retrieveCharacteristic(addressArgs, hashCodeArgs);
     if (characteristic == null) {
       return;
@@ -343,11 +351,6 @@ class MyCentralManager2 extends MyCentralManager
     if (characteristics == null) {
       return null;
     }
-    final i = characteristics.indexWhere(
-        (characteristic) => characteristic.hashCode == hashCodeArgs);
-    if (i < 0) {
-      return null;
-    }
-    return characteristics[i];
+    return characteristics[hashCodeArgs];
   }
 }

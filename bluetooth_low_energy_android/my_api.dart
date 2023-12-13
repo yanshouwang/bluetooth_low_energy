@@ -207,6 +207,7 @@ abstract class MyPeripheralManagerHostApi {
   void notifyCharacteristicValueChanged(
     String addressArgs,
     int hashCodeArgs,
+    bool confirmArgs,
     Uint8List valueArgs,
   );
 }
@@ -214,23 +215,24 @@ abstract class MyPeripheralManagerHostApi {
 @FlutterApi()
 abstract class MyPeripheralManagerFlutterApi {
   void onStateChanged(int stateNumberArgs);
-  void onMtuChanged(MyCentralArgs centralArgs, int mtuArgs);
+  void onCentralStateChanged(MyCentralArgs centralArgs, bool stateArgs);
+  void onMtuChanged(String addressArgs, int mtuArgs);
   void onReadCharacteristicCommandReceived(
-    MyCentralArgs centralArgs,
+    String addressArgs,
     int hashCodeArgs,
     int idArgs,
     int offsetArgs,
   );
   void onWriteCharacteristicCommandReceived(
-    MyCentralArgs centralArgs,
+    String addressArgs,
     int hashCodeArgs,
     int idArgs,
     int offsetArgs,
     Uint8List valueArgs,
   );
   void onNotifyCharacteristicCommandReceived(
-    MyCentralArgs centralArgs,
+    String addressArgs,
     int hashCodeArgs,
-    bool stateArgs,
+    int stateNumberArgs,
   );
 }

@@ -60,12 +60,6 @@ extension MyGattCharacteristicPropertyArgsX
   }
 }
 
-extension GattCharacteristicWriteTypeX on GattCharacteristicWriteType {
-  MyGattCharacteristicWriteTypeArgs toArgs() {
-    return MyGattCharacteristicWriteTypeArgs.values[index];
-  }
-}
-
 extension MyPeripheralArgsX on MyPeripheralArgs {
   MyPeripheral2 toPeripheral() {
     return MyPeripheral2(
@@ -200,6 +194,18 @@ extension MyGattCharacteristicX on MyGattCharacteristic {
   }
 }
 
+extension GattCharacteristicPropertyX on GattCharacteristicProperty {
+  MyGattCharacteristicPropertyArgs toArgs() {
+    return MyGattCharacteristicPropertyArgs.values[index];
+  }
+}
+
+extension GattCharacteristicWriteTypeX on GattCharacteristicWriteType {
+  MyGattCharacteristicWriteTypeArgs toArgs() {
+    return MyGattCharacteristicWriteTypeArgs.values[index];
+  }
+}
+
 extension MyGattDescriptorX on MyGattDescriptor {
   MyGattDescriptorArgs toArgs() {
     final hashCodeArgs = hashCode;
@@ -210,11 +216,5 @@ extension MyGattDescriptorX on MyGattDescriptor {
       uuidArgs: uuidArgs,
       valueArgs: valueArgs,
     );
-  }
-}
-
-extension GattCharacteristicPropertyX on GattCharacteristicProperty {
-  MyGattCharacteristicPropertyArgs toArgs() {
-    return MyGattCharacteristicPropertyArgs.values[index];
   }
 }

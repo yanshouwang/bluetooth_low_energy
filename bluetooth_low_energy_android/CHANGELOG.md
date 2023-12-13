@@ -1,7 +1,15 @@
+## 5.0.0-dev.2
+
+* Optimize example.
+* Add event logs.
+* Fix the issue that PeripheralManager's service duplicated after hot reload.
+* Fix the issue that PeripheralManager#notifyCharacteristicChanged lost data when value is larger then the MTU size.
+* Optimize instances' retrieve speed.
+
 ## 5.0.0-dev.1
 
 * Implement the `5.0.0` api.
-* Optimize example
+* Optimize example.
 * Remove `CentralManager#getMaximumWriteLength` method.
 * Remove `PeripheralManager#getMaximumWriteLength` method.
 

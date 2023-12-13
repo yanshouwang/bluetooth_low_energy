@@ -39,8 +39,8 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
 
     private val mDevices: MutableMap<String, BluetoothDevice>
     private val mGATTs: MutableMap<String, BluetoothGatt>
-    private val mCharacteristics: MutableMap<String, List<BluetoothGattCharacteristic>>
-    private val mDescriptors: MutableMap<String, List<BluetoothGattDescriptor>>
+    private val mCharacteristics: MutableMap<String, Map<Long, BluetoothGattCharacteristic>>
+    private val mDescriptors: MutableMap<String, Map<Long, BluetoothGattDescriptor>>
 
     private var mSetUpCallback: ((Result<MyCentralManagerArgs>) -> Unit)?
     private var mStartDiscoveryCallback: ((Result<Unit>) -> Unit)?
@@ -475,8 +475,8 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
             val services = gatt.services
             val characteristics = services.flatMap { it.characteristics }
             val descriptors = characteristics.flatMap { it.descriptors }
-            mCharacteristics[addressArgs] = characteristics
-            mDescriptors[addressArgs] = descriptors
+            mCharacteristics[addressArgs] = characteristics.associateBy { it.hashCode().toLong() }
+            mDescriptors[addressArgs] = descriptors.associateBy { it.hashCode().toLong() }
             val servicesArgs = services.map { it.toArgs() }
             callback(Result.success(servicesArgs))
         } else {
@@ -585,14 +585,14 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
     private fun mRetrieveCharacteristic(
         addressArgs: String, hashCodeArgs: Long
     ): BluetoothGattCharacteristic? {
-        val characteristics = mCharacteristics[addressArgs]
-        return characteristics?.firstOrNull { it.hashCode().toLong() == hashCodeArgs }
+        val characteristics = mCharacteristics[addressArgs] ?: return null
+        return characteristics[hashCodeArgs]
     }
 
     private fun mRetrieveDescriptor(
         addressArgs: String, hashCodeArgs: Long
     ): BluetoothGattDescriptor? {
-        val descriptors = mDescriptors[addressArgs]
-        return descriptors?.firstOrNull { it.hashCode().toLong() == hashCodeArgs }
+        val descriptors = mDescriptors[addressArgs] ?: return null
+        return descriptors[hashCodeArgs]
     }
 }

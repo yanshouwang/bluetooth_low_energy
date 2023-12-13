@@ -2,6 +2,7 @@ package dev.yanshouwang.bluetooth_low_energy_android
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattService
@@ -149,6 +150,18 @@ fun Long.toWriteTypeArgs(): MyGattCharacteristicWriteTypeArgs {
 fun Long.toNotifyStateArgs(): MyGattCharacteristicNotifyStateArgs {
     val raw = toInt()
     return MyGattCharacteristicNotifyStateArgs.ofRaw(raw) ?: throw IllegalArgumentException()
+}
+
+fun ByteArray.toNotifyStateArgs(): MyGattCharacteristicNotifyStateArgs {
+    if (this contentEquals BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE) {
+        return MyGattCharacteristicNotifyStateArgs.NOTIFY
+    } else if (this contentEquals BluetoothGattDescriptor.ENABLE_INDICATION_VALUE) {
+        return MyGattCharacteristicNotifyStateArgs.INDICATE
+    } else if (this contentEquals BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE) {
+        return MyGattCharacteristicNotifyStateArgs.NONE
+    } else {
+        throw IllegalArgumentException()
+    }
 }
 
 fun MyAdvertisementArgs.toAdvertiseData(adapter: BluetoothAdapter): AdvertiseData {

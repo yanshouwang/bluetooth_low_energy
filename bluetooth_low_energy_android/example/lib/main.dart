@@ -14,6 +14,8 @@ void main() {
 
 void onStartUp() async {
   Logger.root.onRecord.listen(onLogRecord);
+  // hierarchicalLoggingEnabled = true;
+  // CentralManager.instance.logLevel = Level.WARNING;
   WidgetsFlutterBinding.ensureInitialized();
   await CentralManager.instance.setUp();
   await PeripheralManager.instance.setUp();
@@ -230,6 +232,7 @@ class _ScannerViewState extends State<ScannerView> {
   }
 
   Future<void> startDiscovery() async {
+    discoveredEventArgs.value = [];
     await CentralManager.instance.startDiscovery();
     discovering.value = true;
   }
@@ -337,7 +340,13 @@ class _ScannerViewState extends State<ScannerView> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              trailing: RssiWidget(rssi),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  RssiWidget(rssi),
+                  Text('$rssi'),
+                ],
+              ),
             );
           },
           separatorBuilder: (context, i) {
@@ -670,7 +679,13 @@ class _PeripheralViewState extends State<PeripheralView> {
               ValueListenableBuilder(
                 valueListenable: rssi,
                 builder: (context, rssi, child) {
-                  return RssiWidget(rssi);
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      RssiWidget(rssi),
+                      Text('$rssi'),
+                    ],
+                  );
                 },
               ),
             ],
@@ -819,6 +834,8 @@ class _AdvertiserViewState extends State<AdvertiserView>
         state.value = eventArgs.state;
       },
     );
+    final elements = List.generate(512, (i) => i % 256);
+    final value = Uint8List.fromList(elements);
     readCharacteristicCommandReceivedSubscription =
         PeripheralManager.instance.readCharacteristicCommandReceived.listen(
       (eventArgs) async {
@@ -836,14 +853,14 @@ class _AdvertiserViewState extends State<AdvertiserView>
           log,
         ];
         const status = true;
-        final value = Uint8List.fromList([0x01, 0x02, 0x03]);
+        final trimmedValue = value.sublist(offset);
         await PeripheralManager.instance.sendReadCharacteristicReply(
           central,
           characteristic: characteristic,
           id: id,
           offset: offset,
           status: status,
-          value: value,
+          value: trimmedValue,
         );
       },
     );
@@ -891,7 +908,8 @@ class _AdvertiserViewState extends State<AdvertiserView>
         ];
         // Write someting to the central when notify started.
         if (state) {
-          final value = Uint8List.fromList([0x03, 0x02, 0x01]);
+          final elements = List.generate(2000, (i) => i % 256);
+          final value = Uint8List.fromList(elements);
           await PeripheralManager.instance.notifyCharacteristicValueChanged(
             central,
             characteristic: characteristic,
@@ -957,7 +975,6 @@ class _AdvertiserViewState extends State<AdvertiserView>
         GattCharacteristic(
           uuid: UUID.short(201),
           properties: [
-            GattCharacteristicProperty.read,
             GattCharacteristicProperty.write,
             GattCharacteristicProperty.writeWithoutResponse,
           ],

@@ -18,8 +18,10 @@ class MyPeripheralManager2 extends MyPeripheralManager
       _writeCharacteristicCommandReceivedController;
   final StreamController<NotifyGattCharacteristicCommandEventArgs>
       _notifyCharacteristicCommandReceivedController;
-  final Map<int, List<MyGattCharacteristic>> _characteristics;
+  final Map<String, MyCentral2> _centrals;
+  final Map<int, Map<int, MyGattCharacteristic>> _characteristics;
   final Map<String, int> _mtus;
+  final Map<String, Map<int, bool>> _confirms;
 
   MyPeripheralManager2()
       : _api = MyPeripheralManagerHostApi(),
@@ -31,8 +33,10 @@ class MyPeripheralManager2 extends MyPeripheralManager
             StreamController.broadcast(),
         _notifyCharacteristicCommandReceivedController =
             StreamController.broadcast(),
+        _centrals = {},
         _characteristics = {},
-        _mtus = {};
+        _mtus = {},
+        _confirms = {};
 
   @override
   BluetoothLowEnergyState get state => _state;
@@ -86,7 +90,10 @@ class MyPeripheralManager2 extends MyPeripheralManager
     }
     final serviceArgs = service.toArgs();
     await _api.addService(serviceArgs);
-    _characteristics[service.hashCode] = service.characteristics;
+    _characteristics[service.hashCode] = {
+      for (var characteristics in service.characteristics)
+        characteristics.hashCode: characteristics
+    };
   }
 
   @override
@@ -180,37 +187,77 @@ class MyPeripheralManager2 extends MyPeripheralManager
     }
     final addressArgs = central.address;
     final hashCodeArgs = characteristic.hashCode;
+    final confirms = _confirms[addressArgs];
+    if (confirms == null) {
+      throw StateError('The central has not subscribed any characteristic.');
+    }
+    final confirm = confirms[hashCodeArgs];
+    if (confirm == null) {
+      throw StateError('The central has not subscribed this characteristic.');
+    }
     final valueArgs = value;
-    // TODO: 测试是否需要按照 MTU 分包
-    await _api.notifyCharacteristicValueChanged(
-      addressArgs,
-      hashCodeArgs,
-      valueArgs,
-    );
+    // fragments the value by MTU - 3 size.
+    // If mtu is null, use 23 as default MTU size.
+    final mtu = _mtus[addressArgs] ?? 23;
+    final trimmedSize = (mtu - 3).clamp(20, 512);
+    var start = 0;
+    while (start < valueArgs.length) {
+      final end = start + trimmedSize;
+      final trimmedValueArgs = end < valueArgs.length
+          ? valueArgs.sublist(start, end)
+          : valueArgs.sublist(start);
+      await _api.notifyCharacteristicValueChanged(
+        addressArgs,
+        hashCodeArgs,
+        confirm,
+        trimmedValueArgs,
+      );
+      start = end;
+    }
   }
 
   @override
   void onStateChanged(int stateNumberArgs) {
     final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
+    logger.info('onStateChanged: $stateArgs');
     state = stateArgs.toState();
   }
 
   @override
-  void onMtuChanged(MyCentralArgs centralArgs, int mtuArgs) {
-    final address = centralArgs.addressArgs;
+  void onCentralStateChanged(MyCentralArgs centralArgs, bool stateArgs) {
+    final addressArgs = centralArgs.addressArgs;
+    logger.info('onCentralStateChanged: $addressArgs - $stateArgs');
+    final central = centralArgs.toCentral();
+    final state = stateArgs;
+    if (state) {
+      _centrals[addressArgs] = central;
+    } else {
+      _centrals.remove(addressArgs);
+      _mtus.remove(addressArgs);
+      _confirms.remove(addressArgs);
+    }
+  }
+
+  @override
+  void onMtuChanged(String addressArgs, int mtuArgs) {
+    logger.info('onMtuChanged: $addressArgs - $mtuArgs');
     final mtu = mtuArgs;
-    _mtus[address] = mtu;
-    logger.info('onMtuChanged: $address - $mtu');
+    _mtus[addressArgs] = mtu;
   }
 
   @override
   void onReadCharacteristicCommandReceived(
-    MyCentralArgs centralArgs,
+    String addressArgs,
     int hashCodeArgs,
     int idArgs,
     int offsetArgs,
   ) {
-    final central = centralArgs.toCentral();
+    logger.info(
+        'onReadCharacteristicCommandReceived: $addressArgs.$hashCodeArgs - $idArgs, $offsetArgs');
+    final central = _centrals[addressArgs];
+    if (central == null) {
+      return;
+    }
     final characteristic = _retrieveCharacteristic(hashCodeArgs);
     if (characteristic == null) {
       return;
@@ -228,13 +275,18 @@ class MyPeripheralManager2 extends MyPeripheralManager
 
   @override
   void onWriteCharacteristicCommandReceived(
-    MyCentralArgs centralArgs,
+    String addressArgs,
     int hashCodeArgs,
     int idArgs,
     int offsetArgs,
     Uint8List valueArgs,
   ) {
-    final central = centralArgs.toCentral();
+    logger.info(
+        'onWriteCharacteristicCommandReceived: $addressArgs.$hashCodeArgs - $idArgs, $offsetArgs, $valueArgs');
+    final central = _centrals[addressArgs];
+    if (central == null) {
+      return;
+    }
     final characteristic = _retrieveCharacteristic(hashCodeArgs);
     if (characteristic == null) {
       return;
@@ -254,16 +306,30 @@ class MyPeripheralManager2 extends MyPeripheralManager
 
   @override
   void onNotifyCharacteristicCommandReceived(
-    MyCentralArgs centralArgs,
+    String addressArgs,
     int hashCodeArgs,
-    bool stateArgs,
+    int stateNumberArgs,
   ) {
-    final central = centralArgs.toCentral();
+    final stateArgs =
+        MyGattCharacteristicNotifyStateArgs.values[stateNumberArgs];
+    logger.info(
+        'onNotifyCharacteristicCommandReceived: $addressArgs.$hashCodeArgs - $stateArgs');
+    final central = _centrals[addressArgs];
+    if (central == null) {
+      return;
+    }
     final characteristic = _retrieveCharacteristic(hashCodeArgs);
     if (characteristic == null) {
       return;
     }
-    final state = stateArgs;
+    final state = stateArgs != MyGattCharacteristicNotifyStateArgs.none;
+    final confirms = _confirms.putIfAbsent(addressArgs, () => {});
+    if (state) {
+      confirms[hashCodeArgs] =
+          stateArgs == MyGattCharacteristicNotifyStateArgs.indicate;
+    } else {
+      confirms.remove(hashCodeArgs);
+    }
     final eventArgs = NotifyGattCharacteristicCommandEventArgs(
       central,
       characteristic,
@@ -274,13 +340,7 @@ class MyPeripheralManager2 extends MyPeripheralManager
 
   MyGattCharacteristic? _retrieveCharacteristic(int hashCodeArgs) {
     final characteristics = _characteristics.values
-        .expand((characteristics) => characteristics)
-        .toList();
-    final i = characteristics.indexWhere(
-        (characteristic) => characteristic.hashCode == hashCodeArgs);
-    if (i < 0) {
-      return null;
-    }
-    return characteristics[i];
+        .reduce((value, element) => value..addAll(element));
+    return characteristics[hashCodeArgs];
   }
 }
