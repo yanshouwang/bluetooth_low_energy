@@ -1,6 +1,6 @@
 name: bluetooth_low_energy_windows
 description: Windows implementation of the bluetooth_low_energy plugin.
-version: 5.0.0-dev.3
+version: 5.0.0-dev.4
 homepage: https://github.com/yanshouwang/bluetooth_low_energy
 
 environment:
@@ -16,7 +16,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
-  pigeon: ^14.0.0
+  pigeon: ^15.0.1
 
 flutter:
   plugin:

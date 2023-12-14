@@ -51,9 +51,8 @@ namespace bluetooth_low_energy_windows
 	{
 		try
 		{
-			const auto address = static_cast<uint64_t>(address_args);
-			m_clear_device(address);
-			m_on_device_connection_status_changed(address, BluetoothConnectionStatus::Disconnected);
+			m_clear_device(address_args);
+			m_api->OnPeripheralStateChanged(address_args, false, [] {}, [](auto error) {});
 			return std::nullopt;
 		}
 		catch (const std::exception& ex)
@@ -73,8 +72,7 @@ namespace bluetooth_low_energy_windows
 	{
 		try
 		{
-			const auto address = static_cast<uint64_t>(address_args);
-			m_clear_gatt(address);
+			m_clear_gatt(address_args);
 			return std::nullopt;
 		}
 		catch (const std::exception& ex)
@@ -134,27 +132,7 @@ namespace bluetooth_low_energy_windows
 	{
 		try
 		{
-			// 停止扫描
-			const auto status = m_watcher->Status();
-			if (status == BluetoothLEAdvertisementWatcherStatus::Started)
-			{
-				m_watcher->Stop();
-			}
-			// 断开连接
-			auto addresses = std::list<uint64_t>();
-			const auto begin = m_devices.begin();
-			const auto end = m_devices.end();
-			std::transform(
-				begin,
-				end,
-				std::back_inserter(addresses),
-				[](const auto& device)
-				{
-					return device.first;
-				});
-			for (const auto& address : addresses) {
-				m_clear_device(address);
-			}
+			m_clear_state();
 			// 获取状态
 			if (!m_radio_state_changed_revoker) {
 				m_adapter = co_await BluetoothAdapter::GetDefaultAsync();
@@ -221,27 +199,32 @@ namespace bluetooth_low_energy_windows
 		{
 			const auto address = static_cast<uint64_t>(address_args);
 			const auto& device = co_await BluetoothLEDevice::FromBluetoothAddressAsync(address);
-			const auto status = device.ConnectionStatus();
-			if (status == BluetoothConnectionStatus::Disconnected)
+			// 通过单独调用此方法创建 BluetoothLEDevice 对象不（一定）会启动连接。 若要启动连接，请将 
+			// GattSession.MaintainConnection 设置为 true，或在 BluetoothLEDevice 上调用未缓存
+			// 的服务发现方法，或对设备执行读/写操作。
+			// 参考：https://learn.microsoft.com/zh-cn/windows/uwp/devices-sensors/gatt-client#connecting-to-the-device
+			const auto& r = co_await device.GetGattServicesAsync(BluetoothCacheMode::Uncached);
+			const auto r_status = r.Status();
+			if (r_status != GattCommunicationStatus::Success)
 			{
-				// 通过获取 GATT 服务触发 WinRT 蓝牙连接机制
-				const auto& r = co_await device.GetGattServicesAsync();
-				const auto r_status = r.Status();
-				if (r_status != GattCommunicationStatus::Success)
-				{
-					const auto r_status_code = static_cast<int32_t>(r_status);
-					const auto message = "Connect failed with status: " + std::to_string(r_status_code);
-					throw MyException(message);
-				}
+				const auto r_status_code = static_cast<int32_t>(r_status);
+				const auto message = "Connect failed with status: " + std::to_string(r_status_code);
+				throw MyException(message);
 			}
-			m_devices[address] = device;
-			m_device_connection_status_changed_revokers[address] = device.ConnectionStatusChanged(auto_revoke, [this](BluetoothLEDevice device, auto obj)
+			m_devices[address_args] = device;
+			m_api->OnPeripheralStateChanged(address_args, true, [] {}, [](auto error) {});
+			m_device_connection_status_changed_revokers[address_args] = device.ConnectionStatusChanged(auto_revoke, [this](BluetoothLEDevice device, auto obj)
 				{
 					const auto address = device.BluetoothAddress();
 					const auto status = device.ConnectionStatus();
-					m_on_device_connection_status_changed(address, status);
+					const auto address_args = static_cast<int64_t>(address);
+					const auto state_args = status == BluetoothConnectionStatus::Connected;
+					m_api->OnPeripheralStateChanged(address_args, state_args, [] {}, [](auto error) {});
+					if (status == BluetoothConnectionStatus::Disconnected)
+					{
+						m_clear_device(address_args);
+					}
 				});
-			m_on_device_connection_status_changed(address, BluetoothConnectionStatus::Connected);
 			result(std::nullopt);
 		}
 		catch (const winrt::hresult_error& ex) {
@@ -270,9 +253,8 @@ namespace bluetooth_low_energy_windows
 	{
 		try
 		{
-			const auto address = static_cast<uint64_t>(address_args);
-			const auto& device = m_retrieve_device(address);
-			const auto& r = co_await device->GetGattServicesAsync();
+			const auto& device = m_devices[address_args];
+			const auto& r = co_await device->GetGattServicesAsync(BluetoothCacheMode::Uncached);
 			const auto status = r.Status();
 			if (status != GattCommunicationStatus::Success)
 			{
@@ -281,19 +263,20 @@ namespace bluetooth_low_energy_windows
 				throw MyException(message);
 			}
 			// 检查设备是否已经释放
-			const auto disposed = !m_retrieve_device(address);
+			const auto disposed = !m_devices[address_args];
 			if (disposed)
 			{
 				const auto message = "Discover services failed as the device has disposed";
 				throw MyException(message);
 			}
 			const auto& services_view = r.Services();
-			auto& services = m_services[address];
+			auto& services = m_services[address_args];
 			auto services_args = flutter::EncodableList();
 			for (const auto& service : services_view) {
-				const auto service_args_value = m_service_to_args(service);
+				const auto& service_args_value = m_service_to_args(service);
 				const auto service_args = flutter::CustomEncodableValue(service_args_value);
-				services.emplace_back(service);
+				const auto service_handle_args = service_args_value.handle_args();
+				services[service_handle_args] = service;
 				services_args.emplace_back(service_args);
 			}
 			result(services_args);
@@ -324,9 +307,7 @@ namespace bluetooth_low_energy_windows
 	{
 		try
 		{
-			const auto address = static_cast<uint64_t>(address_args);
-			const auto handle = static_cast<uint16_t>(handle_args);
-			const auto& service = m_retrieve_service(address, handle);
+			const auto& service = m_retrieve_service(address_args, handle_args);
 			const auto& r = co_await service->GetCharacteristicsAsync();
 			const auto status = r.Status();
 			if (status != GattCommunicationStatus::Success)
@@ -336,19 +317,20 @@ namespace bluetooth_low_energy_windows
 				throw MyException(message);
 			}
 			// 检查设备是否已经释放
-			const auto disposed = !m_retrieve_device(address);
+			const auto disposed = !m_devices[address_args];
 			if (disposed)
 			{
 				const auto message = "Discover characteristics failed as the device has disposed";
 				throw MyException(message);
 			}
 			const auto& characteristics_view = r.Characteristics();
-			auto& characteristics = m_characteristics[address];
+			auto& characteristics = m_characteristics[address_args];
 			auto characteristics_args = flutter::EncodableList();
-			auto& revokers = m_characteristic_value_changed_revokers[address];
+			auto& revokers = m_characteristic_value_changed_revokers[address_args];
 			for (const auto& characteristic : characteristics_view) {
-				const auto characteristic_args_value = m_characteristic_to_args(characteristic);
+				const auto& characteristic_args_value = m_characteristic_to_args(characteristic);
 				const auto characteristic_args = flutter::CustomEncodableValue(characteristic_args_value);
+				const auto characteristic_handle_args = characteristic_args_value.handle_args();
 				auto revoker = characteristic.ValueChanged(auto_revoke, [this, address_args](const GattCharacteristic& characteristic, const GattValueChangedEventArgs& event_args)
 					{
 						const auto handle = characteristic.AttributeHandle();
@@ -356,10 +338,10 @@ namespace bluetooth_low_energy_windows
 						const auto& value = event_args.CharacteristicValue();
 						const auto& begin = value.data();
 						const auto& end = begin + value.Length();
-						const auto& value_args = std::vector<uint8_t>(begin, end);
+						const auto value_args = std::vector<uint8_t>(begin, end);
 						m_api->OnCharacteristicValueChanged(address_args, handle_args, value_args, []() {}, [](const auto& error) {});
 					});
-				characteristics.emplace_back(characteristic);
+				characteristics[characteristic_handle_args] = characteristic;
 				characteristics_args.emplace_back(characteristic_args);
 				revokers.emplace_back(std::move(revoker));
 			}
@@ -391,9 +373,7 @@ namespace bluetooth_low_energy_windows
 	{
 		try
 		{
-			const auto address = static_cast<uint64_t>(address_args);
-			const auto handle = static_cast<uint16_t>(handle_args);
-			const auto& characteristic = m_retrieve_characteristic(address, handle);
+			const auto& characteristic = m_retrieve_characteristic(address_args, handle_args);
 			const auto& r = co_await characteristic->GetDescriptorsAsync();
 			const auto status = r.Status();
 			if (status != GattCommunicationStatus::Success)
@@ -403,19 +383,20 @@ namespace bluetooth_low_energy_windows
 				throw MyException(message);
 			}
 			// 检查设备是否已经释放
-			const auto disposed = !m_retrieve_device(address);
+			const auto disposed = !m_devices[address_args];
 			if (disposed)
 			{
 				const auto message = "Discover descriptors failed as the device has disposed";
 				throw MyException(message);
 			}
 			const auto& descriptors_view = r.Descriptors();
-			auto& descriptors = m_descriptors[address];
+			auto& descriptors = m_descriptors[address_args];
 			auto descriptors_args = flutter::EncodableList();
 			for (const auto& descriptor : descriptors_view) {
-				auto descriptor_args_value = m_descriptor_to_args(descriptor);
-				auto descriptor_args = flutter::CustomEncodableValue(descriptor_args_value);
-				descriptors.emplace_back(descriptor);
+				const auto& descriptor_args_value = m_descriptor_to_args(descriptor);
+				const auto descriptor_args = flutter::CustomEncodableValue(descriptor_args_value);
+				const auto descriptor_handle_args = descriptor_args_value.handle_args();
+				descriptors[descriptor_handle_args] = descriptor;
 				descriptors_args.emplace_back(descriptor_args);
 			}
 			result(descriptors_args);
@@ -446,9 +427,7 @@ namespace bluetooth_low_energy_windows
 	{
 		try
 		{
-			const auto address = static_cast<uint64_t>(address_args);
-			const auto handle = static_cast<uint16_t>(handle_args);
-			const auto& characteristic = m_retrieve_characteristic(address, handle);
+			const auto& characteristic = m_retrieve_characteristic(address_args, handle_args);
 			const auto& r = co_await characteristic->ReadValueAsync();
 			const auto status = r.Status();
 			if (status != GattCommunicationStatus::Success)
@@ -460,7 +439,7 @@ namespace bluetooth_low_energy_windows
 			const auto& value = r.Value();
 			const auto& begin = value.data();
 			const auto& end = begin + value.Length();
-			const auto& value_args = std::vector<uint8_t>(begin, end);
+			const auto value_args = std::vector<uint8_t>(begin, end);
 			result(value_args);
 		}
 		catch (const winrt::hresult_error& ex) {
@@ -489,10 +468,8 @@ namespace bluetooth_low_energy_windows
 	{
 		try
 		{
-			const auto address = static_cast<uint64_t>(address_args);
-			const auto handle = static_cast<uint16_t>(handle_args);
-			const auto& characteristic = m_retrieve_characteristic(address, handle);
-			const auto& value = CryptographicBuffer::CreateFromByteArray(value_args);
+			const auto& characteristic = m_retrieve_characteristic(address_args, handle_args);
+			const auto value = CryptographicBuffer::CreateFromByteArray(value_args);
 			const auto option = m_write_type_number_args_to_write_option(type_number_args);
 			const auto& status = co_await characteristic->WriteValueAsync(value, option);
 			if (status != GattCommunicationStatus::Success)
@@ -529,9 +506,7 @@ namespace bluetooth_low_energy_windows
 	{
 		try
 		{
-			const auto address = static_cast<uint64_t>(address_args);
-			const auto handle = static_cast<uint16_t>(handle_args);
-			const auto& characteristic = m_retrieve_characteristic(address, handle);
+			const auto& characteristic = m_retrieve_characteristic(address_args, handle_args);
 			const auto value = m_notify_state_number_args_to_cccd_value(state_number_args);
 			const auto& status = co_await characteristic->WriteClientCharacteristicConfigurationDescriptorAsync(value);
 			if (status != GattCommunicationStatus::Success)
@@ -568,9 +543,7 @@ namespace bluetooth_low_energy_windows
 	{
 		try
 		{
-			const auto address = static_cast<uint64_t>(address_args);
-			const auto handle = static_cast<uint16_t>(handle_args);
-			const auto& descriptor = m_retrieve_descriptor(address, handle);
+			const auto& descriptor = m_retrieve_descriptor(address_args, handle_args);
 			const auto& r = co_await descriptor->ReadValueAsync();
 			const auto status = r.Status();
 			if (status != GattCommunicationStatus::Success)
@@ -582,7 +555,7 @@ namespace bluetooth_low_energy_windows
 			const auto& value = r.Value();
 			const auto& begin = value.data();
 			const auto& end = begin + value.Length();
-			const auto& value_args = std::vector<uint8_t>(begin, end);
+			const auto value_args = std::vector<uint8_t>(begin, end);
 			result(value_args);
 		}
 		catch (const winrt::hresult_error& ex) {
@@ -611,10 +584,8 @@ namespace bluetooth_low_energy_windows
 	{
 		try
 		{
-			const auto address = static_cast<uint64_t>(address_args);
-			const auto handle = static_cast<uint16_t>(handle_args);
-			const auto& descriptor = m_retrieve_descriptor(address, handle);
-			const auto& value = CryptographicBuffer::CreateFromByteArray(value_args);
+			const auto& descriptor = m_retrieve_descriptor(address_args, handle_args);
+			const auto value = CryptographicBuffer::CreateFromByteArray(value_args);
 			const auto& status = co_await descriptor->WriteValueAsync(value);
 			if (status != GattCommunicationStatus::Success)
 			{
@@ -646,27 +617,46 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	void MyCentralManager::m_clear_device(uint64_t address)
+	void MyCentralManager::m_clear_state()
+	{
+		// 停止扫描
+		const auto status = m_watcher->Status();
+		if (status == BluetoothLEAdvertisementWatcherStatus::Started)
+		{
+			m_watcher->Stop();
+		}
+		// 断开连接
+		auto addresses = std::list<uint64_t>();
+		const auto begin = m_devices.begin();
+		const auto end = m_devices.end();
+		std::transform(
+			begin,
+			end,
+			std::back_inserter(addresses),
+			[](const auto& device)
+			{
+				return device.first;
+			});
+		for (const auto& address : addresses) {
+			const auto address_args = static_cast<int64_t>(address);
+			m_clear_device(address_args);
+		}
+	}
+
+	void MyCentralManager::m_clear_device(int64_t address_args)
 	{
 		// 通过释放连接实例，触发断开连接
-		m_devices.erase(address);
-		m_device_connection_status_changed_revokers.erase(address);
-		m_clear_gatt(address);
+		m_clear_gatt(address_args);
+		m_device_connection_status_changed_revokers.erase(address_args);
+		m_devices.erase(address_args);
 	}
 
-	void MyCentralManager::m_clear_gatt(uint64_t address)
+	void MyCentralManager::m_clear_gatt(int64_t address_args)
 	{
-		// m_characteristic_value_changed_revokers.erase(address);
-		m_services.erase(address);
-		m_characteristics.erase(address);
-		m_descriptors.erase(address);
-	}
-
-	void MyCentralManager::m_on_device_connection_status_changed(uint64_t address, BluetoothConnectionStatus status)
-	{
-		const auto address_args = static_cast<int64_t>(address);
-		const auto state_args = status == BluetoothConnectionStatus::Connected;
-		m_api->OnPeripheralStateChanged(address_args, state_args, [] {}, [](auto error) {});
+		m_characteristic_value_changed_revokers.erase(address_args);
+		m_services.erase(address_args);
+		m_characteristics.erase(address_args);
+		m_descriptors.erase(address_args);
 	}
 
 	MyBluetoothLowEnergyStateArgs MyCentralManager::m_radio_state_to_args(RadioState state)
@@ -866,61 +856,22 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	std::optional<BluetoothLEDevice> MyCentralManager::m_retrieve_device(uint64_t address)
+	std::optional<GattDeviceService> MyCentralManager::m_retrieve_service(int64_t address_args, int64_t handle_args)
 	{
-		const auto& device = m_devices[address];
-		return device;
+		auto& services = m_services[address_args];
+		return services[handle_args];
 	}
 
-	std::optional<GattDeviceService> MyCentralManager::m_retrieve_service(uint64_t address, uint16_t handle)
+	std::optional<GattCharacteristic> MyCentralManager::m_retrieve_characteristic(int64_t address_args, int64_t handle_args)
 	{
-		const auto& services = m_services[address];
-		const auto& begin = services.begin();
-		const auto& end = services.end();
-		const auto& i = std::find_if(begin, end, [handle](std::optional<GattDeviceService> service)
-			{
-				const auto service_handle = service->AttributeHandle();
-				return service_handle == handle;
-			});
-		if (i == end)
-		{
-			return std::nullopt;
-		}
-		return *i;
+		auto& characteristics = m_characteristics[address_args];
+		return characteristics[handle_args];
 	}
 
-	std::optional<GattCharacteristic> MyCentralManager::m_retrieve_characteristic(uint64_t address, uint16_t handle)
+	std::optional<GattDescriptor> MyCentralManager::m_retrieve_descriptor(int64_t address_args, int64_t handle_args)
 	{
-		const auto& characteristics = m_characteristics[address];
-		const auto& begin = characteristics.begin();
-		const auto& end = characteristics.end();
-		const auto& i = std::find_if(begin, end, [handle](std::optional<GattCharacteristic> characteristic)
-			{
-				const auto characteristic_handle = characteristic->AttributeHandle();
-				return characteristic_handle == handle;
-			});
-		if (i == end)
-		{
-			return std::nullopt;
-		}
-		return *i;
-	}
-
-	std::optional<GattDescriptor> MyCentralManager::m_retrieve_descriptor(uint64_t address, uint16_t handle)
-	{
-		const auto& descriptors = m_descriptors[address];
-		const auto& begin = descriptors.begin();
-		const auto& end = descriptors.end();
-		const auto& i = std::find_if(begin, end, [handle](std::optional<GattDescriptor> descriptor)
-			{
-				const auto descriptor_handle = descriptor->AttributeHandle();
-				return descriptor_handle == handle;
-			});
-		if (i == end)
-		{
-			return std::nullopt;
-		}
-		return *i;
+		auto& descriptors = m_descriptors[address_args];
+		return descriptors[handle_args];
 	}
 }
 

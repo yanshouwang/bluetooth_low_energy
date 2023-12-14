@@ -20,7 +20,7 @@ class MyCentralManager2 extends MyCentralManager
       _characteristicValueChangedController;
 
   final Map<int, MyPeripheral> _peripherals;
-  final Map<int, List<MyGattCharacteristic2>> _characteristics;
+  final Map<int, Map<int, MyGattCharacteristic2>> _characteristics;
 
   MyCentralManager2()
       : _api = MyCentralManagerHostApi(),
@@ -142,7 +142,10 @@ class MyCentralManager2 extends MyCentralManager
         servicesArgs.map((args) => args.toService2(peripheral)).toList();
     final characteristics =
         services.expand((service) => service.characteristics).toList();
-    _characteristics[addressArgs] = characteristics;
+    _characteristics[addressArgs] = {
+      for (var characteristic in characteristics)
+        characteristic.handle: characteristic
+    };
     return services;
   }
 
@@ -256,6 +259,7 @@ class MyCentralManager2 extends MyCentralManager
   @override
   void onStateChanged(int stateNumberArgs) {
     final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
+    logger.info('onStateChanged: $stateArgs');
     state = stateArgs.toState();
   }
 
@@ -265,6 +269,8 @@ class MyCentralManager2 extends MyCentralManager
     int rssiArgs,
     MyAdvertisementArgs advertisementArgs,
   ) {
+    final addressArgs = peripheralArgs.addressArgs;
+    logger.info('onDiscovered: $addressArgs - $rssiArgs, $advertisementArgs');
     final peripheral = _peripherals.putIfAbsent(
       peripheralArgs.addressArgs,
       () => peripheralArgs.toPeripheral(),
@@ -281,6 +287,7 @@ class MyCentralManager2 extends MyCentralManager
 
   @override
   void onPeripheralStateChanged(int addressArgs, bool stateArgs) {
+    logger.info('onPeripheralStateChanged: $addressArgs - $stateArgs');
     final peripheral = _peripherals[addressArgs];
     if (peripheral == null) {
       return;
@@ -299,6 +306,8 @@ class MyCentralManager2 extends MyCentralManager
     int handleArgs,
     Uint8List valueArgs,
   ) {
+    logger.info(
+        'onCharacteristicValueChanged: $addressArgs.$handleArgs - $valueArgs');
     final characteristic = _retrieveCharacteristic(addressArgs, handleArgs);
     if (characteristic == null) {
       return;
@@ -316,11 +325,6 @@ class MyCentralManager2 extends MyCentralManager
     if (characteristics == null) {
       return null;
     }
-    final i = characteristics
-        .indexWhere((characteristic) => characteristic.handle == handleArgs);
-    if (i < 0) {
-      return null;
-    }
-    return characteristics[i];
+    return characteristics[handleArgs];
   }
 }

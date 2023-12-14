@@ -1,3 +1,11 @@
+## 5.0.0-dev.4
+
+* Add event logs.
+* Update dependency.
+* Optimize instances' retrieve speed.
+* Optimize example.
+* Fix the issue that CentralManager#connect() returns fake connection.
+
 ## 5.0.0-dev.3
 
 * Update interface to 5.0.0-dev.4.
