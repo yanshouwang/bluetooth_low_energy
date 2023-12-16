@@ -132,6 +132,7 @@ abstract class MyCentralManagerHostApi {
   void connect(String addressArgs);
   @async
   void disconnect(String addressArgs);
+  @async
   void requestMTU(String addressArgs, int mtuArgs);
   @async
   int readRSSI(String addressArgs);

@@ -109,26 +109,6 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         }
     }
 
-    private fun mClearState() {
-        if (mAdvertising) {
-            stopAdvertising()
-        }
-        mDevices.clear()
-        mServices.clear()
-        mCharacteristics.clear()
-        mDescriptors.clear()
-        mPreparedCharacteristics.clear()
-        mPreparedValues.clear()
-        mValues.clear()
-        mServicesArgs.clear()
-        mCharacteristicsArgs.clear()
-        mDescriptorsArgs.clear()
-        mSetUpCallback = null
-        mAddServiceCallback = null
-        mStartAdvertisingCallback = null
-        mNotifyCharacteristicValueChangedCallbacks.clear()
-    }
-
     override fun addService(serviceArgs: MyGattServiceArgs, callback: (Result<Unit>) -> Unit) {
         try {
             val service = serviceArgs.toService()
@@ -150,32 +130,32 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
                         // Already added.
                         continue
                     }
-                    val descriptorAdded = characteristic.addDescriptor(descriptor)
-                    if (!descriptorAdded) {
-                        throw IllegalStateException()
-                    }
                     val descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
                     val descriptorHashCode = descriptor.hashCode()
                     this.mDescriptorsArgs[descriptorHashCode] = descriptorArgs
                     this.mDescriptors[descriptorHashCodeArgs] = descriptor
-                }
-                val characteristicAdded = service.addCharacteristic(characteristic)
-                if (!characteristicAdded) {
-                    throw IllegalStateException()
+                    val descriptorAdded = characteristic.addDescriptor(descriptor)
+                    if (!descriptorAdded) {
+                        throw IllegalStateException()
+                    }
                 }
                 val characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
                 val characteristicHashCode = characteristic.hashCode()
                 this.mCharacteristicsArgs[characteristicHashCode] = characteristicArgs
                 this.mCharacteristics[characteristicHashCodeArgs] = characteristic
-            }
-            val adding = mServer.addService(service)
-            if (!adding) {
-                throw IllegalStateException()
+                val characteristicAdded = service.addCharacteristic(characteristic)
+                if (!characteristicAdded) {
+                    throw IllegalStateException()
+                }
             }
             val serviceHashCodeArgs = serviceArgs.hashCodeArgs
             val serviceHashCode = service.hashCode()
             this.mServicesArgs[serviceHashCode] = serviceArgs
             this.mServices[serviceHashCodeArgs] = service
+            val adding = mServer.addService(service)
+            if (!adding) {
+                throw IllegalStateException()
+            }
             mAddServiceCallback = callback
         } catch (e: Throwable) {
             mClearService(serviceArgs)
@@ -489,6 +469,29 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
                 IllegalStateException("Notify characteristic value changed failed with status: $status")
             callback(Result.failure(error))
         }
+    }
+
+    private fun mClearState() {
+        if (mAdvertising) {
+            stopAdvertising()
+        }
+
+        mServicesArgs.clear()
+        mCharacteristicsArgs.clear()
+        mDescriptorsArgs.clear()
+
+        mDevices.clear()
+        mServices.clear()
+        mCharacteristics.clear()
+        mDescriptors.clear()
+        mPreparedCharacteristics.clear()
+        mPreparedValues.clear()
+        mValues.clear()
+
+        mSetUpCallback = null
+        mAddServiceCallback = null
+        mStartAdvertisingCallback = null
+        mNotifyCharacteristicValueChangedCallbacks.clear()
     }
 
     private fun mOpenGattServer() {

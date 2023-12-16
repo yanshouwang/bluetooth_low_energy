@@ -17,6 +17,7 @@ class MyPeripheralManager2 extends MyPeripheralManager
       _writeCharacteristicCommandReceivedController;
   final StreamController<NotifyGattCharacteristicCommandEventArgs>
       _notifyCharacteristicCommandReceivedController;
+  final Map<int, Map<int, MyGattCharacteristic>> _characteristics;
 
   MyPeripheralManager2()
       : _api = MyPeripheralManagerHostApi(),
@@ -27,7 +28,8 @@ class MyPeripheralManager2 extends MyPeripheralManager
         _writeCharacteristicCommandReceivedController =
             StreamController.broadcast(),
         _notifyCharacteristicCommandReceivedController =
-            StreamController.broadcast();
+            StreamController.broadcast(),
+        _characteristics = {};
 
   @override
   BluetoothLowEnergyState get state => _state;
@@ -81,6 +83,10 @@ class MyPeripheralManager2 extends MyPeripheralManager
     }
     final serviceArgs = service.toArgs();
     await _api.addService(serviceArgs);
+    _characteristics[service.hashCode] = {
+      for (var characteristics in service.characteristics)
+        characteristics.hashCode: characteristics
+    };
   }
 
   @override
@@ -88,12 +94,14 @@ class MyPeripheralManager2 extends MyPeripheralManager
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     final serviceHashCodeArgs = service.hashCode;
     await _api.removeService(serviceHashCodeArgs);
+    _characteristics.remove(service.hashCode);
   }
 
   @override
   Future<void> clearServices() async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     await _api.clearServices();
+    _characteristics.clear();
   }
 
   @override
@@ -110,15 +118,6 @@ class MyPeripheralManager2 extends MyPeripheralManager
   }
 
   @override
-  Future<int> getMaximumWriteLength(Central central) async {
-    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final centralHashCodeArgs = central.hashCode;
-    final maximumWriteLength =
-        await _api.getMaximumWriteLength(centralHashCodeArgs);
-    return maximumWriteLength;
-  }
-
-  @override
   Future<void> sendReadCharacteristicReply(
     Central central, {
     required GattCharacteristic characteristic,
@@ -128,14 +127,17 @@ class MyPeripheralManager2 extends MyPeripheralManager
     required Uint8List value,
   }) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final centralHashCodeArgs = central.hashCode;
+    if (central is! MyCentral || characteristic is! MyGattCharacteristic) {
+      throw TypeError();
+    }
+    final uuidArgs = central.uuid.toArgs();
     final characteristicHashCodeArgs = characteristic.hashCode;
     final idArgs = id;
     final offsetArgs = offset;
     final statusArgs = status;
     final valueArgs = value;
     await _api.sendReadCharacteristicReply(
-      centralHashCodeArgs,
+      uuidArgs,
       characteristicHashCodeArgs,
       idArgs,
       offsetArgs,
@@ -153,14 +155,17 @@ class MyPeripheralManager2 extends MyPeripheralManager
     required bool status,
   }) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final centralHashCodeArgs = central.hashCode;
-    final characteristicHashCodeArgs = characteristic.hashCode;
+    if (central is! MyCentral || characteristic is! MyGattCharacteristic) {
+      throw TypeError();
+    }
+    final uuidArgs = central.uuid.toArgs();
+    final hashCodeArgs = characteristic.hashCode;
     final idArgs = id;
     final offsetArgs = offset;
     final statusArgs = status;
     await _api.sendWriteCharacteristicReply(
-      centralHashCodeArgs,
-      characteristicHashCodeArgs,
+      uuidArgs,
+      hashCodeArgs,
       idArgs,
       offsetArgs,
       statusArgs,
@@ -174,31 +179,50 @@ class MyPeripheralManager2 extends MyPeripheralManager
     required Uint8List value,
   }) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    final centralHashCodeArgs = central.hashCode;
-    final characteristicHashCodeArgs = characteristic.hashCode;
+    if (central is! MyCentral || characteristic is! MyGattCharacteristic) {
+      throw TypeError();
+    }
+    final uuidArgs = central.uuid.toArgs();
+    final hashCodeArgs = characteristic.hashCode;
     final valueArgs = value;
-    await _api.notifyCharacteristicValueChanged(
-      centralHashCodeArgs,
-      characteristicHashCodeArgs,
-      valueArgs,
-    );
+    final trimmedSize = await _api.getMaximumUpdateValueLength(uuidArgs);
+    var start = 0;
+    while (start < valueArgs.length) {
+      final end = start + trimmedSize;
+      final trimmedValueArgs = end < valueArgs.length
+          ? valueArgs.sublist(start, end)
+          : valueArgs.sublist(start);
+      await _api.notifyCharacteristicValueChanged(
+        uuidArgs,
+        hashCodeArgs,
+        trimmedValueArgs,
+      );
+      start = end;
+    }
   }
 
   @override
   void onStateChanged(int stateNumberArgs) {
     final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
+    logger.info('onStateChanged: $stateArgs');
     state = stateArgs.toState();
   }
 
   @override
   void onReadCharacteristicCommandReceived(
     MyCentralArgs centralArgs,
-    MyGattCharacteristicArgs characteristicArgs,
+    int hashCodeArgs,
     int idArgs,
     int offsetArgs,
   ) {
+    final uuidArgs = centralArgs.uuidArgs;
+    logger.info(
+        'onReadCharacteristicCommandReceived: $uuidArgs.$hashCodeArgs - $idArgs, $offsetArgs');
     final central = centralArgs.toCentral();
-    final characteristic = characteristicArgs.toCharacteristic2();
+    final characteristic = _retrieveCharacteristic(hashCodeArgs);
+    if (characteristic == null) {
+      return;
+    }
     final id = idArgs;
     final offset = offsetArgs;
     final eventArgs = ReadGattCharacteristicCommandEventArgs(
@@ -213,13 +237,19 @@ class MyPeripheralManager2 extends MyPeripheralManager
   @override
   void onWriteCharacteristicCommandReceived(
     MyCentralArgs centralArgs,
-    MyGattCharacteristicArgs characteristicArgs,
+    int hashCodeArgs,
     int idArgs,
     int offsetArgs,
     Uint8List valueArgs,
   ) {
+    final uuidArgs = centralArgs.uuidArgs;
+    logger.info(
+        'onWriteCharacteristicCommandReceived: $uuidArgs.$hashCodeArgs - $idArgs, $offsetArgs, $valueArgs');
     final central = centralArgs.toCentral();
-    final characteristic = characteristicArgs.toCharacteristic2();
+    final characteristic = _retrieveCharacteristic(hashCodeArgs);
+    if (characteristic == null) {
+      return;
+    }
     final id = idArgs;
     final offset = offsetArgs;
     final value = valueArgs;
@@ -236,11 +266,17 @@ class MyPeripheralManager2 extends MyPeripheralManager
   @override
   void onNotifyCharacteristicCommandReceived(
     MyCentralArgs centralArgs,
-    MyGattCharacteristicArgs characteristicArgs,
+    int hashCodeArgs,
     bool stateArgs,
   ) {
+    final uuidArgs = centralArgs.uuidArgs;
+    logger.info(
+        'onNotifyCharacteristicCommandReceived: $uuidArgs.$hashCodeArgs - $stateArgs');
     final central = centralArgs.toCentral();
-    final characteristic = characteristicArgs.toCharacteristic2();
+    final characteristic = _retrieveCharacteristic(hashCodeArgs);
+    if (characteristic == null) {
+      return;
+    }
     final state = stateArgs;
     final eventArgs = NotifyGattCharacteristicCommandEventArgs(
       central,
@@ -248,5 +284,11 @@ class MyPeripheralManager2 extends MyPeripheralManager
       state,
     );
     _notifyCharacteristicCommandReceivedController.add(eventArgs);
+  }
+
+  MyGattCharacteristic? _retrieveCharacteristic(int hashCodeArgs) {
+    final characteristics = _characteristics.values
+        .reduce((value, element) => value..addAll(element));
+    return characteristics[hashCodeArgs];
   }
 }

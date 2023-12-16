@@ -134,7 +134,7 @@ class MyPeripheralManager2 extends MyPeripheralManager
     required Uint8List value,
   }) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    if (central is! MyCentral2) {
+    if (central is! MyCentral2 || characteristic is! MyGattCharacteristic) {
       throw TypeError();
     }
     final addressArgs = central.address;
@@ -160,7 +160,7 @@ class MyPeripheralManager2 extends MyPeripheralManager
     required bool status,
   }) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    if (central is! MyCentral2) {
+    if (central is! MyCentral2 || characteristic is! MyGattCharacteristic) {
       throw TypeError();
     }
     final addressArgs = central.address;
@@ -182,19 +182,12 @@ class MyPeripheralManager2 extends MyPeripheralManager
     required Uint8List value,
   }) async {
     await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
-    if (central is! MyCentral2) {
+    if (central is! MyCentral2 || characteristic is! MyGattCharacteristic) {
       throw TypeError();
     }
     final addressArgs = central.address;
     final hashCodeArgs = characteristic.hashCode;
-    final confirms = _confirms[addressArgs];
-    if (confirms == null) {
-      throw StateError('The central has not subscribed any characteristic.');
-    }
-    final confirm = confirms[hashCodeArgs];
-    if (confirm == null) {
-      throw StateError('The central has not subscribed this characteristic.');
-    }
+    final confirm = _retrieveConfirm(addressArgs, hashCodeArgs) ?? false;
     final valueArgs = value;
     // fragments the value by MTU - 3 size.
     // If mtu is null, use 23 as default MTU size.
@@ -342,5 +335,13 @@ class MyPeripheralManager2 extends MyPeripheralManager
     final characteristics = _characteristics.values
         .reduce((value, element) => value..addAll(element));
     return characteristics[hashCodeArgs];
+  }
+
+  bool? _retrieveConfirm(String addressArgs, int hashCodeArgs) {
+    final confirms = _confirms[addressArgs];
+    if (confirms == null) {
+      return null;
+    }
+    return confirms[hashCodeArgs];
   }
 }

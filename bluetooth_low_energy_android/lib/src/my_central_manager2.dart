@@ -95,6 +95,12 @@ class MyCentralManager2 extends MyCentralManager
     }
     final addressArgs = peripheral.address;
     await _api.connect(addressArgs);
+    try {
+      await _api.requestMTU(addressArgs, 517);
+    } catch (error, stackTrace) {
+      // 忽略协商 MTU 错误
+      logger.warning('requstMTU failed.', error, stackTrace);
+    }
   }
 
   @override
@@ -126,26 +132,10 @@ class MyCentralManager2 extends MyCentralManager
     }
     final addressArgs = peripheral.address;
     final servicesArgs = await _api.discoverGATT(addressArgs);
-    // 发现 GATT 后再协商 MTU，不可以先协商 MTU，会造成发现 GATT 无法完成
-    try {
-      await _api.requestMTU(addressArgs, 517);
-    } catch (error, stackTrace) {
-      // 忽略协商 MTU 错误
-      logger.warning('requstMTU failed.', error, stackTrace);
-    }
     final services = servicesArgs
         .cast<MyGattServiceArgs>()
-        .map((args) => args.toService2())
+        .map((args) => args.toService2(peripheral))
         .toList();
-    for (var service in services) {
-      for (var characteristic in service.characteristics) {
-        for (var descriptor in characteristic.descriptors) {
-          descriptor.characteristic = characteristic;
-        }
-        characteristic.service = service;
-      }
-      service.peripheral = peripheral;
-    }
     final characteristics =
         services.expand((service) => service.characteristics).toList();
     _characteristics[addressArgs] = {
@@ -163,8 +153,7 @@ class MyCentralManager2 extends MyCentralManager
     if (characteristic is! MyGattCharacteristic2) {
       throw TypeError();
     }
-    final service = characteristic.service;
-    final peripheral = service.peripheral;
+    final peripheral = characteristic.peripheral;
     final addressArgs = peripheral.address;
     final hashCodeArgs = characteristic.hashCode;
     final value = await _api.readCharacteristic(addressArgs, hashCodeArgs);
@@ -181,8 +170,7 @@ class MyCentralManager2 extends MyCentralManager
     if (characteristic is! MyGattCharacteristic2) {
       throw TypeError();
     }
-    final service = characteristic.service;
-    final peripheral = service.peripheral;
+    final peripheral = characteristic.peripheral;
     final addressArgs = peripheral.address;
     final hashCodeArgs = characteristic.hashCode;
     final valueArgs = value;
@@ -221,8 +209,7 @@ class MyCentralManager2 extends MyCentralManager
     if (characteristic is! MyGattCharacteristic2) {
       throw TypeError();
     }
-    final service = characteristic.service;
-    final peripheral = service.peripheral;
+    final peripheral = characteristic.peripheral;
     final addressArgs = peripheral.address;
     final hashCodeArgs = characteristic.hashCode;
     final stateArgs = state
@@ -244,9 +231,7 @@ class MyCentralManager2 extends MyCentralManager
     if (descriptor is! MyGattDescriptor2) {
       throw TypeError();
     }
-    final characteristic = descriptor.characteristic;
-    final service = characteristic.service;
-    final peripheral = service.peripheral;
+    final peripheral = descriptor.peripheral;
     final addressArgs = peripheral.address;
     final hashCodeArgs = descriptor.hashCode;
     final value = await _api.readDescriptor(addressArgs, hashCodeArgs);
@@ -262,9 +247,7 @@ class MyCentralManager2 extends MyCentralManager
     if (descriptor is! MyGattDescriptor2) {
       throw TypeError();
     }
-    final characteristic = descriptor.characteristic;
-    final service = characteristic.service;
-    final peripheral = service.peripheral;
+    final peripheral = descriptor.peripheral;
     final addressArgs = peripheral.address;
     final hashCodeArgs = descriptor.hashCode;
     final valueArgs = value;

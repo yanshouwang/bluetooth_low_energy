@@ -1,3 +1,7 @@
+## 5.0.0-dev.1
+
+* Update dependency.
+
 ## 4.0.0
 
 * Remove `BluetoothLowEnergy` class.

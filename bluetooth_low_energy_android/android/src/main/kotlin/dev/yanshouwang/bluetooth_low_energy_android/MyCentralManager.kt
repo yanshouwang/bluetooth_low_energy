@@ -368,9 +368,9 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
         val device = result.device
         val peripheralArgs = device.toPeripheralArgs()
         val addressArgs = peripheralArgs.addressArgs
-        this.mDevices[addressArgs] = device
         val rssiArgs = result.rssi.toLong()
         val advertisementArgs = result.advertisementArgs
+        mDevices[addressArgs] = device
         mApi.onDiscovered(peripheralArgs, rssiArgs, advertisementArgs) {}
     }
 
@@ -570,6 +570,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
         mGATTs.clear()
         mCharacteristics.clear()
         mDescriptors.clear()
+        
         mSetUpCallback = null
         mStartDiscoveryCallback = null
         mConnectCallbacks.clear()

@@ -4,11 +4,12 @@ import 'my_gatt_characteristic2.dart';
 import 'my_peripheral2.dart';
 
 class MyGattService2 extends MyGattService {
-  late final MyPeripheral2 peripheral;
+  final MyPeripheral2 peripheral;
   @override
   final int hashCode;
 
   MyGattService2({
+    required this.peripheral,
     required this.hashCode,
     required super.uuid,
     required List<MyGattCharacteristic2> characteristics,
@@ -20,6 +21,8 @@ class MyGattService2 extends MyGattService {
 
   @override
   bool operator ==(Object other) {
-    return other is MyGattService2 && other.hashCode == hashCode;
+    return other is MyGattService2 &&
+        other.peripheral == peripheral &&
+        other.hashCode == hashCode;
   }
 }
