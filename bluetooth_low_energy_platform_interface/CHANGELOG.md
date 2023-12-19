@@ -1,3 +1,7 @@
+## 5.0.0-dev.6
+
+* Remove the final modifier form `MyGattCharacteristic#value` and `MyGattDescriptor#value` and trim by 512 bytes.
+
 ## 5.0.0-dev.5
 
 * Move `CentralManager#state` to `CentralManager#getState()`.
