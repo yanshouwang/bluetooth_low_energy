@@ -29,18 +29,18 @@ namespace bluetooth_low_energy_windows
 		MyCentralManager& operator=(const MyCentralManager&) = delete;
 
 		// 通过 MyCentralManagerHostApi 继承
-		void SetUp(std::function<void(ErrorOr<MyCentralManagerArgs> reply)> result) override;
+		void SetUp(std::function<void(std::optional<FlutterError>reply)> result) override;
+		ErrorOr<int64_t> GetState() override;
 		std::optional<FlutterError> StartDiscovery() override;
 		std::optional<FlutterError> StopDiscovery() override;
 		void Connect(int64_t address_args, std::function<void(std::optional<FlutterError>reply)> result) override;
 		std::optional<FlutterError> Disconnect(int64_t address_args) override;
-		std::optional<FlutterError> ClearGATT(int64_t address_args) override;
 		void DiscoverServices(int64_t address_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result) override;
 		void DiscoverCharacteristics(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result) override;
 		void DiscoverDescriptors(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result) override;
 		void ReadCharacteristic(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<std::vector<uint8_t>>reply)> result) override;
 		void WriteCharacteristic(int64_t address_args, int64_t handle_args, const std::vector<uint8_t>& value_args, int64_t type_number_args, std::function<void(std::optional<FlutterError>reply)> result) override;
-		void NotifyCharacteristic(int64_t address_args, int64_t handle_args, int64_t state_number_args, std::function<void(std::optional<FlutterError>reply)> result) override;
+		void SetCharacteristicNotifyState(int64_t address_args, int64_t handle_args, int64_t state_number_args, std::function<void(std::optional<FlutterError>reply)> result) override;
 		void ReadDescriptor(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<std::vector<uint8_t>>reply)> result) override;
 		void WriteDescriptor(int64_t address_args, int64_t handle_args, const std::vector<uint8_t>& value_args, std::function<void(std::optional<FlutterError>reply)> result) override;
 	private:
@@ -48,6 +48,7 @@ namespace bluetooth_low_energy_windows
 		std::optional<BluetoothLEAdvertisementWatcher> m_watcher;
 		std::optional<BluetoothAdapter> m_adapter;
 		std::optional<Radio> m_radio;
+		std::optional<RadioState> m_radio_state;
 		std::map<int64_t, std::optional<BluetoothLEDevice>> m_devices;
 		std::map<int64_t, std::map<int64_t, std::optional<GattDeviceService>>> m_services;
 		std::map<int64_t, std::map<int64_t, std::optional<GattCharacteristic>>> m_characteristics;
@@ -55,22 +56,21 @@ namespace bluetooth_low_energy_windows
 		std::optional<BluetoothLEAdvertisementWatcher::Received_revoker> m_watcher_received_revoker;
 		std::optional<Radio::StateChanged_revoker> m_radio_state_changed_revoker;
 		std::map<int64_t, std::optional<BluetoothLEDevice::ConnectionStatusChanged_revoker>> m_device_connection_status_changed_revokers;
-		std::map<int64_t, std::list<std::optional<GattCharacteristic::ValueChanged_revoker>>> m_characteristic_value_changed_revokers;
+		std::map<int64_t, std::map<int64_t, std::optional<GattCharacteristic::ValueChanged_revoker>>> m_characteristic_value_changed_revokers;
 
-		fire_and_forget m_set_up(std::function<void(ErrorOr<MyCentralManagerArgs> reply)> result);
+		fire_and_forget m_set_up(std::function<void(std::optional<FlutterError>reply)> result);
 		fire_and_forget m_connect(int64_t address_args, std::function<void(std::optional<FlutterError>reply)> result);
 		fire_and_forget m_discover_services(int64_t address_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
 		fire_and_forget m_discover_characteristics(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
 		fire_and_forget m_discover_descriptors(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
 		fire_and_forget m_read_characteristic(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result);
 		fire_and_forget m_write_characteristic(int64_t address_args, int64_t handle_args, const std::vector<uint8_t>& value_args, int64_t type_number_args, std::function<void(std::optional<FlutterError> reply)> result);
-		fire_and_forget m_notify_characteristic(int64_t address_args, int64_t handle_args, int64_t state_number_args, std::function<void(std::optional<FlutterError> reply)> result);
+		fire_and_forget m_set_characteristic_notify_state(int64_t address_args, int64_t handle_args, int64_t state_number_args, std::function<void(std::optional<FlutterError> reply)> result);
 		fire_and_forget m_read_descriptor(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result);
 		fire_and_forget m_write_descriptor(int64_t address_args, int64_t handle_args, const std::vector<uint8_t>& value_args, std::function<void(std::optional<FlutterError> reply)> result);
 
 		void m_clear_state();
 		void m_clear_device(int64_t address_args);
-		void m_clear_gatt(int64_t address_args);
 		MyBluetoothLowEnergyStateArgs m_radio_state_to_args(RadioState state);
 		MyAdvertisementArgs m_advertisement_to_args(const BluetoothLEAdvertisement& advertisement);
 		MyPeripheralArgs m_address_to_peripheral_args(uint64_t address);

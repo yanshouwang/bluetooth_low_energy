@@ -55,6 +55,8 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       theme: ThemeData.light(
         useMaterial3: true,
+      ).copyWith(
+        materialTapTargetSize: MaterialTapTargetSize.padded,
       ),
       home: const HomeView(),
       routes: {
@@ -102,7 +104,7 @@ class _ScannerViewState extends State<ScannerView> {
   @override
   void initState() {
     super.initState();
-    state = ValueNotifier(CentralManager.instance.state);
+    state = ValueNotifier(BluetoothLowEnergyState.unknown);
     discovering = ValueNotifier(false);
     discoveredEventArgs = ValueNotifier([]);
     stateChangedSubscription = CentralManager.instance.stateChanged.listen(
@@ -128,6 +130,11 @@ class _ScannerViewState extends State<ScannerView> {
         }
       },
     );
+    setUp();
+  }
+
+  void setUp() async {
+    state.value = await CentralManager.instance.getState();
   }
 
   @override
@@ -323,7 +330,7 @@ class PeripheralView extends StatefulWidget {
 }
 
 class _PeripheralViewState extends State<PeripheralView> {
-  late final ValueNotifier<bool> state;
+  late final ValueNotifier<bool> connectionState;
   late final DiscoveredEventArgs eventArgs;
   late final ValueNotifier<List<GattService>> services;
   late final ValueNotifier<List<GattCharacteristic>> characteristics;
@@ -332,14 +339,14 @@ class _PeripheralViewState extends State<PeripheralView> {
   late final ValueNotifier<GattCharacteristicWriteType> writeType;
   late final ValueNotifier<List<Log>> logs;
   late final TextEditingController writeController;
-  late final StreamSubscription stateChangedSubscription;
-  late final StreamSubscription valueChangedSubscription;
+  late final StreamSubscription connectionStateChangedSubscription;
+  late final StreamSubscription characteristicNotifiedSubscription;
 
   @override
   void initState() {
     super.initState();
     eventArgs = widget.eventArgs;
-    state = ValueNotifier(false);
+    connectionState = ValueNotifier(false);
     services = ValueNotifier([]);
     characteristics = ValueNotifier([]);
     service = ValueNotifier(null);
@@ -347,15 +354,15 @@ class _PeripheralViewState extends State<PeripheralView> {
     writeType = ValueNotifier(GattCharacteristicWriteType.withResponse);
     logs = ValueNotifier([]);
     writeController = TextEditingController();
-    stateChangedSubscription =
-        CentralManager.instance.peripheralStateChanged.listen(
+    connectionStateChangedSubscription =
+        CentralManager.instance.connectionStateChanged.listen(
       (eventArgs) {
         if (eventArgs.peripheral != this.eventArgs.peripheral) {
           return;
         }
-        final state = eventArgs.state;
-        this.state.value = state;
-        if (!state) {
+        final connectionState = eventArgs.connectionState;
+        this.connectionState.value = connectionState;
+        if (!connectionState) {
           services.value = [];
           characteristics.value = [];
           service.value = null;
@@ -364,8 +371,8 @@ class _PeripheralViewState extends State<PeripheralView> {
         }
       },
     );
-    valueChangedSubscription =
-        CentralManager.instance.characteristicValueChanged.listen(
+    characteristicNotifiedSubscription =
+        CentralManager.instance.characteristicNotified.listen(
       (eventArgs) {
         // final characteristic = this.characteristic.value;
         // if (eventArgs.characteristic != characteristic) {
@@ -385,7 +392,7 @@ class _PeripheralViewState extends State<PeripheralView> {
   Widget build(BuildContext context) {
     return PopScope(
       onPopInvoked: (didPop) async {
-        if (state.value) {
+        if (connectionState.value) {
           final peripheral = eventArgs.peripheral;
           await CentralManager.instance.disconnect(peripheral);
         }
@@ -403,7 +410,7 @@ class _PeripheralViewState extends State<PeripheralView> {
       title: Text(title),
       actions: [
         ValueListenableBuilder(
-          valueListenable: state,
+          valueListenable: connectionState,
           builder: (context, state, child) {
             return TextButton(
               onPressed: () async {
@@ -596,38 +603,40 @@ class _PeripheralViewState extends State<PeripheralView> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        onPressed: characteristic != null && canNotify
-                            ? () async {
-                                await CentralManager.instance
-                                    .notifyCharacteristic(
-                                  characteristic,
-                                  state: true,
-                                );
-                              }
-                            : null,
-                        child: const Text('NOTIFY'),
-                      ),
-                      const SizedBox(width: 8.0),
-                      ElevatedButton(
-                        onPressed: characteristic != null && canRead
-                            ? () async {
-                                final value = await CentralManager.instance
-                                    .readCharacteristic(characteristic);
-                                const type = LogType.read;
-                                final log = Log(type, value);
-                                logs.value = [...logs.value, log];
-                              }
-                            : null,
-                        child: const Text('READ'),
-                      )
-                    ],
-                  ),
                   Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    margin: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton(
+                          onPressed: characteristic != null && canNotify
+                              ? () async {
+                                  await CentralManager.instance
+                                      .setCharacteristicNotifyState(
+                                    characteristic,
+                                    state: true,
+                                  );
+                                }
+                              : null,
+                          child: const Text('NOTIFY'),
+                        ),
+                        const SizedBox(width: 8.0),
+                        ElevatedButton(
+                          onPressed: characteristic != null && canRead
+                              ? () async {
+                                  final value = await CentralManager.instance
+                                      .readCharacteristic(characteristic);
+                                  const type = LogType.read;
+                                  final log = Log(type, value);
+                                  logs.value = [...logs.value, log];
+                                }
+                              : null,
+                          child: const Text('READ'),
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(
                     height: 160.0,
                     child: TextField(
                       controller: writeController,
@@ -737,9 +746,9 @@ class _PeripheralViewState extends State<PeripheralView> {
   @override
   void dispose() {
     super.dispose();
-    stateChangedSubscription.cancel();
-    valueChangedSubscription.cancel();
-    state.dispose();
+    connectionStateChangedSubscription.cancel();
+    characteristicNotifiedSubscription.cancel();
+    connectionState.dispose();
     services.dispose();
     characteristics.dispose();
     service.dispose();

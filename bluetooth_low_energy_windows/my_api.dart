@@ -60,18 +60,6 @@ class MyAdvertisementArgs {
   );
 }
 
-class MyCentralManagerArgs {
-  final int stateNumberArgs;
-
-  MyCentralManagerArgs(this.stateNumberArgs);
-}
-
-class MyPeripheralManagerArgs {
-  final int stateNumberArgs;
-
-  MyPeripheralManagerArgs(this.stateNumberArgs);
-}
-
 class MyCentralArgs {
   final int addressArgs;
 
@@ -125,13 +113,13 @@ class MyGattServiceArgs {
 @HostApi()
 abstract class MyCentralManagerHostApi {
   @async
-  MyCentralManagerArgs setUp();
+  void setUp();
+  int getState();
   void startDiscovery();
   void stopDiscovery();
   @async
   void connect(int addressArgs);
   void disconnect(int addressArgs);
-  void clearGATT(int addressArgs);
   @async
   List<MyGattServiceArgs> discoverServices(int addressArgs);
   @async
@@ -154,7 +142,7 @@ abstract class MyCentralManagerHostApi {
     int typeNumberArgs,
   );
   @async
-  void notifyCharacteristic(
+  void setCharacteristicNotifyState(
     int addressArgs,
     int handleArgs,
     int stateNumberArgs,
@@ -173,11 +161,11 @@ abstract class MyCentralManagerFlutterApi {
     int rssiArgs,
     MyAdvertisementArgs advertisementArgs,
   );
-  void onPeripheralStateChanged(
+  void onConnectionStateChanged(
     int addressArgs,
     bool stateArgs,
   );
-  void onCharacteristicValueChanged(
+  void onCharacteristicNotified(
     int addressArgs,
     int handleArgs,
     Uint8List valueArgs,
@@ -187,7 +175,8 @@ abstract class MyCentralManagerFlutterApi {
 @HostApi()
 abstract class MyPeripheralManagerHostApi {
   @async
-  MyPeripheralManagerArgs setUp();
+  void setUp();
+  int getState();
   @async
   void addService(MyGattServiceArgs serviceArgs);
   void removeService(int handleArgs);
@@ -198,20 +187,16 @@ abstract class MyPeripheralManagerHostApi {
   void sendReadCharacteristicReply(
     int addressArgs,
     int handleArgs,
-    int idArgs,
-    int offsetArgs,
     bool statusArgs,
     Uint8List valueArgs,
   );
   void sendWriteCharacteristicReply(
     int addressArgs,
     int handleArgs,
-    int idArgs,
-    int offsetArgs,
     bool statusArgs,
   );
   @async
-  void notifyCharacteristicValueChanged(
+  void notifyCharacteristic(
     int addressArgs,
     int handleArgs,
     Uint8List valueArgs,
@@ -224,17 +209,13 @@ abstract class MyPeripheralManagerFlutterApi {
   void onReadCharacteristicCommandReceived(
     MyCentralArgs centralArgs,
     int handleArgs,
-    int idArgs,
-    int offsetArgs,
   );
   void onWriteCharacteristicCommandReceived(
     MyCentralArgs centralArgs,
     int handleArgs,
-    int idArgs,
-    int offsetArgs,
     Uint8List valueArgs,
   );
-  void onNotifyCharacteristicCommandReceived(
+  void onCharacteristicNotifyStateChanged(
     MyCentralArgs centralArgs,
     int handleArgs,
     bool stateArgs,

@@ -25,9 +25,17 @@ namespace bluetooth_low_energy_windows
 	{
 	}
 
-	void MyCentralManager::SetUp(std::function<void(ErrorOr<MyCentralManagerArgs> reply)> result)
+	void MyCentralManager::SetUp(std::function<void(std::optional<FlutterError>reply)> result)
 	{
 		m_set_up(std::move(result));
+	}
+
+	ErrorOr<int64_t> MyCentralManager::GetState()
+	{
+		const auto radio_state = *m_radio_state;
+		const auto state_args = m_radio_state_to_args(radio_state);
+		const auto state_number_args = static_cast<int64_t>(state_args);
+		return state_number_args;
 	}
 
 	std::optional<FlutterError> MyCentralManager::StartDiscovery()
@@ -52,7 +60,7 @@ namespace bluetooth_low_energy_windows
 		try
 		{
 			m_clear_device(address_args);
-			m_api->OnPeripheralStateChanged(address_args, false, [] {}, [](auto error) {});
+			m_api->OnConnectionStateChanged(address_args, false, [] {}, [](auto error) {});
 			return std::nullopt;
 		}
 		catch (const std::exception& ex)
@@ -64,26 +72,6 @@ namespace bluetooth_low_energy_windows
 		catch (...) {
 			const auto code = "unhandled exception";
 			const auto message = "Disconnect failed with unhandled exception.";
-			return FlutterError(code, message);
-		}
-	}
-
-	std::optional<FlutterError> MyCentralManager::ClearGATT(int64_t address_args)
-	{
-		try
-		{
-			m_clear_gatt(address_args);
-			return std::nullopt;
-		}
-		catch (const std::exception& ex)
-		{
-			const auto code = "std::exception";
-			const auto message = ex.what();
-			return FlutterError(code, message);
-		}
-		catch (...) {
-			const auto code = "unhandled exception";
-			const auto message = "Clear GATT failed with unhandled exception.";
 			return FlutterError(code, message);
 		}
 	}
@@ -113,9 +101,9 @@ namespace bluetooth_low_energy_windows
 		m_write_characteristic(address_args, handle_args, value_args, type_number_args, std::move(result));
 	}
 
-	void MyCentralManager::NotifyCharacteristic(int64_t address_args, int64_t handle_args, int64_t state_number_args, std::function<void(std::optional<FlutterError>reply)> result)
+	void MyCentralManager::SetCharacteristicNotifyState(int64_t address_args, int64_t handle_args, int64_t state_number_args, std::function<void(std::optional<FlutterError>reply)> result)
 	{
-		m_notify_characteristic(address_args, handle_args, state_number_args, std::move(result));
+		m_set_characteristic_notify_state(address_args, handle_args, state_number_args, std::move(result));
 	}
 
 	void MyCentralManager::ReadDescriptor(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<std::vector<uint8_t>>reply)> result)
@@ -128,7 +116,7 @@ namespace bluetooth_low_energy_windows
 		m_write_descriptor(address_args, handle_args, value_args, std::move(result));
 	}
 
-	fire_and_forget MyCentralManager::m_set_up(std::function<void(ErrorOr<MyCentralManagerArgs> reply)> result)
+	fire_and_forget MyCentralManager::m_set_up(std::function<void(std::optional<FlutterError>reply)> result)
 	{
 		try
 		{
@@ -137,11 +125,19 @@ namespace bluetooth_low_energy_windows
 			if (!m_radio_state_changed_revoker) {
 				m_adapter = co_await BluetoothAdapter::GetDefaultAsync();
 				m_radio = co_await m_adapter->GetRadioAsync();
+				m_radio_state = m_radio->State();
 				m_radio_state_changed_revoker = m_radio->StateChanged(auto_revoke, [this](Radio radio, auto obj)
 					{
-						const auto state = radio.State();
-						const auto state_args = m_radio_state_to_args(state);
-						const auto state_number_args = static_cast<int64_t>(state_args);
+						const auto old_state = *m_radio_state;
+						const auto new_state = radio.State();
+						const auto old_state_args = m_radio_state_to_args(old_state);
+						const auto new_state_args = m_radio_state_to_args(new_state);
+						if (new_state_args == old_state_args)
+						{
+							return;
+						}
+						m_radio_state = new_state;
+						const auto state_number_args = static_cast<int64_t>(new_state_args);
 						m_api->OnStateChanged(state_number_args, [] {}, [](auto error) {});
 					});
 			}
@@ -165,11 +161,7 @@ namespace bluetooth_low_energy_windows
 						m_api->OnDiscovered(peripheral_args, rssi_args, advertisement_args, [] {}, [](auto error) {});
 					});
 			}
-			const auto state = m_radio->State();
-			const auto state_args = m_radio_state_to_args(state);
-			const auto state_number_args = static_cast<int64_t>(state_args);
-			const auto args = MyCentralManagerArgs(state_number_args);
-			result(args);
+			result(std::nullopt);
 		}
 		catch (const winrt::hresult_error& ex) {
 			const auto code = "winrt::hresult_error";
@@ -212,14 +204,14 @@ namespace bluetooth_low_energy_windows
 				throw MyException(message);
 			}
 			m_devices[address_args] = device;
-			m_api->OnPeripheralStateChanged(address_args, true, [] {}, [](auto error) {});
+			m_api->OnConnectionStateChanged(address_args, true, [] {}, [](auto error) {});
 			m_device_connection_status_changed_revokers[address_args] = device.ConnectionStatusChanged(auto_revoke, [this](BluetoothLEDevice device, auto obj)
 				{
 					const auto address = device.BluetoothAddress();
 					const auto status = device.ConnectionStatus();
 					const auto address_args = static_cast<int64_t>(address);
 					const auto state_args = status == BluetoothConnectionStatus::Connected;
-					m_api->OnPeripheralStateChanged(address_args, state_args, [] {}, [](auto error) {});
+					m_api->OnConnectionStateChanged(address_args, state_args, [] {}, [](auto error) {});
 					if (status == BluetoothConnectionStatus::Disconnected)
 					{
 						m_clear_device(address_args);
@@ -331,7 +323,8 @@ namespace bluetooth_low_energy_windows
 				const auto& characteristic_args_value = m_characteristic_to_args(characteristic);
 				const auto characteristic_args = flutter::CustomEncodableValue(characteristic_args_value);
 				const auto characteristic_handle_args = characteristic_args_value.handle_args();
-				auto revoker = characteristic.ValueChanged(auto_revoke, [this, address_args](const GattCharacteristic& characteristic, const GattValueChangedEventArgs& event_args)
+				characteristics[characteristic_handle_args] = characteristic;
+				revokers[characteristic_handle_args] = characteristic.ValueChanged(auto_revoke, [this, address_args](const GattCharacteristic& characteristic, const GattValueChangedEventArgs& event_args)
 					{
 						const auto handle = characteristic.AttributeHandle();
 						const auto handle_args = static_cast<int64_t>(handle);
@@ -339,11 +332,9 @@ namespace bluetooth_low_energy_windows
 						const auto& begin = value.data();
 						const auto& end = begin + value.Length();
 						const auto value_args = std::vector<uint8_t>(begin, end);
-						m_api->OnCharacteristicValueChanged(address_args, handle_args, value_args, []() {}, [](const auto& error) {});
+						m_api->OnCharacteristicNotified(address_args, handle_args, value_args, []() {}, [](const auto& error) {});
 					});
-				characteristics[characteristic_handle_args] = characteristic;
 				characteristics_args.emplace_back(characteristic_args);
-				revokers.emplace_back(std::move(revoker));
 			}
 			result(characteristics_args);
 		}
@@ -502,7 +493,7 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	fire_and_forget MyCentralManager::m_notify_characteristic(int64_t address_args, int64_t handle_args, int64_t state_number_args, std::function<void(std::optional<FlutterError>reply)> result)
+	fire_and_forget MyCentralManager::m_set_characteristic_notify_state(int64_t address_args, int64_t handle_args, int64_t state_number_args, std::function<void(std::optional<FlutterError>reply)> result)
 	{
 		try
 		{
@@ -646,14 +637,9 @@ namespace bluetooth_low_energy_windows
 	void MyCentralManager::m_clear_device(int64_t address_args)
 	{
 		// 通过释放连接实例，触发断开连接
-		m_clear_gatt(address_args);
 		m_device_connection_status_changed_revokers.erase(address_args);
-		m_devices.erase(address_args);
-	}
-
-	void MyCentralManager::m_clear_gatt(int64_t address_args)
-	{
 		m_characteristic_value_changed_revokers.erase(address_args);
+		m_devices.erase(address_args);
 		m_services.erase(address_args);
 		m_characteristics.erase(address_args);
 		m_descriptors.erase(address_args);
@@ -665,11 +651,11 @@ namespace bluetooth_low_energy_windows
 		{
 		case RadioState::Unknown:
 			return MyBluetoothLowEnergyStateArgs::unknown;
+		case RadioState::Disabled:
+		case RadioState::Off:
+			return MyBluetoothLowEnergyStateArgs::poweredOff;
 		case RadioState::On:
 			return MyBluetoothLowEnergyStateArgs::poweredOn;
-		case RadioState::Off:
-		case RadioState::Disabled:
-			return MyBluetoothLowEnergyStateArgs::poweredOff;
 		default:
 			return MyBluetoothLowEnergyStateArgs::unknown;
 		}
