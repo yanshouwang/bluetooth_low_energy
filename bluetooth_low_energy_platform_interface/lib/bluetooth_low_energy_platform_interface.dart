@@ -28,8 +28,6 @@ export 'src/gatt_characteristic.dart';
 export 'src/gatt_characteristic_property.dart';
 export 'src/gatt_characteristic_write_type.dart';
 export 'src/gatt_descriptor.dart';
-export 'src/my_central_manager.dart';
-export 'src/my_peripheral_manager.dart';
 export 'src/my_bluetooth_low_energy_peer.dart';
 export 'src/my_central.dart';
 export 'src/my_peripheral.dart';

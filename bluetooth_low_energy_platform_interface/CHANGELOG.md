@@ -14,6 +14,7 @@
 * Remove `PeripheralManager#sendReadCharacteristicReply` and `PeripheralManager#sendWriteCharacteristicReply`.
 * Add `GattCharacteristicReadEventArgs` to `GattCharacteristicWrittenEventArgs`.
 * Move `PeripheralManager#notifyCharacteristicValueChanged` to `PeripheralManager#notifyCharacteristic`.
+* Remove `MyCentralManager` and `MyPeripheralManager`.
 
 ## 5.0.0-dev.4
 
