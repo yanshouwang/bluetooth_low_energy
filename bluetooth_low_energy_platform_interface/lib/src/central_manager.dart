@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'bluetooth_low_energy_manager.dart';
-import 'central_manager_event_args.dart';
+import 'central_event_args.dart';
 import 'gatt_characteristic.dart';
 import 'gatt_characteristic_write_type.dart';
 import 'gatt_descriptor.dart';
@@ -17,12 +17,11 @@ abstract class CentralManager extends BluetoothLowEnergyManager {
   /// Tells the central manager discovered a peripheral while scanning for devices.
   Stream<DiscoveredEventArgs> get discovered;
 
-  /// Tells that retrieving the specified peripheral's state changed.
-  Stream<PeripheralStateChangedEventArgs> get peripheralStateChanged;
+  /// Tells that retrieving the specified peripheral's connection lost.
+  Stream<ConnectionStateChangedEventArgs> get connectionStateChanged;
 
   /// Tells that retrieving the specified characteristic’s value changed.
-  Stream<GattCharacteristicValueChangedEventArgs>
-      get characteristicValueChanged;
+  Stream<GattCharacteristicNotifiedEventArgs> get characteristicNotified;
 
   /// Scans for peripherals that are advertising services.
   Future<void> startDiscovery();
@@ -53,7 +52,7 @@ abstract class CentralManager extends BluetoothLowEnergyManager {
   });
 
   /// Sets notifications or indications for the value of a specified characteristic.
-  Future<void> notifyCharacteristic(
+  Future<void> setCharacteristicNotifyState(
     GattCharacteristic characteristic, {
     required bool state,
   });

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'gatt_attribute.dart';
 import 'gatt_characteristic_property.dart';
 import 'gatt_descriptor.dart';
@@ -17,11 +19,13 @@ abstract class GattCharacteristic extends GattAttribute {
   factory GattCharacteristic({
     required UUID uuid,
     required List<GattCharacteristicProperty> properties,
+    required Uint8List value,
     required List<GattDescriptor> descriptors,
   }) =>
       MyGattCharacteristic(
         uuid: uuid,
         properties: properties,
+        value: value,
         descriptors: descriptors.cast<MyGattDescriptor>(),
       );
 }

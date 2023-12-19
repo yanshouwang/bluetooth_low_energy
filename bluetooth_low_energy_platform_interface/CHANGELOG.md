@@ -1,3 +1,20 @@
+## 5.0.0-dev.5
+
+* Move `CentralManager#state` to `CentralManager#getState()`.
+* Move `PeripheralStateChangedEventArgs` to `ConnectionStateChangedEventArgs`.
+* Move `GattCharacteristicValueChangedEventArgs` to `GattCharacteristicNotifiedEventArgs`.
+* Move `CentralManager#peripheralStateChanged` to `CentralManager#connectionStateChanged`.
+* Move `CentralManager#characteristicValueChanged` to `CentralManager#characteristicNotified`.
+* Move `CentralManager#notifyCharacteristic` to `CentralManager#setCharacteristicNotifyState`.
+* Remove `ReadGattCharacteristicCommandEventArgs` and `WriteGattCharacteristicCommandEventArgs`.
+* Move `NotifyGattCharacteristicCommandEventArgs` to `GattCharacteristicNotifyStateChangedEventArgs`.
+* Remove `PeripheralManager#readCharacteristicCommandReceived` to `PeripheralManager#writeCharacteristicCommandReceived`.
+* Add `PeripheralManager#characteristicRead` to `PeripheralManager#characteristicWritten`.
+* Move `PeripheralManager#notifyCharacteristicCommandReceived` to `PeripheralManager#characteristicNotifyStateChanged`.
+* Remove `PeripheralManager#sendReadCharacteristicReply` and `PeripheralManager#sendWriteCharacteristicReply`.
+* Add `GattCharacteristicReadEventArgs` to `GattCharacteristicWrittenEventArgs`.
+* Move `PeripheralManager#notifyCharacteristicValueChanged` to `PeripheralManager#notifyCharacteristic`.
+
 ## 5.0.0-dev.4
 
 * Optimize `MyGattService` and `MyGattCharacteristic`.
