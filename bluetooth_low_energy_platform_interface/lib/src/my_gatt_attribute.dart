@@ -12,9 +12,8 @@ abstract class MyGattAttribute implements GattAttribute {
   });
 }
 
-extension Uint8ListX on Uint8List {
+extension MyGattAttributeUint8List on Uint8List {
   Uint8List trimGATT() {
-    final elements = take(512).toList();
-    return Uint8List.fromList(elements);
+    return sublist(0, 512);
   }
 }

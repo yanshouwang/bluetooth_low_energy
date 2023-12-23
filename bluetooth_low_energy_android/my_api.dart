@@ -38,6 +38,20 @@ enum MyGattCharacteristicNotifyStateArgs {
   indicate,
 }
 
+enum MyGattStatusArgs {
+  success,
+  readNotPermitted,
+  writeNotPermitted,
+  requestNotSupported,
+  invalidOffset,
+  insufficientAuthentication,
+  insufficientAuthorization,
+  insufficientEncryption,
+  invalidAttributeLength,
+  connectionCongested,
+  failure,
+}
+
 class MyManufacturerSpecificDataArgs {
   final int idArgs;
   final Uint8List dataArgs;
@@ -57,18 +71,6 @@ class MyAdvertisementArgs {
     this.serviceDataArgs,
     this.manufacturerSpecificDataArgs,
   );
-}
-
-class MyCentralManagerArgs {
-  final int stateNumberArgs;
-
-  MyCentralManagerArgs(this.stateNumberArgs);
-}
-
-class MyPeripheralManagerArgs {
-  final int stateNumberArgs;
-
-  MyPeripheralManagerArgs(this.stateNumberArgs);
 }
 
 class MyCentralArgs {
@@ -124,7 +126,8 @@ class MyGattServiceArgs {
 @HostApi()
 abstract class MyCentralManagerHostApi {
   @async
-  MyCentralManagerArgs setUp();
+  void setUp();
+  int getState();
   @async
   void startDiscovery();
   void stopDiscovery();
@@ -148,7 +151,7 @@ abstract class MyCentralManagerHostApi {
     int typeNumberArgs,
   );
   @async
-  void notifyCharacteristic(
+  void setCharacteristicNotifyState(
     String addressArgs,
     int hashCodeArgs,
     int stateNumberArgs,
@@ -171,9 +174,9 @@ abstract class MyCentralManagerFlutterApi {
     int rssiArgs,
     MyAdvertisementArgs advertisementArgs,
   );
-  void onPeripheralStateChanged(String addressArgs, bool stateArgs);
+  void onConnectionStateChanged(String addressArgs, bool stateArgs);
   void onMtuChanged(String addressArgs, int mtuArgs);
-  void onCharacteristicValueChanged(
+  void onCharacteristicNotified(
     String addressArgs,
     int hashCodeArgs,
     Uint8List valueArgs,
@@ -183,7 +186,8 @@ abstract class MyCentralManagerFlutterApi {
 @HostApi()
 abstract class MyPeripheralManagerHostApi {
   @async
-  MyPeripheralManagerArgs setUp();
+  void setUp();
+  int getState();
   @async
   void addService(MyGattServiceArgs serviceArgs);
   void removeService(int hashCodeArgs);
@@ -191,21 +195,15 @@ abstract class MyPeripheralManagerHostApi {
   @async
   void startAdvertising(MyAdvertisementArgs advertisementArgs);
   void stopAdvertising();
-  void sendReadCharacteristicReply(
+  void sendResponse(
     String addressArgs,
     int idArgs,
+    int statusNumberArgs,
     int offsetArgs,
-    bool statusArgs,
-    Uint8List valueArgs,
-  );
-  void sendWriteCharacteristicReply(
-    String addressArgs,
-    int idArgs,
-    int offsetArgs,
-    bool statusArgs,
+    Uint8List? valueArgs,
   );
   @async
-  void notifyCharacteristicValueChanged(
+  void notifyCharacteristicChanged(
     String addressArgs,
     int hashCodeArgs,
     bool confirmArgs,
@@ -216,22 +214,29 @@ abstract class MyPeripheralManagerHostApi {
 @FlutterApi()
 abstract class MyPeripheralManagerFlutterApi {
   void onStateChanged(int stateNumberArgs);
-  void onCentralStateChanged(MyCentralArgs centralArgs, bool stateArgs);
+  void onConnectionStateChanged(MyCentralArgs centralArgs, bool stateArgs);
   void onMtuChanged(String addressArgs, int mtuArgs);
-  void onReadCharacteristicCommandReceived(
+  void onCharacteristicReadRequest(
     String addressArgs,
     int hashCodeArgs,
     int idArgs,
     int offsetArgs,
   );
-  void onWriteCharacteristicCommandReceived(
+  void onCharacteristicWriteRequest(
     String addressArgs,
     int hashCodeArgs,
     int idArgs,
     int offsetArgs,
     Uint8List valueArgs,
+    bool preparedWrite,
+    bool responseNeeded,
   );
-  void onNotifyCharacteristicCommandReceived(
+  void onExecuteWrite(
+    String addressArgs,
+    int idArgs,
+    bool execute,
+  );
+  void onCharacteristicNotifyStateChanged(
     String addressArgs,
     int hashCodeArgs,
     int stateNumberArgs,

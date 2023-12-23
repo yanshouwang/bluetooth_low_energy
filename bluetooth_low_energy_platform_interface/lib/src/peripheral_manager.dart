@@ -66,6 +66,8 @@ abstract class PeripheralManager extends PlatformInterface
   Future<void> stopAdvertising();
 
   /// Sends an updated characteristic value to one or more subscribed centrals, using a notification or indication.
+  ///
+  /// The maximum size of the value is 512, all bytes that exceed this size will be discarded.
   Future<void> notifyCharacteristic(
     GattCharacteristic characteristic, {
     required Uint8List value,

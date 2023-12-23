@@ -73,6 +73,8 @@ abstract class CentralManager extends PlatformInterface
   Future<Uint8List> readCharacteristic(GattCharacteristic characteristic);
 
   /// Writes the value of a characteristic.
+  ///
+  /// The maximum size of the value is 512, all bytes that exceed this size will be discarded.
   Future<void> writeCharacteristic(
     GattCharacteristic characteristic, {
     required Uint8List value,

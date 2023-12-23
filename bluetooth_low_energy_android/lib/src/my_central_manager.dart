@@ -8,43 +8,29 @@ import 'my_gatt_characteristic2.dart';
 import 'my_gatt_descriptor2.dart';
 import 'my_peripheral2.dart';
 
-class MyCentralManager2 extends MyCentralManager
+class MyCentralManager extends CentralManager
     implements MyCentralManagerFlutterApi {
   final MyCentralManagerHostApi _api;
-  BluetoothLowEnergyState _state;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
   final StreamController<DiscoveredEventArgs> _discoveredController;
-  final StreamController<PeripheralStateChangedEventArgs>
-      _peripheralStateChangedController;
-  final StreamController<GattCharacteristicValueChangedEventArgs>
-      _characteristicValueChangedController;
+  final StreamController<ConnectionStateChangedEventArgs>
+      _connectionStateChangedController;
+  final StreamController<GattCharacteristicNotifiedEventArgs>
+      _characteristicNotifiedController;
   final Map<String, MyPeripheral2> _peripherals;
   final Map<String, Map<int, MyGattCharacteristic2>> _characteristics;
   final Map<String, int> _mtus;
 
-  MyCentralManager2()
+  MyCentralManager()
       : _api = MyCentralManagerHostApi(),
-        _state = BluetoothLowEnergyState.unknown,
         _stateChangedController = StreamController.broadcast(),
         _discoveredController = StreamController.broadcast(),
-        _peripheralStateChangedController = StreamController.broadcast(),
-        _characteristicValueChangedController = StreamController.broadcast(),
+        _connectionStateChangedController = StreamController.broadcast(),
+        _characteristicNotifiedController = StreamController.broadcast(),
         _peripherals = {},
         _characteristics = {},
         _mtus = {};
-
-  @override
-  BluetoothLowEnergyState get state => _state;
-  @protected
-  set state(BluetoothLowEnergyState value) {
-    if (_state == value) {
-      return;
-    }
-    _state = value;
-    final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
-    _stateChangedController.add(eventArgs);
-  }
 
   @override
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
@@ -52,44 +38,38 @@ class MyCentralManager2 extends MyCentralManager
   @override
   Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
   @override
-  Stream<PeripheralStateChangedEventArgs> get peripheralStateChanged =>
-      _peripheralStateChangedController.stream;
+  Stream<ConnectionStateChangedEventArgs> get connectionStateChanged =>
+      _connectionStateChangedController.stream;
   @override
-  Stream<GattCharacteristicValueChangedEventArgs>
-      get characteristicValueChanged =>
-          _characteristicValueChangedController.stream;
-
-  Future<void> _throwWithoutState(BluetoothLowEnergyState state) async {
-    if (this.state != state) {
-      throw StateError(
-          '$state is expected, but current state is ${this.state}.');
-    }
-  }
+  Stream<GattCharacteristicNotifiedEventArgs> get characteristicNotified =>
+      _characteristicNotifiedController.stream;
 
   @override
   Future<void> setUp() async {
-    final args = await _api.setUp();
-    final stateArgs =
-        MyBluetoothLowEnergyStateArgs.values[args.stateNumberArgs];
-    state = stateArgs.toState();
+    await _api.setUp();
     MyCentralManagerFlutterApi.setup(this);
   }
 
   @override
+  Future<BluetoothLowEnergyState> getState() async {
+    final stateNumberArgs = await _api.getState();
+    final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
+    final state = stateArgs.toState();
+    return state;
+  }
+
+  @override
   Future<void> startDiscovery() async {
-    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     await _api.startDiscovery();
   }
 
   @override
   Future<void> stopDiscovery() async {
-    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     await _api.stopDiscovery();
   }
 
   @override
   Future<void> connect(Peripheral peripheral) async {
-    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     if (peripheral is! MyPeripheral2) {
       throw TypeError();
     }
@@ -105,7 +85,6 @@ class MyCentralManager2 extends MyCentralManager
 
   @override
   Future<void> disconnect(Peripheral peripheral) async {
-    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     if (peripheral is! MyPeripheral2) {
       throw TypeError();
     }
@@ -115,7 +94,6 @@ class MyCentralManager2 extends MyCentralManager
 
   @override
   Future<int> readRSSI(Peripheral peripheral) async {
-    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     if (peripheral is! MyPeripheral2) {
       throw TypeError();
     }
@@ -126,7 +104,6 @@ class MyCentralManager2 extends MyCentralManager
 
   @override
   Future<List<GattService>> discoverGATT(Peripheral peripheral) async {
-    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     if (peripheral is! MyPeripheral2) {
       throw TypeError();
     }
@@ -149,7 +126,6 @@ class MyCentralManager2 extends MyCentralManager
   Future<Uint8List> readCharacteristic(
     GattCharacteristic characteristic,
   ) async {
-    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     if (characteristic is! MyGattCharacteristic2) {
       throw TypeError();
     }
@@ -166,7 +142,6 @@ class MyCentralManager2 extends MyCentralManager
     required Uint8List value,
     required GattCharacteristicWriteType type,
   }) async {
-    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     if (characteristic is! MyGattCharacteristic2) {
       throw TypeError();
     }
@@ -201,11 +176,10 @@ class MyCentralManager2 extends MyCentralManager
   }
 
   @override
-  Future<void> notifyCharacteristic(
+  Future<void> setCharacteristicNotifyState(
     GattCharacteristic characteristic, {
     required bool state,
   }) async {
-    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     if (characteristic is! MyGattCharacteristic2) {
       throw TypeError();
     }
@@ -218,7 +192,7 @@ class MyCentralManager2 extends MyCentralManager
             : MyGattCharacteristicNotifyStateArgs.indicate
         : MyGattCharacteristicNotifyStateArgs.none;
     final stateNumberArgs = stateArgs.index;
-    await _api.notifyCharacteristic(
+    await _api.setCharacteristicNotifyState(
       addressArgs,
       hashCodeArgs,
       stateNumberArgs,
@@ -227,7 +201,6 @@ class MyCentralManager2 extends MyCentralManager
 
   @override
   Future<Uint8List> readDescriptor(GattDescriptor descriptor) async {
-    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     if (descriptor is! MyGattDescriptor2) {
       throw TypeError();
     }
@@ -243,7 +216,6 @@ class MyCentralManager2 extends MyCentralManager
     GattDescriptor descriptor, {
     required Uint8List value,
   }) async {
-    await _throwWithoutState(BluetoothLowEnergyState.poweredOn);
     if (descriptor is! MyGattDescriptor2) {
       throw TypeError();
     }
@@ -258,7 +230,9 @@ class MyCentralManager2 extends MyCentralManager
   void onStateChanged(int stateNumberArgs) {
     final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
     logger.info('onStateChanged: $stateArgs');
-    state = stateArgs.toState();
+    final state = stateArgs.toState();
+    final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
+    _stateChangedController.add(eventArgs);
   }
 
   @override
@@ -284,15 +258,15 @@ class MyCentralManager2 extends MyCentralManager
   }
 
   @override
-  void onPeripheralStateChanged(String addressArgs, bool stateArgs) {
-    logger.info('onPeripheralStateChanged: $addressArgs - $stateArgs');
+  void onConnectionStateChanged(String addressArgs, bool stateArgs) {
+    logger.info('onConnectionStateChanged: $addressArgs - $stateArgs');
     final peripheral = _peripherals[addressArgs];
     if (peripheral == null) {
       return;
     }
     final state = stateArgs;
-    final eventArgs = PeripheralStateChangedEventArgs(peripheral, state);
-    _peripheralStateChangedController.add(eventArgs);
+    final eventArgs = ConnectionStateChangedEventArgs(peripheral, state);
+    _connectionStateChangedController.add(eventArgs);
     if (!state) {
       _characteristics.remove(addressArgs);
       _mtus.remove(addressArgs);
@@ -307,23 +281,23 @@ class MyCentralManager2 extends MyCentralManager
   }
 
   @override
-  void onCharacteristicValueChanged(
+  void onCharacteristicNotified(
     String addressArgs,
     int hashCodeArgs,
     Uint8List valueArgs,
   ) {
     logger.info(
-        'onCharacteristicValueChanged: $addressArgs.$hashCodeArgs - $valueArgs');
+        'onCharacteristicNotified: $addressArgs.$hashCodeArgs - $valueArgs');
     final characteristic = _retrieveCharacteristic(addressArgs, hashCodeArgs);
     if (characteristic == null) {
       return;
     }
     final value = valueArgs;
-    final eventArgs = GattCharacteristicValueChangedEventArgs(
+    final eventArgs = GattCharacteristicNotifiedEventArgs(
       characteristic,
       value,
     );
-    _characteristicValueChangedController.add(eventArgs);
+    _characteristicNotifiedController.add(eventArgs);
   }
 
   MyGattCharacteristic2? _retrieveCharacteristic(
