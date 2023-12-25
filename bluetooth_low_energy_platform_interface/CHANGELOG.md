@@ -1,3 +1,8 @@
+## 5.0.0-dev.7
+
+* Remove `GattCharacteristicReadEventArgs`.
+* Remove `PeripheralManager#characteristicRead`.
+
 ## 5.0.0-dev.6
 
 * Remove the final modifier form `MyGattCharacteristic#value` and `MyGattDescriptor#value` and trim by 512 bytes.
@@ -12,11 +17,11 @@
 * Move `CentralManager#notifyCharacteristic` to `CentralManager#setCharacteristicNotifyState`.
 * Remove `ReadGattCharacteristicCommandEventArgs` and `WriteGattCharacteristicCommandEventArgs`.
 * Move `NotifyGattCharacteristicCommandEventArgs` to `GattCharacteristicNotifyStateChangedEventArgs`.
-* Remove `PeripheralManager#readCharacteristicCommandReceived` to `PeripheralManager#writeCharacteristicCommandReceived`.
-* Add `PeripheralManager#characteristicRead` to `PeripheralManager#characteristicWritten`.
+* Remove `PeripheralManager#readCharacteristicCommandReceived` and `PeripheralManager#writeCharacteristicCommandReceived`.
+* Add `PeripheralManager#characteristicRead` and `PeripheralManager#characteristicWritten`.
 * Move `PeripheralManager#notifyCharacteristicCommandReceived` to `PeripheralManager#characteristicNotifyStateChanged`.
 * Remove `PeripheralManager#sendReadCharacteristicReply` and `PeripheralManager#sendWriteCharacteristicReply`.
-* Add `GattCharacteristicReadEventArgs` to `GattCharacteristicWrittenEventArgs`.
+* Add `GattCharacteristicReadEventArgs` and `GattCharacteristicWrittenEventArgs`.
 * Move `PeripheralManager#notifyCharacteristicValueChanged` to `PeripheralManager#notifyCharacteristic`.
 * Remove `MyCentralManager` and `MyPeripheralManager`.
 

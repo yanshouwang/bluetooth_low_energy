@@ -40,9 +40,6 @@ abstract class PeripheralManager extends PlatformInterface
   /// Constructs a [PeripheralManager].
   PeripheralManager() : super(token: _token);
 
-  /// Tells that the local peripheral received an Attribute Protocol (ATT) read request for a characteristic with a dynamic value.
-  Stream<GattCharacteristicReadEventArgs> get characteristicRead;
-
   /// Tells that the local peripheral device received an Attribute Protocol (ATT) write request for a characteristic with a dynamic value.
   Stream<GattCharacteristicWrittenEventArgs> get characteristicWritten;
 
