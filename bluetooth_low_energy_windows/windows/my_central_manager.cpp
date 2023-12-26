@@ -30,14 +30,6 @@ namespace bluetooth_low_energy_windows
 		m_set_up(std::move(result));
 	}
 
-	ErrorOr<int64_t> MyCentralManager::GetState()
-	{
-		const auto radio_state = *m_radio_state;
-		const auto state_args = m_radio_state_to_args(radio_state);
-		const auto state_number_args = static_cast<int64_t>(state_args);
-		return state_number_args;
-	}
-
 	std::optional<FlutterError> MyCentralManager::StartDiscovery()
 	{
 		m_watcher->Start();
@@ -125,20 +117,10 @@ namespace bluetooth_low_energy_windows
 			if (!m_radio_state_changed_revoker) {
 				m_adapter = co_await BluetoothAdapter::GetDefaultAsync();
 				m_radio = co_await m_adapter->GetRadioAsync();
-				m_radio_state = m_radio->State();
+				m_on_state_changed();
 				m_radio_state_changed_revoker = m_radio->StateChanged(auto_revoke, [this](Radio radio, auto obj)
 					{
-						const auto old_state = *m_radio_state;
-						const auto new_state = radio.State();
-						const auto old_state_args = m_radio_state_to_args(old_state);
-						const auto new_state_args = m_radio_state_to_args(new_state);
-						if (new_state_args == old_state_args)
-						{
-							return;
-						}
-						m_radio_state = new_state;
-						const auto state_number_args = static_cast<int64_t>(new_state_args);
-						m_api->OnStateChanged(state_number_args, [] {}, [](auto error) {});
+						m_on_state_changed();
 					});
 			}
 			if (!m_watcher_received_revoker)
@@ -643,6 +625,14 @@ namespace bluetooth_low_energy_windows
 		m_services.erase(address_args);
 		m_characteristics.erase(address_args);
 		m_descriptors.erase(address_args);
+	}
+
+	void MyCentralManager::m_on_state_changed()
+	{
+		auto radio_state = m_radio->State();
+		const auto state_args = m_radio_state_to_args(radio_state);
+		const auto state_number_args = static_cast<int64_t>(state_args);
+		m_api->OnStateChanged(state_number_args, [] {}, [](auto error) {});
 	}
 
 	MyBluetoothLowEnergyStateArgs MyCentralManager::m_radio_state_to_args(RadioState state)

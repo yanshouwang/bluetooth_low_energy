@@ -21,6 +21,8 @@ class MyCentralManager extends CentralManager
   final Map<int, MyPeripheral> _peripherals;
   final Map<int, Map<int, MyGattCharacteristic2>> _characteristics;
 
+  BluetoothLowEnergyState _state;
+
   MyCentralManager()
       : _api = MyCentralManagerHostApi(),
         _stateChangedController = StreamController.broadcast(),
@@ -28,7 +30,8 @@ class MyCentralManager extends CentralManager
         _connectionStateChangedController = StreamController.broadcast(),
         _characteristicNotifiedController = StreamController.broadcast(),
         _peripherals = {},
-        _characteristics = {};
+        _characteristics = {},
+        _state = BluetoothLowEnergyState.unknown;
 
   @override
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
@@ -49,11 +52,8 @@ class MyCentralManager extends CentralManager
   }
 
   @override
-  Future<BluetoothLowEnergyState> getState() async {
-    final stateNumberArgs = await _api.getState();
-    final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
-    final state = stateArgs.toState();
-    return state;
+  Future<BluetoothLowEnergyState> getState() {
+    return Future.value(_state);
   }
 
   @override
@@ -218,6 +218,10 @@ class MyCentralManager extends CentralManager
     final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
     logger.info('onStateChanged: $stateArgs');
     final state = stateArgs.toState();
+    if (_state == state) {
+      return;
+    }
+    _state = state;
     final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
     _stateChangedController.add(eventArgs);
   }

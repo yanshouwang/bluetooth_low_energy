@@ -1,3 +1,7 @@
+## 5.0.0-dev.7
+
+* Optimize project structure.
+
 ## 5.0.0-dev.6
 
 * Remove the fragment logic form `CentralManager#writeCharacteristic`.

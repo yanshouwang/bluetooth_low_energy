@@ -114,7 +114,6 @@ class MyGattServiceArgs {
 abstract class MyCentralManagerHostApi {
   @async
   void setUp();
-  int getState();
   void startDiscovery();
   void stopDiscovery();
   @async
@@ -176,7 +175,6 @@ abstract class MyCentralManagerFlutterApi {
 abstract class MyPeripheralManagerHostApi {
   @async
   void setUp();
-  int getState();
   @async
   void addService(MyGattServiceArgs serviceArgs);
   void removeService(int handleArgs);

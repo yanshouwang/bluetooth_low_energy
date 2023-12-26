@@ -367,7 +367,6 @@ class MyCentralManagerHostApi {
   MyCentralManagerHostApi& operator=(const MyCentralManagerHostApi&) = delete;
   virtual ~MyCentralManagerHostApi() {}
   virtual void SetUp(std::function<void(std::optional<FlutterError> reply)> result) = 0;
-  virtual ErrorOr<int64_t> GetState() = 0;
   virtual std::optional<FlutterError> StartDiscovery() = 0;
   virtual std::optional<FlutterError> StopDiscovery() = 0;
   virtual void Connect(
@@ -499,7 +498,6 @@ class MyPeripheralManagerHostApi {
   MyPeripheralManagerHostApi& operator=(const MyPeripheralManagerHostApi&) = delete;
   virtual ~MyPeripheralManagerHostApi() {}
   virtual void SetUp(std::function<void(std::optional<FlutterError> reply)> result) = 0;
-  virtual ErrorOr<int64_t> GetState() = 0;
   virtual void AddService(
     const MyGattServiceArgs& service_args,
     std::function<void(std::optional<FlutterError> reply)> result) = 0;

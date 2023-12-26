@@ -30,7 +30,6 @@ namespace bluetooth_low_energy_windows
 
 		// 通过 MyCentralManagerHostApi 继承
 		void SetUp(std::function<void(std::optional<FlutterError>reply)> result) override;
-		ErrorOr<int64_t> GetState() override;
 		std::optional<FlutterError> StartDiscovery() override;
 		std::optional<FlutterError> StopDiscovery() override;
 		void Connect(int64_t address_args, std::function<void(std::optional<FlutterError>reply)> result) override;
@@ -48,7 +47,6 @@ namespace bluetooth_low_energy_windows
 		std::optional<BluetoothLEAdvertisementWatcher> m_watcher;
 		std::optional<BluetoothAdapter> m_adapter;
 		std::optional<Radio> m_radio;
-		std::optional<RadioState> m_radio_state;
 		std::map<int64_t, std::optional<BluetoothLEDevice>> m_devices;
 		std::map<int64_t, std::map<int64_t, std::optional<GattDeviceService>>> m_services;
 		std::map<int64_t, std::map<int64_t, std::optional<GattCharacteristic>>> m_characteristics;
@@ -71,6 +69,7 @@ namespace bluetooth_low_energy_windows
 
 		void m_clear_state();
 		void m_clear_device(int64_t address_args);
+		void m_on_state_changed();
 		MyBluetoothLowEnergyStateArgs m_radio_state_to_args(RadioState state);
 		MyAdvertisementArgs m_advertisement_to_args(const BluetoothLEAdvertisement& advertisement);
 		MyPeripheralArgs m_address_to_peripheral_args(uint64_t address);

@@ -471,27 +471,6 @@ void MyCentralManagerHostApi::SetUp(
     }
   }
   {
-    auto channel = std::make_unique<BasicMessageChannel<>>(binary_messenger, "dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostApi.getState", &GetCodec());
-    if (api != nullptr) {
-      channel->SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
-        try {
-          ErrorOr<int64_t> output = api->GetState();
-          if (output.has_error()) {
-            reply(WrapError(output.error()));
-            return;
-          }
-          EncodableList wrapped;
-          wrapped.push_back(EncodableValue(std::move(output).TakeValue()));
-          reply(EncodableValue(std::move(wrapped)));
-        } catch (const std::exception& exception) {
-          reply(WrapError(exception.what()));
-        }
-      });
-    } else {
-      channel->SetMessageHandler(nullptr);
-    }
-  }
-  {
     auto channel = std::make_unique<BasicMessageChannel<>>(binary_messenger, "dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostApi.startDiscovery", &GetCodec());
     if (api != nullptr) {
       channel->SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
@@ -1143,27 +1122,6 @@ void MyPeripheralManagerHostApi::SetUp(
             wrapped.push_back(EncodableValue());
             reply(EncodableValue(std::move(wrapped)));
           });
-        } catch (const std::exception& exception) {
-          reply(WrapError(exception.what()));
-        }
-      });
-    } else {
-      channel->SetMessageHandler(nullptr);
-    }
-  }
-  {
-    auto channel = std::make_unique<BasicMessageChannel<>>(binary_messenger, "dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostApi.getState", &GetCodec());
-    if (api != nullptr) {
-      channel->SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
-        try {
-          ErrorOr<int64_t> output = api->GetState();
-          if (output.has_error()) {
-            reply(WrapError(output.error()));
-            return;
-          }
-          EncodableList wrapped;
-          wrapped.push_back(EncodableValue(std::move(output).TakeValue()));
-          reply(EncodableValue(std::move(wrapped)));
         } catch (const std::exception& exception) {
           reply(WrapError(exception.what()));
         }
