@@ -98,10 +98,6 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
         initialize()
     }
 
-    override fun getState(): Long {
-        return state.raw.toLong()
-    }
-
     override fun startDiscovery(callback: (Result<Unit>) -> Unit) {
         try {
             val filters = emptyList<ScanFilter>()

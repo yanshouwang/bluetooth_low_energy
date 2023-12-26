@@ -25,6 +25,8 @@ class MyPeripheralManager extends PeripheralManager
   final Map<String, MyGattCharacteristic> _preparedCharacteristics;
   final Map<String, List<int>> _preparedValue;
 
+  BluetoothLowEnergyState _state;
+
   MyPeripheralManager()
       : _api = MyPeripheralManagerHostApi(),
         _stateChangedController = StreamController.broadcast(),
@@ -37,7 +39,8 @@ class MyPeripheralManager extends PeripheralManager
         _mtus = {},
         _confirms = {},
         _preparedCharacteristics = {},
-        _preparedValue = {};
+        _preparedValue = {},
+        _state = BluetoothLowEnergyState.unknown;
 
   @override
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
@@ -60,11 +63,8 @@ class MyPeripheralManager extends PeripheralManager
   }
 
   @override
-  Future<BluetoothLowEnergyState> getState() async {
-    final stateNumberArgs = await _api.getState();
-    final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
-    final state = stateArgs.toState();
-    return state;
+  Future<BluetoothLowEnergyState> getState() {
+    return Future.value(_state);
   }
 
   @override
@@ -162,6 +162,10 @@ class MyPeripheralManager extends PeripheralManager
     final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
     logger.info('onStateChanged: $stateArgs');
     final state = stateArgs.toState();
+    if (_state == state) {
+      return;
+    }
+    _state = state;
     final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
     _stateChangedController.add(eventArgs);
   }

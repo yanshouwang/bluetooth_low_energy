@@ -94,10 +94,6 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         initialize()
     }
 
-    override fun getState(): Long {
-        return state.raw.toLong()
-    }
-
     override fun addService(serviceArgs: MyGattServiceArgs, callback: (Result<Unit>) -> Unit) {
         try {
             val service = serviceArgs.toService()
@@ -239,14 +235,12 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         }
     }
 
-    override fun onPermissionsGranted() {
-        super.onPermissionsGranted()
-        if (state == MyBluetoothLowEnergyState.POWEREDON && !mOpening) {
-            mOpenGattServer()
-        }
-    }
-
     override fun onStateChanged(state: MyBluetoothLowEnergyState) {
+        when (state) {
+            MyBluetoothLowEnergyStateArgs.POWEREDOFF -> mCloseGattServer()
+            MyBluetoothLowEnergyStateArgs.POWEREDON -> mOpenGattServer()
+            else -> {}
+        }
         val stateNumberArgs = state.raw.toLong()
         mApi.onStateChanged(stateNumberArgs) {}
     }
@@ -410,8 +404,19 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
     }
 
     private fun mOpenGattServer() {
+        if (mOpening) {
+            return
+        }
         mServer = manager.openGattServer(mContext, bluetoothGattServerCallback)
         mOpening = true
+    }
+
+    private fun mCloseGattServer() {
+        if (!mOpening) {
+            return
+        }
+        mServer.close()
+        mOpening = false
     }
 
     private fun mClearService(serviceArgs: MyGattServiceArgs) {

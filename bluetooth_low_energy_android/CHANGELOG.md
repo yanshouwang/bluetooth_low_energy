@@ -1,3 +1,8 @@
+## 5.0.0-dev.4
+
+* Fix the issue that `PeripheralMananger#startAdvertising` throws after powered off.\
+* Optimize project structure.
+
 ## 5.0.0-dev.3
 
 * Implements new Api.
