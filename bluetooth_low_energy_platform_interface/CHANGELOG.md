@@ -1,3 +1,8 @@
+## 5.0.0-dev.8
+
+* Add `PeripheralManager#readCharacteristic`.
+* Move `PeripheralManager#notifyCharacteristic` to `PeripheralManager#writeCharacteristic`.
+
 ## 5.0.0-dev.7
 
 * Remove `GattCharacteristicReadEventArgs`.

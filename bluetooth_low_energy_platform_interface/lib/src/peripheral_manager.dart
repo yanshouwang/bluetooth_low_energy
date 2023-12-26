@@ -5,6 +5,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'advertisement.dart';
 import 'bluetooth_low_energy_manager.dart';
+import 'central.dart';
 import 'gatt_characteristic.dart';
 import 'gatt_service.dart';
 import 'peripheral_event_args.dart';
@@ -62,11 +63,15 @@ abstract class PeripheralManager extends PlatformInterface
   /// Stops advertising peripheral manager data.
   Future<void> stopAdvertising();
 
-  /// Sends an updated characteristic value to one or more subscribed centrals, using a notification or indication.
+  /// Retrieves the value of a specified characteristic.
+  Future<Uint8List> readCharacteristic(GattCharacteristic characteristic);
+
+  /// Writes the value of a characteristic and sends an updated characteristic value to one or more subscribed centrals, using a notification or indication.
   ///
   /// The maximum size of the value is 512, all bytes that exceed this size will be discarded.
-  Future<void> notifyCharacteristic(
+  Future<void> writeCharacteristic(
     GattCharacteristic characteristic, {
     required Uint8List value,
+    Central? central,
   });
 }
