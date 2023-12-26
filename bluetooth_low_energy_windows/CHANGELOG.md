@@ -1,3 +1,7 @@
+## 5.0.0-dev.6
+
+* Remove the fragment logic form `CentralManager#writeCharacteristic`.
+
 ## 5.0.0-dev.5
 
 * Implements new Api.
@@ -8,7 +12,7 @@
 * Update dependency.
 * Optimize instances' retrieve speed.
 * Optimize example.
-* Fix the issue that CentralManager#connect() returns fake connection.
+* Fix the issue that `CentralManager#connect` returns fake connection.
 
 ## 5.0.0-dev.3
 

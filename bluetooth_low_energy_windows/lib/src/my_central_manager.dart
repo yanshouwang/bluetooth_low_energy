@@ -151,33 +151,15 @@ class MyCentralManager extends CentralManager
     final peripheral = characteristic.peripheral;
     final addressArgs = peripheral.uuid.toAddressArgs();
     final handleArgs = characteristic.handle;
-    final valueArgs = value;
+    final valueArgs = value.trimGATT();
     final typeArgs = type.toArgs();
     final typeNumberArgs = typeArgs.index;
-    if (type == GattCharacteristicWriteType.withoutResponse) {
-      // When write without response, fragments the value by 512 bytes.
-      var start = 0;
-      while (start < valueArgs.length) {
-        final end = start + 512;
-        final trimmedValueArgs = end < valueArgs.length
-            ? valueArgs.sublist(start, end)
-            : valueArgs.sublist(start);
-        await _api.writeCharacteristic(
-          addressArgs,
-          handleArgs,
-          trimmedValueArgs,
-          typeNumberArgs,
-        );
-        start = end;
-      }
-    } else {
-      await _api.writeCharacteristic(
-        addressArgs,
-        handleArgs,
-        valueArgs,
-        typeNumberArgs,
-      );
-    }
+    await _api.writeCharacteristic(
+      addressArgs,
+      handleArgs,
+      valueArgs,
+      typeNumberArgs,
+    );
   }
 
   @override
