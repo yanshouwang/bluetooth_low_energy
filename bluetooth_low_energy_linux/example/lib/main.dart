@@ -691,14 +691,24 @@ class _PeripheralViewState extends State<PeripheralView> {
                                   final elements = utf8.encode(text);
                                   final value = Uint8List.fromList(elements);
                                   final type = writeType.value;
-                                  await CentralManager.instance
-                                      .writeCharacteristic(
-                                    characteristic,
-                                    value: value,
-                                    type: type,
-                                  );
-                                  final log = Log(LogType.write, value);
-                                  logs.value = [...logs.value, log];
+                                  // Fragments the value by 512 bytes.
+                                  var start = 0;
+                                  while (start < value.length) {
+                                    final end = start + 512;
+                                    final trimmedValue = end < value.length
+                                        ? value.sublist(start, end)
+                                        : value.sublist(start);
+                                    await CentralManager.instance
+                                        .writeCharacteristic(
+                                      characteristic,
+                                      value: trimmedValue,
+                                      type: type,
+                                    );
+                                    final log =
+                                        Log(LogType.write, trimmedValue);
+                                    logs.value = [...logs.value, log];
+                                    start = end;
+                                  }
                                 }
                               : null,
                           child: const Text('WRITE'),

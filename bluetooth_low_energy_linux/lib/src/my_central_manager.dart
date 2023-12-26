@@ -157,26 +157,12 @@ class MyCentralManager extends CentralManager {
       throw TypeError();
     }
     final blueZCharacteristic = characteristic.blueZCharacteristic;
-    if (type == GattCharacteristicWriteType.withoutResponse) {
-      // When write without response, fragments the value by 512 bytes.
-      var start = 0;
-      while (start < value.length) {
-        final end = start + 512;
-        final trimmedValue = end < value.length
-            ? value.sublist(start, end)
-            : value.sublist(start);
-        await blueZCharacteristic.writeValue(
-          trimmedValue,
-          type: type.toBlueZWriteType(),
-        );
-        start = end;
-      }
-    } else {
-      await blueZCharacteristic.writeValue(
-        value,
-        type: type.toBlueZWriteType(),
-      );
-    }
+    final trimmedValue = value.trimGATT();
+    final blueZType = type.toBlueZWriteType();
+    await blueZCharacteristic.writeValue(
+      trimmedValue,
+      type: blueZType,
+    );
   }
 
   @override
