@@ -101,7 +101,7 @@ class _ScannerViewState extends State<ScannerView> {
   @override
   void initState() {
     super.initState();
-    state = ValueNotifier(CentralManager.instance.state);
+    state = ValueNotifier(BluetoothLowEnergyState.unknown);
     discovering = ValueNotifier(false);
     discoveredEventArgs = ValueNotifier([]);
     stateChangedSubscription = CentralManager.instance.stateChanged.listen(
@@ -123,6 +123,11 @@ class _ScannerViewState extends State<ScannerView> {
         }
       },
     );
+    _initialize();
+  }
+
+  void _initialize() async {
+    state.value = await CentralManager.instance.getState();
   }
 
   @override
@@ -312,7 +317,7 @@ class PeripheralView extends StatefulWidget {
 }
 
 class _PeripheralViewState extends State<PeripheralView> {
-  late final ValueNotifier<bool> state;
+  late final ValueNotifier<bool> connectionState;
   late final DiscoveredEventArgs eventArgs;
   late final ValueNotifier<List<GattService>> services;
   late final ValueNotifier<List<GattCharacteristic>> characteristics;
@@ -322,8 +327,8 @@ class _PeripheralViewState extends State<PeripheralView> {
   late final ValueNotifier<int> rssi;
   late final ValueNotifier<List<Log>> logs;
   late final TextEditingController writeController;
-  late final StreamSubscription stateChangedSubscription;
-  late final StreamSubscription valueChangedSubscription;
+  late final StreamSubscription connectionStateChangedSubscription;
+  late final StreamSubscription characteristicNotifiedSubscription;
   late final StreamSubscription rssiChangedSubscription;
   late final Timer rssiTimer;
 
@@ -331,7 +336,7 @@ class _PeripheralViewState extends State<PeripheralView> {
   void initState() {
     super.initState();
     eventArgs = widget.eventArgs;
-    state = ValueNotifier(false);
+    connectionState = ValueNotifier(false);
     services = ValueNotifier([]);
     characteristics = ValueNotifier([]);
     service = ValueNotifier(null);
@@ -340,15 +345,15 @@ class _PeripheralViewState extends State<PeripheralView> {
     rssi = ValueNotifier(-100);
     logs = ValueNotifier([]);
     writeController = TextEditingController();
-    stateChangedSubscription =
-        CentralManager.instance.peripheralStateChanged.listen(
+    connectionStateChangedSubscription =
+        CentralManager.instance.connectionStateChanged.listen(
       (eventArgs) {
         if (eventArgs.peripheral != this.eventArgs.peripheral) {
           return;
         }
-        final state = eventArgs.state;
-        this.state.value = state;
-        if (!state) {
+        final connectionState = eventArgs.connectionState;
+        this.connectionState.value = connectionState;
+        if (!connectionState) {
           services.value = [];
           characteristics.value = [];
           service.value = null;
@@ -357,8 +362,8 @@ class _PeripheralViewState extends State<PeripheralView> {
         }
       },
     );
-    valueChangedSubscription =
-        CentralManager.instance.characteristicValueChanged.listen(
+    characteristicNotifiedSubscription =
+        CentralManager.instance.characteristicNotified.listen(
       (eventArgs) {
         final characteristic = this.characteristic.value;
         if (eventArgs.characteristic != characteristic) {
@@ -375,8 +380,8 @@ class _PeripheralViewState extends State<PeripheralView> {
     rssiTimer = Timer.periodic(
       const Duration(seconds: 5),
       (timer) async {
-        final state = this.state.value;
-        if (state) {
+        final connectionState = this.connectionState.value;
+        if (connectionState) {
           rssi.value =
               await CentralManager.instance.readRSSI(eventArgs.peripheral);
         } else {
@@ -390,7 +395,7 @@ class _PeripheralViewState extends State<PeripheralView> {
   Widget build(BuildContext context) {
     return PopScope(
       onPopInvoked: (didPop) async {
-        if (state.value) {
+        if (connectionState.value) {
           final peripheral = eventArgs.peripheral;
           await CentralManager.instance.disconnect(peripheral);
         }
@@ -408,12 +413,12 @@ class _PeripheralViewState extends State<PeripheralView> {
       title: Text(title),
       actions: [
         ValueListenableBuilder(
-          valueListenable: state,
-          builder: (context, state, child) {
+          valueListenable: connectionState,
+          builder: (context, connectionState, child) {
             return TextButton(
               onPressed: () async {
                 final peripheral = eventArgs.peripheral;
-                if (state) {
+                if (connectionState) {
                   await CentralManager.instance.disconnect(peripheral);
                   rssi.value = 0;
                 } else {
@@ -424,7 +429,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                       await CentralManager.instance.readRSSI(peripheral);
                 }
               },
-              child: Text(state ? 'DISCONNECT' : 'CONNECT'),
+              child: Text(connectionState ? 'DISCONNECT' : 'CONNECT'),
             );
           },
         ),
@@ -659,7 +664,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                           onPressed: characteristic != null && canNotify
                               ? () async {
                                   await CentralManager.instance
-                                      .notifyCharacteristic(
+                                      .setCharacteristicNotifyState(
                                     characteristic,
                                     state: true,
                                   );
@@ -714,9 +719,9 @@ class _PeripheralViewState extends State<PeripheralView> {
   void dispose() {
     super.dispose();
     rssiTimer.cancel();
-    stateChangedSubscription.cancel();
-    valueChangedSubscription.cancel();
-    state.dispose();
+    connectionStateChangedSubscription.cancel();
+    characteristicNotifiedSubscription.cancel();
+    connectionState.dispose();
     services.dispose();
     characteristics.dispose();
     service.dispose();
