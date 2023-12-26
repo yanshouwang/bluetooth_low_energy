@@ -1,3 +1,7 @@
+## 5.0.0-dev.10
+
+* Fix `Uint8List#trimGATT` throws when the value is not exceeded 512 bytes.
+
 ## 5.0.0-dev.9
 
 * Add `PeripheralManager#characteristicRead`.

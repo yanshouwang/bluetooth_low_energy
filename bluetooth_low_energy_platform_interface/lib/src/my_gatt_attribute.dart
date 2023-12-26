@@ -14,6 +14,6 @@ abstract class MyGattAttribute implements GattAttribute {
 
 extension MyGattAttributeUint8List on Uint8List {
   Uint8List trimGATT() {
-    return sublist(0, 512);
+    return length > 512 ? sublist(0, 512) : this;
   }
 }
