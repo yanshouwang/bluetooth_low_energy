@@ -1,3 +1,7 @@
+## 5.0.0-dev.9
+
+* Add `PeripheralManager#characteristicRead`.
+
 ## 5.0.0-dev.8
 
 * Add `PeripheralManager#readCharacteristic`.
