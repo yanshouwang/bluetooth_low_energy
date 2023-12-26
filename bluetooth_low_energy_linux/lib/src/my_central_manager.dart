@@ -22,6 +22,7 @@ class MyCentralManager extends CentralManager {
       _characteristicNotifiedController;
   final StreamController<BlueZDeviceServicesResolvedEventArgs>
       _blueZServicesResolvedController;
+
   final Map<int, StreamSubscription>
       _blueZCharacteristicPropertiesChangedSubscriptions;
   final Map<String, List<MyGattService2>> _services;
