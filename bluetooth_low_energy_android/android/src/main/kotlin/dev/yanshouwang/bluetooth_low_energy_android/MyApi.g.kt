@@ -104,11 +104,10 @@ enum class MyGattStatusArgs(val raw: Int) {
   REQUESTNOTSUPPORTED(3),
   INVALIDOFFSET(4),
   INSUFFICIENTAUTHENTICATION(5),
-  INSUFFICIENTAUTHORIZATION(6),
-  INSUFFICIENTENCRYPTION(7),
-  INVALIDATTRIBUTELENGTH(8),
-  CONNECTIONCONGESTED(9),
-  FAILURE(10);
+  INSUFFICIENTENCRYPTION(6),
+  INVALIDATTRIBUTELENGTH(7),
+  CONNECTIONCONGESTED(8),
+  FAILURE(9);
 
   companion object {
     fun ofRaw(raw: Int): MyGattStatusArgs? {
@@ -328,13 +327,13 @@ private object MyCentralManagerHostApiCodec : StandardMessageCodec() {
 
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface MyCentralManagerHostApi {
-  fun setUp(callback: (Result<Unit>) -> Unit)
+  fun setUp()
   fun getState(): Long
   fun startDiscovery(callback: (Result<Unit>) -> Unit)
   fun stopDiscovery()
   fun connect(addressArgs: String, callback: (Result<Unit>) -> Unit)
   fun disconnect(addressArgs: String, callback: (Result<Unit>) -> Unit)
-  fun requestMTU(addressArgs: String, mtuArgs: Long, callback: (Result<Unit>) -> Unit)
+  fun requestMTU(addressArgs: String, mtuArgs: Long, callback: (Result<Long>) -> Unit)
   fun readRSSI(addressArgs: String, callback: (Result<Long>) -> Unit)
   fun discoverGATT(addressArgs: String, callback: (Result<List<MyGattServiceArgs>>) -> Unit)
   fun readCharacteristic(addressArgs: String, hashCodeArgs: Long, callback: (Result<ByteArray>) -> Unit)
@@ -355,14 +354,14 @@ interface MyCentralManagerHostApi {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostApi.setUp", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
-            api.setUp() { result: Result<Unit> ->
-              val error = result.exceptionOrNull()
-              if (error != null) {
-                reply.reply(wrapError(error))
-              } else {
-                reply.reply(wrapResult(null))
-              }
+            var wrapped: List<Any?>
+            try {
+              api.setUp()
+              wrapped = listOf<Any?>(null)
+            } catch (exception: Throwable) {
+              wrapped = wrapError(exception)
             }
+            reply.reply(wrapped)
           }
         } else {
           channel.setMessageHandler(null)
@@ -463,12 +462,13 @@ interface MyCentralManagerHostApi {
             val args = message as List<Any?>
             val addressArgsArg = args[0] as String
             val mtuArgsArg = args[1].let { if (it is Int) it.toLong() else it as Long }
-            api.requestMTU(addressArgsArg, mtuArgsArg) { result: Result<Unit> ->
+            api.requestMTU(addressArgsArg, mtuArgsArg) { result: Result<Long> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))
               } else {
-                reply.reply(wrapResult(null))
+                val data = result.getOrNull()
+                reply.reply(wrapResult(data))
               }
             }
           }
@@ -812,7 +812,7 @@ private object MyPeripheralManagerHostApiCodec : StandardMessageCodec() {
 
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface MyPeripheralManagerHostApi {
-  fun setUp(callback: (Result<Unit>) -> Unit)
+  fun setUp()
   fun getState(): Long
   fun addService(serviceArgs: MyGattServiceArgs, callback: (Result<Unit>) -> Unit)
   fun removeService(hashCodeArgs: Long)
@@ -834,14 +834,14 @@ interface MyPeripheralManagerHostApi {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostApi.setUp", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
-            api.setUp() { result: Result<Unit> ->
-              val error = result.exceptionOrNull()
-              if (error != null) {
-                reply.reply(wrapError(error))
-              } else {
-                reply.reply(wrapResult(null))
-              }
+            var wrapped: List<Any?>
+            try {
+              api.setUp()
+              wrapped = listOf<Any?>(null)
+            } catch (exception: Throwable) {
+              wrapped = wrapError(exception)
             }
+            reply.reply(wrapped)
           }
         } else {
           channel.setMessageHandler(null)
@@ -1094,10 +1094,10 @@ class MyPeripheralManagerFlutterApi(private val binaryMessenger: BinaryMessenger
       } 
     }
   }
-  fun onCharacteristicWriteRequest(addressArgsArg: String, hashCodeArgsArg: Long, idArgsArg: Long, offsetArgsArg: Long, valueArgsArg: ByteArray, preparedWriteArg: Boolean, responseNeededArg: Boolean, callback: (Result<Unit>) -> Unit) {
+  fun onCharacteristicWriteRequest(addressArgsArg: String, hashCodeArgsArg: Long, idArgsArg: Long, offsetArgsArg: Long, valueArgsArg: ByteArray, preparedWriteArgsArg: Boolean, responseNeededArgsArg: Boolean, callback: (Result<Unit>) -> Unit) {
     val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onCharacteristicWriteRequest"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(addressArgsArg, hashCodeArgsArg, idArgsArg, offsetArgsArg, valueArgsArg, preparedWriteArg, responseNeededArg)) {
+    channel.send(listOf(addressArgsArg, hashCodeArgsArg, idArgsArg, offsetArgsArg, valueArgsArg, preparedWriteArgsArg, responseNeededArgsArg)) {
       if (it is List<*>) {
         if (it.size > 1) {
           callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
@@ -1109,10 +1109,10 @@ class MyPeripheralManagerFlutterApi(private val binaryMessenger: BinaryMessenger
       } 
     }
   }
-  fun onExecuteWrite(addressArgsArg: String, idArgsArg: Long, executeArg: Boolean, callback: (Result<Unit>) -> Unit) {
+  fun onExecuteWrite(addressArgsArg: String, idArgsArg: Long, executeArgsArg: Boolean, callback: (Result<Unit>) -> Unit) {
     val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onExecuteWrite"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(addressArgsArg, idArgsArg, executeArg)) {
+    channel.send(listOf(addressArgsArg, idArgsArg, executeArgsArg)) {
       if (it is List<*>) {
         if (it.size > 1) {
           callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))

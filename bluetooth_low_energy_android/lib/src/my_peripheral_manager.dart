@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:flutter/foundation.dart';
@@ -22,7 +23,7 @@ class MyPeripheralManager extends PeripheralManager
   final Map<String, int> _mtus;
   final Map<String, Map<int, bool>> _confirms;
   final Map<String, MyGattCharacteristic> _preparedCharacteristics;
-  final Map<String, Uint8List> _preparedValues;
+  final Map<String, List<int>> _preparedValue;
 
   MyPeripheralManager()
       : _api = MyPeripheralManagerHostApi(),
@@ -36,7 +37,7 @@ class MyPeripheralManager extends PeripheralManager
         _mtus = {},
         _confirms = {},
         _preparedCharacteristics = {},
-        _preparedValues = {};
+        _preparedValue = {};
 
   @override
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
@@ -104,40 +105,55 @@ class MyPeripheralManager extends PeripheralManager
   }
 
   @override
-  Future<void> notifyCharacteristic(
+  Future<Uint8List> readCharacteristic(GattCharacteristic characteristic) {
+    if (characteristic is! MyGattCharacteristic) {
+      throw TypeError();
+    }
+    final value = characteristic.value;
+    return Future.value(value);
+  }
+
+  @override
+  Future<void> writeCharacteristic(
     GattCharacteristic characteristic, {
     required Uint8List value,
+    Central? central,
   }) async {
     if (characteristic is! MyGattCharacteristic) {
       throw TypeError();
     }
     characteristic.value = value;
-    for (var addressArgs in _confirms.keys) {
-      final hashCodeArgs = characteristic.hashCode;
-      final confirm = _retrieveConfirm(addressArgs, hashCodeArgs);
-      if (confirm == null) {
-        continue;
-      }
-      final valueArgs = characteristic.value;
-      // fragments the value by MTU - 3 size.
-      // If mtu is null, use 23 as default MTU size.
-      final mtu = _mtus[addressArgs] ?? 23;
-      final trimmedSize = (mtu - 3).clamp(20, 512);
-      var start = 0;
-      while (start < valueArgs.length) {
-        final end = start + trimmedSize;
-        final trimmedValueArgs = end < valueArgs.length
-            ? valueArgs.sublist(start, end)
-            : valueArgs.sublist(start);
-        await _api.notifyCharacteristicChanged(
-          addressArgs,
-          hashCodeArgs,
-          confirm,
-          trimmedValueArgs,
-        );
-        start = end;
-        characteristic.value = trimmedValueArgs;
-      }
+    if (central == null) {
+      return;
+    }
+    if (central is! MyCentral2) {
+      throw TypeError();
+    }
+    final addressArgs = central.address;
+    final hashCodeArgs = characteristic.hashCode;
+    final confirm = _retrieveConfirm(addressArgs, hashCodeArgs);
+    if (confirm == null) {
+      logger.warning('The central is not notified.');
+      return;
+    }
+    final valueArgs = characteristic.value;
+    // fragments the value by MTU - 3 size.
+    // If mtu is null, use 23 as default MTU size.
+    final mtu = _mtus[addressArgs] ?? 23;
+    final trimmedSize = (mtu - 3).clamp(20, 512);
+    var start = 0;
+    while (start < valueArgs.length) {
+      final end = start + trimmedSize;
+      final trimmedValueArgs = end < valueArgs.length
+          ? valueArgs.sublist(start, end)
+          : valueArgs.sublist(start);
+      await _api.notifyCharacteristicChanged(
+        addressArgs,
+        hashCodeArgs,
+        confirm,
+        trimmedValueArgs,
+      );
+      start = end;
     }
   }
 
@@ -190,30 +206,15 @@ class MyPeripheralManager extends PeripheralManager
       return;
     }
     const statusArgs = MyGattStatusArgs.success;
-    final statusNumberArgs = statusArgs.index;
     final offset = offsetArgs;
-    final value = characteristic.value;
-    final valueArgs = value.sublist(offset);
-    try {
-      await _api.sendResponse(
-        addressArgs,
-        idArgs,
-        statusNumberArgs,
-        offsetArgs,
-        valueArgs,
-      );
-    } catch (e, stack) {
-      logger.shout('Send read response failed.', e, stack);
-    }
-    if (offset != 0) {
-      return;
-    }
-    final eventArgs = GattCharacteristicReadEventArgs(
-      central,
-      characteristic,
-      value,
+    final valueArgs = _onCharacteristicRead(central, characteristic, offset);
+    await _trySendResponse(
+      addressArgs,
+      idArgs,
+      statusArgs,
+      offsetArgs,
+      valueArgs,
     );
-    _characteristicReadController.add(eventArgs);
   }
 
   @override
@@ -236,56 +237,60 @@ class MyPeripheralManager extends PeripheralManager
     if (characteristic == null) {
       return;
     }
-    final value = valueArgs;
-    characteristic.value = value;
+    final MyGattStatusArgs statusArgs;
     if (preparedWrite) {
       final preparedCharacteristic = _preparedCharacteristics[addressArgs];
       if (preparedCharacteristic != null &&
           preparedCharacteristic != characteristic) {
-        return;
+        statusArgs = MyGattStatusArgs.connectionCongested;
+      } else {
+        final preparedValueArgs = _preparedValue[addressArgs];
+        if (preparedValueArgs == null) {
+          _preparedCharacteristics[addressArgs] = characteristic;
+          // Change the immutable Uint8List to mutable.
+          _preparedValue[addressArgs] = [...valueArgs];
+        } else {
+          preparedValueArgs.insertAll(offsetArgs, valueArgs);
+        }
+        statusArgs = MyGattStatusArgs.success;
       }
+    } else {
+      final value = valueArgs;
+      _onCharacteristicWritten(central, characteristic, value);
+      statusArgs = MyGattStatusArgs.success;
     }
     if (responseNeeded) {
-      const statusArgs = true;
-      try {
-        await _api.sendResponse(
-          addressArgs,
-          idArgs,
-          statusArgs,
-          offsetArgs,
-          valueArgs,
-        );
-      } catch (e, stack) {
-        logger.shout('Send write response failed.', e, stack);
-      }
+      await _trySendResponse(
+        addressArgs,
+        idArgs,
+        statusArgs,
+        offsetArgs,
+        null,
+      );
     }
-    final eventArgs = GattCharacteristicWrittenEventArgs(
-      central,
-      characteristic,
-      value,
-    );
-    _characteristicWrittenController.add(eventArgs);
   }
 
   @override
-  void onExecuteWrite(String addressArgs, int idArgs, bool execute) async {
-    logger
-        .info('onCharacteristicWriteRequest: $addressArgs - $idArgs, $execute');
-    const statusArgs = MyGattStatusArgs.success;
-    final statusNumberArgs = statusArgs.index;
-    const offsetArgs = 0;
-    const valueArgs = null;
-    try {
-      _api.sendResponse(
-        addressArgs,
-        idArgs,
-        statusNumberArgs,
-        offsetArgs,
-        valueArgs,
-      );
-    } catch (e, stack) {
-      logger.shout('Send execute write response failed.', e, stack);
+  void onExecuteWrite(String addressArgs, int idArgs, bool executeArgs) async {
+    logger.info('onExecuteWrite: $addressArgs - $idArgs, $executeArgs');
+    final central = _centrals[addressArgs];
+    final characteristic = _preparedCharacteristics.remove(addressArgs);
+    final elements = _preparedValue.remove(addressArgs);
+    if (central == null || characteristic == null || elements == null) {
+      return;
     }
+    final value = Uint8List.fromList(elements);
+    final execute = executeArgs;
+    if (execute) {
+      _onCharacteristicWritten(central, characteristic, value);
+    }
+    await _trySendResponse(
+      addressArgs,
+      idArgs,
+      MyGattStatusArgs.success,
+      0,
+      null,
+    );
   }
 
   @override
@@ -334,5 +339,58 @@ class MyPeripheralManager extends PeripheralManager
       return null;
     }
     return confirms[hashCodeArgs];
+  }
+
+  Future<void> _trySendResponse(
+    String addressArgs,
+    int idArgs,
+    MyGattStatusArgs statusArgs,
+    int offsetArgs,
+    Uint8List? valueArgs,
+  ) async {
+    final statusNumberArgs = statusArgs.index;
+    try {
+      _api.sendResponse(
+        addressArgs,
+        idArgs,
+        statusNumberArgs,
+        offsetArgs,
+        valueArgs,
+      );
+    } catch (e, stack) {
+      logger.shout('Send response failed.', e, stack);
+    }
+  }
+
+  Uint8List _onCharacteristicRead(
+    MyCentral central,
+    MyGattCharacteristic characteristic,
+    int offset,
+  ) {
+    final value = characteristic.value;
+    final trimmedValue = value.sublist(offset);
+    if (offset == 0) {
+      final eventArgs = GattCharacteristicReadEventArgs(
+        central,
+        characteristic,
+        value,
+      );
+      _characteristicReadController.add(eventArgs);
+    }
+    return trimmedValue;
+  }
+
+  void _onCharacteristicWritten(
+    MyCentral central,
+    MyGattCharacteristic characteristic,
+    Uint8List value,
+  ) async {
+    final trimmedValue = value.trimGATT();
+    final eventArgs = GattCharacteristicWrittenEventArgs(
+      central,
+      characteristic,
+      trimmedValue,
+    );
+    _characteristicWrittenController.add(eventArgs);
   }
 }

@@ -1,9 +1,13 @@
+## 5.0.0-dev.3
+
+* Implements new Api.
+
 ## 5.0.0-dev.2
 
 * Optimize example.
 * Add event logs.
 * Fix the issue that PeripheralManager's service duplicated after hot reload.
-* Fix the issue that PeripheralManager#notifyCharacteristicChanged lost data when value is larger then the MTU size.
+* Fix the issue that `PeripheralManager#notifyCharacteristicChanged` lost data when value is larger then the MTU size.
 * Optimize instances' retrieve speed.
 * Update dependency.
 

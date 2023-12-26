@@ -45,7 +45,6 @@ enum MyGattStatusArgs {
   requestNotSupported,
   invalidOffset,
   insufficientAuthentication,
-  insufficientAuthorization,
   insufficientEncryption,
   invalidAttributeLength,
   connectionCongested,
@@ -125,7 +124,6 @@ class MyGattServiceArgs {
 
 @HostApi()
 abstract class MyCentralManagerHostApi {
-  @async
   void setUp();
   int getState();
   @async
@@ -136,7 +134,7 @@ abstract class MyCentralManagerHostApi {
   @async
   void disconnect(String addressArgs);
   @async
-  void requestMTU(String addressArgs, int mtuArgs);
+  int requestMTU(String addressArgs, int mtuArgs);
   @async
   int readRSSI(String addressArgs);
   @async
@@ -185,7 +183,6 @@ abstract class MyCentralManagerFlutterApi {
 
 @HostApi()
 abstract class MyPeripheralManagerHostApi {
-  @async
   void setUp();
   int getState();
   @async
@@ -228,13 +225,13 @@ abstract class MyPeripheralManagerFlutterApi {
     int idArgs,
     int offsetArgs,
     Uint8List valueArgs,
-    bool preparedWrite,
-    bool responseNeeded,
+    bool preparedWriteArgs,
+    bool responseNeededArgs,
   );
   void onExecuteWrite(
     String addressArgs,
     int idArgs,
-    bool execute,
+    bool executeArgs,
   );
   void onCharacteristicNotifyStateChanged(
     String addressArgs,
