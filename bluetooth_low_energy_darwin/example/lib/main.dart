@@ -165,7 +165,7 @@ class _ScannerViewState extends State<ScannerView> {
   @override
   void initState() {
     super.initState();
-    state = ValueNotifier(CentralManager.instance.state);
+    state = ValueNotifier(BluetoothLowEnergyState.unknown);
     discovering = ValueNotifier(false);
     discoveredEventArgs = ValueNotifier([]);
     stateChangedSubscription = CentralManager.instance.stateChanged.listen(
@@ -187,6 +187,11 @@ class _ScannerViewState extends State<ScannerView> {
         }
       },
     );
+    _initialize();
+  }
+
+  void _initialize() async {
+    state.value = await CentralManager.instance.getState();
   }
 
   @override
@@ -376,7 +381,7 @@ class PeripheralView extends StatefulWidget {
 }
 
 class _PeripheralViewState extends State<PeripheralView> {
-  late final ValueNotifier<bool> state;
+  late final ValueNotifier<bool> connectionState;
   late final DiscoveredEventArgs eventArgs;
   late final ValueNotifier<List<GattService>> services;
   late final ValueNotifier<List<GattCharacteristic>> characteristics;
@@ -386,8 +391,8 @@ class _PeripheralViewState extends State<PeripheralView> {
   late final ValueNotifier<int> rssi;
   late final ValueNotifier<List<Log>> logs;
   late final TextEditingController writeController;
-  late final StreamSubscription stateChangedSubscription;
-  late final StreamSubscription valueChangedSubscription;
+  late final StreamSubscription connectionStateChangedSubscription;
+  late final StreamSubscription characteristicNotifiedSubscription;
   late final StreamSubscription rssiChangedSubscription;
   late final Timer rssiTimer;
 
@@ -395,7 +400,7 @@ class _PeripheralViewState extends State<PeripheralView> {
   void initState() {
     super.initState();
     eventArgs = widget.eventArgs;
-    state = ValueNotifier(false);
+    connectionState = ValueNotifier(false);
     services = ValueNotifier([]);
     characteristics = ValueNotifier([]);
     service = ValueNotifier(null);
@@ -404,15 +409,15 @@ class _PeripheralViewState extends State<PeripheralView> {
     rssi = ValueNotifier(-100);
     logs = ValueNotifier([]);
     writeController = TextEditingController();
-    stateChangedSubscription =
-        CentralManager.instance.peripheralStateChanged.listen(
+    connectionStateChangedSubscription =
+        CentralManager.instance.connectionStateChanged.listen(
       (eventArgs) {
         if (eventArgs.peripheral != this.eventArgs.peripheral) {
           return;
         }
-        final state = eventArgs.state;
-        this.state.value = state;
-        if (!state) {
+        final connectionState = eventArgs.connectionState;
+        this.connectionState.value = connectionState;
+        if (!connectionState) {
           services.value = [];
           characteristics.value = [];
           service.value = null;
@@ -421,8 +426,8 @@ class _PeripheralViewState extends State<PeripheralView> {
         }
       },
     );
-    valueChangedSubscription =
-        CentralManager.instance.characteristicValueChanged.listen(
+    characteristicNotifiedSubscription =
+        CentralManager.instance.characteristicNotified.listen(
       (eventArgs) {
         final characteristic = this.characteristic.value;
         if (eventArgs.characteristic != characteristic) {
@@ -439,8 +444,8 @@ class _PeripheralViewState extends State<PeripheralView> {
     rssiTimer = Timer.periodic(
       const Duration(seconds: 5),
       (timer) async {
-        final state = this.state.value;
-        if (state) {
+        final connectionState = this.connectionState.value;
+        if (connectionState) {
           rssi.value =
               await CentralManager.instance.readRSSI(eventArgs.peripheral);
         } else {
@@ -454,7 +459,7 @@ class _PeripheralViewState extends State<PeripheralView> {
   Widget build(BuildContext context) {
     return PopScope(
       onPopInvoked: (didPop) async {
-        if (state.value) {
+        if (connectionState.value) {
           final peripheral = eventArgs.peripheral;
           await CentralManager.instance.disconnect(peripheral);
         }
@@ -472,12 +477,12 @@ class _PeripheralViewState extends State<PeripheralView> {
       title: Text(title),
       actions: [
         ValueListenableBuilder(
-          valueListenable: state,
-          builder: (context, state, child) {
+          valueListenable: connectionState,
+          builder: (context, connectionState, child) {
             return TextButton(
               onPressed: () async {
                 final peripheral = eventArgs.peripheral;
-                if (state) {
+                if (connectionState) {
                   await CentralManager.instance.disconnect(peripheral);
                   rssi.value = 0;
                 } else {
@@ -488,7 +493,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                       await CentralManager.instance.readRSSI(peripheral);
                 }
               },
-              child: Text(state ? 'DISCONNECT' : 'CONNECT'),
+              child: Text(connectionState ? 'DISCONNECT' : 'CONNECT'),
             );
           },
         ),
@@ -723,7 +728,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                           onPressed: characteristic != null && canNotify
                               ? () async {
                                   await CentralManager.instance
-                                      .notifyCharacteristic(
+                                      .setCharacteristicNotifyState(
                                     characteristic,
                                     state: true,
                                   );
@@ -778,9 +783,9 @@ class _PeripheralViewState extends State<PeripheralView> {
   void dispose() {
     super.dispose();
     rssiTimer.cancel();
-    stateChangedSubscription.cancel();
-    valueChangedSubscription.cancel();
-    state.dispose();
+    connectionStateChangedSubscription.cancel();
+    characteristicNotifiedSubscription.cancel();
+    connectionState.dispose();
     services.dispose();
     characteristics.dispose();
     service.dispose();
@@ -805,14 +810,14 @@ class _AdvertiserViewState extends State<AdvertiserView>
   late final ValueNotifier<bool> advertising;
   late final ValueNotifier<List<Log>> logs;
   late final StreamSubscription stateChangedSubscription;
-  late final StreamSubscription readCharacteristicCommandReceivedSubscription;
-  late final StreamSubscription writeCharacteristicCommandReceivedSubscription;
-  late final StreamSubscription notifyCharacteristicCommandReceivedSubscription;
+  late final StreamSubscription characteristicReadSubscription;
+  late final StreamSubscription characteristicWrittenSubscription;
+  late final StreamSubscription characteristicNotifyStateChangedSubscription;
 
   @override
   void initState() {
     super.initState();
-    state = ValueNotifier(PeripheralManager.instance.state);
+    state = ValueNotifier(BluetoothLowEnergyState.unknown);
     advertising = ValueNotifier(false);
     logs = ValueNotifier([]);
     stateChangedSubscription = PeripheralManager.instance.stateChanged.listen(
@@ -820,72 +825,48 @@ class _AdvertiserViewState extends State<AdvertiserView>
         state.value = eventArgs.state;
       },
     );
-    readCharacteristicCommandReceivedSubscription =
-        PeripheralManager.instance.readCharacteristicCommandReceived.listen(
+    characteristicReadSubscription =
+        PeripheralManager.instance.characteristicRead.listen(
       (eventArgs) async {
         final central = eventArgs.central;
         final characteristic = eventArgs.characteristic;
-        final id = eventArgs.id;
-        final offset = eventArgs.offset;
+        final value = eventArgs.value;
         final log = Log(
           LogType.read,
-          Uint8List.fromList([]),
-          'central: ${central.uuid}; characteristic: ${characteristic.uuid}; id: $id; offset: $offset',
+          value,
+          'central: ${central.uuid}; characteristic: ${characteristic.uuid}',
         );
         logs.value = [
           ...logs.value,
           log,
         ];
-        // final maximumWriteLength = PeripheralManager.instance.getMaximumWriteLength(
-        //   central,
-        // );
-        const status = true;
-        final value = Uint8List.fromList([0x01, 0x02, 0x03]);
-        await PeripheralManager.instance.sendReadCharacteristicReply(
-          central,
-          characteristic: characteristic,
-          id: id,
-          offset: offset,
-          status: status,
-          value: value,
-        );
       },
     );
-    writeCharacteristicCommandReceivedSubscription =
-        PeripheralManager.instance.writeCharacteristicCommandReceived.listen(
+    characteristicWrittenSubscription =
+        PeripheralManager.instance.characteristicWritten.listen(
       (eventArgs) async {
         final central = eventArgs.central;
         final characteristic = eventArgs.characteristic;
-        final id = eventArgs.id;
-        final offset = eventArgs.offset;
         final value = eventArgs.value;
         final log = Log(
           LogType.write,
           value,
-          'central: ${central.uuid}; characteristic: ${characteristic.uuid}; id: $id; offset: $offset',
+          'central: ${central.uuid}; characteristic: ${characteristic.uuid}',
         );
         logs.value = [
           ...logs.value,
           log,
         ];
-        const status = true;
-        await PeripheralManager.instance.sendWriteCharacteristicReply(
-          central,
-          characteristic: characteristic,
-          id: id,
-          offset: offset,
-          status: status,
-        );
       },
     );
-    notifyCharacteristicCommandReceivedSubscription =
-        PeripheralManager.instance.notifyCharacteristicCommandReceived.listen(
+    characteristicNotifyStateChangedSubscription =
+        PeripheralManager.instance.characteristicNotifyStateChanged.listen(
       (eventArgs) async {
         final central = eventArgs.central;
         final characteristic = eventArgs.characteristic;
         final state = eventArgs.state;
         final log = Log(
-          LogType.write,
+          LogType.notify,
           Uint8List.fromList([]),
           'central: ${central.uuid}; characteristic: ${characteristic.uuid}; state: $state',
         );
@@ -895,11 +876,12 @@ class _AdvertiserViewState extends State<AdvertiserView>
         ];
         // Write someting to the central when notify started.
         if (state) {
-          final value = Uint8List.fromList([0x03, 0x02, 0x01]);
-          await PeripheralManager.instance.notifyCharacteristicValueChanged(
-            central,
-            characteristic: characteristic,
+          final elements = List.generate(2000, (i) => i % 256);
+          final value = Uint8List.fromList(elements);
+          await PeripheralManager.instance.writeCharacteristic(
+            characteristic,
             value: value,
+            central: central,
           );
         }
       },
@@ -948,6 +930,8 @@ class _AdvertiserViewState extends State<AdvertiserView>
 
   Future<void> startAdvertising() async {
     await PeripheralManager.instance.clearServices();
+    final elements = List.generate(1000, (i) => i % 256);
+    final value = Uint8List.fromList(elements);
     final service = GattService(
       uuid: UUID.short(100),
       characteristics: [
@@ -956,15 +940,16 @@ class _AdvertiserViewState extends State<AdvertiserView>
           properties: [
             GattCharacteristicProperty.read,
           ],
+          value: value,
           descriptors: [],
         ),
         GattCharacteristic(
           uuid: UUID.short(201),
           properties: [
-            GattCharacteristicProperty.read,
             GattCharacteristicProperty.write,
             GattCharacteristicProperty.writeWithoutResponse,
           ],
+          value: Uint8List.fromList([]),
           descriptors: [],
         ),
         GattCharacteristic(
@@ -973,6 +958,23 @@ class _AdvertiserViewState extends State<AdvertiserView>
             GattCharacteristicProperty.notify,
             GattCharacteristicProperty.indicate,
           ],
+          value: Uint8List.fromList([]),
+          descriptors: [],
+        ),
+        GattCharacteristic(
+          uuid: UUID.short(203),
+          properties: [
+            GattCharacteristicProperty.notify,
+          ],
+          value: Uint8List.fromList([]),
+          descriptors: [],
+        ),
+        GattCharacteristic(
+          uuid: UUID.short(204),
+          properties: [
+            GattCharacteristicProperty.indicate,
+          ],
+          value: Uint8List.fromList([]),
           descriptors: [],
         ),
       ],
@@ -1051,9 +1053,9 @@ class _AdvertiserViewState extends State<AdvertiserView>
   void dispose() {
     super.dispose();
     stateChangedSubscription.cancel();
-    readCharacteristicCommandReceivedSubscription.cancel();
-    writeCharacteristicCommandReceivedSubscription.cancel();
-    notifyCharacteristicCommandReceivedSubscription.cancel();
+    characteristicReadSubscription.cancel();
+    characteristicWrittenSubscription.cancel();
+    characteristicNotifyStateChangedSubscription.cancel();
     state.dispose();
     advertising.dispose();
     logs.dispose();

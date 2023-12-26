@@ -1,6 +1,6 @@
 ## 5.0.0-dev.1
 
-* Update dependency.
+* Implements new Api.
 
 ## 4.0.0
 

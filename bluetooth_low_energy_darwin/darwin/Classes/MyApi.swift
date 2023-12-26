@@ -16,7 +16,7 @@ import FlutterMacOS
 #error("Unsupported platform.")
 #endif
 
-// ToObject
+// ToObj
 extension [MyGattCharacteristicPropertyArgs] {
     func toProperties() -> CBCharacteristicProperties {
         var properties: CBCharacteristicProperties = []

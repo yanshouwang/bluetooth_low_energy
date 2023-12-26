@@ -10,6 +10,7 @@ import 'package:pigeon/pigeon.dart';
 )
 enum MyBluetoothLowEnergyStateArgs {
   unknown,
+  resetting,
   unsupported,
   unauthorized,
   poweredOff,
@@ -27,6 +28,27 @@ enum MyGattCharacteristicPropertyArgs {
 enum MyGattCharacteristicWriteTypeArgs {
   withResponse,
   withoutResponse,
+}
+
+enum MyGattErrorArgs {
+  success,
+  invalidHandle,
+  readNotPermitted,
+  writeNotPermitted,
+  invalidPDU,
+  insufficientAuthentication,
+  requestNotSupported,
+  invalidOffset,
+  insufficientAuthorization,
+  prepareQueueFull,
+  attributeNotFound,
+  attributeNotLong,
+  insufficientEncryptionKeySize,
+  invalidAttributeValueLength,
+  unlikelyError,
+  insufficientEncryption,
+  unsupportedGroupType,
+  insufficientResources,
 }
 
 class MyManufacturerSpecificDataArgs {
@@ -48,18 +70,6 @@ class MyAdvertisementArgs {
     this.serviceDataArgs,
     this.manufacturerSpecificDataArgs,
   );
-}
-
-class MyCentralManagerArgs {
-  final int stateNumberArgs;
-
-  MyCentralManagerArgs(this.stateNumberArgs);
-}
-
-class MyPeripheralManagerArgs {
-  final int stateNumberArgs;
-
-  MyPeripheralManagerArgs(this.stateNumberArgs);
 }
 
 class MyCentralArgs {
@@ -114,8 +124,7 @@ class MyGattServiceArgs {
 
 @HostApi()
 abstract class MyCentralManagerHostApi {
-  @async
-  MyCentralManagerArgs setUp();
+  void setUp();
   void startDiscovery();
   void stopDiscovery();
   @async
@@ -147,7 +156,11 @@ abstract class MyCentralManagerHostApi {
     int typeNumberArgs,
   );
   @async
-  void notifyCharacteristic(String uuidArgs, int hashCodeArgs, bool stateArgs);
+  void setCharacteristicNotifyState(
+    String uuidArgs,
+    int hashCodeArgs,
+    bool stateArgs,
+  );
   @async
   Uint8List readDescriptor(String uuidArgs, int hashCodeArgs);
   @async
@@ -162,8 +175,8 @@ abstract class MyCentralManagerFlutterApi {
     int rssiArgs,
     MyAdvertisementArgs advertisementArgs,
   );
-  void onPeripheralStateChanged(String uuidArgs, bool stateArgs);
-  void onCharacteristicValueChanged(
+  void onConnectionStateChanged(String uuidArgs, bool stateArgs);
+  void onCharacteristicNotified(
     String uuidArgs,
     int hashCodeArgs,
     Uint8List valueArgs,
@@ -172,8 +185,7 @@ abstract class MyCentralManagerFlutterApi {
 
 @HostApi()
 abstract class MyPeripheralManagerHostApi {
-  @async
-  MyPeripheralManagerArgs setUp();
+  void setUp();
   @async
   void addService(MyGattServiceArgs serviceArgs);
   void removeService(int hashCodeArgs);
@@ -182,46 +194,32 @@ abstract class MyPeripheralManagerHostApi {
   void startAdvertising(MyAdvertisementArgs advertisementArgs);
   void stopAdvertising();
   int getMaximumUpdateValueLength(String uuidArgs);
-  void sendReadCharacteristicReply(
-    String uuidArgs,
-    int hashCodeArgs,
-    int idArgs,
-    int offsetArgs,
-    bool statusArgs,
-    Uint8List valueArgs,
-  );
-  void sendWriteCharacteristicReply(
-    String uuidArgs,
-    int hashCodeArgs,
-    int idArgs,
-    int offsetArgs,
-    bool statusArgs,
-  );
+  void respond(int idArgs, int errorNumberArgs, Uint8List? valueArgs);
   @async
-  void notifyCharacteristicValueChanged(
-    String uuidArgs,
+  void updateCharacteristic(
     int hashCodeArgs,
     Uint8List valueArgs,
+    List<String>? uuidsArgs,
   );
 }
 
 @FlutterApi()
 abstract class MyPeripheralManagerFlutterApi {
   void onStateChanged(int stateNumberArgs);
-  void onReadCharacteristicCommandReceived(
+  void onCharacteristicReadRequest(
     MyCentralArgs centralArgs,
     int hashCodeArgs,
     int idArgs,
     int offsetArgs,
   );
-  void onWriteCharacteristicCommandReceived(
+  void onCharacteristicWriteRequest(
     MyCentralArgs centralArgs,
     int hashCodeArgs,
     int idArgs,
     int offsetArgs,
     Uint8List valueArgs,
   );
-  void onNotifyCharacteristicCommandReceived(
+  void onCharacteristicNotifyStateChanged(
     MyCentralArgs centralArgs,
     int hashCodeArgs,
     bool stateArgs,
