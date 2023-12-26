@@ -18,6 +18,7 @@ class MyCentralManager extends CentralManager
       _connectionStateChangedController;
   final StreamController<GattCharacteristicNotifiedEventArgs>
       _characteristicNotifiedController;
+
   final Map<String, MyPeripheral2> _peripherals;
   final Map<String, Map<int, MyGattCharacteristic2>> _characteristics;
   final Map<String, int> _mtus;

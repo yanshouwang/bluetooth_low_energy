@@ -18,6 +18,7 @@ class MyPeripheralManager extends PeripheralManager
       _characteristicWrittenController;
   final StreamController<GattCharacteristicNotifyStateChangedEventArgs>
       _characteristicNotifyStateChangedController;
+
   final Map<String, MyCentral2> _centrals;
   final Map<int, Map<int, MyGattCharacteristic>> _characteristics;
   final Map<String, int> _mtus;
@@ -133,7 +134,7 @@ class MyPeripheralManager extends PeripheralManager
     final hashCodeArgs = characteristic.hashCode;
     final confirm = _retrieveConfirm(addressArgs, hashCodeArgs);
     if (confirm == null) {
-      logger.warning('The central is not notified.');
+      logger.warning('The central is not listening.');
       return;
     }
     final valueArgs = characteristic.value;
