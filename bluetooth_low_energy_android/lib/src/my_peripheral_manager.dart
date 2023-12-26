@@ -137,22 +137,22 @@ class MyPeripheralManager extends PeripheralManager
       logger.warning('The central is not listening.');
       return;
     }
-    final valueArgs = characteristic.value;
-    // fragments the value by MTU - 3 size.
+    final trimmedValueArgs = characteristic.value;
+    // Fragments the value by MTU - 3 size.
     // If mtu is null, use 23 as default MTU size.
     final mtu = _mtus[addressArgs] ?? 23;
-    final trimmedSize = (mtu - 3).clamp(20, 512);
+    final fragmentSize = (mtu - 3).clamp(20, 512);
     var start = 0;
-    while (start < valueArgs.length) {
-      final end = start + trimmedSize;
-      final trimmedValueArgs = end < valueArgs.length
-          ? valueArgs.sublist(start, end)
-          : valueArgs.sublist(start);
+    while (start < trimmedValueArgs.length) {
+      final end = start + fragmentSize;
+      final fragmentedValueArgs = end < trimmedValueArgs.length
+          ? trimmedValueArgs.sublist(start, end)
+          : trimmedValueArgs.sublist(start);
       await _api.notifyCharacteristicChanged(
         addressArgs,
         hashCodeArgs,
         confirm,
-        trimmedValueArgs,
+        fragmentedValueArgs,
       );
       start = end;
     }

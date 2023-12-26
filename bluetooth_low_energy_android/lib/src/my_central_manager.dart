@@ -149,33 +149,31 @@ class MyCentralManager extends CentralManager
     final peripheral = characteristic.peripheral;
     final addressArgs = peripheral.address;
     final hashCodeArgs = characteristic.hashCode;
-    final valueArgs = value.trimGATT();
+    final trimmedValueArgs = value.trimGATT();
     final typeArgs = type.toArgs();
     final typeNumberArgs = typeArgs.index;
     // When write without response, fragments the value by MTU - 3 size.
     // If mtu is null, use 23 as default MTU size.
-    //
-    // When write with response, fragments the value by 512 bytes.
     if (type == GattCharacteristicWriteType.withResponse) {
       await _api.writeCharacteristic(
         addressArgs,
         hashCodeArgs,
-        valueArgs,
+        trimmedValueArgs,
         typeNumberArgs,
       );
     } else {
       final mtu = _mtus[addressArgs] ?? 23;
-      final trimmedSize = (mtu - 3).clamp(20, 512);
+      final fragmentSize = (mtu - 3).clamp(20, 512);
       var start = 0;
-      while (start < valueArgs.length) {
-        final end = start + trimmedSize;
-        final trimmedValueArgs = end < valueArgs.length
-            ? valueArgs.sublist(start, end)
-            : valueArgs.sublist(start);
+      while (start < trimmedValueArgs.length) {
+        final end = start + fragmentSize;
+        final fragmentedValueArgs = end < trimmedValueArgs.length
+            ? trimmedValueArgs.sublist(start, end)
+            : trimmedValueArgs.sublist(start);
         await _api.writeCharacteristic(
           addressArgs,
           hashCodeArgs,
-          trimmedValueArgs,
+          fragmentedValueArgs,
           typeNumberArgs,
         );
         start = end;

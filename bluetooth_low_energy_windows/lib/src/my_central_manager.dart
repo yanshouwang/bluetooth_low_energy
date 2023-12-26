@@ -151,13 +151,13 @@ class MyCentralManager extends CentralManager
     final peripheral = characteristic.peripheral;
     final addressArgs = peripheral.uuid.toAddressArgs();
     final handleArgs = characteristic.handle;
-    final valueArgs = value.trimGATT();
+    final trimmedValueArgs = value.trimGATT();
     final typeArgs = type.toArgs();
     final typeNumberArgs = typeArgs.index;
     await _api.writeCharacteristic(
       addressArgs,
       handleArgs,
-      valueArgs,
+      trimmedValueArgs,
       typeNumberArgs,
     );
   }

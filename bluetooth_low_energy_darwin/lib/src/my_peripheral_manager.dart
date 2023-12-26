@@ -128,17 +128,17 @@ class MyPeripheralManager extends PeripheralManager
       return;
     }
     final uuidsArgs = [uuidArgs];
-    final valueArgs = characteristic.value;
-    final trimmedSize = await _api.getMaximumUpdateValueLength(uuidArgs);
+    final trimmedValueArgs = characteristic.value;
+    final fragmentSize = await _api.getMaximumUpdateValueLength(uuidArgs);
     var start = 0;
-    while (start < valueArgs.length) {
-      final end = start + trimmedSize;
-      final trimmedValueArgs = end < valueArgs.length
-          ? valueArgs.sublist(start, end)
-          : valueArgs.sublist(start);
+    while (start < trimmedValueArgs.length) {
+      final end = start + fragmentSize;
+      final fragmentedValueArgs = end < trimmedValueArgs.length
+          ? trimmedValueArgs.sublist(start, end)
+          : trimmedValueArgs.sublist(start);
       await _api.updateCharacteristic(
         hashCodeArgs,
-        trimmedValueArgs,
+        fragmentedValueArgs,
         uuidsArgs,
       );
       start = end;

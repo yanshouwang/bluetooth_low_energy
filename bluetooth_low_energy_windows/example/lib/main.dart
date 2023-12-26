@@ -723,19 +723,23 @@ class _PeripheralViewState extends State<PeripheralView> {
                                 final value = Uint8List.fromList(elements);
                                 final type = writeType.value;
                                 // Fragments the value by 512 bytes.
+                                const fragmentSize = 512;
                                 var start = 0;
                                 while (start < value.length) {
-                                  final end = start + 512;
-                                  final trimmedValue = end < value.length
+                                  final end = start + fragmentSize;
+                                  final fragmentedValue = end < value.length
                                       ? value.sublist(start, end)
                                       : value.sublist(start);
                                   await CentralManager.instance
                                       .writeCharacteristic(
                                     characteristic,
-                                    value: trimmedValue,
+                                    value: fragmentedValue,
                                     type: type,
                                   );
-                                  final log = Log(LogType.write, trimmedValue);
+                                  final log = Log(
+                                    LogType.write,
+                                    fragmentedValue,
+                                  );
                                   logs.value = [...logs.value, log];
                                   start = end;
                                 }

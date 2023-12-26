@@ -154,23 +154,23 @@ class MyCentralManager extends CentralManager
     final peripheral = characteristic.peripheral;
     final uuidArgs = peripheral.uuid.toArgs();
     final hashCodeArgs = characteristic.hashCode;
-    final valueArgs = value;
+    final trimmedValueArgs = value.trimGATT();
     final typeArgs = type.toArgs();
     final typeNumberArgs = typeArgs.index;
-    final trimmedSize = await _api.getMaximumWriteValueLength(
+    final fragmentSize = await _api.getMaximumWriteValueLength(
       uuidArgs,
       typeNumberArgs,
     );
     var start = 0;
-    while (start < valueArgs.length) {
-      final end = start + trimmedSize;
-      final trimmedValueArgs = end < valueArgs.length
-          ? valueArgs.sublist(start, end)
-          : valueArgs.sublist(start);
+    while (start < trimmedValueArgs.length) {
+      final end = start + fragmentSize;
+      final fragmentedValueArgs = end < trimmedValueArgs.length
+          ? trimmedValueArgs.sublist(start, end)
+          : trimmedValueArgs.sublist(start);
       await _api.writeCharacteristic(
         uuidArgs,
         hashCodeArgs,
-        trimmedValueArgs,
+        fragmentedValueArgs,
         typeNumberArgs,
       );
       start = end;

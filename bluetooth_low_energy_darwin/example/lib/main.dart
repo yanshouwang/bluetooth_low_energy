@@ -755,14 +755,27 @@ class _PeripheralViewState extends State<PeripheralView> {
                                   final elements = utf8.encode(text);
                                   final value = Uint8List.fromList(elements);
                                   final type = writeType.value;
-                                  await CentralManager.instance
-                                      .writeCharacteristic(
-                                    characteristic,
-                                    value: value,
-                                    type: type,
-                                  );
-                                  final log = Log(LogType.write, value);
-                                  logs.value = [...logs.value, log];
+                                  // Fragments the value by 512 bytes.
+                                  const fragmentSize = 512;
+                                  var start = 0;
+                                  while (start < value.length) {
+                                    final end = start + fragmentSize;
+                                    final fragmentedValue = end < value.length
+                                        ? value.sublist(start, end)
+                                        : value.sublist(start);
+                                    await CentralManager.instance
+                                        .writeCharacteristic(
+                                      characteristic,
+                                      value: fragmentedValue,
+                                      type: type,
+                                    );
+                                    final log = Log(
+                                      LogType.write,
+                                      fragmentedValue,
+                                    );
+                                    logs.value = [...logs.value, log];
+                                    start = end;
+                                  }
                                 }
                               : null,
                           child: const Text('WRITE'),
