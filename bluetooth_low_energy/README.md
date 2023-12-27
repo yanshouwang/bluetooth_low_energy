@@ -6,29 +6,24 @@ A Flutter plugin for controlling the bluetooth low energy.
 
 ### CentralManager
 
-- [x] Set up the central manager.
 - [x] Get/Listen the state of the central manager.
+- [x] Listen connection state cahgned.
+- [x] Listen GATT characteristic notified.
 - [x] Start/Stop discovery.
 - [x] Connect/Disconnect peripherals.
-- [x] Get maximum write length of peripherals.
 - [x] Read RSSI of peripherals.
 - [x] Discover GATT.
-- [x] Get GATT services.
-- [x] Get GATT characteristics.
-- [x] Get GATT descriptors.
-- [x] Read/Write/Notify GATT characteristics.
+- [x] Read/Write GATT characteristics.
+- [x] Set GATT characteristics notify state.
 - [x] Read/Write GATT descriptors.
 
 ### PeripheralManager
 
-- [x] Set up the peripheral manager.
 - [x] Get/Listen the state of the peripheral manager.
+- [x] Listen GATT characteristic read/written/notifyStateChanged.
 - [x] Add/Remove/Clear service(s).
 - [x] Start/Stop advertising.
-- [x] Get maximum write length of centrals.
-- [x] Listen read/write/notify characteristic requests from centrals.
-- [x] Send read/write characteristic replies to centrals.
-- [x] Notify characteristic value changed to centrals.
+- [x] Read/Write(Notify) GATT characteristics.
 
 ## Getting Started
 
@@ -55,10 +50,10 @@ According to Apple's [documents](https://developer.apple.com/documentation/coreb
 
 ### Linux
 
-Not tested enough, if you occured any problems, file an issue to let me know about it, i will fix it as soon as possible.
-
-PeripheralManager api is not supported because the `bluez` plugin doesn't support this yet, see [How to use bluez to act as bluetooth peripheral](https://github.com/canonical/bluez.dart/issues/85)
+PeripheralManager is not implemented because the `bluez` plugin doesn't support this yet, see [How to use bluez to act as bluetooth peripheral](https://github.com/canonical/bluez.dart/issues/85)
 
 ### Windows
 
-Not implemented yet but maybe someday or someone can use the `win32` api to implement this plugin_interface or someday the flutter team support C# on windows platform or someday I am familiar with C++ language...
+PeripheralManager is not implemented, it will be implemented in the future.
+
+*Note:* The `CentralManager#readRSSI` method is not implemented on windows(windows doesn't support read RSSI after connected), avoid call this when running on windows devices.
