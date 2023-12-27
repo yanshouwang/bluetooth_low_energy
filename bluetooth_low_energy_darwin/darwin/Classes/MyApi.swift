@@ -64,6 +64,49 @@ extension MyGattCharacteristicWriteTypeArgs {
     }
 }
 
+extension MyGattErrorArgs {
+    func toError() -> CBATTError.Code {
+        switch self {
+        case .success:
+            return .success
+        case .invalidHandle:
+            return .invalidHandle
+        case .readNotPermitted:
+            return .readNotPermitted
+        case .writeNotPermitted:
+            return .writeNotPermitted
+        case .invalidPDU:
+            return .invalidPdu
+        case .insufficientAuthentication:
+            return .insufficientAuthentication
+        case .requestNotSupported:
+            return .requestNotSupported
+        case .invalidOffset:
+            return .invalidOffset
+        case .insufficientAuthorization:
+            return .insufficientAuthorization
+        case .prepareQueueFull:
+            return .prepareQueueFull
+        case .attributeNotFound:
+            return .attributeNotFound
+        case .attributeNotLong:
+            return .attributeNotLong
+        case .insufficientEncryptionKeySize:
+            return .insufficientEncryptionKeySize
+        case .invalidAttributeValueLength:
+            return .invalidAttributeValueLength
+        case .unlikelyError:
+            return .unlikelyError
+        case .insufficientEncryption:
+            return .insufficientEncryption
+        case .unsupportedGroupType:
+            return .unsupportedGroupType
+        case .insufficientResources:
+            return .insufficientResources
+        }
+    }
+}
+
 extension MyAdvertisementArgs {
     func toAdvertisement() -> [String : Any] {
         // CoreBluetooth only support `CBAdvertisementDataLocalNameKey` and `CBAdvertisementDataServiceUUIDsKey`
@@ -140,6 +183,10 @@ extension String {
 extension CBManagerState {
     func toArgs() -> MyBluetoothLowEnergyStateArgs {
         switch self {
+        case .resetting:
+            return .resetting
+        case .unsupported:
+            return .unsupported
         case .unauthorized:
             return .unauthorized
         case .poweredOff:
@@ -147,7 +194,7 @@ extension CBManagerState {
         case .poweredOn:
             return .poweredOn
         default:
-            return .unsupported
+            return .unknown
         }
     }
 }
@@ -199,7 +246,7 @@ extension CBPeripheral {
 
 extension CBDescriptor {
     func toArgs() -> MyGattDescriptorArgs {
-        let hashCodeArgs = hash.toArgs()
+        let hashCodeArgs = hash.toInt64()
         let uuidArgs = uuid.toArgs()
         return MyGattDescriptorArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs)
     }
@@ -207,9 +254,9 @@ extension CBDescriptor {
 
 extension CBCharacteristic {
     func toArgs() -> MyGattCharacteristicArgs {
-        let hashCodeArgs = hash.toArgs()
+        let hashCodeArgs = hash.toInt64()
         let uuidArgs = uuid.toArgs()
-        let propertyNumbersArgs = properties.toArgs().map { args in args.rawValue.toArgs() }
+        let propertyNumbersArgs = properties.toArgs().map { args in args.rawValue.toInt64() }
         let descriptorsArgs = descriptors?.map { descriptor in descriptor.toArgs() } ?? []
         return MyGattCharacteristicArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, propertyNumbersArgs: propertyNumbersArgs, descriptorsArgs: descriptorsArgs)
     }
@@ -239,7 +286,7 @@ extension CBCharacteristicProperties {
 
 extension CBService {
     func toArgs() -> MyGattServiceArgs {
-        let hashCodeArgs = hash.toArgs()
+        let hashCodeArgs = hash.toInt64()
         let uuidArgs = uuid.toArgs()
         let characteristicsArgs = characteristics?.map { characteristic in characteristic.toArgs() } ?? []
         return MyGattServiceArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, characteristicsArgs: characteristicsArgs)
@@ -247,20 +294,20 @@ extension CBService {
 }
 
 extension Int {
-    func toArgs() -> Int64 {
+    func toInt64() -> Int64 {
         return Int64(self)
     }
 }
 
 extension UUID {
     func toArgs() -> String {
-        return uuidString
+        return uuidString.lowercased()
     }
 }
 
 extension CBUUID {
     func toArgs() -> String {
-        return uuidString
+        return uuidString.lowercased()
     }
 }
 
@@ -283,16 +330,5 @@ extension UInt16 {
     var data: Data {
         var source = self
         return Data(bytes: &source, count: MemoryLayout<UInt16>.size)
-    }
-}
-
-extension Dictionary {
-    mutating func getOrPut(_ key: Key, _ defaultValue: () -> Value) -> Value {
-        guard let value = self[key] else {
-            let newValue = defaultValue()
-            self[key] = newValue
-            return newValue
-        }
-        return value
     }
 }

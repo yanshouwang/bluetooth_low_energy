@@ -32,7 +32,6 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
     private var _descriptors: [Int64: CBMutableDescriptor]
     private var _requests: [Int64: CBATTRequest]
     
-    private var _setUpCompletion: ((Result<MyPeripheralManagerArgs, Error>) -> Void)?
     private var _addServiceCompletion: ((Result<Void, Error>) -> Void)?
     private var _startAdvertisingCompletion: ((Result<Void, Error>) -> Void)?
     private var _isReadyToUpdateSubscribersCallbacks: [() -> Void]
@@ -51,25 +50,17 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
         _descriptors = [:]
         _requests = [:]
         
-        _setUpCompletion = nil
         _addServiceCompletion = nil
         _startAdvertisingCompletion = nil
         _isReadyToUpdateSubscribersCallbacks = []
     }
     
-    func setUp(completion: @escaping (Result<MyPeripheralManagerArgs, Error>) -> Void) {
+    func setUp() throws {
         _clearState()
         if _peripheralManager.delegate == nil {
             _peripheralManager.delegate = _peripheralManagerDelegate
         }
-        if _peripheralManager.state == .unknown {
-            _setUpCompletion = completion
-        } else {
-            let stateArgs = _peripheralManager.state.toArgs()
-            let stateNumberArgs = stateArgs.rawValue.toArgs()
-            let args = MyPeripheralManagerArgs(stateNumberArgs: stateNumberArgs)
-            completion(.success(args))
-        }
+        _onStateChanged()
     }
     
     func addService(serviceArgs: MyGattServiceArgs, completion: @escaping (Result<Void, Error>) -> Void) {
@@ -145,42 +136,43 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
             throw MyError.illegalArgument
         }
         let maximumUpdateValueLength = central.maximumUpdateValueLength
-        let maximumUpdateValueLengthArgs = maximumUpdateValueLength.toArgs()
+        let maximumUpdateValueLengthArgs = maximumUpdateValueLength.toInt64()
         return maximumUpdateValueLengthArgs
     }
     
-    func sendReadCharacteristicReply(uuidArgs: String, hashCodeArgs: Int64, idArgs: Int64, offsetArgs: Int64, statusArgs: Bool, valueArgs: FlutterStandardTypedData) throws {
+    func respond(idArgs: Int64, errorNumberArgs: Int64, valueArgs: FlutterStandardTypedData?) throws {
         guard let request = _requests.removeValue(forKey: idArgs) else {
             throw MyError.illegalArgument
         }
-        request.value = valueArgs.data
-        let result = statusArgs ? CBATTError.Code.success : CBATTError.Code.requestNotSupported
-        _peripheralManager.respond(to: request, withResult: result)
-    }
-    
-    func sendWriteCharacteristicReply(uuidArgs: String, hashCodeArgs: Int64, idArgs: Int64, offsetArgs: Int64, statusArgs: Bool) throws {
-        guard let request = _requests.removeValue(forKey: idArgs) else {
+        if valueArgs != nil {
+            request.value = valueArgs?.data
+        }
+        let errorArgsRawValue = errorNumberArgs.toInt()
+        guard let errorArgs = MyGattErrorArgs(rawValue: errorArgsRawValue) else {
             throw MyError.illegalArgument
         }
-        let result = statusArgs ? CBATTError.Code.success : CBATTError.Code.requestNotSupported
+        let result = errorArgs.toError()
         _peripheralManager.respond(to: request, withResult: result)
     }
     
-    func notifyCharacteristicValueChanged(uuidArgs: String, hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData, completion: @escaping (Result<Void, Error>) -> Void) {
+    func updateCharacteristic(hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData, uuidsArgs: [String]?, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
-            guard let central = _centrals[uuidArgs] else {
-                throw MyError.illegalArgument
+            let centrals = try uuidsArgs?.map { uuidArgs in
+                guard let central = _centrals[uuidArgs] else {
+                    throw MyError.illegalArgument
+                }
+                return central
             }
             guard let characteristic = _characteristics[hashCodeArgs] else {
                 throw MyError.illegalArgument
             }
             let value = valueArgs.data
-            let updated = _peripheralManager.updateValue(value, for: characteristic, onSubscribedCentrals: [central])
+            let updated = _peripheralManager.updateValue(value, for: characteristic, onSubscribedCentrals: centrals)
             if updated {
                 completion(.success(()))
             } else {
                 _isReadyToUpdateSubscribersCallbacks.append {
-                    self.notifyCharacteristicValueChanged(uuidArgs: uuidArgs, hashCodeArgs: hashCodeArgs, valueArgs: valueArgs, completion: completion)
+                    self.updateCharacteristic(hashCodeArgs: hashCodeArgs, valueArgs: valueArgs, uuidsArgs: uuidsArgs, completion: completion)
                 }
             }
         } catch {
@@ -189,19 +181,7 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
     }
     
     func didUpdateState(peripheral: CBPeripheralManager) {
-        let state = _peripheralManager.state
-        let stateArgs = state.toArgs()
-        let stateNumberArgs = stateArgs.rawValue.toArgs()
-        _api.onStateChanged(stateNumberArgs: stateNumberArgs) {_ in }
-        guard state != .unknown else {
-            return
-        }
-        guard let completion = _setUpCompletion else {
-            return
-        }
-        _setUpCompletion = nil
-        let args = MyPeripheralManagerArgs(stateNumberArgs: stateNumberArgs)
-        completion(.success(args))
+        _onStateChanged()
     }
     
     func didAdd(peripheral: CBPeripheralManager, service: CBService, error: Error?) {
@@ -244,10 +224,10 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
             return
         }
         let hashCodeArgs = characteristicArgs.hashCodeArgs
-        let idArgs = request.hash.toArgs()
-        let offsetArgs = request.offset.toArgs()
+        let idArgs = request.hash.toInt64()
+        let offsetArgs = request.offset.toInt64()
         _requests[idArgs] = request
-        _api.onReadCharacteristicCommandReceived(centralArgs: centralArgs, hashCodeArgs: hashCodeArgs, idArgs: idArgs, offsetArgs: offsetArgs) {_ in }
+        _api.onCharacteristicReadRequest(centralArgs: centralArgs, hashCodeArgs: hashCodeArgs, idArgs: idArgs, offsetArgs: offsetArgs) {_ in }
     }
     
     func didReceiveWrite(peripheral: CBPeripheralManager, requests: [CBATTRequest]) {
@@ -275,15 +255,15 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
             return
         }
         let hashCodeArgs = characteristicArgs.hashCodeArgs
-        let idArgs = request.hash.toArgs()
-        let offsetArgs = request.offset.toArgs()
+        let idArgs = request.hash.toInt64()
+        let offsetArgs = request.offset.toInt64()
         guard let value = request.value else {
             _peripheralManager.respond(to: request, withResult: .requestNotSupported)
             return
         }
         let valueArgs = FlutterStandardTypedData(bytes: value)
         _requests[idArgs] = request
-        _api.onWriteCharacteristicCommandReceived(centralArgs: centralArgs, hashCodeArgs: hashCodeArgs, idArgs: idArgs, offsetArgs: offsetArgs, valueArgs: valueArgs) {_ in }
+        _api.onCharacteristicWriteRequest(centralArgs: centralArgs, hashCodeArgs: hashCodeArgs, idArgs: idArgs, offsetArgs: offsetArgs, valueArgs: valueArgs) {_ in }
     }
     
     func didSubscribeTo(peripheral: CBPeripheralManager, central: CBCentral, characteristic: CBCharacteristic) {
@@ -295,7 +275,7 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
         }
         let hashCodeArgs = characteristicArgs.hashCodeArgs
         let stateArgs = true
-        _api.onNotifyCharacteristicCommandReceived(centralArgs: centralArgs, hashCodeArgs: hashCodeArgs, stateArgs: stateArgs) {_ in }
+        _api.onCharacteristicNotifyStateChanged(centralArgs: centralArgs, hashCodeArgs: hashCodeArgs, stateArgs: stateArgs) {_ in }
     }
     
     func didUnsubscribeFrom(peripheral: CBPeripheralManager, central: CBCentral, characteristic: CBCharacteristic) {
@@ -307,7 +287,7 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
         }
         let hashCodeArgs = characteristicArgs.hashCodeArgs
         let stateArgs = false
-        _api.onNotifyCharacteristicCommandReceived(centralArgs: centralArgs, hashCodeArgs: hashCodeArgs, stateArgs: stateArgs) {_ in }
+        _api.onCharacteristicNotifyStateChanged(centralArgs: centralArgs, hashCodeArgs: hashCodeArgs, stateArgs: stateArgs) {_ in }
     }
     
     func isReadyToUpdateSubscribers(peripheral: CBPeripheralManager) {
@@ -333,7 +313,6 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
         _descriptors.removeAll()
         _requests.removeAll()
         
-        _setUpCompletion = nil
         _addServiceCompletion = nil
         _startAdvertisingCompletion = nil
         _isReadyToUpdateSubscribersCallbacks.removeAll()
@@ -370,5 +349,12 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
         }
         let serviceHashCode = service.hash
         _servicesArgs.removeValue(forKey: serviceHashCode)
+    }
+    
+    private func _onStateChanged() {
+        let state = _peripheralManager.state
+        let stateArgs = state.toArgs()
+        let stateNumberArgs = stateArgs.rawValue.toInt64()
+        _api.onStateChanged(stateNumberArgs: stateNumberArgs) {_ in }
     }
 }

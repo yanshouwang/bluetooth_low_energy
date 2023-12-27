@@ -899,6 +899,11 @@ class _AdvertiserViewState extends State<AdvertiserView>
         }
       },
     );
+    _initialize();
+  }
+
+  void _initialize() async {
+    state.value = await PeripheralManager.instance.getState();
   }
 
   @override

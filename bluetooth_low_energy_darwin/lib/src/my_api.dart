@@ -12,7 +12,19 @@ export 'my_api.g.dart';
 // ToObject
 extension MyBluetoothLowEnergyStateArgsX on MyBluetoothLowEnergyStateArgs {
   BluetoothLowEnergyState toState() {
-    return BluetoothLowEnergyState.values[index];
+    switch (this) {
+      case MyBluetoothLowEnergyStateArgs.unknown:
+      case MyBluetoothLowEnergyStateArgs.resetting:
+        return BluetoothLowEnergyState.unknown;
+      case MyBluetoothLowEnergyStateArgs.unsupported:
+        return BluetoothLowEnergyState.unsupported;
+      case MyBluetoothLowEnergyStateArgs.unauthorized:
+        return BluetoothLowEnergyState.unauthorized;
+      case MyBluetoothLowEnergyStateArgs.poweredOff:
+        return BluetoothLowEnergyState.poweredOff;
+      case MyBluetoothLowEnergyStateArgs.poweredOn:
+        return BluetoothLowEnergyState.poweredOn;
+    }
   }
 }
 
@@ -229,6 +241,6 @@ extension MyGattServiceX on MyGattService {
 
 extension UuidX on UUID {
   String toArgs() {
-    return toString();
+    return toString().toLowerCase();
   }
 }
