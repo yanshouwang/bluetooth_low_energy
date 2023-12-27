@@ -1,3 +1,7 @@
+## 5.0.0-dev.3
+
+* Add logs on Linux platform.
+
 ## 5.0.0-dev.2
 
 * Add default_package of windows in pubspec.yaml.
