@@ -1,3 +1,7 @@
+## 5.0.0-dev.4
+
+* Add event logs.
+
 ## 5.0.0-dev.3
 
 * Implements new Api.
