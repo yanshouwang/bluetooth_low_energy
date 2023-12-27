@@ -1,3 +1,7 @@
+## 5.0.0-dev.2
+
+* Add default_package of windows in pubspec.yaml
+
 ## 5.0.0-dev.1
 
 * Now `CentralManager#writeCharacteristic` and `PeripheralManager#writeCharacteristic` will fragment the value automatically, the maximum write length is 512 bytes.

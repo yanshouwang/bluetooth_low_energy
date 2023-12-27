@@ -1,6 +1,6 @@
 name: bluetooth_low_energy
 description: A Flutter plugin for controlling the bluetooth low energy, supports central and peripheral apis.
-version: 5.0.0-dev.1
+version: 5.0.0-dev.2
 homepage: https://github.com/yanshouwang/bluetooth_low_energy
 
 environment:
@@ -13,8 +13,8 @@ dependencies:
   bluetooth_low_energy_platform_interface: ^5.0.0-dev.10
   bluetooth_low_energy_android: ^5.0.0-dev.4
   bluetooth_low_energy_darwin: ^5.0.0-dev.1
-  bluetooth_low_energy_linux: ^5.0.0-dev.3
   bluetooth_low_energy_windows: ^5.0.0-dev.7
+  bluetooth_low_energy_linux: ^5.0.0-dev.3
 
 dev_dependencies:
   flutter_test:
@@ -30,5 +30,7 @@ flutter:
         default_package: bluetooth_low_energy_darwin
       macos:
         default_package: bluetooth_low_energy_darwin
+      windows:
+        default_package: bluetooth_low_energy_windows
       linux:
         default_package: bluetooth_low_energy_linux
