@@ -204,6 +204,7 @@ class MyCentralManager extends CentralManager {
   }
 
   void _onBlueZAdapterPropertiesChanged(List<String> blueZAdapterProperties) {
+    logger.info('onBlueZAdapterPropertiesChanged: $blueZAdapterProperties');
     for (var blueZAdapterProperty in blueZAdapterProperties) {
       switch (blueZAdapterProperty) {
         case 'Powered':
@@ -222,6 +223,7 @@ class MyCentralManager extends CentralManager {
   }
 
   void _onBlueZClientDeviceAdded(BlueZDevice blueZDevice) {
+    logger.info('onBlueZClientDeviceAdded: ${blueZDevice.address}');
     if (blueZDevice.adapter.address != _blueZAdapter.address) {
       return;
     }
@@ -243,6 +245,8 @@ class MyCentralManager extends CentralManager {
 
   void _beginBlueZDevicePropertiesChangedListener(BlueZDevice blueZDevice) {
     blueZDevice.propertiesChanged.listen((blueZDeviceProperties) {
+      logger.info(
+          'onBlueZDevicePropertiesChanged: ${blueZDevice.address}, $blueZDeviceProperties');
       for (var blueZDeviceProperty in blueZDeviceProperties) {
         switch (blueZDeviceProperty) {
           case 'RSSI':
@@ -292,6 +296,8 @@ class MyCentralManager extends CentralManager {
         final blueZCharacteristic = characteristic.blueZCharacteristic;
         final subscription = blueZCharacteristic.propertiesChanged.listen(
           (blueZCharacteristicProperties) {
+            logger.info(
+                'onBlueZCharacteristicPropertiesChanged: ${blueZDevice.address}.${blueZCharacteristic.uuid}, $blueZCharacteristicProperties');
             for (var blueZCharacteristicPropety
                 in blueZCharacteristicProperties) {
               switch (blueZCharacteristicPropety) {
