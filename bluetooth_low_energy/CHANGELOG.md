@@ -1,6 +1,6 @@
 ## 5.0.0-dev.2
 
-* Add default_package of windows in pubspec.yaml
+* Add default_package of windows in pubspec.yaml.
 
 ## 5.0.0-dev.1
 
