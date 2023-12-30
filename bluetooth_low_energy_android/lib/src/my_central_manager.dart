@@ -50,22 +50,26 @@ class MyCentralManager extends CentralManager
 
   @override
   Future<void> setUp() async {
+    logger.info('setUp');
     await _api.setUp();
     MyCentralManagerFlutterApi.setup(this);
   }
 
   @override
   Future<BluetoothLowEnergyState> getState() {
+    logger.info('getState');
     return Future.value(_state);
   }
 
   @override
   Future<void> startDiscovery() async {
+    logger.info('startDiscovery');
     await _api.startDiscovery();
   }
 
   @override
   Future<void> stopDiscovery() async {
+    logger.info('stopDiscovery');
     await _api.stopDiscovery();
   }
 
@@ -75,6 +79,7 @@ class MyCentralManager extends CentralManager
       throw TypeError();
     }
     final addressArgs = peripheral.address;
+    logger.info('connect: $addressArgs');
     await _api.connect(addressArgs);
     try {
       await _api.requestMTU(addressArgs, 517);
@@ -90,6 +95,7 @@ class MyCentralManager extends CentralManager
       throw TypeError();
     }
     final addressArgs = peripheral.address;
+    logger.info('disconnect: $addressArgs');
     await _api.disconnect(addressArgs);
   }
 
@@ -99,6 +105,7 @@ class MyCentralManager extends CentralManager
       throw TypeError();
     }
     final addressArgs = peripheral.address;
+    logger.info('readRSSI: $addressArgs');
     final rssi = await _api.readRSSI(addressArgs);
     return rssi;
   }
@@ -109,7 +116,8 @@ class MyCentralManager extends CentralManager
       throw TypeError();
     }
     final addressArgs = peripheral.address;
-    final servicesArgs = await _api.discoverGATT(addressArgs);
+    logger.info('discoverServices: $addressArgs');
+    final servicesArgs = await _api.discoverServices(addressArgs);
     final services = servicesArgs
         .cast<MyGattServiceArgs>()
         .map((args) => args.toService2(peripheral))
@@ -133,6 +141,7 @@ class MyCentralManager extends CentralManager
     final peripheral = characteristic.peripheral;
     final addressArgs = peripheral.address;
     final hashCodeArgs = characteristic.hashCode;
+    logger.info('readCharacteristic: $addressArgs.$hashCodeArgs');
     final value = await _api.readCharacteristic(addressArgs, hashCodeArgs);
     return value;
   }
@@ -155,6 +164,8 @@ class MyCentralManager extends CentralManager
     // When write without response, fragments the value by MTU - 3 size.
     // If mtu is null, use 23 as default MTU size.
     if (type == GattCharacteristicWriteType.withResponse) {
+      logger.info(
+          'writeCharacteristic: $addressArgs.$hashCodeArgs - $trimmedValueArgs, $typeArgs');
       await _api.writeCharacteristic(
         addressArgs,
         hashCodeArgs,
@@ -170,6 +181,8 @@ class MyCentralManager extends CentralManager
         final fragmentedValueArgs = end < trimmedValueArgs.length
             ? trimmedValueArgs.sublist(start, end)
             : trimmedValueArgs.sublist(start);
+        logger.info(
+            'writeCharacteristic: $addressArgs.$hashCodeArgs - $fragmentedValueArgs, $typeArgs');
         await _api.writeCharacteristic(
           addressArgs,
           hashCodeArgs,
@@ -198,6 +211,8 @@ class MyCentralManager extends CentralManager
             : MyGattCharacteristicNotifyStateArgs.indicate
         : MyGattCharacteristicNotifyStateArgs.none;
     final stateNumberArgs = stateArgs.index;
+    logger.info(
+        'setCharacteristicNotifyState: $addressArgs.$hashCodeArgs - $stateArgs');
     await _api.setCharacteristicNotifyState(
       addressArgs,
       hashCodeArgs,
@@ -213,6 +228,7 @@ class MyCentralManager extends CentralManager
     final peripheral = descriptor.peripheral;
     final addressArgs = peripheral.address;
     final hashCodeArgs = descriptor.hashCode;
+    logger.info('readDescriptor: $addressArgs.$hashCodeArgs');
     final value = await _api.readDescriptor(addressArgs, hashCodeArgs);
     return value;
   }
@@ -228,8 +244,10 @@ class MyCentralManager extends CentralManager
     final peripheral = descriptor.peripheral;
     final addressArgs = peripheral.address;
     final hashCodeArgs = descriptor.hashCode;
-    final valueArgs = value;
-    await _api.writeDescriptor(addressArgs, hashCodeArgs, valueArgs);
+    final trimmedValueArgs = value.trimGATT();
+    logger.info(
+        'writeDescriptor: $addressArgs.$hashCodeArgs - $trimmedValueArgs');
+    await _api.writeDescriptor(addressArgs, hashCodeArgs, trimmedValueArgs);
   }
 
   @override

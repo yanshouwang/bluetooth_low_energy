@@ -207,10 +207,10 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
     }
 
     override fun notifyCharacteristicChanged(
-        addressArgs: String,
         hashCodeArgs: Long,
-        confirmArgs: Boolean,
         valueArgs: ByteArray,
+        confirmArgs: Boolean,
+        addressArgs: String,
         callback: (Result<Unit>) -> Unit
     ) {
         try {

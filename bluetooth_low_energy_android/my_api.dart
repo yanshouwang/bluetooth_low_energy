@@ -137,7 +137,7 @@ abstract class MyCentralManagerHostApi {
   @async
   int readRSSI(String addressArgs);
   @async
-  List<MyGattServiceArgs> discoverGATT(String addressArgs);
+  List<MyGattServiceArgs> discoverServices(String addressArgs);
   @async
   Uint8List readCharacteristic(String addressArgs, int hashCodeArgs);
   @async
@@ -199,10 +199,10 @@ abstract class MyPeripheralManagerHostApi {
   );
   @async
   void notifyCharacteristicChanged(
-    String addressArgs,
     int hashCodeArgs,
-    bool confirmArgs,
     Uint8List valueArgs,
+    bool confirmArgs,
+    String addressArgs,
   );
 }
 

@@ -44,7 +44,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
     private val mDisconnectCallbacks: MutableMap<String, (Result<Unit>) -> Unit>
     private val mRequestMtuCallbacks: MutableMap<String, (Result<Long>) -> Unit>
     private val mReadRssiCallbacks: MutableMap<String, (Result<Long>) -> Unit>
-    private val mDiscoverGattCallbacks: MutableMap<String, (Result<List<MyGattServiceArgs>>) -> Unit>
+    private val mDiscoverServicesCallbacks: MutableMap<String, (Result<List<MyGattServiceArgs>>) -> Unit>
     private val mReadCharacteristicCallbacks: MutableMap<String, MutableMap<Long, (Result<ByteArray>) -> Unit>>
     private val mWriteCharacteristicCallbacks: MutableMap<String, MutableMap<Long, (Result<Unit>) -> Unit>>
     private val mReadDescriptorCallbacks: MutableMap<String, MutableMap<Long, (Result<ByteArray>) -> Unit>>
@@ -66,7 +66,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
         mDisconnectCallbacks = mutableMapOf()
         mRequestMtuCallbacks = mutableMapOf()
         mReadRssiCallbacks = mutableMapOf()
-        mDiscoverGattCallbacks = mutableMapOf()
+        mDiscoverServicesCallbacks = mutableMapOf()
         mReadCharacteristicCallbacks = mutableMapOf()
         mWriteCharacteristicCallbacks = mutableMapOf()
         mReadDescriptorCallbacks = mutableMapOf()
@@ -172,7 +172,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
         }
     }
 
-    override fun discoverGATT(
+    override fun discoverServices(
         addressArgs: String, callback: (Result<List<MyGattServiceArgs>>) -> Unit
     ) {
         try {
@@ -181,7 +181,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
             if (!discovering) {
                 throw IllegalStateException()
             }
-            mDiscoverGattCallbacks[addressArgs] = callback
+            mDiscoverServicesCallbacks[addressArgs] = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
@@ -366,9 +366,9 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
             if (readRssiCallback != null) {
                 readRssiCallback(Result.failure(error))
             }
-            val discoverGattCallback = mDiscoverGattCallbacks.remove(addressArgs)
-            if (discoverGattCallback != null) {
-                discoverGattCallback(Result.failure(error))
+            val discoverServicesCallback = mDiscoverServicesCallbacks.remove(addressArgs)
+            if (discoverServicesCallback != null) {
+                discoverServicesCallback(Result.failure(error))
             }
             val readCharacteristicCallbacks = mReadCharacteristicCallbacks.remove(addressArgs)
             if (readCharacteristicCallbacks != null) {
@@ -453,7 +453,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
     fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
         val device = gatt.device
         val addressArgs = device.address
-        val callback = mDiscoverGattCallbacks.remove(addressArgs) ?: return
+        val callback = mDiscoverServicesCallbacks.remove(addressArgs) ?: return
         if (status == BluetoothGatt.GATT_SUCCESS) {
             val services = gatt.services
             val characteristics = services.flatMap { it.characteristics }
@@ -559,7 +559,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
         mDisconnectCallbacks.clear()
         mRequestMtuCallbacks.clear()
         mReadRssiCallbacks.clear()
-        mDiscoverGattCallbacks.clear()
+        mDiscoverServicesCallbacks.clear()
         mReadCharacteristicCallbacks.clear()
         mWriteCharacteristicCallbacks.clear()
         mReadDescriptorCallbacks.clear()
