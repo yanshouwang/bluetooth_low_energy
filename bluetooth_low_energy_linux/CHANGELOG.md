@@ -1,3 +1,15 @@
+## 5.0.0
+
+* Now `CentralManager#writeCharacteristic` will fragment the value automatically, the maximum write length is 512 bytes.
+* Add `UUID#fromAddress` constructor.
+* Remove `CentralManager#getMaximumWriteLength` method.
+* Move `CentralManager#state` to `CentralManager#getState()`.
+* Move `PeripheralStateChangedEventArgs` to `ConnectionStateChangedEventArgs`.
+* Move `CentralManager#peripheralStateChanged` to `CentralManager#connectionStateChanged`.
+* Move `GattCharacteristicValueChangedEventArgs` to `GattCharacteristicNotifiedEventArgs`.
+* Move `CentralManager#characteristicValueChanged` to `CentralManager#characteristicNotified`.
+* Move `CentralManager#notifyCharacteristic` to `CentralManager#setCharacteristicNotifyState`.
+
 ## 5.0.0-dev.4
 
 * Add event logs.

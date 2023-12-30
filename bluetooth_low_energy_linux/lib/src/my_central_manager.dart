@@ -58,35 +58,38 @@ class MyCentralManager extends CentralManager {
 
   @override
   Future<void> setUp() async {
+    logger.info('setUp');
     await _blueZClient.connect();
-    _state = _blueZClient.adapters.isEmpty
-        ? BluetoothLowEnergyState.unsupported
-        : _blueZAdapter.myState;
-    if (_state == BluetoothLowEnergyState.unsupported) {
+    if (_blueZClient.adapters.isEmpty) {
+      _state = BluetoothLowEnergyState.unsupported;
       return;
     }
+    _state = _blueZAdapter.myState;
+    _blueZAdapter.propertiesChanged.listen(_onBlueZAdapterPropertiesChanged);
     for (var blueZDevice in _blueZClient.devices) {
       if (blueZDevice.adapter.address != _blueZAdapter.address) {
         continue;
       }
       _beginBlueZDevicePropertiesChangedListener(blueZDevice);
     }
-    _blueZAdapter.propertiesChanged.listen(_onBlueZAdapterPropertiesChanged);
     _blueZClient.deviceAdded.listen(_onBlueZClientDeviceAdded);
   }
 
   @override
   Future<BluetoothLowEnergyState> getState() {
+    logger.info('getState');
     return Future.value(_state);
   }
 
   @override
   Future<void> startDiscovery() async {
+    logger.info('startDiscovery');
     await _blueZAdapter.startDiscovery();
   }
 
   @override
   Future<void> stopDiscovery() async {
+    logger.info('stopDiscovery');
     await _blueZAdapter.stopDiscovery();
   }
 
@@ -96,6 +99,8 @@ class MyCentralManager extends CentralManager {
       throw TypeError();
     }
     final blueZDevice = peripheral.blueZDevice;
+    final blueZAddress = blueZDevice.address;
+    logger.info('connect: $blueZAddress');
     await blueZDevice.connect();
   }
 
@@ -104,8 +109,10 @@ class MyCentralManager extends CentralManager {
     if (peripheral is! MyPeripheral2) {
       throw TypeError();
     }
-    final blueZDevcie = peripheral.blueZDevice;
-    await blueZDevcie.disconnect();
+    final blueZDevice = peripheral.blueZDevice;
+    final blueZAddress = blueZDevice.address;
+    logger.info('disconnect: $blueZAddress');
+    await blueZDevice.disconnect();
   }
 
   @override
@@ -114,6 +121,8 @@ class MyCentralManager extends CentralManager {
       throw TypeError();
     }
     final blueZDevice = peripheral.blueZDevice;
+    final blueZAddress = blueZDevice.address;
+    logger.info('readRSSI: $blueZAddress');
     return blueZDevice.rssi;
   }
 
@@ -123,6 +132,8 @@ class MyCentralManager extends CentralManager {
       throw TypeError();
     }
     final blueZDevice = peripheral.blueZDevice;
+    final blueZAddress = blueZDevice.address;
+    logger.info('discoverGATT: $blueZAddress');
     if (!blueZDevice.connected) {
       throw StateError('Peripheral is disconnected.');
     }
@@ -131,7 +142,7 @@ class MyCentralManager extends CentralManager {
         (eventArgs) => eventArgs.device == blueZDevice,
       );
     }
-    final services = _services[blueZDevice.address] ?? [];
+    final services = _services[blueZAddress] ?? [];
     return services;
   }
 
@@ -143,6 +154,8 @@ class MyCentralManager extends CentralManager {
       throw TypeError();
     }
     final blueZCharacteristic = characteristic.blueZCharacteristic;
+    final blueZUUID = blueZCharacteristic.uuid;
+    logger.info('readCharacteristic: $blueZUUID');
     final blueZValue = await blueZCharacteristic.readValue();
     return Uint8List.fromList(blueZValue);
   }
@@ -157,8 +170,10 @@ class MyCentralManager extends CentralManager {
       throw TypeError();
     }
     final blueZCharacteristic = characteristic.blueZCharacteristic;
+    final blueZUUID = blueZCharacteristic.uuid;
     final trimmedValue = value.trimGATT();
     final blueZType = type.toBlueZWriteType();
+    logger.info('writeCharacteristic: $blueZUUID - $trimmedValue, $blueZType');
     await blueZCharacteristic.writeValue(
       trimmedValue,
       type: blueZType,
@@ -174,9 +189,12 @@ class MyCentralManager extends CentralManager {
       throw TypeError();
     }
     final blueZCharacteristic = characteristic.blueZCharacteristic;
+    final blueZUUID = blueZCharacteristic.uuid;
     if (state) {
+      logger.info('startNotify: $blueZUUID');
       await blueZCharacteristic.startNotify();
     } else {
+      logger.info('stopNotify: $blueZUUID');
       await blueZCharacteristic.stopNotify();
     }
   }
@@ -187,6 +205,8 @@ class MyCentralManager extends CentralManager {
       throw TypeError();
     }
     final blueZDescriptor = descriptor.blueZDescriptor;
+    final blueZUUID = blueZDescriptor.uuid;
+    logger.info('readDescriptor: $blueZUUID');
     final blueZValue = await blueZDescriptor.readValue();
     return Uint8List.fromList(blueZValue);
   }
@@ -200,7 +220,10 @@ class MyCentralManager extends CentralManager {
       throw TypeError();
     }
     final blueZDescriptor = descriptor.blueZDescriptor;
-    await blueZDescriptor.writeValue(value);
+    final blueZUUID = blueZDescriptor.uuid;
+    final trimmedValue = value.trimGATT();
+    logger.info('writeDescriptor: $blueZUUID - $trimmedValue');
+    await blueZDescriptor.writeValue(trimmedValue);
   }
 
   void _onBlueZAdapterPropertiesChanged(List<String> blueZAdapterProperties) {
