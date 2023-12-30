@@ -6,16 +6,16 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 
 /** BluetoothLowEnergyAndroid */
 class BluetoothLowEnergyAndroid : FlutterPlugin, ActivityAware {
-    private lateinit var centralManager: MyCentralManager
-    private lateinit var peripheralManager: MyPeripheralManager
+    private lateinit var mCentralManager: MyCentralManager
+    private lateinit var mPeripheralManager: MyPeripheralManager
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         val context = binding.applicationContext
         val binaryMessenger = binding.binaryMessenger
-        centralManager = MyCentralManager(context, binaryMessenger)
-        peripheralManager = MyPeripheralManager(context, binaryMessenger)
-        MyCentralManagerHostApi.setUp(binaryMessenger, centralManager)
-        MyPeripheralManagerHostApi.setUp(binaryMessenger, peripheralManager)
+        mCentralManager = MyCentralManager(context, binaryMessenger)
+        mPeripheralManager = MyPeripheralManager(context, binaryMessenger)
+        MyCentralManagerHostApi.setUp(binaryMessenger, mCentralManager)
+        MyPeripheralManagerHostApi.setUp(binaryMessenger, mPeripheralManager)
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -25,13 +25,13 @@ class BluetoothLowEnergyAndroid : FlutterPlugin, ActivityAware {
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        centralManager.onAttachedToActivity(binding)
-        peripheralManager.onAttachedToActivity(binding)
+        mCentralManager.onAttachedToActivity(binding)
+        mPeripheralManager.onAttachedToActivity(binding)
     }
 
     override fun onDetachedFromActivity() {
-        centralManager.onDetachedFromActivity()
-        peripheralManager.onDetachedFromActivity()
+        mCentralManager.onDetachedFromActivity()
+        mPeripheralManager.onDetachedFromActivity()
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {

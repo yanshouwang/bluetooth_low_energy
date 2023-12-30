@@ -1,3 +1,33 @@
+## 5.0.0
+
+* Now `CentralManager#writeCharacteristic` will fragment the value automatically, the maximum write length is 512 bytes.
+* Add `UUID#fromAddress` constructor.
+* Remove `CentralManager#getMaximumWriteLength` method.
+* Move `CentralManager#state` to `CentralManager#getState()`.
+* Move `PeripheralStateChangedEventArgs` to `ConnectionStateChangedEventArgs`.
+* Move `CentralManager#peripheralStateChanged` to `CentralManager#connectionStateChanged`.
+* Move `GattCharacteristicValueChangedEventArgs` to `GattCharacteristicNotifiedEventArgs`.
+* Move `CentralManager#characteristicValueChanged` to `CentralManager#characteristicNotified`.
+* Move `CentralManager#notifyCharacteristic` to `CentralManager#setCharacteristicNotifyState`.
+
+## 5.0.0-dev.4
+
+* Add event logs.
+
+## 5.0.0-dev.3
+
+* Implements new Api.
+
+## 5.0.0-dev.2
+
+* Update interface to 5.0.0-dev.4.
+
+## 5.0.0-dev.1
+
+* Implement the `5.0.0` api.
+* [Fix the issue that the same device was discovered multi times.](https://github.com/yanshouwang/bluetooth_low_energy/issues/32)
+* [Fix the issue that some devices can't be discovered.](https://github.com/yanshouwang/bluetooth_low_energy/issues/32)
+
 ## 4.0.0
 
 * Remove `BluetoothLowEnergy` class.

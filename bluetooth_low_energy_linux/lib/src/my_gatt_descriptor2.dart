@@ -4,11 +4,19 @@ import 'package:bluez/bluez.dart';
 import 'my_bluez.dart';
 
 class MyGattDescriptor2 extends MyGattDescriptor {
-  final BlueZGattDescriptor descriptor;
+  final BlueZGattDescriptor blueZDescriptor;
 
-  MyGattDescriptor2(this.descriptor)
+  MyGattDescriptor2(this.blueZDescriptor)
       : super(
-          hashCode: descriptor.hashCode,
-          uuid: descriptor.myUUID,
+          uuid: blueZDescriptor.myUUID,
         );
+
+  @override
+  int get hashCode => blueZDescriptor.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other is MyGattDescriptor2 &&
+        other.blueZDescriptor == blueZDescriptor;
+  }
 }

@@ -1,3 +1,50 @@
+## 5.0.0
+
+* Now `CentralManager#writeCharacteristic` and `PeripheralManager#writeCharacteristic` will fragment the value automatically, the maximum write length is 512 bytes.
+* Add `UUID#fromAddress` constructor.
+* Add `GattCharacteristicReadEventArgs` and `GattCharacteristicWrittenEventArgs`.
+* Add `PeripheralManager#characteristicRead` and `PeripheralManager#characteristicWritten`.
+* Add `PeripheralManager#readCharacteristic`.
+* Remove `CentralManager#getMaximumWriteLength` method.
+* Remove `PeripheralManager#getMaximumWriteLength` method.
+* Remove `ReadGattCharacteristicCommandEventArgs` and `WriteGattCharacteristicCommandEventArgs`.
+* Remove `PeripheralManager#readCharacteristicCommandReceived` and `PeripheralManager#writeCharacteristicCommandReceived`.
+* Remove `PeripheralManager#sendReadCharacteristicReply` and `PeripheralManager#sendWriteCharacteristicReply`.
+* Move `CentralManager#state` to `CentralManager#getState()`.
+* Move `PeripheralStateChangedEventArgs` to `ConnectionStateChangedEventArgs`.
+* Move `CentralManager#peripheralStateChanged` to `CentralManager#connectionStateChanged`.
+* Move `GattCharacteristicValueChangedEventArgs` to `GattCharacteristicNotifiedEventArgs`.
+* Move `CentralManager#characteristicValueChanged` to `CentralManager#characteristicNotified`.
+* Move `CentralManager#notifyCharacteristic` to `CentralManager#setCharacteristicNotifyState`.
+* Move `PeripheralManager#notifyCharacteristicValueChanged` to `PeripheralManager#writeCharacteristic`.
+* Move `NotifyGattCharacteristicCommandEventArgs` to `GattCharacteristicNotifyStateChangedEventArgs`.
+* Move `PeripheralManager#notifyCharacteristicCommandReceived` to `PeripheralManager#characteristicNotifyStateChanged`.
+
+## 5.0.0-dev.4
+
+* Fix the issue that `PeripheralMananger#startAdvertising` throws after powered off.\
+* Optimize project structure.
+
+## 5.0.0-dev.3
+
+* Implements new Api.
+
+## 5.0.0-dev.2
+
+* Optimize example.
+* Add event logs.
+* Fix the issue that PeripheralManager's service duplicated after hot reload.
+* Fix the issue that `PeripheralManager#notifyCharacteristicChanged` lost data when value is larger then the MTU size.
+* Optimize instances' retrieve speed.
+* Update dependency.
+
+## 5.0.0-dev.1
+
+* Implement the `5.0.0` api.
+* Optimize example.
+* Remove `CentralManager#getMaximumWriteLength` method.
+* Remove `PeripheralManager#getMaximumWriteLength` method.
+
 ## 4.0.0
 
 * Remove `BluetoothLowEnergy` class.

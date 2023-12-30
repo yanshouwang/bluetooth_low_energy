@@ -1,28 +1,55 @@
 import 'dart:typed_data';
 
+import 'package:log_service/log_service.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+
 import 'bluetooth_low_energy_manager.dart';
-import 'central_manager_event_args.dart';
+import 'central_event_args.dart';
 import 'gatt_characteristic.dart';
 import 'gatt_characteristic_write_type.dart';
 import 'gatt_descriptor.dart';
 import 'gatt_service.dart';
-import 'my_central_manager.dart';
 import 'peripheral.dart';
 
 /// An object that scans for, discovers, connects to, and manages peripherals.
-abstract class CentralManager extends BluetoothLowEnergyManager {
-  /// The instance of [CentralManager] to use.
-  static CentralManager get instance => MyCentralManager.instance;
+///
+/// Platform-specific implementations should implement this class to support [CentralManager].
+abstract class CentralManager extends PlatformInterface
+    with LoggerProvider, LoggerController
+    implements BluetoothLowEnergyManager {
+  static final Object _token = Object();
+
+  static CentralManager? _instance;
+
+  /// The default instance of [CentralManager] to use.
+  static CentralManager get instance {
+    final instance = _instance;
+    if (instance == null) {
+      throw UnimplementedError(
+          'CentralManager is not implemented on this platform.');
+    }
+    return instance;
+  }
+
+  /// Platform-specific implementations should set this with their own
+  /// platform-specific class that extends [CentralManager] when
+  /// they register themselves.
+  static set instance(CentralManager instance) {
+    PlatformInterface.verifyToken(instance, _token);
+    _instance = instance;
+  }
+
+  /// Constructs a [CentralManager].
+  CentralManager() : super(token: _token);
 
   /// Tells the central manager discovered a peripheral while scanning for devices.
   Stream<DiscoveredEventArgs> get discovered;
 
-  /// Tells that retrieving the specified peripheral's state changed.
-  Stream<PeripheralStateChangedEventArgs> get peripheralStateChanged;
+  /// Tells that retrieving the specified peripheral's connection lost.
+  Stream<ConnectionStateChangedEventArgs> get connectionStateChanged;
 
   /// Tells that retrieving the specified characteristic’s value changed.
-  Stream<GattCharacteristicValueChangedEventArgs>
-      get characteristicValueChanged;
+  Stream<GattCharacteristicNotifiedEventArgs> get characteristicNotified;
 
   /// Scans for peripherals that are advertising services.
   Future<void> startDiscovery();
@@ -36,12 +63,6 @@ abstract class CentralManager extends BluetoothLowEnergyManager {
   /// Cancels an active or pending local connection to a peripheral.
   Future<void> disconnect(Peripheral peripheral);
 
-  /// Gets the maximum amount of data, in bytes, you can send to a characteristic in a single write type.
-  Future<int> getMaximumWriteLength(
-    Peripheral peripheral, {
-    required GattCharacteristicWriteType type,
-  });
-
   /// Retrieves the current RSSI value for the peripheral while connected to the central manager.
   Future<int> readRSSI(Peripheral peripheral);
 
@@ -52,6 +73,8 @@ abstract class CentralManager extends BluetoothLowEnergyManager {
   Future<Uint8List> readCharacteristic(GattCharacteristic characteristic);
 
   /// Writes the value of a characteristic.
+  ///
+  /// The maximum size of the value is 512, all bytes that exceed this size will be discarded.
   Future<void> writeCharacteristic(
     GattCharacteristic characteristic, {
     required Uint8List value,
@@ -59,7 +82,7 @@ abstract class CentralManager extends BluetoothLowEnergyManager {
   });
 
   /// Sets notifications or indications for the value of a specified characteristic.
-  Future<void> notifyCharacteristic(
+  Future<void> setCharacteristicNotifyState(
     GattCharacteristic characteristic, {
     required bool state,
   });

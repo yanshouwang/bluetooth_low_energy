@@ -1,17 +1,18 @@
 import 'dart:typed_data';
 
 import 'gatt_descriptor.dart';
-import 'my_object.dart';
-import 'uuid.dart';
+import 'my_gatt_attribute.dart';
 
-class MyGattDescriptor extends MyObject implements GattDescriptor {
-  @override
-  final UUID uuid;
-  final Uint8List? value;
+class MyGattDescriptor extends MyGattAttribute implements GattDescriptor {
+  Uint8List? _value;
 
   MyGattDescriptor({
-    super.hashCode,
-    required this.uuid,
-    this.value,
-  });
+    required super.uuid,
+    Uint8List? value,
+  }) : _value = value?.trimGATT();
+
+  Uint8List get value => _value ?? Uint8List.fromList([]);
+  set value(Uint8List value) {
+    _value = value.trimGATT();
+  }
 }

@@ -2,62 +2,123 @@ package dev.yanshouwang.bluetooth_low_energy_android
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import androidx.annotation.CallSuper
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener
 import java.util.UUID
 import java.util.concurrent.Executor
 
-abstract class MyBluetoothLowEnergyManager(private val context: Context) {
-    companion object {
-        const val DATA_TYPE_MANUFACTURER_SPECIFIC_DATA = 0xff.toByte()
-        const val REQUEST_CODE = 443
+typealias MyBluetoothLowEnergyState = MyBluetoothLowEnergyStateArgs
 
-        val HEART_RATE_MEASUREMENT_UUID: UUID = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb")
-        val CLIENT_CHARACTERISTIC_CONFIG_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
+abstract class MyBluetoothLowEnergyManager(context: Context) {
+    companion object {
+        val CLIENT_CHARACTERISTIC_CONFIG_UUID =
+            UUID.fromString("00002902-0000-1000-8000-00805f9b34fb") as UUID
     }
 
-    private lateinit var binding: ActivityPluginBinding
+    private val mContext: Context
 
-    protected val unsupported = !context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
-    protected val executor = ContextCompat.getMainExecutor(context) as Executor
+    private val mRequestPermissionsResultListener: RequestPermissionsResultListener by lazy {
+        MyRequestPermissionResultListener(this)
+    }
+    private val mBroadcastReceiver: BroadcastReceiver by lazy {
+        MyBroadcastReceiver(this)
+    }
 
-    protected val manager get() = ContextCompat.getSystemService(context, BluetoothManager::class.java) as BluetoothManager
+    private var mRegistered: Boolean
+    private lateinit var mBinding: ActivityPluginBinding
+
+    init {
+        mContext = context
+        mRegistered = false
+    }
+
+    protected val executor get() = ContextCompat.getMainExecutor(mContext) as Executor
+    protected val manager
+        get() = ContextCompat.getSystemService(
+            mContext, BluetoothManager::class.java
+        ) as BluetoothManager
     protected val adapter get() = manager.adapter as BluetoothAdapter
 
-    private val listener by lazy { MyRequestPermissionResultListener(this) }
-    private val receiver by lazy { MyBroadcastReceiver(this) }
+    protected fun initialize() {
+        val hasFeature =
+            mContext.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
+        if (hasFeature) {
+            val authorized = permissions.all { permission ->
+                ActivityCompat.checkSelfPermission(
+                    mContext, permission
+                ) == PackageManager.PERMISSION_GRANTED
+            }
+            if (authorized) {
+                mOnAuthorizationStateChanged(true)
+            } else {
+                val activity = mBinding.activity
+                ActivityCompat.requestPermissions(activity, permissions, requestCode)
+            }
+        } else {
+            val state = MyBluetoothLowEnergyState.UNSUPPORTED
+            onStateChanged(state)
+        }
+    }
 
     fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        binding.addRequestPermissionsResultListener(listener)
-        this.binding = binding
+        binding.addRequestPermissionsResultListener(mRequestPermissionsResultListener)
+        mBinding = binding
     }
 
     fun onDetachedFromActivity() {
-        binding.removeRequestPermissionsResultListener(listener)
+        mBinding.removeRequestPermissionsResultListener(mRequestPermissionsResultListener)
     }
 
-    protected fun authorize(permissions: Array<String>) {
-        val activity = binding.activity
-        ActivityCompat.requestPermissions(activity, permissions, REQUEST_CODE)
+    fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, results: IntArray
+    ): Boolean {
+        if (this.requestCode != requestCode) {
+            return false
+        }
+        val authorized = results.all { r -> r == PackageManager.PERMISSION_GRANTED }
+        mOnAuthorizationStateChanged(authorized)
+        return true
     }
 
-    @CallSuper
-    protected open fun register() {
+    fun onReceive(context: Context, intent: Intent) {
+        val action = intent.action
+        if (action != BluetoothAdapter.ACTION_STATE_CHANGED) {
+            return
+        }
+        val extra = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF)
+        val state = extra.toBluetoothLowEnergyStateArgs()
+        onStateChanged(state)
+    }
+
+    private fun mOnAuthorizationStateChanged(authorized: Boolean) {
+        val state = if (authorized) {
+            mRegisterReceiver()
+            if (adapter.state == BluetoothAdapter.STATE_ON) MyBluetoothLowEnergyState.POWEREDON
+            else MyBluetoothLowEnergyState.POWEREDOFF
+        } else {
+            MyBluetoothLowEnergyState.UNAUTHORIZED
+        }
+        onStateChanged(state)
+    }
+
+    private fun mRegisterReceiver() {
+        if (mRegistered) {
+            return
+        }
         val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-        context.registerReceiver(receiver, filter)
+        mContext.registerReceiver(mBroadcastReceiver, filter)
+        mRegistered = true
     }
 
-    @CallSuper
-    protected open fun unregister() {
-        context.unregisterReceiver(receiver)
-    }
-
-    abstract fun onRequestPermissionsResult(requestCode: Int, results: IntArray): Boolean
-    abstract fun onReceive(intent: Intent)
+    abstract val permissions: Array<String>
+    abstract val requestCode: Int
+    abstract fun onStateChanged(state: MyBluetoothLowEnergyState)
 }
+

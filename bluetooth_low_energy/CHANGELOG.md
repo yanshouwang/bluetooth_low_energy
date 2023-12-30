@@ -1,3 +1,55 @@
+## 5.0.0
+
+* Now `CentralManager#writeCharacteristic` and `PeripheralManager#writeCharacteristic` will fragment the value automatically, the maximum write length is 512 bytes.
+* Add implementation of `CentralManager` on windows platform.
+* Add `GattCharacteristicReadEventArgs` and `GattCharacteristicWrittenEventArgs`.
+* Add `PeripheralManager#characteristicRead` and `PeripheralManager#characteristicWritten`.
+* Add `PeripheralManager#readCharacteristic`.
+* Remove `CentralManager#getMaximumWriteLength` method.
+* Remove `PeripheralManager#getMaximumWriteLength` method.
+* Remove `ReadGattCharacteristicCommandEventArgs` and `WriteGattCharacteristicCommandEventArgs`.
+* Remove `PeripheralManager#readCharacteristicCommandReceived` and `PeripheralManager#writeCharacteristicCommandReceived`.
+* Remove `PeripheralManager#sendReadCharacteristicReply` and `PeripheralManager#sendWriteCharacteristicReply`.
+* Move `CentralManager#state` to `CentralManager#getState()`.
+* Move `PeripheralStateChangedEventArgs` to `ConnectionStateChangedEventArgs`.
+* Move `CentralManager#peripheralStateChanged` to `CentralManager#connectionStateChanged`.
+* Move `GattCharacteristicValueChangedEventArgs` to `GattCharacteristicNotifiedEventArgs`.
+* Move `CentralManager#characteristicValueChanged` to `CentralManager#characteristicNotified`.
+* Move `CentralManager#notifyCharacteristic` to `CentralManager#setCharacteristicNotifyState`.
+* Move `PeripheralManager#notifyCharacteristicValueChanged` to `PeripheralManager#writeCharacteristic`.
+* Move `NotifyGattCharacteristicCommandEventArgs` to `GattCharacteristicNotifyStateChangedEventArgs`.
+* Move `PeripheralManager#notifyCharacteristicCommandReceived` to `PeripheralManager#characteristicNotifyStateChanged`.
+
+## 5.0.0-dev.3
+
+* Add logs on Linux platform.
+
+## 5.0.0-dev.2
+
+* Add default_package of windows in pubspec.yaml.
+
+## 5.0.0-dev.1
+
+* Now `CentralManager#writeCharacteristic` and `PeripheralManager#writeCharacteristic` will fragment the value automatically, the maximum write length is 512 bytes.
+* Add `UUID#fromAddress` constructor.
+* Add `GattCharacteristicReadEventArgs` and `GattCharacteristicWrittenEventArgs`.
+* Add `PeripheralManager#characteristicRead` and `PeripheralManager#characteristicWritten`.
+* Add `PeripheralManager#readCharacteristic`.
+* Remove `CentralManager#getMaximumWriteLength` method.
+* Remove `PeripheralManager#getMaximumWriteLength` method.
+* Remove `ReadGattCharacteristicCommandEventArgs` and `WriteGattCharacteristicCommandEventArgs`.
+* Remove `PeripheralManager#readCharacteristicCommandReceived` and `PeripheralManager#writeCharacteristicCommandReceived`.
+* Remove `PeripheralManager#sendReadCharacteristicReply` and `PeripheralManager#sendWriteCharacteristicReply`.
+* Move `CentralManager#state` to `CentralManager#getState()`.
+* Move `PeripheralStateChangedEventArgs` to `ConnectionStateChangedEventArgs`.
+* Move `CentralManager#peripheralStateChanged` to `CentralManager#connectionStateChanged`.
+* Move `GattCharacteristicValueChangedEventArgs` to `GattCharacteristicNotifiedEventArgs`.
+* Move `CentralManager#characteristicValueChanged` to `CentralManager#characteristicNotified`.
+* Move `CentralManager#notifyCharacteristic` to `CentralManager#setCharacteristicNotifyState`.
+* Move `PeripheralManager#notifyCharacteristicValueChanged` to `PeripheralManager#writeCharacteristic`.
+* Move `NotifyGattCharacteristicCommandEventArgs` to `GattCharacteristicNotifyStateChangedEventArgs`.
+* Move `PeripheralManager#notifyCharacteristicCommandReceived` to `PeripheralManager#characteristicNotifyStateChanged`.
+
 ## 4.0.0
 
 * Remove `BluetoothLowEnergy` class.

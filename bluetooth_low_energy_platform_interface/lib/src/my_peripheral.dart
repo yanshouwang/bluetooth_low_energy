@@ -1,13 +1,16 @@
-import 'my_object.dart';
+import 'my_bluetooth_low_energy_peer.dart';
 import 'peripheral.dart';
-import 'uuid.dart';
 
-class MyPeripheral extends MyObject implements Peripheral {
-  @override
-  final UUID uuid;
-
+class MyPeripheral extends MyBluetoothLowEnergyPeer implements Peripheral {
   MyPeripheral({
-    required super.hashCode,
-    required this.uuid,
+    required super.uuid,
   });
+
+  @override
+  int get hashCode => uuid.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other is Peripheral && other.uuid == uuid;
+  }
 }

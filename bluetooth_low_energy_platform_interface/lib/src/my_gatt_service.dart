@@ -1,17 +1,13 @@
 import 'gatt_service.dart';
+import 'my_gatt_attribute.dart';
 import 'my_gatt_characteristic.dart';
-import 'my_object.dart';
-import 'uuid.dart';
 
-class MyGattService extends MyObject implements GattService {
-  @override
-  final UUID uuid;
+class MyGattService extends MyGattAttribute implements GattService {
   @override
   final List<MyGattCharacteristic> characteristics;
 
   MyGattService({
-    super.hashCode,
-    required this.uuid,
+    required super.uuid,
     required this.characteristics,
   });
 }

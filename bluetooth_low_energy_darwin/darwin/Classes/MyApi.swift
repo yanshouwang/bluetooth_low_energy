@@ -16,85 +16,40 @@ import FlutterMacOS
 #error("Unsupported platform.")
 #endif
 
-// This extension of Error is required to do use FlutterError in any Swift code.
-extension FlutterError: Error {}
-
-extension CBManagerState {
-    func toArgs() -> MyBluetoothLowEnergyStateArgs {
-        switch self {
-        case .unauthorized:
-            return .unauthorized
-        case .poweredOff:
-            return .poweredOff
-        case .poweredOn:
-            return .poweredOn
-        default:
-            return .unsupported
+// ToObj
+extension [MyGattCharacteristicPropertyArgs] {
+    func toProperties() -> CBCharacteristicProperties {
+        var properties: CBCharacteristicProperties = []
+        for args in self {
+            switch args {
+            case .read:
+                properties.insert(.read)
+            case .write:
+                properties.insert(.write)
+            case .writeWithoutResponse:
+                properties.insert(.writeWithoutResponse)
+            case .notify:
+                properties.insert(.notify)
+            case .indicate:
+                properties.insert(.indicate)
+            }
         }
-    }
-}
-
-extension CBPeer {
-    var uuidArgs: String { identifier.uuidString }
-}
-
-extension CBCentral {
-    func toArgs() -> MyCentralArgs {
-        let hashCodeArgs = Int64(hash)
-        return MyCentralArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs)
-    }
-}
-
-extension CBPeripheral {
-    func toArgs() -> MyPeripheralArgs {
-        let hashCodeArgs = Int64(hash)
-        return MyPeripheralArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs)
-    }
-}
-
-extension CBAttribute {
-    var uuidArgs: String { uuid.uuidString }
-}
-
-extension CBService {
-    func toArgs(_ characteristicsArgs: [MyGattCharacteristicArgs]) -> MyGattServiceArgs {
-        let hashCodeArgs = Int64(hash)
-        return MyGattServiceArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, characteristicsArgs: characteristicsArgs)
-    }
-}
-
-extension CBCharacteristic {
-    func toArgs(_ descriptorsArgs: [MyGattDescriptorArgs]) -> MyGattCharacteristicArgs {
-        let hashCodeArgs = Int64(hash)
-        return MyGattCharacteristicArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, propertyNumbersArgs: propertyNumbersArgs, descriptorsArgs: descriptorsArgs)
+        return properties
     }
     
-    var propertyNumbersArgs: [Int64] {
-        var propertiesArgs = [MyGattCharacteristicPropertyArgs]()
-        let properties = self.properties
-        if properties.contains(.read) {
-            propertiesArgs.append(.read)
+    func toPermissions() -> CBAttributePermissions {
+        var permissions: CBAttributePermissions = []
+        for args in self {
+            switch args {
+            case .read:
+                permissions.insert(.readable)
+            case .write, .writeWithoutResponse:
+                permissions.insert(.writeable)
+            default:
+                continue
+            }
         }
-        if properties.contains(.write) {
-            propertiesArgs.append(.write)
-        }
-        if properties.contains(.writeWithoutResponse) {
-            propertiesArgs.append(.writeWithoutResponse)
-        }
-        if properties.contains(.notify) {
-            propertiesArgs.append(.notify)
-        }
-        if properties.contains(.indicate) {
-            propertiesArgs.append(.indicate)
-        }
-        return propertiesArgs.map { args in Int64(args.rawValue) }
-    }
-}
-
-extension CBDescriptor {
-    func toArgs() -> MyGattDescriptorArgs {
-        let hashCodeArgs = Int64(hash)
-        return MyGattDescriptorArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs)
+        return permissions
     }
 }
 
@@ -109,21 +64,151 @@ extension MyGattCharacteristicWriteTypeArgs {
     }
 }
 
-extension String {
-    var data: Data { data(using: String.Encoding.utf8)! }
-}
-
-extension NSNumber {
-    var data: Data {
-        var source = self
-        return Data(bytes: &source, count: MemoryLayout<NSNumber>.size)
+extension MyGattErrorArgs {
+    func toError() -> CBATTError.Code {
+        switch self {
+        case .success:
+            return .success
+        case .invalidHandle:
+            return .invalidHandle
+        case .readNotPermitted:
+            return .readNotPermitted
+        case .writeNotPermitted:
+            return .writeNotPermitted
+        case .invalidPDU:
+            return .invalidPdu
+        case .insufficientAuthentication:
+            return .insufficientAuthentication
+        case .requestNotSupported:
+            return .requestNotSupported
+        case .invalidOffset:
+            return .invalidOffset
+        case .insufficientAuthorization:
+            return .insufficientAuthorization
+        case .prepareQueueFull:
+            return .prepareQueueFull
+        case .attributeNotFound:
+            return .attributeNotFound
+        case .attributeNotLong:
+            return .attributeNotLong
+        case .insufficientEncryptionKeySize:
+            return .insufficientEncryptionKeySize
+        case .invalidAttributeValueLength:
+            return .invalidAttributeValueLength
+        case .unlikelyError:
+            return .unlikelyError
+        case .insufficientEncryption:
+            return .insufficientEncryption
+        case .unsupportedGroupType:
+            return .unsupportedGroupType
+        case .insufficientResources:
+            return .insufficientResources
+        }
     }
 }
 
-extension UInt16 {
-    var data: Data {
-        var source = self
-        return Data(bytes: &source, count: MemoryLayout<UInt16>.size)
+extension MyAdvertisementArgs {
+    func toAdvertisement() -> [String : Any] {
+        // CoreBluetooth only support `CBAdvertisementDataLocalNameKey` and `CBAdvertisementDataServiceUUIDsKey`
+        // see https://developer.apple.com/documentation/corebluetooth/cbperipheralmanager/1393252-startadvertising
+        var advertisement = [String: Any]()
+        if nameArgs != nil {
+            let name = nameArgs!
+            advertisement[CBAdvertisementDataLocalNameKey] = name
+        }
+        if serviceUUIDsArgs.count > 0 {
+            var serviceUUIDs = [CBUUID]()
+            for args in serviceUUIDsArgs {
+                guard let uuidArgs = args else {
+                    continue
+                }
+                let uuid = uuidArgs.toCBUUID()
+                serviceUUIDs.append(uuid)
+            }
+            advertisement[CBAdvertisementDataServiceUUIDsKey] = serviceUUIDs
+        }
+        return advertisement
+    }
+}
+
+extension MyGattDescriptorArgs {
+    func toDescriptor() -> CBMutableDescriptor {
+        let type = uuidArgs.toCBUUID()
+        let value = valueArgs?.data
+        return CBMutableDescriptor(type: type, value: value)
+    }
+}
+
+extension MyGattCharacteristicArgs {
+    func toCharacteristic() -> CBMutableCharacteristic {
+        let type = uuidArgs.toCBUUID()
+        var propertiesArgs = [MyGattCharacteristicPropertyArgs]()
+        for args in propertyNumbersArgs {
+            guard let propertyNumberArgs = args else {
+                continue
+            }
+            let propertyNumber = propertyNumberArgs.toInt()
+            guard let propertyArgs = MyGattCharacteristicPropertyArgs(rawValue: propertyNumber) else {
+                continue
+            }
+            propertiesArgs.append(propertyArgs)
+        }
+        let properties = propertiesArgs.toProperties()
+        let permissions = propertiesArgs.toPermissions()
+        return CBMutableCharacteristic(type: type, properties: properties, value: nil, permissions: permissions)
+    }
+}
+
+extension MyGattServiceArgs {
+    func toService() -> CBMutableService {
+        let type = uuidArgs.toCBUUID()
+        let primary = true
+        return CBMutableService(type: type, primary: primary)
+    }
+}
+
+extension Int64 {
+    func toInt() -> Int {
+        return Int(self)
+    }
+}
+
+extension String {
+    func toCBUUID() -> CBUUID {
+        return CBUUID(string: self)
+    }
+}
+
+// ToArgs
+extension CBManagerState {
+    func toArgs() -> MyBluetoothLowEnergyStateArgs {
+        switch self {
+        case .resetting:
+            return .resetting
+        case .unsupported:
+            return .unsupported
+        case .unauthorized:
+            return .unauthorized
+        case .poweredOff:
+            return .poweredOff
+        case .poweredOn:
+            return .poweredOn
+        default:
+            return .unknown
+        }
+    }
+}
+
+extension Data {
+    func toManufacturerSpecificDataArgs() -> MyManufacturerSpecificDataArgs? {
+        if count > 2 {
+            let idArgs = Int64(self[0]) | (Int64(self[1]) << 8)
+            let data = self[2...count - 1]
+            let dataArgs = FlutterStandardTypedData(bytes: data)
+            return MyManufacturerSpecificDataArgs(idArgs: idArgs, dataArgs: dataArgs)
+        } else {
+            return nil
+        }
     }
 }
 
@@ -145,160 +230,105 @@ extension [String: Any] {
     }
 }
 
-extension Data {
-    func toManufacturerSpecificDataArgs() -> MyManufacturerSpecificDataArgs? {
-        if count > 2 {
-            let idArgs = Int64(self[0]) | (Int64(self[1]) << 8)
-            let data = self[2...count - 1]
-            let dataArgs = FlutterStandardTypedData(bytes: data)
-            return MyManufacturerSpecificDataArgs(idArgs: idArgs, dataArgs: dataArgs)
-        } else {
-            return nil
-        }
+extension CBCentral {
+    func toArgs() -> MyCentralArgs {
+        let uuidArgs = identifier.toArgs()
+        return MyCentralArgs(uuidArgs: uuidArgs)
     }
 }
 
-extension MyAdvertisementArgs {
-    func toAdvertisement() throws -> [String : Any] {
-        // CoreBluetooth only support `CBAdvertisementDataLocalNameKey` and `CBAdvertisementDataServiceUUIDsKey`, see https://developer.apple.com/documentation/corebluetooth/cbperipheralmanager/1393252-startadvertising
-        var advertisement = [String: Any]()
-        if nameArgs != nil {
-            let name = nameArgs!
-            advertisement[CBAdvertisementDataLocalNameKey] = name
-        }
-        if serviceUUIDsArgs.count > 0 {
-            var serviceUUIDs = [CBUUID]()
-            for args in serviceUUIDsArgs {
-                guard let uuidArgs = args else {
-                    throw MyError.illegalArgument
-                }
-                let uuid = CBUUID(string: uuidArgs)
-                serviceUUIDs.append(uuid)
-            }
-            advertisement[CBAdvertisementDataServiceUUIDsKey] = serviceUUIDs
-        }
-//        if serviceDataArgs.count > 0 {
-//            var serviceData = [CBUUID: Data]()
-//            for args in serviceDataArgs {
-//                guard let uuidArgs = args.key else {
-//                    throw MyError.illegalArgument
-//                }
-//                guard let dataArgs = args.value else {
-//                    throw MyError.illegalArgument
-//                }
-//                let uuid = CBUUID(string: uuidArgs)
-//                let data = dataArgs.data
-//                serviceData[uuid] = data
-//            }
-//            advertisement[CBAdvertisementDataServiceDataKey] = serviceData
-//        }
-//        if manufacturerSpecificDataArgs != nil {
-//            let manufacturerSpecificData = manufacturerSpecificDataArgs!.toManufacturerSpecificData()
-//            advertisement[CBAdvertisementDataManufacturerDataKey] = manufacturerSpecificData
-//        }
-        return advertisement
+extension CBPeripheral {
+    func toArgs() -> MyPeripheralArgs {
+        let uuidArgs = identifier.toArgs()
+        return MyPeripheralArgs(uuidArgs: uuidArgs)
     }
 }
 
-//extension MyManufacturerSpecificDataArgs {
-//    func toManufacturerSpecificData() -> Data {
-//        let id = UInt16(idArgs).data
-//        let data = dataArgs.data
-//        return id + data
-//    }
-//}
-
-extension MyGattServiceArgs {
-    func toService() -> CBMutableService {
-        let type = CBUUID(string: uuidArgs)
-        let primary = true
-        return CBMutableService(type: type, primary: primary)
+extension CBDescriptor {
+    func toArgs() -> MyGattDescriptorArgs {
+        let hashCodeArgs = hash.toInt64()
+        let uuidArgs = uuid.toArgs()
+        return MyGattDescriptorArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs)
     }
 }
 
-extension MyGattCharacteristicArgs {
-    func toCharacteristic() -> CBMutableCharacteristic {
-        let type = CBUUID(string: uuidArgs)
-        return CBMutableCharacteristic(type: type, properties: properties, value: nil, permissions: permissions)
-    }
-    
-    var properties: CBCharacteristicProperties {
-        var properties: CBCharacteristicProperties = []
-        for args in propertyNumbersArgs {
-            guard let rawArgs = args else {
-                continue
-            }
-            let rawValue = Int(rawArgs)
-            let property = MyGattCharacteristicPropertyArgs(rawValue: rawValue)
-            switch property {
-            case .read:
-                properties.insert(.read)
-            case .write:
-                properties.insert(.write)
-            case .writeWithoutResponse:
-                properties.insert(.writeWithoutResponse)
-            case .notify:
-                properties.insert(.notify)
-            case .indicate:
-                properties.insert(.indicate)
-            default:
-                continue
-            }
-        }
-        return properties
-    }
-    
-    var permissions: CBAttributePermissions {
-        var permissions: CBAttributePermissions = []
-        for args in propertyNumbersArgs {
-            guard let rawArgs = args else {
-                continue
-            }
-            let rawValue = Int(rawArgs)
-            let property = MyGattCharacteristicPropertyArgs(rawValue: rawValue)
-            switch property {
-            case .read:
-                permissions.insert(.readable)
-            case .write, .writeWithoutResponse:
-                permissions.insert(.writeable)
-            default:
-                continue
-            }
-        }
-        return permissions
+extension CBCharacteristic {
+    func toArgs() -> MyGattCharacteristicArgs {
+        let hashCodeArgs = hash.toInt64()
+        let uuidArgs = uuid.toArgs()
+        let propertyNumbersArgs = properties.toArgs().map { args in args.rawValue.toInt64() }
+        let descriptorsArgs = descriptors?.map { descriptor in descriptor.toArgs() } ?? []
+        return MyGattCharacteristicArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, propertyNumbersArgs: propertyNumbersArgs, descriptorsArgs: descriptorsArgs)
     }
 }
 
-extension MyGattDescriptorArgs {
-    func toDescriptor() -> CBMutableDescriptor {
-        let type = CBUUID(string: uuidArgs)
-        let value = valueArgs?.data
-        return CBMutableDescriptor(type: type, value: value)
+extension CBCharacteristicProperties {
+    func toArgs() -> [MyGattCharacteristicPropertyArgs] {
+        var args = [MyGattCharacteristicPropertyArgs]()
+        if contains(.read) {
+            args.append(.read)
+        }
+        if contains(.write) {
+            args.append(.write)
+        }
+        if contains(.writeWithoutResponse) {
+            args.append(.writeWithoutResponse)
+        }
+        if contains(.notify) {
+            args.append(.notify)
+        }
+        if contains(.indicate) {
+            args.append(.indicate)
+        }
+        return args
+    }
+}
+
+extension CBService {
+    func toArgs() -> MyGattServiceArgs {
+        let hashCodeArgs = hash.toInt64()
+        let uuidArgs = uuid.toArgs()
+        let characteristicsArgs = characteristics?.map { characteristic in characteristic.toArgs() } ?? []
+        return MyGattServiceArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, characteristicsArgs: characteristicsArgs)
     }
 }
 
 extension Int {
-    func coerceIn(_ minimum: Int, _ maximum: Int) throws -> Int {
-        if minimum > maximum {
-            throw MyError.illegalArgument
-        }
-        if self < minimum {
-            return minimum
-        }
-        if self > maximum {
-            return maximum
-        }
-        return self
+    func toInt64() -> Int64 {
+        return Int64(self)
     }
 }
 
-extension Dictionary {
-    mutating func getOrPut(_ key: Key, _ defaultValue: () -> Value) -> Value {
-        guard let value = self[key] else {
-            let value1 = defaultValue()
-            self[key] = value1
-            return value1
-        }
-        return value
+extension UUID {
+    func toArgs() -> String {
+        return uuidString.lowercased()
+    }
+}
+
+extension CBUUID {
+    func toArgs() -> String {
+        return uuidString.lowercased()
+    }
+}
+
+// This extension of Error is required to do use FlutterError in any Swift code.
+extension FlutterError: Error {}
+
+extension String {
+    var data: Data { data(using: String.Encoding.utf8)! }
+}
+
+extension NSNumber {
+    var data: Data {
+        var source = self
+        // TODO: resolve warning: Forming 'UnsafeRawPointer' to a variable of type 'NSNumber'; this is likely incorrect because 'NSNumber' may contain an object reference.
+        return Data(bytes: &source, count: MemoryLayout<NSNumber>.size)
+    }
+}
+
+extension UInt16 {
+    var data: Data {
+        var source = self
+        return Data(bytes: &source, count: MemoryLayout<UInt16>.size)
     }
 }

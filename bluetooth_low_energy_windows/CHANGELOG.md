@@ -1,3 +1,40 @@
+## 5.0.0
+
+* Add implementation of `CentralManagerApi`.
+
+## 5.0.0-dev.7
+
+* Optimize project structure.
+
+## 5.0.0-dev.6
+
+* Remove the fragment logic form `CentralManager#writeCharacteristic`.
+
+## 5.0.0-dev.5
+
+* Add implementation of `CentralManagerApi`.
+
+## 5.0.0-dev.4
+
+* Add event logs.
+* Update dependency.
+* Optimize instances' retrieve speed.
+* Optimize example.
+* Fix the issue that `CentralManager#connect` returns fake connection.
+
+## 5.0.0-dev.3
+
+* Update interface to 5.0.0-dev.4.
+
+## 5.0.0-dev.2
+
+* Optimize CentralManager's cache.
+* Remove AdvertiserView form example.
+
+## 5.0.0-dev.1
+
+* Implement the `CentralManager` api.
+
 ## 2.2.0
 
 * Add `CentralController#getMaximumWriteLength` method.

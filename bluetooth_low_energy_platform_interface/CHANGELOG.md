@@ -1,3 +1,86 @@
+## 5.0.0
+
+* Now `CentralManager#writeCharacteristic` and `PeripheralManager#writeCharacteristic` will fragment the value automatically, the maximum write length is 512 bytes.
+* Add `UUID#fromAddress` constructor.
+* Add `GattCharacteristicReadEventArgs` and `GattCharacteristicWrittenEventArgs`.
+* Add `PeripheralManager#characteristicRead` and `PeripheralManager#characteristicWritten`.
+* Add `PeripheralManager#readCharacteristic`.
+* Remove `CentralManager#getMaximumWriteLength` method.
+* Remove `PeripheralManager#getMaximumWriteLength` method.
+* Remove `ReadGattCharacteristicCommandEventArgs` and `WriteGattCharacteristicCommandEventArgs`.
+* Remove `PeripheralManager#readCharacteristicCommandReceived` and `PeripheralManager#writeCharacteristicCommandReceived`.
+* Remove `PeripheralManager#sendReadCharacteristicReply` and `PeripheralManager#sendWriteCharacteristicReply`.
+* Move `CentralManager#state` to `CentralManager#getState()`.
+* Move `PeripheralStateChangedEventArgs` to `ConnectionStateChangedEventArgs`.
+* Move `CentralManager#peripheralStateChanged` to `CentralManager#connectionStateChanged`.
+* Move `GattCharacteristicValueChangedEventArgs` to `GattCharacteristicNotifiedEventArgs`.
+* Move `CentralManager#characteristicValueChanged` to `CentralManager#characteristicNotified`.
+* Move `CentralManager#notifyCharacteristic` to `CentralManager#setCharacteristicNotifyState`.
+* Move `PeripheralManager#notifyCharacteristicValueChanged` to `PeripheralManager#writeCharacteristic`.
+* Move `NotifyGattCharacteristicCommandEventArgs` to `GattCharacteristicNotifyStateChangedEventArgs`.
+* Move `PeripheralManager#notifyCharacteristicCommandReceived` to `PeripheralManager#characteristicNotifyStateChanged`.
+
+
+## 5.0.0-dev.10
+
+* Fix `Uint8List#trimGATT` throws when the value is not exceeded 512 bytes.
+
+## 5.0.0-dev.9
+
+* Add `PeripheralManager#characteristicRead`.
+
+## 5.0.0-dev.8
+
+* Add `PeripheralManager#readCharacteristic`.
+* Move `PeripheralManager#notifyCharacteristic` to `PeripheralManager#writeCharacteristic`.
+
+## 5.0.0-dev.7
+
+* Remove `GattCharacteristicReadEventArgs`.
+* Remove `PeripheralManager#characteristicRead`.
+
+## 5.0.0-dev.6
+
+* Remove the final modifier form `MyGattCharacteristic#value` and `MyGattDescriptor#value` and trim by 512 bytes.
+
+## 5.0.0-dev.5
+
+* Move `CentralManager#state` to `CentralManager#getState()`.
+* Move `PeripheralStateChangedEventArgs` to `ConnectionStateChangedEventArgs`.
+* Move `GattCharacteristicValueChangedEventArgs` to `GattCharacteristicNotifiedEventArgs`.
+* Move `CentralManager#peripheralStateChanged` to `CentralManager#connectionStateChanged`.
+* Move `CentralManager#characteristicValueChanged` to `CentralManager#characteristicNotified`.
+* Move `CentralManager#notifyCharacteristic` to `CentralManager#setCharacteristicNotifyState`.
+* Remove `ReadGattCharacteristicCommandEventArgs` and `WriteGattCharacteristicCommandEventArgs`.
+* Move `NotifyGattCharacteristicCommandEventArgs` to `GattCharacteristicNotifyStateChangedEventArgs`.
+* Remove `PeripheralManager#readCharacteristicCommandReceived` and `PeripheralManager#writeCharacteristicCommandReceived`.
+* Add `PeripheralManager#characteristicRead` and `PeripheralManager#characteristicWritten`.
+* Move `PeripheralManager#notifyCharacteristicCommandReceived` to `PeripheralManager#characteristicNotifyStateChanged`.
+* Remove `PeripheralManager#sendReadCharacteristicReply` and `PeripheralManager#sendWriteCharacteristicReply`.
+* Add `GattCharacteristicReadEventArgs` and `GattCharacteristicWrittenEventArgs`.
+* Move `PeripheralManager#notifyCharacteristicValueChanged` to `PeripheralManager#notifyCharacteristic`.
+* Remove `MyCentralManager` and `MyPeripheralManager`.
+
+## 5.0.0-dev.4
+
+* Optimize `MyGattService` and `MyGattCharacteristic`.
+
+## 5.0.0-dev.3
+
+* Remove `CentralManager#getMaximumWriteLength` method.
+* Remove `PeripheralManager#getMaximumWriteLength` method.
+
+## 5.0.0-dev.2
+
+* Add `UUID#fromAddress` constructor.
+* Override `hashCode` and `==` of `MyCentral` and `MyPeripheral`.
+
+## 5.0.0-dev.1
+
+* Add `MyBluetoothLowEnergyPeer` and `MyGattAttribute`.
+* Remove `MyObject` base class.
+* Use `LoggerProvider` instead of custom logger.
+
 ## 4.0.0
 
 * Remove `BluetoothLowEnergy` class.

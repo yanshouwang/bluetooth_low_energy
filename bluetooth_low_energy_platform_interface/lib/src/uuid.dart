@@ -95,6 +95,16 @@ class UUID {
     ]);
   }
 
+  /// Creates a new UUID form MAC address.
+  factory UUID.fromAddress(String address) {
+    final node = address.splitMapJoin(
+      ':',
+      onMatch: (m) => '',
+    );
+    // We don't know the timestamp of the bluetooth device, use nil UUID as prefix.
+    return UUID.fromString("00000000-0000-0000-0000-$node");
+  }
+
   @override
   String toString() {
     var v0 = value[0].toRadixString(16).padLeft(2, '0');

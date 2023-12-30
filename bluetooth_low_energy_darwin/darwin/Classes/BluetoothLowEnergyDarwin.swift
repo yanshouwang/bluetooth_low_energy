@@ -11,15 +11,15 @@ import FlutterMacOS
 public class BluetoothLowEnergyDarwin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
 #if os(iOS)
-        let binaryMessenger = registrar.messenger()
+        let messenger = registrar.messenger()
 #elseif os(macOS)
-        let binaryMessenger = registrar.messenger
+        let messenger = registrar.messenger
 #else
 #error("Unsupported platform.")
 #endif
-        let centralManager = MyCentralManager(binaryMessenger)
-        let peripheralManager = MyPeripheralManager(binaryMessenger)
-        MyCentralManagerHostApiSetup.setUp(binaryMessenger: binaryMessenger, api: centralManager)
-        MyPeripheralManagerHostApiSetup.setUp(binaryMessenger: binaryMessenger, api: peripheralManager)
+        let centralManager = MyCentralManager(messenger: messenger)
+        let peripheralManager = MyPeripheralManager(messenger: messenger)
+        MyCentralManagerHostApiSetup.setUp(binaryMessenger: messenger, api: centralManager)
+        MyPeripheralManagerHostApiSetup.setUp(binaryMessenger: messenger, api: peripheralManager)
     }
 }
