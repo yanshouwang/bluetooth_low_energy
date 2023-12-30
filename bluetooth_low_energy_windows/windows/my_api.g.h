@@ -61,10 +61,9 @@ template<class T> class ErrorOr {
 
 enum class MyBluetoothLowEnergyStateArgs {
   unknown = 0,
-  unsupported = 1,
-  unauthorized = 2,
-  poweredOff = 3,
-  poweredOn = 4
+  disabled = 1,
+  off = 2,
+  on = 3
 };
 
 enum class MyGattCharacteristicPropertyArgs {

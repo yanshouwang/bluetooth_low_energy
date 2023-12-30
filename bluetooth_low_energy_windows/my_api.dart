@@ -14,10 +14,9 @@ import 'package:pigeon/pigeon.dart';
 )
 enum MyBluetoothLowEnergyStateArgs {
   unknown,
-  unsupported,
-  unauthorized,
-  poweredOff,
-  poweredOn,
+  disabled,
+  off,
+  on,
 }
 
 enum MyGattCharacteristicPropertyArgs {

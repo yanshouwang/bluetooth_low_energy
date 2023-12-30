@@ -27,10 +27,9 @@ List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty
 
 enum MyBluetoothLowEnergyStateArgs {
   unknown,
-  unsupported,
-  unauthorized,
-  poweredOff,
-  poweredOn,
+  disabled,
+  off,
+  on,
 }
 
 enum MyGattCharacteristicPropertyArgs {

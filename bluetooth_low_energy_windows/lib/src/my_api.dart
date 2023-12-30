@@ -12,7 +12,16 @@ export 'my_api.g.dart';
 // ToObject
 extension MyBluetoothLowEnergyStateArgsX on MyBluetoothLowEnergyStateArgs {
   BluetoothLowEnergyState toState() {
-    return BluetoothLowEnergyState.values[index];
+    switch (this) {
+      case MyBluetoothLowEnergyStateArgs.unknown:
+        return BluetoothLowEnergyState.unknown;
+      case MyBluetoothLowEnergyStateArgs.disabled:
+        return BluetoothLowEnergyState.unsupported;
+      case MyBluetoothLowEnergyStateArgs.off:
+        return BluetoothLowEnergyState.poweredOff;
+      case MyBluetoothLowEnergyStateArgs.on:
+        return BluetoothLowEnergyState.poweredOn;
+    }
   }
 }
 

@@ -1,3 +1,7 @@
+## 5.0.0
+
+* Add implementation of `CentralManagerApi`.
+
 ## 5.0.0-dev.7
 
 * Optimize project structure.
@@ -8,7 +12,7 @@
 
 ## 5.0.0-dev.5
 
-* Implements new Api.
+* Add implementation of `CentralManagerApi`.
 
 ## 5.0.0-dev.4
 

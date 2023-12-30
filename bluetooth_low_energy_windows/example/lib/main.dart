@@ -114,10 +114,6 @@ class _ScannerViewState extends State<ScannerView> {
     );
     discoveredSubscription = CentralManager.instance.discovered.listen(
       (eventArgs) {
-        final name = eventArgs.advertisement.name;
-        if (name == null || name.isEmpty) {
-          return;
-        }
         final items = discoveredEventArgs.value;
         final i = items.indexWhere(
           (item) => item.peripheral == eventArgs.peripheral,
