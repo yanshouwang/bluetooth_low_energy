@@ -23,47 +23,47 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "5.0.0-dev.3"
+    version: "5.0.0"
   bluetooth_low_energy_android:
     dependency: transitive
     description:
       name: bluetooth_low_energy_android
-      sha256: bb4e5740ece9b13593f7e082339fd4842b29c82220db24adf675783b8e9bcbbc
+      sha256: "502382b2bc6d0bf9e7aa635bafa28057cb8538d6f2dd9c2eceb6d0111bcee94a"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0-dev.4"
+    version: "5.0.0"
   bluetooth_low_energy_darwin:
     dependency: transitive
     description:
       name: bluetooth_low_energy_darwin
-      sha256: "35df5f91504e047a4128cde7b89393bd1e60016edd459ad497b812ea1d3e6260"
+      sha256: "9f28475bb878b5a48c2746c776010bc77d7040b5fead128295d22f0ce6ef5995"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0-dev.1"
+    version: "5.0.0"
   bluetooth_low_energy_linux:
     dependency: transitive
     description:
       name: bluetooth_low_energy_linux
-      sha256: "0ebb1a2d9d4d05eac6d057a51bbd67da23c2badd9d8d6169ce0a07611d44430e"
+      sha256: "100dc824a9b409442e7018994de74d56d65faa95b8c6fbbf5a8c0ae70cd58286"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0-dev.4"
+    version: "5.0.0"
   bluetooth_low_energy_platform_interface:
     dependency: transitive
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: "1527d6023af28515d19b3bc89d27525405301e6ac3167932bc45aee98a4cb6d2"
+      sha256: "54f92ab2d7746fb6f2b4a40a48cd7eb8e3bf772f3ee89e1979d4d7b741fb2a05"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0-dev.10"
+    version: "5.0.0"
   bluetooth_low_energy_windows:
     dependency: transitive
     description:
       name: bluetooth_low_energy_windows
-      sha256: "866d30609db500b52936b7802b5327e4cb2b4717b04c87c2ef27b00fc1289e35"
+      sha256: "1a4382a1c3d480a35b4de5b7065b00e739cf44129108006c2a3ed8f3ca99fd3d"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0-dev.7"
+    version: "5.0.0"
   bluez:
     dependency: transitive
     description:
