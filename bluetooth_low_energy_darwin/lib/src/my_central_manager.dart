@@ -46,22 +46,26 @@ class MyCentralManager extends CentralManager
 
   @override
   Future<void> setUp() async {
+    logger.info('setUp');
     await _api.setUp();
     MyCentralManagerFlutterApi.setup(this);
   }
 
   @override
   Future<BluetoothLowEnergyState> getState() {
+    logger.info('getState');
     return Future.value(_state);
   }
 
   @override
   Future<void> startDiscovery() async {
+    logger.info('startDiscovery');
     await _api.startDiscovery();
   }
 
   @override
   Future<void> stopDiscovery() async {
+    logger.info('stopDiscovery');
     await _api.stopDiscovery();
   }
 
@@ -71,6 +75,7 @@ class MyCentralManager extends CentralManager
       throw TypeError();
     }
     final uuidArgs = peripheral.uuid.toArgs();
+    logger.info('connect: $uuidArgs');
     await _api.connect(uuidArgs);
   }
 
@@ -80,6 +85,7 @@ class MyCentralManager extends CentralManager
       throw TypeError();
     }
     final uuidArgs = peripheral.uuid.toArgs();
+    logger.info('disconnect: $uuidArgs');
     await _api.disconnect(uuidArgs);
   }
 
@@ -89,6 +95,7 @@ class MyCentralManager extends CentralManager
       throw TypeError();
     }
     final uuidArgs = peripheral.uuid.toArgs();
+    logger.info('readRSSI: $uuidArgs');
     final rssi = await _api.readRSSI(uuidArgs);
     return rssi;
   }
@@ -98,20 +105,25 @@ class MyCentralManager extends CentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final uuidArgs = peripheral.uuid.toArgs();
     // 发现 GATT 服务
+    final uuidArgs = peripheral.uuid.toArgs();
+    logger.info('discoverServices: $uuidArgs');
     final servicesArgs = await _api
         .discoverServices(uuidArgs)
         .then((args) => args.cast<MyGattServiceArgs>());
     for (var serviceArgs in servicesArgs) {
       // 发现 GATT 特征值
+      final hashCodeArgs = serviceArgs.hashCodeArgs;
+      logger.info('discoverCharacteristics: $uuidArgs.$hashCodeArgs');
       final characteristicsArgs = await _api
-          .discoverCharacteristics(uuidArgs, serviceArgs.hashCodeArgs)
+          .discoverCharacteristics(uuidArgs, hashCodeArgs)
           .then((args) => args.cast<MyGattCharacteristicArgs>());
       for (var characteristicArgs in characteristicsArgs) {
         // 发现 GATT 描述值
+        final hashCodeArgs = characteristicArgs.hashCodeArgs;
+        logger.info('discoverDescriptors: $uuidArgs.$hashCodeArgs');
         final descriptorsArgs = await _api
-            .discoverDescriptors(uuidArgs, characteristicArgs.hashCodeArgs)
+            .discoverDescriptors(uuidArgs, hashCodeArgs)
             .then((args) => args.cast<MyGattDescriptorArgs>());
         characteristicArgs.descriptorsArgs = descriptorsArgs;
       }
@@ -138,6 +150,7 @@ class MyCentralManager extends CentralManager
     final peripheral = characteristic.peripheral;
     final uuidArgs = peripheral.uuid.toArgs();
     final hashCodeArgs = characteristic.hashCode;
+    logger.info('readCharacteristic: $uuidArgs.$hashCodeArgs');
     final value = await _api.readCharacteristic(uuidArgs, hashCodeArgs);
     return value;
   }
@@ -167,6 +180,8 @@ class MyCentralManager extends CentralManager
       final fragmentedValueArgs = end < trimmedValueArgs.length
           ? trimmedValueArgs.sublist(start, end)
           : trimmedValueArgs.sublist(start);
+      logger.info(
+          'writeCharacteristic: $uuidArgs.$hashCodeArgs - $fragmentedValueArgs, $typeArgs');
       await _api.writeCharacteristic(
         uuidArgs,
         hashCodeArgs,
@@ -189,6 +204,8 @@ class MyCentralManager extends CentralManager
     final uuidArgs = peripheral.uuid.toArgs();
     final hashCodeArgs = characteristic.hashCode;
     final stateArgs = state;
+    logger.info(
+        'setCharacteristicNotifyState: $uuidArgs.$hashCodeArgs - $stateArgs');
     await _api.setCharacteristicNotifyState(
       uuidArgs,
       hashCodeArgs,
@@ -204,6 +221,7 @@ class MyCentralManager extends CentralManager
     final peripheral = descriptor.peripheral;
     final uuidArgs = peripheral.uuid.toArgs();
     final hashCodeArgs = descriptor.hashCode;
+    logger.info('readDescriptor: $uuidArgs.$hashCodeArgs');
     final value = await _api.readDescriptor(
       uuidArgs,
       hashCodeArgs,
@@ -222,12 +240,9 @@ class MyCentralManager extends CentralManager
     final peripheral = descriptor.peripheral;
     final uuidArgs = peripheral.uuid.toArgs();
     final hashCodeArgs = descriptor.hashCode;
-    final valueArgs = value;
-    await _api.writeDescriptor(
-      uuidArgs,
-      hashCodeArgs,
-      valueArgs,
-    );
+    final trimmedValueArgs = value.trimGATT();
+    logger.info('writeDescriptor: $uuidArgs.$hashCodeArgs - $trimmedValueArgs');
+    await _api.writeDescriptor(uuidArgs, hashCodeArgs, trimmedValueArgs);
   }
 
   @override

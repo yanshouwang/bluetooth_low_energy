@@ -17,7 +17,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  bluetooth_low_energy_platform_interface: ^5.0.0-dev.10
+  bluetooth_low_energy_platform_interface: ^5.0.0
   bluetooth_low_energy_darwin:
     # When depending on this package from a real application you should use:
     #   bluetooth_low_energy: ^x.y.z

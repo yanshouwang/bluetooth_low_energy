@@ -49,12 +49,14 @@ class MyPeripheralManager extends PeripheralManager
 
   @override
   Future<void> setUp() async {
+    logger.info('setUp');
     await _api.setUp();
     MyPeripheralManagerFlutterApi.setup(this);
   }
 
   @override
   Future<BluetoothLowEnergyState> getState() {
+    logger.info('getState');
     return Future.value(_state);
   }
 
@@ -64,8 +66,10 @@ class MyPeripheralManager extends PeripheralManager
       throw TypeError();
     }
     final serviceArgs = service.toArgs();
+    final hashCodeArgs = serviceArgs.hashCodeArgs;
+    logger.info('addService: $hashCodeArgs');
     await _api.addService(serviceArgs);
-    _characteristics[service.hashCode] = {
+    _characteristics[hashCodeArgs] = {
       for (var characteristics in service.characteristics)
         characteristics.hashCode: characteristics
     };
@@ -73,13 +77,15 @@ class MyPeripheralManager extends PeripheralManager
 
   @override
   Future<void> removeService(GattService service) async {
-    final serviceHashCodeArgs = service.hashCode;
-    await _api.removeService(serviceHashCodeArgs);
-    _characteristics.remove(service.hashCode);
+    final hashCodeArgs = service.hashCode;
+    logger.info('removeService: $hashCodeArgs');
+    await _api.removeService(hashCodeArgs);
+    _characteristics.remove(hashCodeArgs);
   }
 
   @override
   Future<void> clearServices() async {
+    logger.info('clearServices');
     await _api.clearServices();
     _characteristics.clear();
   }
@@ -87,11 +93,13 @@ class MyPeripheralManager extends PeripheralManager
   @override
   Future<void> startAdvertising(Advertisement advertisement) async {
     final advertisementArgs = advertisement.toArgs();
+    logger.info('startAdvertising: $advertisementArgs');
     await _api.startAdvertising(advertisementArgs);
   }
 
   @override
   Future<void> stopAdvertising() async {
+    logger.info('stopAdvertising');
     await _api.stopAdvertising();
   }
 
@@ -100,6 +108,8 @@ class MyPeripheralManager extends PeripheralManager
     if (characteristic is! MyGattCharacteristic) {
       throw TypeError();
     }
+    final hashCodeArgs = characteristic.hashCode;
+    logger.info('readCharacteristic: $hashCodeArgs');
     final value = characteristic.value;
     return Future.value(value);
   }
@@ -136,6 +146,8 @@ class MyPeripheralManager extends PeripheralManager
       final fragmentedValueArgs = end < trimmedValueArgs.length
           ? trimmedValueArgs.sublist(start, end)
           : trimmedValueArgs.sublist(start);
+      logger.info(
+          'notifyCharacteristicChanged: $hashCodeArgs - $fragmentedValueArgs, $uuidsArgs');
       await _api.updateCharacteristic(
         hashCodeArgs,
         fragmentedValueArgs,
