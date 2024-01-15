@@ -403,10 +403,7 @@ class MyCentralManager: MyCentralManagerHostApi {
     func didDiscoverCharacteristics(peripheral: CBPeripheral, service: CBService, error: Error?) {
         let uuidArgs = peripheral.identifier.toArgs()
         let hashCodeArgs = service.hash.toInt64()
-        guard var completions = _discoverCharacteristicsCompletions[uuidArgs] else {
-            return
-        }
-        guard let completion = completions.removeValue(forKey: hashCodeArgs) else {
+        guard let completion = _discoverCharacteristicsCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
             return
         }
         if error == nil {
@@ -431,10 +428,7 @@ class MyCentralManager: MyCentralManagerHostApi {
     func didDiscoverDescriptors(peripheral: CBPeripheral, characteristic: CBCharacteristic, error: Error?) {
         let uuidArgs = peripheral.identifier.toArgs()
         let hashCodeArgs = characteristic.hash.toInt64()
-        guard var completions = _discoverDescriptorsCompletions[uuidArgs] else {
-            return
-        }
-        guard let completion = completions.removeValue(forKey: hashCodeArgs) else {
+        guard let completion = _discoverDescriptorsCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
             return
         }
         if error == nil {
@@ -461,8 +455,7 @@ class MyCentralManager: MyCentralManagerHostApi {
         let hashCodeArgs = characteristic.hash.toInt64()
         let value = characteristic.value ?? Data()
         let valueArgs = FlutterStandardTypedData(bytes: value)
-        var completions = _readCharacteristicCompletions[uuidArgs]
-        guard let completion = completions?.removeValue(forKey: hashCodeArgs) else {
+        guard let completion = _readCharacteristicCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
             _api.onCharacteristicNotified(uuidArgs: uuidArgs, hashCodeArgs: hashCodeArgs, valueArgs: valueArgs) {_ in }
             return
         }
@@ -476,10 +469,7 @@ class MyCentralManager: MyCentralManagerHostApi {
     func didWriteCharacteristicValue(peripheral: CBPeripheral, characteristic: CBCharacteristic, error: Error?) {
         let uuidArgs = peripheral.identifier.toArgs()
         let hashCodeArgs = characteristic.hash.toInt64()
-        guard var completions = _writeCharacteristicCompletions[uuidArgs] else {
-            return
-        }
-        guard let completion = completions.removeValue(forKey: hashCodeArgs) else {
+        guard let completion = _writeCharacteristicCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
             return
         }
         if error == nil {
@@ -492,10 +482,7 @@ class MyCentralManager: MyCentralManagerHostApi {
     func didUpdateCharacteristicNotificationState(peripheral: CBPeripheral, characteristic: CBCharacteristic, error: Error?) {
         let uuidArgs = peripheral.identifier.toArgs()
         let hashCodeArgs = characteristic.hash.toInt64()
-        guard var completions = _setCharacteristicNotifyStateCompletions[uuidArgs] else {
-            return
-        }
-        guard let completion = completions.removeValue(forKey: hashCodeArgs) else {
+        guard let completion = _setCharacteristicNotifyStateCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
             return
         }
         if error == nil {
@@ -508,10 +495,7 @@ class MyCentralManager: MyCentralManagerHostApi {
     func didUpdateDescriptorValue(peripheral: CBPeripheral, descriptor: CBDescriptor, error: Error?) {
         let uuidArgs = peripheral.identifier.toArgs()
         let hashCodeArgs = descriptor.hash.toInt64()
-        guard var completions = _readDescriptorCompletions[uuidArgs] else {
-            return
-        }
-        guard let completion = completions.removeValue(forKey: hashCodeArgs) else {
+        guard let completion = _readDescriptorCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
             return
         }
         if error == nil {
@@ -561,10 +545,7 @@ class MyCentralManager: MyCentralManagerHostApi {
     func didWriteDescriptorValue(peripheral: CBPeripheral, descriptor: CBDescriptor, error: Error?) {
         let uuidArgs = peripheral.identifier.toArgs()
         let hashCodeArgs = descriptor.hash.toInt64()
-        guard var completions = _writeDescriptorCompletions[uuidArgs] else {
-            return
-        }
-        guard let completion = completions.removeValue(forKey: hashCodeArgs) else {
+        guard let completion = _writeDescriptorCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
             return
         }
         if error == nil {
