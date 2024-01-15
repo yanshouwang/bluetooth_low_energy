@@ -1,3 +1,7 @@
+## 5.0.1
+
+* Fix the issue that completion was called duplicately caused by CoW.
+
 ## 5.0.0
 
 * Now `CentralManager#writeCharacteristic` and `PeripheralManager#writeCharacteristic` will fragment the value automatically, the maximum write length is 512 bytes.
