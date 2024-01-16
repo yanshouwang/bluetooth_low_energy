@@ -1029,6 +1029,18 @@ class _AdvertiserViewState extends State<AdvertiserView>
       ],
     );
     await PeripheralManager.instance.addService(service);
+    final batteryService = GattService(
+      uuid: UUID.short(0x180f),
+      characteristics: [
+        GattCharacteristic(
+          uuid: UUID.short(0x2A19),
+          properties: [GattCharacteristicProperty.read],
+          value: Uint8List.fromList([75]),
+          descriptors: [],
+        ),
+      ],
+    );
+    await PeripheralManager.instance.addService(batteryService);
     final advertisement = Advertisement(
       name: 'le12138',
       manufacturerSpecificData: ManufacturerSpecificData(
