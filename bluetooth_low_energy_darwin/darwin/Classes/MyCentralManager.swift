@@ -384,16 +384,11 @@ class MyCentralManager: MyCentralManagerHostApi {
         if error == nil {
             let services = peripheral.services ?? []
             let servicesArgs = services.map { service in service.toArgs() }
-            let elements = services.flatMap { service in
+            let values = services.flatMap { service in
                 let hashCodeArgs = service.hash.toInt64()
                 return [hashCodeArgs: service]
             }
-            var items = _services[uuidArgs]
-            if items == nil {
-                _services[uuidArgs] = Dictionary(uniqueKeysWithValues: elements)
-            } else {
-                items!.merge(elements) { service1, service2 in service2 }
-            }
+            _services[uuidArgs] = Dictionary(uniqueKeysWithValues: values)
             completion(.success(servicesArgs))
         } else {
             completion(.failure(error!))
@@ -409,16 +404,11 @@ class MyCentralManager: MyCentralManagerHostApi {
         if error == nil {
             let characteristics = service.characteristics ?? []
             let characteristicsArgs = characteristics.map { characteristic in characteristic.toArgs() }
-            let elements = characteristics.flatMap { characteristic in
+            let values = characteristics.flatMap { characteristic in
                 let hashCodeArgs = characteristic.hash.toInt64()
                 return [hashCodeArgs: characteristic]
             }
-            var items = _characteristics[uuidArgs]
-            if items == nil {
-                _characteristics[uuidArgs] = Dictionary(uniqueKeysWithValues: elements)
-            } else {
-                items!.merge(elements) { characteristic1, characteristic2 in characteristic2 }
-            }
+            _characteristics[uuidArgs, default: [:]].merge(values) { value1, value2 in value2 }
             completion(.success(characteristicsArgs))
         } else {
             completion(.failure(error!))
@@ -434,16 +424,11 @@ class MyCentralManager: MyCentralManagerHostApi {
         if error == nil {
             let descriptors = characteristic.descriptors ?? []
             let descriptorsArgs = descriptors.map { descriptor in descriptor.toArgs() }
-            let elements = descriptors.flatMap { descriptor in
+            let values = descriptors.flatMap { descriptor in
                 let hashCodeArgs = descriptor.hash.toInt64()
                 return [hashCodeArgs: descriptor]
             }
-            var items = _descriptors[uuidArgs]
-            if items == nil {
-                _descriptors[uuidArgs] = Dictionary(uniqueKeysWithValues: elements)
-            } else {
-                items!.merge(elements) { descriptor1, descriptor2 in descriptor2 }
-            }
+            _descriptors[uuidArgs, default: [:]].merge(values) { value1, value2 in value2 }
             completion(.success(descriptorsArgs))
         } else {
             completion(.failure(error!))
