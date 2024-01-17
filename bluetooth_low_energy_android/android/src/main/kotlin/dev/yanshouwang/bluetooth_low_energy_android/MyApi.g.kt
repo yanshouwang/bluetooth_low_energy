@@ -50,8 +50,10 @@ enum class MyBluetoothLowEnergyStateArgs(val raw: Int) {
   UNKNOWN(0),
   UNSUPPORTED(1),
   UNAUTHORIZED(2),
-  POWEREDOFF(3),
-  POWEREDON(4);
+  OFF(3),
+  TURNINGON(4),
+  ON(5),
+  TURNINGOFF(6);
 
   companion object {
     fun ofRaw(raw: Int): MyBluetoothLowEnergyStateArgs? {
@@ -327,7 +329,7 @@ private object MyCentralManagerHostApiCodec : StandardMessageCodec() {
 
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface MyCentralManagerHostApi {
-  fun setUp()
+  fun setUp(callback: (Result<Unit>) -> Unit)
   fun startDiscovery(callback: (Result<Unit>) -> Unit)
   fun stopDiscovery()
   fun connect(addressArgs: String, callback: (Result<Unit>) -> Unit)
@@ -353,14 +355,14 @@ interface MyCentralManagerHostApi {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostApi.setUp", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
-            var wrapped: List<Any?>
-            try {
-              api.setUp()
-              wrapped = listOf<Any?>(null)
-            } catch (exception: Throwable) {
-              wrapped = wrapError(exception)
+            api.setUp() { result: Result<Unit> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(wrapError(error))
+              } else {
+                reply.reply(wrapResult(null))
+              }
             }
-            reply.reply(wrapped)
           }
         } else {
           channel.setMessageHandler(null)
@@ -795,7 +797,7 @@ private object MyPeripheralManagerHostApiCodec : StandardMessageCodec() {
 
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface MyPeripheralManagerHostApi {
-  fun setUp()
+  fun setUp(callback: (Result<Unit>) -> Unit)
   fun addService(serviceArgs: MyGattServiceArgs, callback: (Result<Unit>) -> Unit)
   fun removeService(hashCodeArgs: Long)
   fun clearServices()
@@ -816,14 +818,14 @@ interface MyPeripheralManagerHostApi {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostApi.setUp", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
-            var wrapped: List<Any?>
-            try {
-              api.setUp()
-              wrapped = listOf<Any?>(null)
-            } catch (exception: Throwable) {
-              wrapped = wrapError(exception)
+            api.setUp() { result: Result<Unit> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(wrapError(error))
+              } else {
+                reply.reply(wrapResult(null))
+              }
             }
-            reply.reply(wrapped)
           }
         } else {
           channel.setMessageHandler(null)

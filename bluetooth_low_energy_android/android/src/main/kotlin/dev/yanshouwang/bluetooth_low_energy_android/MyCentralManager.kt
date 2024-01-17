@@ -39,6 +39,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
     private val mCharacteristics: MutableMap<String, Map<Long, BluetoothGattCharacteristic>>
     private val mDescriptors: MutableMap<String, Map<Long, BluetoothGattDescriptor>>
 
+    private var mSetUpCallback: ((Result<Unit>) -> Unit)?
     private var mStartDiscoveryCallback: ((Result<Unit>) -> Unit)?
     private val mConnectCallbacks: MutableMap<String, (Result<Unit>) -> Unit>
     private val mDisconnectCallbacks: MutableMap<String, (Result<Unit>) -> Unit>
@@ -61,6 +62,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
         mCharacteristics = mutableMapOf()
         mDescriptors = mutableMapOf()
 
+        mSetUpCallback = null
         mStartDiscoveryCallback = null
         mConnectCallbacks = mutableMapOf()
         mDisconnectCallbacks = mutableMapOf()
@@ -93,9 +95,25 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
     override val requestCode: Int
         get() = REQUEST_CODE
 
-    override fun setUp() {
-        mClearState()
-        initialize()
+    override fun setUp(callback: (Result<Unit>) -> Unit) {
+        try {
+            mClearState()
+            val stateArgs = if (hasFeature) {
+                val granted = checkPermissions()
+                if (granted) {
+                    registerReceiver()
+                    adapter.state.toBluetoothLowEnergyStateArgs()
+                } else {
+                    requestPermissions()
+                    mSetUpCallback = callback
+                    return
+                }
+            } else MyBluetoothLowEnergyStateArgs.UNSUPPORTED
+            mOnStateChanged(stateArgs)
+            callback(Result.success(Unit))
+        } catch (e: Throwable) {
+            callback(Result.failure(e))
+        }
     }
 
     override fun startDiscovery(callback: (Result<Unit>) -> Unit) {
@@ -104,10 +122,10 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
             val settings =
                 ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
             mScanner.startScan(filters, settings, mScanCallback)
-            mStartDiscoveryCallback = callback
             executor.execute {
                 onScanSucceed()
             }
+            mStartDiscoveryCallback = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
@@ -319,9 +337,19 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
         }
     }
 
-    override fun onStateChanged(state: MyBluetoothLowEnergyState) {
-        val stateNumberArgs = state.raw.toLong()
-        mApi.onStateChanged(stateNumberArgs) {}
+    override fun onPermissionsRequested(granted: Boolean) {
+        val callback = mSetUpCallback ?: return
+        val stateArgs = if (granted) {
+            registerReceiver()
+            adapter.state.toBluetoothLowEnergyStateArgs()
+        } else MyBluetoothLowEnergyStateArgs.UNAUTHORIZED
+        mOnStateChanged(stateArgs)
+        callback(Result.success(Unit))
+    }
+
+    override fun onAdapterStateChanged(state: Int) {
+        val stateArgs = state.toBluetoothLowEnergyStateArgs()
+        mOnStateChanged(stateArgs)
     }
 
     private fun onScanSucceed() {
@@ -554,6 +582,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
         mCharacteristics.clear()
         mDescriptors.clear()
 
+        mSetUpCallback = null
         mStartDiscoveryCallback = null
         mConnectCallbacks.clear()
         mDisconnectCallbacks.clear()
@@ -564,6 +593,11 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
         mWriteCharacteristicCallbacks.clear()
         mReadDescriptorCallbacks.clear()
         mWriteDescriptorCallbacks.clear()
+    }
+
+    private fun mOnStateChanged(stateArgs: MyBluetoothLowEnergyStateArgs) {
+        val stateNumberArgs = stateArgs.raw.toLong()
+        mApi.onStateChanged(stateNumberArgs) {}
     }
 
     private fun mRetrieveCharacteristic(

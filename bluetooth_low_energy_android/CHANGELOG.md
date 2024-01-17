@@ -1,3 +1,12 @@
+## 5.0.2
+
+* Fix the ConcurrentModificationException when `PeripheralManager#clearServices` is called.
+* Fix the `CentralManager#setUp` and `PeripheralManager#setUp` were blocked.
+
+## 5.0.1
+
+* Fix the wrong blutooth low energy state caused by multi permission requests at the same time.
+
 ## 5.0.0
 
 * Now `CentralManager#writeCharacteristic` and `PeripheralManager#writeCharacteristic` will fragment the value automatically, the maximum write length is 512 bytes.

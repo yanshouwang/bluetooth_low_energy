@@ -29,8 +29,10 @@ enum MyBluetoothLowEnergyStateArgs {
   unknown,
   unsupported,
   unauthorized,
-  poweredOff,
-  poweredOn,
+  off,
+  turningOn,
+  on,
+  turningOff,
 }
 
 enum MyGattCharacteristicPropertyArgs {

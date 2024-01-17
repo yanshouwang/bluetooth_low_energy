@@ -131,8 +131,11 @@ fun MyGattServiceArgs.toService(): BluetoothGattService {
 //region ToArgs
 fun Int.toBluetoothLowEnergyStateArgs(): MyBluetoothLowEnergyStateArgs {
     return when (this) {
-        BluetoothAdapter.STATE_ON -> MyBluetoothLowEnergyStateArgs.POWEREDON
-        else -> MyBluetoothLowEnergyStateArgs.POWEREDOFF
+        BluetoothAdapter.STATE_OFF -> MyBluetoothLowEnergyStateArgs.OFF
+        BluetoothAdapter.STATE_TURNING_ON -> MyBluetoothLowEnergyStateArgs.TURNINGON
+        BluetoothAdapter.STATE_ON -> MyBluetoothLowEnergyStateArgs.ON
+        BluetoothAdapter.STATE_TURNING_OFF -> MyBluetoothLowEnergyStateArgs.TURNINGOFF
+        else -> MyBluetoothLowEnergyStateArgs.UNKNOWN
     }
 }
 

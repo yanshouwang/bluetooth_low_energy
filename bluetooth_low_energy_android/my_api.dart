@@ -15,8 +15,10 @@ enum MyBluetoothLowEnergyStateArgs {
   unknown,
   unsupported,
   unauthorized,
-  poweredOff,
-  poweredOn,
+  off,
+  turningOn,
+  on,
+  turningOff,
 }
 
 enum MyGattCharacteristicPropertyArgs {
@@ -124,6 +126,7 @@ class MyGattServiceArgs {
 
 @HostApi()
 abstract class MyCentralManagerHostApi {
+  @async
   void setUp();
   @async
   void startDiscovery();
@@ -182,6 +185,7 @@ abstract class MyCentralManagerFlutterApi {
 
 @HostApi()
 abstract class MyPeripheralManagerHostApi {
+  @async
   void setUp();
   @async
   void addService(MyGattServiceArgs serviceArgs);

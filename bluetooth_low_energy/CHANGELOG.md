@@ -1,10 +1,15 @@
+## 5.0.3
+
+* `Android` Fix the wrong blutooth low energy state caused by multi permission requests at the same time.
+* `Android` Fix the ConcurrentModificationException when `PeripheralManager#clearServices` is called.
+
 ## 5.0.2
 
-* Fix the issue that [discoverGATT failed caused by CoW](https://github.com/yanshouwang/bluetooth_low_energy/issues/36).
+* `iOS` Fix the issue that [discoverGATT failed](https://github.com/yanshouwang/bluetooth_low_energy/issues/36) caused by CoW.
 
 ## 5.0.1
 
-* Fix the issue that [completion was called duplicately caused by CoW](https://github.com/yanshouwang/bluetooth_low_energy/issues/36).
+* `iOS` Fix the issue that [completion was called duplicately](https://github.com/yanshouwang/bluetooth_low_energy/issues/36) caused by CoW.
 
 ## 5.0.0
 
