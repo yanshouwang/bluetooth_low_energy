@@ -979,9 +979,21 @@ class _AdvertiserViewState extends State<AdvertiserView>
 
   Future<void> startAdvertising() async {
     await PeripheralManager.instance.clearServices();
+    final batteryService = GattService(
+      uuid: UUID.short(0x180f),
+      characteristics: [
+        GattCharacteristic(
+          uuid: UUID.short(0x2A19),
+          properties: [GattCharacteristicProperty.read],
+          value: Uint8List.fromList([75]),
+          descriptors: [],
+        ),
+      ],
+    );
+    await PeripheralManager.instance.addService(batteryService);
     final elements = List.generate(1000, (i) => i % 256);
     final value = Uint8List.fromList(elements);
-    final service = GattService(
+    final myService = GattService(
       uuid: UUID.short(100),
       characteristics: [
         GattCharacteristic(
@@ -1028,19 +1040,7 @@ class _AdvertiserViewState extends State<AdvertiserView>
         ),
       ],
     );
-    await PeripheralManager.instance.addService(service);
-    final batteryService = GattService(
-      uuid: UUID.short(0x180f),
-      characteristics: [
-        GattCharacteristic(
-          uuid: UUID.short(0x2A19),
-          properties: [GattCharacteristicProperty.read],
-          value: Uint8List.fromList([75]),
-          descriptors: [],
-        ),
-      ],
-    );
-    await PeripheralManager.instance.addService(batteryService);
+    await PeripheralManager.instance.addService(myService);
     final advertisement = Advertisement(
       name: 'le12138',
       manufacturerSpecificData: ManufacturerSpecificData(

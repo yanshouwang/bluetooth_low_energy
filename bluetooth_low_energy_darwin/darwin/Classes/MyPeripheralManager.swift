@@ -60,7 +60,7 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
         if _peripheralManager.delegate == nil {
             _peripheralManager.delegate = _peripheralManagerDelegate
         }
-        _onStateChanged()
+        didUpdateState(peripheral: _peripheralManager)
     }
     
     func addService(serviceArgs: MyGattServiceArgs, completion: @escaping (Result<Void, Error>) -> Void) {
@@ -102,23 +102,48 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
     }
     
     func removeService(hashCodeArgs: Int64) throws {
-        guard let service = _services[hashCodeArgs] else {
-            throw MyError.illegalArgument
-        }
-        let hashCode = service.hash
-        guard let serviceArgs = _servicesArgs[hashCode] else {
+        guard let service = _services.removeValue(forKey: hashCodeArgs) else {
             throw MyError.illegalArgument
         }
         _peripheralManager.remove(service)
-        _clearService(serviceArgs: serviceArgs)
+        let hashCode = service.hash
+        guard let serviceArgs = _servicesArgs.removeValue(forKey: hashCode) else {
+            throw MyError.illegalArgument
+        }
+        for args in serviceArgs.characteristicsArgs {
+            guard let characteristicArgs = args else {
+                continue
+            }
+            let characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
+            guard let characteristic = _characteristics.removeValue(forKey: characteristicHashCodeArgs) else {
+                throw MyError.illegalArgument
+            }
+            let characteristicHashCode = characteristic.hash
+            _characteristicsArgs.removeValue(forKey: characteristicHashCode)
+            for args in characteristicArgs.descriptorsArgs {
+                guard let descriptorArgs = args else {
+                    continue
+                }
+                let descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
+                guard let descriptor = _descriptors.removeValue(forKey: descriptorHashCodeArgs) else {
+                    throw MyError.illegalArgument
+                }
+                let descriptorHashCode = descriptor.hash
+                _descriptorsArgs.removeValue(forKey: descriptorHashCode)
+            }
+        }
     }
     
     func clearServices() throws {
         _peripheralManager.removeAllServices()
-        let servicesArgs = _servicesArgs.values
-        for serviceArgs in servicesArgs {
-            _clearService(serviceArgs: serviceArgs)
-        }
+        
+        _services.removeAll()
+        _characteristics.removeAll()
+        _descriptors.removeAll()
+        
+        _servicesArgs.removeAll()
+        _characteristicsArgs.removeAll()
+        _descriptors.removeAll()
     }
     
     func startAdvertising(advertisementArgs: MyAdvertisementArgs, completion: @escaping (Result<Void, Error>) -> Void) {
@@ -181,7 +206,10 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
     }
     
     func didUpdateState(peripheral: CBPeripheralManager) {
-        _onStateChanged()
+        let state = peripheral.state
+        let stateArgs = state.toArgs()
+        let stateNumberArgs = stateArgs.rawValue.toInt64()
+        _api.onStateChanged(stateNumberArgs: stateNumberArgs) {_ in }
     }
     
     func didAdd(peripheral: CBPeripheralManager, service: CBService, error: Error?) {
@@ -193,11 +221,6 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
             completion(.success(()))
         } else {
             completion(.failure(error!))
-            let hashCode = service.hash
-            guard let serviceArgs = _servicesArgs[hashCode] else {
-                return
-            }
-            _clearService(serviceArgs: serviceArgs)
         }
     }
     
@@ -316,45 +339,5 @@ class MyPeripheralManager: MyPeripheralManagerHostApi {
         _addServiceCompletion = nil
         _startAdvertisingCompletion = nil
         _isReadyToUpdateSubscribersCallbacks.removeAll()
-    }
-    
-    private func _clearService(serviceArgs: MyGattServiceArgs) {
-        let characteristicsArgs = serviceArgs.characteristicsArgs
-        for args in characteristicsArgs {
-            guard let characteristicArgs = args else {
-                continue
-            }
-            let descriptorsArgs = characteristicArgs.descriptorsArgs
-            for args in descriptorsArgs {
-                guard let descriptorArgs = args else {
-                    continue
-                }
-                let descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
-                guard let descriptor = _descriptors.removeValue(forKey: descriptorHashCodeArgs) else {
-                    continue
-                }
-                let descriptorHashCode = descriptor.hash
-                _descriptorsArgs.removeValue(forKey: descriptorHashCode)
-            }
-            let characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
-            guard let characteristic = _characteristics.removeValue(forKey: characteristicHashCodeArgs) else {
-                continue
-            }
-            let characteristicHashCode = characteristic.hash
-            _characteristicsArgs.removeValue(forKey: characteristicHashCode)
-        }
-        let serviceHashCodeArgs = serviceArgs.hashCodeArgs
-        guard let service = _services.removeValue(forKey: serviceHashCodeArgs) else {
-            return
-        }
-        let serviceHashCode = service.hash
-        _servicesArgs.removeValue(forKey: serviceHashCode)
-    }
-    
-    private func _onStateChanged() {
-        let state = _peripheralManager.state
-        let stateArgs = state.toArgs()
-        let stateNumberArgs = stateArgs.rawValue.toInt64()
-        _api.onStateChanged(stateNumberArgs: stateNumberArgs) {_ in }
     }
 }

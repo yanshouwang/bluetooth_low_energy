@@ -1,3 +1,7 @@
+## 5.0.4
+
+* `iOS` Fix issues caused by CoW.
+
 ## 5.0.3
 
 * `Android` Fix the wrong blutooth low energy state caused by multi permission requests at the same time.

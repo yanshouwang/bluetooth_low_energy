@@ -1,3 +1,7 @@
+## 5.0.3
+
+* Fix issues caused by CoW.
+
 ## 5.0.2
 
 * Fix the issue that [discoverGATT failed caused by CoW](https://github.com/yanshouwang/bluetooth_low_energy/issues/36).
