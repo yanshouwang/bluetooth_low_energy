@@ -67,7 +67,7 @@ class MyCentralManager: MyCentralManagerHostApi {
         if _centralManager.delegate == nil {
             _centralManager.delegate = _centralManagerDelegate
         }
-        _onStateChanged()
+        didUpdateState(central: _centralManager)
     }
     
     func startDiscovery() throws {
@@ -259,7 +259,10 @@ class MyCentralManager: MyCentralManagerHostApi {
     }
     
     func didUpdateState(central: CBCentralManager) {
-        _onStateChanged()
+        let state = central.state
+        let stateArgs = state.toArgs()
+        let stateNumberArgs = stateArgs.rawValue.toInt64()
+        _api.onStateChanged(stateNumberArgs: stateNumberArgs) {_ in }
     }
     
     func didDiscover(central: CBCentralManager, peripheral: CBPeripheral, advertisementData: [String : Any], rssi: NSNumber) {
@@ -587,12 +590,5 @@ class MyCentralManager: MyCentralManagerHostApi {
             return nil
         }
         return descriptors[hashCodeArgs]
-    }
-    
-    private func _onStateChanged() {
-        let state = _centralManager.state
-        let stateArgs = state.toArgs()
-        let stateNumberArgs = stateArgs.rawValue.toInt64()
-        _api.onStateChanged(stateNumberArgs: stateNumberArgs) {_ in }
     }
 }
