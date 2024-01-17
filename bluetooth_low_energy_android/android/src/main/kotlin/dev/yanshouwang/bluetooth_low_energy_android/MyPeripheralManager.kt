@@ -19,7 +19,7 @@ import io.flutter.plugin.common.BinaryMessenger
 class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
     MyBluetoothLowEnergyManager(context), MyPeripheralManagerHostApi {
     companion object {
-        const val REQUEST_CODE = 444
+        const val REQUEST_CODE = 445
     }
 
     private val advertiser get() = adapter.bluetoothLeAdvertiser
@@ -89,9 +89,25 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
     override val requestCode: Int
         get() = REQUEST_CODE
 
-    override fun setUp() {
-        mClearState()
-        initialize()
+    override fun setUp(callback: (Result<Unit>) -> Unit) {
+        try {
+            mClearState()
+            val stateArgs = if (hasFeature) {
+                val granted = checkPermissions()
+                if (granted) {
+                    registerReceiver()
+                    adapter.state.toBluetoothLowEnergyStateArgs()
+                } else {
+                    requestPermissions()
+                    mSetUpCallback = callback
+                    return
+                }
+            } else MyBluetoothLowEnergyStateArgs.UNSUPPORTED
+            mOnStateChanged(stateArgs)
+            callback(Result.success(Unit))
+        } catch (e: Throwable) {
+            callback(Result.failure(e))
+        }
     }
 
     override fun addService(serviceArgs: MyGattServiceArgs, callback: (Result<Unit>) -> Unit) {
@@ -143,28 +159,45 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
             }
             mAddServiceCallback = callback
         } catch (e: Throwable) {
-            mClearService(serviceArgs)
             callback(Result.failure(e))
         }
     }
 
     override fun removeService(hashCodeArgs: Long) {
-        val service = mServices[hashCodeArgs] as BluetoothGattService
-        val hashCode = service.hashCode()
-        val serviceArgs = mServicesArgs[hashCode] as MyGattServiceArgs
+        val service = mServices.remove(hashCodeArgs) as BluetoothGattService
         val removed = mServer.removeService(service)
         if (!removed) {
             throw IllegalStateException()
         }
-        mClearService(serviceArgs)
+        val hashCode = service.hashCode()
+        val serviceArgs = mServicesArgs.remove(hashCode) as MyGattServiceArgs
+        val characteristicsArgs = serviceArgs.characteristicsArgs.filterNotNull()
+        for (characteristicArgs in characteristicsArgs) {
+            val characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
+            val characteristic =
+                mCharacteristics.remove(characteristicHashCodeArgs) as BluetoothGattCharacteristic
+            val characteristicHashCode = characteristic.hashCode()
+            mCharacteristicsArgs.remove(characteristicHashCode)
+            val descriptorsArgs = characteristicArgs.descriptorsArgs.filterNotNull()
+            for (descriptorArgs in descriptorsArgs) {
+                val descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
+                val descriptor =
+                    mDescriptors.remove(descriptorHashCodeArgs) as BluetoothGattDescriptor
+                val descriptorHashCode = descriptor.hashCode()
+                mDescriptorsArgs.remove(descriptorHashCode)
+            }
+        }
     }
 
     override fun clearServices() {
         mServer.clearServices()
-        val servicesArgs = this.mServicesArgs.values
-        for (serviceArgs in servicesArgs) {
-            mClearService(serviceArgs)
-        }
+        mServices.clear()
+        mCharacteristics.clear()
+        mDescriptors.clear()
+
+        mServicesArgs.clear()
+        mCharacteristicsArgs.clear()
+        mDescriptorsArgs.clear()
     }
 
     override fun startAdvertising(
@@ -235,14 +268,19 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         }
     }
 
-    override fun onStateChanged(state: MyBluetoothLowEnergyState) {
-        when (state) {
-            MyBluetoothLowEnergyStateArgs.POWEREDOFF -> mCloseGattServer()
-            MyBluetoothLowEnergyStateArgs.POWEREDON -> mOpenGattServer()
-            else -> {}
-        }
-        val stateNumberArgs = state.raw.toLong()
-        mApi.onStateChanged(stateNumberArgs) {}
+    override fun onPermissionsRequested(granted: Boolean) {
+        val callback = mSetUpCallback ?: return
+        val stateArgs = if (granted) {
+            registerReceiver()
+            adapter.state.toBluetoothLowEnergyStateArgs()
+        } else MyBluetoothLowEnergyStateArgs.UNAUTHORIZED
+        mOnStateChanged(stateArgs)
+        callback(Result.success(Unit))
+    }
+
+    override fun onAdapterStateChanged(state: Int) {
+        val stateArgs = state.toBluetoothLowEnergyStateArgs()
+        mOnStateChanged(stateArgs)
     }
 
     fun onServiceAdded(status: Int, service: BluetoothGattService) {
@@ -253,9 +291,6 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         } else {
             val error = IllegalStateException("Read rssi failed with status: $status")
             callback(Result.failure(error))
-            val hashCode = service.hashCode()
-            val serviceArgs = mServicesArgs[hashCode] ?: return
-            mClearService(serviceArgs)
         }
     }
 
@@ -403,7 +438,18 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         mNotifyCharacteristicValueChangedCallbacks.clear()
     }
 
-    private fun mOpenGattServer() {
+    private fun mOnStateChanged(stateArgs: MyBluetoothLowEnergyStateArgs) {
+        val stateNumberArgs = stateArgs.raw.toLong()
+        mApi.onStateChanged(stateNumberArgs) {}
+        // Renew GATT server when bluetooth adapter state changed.
+        when (stateArgs) {
+            MyBluetoothLowEnergyStateArgs.OFF -> mCloseServer()
+            MyBluetoothLowEnergyStateArgs.ON -> mOpenServer()
+            else -> {}
+        }
+    }
+
+    private fun mOpenServer() {
         if (mOpening) {
             return
         }
@@ -411,32 +457,11 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         mOpening = true
     }
 
-    private fun mCloseGattServer() {
+    private fun mCloseServer() {
         if (!mOpening) {
             return
         }
         mServer.close()
         mOpening = false
-    }
-
-    private fun mClearService(serviceArgs: MyGattServiceArgs) {
-        val characteristicsArgs = serviceArgs.characteristicsArgs.filterNotNull()
-        for (characteristicArgs in characteristicsArgs) {
-            val descriptorsArgs = characteristicArgs.descriptorsArgs.filterNotNull()
-            for (descriptorArgs in descriptorsArgs) {
-                val descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
-                val descriptor = mDescriptors.remove(descriptorHashCodeArgs) ?: continue
-                val descriptorHashCode = descriptor.hashCode()
-                mDescriptorsArgs.remove(descriptorHashCode)
-            }
-            val characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
-            val characteristic = mCharacteristics.remove(characteristicHashCodeArgs) ?: continue
-            val characteristicHashCode = characteristic.hashCode()
-            mCharacteristicsArgs.remove(characteristicHashCode)
-        }
-        val serviceHashCodeArgs = serviceArgs.hashCodeArgs
-        val service = mServices.remove(serviceHashCodeArgs) ?: return
-        val serviceHashCode = service.hashCode()
-        mServicesArgs.remove(serviceHashCode)
     }
 }

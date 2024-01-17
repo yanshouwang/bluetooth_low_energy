@@ -14,8 +14,6 @@ import io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener
 import java.util.UUID
 import java.util.concurrent.Executor
 
-typealias MyBluetoothLowEnergyState = MyBluetoothLowEnergyStateArgs
-
 abstract class MyBluetoothLowEnergyManager(context: Context) {
     companion object {
         val CLIENT_CHARACTERISTIC_CONFIG_UUID =
@@ -40,31 +38,24 @@ abstract class MyBluetoothLowEnergyManager(context: Context) {
     }
 
     protected val executor get() = ContextCompat.getMainExecutor(mContext) as Executor
+    protected val hasFeature get() = mContext.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
     protected val manager
         get() = ContextCompat.getSystemService(
             mContext, BluetoothManager::class.java
         ) as BluetoothManager
     protected val adapter get() = manager.adapter as BluetoothAdapter
 
-    protected fun initialize() {
-        val hasFeature =
-            mContext.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
-        if (hasFeature) {
-            val authorized = permissions.all { permission ->
-                ActivityCompat.checkSelfPermission(
-                    mContext, permission
-                ) == PackageManager.PERMISSION_GRANTED
-            }
-            if (authorized) {
-                mOnAuthorizationStateChanged(true)
-            } else {
-                val activity = mBinding.activity
-                ActivityCompat.requestPermissions(activity, permissions, requestCode)
-            }
-        } else {
-            val state = MyBluetoothLowEnergyState.UNSUPPORTED
-            onStateChanged(state)
+    protected fun checkPermissions(): Boolean {
+        return permissions.all { permission ->
+            ActivityCompat.checkSelfPermission(
+                mContext, permission
+            ) == PackageManager.PERMISSION_GRANTED
         }
+    }
+
+    protected fun requestPermissions() {
+        val activity = mBinding.activity
+        ActivityCompat.requestPermissions(activity, permissions, requestCode)
     }
 
     fun onAttachedToActivity(binding: ActivityPluginBinding) {
@@ -82,8 +73,9 @@ abstract class MyBluetoothLowEnergyManager(context: Context) {
         if (this.requestCode != requestCode) {
             return false
         }
-        val authorized = results.all { r -> r == PackageManager.PERMISSION_GRANTED }
-        mOnAuthorizationStateChanged(authorized)
+        val granted =
+            permissions.contentEquals(this.permissions) && results.all { r -> r == PackageManager.PERMISSION_GRANTED }
+        onPermissionsRequested(granted)
         return true
     }
 
@@ -92,23 +84,11 @@ abstract class MyBluetoothLowEnergyManager(context: Context) {
         if (action != BluetoothAdapter.ACTION_STATE_CHANGED) {
             return
         }
-        val extra = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF)
-        val state = extra.toBluetoothLowEnergyStateArgs()
-        onStateChanged(state)
+        val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF)
+        onAdapterStateChanged(state)
     }
 
-    private fun mOnAuthorizationStateChanged(authorized: Boolean) {
-        val state = if (authorized) {
-            mRegisterReceiver()
-            if (adapter.state == BluetoothAdapter.STATE_ON) MyBluetoothLowEnergyState.POWEREDON
-            else MyBluetoothLowEnergyState.POWEREDOFF
-        } else {
-            MyBluetoothLowEnergyState.UNAUTHORIZED
-        }
-        onStateChanged(state)
-    }
-
-    private fun mRegisterReceiver() {
+    protected fun registerReceiver() {
         if (mRegistered) {
             return
         }
@@ -119,6 +99,8 @@ abstract class MyBluetoothLowEnergyManager(context: Context) {
 
     abstract val permissions: Array<String>
     abstract val requestCode: Int
-    abstract fun onStateChanged(state: MyBluetoothLowEnergyState)
+
+    abstract fun onPermissionsRequested(granted: Boolean)
+    abstract fun onAdapterStateChanged(state: Int)
 }
 
