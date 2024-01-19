@@ -280,7 +280,7 @@ namespace bluetooth_low_energy_windows
 		try
 		{
 			const auto& service = m_retrieve_service(address_args, handle_args);
-			const auto& r = co_await service->GetCharacteristicsAsync();
+			const auto& r = co_await service->GetCharacteristicsAsync(winrt::Windows::Devices::Bluetooth::BluetoothCacheMode::Uncached);
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
@@ -345,7 +345,7 @@ namespace bluetooth_low_energy_windows
 		try
 		{
 			const auto& characteristic = m_retrieve_characteristic(address_args, handle_args);
-			const auto& r = co_await characteristic->GetDescriptorsAsync();
+			const auto& r = co_await characteristic->GetDescriptorsAsync(winrt::Windows::Devices::Bluetooth::BluetoothCacheMode::Uncached);
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
@@ -399,7 +399,7 @@ namespace bluetooth_low_energy_windows
 		try
 		{
 			const auto& characteristic = m_retrieve_characteristic(address_args, handle_args);
-			const auto& r = co_await characteristic->ReadValueAsync();
+			const auto& r = co_await characteristic->ReadValueAsync(winrt::Windows::Devices::Bluetooth::BluetoothCacheMode::Uncached);
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
@@ -515,7 +515,7 @@ namespace bluetooth_low_energy_windows
 		try
 		{
 			const auto& descriptor = m_retrieve_descriptor(address_args, handle_args);
-			const auto& r = co_await descriptor->ReadValueAsync();
+			const auto& r = co_await descriptor->ReadValueAsync(winrt::Windows::Devices::Bluetooth::BluetoothCacheMode::Uncached);
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
