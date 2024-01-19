@@ -1,3 +1,7 @@
+## 5.0.5
+
+* `Windows` Fix the [`CentralManager#discoverGATT`, `CentralManager#readCharacteristic` and `CentralManager#readDescriptor` issue](https://github.com/yanshouwang/bluetooth_low_energy/issues/42) caused by cache mode.
+
 ## 5.0.4
 
 * `iOS` Fix issues caused by CoW.
