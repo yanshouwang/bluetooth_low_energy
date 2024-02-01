@@ -7,19 +7,18 @@ import 'my_gatt_descriptor.dart';
 
 class MyGattCharacteristic extends MyGattAttribute
     implements GattCharacteristic {
+  Uint8List _value;
   @override
   final List<GattCharacteristicProperty> properties;
-  Uint8List _value;
   @override
   final List<MyGattDescriptor> descriptors;
 
   MyGattCharacteristic({
     required super.uuid,
-    List<GattCharacteristicProperty>? properties,
+    required this.properties,
     Uint8List? value,
     List<MyGattDescriptor>? descriptors,
-  })  : properties = properties ?? [],
-        _value = value?.trimGATT() ?? Uint8List(0),
+  })  : _value = value?.trimGATT() ?? Uint8List(0),
         descriptors = descriptors ?? [];
 
   Uint8List get value => _value;
