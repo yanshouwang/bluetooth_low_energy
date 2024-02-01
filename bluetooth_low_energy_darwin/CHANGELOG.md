@@ -1,3 +1,8 @@
+## 5.0.4
+
+* Update characteristic's value when write by centrals.
+* Implements new Api.
+
 ## 5.0.3
 
 * Fix issues caused by CoW.

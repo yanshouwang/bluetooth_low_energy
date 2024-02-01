@@ -13,17 +13,17 @@ packages:
     dependency: "direct main"
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: "54f92ab2d7746fb6f2b4a40a48cd7eb8e3bf772f3ee89e1979d4d7b741fb2a05"
+      sha256: "5af74eb8f97a896dfdbcff2da284d4fe5b4e2e49ebb2f46f826ac1810f66e4d7"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0"
+    version: "5.0.2"
   bluetooth_low_energy_windows:
     dependency: "direct main"
     description:
       path: ".."
       relative: true
     source: path
-    version: "5.0.1"
+    version: "5.0.2"
   boolean_selector:
     dependency: transitive
     description:

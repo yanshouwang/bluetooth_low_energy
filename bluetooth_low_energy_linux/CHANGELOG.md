@@ -1,3 +1,7 @@
+## 5.0.1
+
+* Implements new Api.
+
 ## 5.0.0
 
 * Now `CentralManager#writeCharacteristic` will fragment the value automatically, the maximum write length is 512 bytes.

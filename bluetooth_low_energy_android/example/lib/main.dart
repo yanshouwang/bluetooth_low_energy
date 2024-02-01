@@ -993,32 +993,20 @@ class _AdvertiserViewState extends State<AdvertiserView>
             GattCharacteristicProperty.write,
             GattCharacteristicProperty.writeWithoutResponse,
           ],
-          value: Uint8List.fromList([]),
           descriptors: [],
         ),
         GattCharacteristic(
           uuid: UUID.short(202),
           properties: [
             GattCharacteristicProperty.notify,
-            GattCharacteristicProperty.indicate,
           ],
-          value: Uint8List.fromList([]),
           descriptors: [],
         ),
         GattCharacteristic(
           uuid: UUID.short(203),
           properties: [
-            GattCharacteristicProperty.notify,
-          ],
-          value: Uint8List.fromList([]),
-          descriptors: [],
-        ),
-        GattCharacteristic(
-          uuid: UUID.short(204),
-          properties: [
             GattCharacteristicProperty.indicate,
           ],
-          value: Uint8List.fromList([]),
           descriptors: [],
         ),
         GattCharacteristic(
@@ -1030,7 +1018,7 @@ class _AdvertiserViewState extends State<AdvertiserView>
             GattCharacteristicProperty.notify,
             GattCharacteristicProperty.indicate,
           ],
-          value: Uint8List.fromList([]),
+          value: value,
           descriptors: [],
         ),
       ],
