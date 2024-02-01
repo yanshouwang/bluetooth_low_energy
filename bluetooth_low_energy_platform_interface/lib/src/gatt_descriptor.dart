@@ -9,7 +9,7 @@ abstract class GattDescriptor extends GattAttribute {
   /// Constructs a [GattDescriptor].
   factory GattDescriptor({
     required UUID uuid,
-    required Uint8List value,
+    Uint8List? value,
   }) =>
       MyGattDescriptor(
         uuid: uuid,

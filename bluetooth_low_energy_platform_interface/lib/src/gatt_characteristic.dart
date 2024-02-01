@@ -18,14 +18,14 @@ abstract class GattCharacteristic extends GattAttribute {
   /// Constructs a [GattCharacteristic].
   factory GattCharacteristic({
     required UUID uuid,
-    required List<GattCharacteristicProperty> properties,
-    required Uint8List value,
-    required List<GattDescriptor> descriptors,
+    List<GattCharacteristicProperty>? properties,
+    Uint8List? value,
+    List<GattDescriptor>? descriptors,
   }) =>
       MyGattCharacteristic(
         uuid: uuid,
         properties: properties,
         value: value,
-        descriptors: descriptors.cast<MyGattDescriptor>(),
+        descriptors: descriptors?.cast<MyGattDescriptor>(),
       );
 }
