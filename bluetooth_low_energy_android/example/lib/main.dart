@@ -1021,6 +1021,18 @@ class _AdvertiserViewState extends State<AdvertiserView>
           value: Uint8List.fromList([]),
           descriptors: [],
         ),
+        GattCharacteristic(
+          uuid: UUID.short(204),
+          properties: [
+            GattCharacteristicProperty.read,
+            GattCharacteristicProperty.write,
+            GattCharacteristicProperty.writeWithoutResponse,
+            GattCharacteristicProperty.notify,
+            GattCharacteristicProperty.indicate,
+          ],
+          value: Uint8List.fromList([]),
+          descriptors: [],
+        ),
       ],
     );
     await PeripheralManager.instance.addService(service);

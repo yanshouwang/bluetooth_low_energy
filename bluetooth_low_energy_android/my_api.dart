@@ -230,14 +230,29 @@ abstract class MyPeripheralManagerFlutterApi {
     bool preparedWriteArgs,
     bool responseNeededArgs,
   );
-  void onExecuteWrite(
-    String addressArgs,
-    int idArgs,
-    bool executeArgs,
-  );
   void onCharacteristicNotifyStateChanged(
     String addressArgs,
     int hashCodeArgs,
     int stateNumberArgs,
+  );
+  void onDescriptorReadRequest(
+    String addressArgs,
+    int hashCodeArgs,
+    int idArgs,
+    int offsetArgs,
+  );
+  void onDescriptorWriteRequest(
+    String addressArgs,
+    int hashCodeArgs,
+    int idArgs,
+    int offsetArgs,
+    Uint8List valueArgs,
+    bool preparedWriteArgs,
+    bool responseNeededArgs,
+  );
+  void onExecuteWrite(
+    String addressArgs,
+    int idArgs,
+    bool executeArgs,
   );
 }

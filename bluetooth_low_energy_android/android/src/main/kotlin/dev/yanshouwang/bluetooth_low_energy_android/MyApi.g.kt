@@ -1077,10 +1077,10 @@ class MyPeripheralManagerFlutterApi(private val binaryMessenger: BinaryMessenger
       } 
     }
   }
-  fun onExecuteWrite(addressArgsArg: String, idArgsArg: Long, executeArgsArg: Boolean, callback: (Result<Unit>) -> Unit) {
-    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onExecuteWrite"
+  fun onCharacteristicNotifyStateChanged(addressArgsArg: String, hashCodeArgsArg: Long, stateNumberArgsArg: Long, callback: (Result<Unit>) -> Unit) {
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onCharacteristicNotifyStateChanged"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(addressArgsArg, idArgsArg, executeArgsArg)) {
+    channel.send(listOf(addressArgsArg, hashCodeArgsArg, stateNumberArgsArg)) {
       if (it is List<*>) {
         if (it.size > 1) {
           callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
@@ -1092,10 +1092,40 @@ class MyPeripheralManagerFlutterApi(private val binaryMessenger: BinaryMessenger
       } 
     }
   }
-  fun onCharacteristicNotifyStateChanged(addressArgsArg: String, hashCodeArgsArg: Long, stateNumberArgsArg: Long, callback: (Result<Unit>) -> Unit) {
-    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onCharacteristicNotifyStateChanged"
+  fun onDescriptorReadRequest(addressArgsArg: String, hashCodeArgsArg: Long, idArgsArg: Long, offsetArgsArg: Long, callback: (Result<Unit>) -> Unit) {
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onDescriptorReadRequest"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(addressArgsArg, hashCodeArgsArg, stateNumberArgsArg)) {
+    channel.send(listOf(addressArgsArg, hashCodeArgsArg, idArgsArg, offsetArgsArg)) {
+      if (it is List<*>) {
+        if (it.size > 1) {
+          callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
+        } else {
+          callback(Result.success(Unit))
+        }
+      } else {
+        callback(Result.failure(createConnectionError(channelName)))
+      } 
+    }
+  }
+  fun onDescriptorWriteRequest(addressArgsArg: String, hashCodeArgsArg: Long, idArgsArg: Long, offsetArgsArg: Long, valueArgsArg: ByteArray, preparedWriteArgsArg: Boolean, responseNeededArgsArg: Boolean, callback: (Result<Unit>) -> Unit) {
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onDescriptorWriteRequest"
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+    channel.send(listOf(addressArgsArg, hashCodeArgsArg, idArgsArg, offsetArgsArg, valueArgsArg, preparedWriteArgsArg, responseNeededArgsArg)) {
+      if (it is List<*>) {
+        if (it.size > 1) {
+          callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
+        } else {
+          callback(Result.success(Unit))
+        }
+      } else {
+        callback(Result.failure(createConnectionError(channelName)))
+      } 
+    }
+  }
+  fun onExecuteWrite(addressArgsArg: String, idArgsArg: Long, executeArgsArg: Boolean, callback: (Result<Unit>) -> Unit) {
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterApi.onExecuteWrite"
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+    channel.send(listOf(addressArgsArg, idArgsArg, executeArgsArg)) {
       if (it is List<*>) {
         if (it.size > 1) {
           callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))

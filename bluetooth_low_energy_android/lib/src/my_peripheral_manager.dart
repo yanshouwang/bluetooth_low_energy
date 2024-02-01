@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
@@ -21,9 +22,11 @@ class MyPeripheralManager extends PeripheralManager
 
   final Map<String, MyCentral2> _centrals;
   final Map<int, Map<int, MyGattCharacteristic>> _characteristics;
+  final Map<int, Map<int, MyGattDescriptor>> _descriptors;
   final Map<String, int> _mtus;
   final Map<String, Map<int, bool>> _confirms;
   final Map<String, MyGattCharacteristic> _preparedCharacteristics;
+  final Map<String, MyGattDescriptor> _preparedDescriptors;
   final Map<String, List<int>> _preparedValue;
 
   BluetoothLowEnergyState _state;
@@ -37,9 +40,11 @@ class MyPeripheralManager extends PeripheralManager
             StreamController.broadcast(),
         _centrals = {},
         _characteristics = {},
+        _descriptors = {},
         _mtus = {},
         _confirms = {},
         _preparedCharacteristics = {},
+        _preparedDescriptors = {},
         _preparedValue = {},
         _state = BluetoothLowEnergyState.unknown;
 
@@ -75,14 +80,39 @@ class MyPeripheralManager extends PeripheralManager
     if (service is! MyGattService) {
       throw TypeError();
     }
-    final serviceArgs = service.toArgs();
-    final hashCodeArgs = serviceArgs.hashCodeArgs;
-    logger.info('addService: $hashCodeArgs');
+    final characteristics = <int, MyGattCharacteristic>{};
+    final descriptors = <int, MyGattDescriptor>{};
+    final characteristicsArgs = <MyGattCharacteristicArgs>[];
+    for (var characteristic in service.characteristics) {
+      final descriptorsArgs = <MyGattDescriptorArgs>[];
+      final properties = characteristic.properties;
+      final canNotify =
+          properties.contains(GattCharacteristicProperty.notify) ||
+              properties.contains(GattCharacteristicProperty.indicate);
+      if (canNotify) {
+        // CLIENT_CHARACTERISTIC_CONFIG
+        final cccDescriptor = MyGattDescriptor(
+          uuid: UUID.short(0x2902),
+          value: Uint8List.fromList([0x00, 0x00]),
+        );
+        final cccDescriptorArgs = cccDescriptor.toArgs();
+        descriptorsArgs.add(cccDescriptorArgs);
+        descriptors[cccDescriptorArgs.hashCodeArgs] = cccDescriptor;
+      }
+      for (var descriptor in characteristic.descriptors) {
+        final descriptorArgs = descriptor.toArgs();
+        descriptorsArgs.add(descriptorArgs);
+        descriptors[descriptorArgs.hashCodeArgs] = descriptor;
+      }
+      final characteristicArgs = characteristic.toArgs(descriptorsArgs);
+      characteristicsArgs.add(characteristicArgs);
+      characteristics[characteristicArgs.hashCodeArgs] = characteristic;
+    }
+    final serviceArgs = service.toArgs(characteristicsArgs);
+    logger.info('addService: $serviceArgs');
     await _api.addService(serviceArgs);
-    _characteristics[hashCodeArgs] = {
-      for (var characteristics in service.characteristics)
-        characteristics.hashCode: characteristics
-    };
+    _characteristics[serviceArgs.hashCodeArgs] = characteristics;
+    _descriptors[serviceArgs.hashCodeArgs] = descriptors;
   }
 
   @override
@@ -91,6 +121,7 @@ class MyPeripheralManager extends PeripheralManager
     logger.info('removeService: $hashCodeArgs');
     await _api.removeService(hashCodeArgs);
     _characteristics.remove(hashCodeArgs);
+    _descriptors.remove(hashCodeArgs);
   }
 
   @override
@@ -98,6 +129,7 @@ class MyPeripheralManager extends PeripheralManager
     logger.info('clearServices');
     await _api.clearServices();
     _characteristics.clear();
+    _descriptors.clear();
   }
 
   @override
@@ -241,11 +273,11 @@ class MyPeripheralManager extends PeripheralManager
     int idArgs,
     int offsetArgs,
     Uint8List valueArgs,
-    bool preparedWrite,
-    bool responseNeeded,
+    bool preparedWriteArgs,
+    bool responseNeededArgs,
   ) async {
     logger.info(
-        'onCharacteristicWriteRequest: $addressArgs.$hashCodeArgs - $idArgs, $offsetArgs, $valueArgs, $preparedWrite, $responseNeeded');
+        'onCharacteristicWriteRequest: $addressArgs.$hashCodeArgs - $idArgs, $offsetArgs, $valueArgs, $preparedWriteArgs, $responseNeededArgs');
     final central = _centrals[addressArgs];
     if (central == null) {
       return;
@@ -255,7 +287,7 @@ class MyPeripheralManager extends PeripheralManager
       return;
     }
     final MyGattStatusArgs statusArgs;
-    if (preparedWrite) {
+    if (preparedWriteArgs) {
       final preparedCharacteristic = _preparedCharacteristics[addressArgs];
       if (preparedCharacteristic != null &&
           preparedCharacteristic != characteristic) {
@@ -276,7 +308,7 @@ class MyPeripheralManager extends PeripheralManager
       _onCharacteristicWritten(central, characteristic, value);
       statusArgs = MyGattStatusArgs.success;
     }
-    if (responseNeeded) {
+    if (responseNeededArgs) {
       await _trySendResponse(
         addressArgs,
         idArgs,
@@ -285,29 +317,6 @@ class MyPeripheralManager extends PeripheralManager
         null,
       );
     }
-  }
-
-  @override
-  void onExecuteWrite(String addressArgs, int idArgs, bool executeArgs) async {
-    logger.info('onExecuteWrite: $addressArgs - $idArgs, $executeArgs');
-    final central = _centrals[addressArgs];
-    final characteristic = _preparedCharacteristics.remove(addressArgs);
-    final elements = _preparedValue.remove(addressArgs);
-    if (central == null || characteristic == null || elements == null) {
-      return;
-    }
-    final value = Uint8List.fromList(elements);
-    final execute = executeArgs;
-    if (execute) {
-      _onCharacteristicWritten(central, characteristic, value);
-    }
-    await _trySendResponse(
-      addressArgs,
-      idArgs,
-      MyGattStatusArgs.success,
-      0,
-      null,
-    );
   }
 
   @override
@@ -344,10 +353,128 @@ class MyPeripheralManager extends PeripheralManager
     _characteristicNotifyStateChangedController.add(eventArgs);
   }
 
+  @override
+  void onDescriptorReadRequest(
+    String addressArgs,
+    int hashCodeArgs,
+    int idArgs,
+    int offsetArgs,
+  ) async {
+    logger.info(
+        'onDescriptorReadRequest: $addressArgs.$hashCodeArgs - $idArgs, $offsetArgs');
+    final central = _centrals[addressArgs];
+    if (central == null) {
+      return;
+    }
+    final descriptor = _retrieveDescriptor(hashCodeArgs);
+    if (descriptor == null) {
+      return;
+    }
+    const statusArgs = MyGattStatusArgs.success;
+    final offset = offsetArgs;
+    final valueArgs = descriptor.value.sublist(offset);
+    await _trySendResponse(
+      addressArgs,
+      idArgs,
+      statusArgs,
+      offsetArgs,
+      valueArgs,
+    );
+  }
+
+  @override
+  void onDescriptorWriteRequest(
+    String addressArgs,
+    int hashCodeArgs,
+    int idArgs,
+    int offsetArgs,
+    Uint8List valueArgs,
+    bool preparedWriteArgs,
+    bool responseNeededArgs,
+  ) async {
+    logger.info(
+        'onDescriptorWriteRequest: $addressArgs.$hashCodeArgs - $idArgs, $offsetArgs, $valueArgs, $preparedWriteArgs, $responseNeededArgs');
+    final central = _centrals[addressArgs];
+    if (central == null) {
+      return;
+    }
+    final descriptor = _retrieveDescriptor(hashCodeArgs);
+    if (descriptor == null) {
+      return;
+    }
+    final MyGattStatusArgs statusArgs;
+    if (preparedWriteArgs) {
+      final preparedDescriptor = _preparedCharacteristics[addressArgs];
+      if (preparedDescriptor != null && preparedDescriptor != descriptor) {
+        statusArgs = MyGattStatusArgs.connectionCongested;
+      } else {
+        final preparedValueArgs = _preparedValue[addressArgs];
+        if (preparedValueArgs == null) {
+          _preparedDescriptors[addressArgs] = descriptor;
+          // Change the immutable Uint8List to mutable.
+          _preparedValue[addressArgs] = [...valueArgs];
+        } else {
+          preparedValueArgs.insertAll(offsetArgs, valueArgs);
+        }
+        statusArgs = MyGattStatusArgs.success;
+      }
+    } else {
+      descriptor.value = valueArgs;
+      statusArgs = MyGattStatusArgs.success;
+    }
+    if (responseNeededArgs) {
+      await _trySendResponse(
+        addressArgs,
+        idArgs,
+        statusArgs,
+        offsetArgs,
+        null,
+      );
+    }
+  }
+
+  @override
+  void onExecuteWrite(String addressArgs, int idArgs, bool executeArgs) async {
+    logger.info('onExecuteWrite: $addressArgs - $idArgs, $executeArgs');
+    final central = _centrals[addressArgs];
+    final characteristic = _preparedCharacteristics.remove(addressArgs);
+    final descriptor = _preparedDescriptors.remove(addressArgs);
+    final elements = _preparedValue.remove(addressArgs);
+    if (central == null || elements == null) {
+      return;
+    }
+    final value = Uint8List.fromList(elements);
+    final execute = executeArgs;
+    if (execute) {
+      if (characteristic == null && descriptor == null) {
+        return;
+      }
+      if (characteristic != null) {
+        _onCharacteristicWritten(central, characteristic, value);
+      }
+      if (descriptor != null) {
+        descriptor.value = value;
+      }
+    }
+    await _trySendResponse(
+      addressArgs,
+      idArgs,
+      MyGattStatusArgs.success,
+      0,
+      null,
+    );
+  }
+
   MyGattCharacteristic? _retrieveCharacteristic(int hashCodeArgs) {
     final characteristics = _characteristics.values
         .reduce((value, element) => value..addAll(element));
     return characteristics[hashCodeArgs];
+  }
+
+  MyGattDescriptor? _retrieveDescriptor(int hashCodeArgs) {
+    final descriptors =
+        _descriptors.values.reduce((value, element) => value..addAll(element));
+    return descriptors[hashCodeArgs];
   }
 
   bool? _retrieveConfirm(String addressArgs, int hashCodeArgs) {

@@ -13,7 +13,6 @@ import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseSettings
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import io.flutter.plugin.common.BinaryMessenger
 
 class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
@@ -116,21 +115,9 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
             val characteristicsArgs = serviceArgs.characteristicsArgs.filterNotNull()
             for (characteristicArgs in characteristicsArgs) {
                 val characteristic = characteristicArgs.toCharacteristic()
-                val cccDescriptor = BluetoothGattDescriptor(
-                    CLIENT_CHARACTERISTIC_CONFIG_UUID,
-                    BluetoothGattDescriptor.PERMISSION_READ or BluetoothGattDescriptor.PERMISSION_WRITE
-                )
-                val cccDescriptorAdded = characteristic.addDescriptor(cccDescriptor)
-                if (!cccDescriptorAdded) {
-                    throw IllegalStateException()
-                }
                 val descriptorsArgs = characteristicArgs.descriptorsArgs.filterNotNull()
                 for (descriptorArgs in descriptorsArgs) {
                     val descriptor = descriptorArgs.toDescriptor()
-                    if (descriptor.uuid == CLIENT_CHARACTERISTIC_CONFIG_UUID) {
-                        // Already added.
-                        continue
-                    }
                     val descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
                     val descriptorHashCode = descriptor.hashCode()
                     this.mDescriptorsArgs[descriptorHashCode] = descriptorArgs
@@ -235,7 +222,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         val offset = offsetArgs.toInt()
         val sent = mServer.sendResponse(device, requestId, status, offset, valueArgs)
         if (!sent) {
-            throw IllegalStateException("Send read characteristic reply failed.")
+            throw IllegalStateException("Send response failed.")
         }
     }
 
@@ -366,14 +353,13 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
     fun onDescriptorReadRequest(
         device: BluetoothDevice, requestId: Int, offset: Int, descriptor: BluetoothGattDescriptor
     ) {
-        val status = BluetoothGatt.GATT_SUCCESS
+        val addressArgs = device.address
         val hashCode = descriptor.hashCode()
-        val descriptorArgs = mDescriptorsArgs[hashCode] as MyGattDescriptorArgs
-        val value = descriptorArgs.valueArgs
-        val sent = mServer.sendResponse(device, requestId, status, offset, value)
-        if (!sent) {
-            Log.e(TAG, "onDescriptorReadRequest: send response failed.")
-        }
+        val descriptorArgs = mDescriptorsArgs[hashCode] ?: return
+        val hashCodeArgs = descriptorArgs.hashCodeArgs
+        val idArgs = requestId.toLong()
+        val offsetArgs = offset.toLong()
+        mApi.onDescriptorReadRequest(addressArgs, hashCodeArgs, idArgs, offsetArgs) {}
     }
 
     fun onDescriptorWriteRequest(
@@ -385,24 +371,18 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         offset: Int,
         value: ByteArray
     ) {
+        val addressArgs = device.address
+        val hashCode = descriptor.hashCode()
+        val descriptorArgs = mDescriptorsArgs[hashCode] ?: return
+        val hashCodeArgs = descriptorArgs.hashCodeArgs
+        val idArgs = requestId.toLong()
+        val offsetArgs = offset.toLong()
+        mApi.onDescriptorWriteRequest(
+            addressArgs, hashCodeArgs, idArgs, offsetArgs, value, preparedWrite, responseNeeded
+        ) {}
         if (descriptor.uuid == CLIENT_CHARACTERISTIC_CONFIG_UUID) {
-            val addressArgs = device.address
             val characteristic = descriptor.characteristic
-            val hashCode = characteristic.hashCode()
-            val characteristicArgs = mCharacteristicsArgs[hashCode] ?: return
-            val hashCodeArgs = characteristicArgs.hashCodeArgs
-            val stateArgs = value.toNotifyStateArgs()
-            val stateNumberArgs = stateArgs.raw.toLong()
-            mApi.onCharacteristicNotifyStateChanged(
-                addressArgs, hashCodeArgs, stateNumberArgs
-            ) {}
-        }
-        if (responseNeeded) {
-            val status = BluetoothGatt.GATT_SUCCESS
-            val sent = mServer.sendResponse(device, requestId, status, offset, value)
-            if (!sent) {
-                Log.e(TAG, "onDescriptorReadRequest: send response failed.")
-            }
+            mOnCharacteristicNotifyStateChanged(device, characteristic, value)
         }
     }
 
@@ -463,5 +443,19 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         }
         mServer.close()
         mOpening = false
+    }
+
+    private fun mOnCharacteristicNotifyStateChanged(
+        device: BluetoothDevice,
+        characteristic: BluetoothGattCharacteristic,
+        value: ByteArray
+    ) {
+        val addressArgs = device.address
+        val hashCode = characteristic.hashCode()
+        val characteristicArgs = mCharacteristicsArgs[hashCode] ?: return
+        val hashCodeArgs = characteristicArgs.hashCodeArgs
+        val stateArgs = value.toNotifyStateArgs()
+        val stateNumberArgs = stateArgs.raw.toLong()
+        mApi.onCharacteristicNotifyStateChanged(addressArgs, hashCodeArgs, stateNumberArgs) {}
     }
 }
