@@ -20,12 +20,12 @@ abstract class GattCharacteristic extends GattAttribute {
     required UUID uuid,
     required List<GattCharacteristicProperty> properties,
     Uint8List? value,
-    List<GattDescriptor>? descriptors,
+    required List<GattDescriptor> descriptors,
   }) =>
       MyGattCharacteristic(
         uuid: uuid,
         properties: properties,
         value: value,
-        descriptors: descriptors?.cast<MyGattDescriptor>(),
+        descriptors: descriptors.cast<MyGattDescriptor>(),
       );
 }

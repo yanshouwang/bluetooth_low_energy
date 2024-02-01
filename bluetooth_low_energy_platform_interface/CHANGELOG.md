@@ -1,3 +1,7 @@
+## 5.0.2
+
+* Revert GATT characteristic's `descriptors` arguments to required.
+
 ## 5.0.1
 
 * Change GATT characteristic and descriptor's `value` arguments to optional.

@@ -17,9 +17,8 @@ class MyGattCharacteristic extends MyGattAttribute
     required super.uuid,
     required this.properties,
     Uint8List? value,
-    List<MyGattDescriptor>? descriptors,
-  })  : _value = value?.trimGATT() ?? Uint8List(0),
-        descriptors = descriptors ?? [];
+    required this.descriptors,
+  }) : _value = value?.trimGATT() ?? Uint8List(0);
 
   Uint8List get value => _value;
   set value(Uint8List value) {
