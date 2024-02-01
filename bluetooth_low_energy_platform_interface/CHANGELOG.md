@@ -1,3 +1,12 @@
+## 5.0.2
+
+* Revert GATT characteristic's `descriptors` arguments to required.
+
+## 5.0.1
+
+* Change GATT characteristic and descriptor's `value` arguments to optional.
+* Change GATT characteristic's `descriptors` arguments to optional.
+
 ## 5.0.0
 
 * Now `CentralManager#writeCharacteristic` and `PeripheralManager#writeCharacteristic` will fragment the value automatically, the maximum write length is 512 bytes.

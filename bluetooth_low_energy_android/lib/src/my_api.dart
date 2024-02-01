@@ -204,17 +204,13 @@ extension MyGattDescriptorX on MyGattDescriptor {
 }
 
 extension MyGattCharacteristicX on MyGattCharacteristic {
-  MyGattCharacteristicArgs toArgs() {
+  MyGattCharacteristicArgs toArgs(List<MyGattDescriptorArgs> descriptorsArgs) {
     final hashCodeArgs = hashCode;
     final uuidArgs = uuid.toArgs();
     final propertyNumbersArgs = properties.map((property) {
       final propertyArgs = property.toArgs();
       return propertyArgs.index;
     }).toList();
-    final descriptorsArgs = descriptors
-        .cast<MyGattDescriptor>()
-        .map((descriptor) => descriptor.toArgs())
-        .toList();
     return MyGattCharacteristicArgs(
       hashCodeArgs: hashCodeArgs,
       uuidArgs: uuidArgs,
@@ -225,13 +221,9 @@ extension MyGattCharacteristicX on MyGattCharacteristic {
 }
 
 extension MyGattServiceX on MyGattService {
-  MyGattServiceArgs toArgs() {
+  MyGattServiceArgs toArgs(List<MyGattCharacteristicArgs> characteristicsArgs) {
     final hashCodeArgs = hashCode;
     final uuidArgs = uuid.toArgs();
-    final characteristicsArgs = characteristics
-        .cast<MyGattCharacteristic>()
-        .map((characteristic) => characteristic.toArgs())
-        .toList();
     return MyGattServiceArgs(
       hashCodeArgs: hashCodeArgs,
       uuidArgs: uuidArgs,

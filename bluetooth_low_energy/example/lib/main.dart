@@ -993,7 +993,7 @@ class _AdvertiserViewState extends State<AdvertiserView>
     await PeripheralManager.instance.addService(batteryService);
     final elements = List.generate(1000, (i) => i % 256);
     final value = Uint8List.fromList(elements);
-    final myService = GattService(
+    final service = GattService(
       uuid: UUID.short(100),
       characteristics: [
         GattCharacteristic(
@@ -1010,37 +1010,37 @@ class _AdvertiserViewState extends State<AdvertiserView>
             GattCharacteristicProperty.write,
             GattCharacteristicProperty.writeWithoutResponse,
           ],
-          value: Uint8List.fromList([]),
           descriptors: [],
         ),
         GattCharacteristic(
           uuid: UUID.short(202),
           properties: [
             GattCharacteristicProperty.notify,
-            GattCharacteristicProperty.indicate,
           ],
-          value: Uint8List.fromList([]),
           descriptors: [],
         ),
         GattCharacteristic(
           uuid: UUID.short(203),
           properties: [
-            GattCharacteristicProperty.notify,
+            GattCharacteristicProperty.indicate,
           ],
-          value: Uint8List.fromList([]),
           descriptors: [],
         ),
         GattCharacteristic(
           uuid: UUID.short(204),
           properties: [
+            GattCharacteristicProperty.read,
+            GattCharacteristicProperty.write,
+            GattCharacteristicProperty.writeWithoutResponse,
+            GattCharacteristicProperty.notify,
             GattCharacteristicProperty.indicate,
           ],
-          value: Uint8List.fromList([]),
+          value: value,
           descriptors: [],
         ),
       ],
     );
-    await PeripheralManager.instance.addService(myService);
+    await PeripheralManager.instance.addService(service);
     final advertisement = Advertisement(
       name: 'le12138',
       manufacturerSpecificData: ManufacturerSpecificData(

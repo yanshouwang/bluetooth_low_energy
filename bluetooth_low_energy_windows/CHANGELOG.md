@@ -1,3 +1,11 @@
+## 5.0.3
+
+* Change flutter minimum version to 3.0.0.
+
+## 5.0.2
+
+* Implements new Api.
+
 ## 5.0.1
 
 * Fix the [`CentralManager#discoverGATT`, `CentralManager#readCharacteristic` and `CentralManager#readDescriptor` issue](https://github.com/yanshouwang/bluetooth_low_energy/issues/42) caused by cache mode.

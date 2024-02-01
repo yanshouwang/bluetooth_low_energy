@@ -23,47 +23,47 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "5.0.5"
+    version: "5.0.6"
   bluetooth_low_energy_android:
     dependency: transitive
     description:
       name: bluetooth_low_energy_android
-      sha256: "703faeeecce61887af4fa34bce5e0f5c25019d585f2e05723948332512c4eedc"
+      sha256: b06da128d4a15e094dac67e52e701fd331441c81425b0c776598aab01a07ccfe
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.2"
+    version: "5.0.4"
   bluetooth_low_energy_darwin:
     dependency: transitive
     description:
       name: bluetooth_low_energy_darwin
-      sha256: e85bc6e97a087f2bb934a1b12953a0f6aab8dfdbe57302cb2bf6d61b996fa2ee
+      sha256: d8c37f27c48ad523e5c32d1002d8e67570b1f4e6d69c54e09bca152a07f6ab3f
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.3"
+    version: "5.0.5"
   bluetooth_low_energy_linux:
     dependency: transitive
     description:
       name: bluetooth_low_energy_linux
-      sha256: "100dc824a9b409442e7018994de74d56d65faa95b8c6fbbf5a8c0ae70cd58286"
+      sha256: "2809830a8b67eac5d53fdc6e907aa878ec61884d6e6a42da2b79b826410c8327"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0"
+    version: "5.0.2"
   bluetooth_low_energy_platform_interface:
     dependency: transitive
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: "54f92ab2d7746fb6f2b4a40a48cd7eb8e3bf772f3ee89e1979d4d7b741fb2a05"
+      sha256: "5af74eb8f97a896dfdbcff2da284d4fe5b4e2e49ebb2f46f826ac1810f66e4d7"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0"
+    version: "5.0.2"
   bluetooth_low_energy_windows:
     dependency: transitive
     description:
       name: bluetooth_low_energy_windows
-      sha256: e2b812e00ff808feb5dca9404a5310f21fceecd2656f0a2d51f0bbeb9e8b258b
+      sha256: "5a0b22003d14dc84f3f16e73a77f2645df034badb9003f368e6f9bc02e8b249a"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.1"
+    version: "5.0.3"
   bluez:
     dependency: transitive
     description:
@@ -392,4 +392,4 @@ packages:
     version: "6.5.0"
 sdks:
   dart: ">=3.2.0 <4.0.0"
-  flutter: ">=3.3.0"
+  flutter: ">=3.0.0"

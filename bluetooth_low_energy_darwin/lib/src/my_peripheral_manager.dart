@@ -65,14 +65,22 @@ class MyPeripheralManager extends PeripheralManager
     if (service is! MyGattService) {
       throw TypeError();
     }
-    final serviceArgs = service.toArgs();
-    final hashCodeArgs = serviceArgs.hashCodeArgs;
-    logger.info('addService: $hashCodeArgs');
+    final characteristics = <int, MyGattCharacteristic>{};
+    final characteristicsArgs = <MyGattCharacteristicArgs>[];
+    for (var characteristic in service.characteristics) {
+      final descriptorsArgs = <MyGattDescriptorArgs>[];
+      for (var descriptor in characteristic.descriptors) {
+        final descriptorArgs = descriptor.toArgs();
+        descriptorsArgs.add(descriptorArgs);
+      }
+      final characteristicArgs = characteristic.toArgs(descriptorsArgs);
+      characteristicsArgs.add(characteristicArgs);
+      characteristics[characteristicArgs.hashCodeArgs] = characteristic;
+    }
+    final serviceArgs = service.toArgs(characteristicsArgs);
+    logger.info('addService: $serviceArgs');
     await _api.addService(serviceArgs);
-    _characteristics[hashCodeArgs] = {
-      for (var characteristics in service.characteristics)
-        characteristics.hashCode: characteristics
-    };
+    _characteristics[serviceArgs.hashCodeArgs] = characteristics;
   }
 
   @override
@@ -304,7 +312,8 @@ class MyPeripheralManager extends PeripheralManager
     MyGattCharacteristic characteristic,
     Uint8List value,
   ) async {
-    final trimmedValue = value.trimGATT();
+    characteristic.value = value;
+    final trimmedValue = characteristic.value;
     final eventArgs = GattCharacteristicWrittenEventArgs(
       central,
       characteristic,

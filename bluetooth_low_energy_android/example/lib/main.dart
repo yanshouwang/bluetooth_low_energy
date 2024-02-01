@@ -993,32 +993,32 @@ class _AdvertiserViewState extends State<AdvertiserView>
             GattCharacteristicProperty.write,
             GattCharacteristicProperty.writeWithoutResponse,
           ],
-          value: Uint8List.fromList([]),
           descriptors: [],
         ),
         GattCharacteristic(
           uuid: UUID.short(202),
           properties: [
             GattCharacteristicProperty.notify,
-            GattCharacteristicProperty.indicate,
           ],
-          value: Uint8List.fromList([]),
           descriptors: [],
         ),
         GattCharacteristic(
           uuid: UUID.short(203),
           properties: [
-            GattCharacteristicProperty.notify,
+            GattCharacteristicProperty.indicate,
           ],
-          value: Uint8List.fromList([]),
           descriptors: [],
         ),
         GattCharacteristic(
           uuid: UUID.short(204),
           properties: [
+            GattCharacteristicProperty.read,
+            GattCharacteristicProperty.write,
+            GattCharacteristicProperty.writeWithoutResponse,
+            GattCharacteristicProperty.notify,
             GattCharacteristicProperty.indicate,
           ],
-          value: Uint8List.fromList([]),
+          value: value,
           descriptors: [],
         ),
       ],

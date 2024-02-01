@@ -1,3 +1,13 @@
+## 5.0.4
+
+* Change flutter minimum version to 3.0.0.
+
+## 5.0.3
+
+* Fix the issue that [throws when read the CCCD(Client Characteristic Config Descriptor, 0x2902)](https://github.com/yanshouwang/bluetooth_low_energy/issues/47).
+* Update characteristic's value when write by centrals.
+* Implements new Api.
+
 ## 5.0.2
 
 * Fix the ConcurrentModificationException when `PeripheralManager#clearServices` is called.

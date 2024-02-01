@@ -1,16 +1,16 @@
 name: bluetooth_low_energy_linux
 description: Linux implementation of the bluetooth_low_energy plugin.
-version: 5.0.0
+version: 5.0.2
 homepage: https://github.com/yanshouwang/bluetooth_low_energy
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
-  flutter: ">=3.3.0"
+  flutter: ">=3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  bluetooth_low_energy_platform_interface: ^5.0.0
+  bluetooth_low_energy_platform_interface: ^5.0.2
   bluez: ^0.8.1
 
 dev_dependencies:
