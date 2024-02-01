@@ -29,7 +29,7 @@ A Flutter plugin for controlling the bluetooth low energy.
 
 Add `bluetooth_low_energy` as a [dependency in your pubspec.yaml file](https://flutter.dev/using-packages/).
 
-```
+``` Yaml
 dependencies:
   bluetooth_low_energy: ^<latest-version>
 ```
@@ -46,11 +46,13 @@ Make sure you have a `miniSdkVersion` with 21 or higher in your `android/app/bui
 
 According to Apple's [documents](https://developer.apple.com/documentation/corebluetooth/), you must include the [`NSBluetoothAlwaysUsageDescription`](https://developer.apple.com/documentation/bundleresources/information_property_list/nsbluetoothalwaysusagedescription) on or after iOS 13, and include the [`NSBluetoothPeripheralUsageDescription`](https://developer.apple.com/documentation/bundleresources/information_property_list/nsbluetoothperipheralusagedescription) key before iOS 13.
 
-*Note:* The `PeripheralManager#startAdvertising` only support `name` and `serviceUUIDs`, see [the startAdvertising document](https://developer.apple.com/documentation/corebluetooth/cbperipheralmanager/1393252-startadvertising)
+*Note:* The `PeripheralManager#startAdvertising` only support `name` and `serviceUUIDs`, see [the startAdvertising document](https://developer.apple.com/documentation/corebluetooth/cbperipheralmanager/1393252-startadvertising).
+
+*Note:* When use bluetooth or other hardwares on macOS, developers need to [configure the app sandbox](https://developer.apple.com/documentation/xcode/configuring-the-macos-app-sandbox#Enable-access-to-restricted-resources).
 
 ### Linux
 
-PeripheralManager is not implemented because the `bluez` plugin doesn't support this yet, see [How to use bluez to act as bluetooth peripheral](https://github.com/canonical/bluez.dart/issues/85)
+PeripheralManager is not implemented because the `bluez` plugin doesn't support this yet, see [How to use bluez to act as bluetooth peripheral](https://github.com/canonical/bluez.dart/issues/85).
 
 ### Windows
 
