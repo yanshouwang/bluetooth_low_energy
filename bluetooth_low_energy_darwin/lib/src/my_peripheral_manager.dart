@@ -312,7 +312,8 @@ class MyPeripheralManager extends PeripheralManager
     MyGattCharacteristic characteristic,
     Uint8List value,
   ) async {
-    final trimmedValue = value.trimGATT();
+    characteristic.value = value;
+    final trimmedValue = characteristic.value;
     final eventArgs = GattCharacteristicWrittenEventArgs(
       central,
       characteristic,
