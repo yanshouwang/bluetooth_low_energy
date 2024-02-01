@@ -23,7 +23,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "5.0.2"
+    version: "5.0.3"
   boolean_selector:
     dependency: transitive
     description:
@@ -312,4 +312,4 @@ packages:
     version: "3.0.2"
 sdks:
   dart: ">=3.2.0-194.0.dev <4.0.0"
-  flutter: ">=3.3.0"
+  flutter: ">=3.0.0"

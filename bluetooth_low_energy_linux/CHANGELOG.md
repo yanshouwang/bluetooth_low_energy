@@ -1,3 +1,7 @@
+## 5.0.2
+
+* Change flutter minimum version to 3.0.0.
+
 ## 5.0.1
 
 * Implements new Api.

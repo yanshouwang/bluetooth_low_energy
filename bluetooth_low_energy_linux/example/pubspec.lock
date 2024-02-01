@@ -23,7 +23,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "5.0.1"
+    version: "5.0.2"
   bluetooth_low_energy_platform_interface:
     dependency: "direct main"
     description:
@@ -360,4 +360,4 @@ packages:
     version: "6.5.0"
 sdks:
   dart: ">=3.2.0 <4.0.0"
-  flutter: ">=3.3.0"
+  flutter: ">=3.0.0"
