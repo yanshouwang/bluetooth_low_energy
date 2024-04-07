@@ -1,3 +1,7 @@
+## 5.0.5
+
+* Fix the issue that [Advertisement resolve failed with `NullPointerException`](https://github.com/yanshouwang/bluetooth_low_energy/issues/59)
+
 ## 5.0.4
 
 * Change flutter minimum version to 3.0.0.
