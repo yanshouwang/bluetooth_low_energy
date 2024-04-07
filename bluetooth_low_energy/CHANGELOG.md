@@ -1,3 +1,7 @@
+## 5.0.7
+
+* `Android` Fix the issue that [Advertisement resolve failed with `NullPointerException`](https://github.com/yanshouwang/bluetooth_low_energy/issues/59)
+
 ## 5.0.6
 
 * `Android` Fix the issue that [throws when read the CCCD(Client Characteristic Config Descriptor, 0x2902)](https://github.com/yanshouwang/bluetooth_low_energy/issues/47).

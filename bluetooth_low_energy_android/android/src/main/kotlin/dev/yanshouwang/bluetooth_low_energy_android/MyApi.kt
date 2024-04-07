@@ -166,13 +166,13 @@ fun ScanResult.toAdvertisementArgs(): MyAdvertisementArgs {
     } else {
         val nameArgs = record.deviceName
         val serviceUUIDsArgs = record.serviceUuids?.map { uuid -> uuid.toString() } ?: emptyList()
-        val pairs = record.serviceData.map { (uuid, value) ->
+        val pairs = record.serviceData?.map { (uuid, value) ->
             val key = uuid.toString()
             return@map Pair(key, value)
-        }.toTypedArray()
+        }?.toTypedArray() ?: emptyArray()
         val serviceDataArgs = mapOf<String?, ByteArray?>(*pairs)
         val manufacturerSpecificDataArgs =
-            record.manufacturerSpecificData.toManufacturerSpecificDataArgs()
+            record.manufacturerSpecificData?.toManufacturerSpecificDataArgs()
         MyAdvertisementArgs(
             nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs
         )
