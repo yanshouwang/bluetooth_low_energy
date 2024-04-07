@@ -1,6 +1,6 @@
 name: bluetooth_low_energy_android
 description: Android implementation of the bluetooth_low_energy plugin.
-version: 5.0.4
+version: 5.0.5
 homepage: https://github.com/yanshouwang/bluetooth_low_energy
 
 environment:
