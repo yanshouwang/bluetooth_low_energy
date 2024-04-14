@@ -1,17 +1,17 @@
 name: bluetooth_low_energy_platform_interface
-description: A common platform interface for the bluetooth_low_energy plugin.
-version: 5.0.2
-homepage: https://github.com/yanshouwang/bluetooth_low_energy
+description: "A common platform interface for the bluetooth_low_energy plugin."
+version: 5.1.0
+homepage: "https://github.com/yanshouwang/bluetooth_low_energy"
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
-  flutter: ">=3.0.0"
+  flutter: '>=3.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  plugin_platform_interface: ^2.1.7
-  log_service: ^1.0.0
+  plugin_platform_interface: ^2.0.2
+  hybrid_core: ^0.5.1
 
 dev_dependencies:
   flutter_test:

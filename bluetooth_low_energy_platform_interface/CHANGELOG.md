@@ -1,3 +1,9 @@
+## 5.1.0
+
+* [Add `CentralManager#retrieveConnectedPeripherals` method.](https://github.com/yanshouwang/bluetooth_low_energy/issues/61)
+* [Add optional `serviceUUIDs` argument to the `CentralManager#startDiscovery` method.](https://github.com/yanshouwang/bluetooth_low_energy/issues/53)
+* Optimize project structure.
+
 ## 5.0.2
 
 * Revert GATT characteristic's `descriptors` arguments to required.

@@ -15,7 +15,7 @@ void main() {
 void onStartUp() async {
   Logger.root.onRecord.listen(onLogRecord);
   WidgetsFlutterBinding.ensureInitialized();
-  await CentralManager.instance.setUp();
+  await CentralManagerAPI.instance.setUp();
   // await peripheralManager.setUp();
   runApp(const MyApp());
 }
@@ -107,12 +107,12 @@ class _ScannerViewState extends State<ScannerView> {
     state = ValueNotifier(BluetoothLowEnergyState.unknown);
     discovering = ValueNotifier(false);
     discoveredEventArgs = ValueNotifier([]);
-    stateChangedSubscription = CentralManager.instance.stateChanged.listen(
+    stateChangedSubscription = CentralManagerAPI.instance.stateChanged.listen(
       (eventArgs) {
         state.value = eventArgs.state;
       },
     );
-    discoveredSubscription = CentralManager.instance.discovered.listen(
+    discoveredSubscription = CentralManagerAPI.instance.discovered.listen(
       (eventArgs) {
         final items = discoveredEventArgs.value;
         final i = items.indexWhere(
@@ -130,7 +130,7 @@ class _ScannerViewState extends State<ScannerView> {
   }
 
   void setUp() async {
-    state.value = await CentralManager.instance.getState();
+    state.value = await CentralManagerAPI.instance.getState();
   }
 
   @override
@@ -175,12 +175,12 @@ class _ScannerViewState extends State<ScannerView> {
 
   Future<void> startDiscovery() async {
     discoveredEventArgs.value = [];
-    await CentralManager.instance.startDiscovery();
+    await CentralManagerAPI.instance.startDiscovery();
     discovering.value = true;
   }
 
   Future<void> stopDiscovery() async {
-    await CentralManager.instance.stopDiscovery();
+    await CentralManagerAPI.instance.stopDiscovery();
     discovering.value = false;
   }
 
@@ -351,7 +351,7 @@ class _PeripheralViewState extends State<PeripheralView> {
     logs = ValueNotifier([]);
     writeController = TextEditingController();
     connectionStateChangedSubscription =
-        CentralManager.instance.connectionStateChanged.listen(
+        CentralManagerAPI.instance.connectionStateChanged.listen(
       (eventArgs) {
         if (eventArgs.peripheral != this.eventArgs.peripheral) {
           return;
@@ -368,7 +368,7 @@ class _PeripheralViewState extends State<PeripheralView> {
       },
     );
     characteristicNotifiedSubscription =
-        CentralManager.instance.characteristicNotified.listen(
+        CentralManagerAPI.instance.characteristicNotified.listen(
       (eventArgs) {
         // final characteristic = this.characteristic.value;
         // if (eventArgs.characteristic != characteristic) {
@@ -390,7 +390,7 @@ class _PeripheralViewState extends State<PeripheralView> {
       onPopInvoked: (didPop) async {
         if (connectionState.value) {
           final peripheral = eventArgs.peripheral;
-          await CentralManager.instance.disconnect(peripheral);
+          await CentralManagerAPI.instance.disconnect(peripheral);
         }
       },
       child: Scaffold(
@@ -412,11 +412,11 @@ class _PeripheralViewState extends State<PeripheralView> {
               onPressed: () async {
                 final peripheral = eventArgs.peripheral;
                 if (state) {
-                  await CentralManager.instance.disconnect(peripheral);
+                  await CentralManagerAPI.instance.disconnect(peripheral);
                 } else {
-                  await CentralManager.instance.connect(peripheral);
+                  await CentralManagerAPI.instance.connect(peripheral);
                   services.value =
-                      await CentralManager.instance.discoverGATT(peripheral);
+                      await CentralManagerAPI.instance.discoverGATT(peripheral);
                 }
               },
               child: Text(state ? 'DISCONNECT' : 'CONNECT'),
@@ -610,7 +610,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                         ElevatedButton(
                           onPressed: characteristic != null && canNotify
                               ? () async {
-                                  await CentralManager.instance
+                                  await CentralManagerAPI.instance
                                       .setCharacteristicNotifyState(
                                     characteristic,
                                     state: true,
@@ -623,7 +623,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                         ElevatedButton(
                           onPressed: characteristic != null && canRead
                               ? () async {
-                                  final value = await CentralManager.instance
+                                  final value = await CentralManagerAPI.instance
                                       .readCharacteristic(characteristic);
                                   const type = LogType.read;
                                   final log = Log(type, value);
@@ -726,7 +726,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                                   final fragmentedValue = end < value.length
                                       ? value.sublist(start, end)
                                       : value.sublist(start);
-                                  await CentralManager.instance
+                                  await CentralManagerAPI.instance
                                       .writeCharacteristic(
                                     characteristic,
                                     value: fragmentedValue,
