@@ -1,17 +1,18 @@
+// Run with `dart run pigeon --input pigeon.dart`.
 import 'package:pigeon/pigeon.dart';
 
 @ConfigurePigeon(
   PigeonOptions(
-    dartOut: 'lib/src/my_api.g.dart',
+    dartOut: 'lib/src/pigeon.g.dart',
     dartOptions: DartOptions(),
     kotlinOut:
-        'android/src/main/kotlin/dev/yanshouwang/bluetooth_low_energy_android/MyApi.g.kt',
+        'android/src/main/kotlin/dev/yanshouwang/bluetooth_low_energy_android/Pigeon.g.kt',
     kotlinOptions: KotlinOptions(
       package: 'dev.yanshouwang.bluetooth_low_energy_android',
     ),
   ),
 )
-enum MyBluetoothLowEnergyStateArgs {
+enum BluetoothLowEnergyStateArgs {
   unknown,
   unsupported,
   unauthorized,
@@ -21,7 +22,7 @@ enum MyBluetoothLowEnergyStateArgs {
   turningOff,
 }
 
-enum MyGattCharacteristicPropertyArgs {
+enum GattCharacteristicPropertyArgs {
   read,
   write,
   writeWithoutResponse,
@@ -29,18 +30,18 @@ enum MyGattCharacteristicPropertyArgs {
   indicate,
 }
 
-enum MyGattCharacteristicWriteTypeArgs {
+enum GattCharacteristicWriteTypeArgs {
   withResponse,
   withoutResponse,
 }
 
-enum MyGattCharacteristicNotifyStateArgs {
+enum GattCharacteristicNotifyStateArgs {
   none,
   notify,
   indicate,
 }
 
-enum MyGattStatusArgs {
+enum GattStatusArgs {
   success,
   readNotPermitted,
   writeNotPermitted,
@@ -53,20 +54,20 @@ enum MyGattStatusArgs {
   failure,
 }
 
-class MyManufacturerSpecificDataArgs {
+class ManufacturerSpecificDataArgs {
   final int idArgs;
   final Uint8List dataArgs;
 
-  MyManufacturerSpecificDataArgs(this.idArgs, this.dataArgs);
+  ManufacturerSpecificDataArgs(this.idArgs, this.dataArgs);
 }
 
-class MyAdvertisementArgs {
+class AdvertisementArgs {
   final String? nameArgs;
   final List<String?> serviceUUIDsArgs;
   final Map<String?, Uint8List?> serviceDataArgs;
-  final MyManufacturerSpecificDataArgs? manufacturerSpecificDataArgs;
+  final ManufacturerSpecificDataArgs? manufacturerSpecificDataArgs;
 
-  MyAdvertisementArgs(
+  AdvertisementArgs(
     this.nameArgs,
     this.serviceUUIDsArgs,
     this.serviceDataArgs,
@@ -74,37 +75,37 @@ class MyAdvertisementArgs {
   );
 }
 
-class MyCentralArgs {
+class CentralArgs {
   final String addressArgs;
 
-  MyCentralArgs(this.addressArgs);
+  CentralArgs(this.addressArgs);
 }
 
-class MyPeripheralArgs {
+class PeripheralArgs {
   final String addressArgs;
 
-  MyPeripheralArgs(this.addressArgs);
+  PeripheralArgs(this.addressArgs);
 }
 
-class MyGattDescriptorArgs {
+class GattDescriptorArgs {
   final int hashCodeArgs;
   final String uuidArgs;
   final Uint8List? valueArgs;
 
-  MyGattDescriptorArgs(
+  GattDescriptorArgs(
     this.hashCodeArgs,
     this.uuidArgs,
     this.valueArgs,
   );
 }
 
-class MyGattCharacteristicArgs {
+class GattCharacteristicArgs {
   final int hashCodeArgs;
   final String uuidArgs;
   final List<int?> propertyNumbersArgs;
-  final List<MyGattDescriptorArgs?> descriptorsArgs;
+  final List<GattDescriptorArgs?> descriptorsArgs;
 
-  MyGattCharacteristicArgs(
+  GattCharacteristicArgs(
     this.hashCodeArgs,
     this.uuidArgs,
     this.propertyNumbersArgs,
@@ -112,12 +113,12 @@ class MyGattCharacteristicArgs {
   );
 }
 
-class MyGattServiceArgs {
+class GattServiceArgs {
   final int hashCodeArgs;
   final String uuidArgs;
-  final List<MyGattCharacteristicArgs?> characteristicsArgs;
+  final List<GattCharacteristicArgs?> characteristicsArgs;
 
-  MyGattServiceArgs(
+  GattServiceArgs(
     this.hashCodeArgs,
     this.uuidArgs,
     this.characteristicsArgs,
@@ -125,22 +126,25 @@ class MyGattServiceArgs {
 }
 
 @HostApi()
-abstract class MyCentralManagerHostApi {
+abstract class CentralManagerCommandChannel {
   @async
-  void setUp();
+  void initialize();
   @async
-  void startDiscovery();
+  bool requestPermission();
+  @async
+  void startDiscovery(List<String> serviceUUIDsArgs);
   void stopDiscovery();
   @async
   void connect(String addressArgs);
   @async
   void disconnect(String addressArgs);
+  List<PeripheralArgs> retrieveConnectedPeripherals();
   @async
   int requestMTU(String addressArgs, int mtuArgs);
   @async
   int readRSSI(String addressArgs);
   @async
-  List<MyGattServiceArgs> discoverServices(String addressArgs);
+  List<GattServiceArgs> discoverServices(String addressArgs);
   @async
   Uint8List readCharacteristic(String addressArgs, int hashCodeArgs);
   @async
@@ -167,12 +171,12 @@ abstract class MyCentralManagerHostApi {
 }
 
 @FlutterApi()
-abstract class MyCentralManagerFlutterApi {
+abstract class CentralManagerEventChannel {
   void onStateChanged(int stateNumberArgs);
   void onDiscovered(
-    MyPeripheralArgs peripheralArgs,
+    PeripheralArgs peripheralArgs,
     int rssiArgs,
-    MyAdvertisementArgs advertisementArgs,
+    AdvertisementArgs advertisementArgs,
   );
   void onConnectionStateChanged(String addressArgs, bool stateArgs);
   void onMtuChanged(String addressArgs, int mtuArgs);
@@ -184,15 +188,15 @@ abstract class MyCentralManagerFlutterApi {
 }
 
 @HostApi()
-abstract class MyPeripheralManagerHostApi {
+abstract class PeripheralManagerCommandChannel {
   @async
-  void setUp();
+  void initialize();
   @async
-  void addService(MyGattServiceArgs serviceArgs);
+  void addService(GattServiceArgs serviceArgs);
   void removeService(int hashCodeArgs);
   void clearServices();
   @async
-  void startAdvertising(MyAdvertisementArgs advertisementArgs);
+  void startAdvertising(AdvertisementArgs advertisementArgs);
   void stopAdvertising();
   void sendResponse(
     String addressArgs,
@@ -211,9 +215,9 @@ abstract class MyPeripheralManagerHostApi {
 }
 
 @FlutterApi()
-abstract class MyPeripheralManagerFlutterApi {
+abstract class PeripheralManagerEventChannel {
   void onStateChanged(int stateNumberArgs);
-  void onConnectionStateChanged(MyCentralArgs centralArgs, bool stateArgs);
+  void onConnectionStateChanged(CentralArgs centralArgs, bool stateArgs);
   void onMtuChanged(String addressArgs, int mtuArgs);
   void onCharacteristicReadRequest(
     String addressArgs,

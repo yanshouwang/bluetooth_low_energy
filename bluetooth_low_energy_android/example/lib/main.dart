@@ -7,6 +7,7 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 import 'package:convert/convert.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:logging/logging.dart';
 
 void main() {
   runZonedGuarded(onStartUp, onCrashed);
@@ -17,8 +18,6 @@ void onStartUp() async {
   // hierarchicalLoggingEnabled = true;
   // CentralManager.instance.logLevel = Level.WARNING;
   WidgetsFlutterBinding.ensureInitialized();
-  await CentralManager.instance.setUp();
-  await PeripheralManager.instance.setUp();
   runApp(const MyApp());
 }
 

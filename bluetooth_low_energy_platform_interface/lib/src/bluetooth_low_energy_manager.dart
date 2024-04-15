@@ -1,14 +1,25 @@
 import 'dart:typed_data';
 
 import 'package:hybrid_core/hybrid_core.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+
+/// The abstract base impl class that manages central and peripheral objects.
+abstract base class BluetoothLowEnergyManagerImpl extends PlatformInterface
+    with LoggerProvider, LoggerController
+    implements BluetoothLowEnergyManager {
+  /// Constructs a [BluetoothLowEnergyManagerImpl].
+  BluetoothLowEnergyManagerImpl({
+    required super.token,
+  });
+
+  /// Initializes the [BluetoothLowEnergyManagerImpl].
+  void initialize();
+}
 
 /// The abstract base class that manages central and peripheral objects.
 abstract interface class BluetoothLowEnergyManager implements LogController {
   /// Tells the manager's state updated.
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged;
-
-  /// Sets up the manager.
-  Future<void> setUp();
 
   /// Gets the manager's state.
   Future<BluetoothLowEnergyState> getState();

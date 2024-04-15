@@ -1,13 +1,11 @@
 import 'dart:typed_data';
 
-import 'package:hybrid_core/hybrid_core.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'common.dart';
+import 'bluetooth_low_energy_manager.dart';
 
 /// Platform-specific implementations should implement this class to support [CentralManagerImpl].
-abstract base class CentralManagerImpl extends PlatformInterface
-    with LoggerProvider, LoggerController
+abstract base class CentralManagerImpl extends BluetoothLowEnergyManagerImpl
     implements CentralManager {
   static final Object _token = Object();
 
@@ -37,6 +35,18 @@ abstract base class CentralManagerImpl extends PlatformInterface
 
 /// An object that scans for, discovers, connects to, and manages peripherals.
 abstract interface class CentralManager implements BluetoothLowEnergyManager {
+  static CentralManager? _instance;
+
+  /// Gets the instance of [CentralManager] to use.
+  static CentralManager get instance {
+    final instance = CentralManagerImpl.instance;
+    if (instance != _instance) {
+      instance.initialize();
+      _instance = instance;
+    }
+    return instance;
+  }
+
   /// Tells the central manager discovered a peripheral while scanning for devices.
   Stream<DiscoveredEventArgs> get discovered;
 

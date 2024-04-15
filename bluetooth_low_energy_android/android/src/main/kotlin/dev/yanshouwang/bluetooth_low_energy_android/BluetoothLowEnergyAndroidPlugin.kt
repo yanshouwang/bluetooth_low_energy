@@ -5,7 +5,7 @@ import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 
 /** BluetoothLowEnergyAndroid */
-class BluetoothLowEnergyAndroid : FlutterPlugin, ActivityAware {
+class BluetoothLowEnergyAndroidPlugin : FlutterPlugin, ActivityAware {
     private lateinit var mCentralManager: MyCentralManager
     private lateinit var mPeripheralManager: MyPeripheralManager
 
