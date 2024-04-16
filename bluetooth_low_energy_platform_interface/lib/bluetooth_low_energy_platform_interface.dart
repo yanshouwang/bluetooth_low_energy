@@ -7,6 +7,5 @@
 /// [1]: https://pub.dev/packages/bluetooth_low_energy
 library;
 
-export 'src/bluetooth_low_energy_manager.dart';
 export 'src/central_manager.dart';
 export 'src/peripheral_manager.dart';

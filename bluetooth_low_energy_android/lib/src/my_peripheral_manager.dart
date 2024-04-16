@@ -2,14 +2,13 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
-import 'package:flutter/foundation.dart';
 
-import 'bluetooth_low_energy_manager.dart';
-import 'pigeon.g.dart';
+import 'my_central.dart';
+import 'my_channels.dart';
 
-base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
-    implements PeripheralManagerEventChannel {
-  final PeripheralManagerCommandChannel _channel;
+base class MyPeripheralManager extends BasePeripheralManager
+    implements MyPeripheralManagerEventChannel {
+  final MyPeripheralManagerMessageChannel _channel;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
   final StreamController<GattCharacteristicReadEventArgs>
@@ -19,19 +18,19 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
   final StreamController<GattCharacteristicNotifyStateChangedEventArgs>
       _characteristicNotifyStateChangedController;
 
-  final Map<String, AndroidCentralImpl> _centrals;
-  final Map<int, Map<int, GattCharacteristicImpl>> _characteristics;
-  final Map<int, Map<int, GattDescriptorImpl>> _descriptors;
+  final Map<String, MyCentral> _centrals;
+  final Map<int, Map<int, MutableGattCharacteristic>> _characteristics;
+  final Map<int, Map<int, MutableGattDescriptor>> _descriptors;
   final Map<String, int> _mtus;
   final Map<String, Map<int, bool>> _confirms;
-  final Map<String, GattCharacteristicImpl> _preparedCharacteristics;
-  final Map<String, GattDescriptorImpl> _preparedDescriptors;
+  final Map<String, MutableGattCharacteristic> _preparedCharacteristics;
+  final Map<String, MutableGattDescriptor> _preparedDescriptors;
   final Map<String, List<int>> _preparedValue;
 
   BluetoothLowEnergyState _state;
 
-  AndroidPeripheralManagerImpl()
-      : _channel = PeripheralManagerCommandChannel(),
+  MyPeripheralManager()
+      : _channel = MyPeripheralManagerMessageChannel(),
         _stateChangedController = StreamController.broadcast(),
         _characteristicReadController = StreamController.broadcast(),
         _characteristicWrittenController = StreamController.broadcast(),
@@ -64,8 +63,14 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
   @override
   void initialize() async {
     logger.info('initialize');
-    PeripheralManagerEventChannel.setUp(this);
+    MyPeripheralManagerEventChannel.setUp(this);
     await _channel.initialize();
+  }
+
+  @override
+  Future<void> authorize() async {
+    logger.info('authorize');
+    await _channel.authorize();
   }
 
   @override
@@ -76,21 +81,21 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
 
   @override
   Future<void> addService(GattService service) async {
-    if (service is! GattServiceImpl) {
+    if (service is! MutableGattService) {
       throw TypeError();
     }
-    final characteristics = <int, GattCharacteristicImpl>{};
-    final descriptors = <int, GattDescriptorImpl>{};
-    final characteristicsArgs = <GattCharacteristicArgs>[];
+    final characteristics = <int, MutableGattCharacteristic>{};
+    final descriptors = <int, MutableGattDescriptor>{};
+    final characteristicsArgs = <MyGattCharacteristicArgs>[];
     for (var characteristic in service.characteristics) {
-      final descriptorsArgs = <GattDescriptorArgs>[];
+      final descriptorsArgs = <MyGattDescriptorArgs>[];
       final properties = characteristic.properties;
       final canNotify =
           properties.contains(GattCharacteristicProperty.notify) ||
               properties.contains(GattCharacteristicProperty.indicate);
       if (canNotify) {
         // CLIENT_CHARACTERISTIC_CONFIG
-        final cccDescriptor = GattDescriptorImpl(
+        final cccDescriptor = MutableGattDescriptor(
           uuid: UUID.short(0x2902),
           value: Uint8List.fromList([0x00, 0x00]),
         );
@@ -146,7 +151,7 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
 
   @override
   Future<Uint8List> readCharacteristic(GattCharacteristic characteristic) {
-    if (characteristic is! GattCharacteristicImpl) {
+    if (characteristic is! MutableGattCharacteristic) {
       throw TypeError();
     }
     final hashCodeArgs = characteristic.hashCode;
@@ -161,14 +166,14 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
     required Uint8List value,
     Central? central,
   }) async {
-    if (characteristic is! GattCharacteristicImpl) {
+    if (characteristic is! MutableGattCharacteristic) {
       throw TypeError();
     }
     characteristic.value = value;
     if (central == null) {
       return;
     }
-    if (central is! AndroidCentralImpl) {
+    if (central is! MyCentral) {
       throw TypeError();
     }
     final addressArgs = central.address;
@@ -203,7 +208,7 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
 
   @override
   void onStateChanged(int stateNumberArgs) {
-    final stateArgs = BluetoothLowEnergyStateArgs.values[stateNumberArgs];
+    final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
     logger.info('onStateChanged: $stateArgs');
     final state = stateArgs.toState();
     if (_state == state) {
@@ -215,7 +220,7 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
   }
 
   @override
-  void onConnectionStateChanged(CentralArgs centralArgs, bool stateArgs) {
+  void onConnectionStateChanged(MyCentralArgs centralArgs, bool stateArgs) {
     final addressArgs = centralArgs.addressArgs;
     logger.info('onConnectionStateChanged: $addressArgs - $stateArgs');
     final central = centralArgs.toCentral();
@@ -253,7 +258,7 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
     if (characteristic == null) {
       return;
     }
-    const statusArgs = GattStatusArgs.success;
+    const statusArgs = MyGattStatusArgs.success;
     final offset = offsetArgs;
     final valueArgs = _onCharacteristicRead(central, characteristic, offset);
     await _trySendResponse(
@@ -285,12 +290,12 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
     if (characteristic == null) {
       return;
     }
-    final GattStatusArgs statusArgs;
+    final MyGattStatusArgs statusArgs;
     if (preparedWriteArgs) {
       final preparedCharacteristic = _preparedCharacteristics[addressArgs];
       if (preparedCharacteristic != null &&
           preparedCharacteristic != characteristic) {
-        statusArgs = GattStatusArgs.connectionCongested;
+        statusArgs = MyGattStatusArgs.connectionCongested;
       } else {
         final preparedValueArgs = _preparedValue[addressArgs];
         if (preparedValueArgs == null) {
@@ -300,12 +305,12 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
         } else {
           preparedValueArgs.insertAll(offsetArgs, valueArgs);
         }
-        statusArgs = GattStatusArgs.success;
+        statusArgs = MyGattStatusArgs.success;
       }
     } else {
       final value = valueArgs;
       _onCharacteristicWritten(central, characteristic, value);
-      statusArgs = GattStatusArgs.success;
+      statusArgs = MyGattStatusArgs.success;
     }
     if (responseNeededArgs) {
       await _trySendResponse(
@@ -324,7 +329,8 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
     int hashCodeArgs,
     int stateNumberArgs,
   ) {
-    final stateArgs = GattCharacteristicNotifyStateArgs.values[stateNumberArgs];
+    final stateArgs =
+        MyGattCharacteristicNotifyStateArgs.values[stateNumberArgs];
     logger.info(
         'onCharacteristicNotifyStateChanged: $addressArgs.$hashCodeArgs - $stateArgs');
     final central = _centrals[addressArgs];
@@ -335,11 +341,11 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
     if (characteristic == null) {
       return;
     }
-    final state = stateArgs != GattCharacteristicNotifyStateArgs.none;
+    final state = stateArgs != MyGattCharacteristicNotifyStateArgs.none;
     final confirms = _confirms.putIfAbsent(addressArgs, () => {});
     if (state) {
       confirms[hashCodeArgs] =
-          stateArgs == GattCharacteristicNotifyStateArgs.indicate;
+          stateArgs == MyGattCharacteristicNotifyStateArgs.indicate;
     } else {
       confirms.remove(hashCodeArgs);
     }
@@ -368,7 +374,7 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
     if (descriptor == null) {
       return;
     }
-    const statusArgs = GattStatusArgs.success;
+    const statusArgs = MyGattStatusArgs.success;
     final offset = offsetArgs;
     final valueArgs = descriptor.value.sublist(offset);
     await _trySendResponse(
@@ -400,11 +406,11 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
     if (descriptor == null) {
       return;
     }
-    final GattStatusArgs statusArgs;
+    final MyGattStatusArgs statusArgs;
     if (preparedWriteArgs) {
       final preparedDescriptor = _preparedCharacteristics[addressArgs];
       if (preparedDescriptor != null && preparedDescriptor != descriptor) {
-        statusArgs = GattStatusArgs.connectionCongested;
+        statusArgs = MyGattStatusArgs.connectionCongested;
       } else {
         final preparedValueArgs = _preparedValue[addressArgs];
         if (preparedValueArgs == null) {
@@ -414,11 +420,11 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
         } else {
           preparedValueArgs.insertAll(offsetArgs, valueArgs);
         }
-        statusArgs = GattStatusArgs.success;
+        statusArgs = MyGattStatusArgs.success;
       }
     } else {
       descriptor.value = valueArgs;
-      statusArgs = GattStatusArgs.success;
+      statusArgs = MyGattStatusArgs.success;
     }
     if (responseNeededArgs) {
       await _trySendResponse(
@@ -457,19 +463,19 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
     await _trySendResponse(
       addressArgs,
       idArgs,
-      GattStatusArgs.success,
+      MyGattStatusArgs.success,
       0,
       null,
     );
   }
 
-  GattCharacteristicImpl? _retrieveCharacteristic(int hashCodeArgs) {
+  MutableGattCharacteristic? _retrieveCharacteristic(int hashCodeArgs) {
     final characteristics = _characteristics.values
         .reduce((value, element) => value..addAll(element));
     return characteristics[hashCodeArgs];
   }
 
-  GattDescriptorImpl? _retrieveDescriptor(int hashCodeArgs) {
+  MutableGattDescriptor? _retrieveDescriptor(int hashCodeArgs) {
     final descriptors =
         _descriptors.values.reduce((value, element) => value..addAll(element));
     return descriptors[hashCodeArgs];
@@ -486,7 +492,7 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
   Future<void> _trySendResponse(
     String addressArgs,
     int idArgs,
-    GattStatusArgs statusArgs,
+    MyGattStatusArgs statusArgs,
     int offsetArgs,
     Uint8List? valueArgs,
   ) async {
@@ -505,8 +511,8 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
   }
 
   Uint8List _onCharacteristicRead(
-    CentralImpl central,
-    GattCharacteristicImpl characteristic,
+    MyCentral central,
+    MutableGattCharacteristic characteristic,
     int offset,
   ) {
     final value = characteristic.value;
@@ -523,8 +529,8 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
   }
 
   void _onCharacteristicWritten(
-    CentralImpl central,
-    GattCharacteristicImpl characteristic,
+    MyCentral central,
+    MutableGattCharacteristic characteristic,
     Uint8List value,
   ) async {
     characteristic.value = value;
@@ -535,101 +541,5 @@ base class AndroidPeripheralManagerImpl extends PeripheralManagerImpl
       trimmedValue,
     );
     _characteristicWrittenController.add(eventArgs);
-  }
-}
-
-base class AndroidCentralImpl extends CentralImpl {
-  final String address;
-
-  AndroidCentralImpl({
-    required this.address,
-  }) : super(
-          uuid: UUID.fromAddress(address),
-        );
-}
-
-extension GattCharacteristicPropertyX on GattCharacteristicProperty {
-  GattCharacteristicPropertyArgs toArgs() {
-    return GattCharacteristicPropertyArgs.values[index];
-  }
-}
-
-extension ManufacturerSpecificDataX on ManufacturerSpecificData {
-  ManufacturerSpecificDataArgs toArgs() {
-    final idArgs = id;
-    final dataArgs = data;
-    return ManufacturerSpecificDataArgs(
-      idArgs: idArgs,
-      dataArgs: dataArgs,
-    );
-  }
-}
-
-extension AdvertisementX on Advertisement {
-  AdvertisementArgs toArgs() {
-    final nameArgs = name;
-    final serviceUUIDsArgs = serviceUUIDs.map((uuid) => uuid.toArgs()).toList();
-    final serviceDataArgs = serviceData.map((uuid, data) {
-      final uuidArgs = uuid.toArgs();
-      final dataArgs = data;
-      return MapEntry(uuidArgs, dataArgs);
-    });
-    final manufacturerSpecificDataArgs = manufacturerSpecificData?.toArgs();
-    return AdvertisementArgs(
-      nameArgs: nameArgs,
-      serviceUUIDsArgs: serviceUUIDsArgs,
-      serviceDataArgs: serviceDataArgs,
-      manufacturerSpecificDataArgs: manufacturerSpecificDataArgs,
-    );
-  }
-}
-
-extension GattDescriptorX on GattDescriptorImpl {
-  GattDescriptorArgs toArgs() {
-    final hashCodeArgs = hashCode;
-    final uuidArgs = uuid.toArgs();
-    final valueArgs = value;
-    return GattDescriptorArgs(
-      hashCodeArgs: hashCodeArgs,
-      uuidArgs: uuidArgs,
-      valueArgs: valueArgs,
-    );
-  }
-}
-
-extension GattCharacteristicX on GattCharacteristicImpl {
-  GattCharacteristicArgs toArgs(List<GattDescriptorArgs> descriptorsArgs) {
-    final hashCodeArgs = hashCode;
-    final uuidArgs = uuid.toArgs();
-    final propertyNumbersArgs = properties.map((property) {
-      final propertyArgs = property.toArgs();
-      return propertyArgs.index;
-    }).toList();
-    return GattCharacteristicArgs(
-      hashCodeArgs: hashCodeArgs,
-      uuidArgs: uuidArgs,
-      propertyNumbersArgs: propertyNumbersArgs,
-      descriptorsArgs: descriptorsArgs,
-    );
-  }
-}
-
-extension GattServiceX on GattServiceImpl {
-  GattServiceArgs toArgs(List<GattCharacteristicArgs> characteristicsArgs) {
-    final hashCodeArgs = hashCode;
-    final uuidArgs = uuid.toArgs();
-    return GattServiceArgs(
-      hashCodeArgs: hashCodeArgs,
-      uuidArgs: uuidArgs,
-      characteristicsArgs: characteristicsArgs,
-    );
-  }
-}
-
-extension CentralArgsX on CentralArgs {
-  AndroidCentralImpl toCentral() {
-    return AndroidCentralImpl(
-      address: addressArgs,
-    );
   }
 }

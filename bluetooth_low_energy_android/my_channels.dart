@@ -1,18 +1,18 @@
-// Run with `dart run pigeon --input pigeon.dart`.
+// Run with `dart run pigeon --input my_channels.dart`.
 import 'package:pigeon/pigeon.dart';
 
 @ConfigurePigeon(
   PigeonOptions(
-    dartOut: 'lib/src/pigeon.g.dart',
+    dartOut: 'lib/src/my_channels.g.dart',
     dartOptions: DartOptions(),
     kotlinOut:
-        'android/src/main/kotlin/dev/yanshouwang/bluetooth_low_energy_android/Pigeon.g.kt',
+        'android/src/main/kotlin/dev/yanshouwang/bluetooth_low_energy_android/MyChannels.g.kt',
     kotlinOptions: KotlinOptions(
       package: 'dev.yanshouwang.bluetooth_low_energy_android',
     ),
   ),
 )
-enum BluetoothLowEnergyStateArgs {
+enum MyBluetoothLowEnergyStateArgs {
   unknown,
   unsupported,
   unauthorized,
@@ -22,7 +22,7 @@ enum BluetoothLowEnergyStateArgs {
   turningOff,
 }
 
-enum GattCharacteristicPropertyArgs {
+enum MyGattCharacteristicPropertyArgs {
   read,
   write,
   writeWithoutResponse,
@@ -30,18 +30,18 @@ enum GattCharacteristicPropertyArgs {
   indicate,
 }
 
-enum GattCharacteristicWriteTypeArgs {
+enum MyGattCharacteristicWriteTypeArgs {
   withResponse,
   withoutResponse,
 }
 
-enum GattCharacteristicNotifyStateArgs {
+enum MyGattCharacteristicNotifyStateArgs {
   none,
   notify,
   indicate,
 }
 
-enum GattStatusArgs {
+enum MyGattStatusArgs {
   success,
   readNotPermitted,
   writeNotPermitted,
@@ -54,20 +54,20 @@ enum GattStatusArgs {
   failure,
 }
 
-class ManufacturerSpecificDataArgs {
+class MyManufacturerSpecificDataArgs {
   final int idArgs;
   final Uint8List dataArgs;
 
-  ManufacturerSpecificDataArgs(this.idArgs, this.dataArgs);
+  MyManufacturerSpecificDataArgs(this.idArgs, this.dataArgs);
 }
 
-class AdvertisementArgs {
+class MyAdvertisementArgs {
   final String? nameArgs;
   final List<String?> serviceUUIDsArgs;
   final Map<String?, Uint8List?> serviceDataArgs;
-  final ManufacturerSpecificDataArgs? manufacturerSpecificDataArgs;
+  final MyManufacturerSpecificDataArgs? manufacturerSpecificDataArgs;
 
-  AdvertisementArgs(
+  MyAdvertisementArgs(
     this.nameArgs,
     this.serviceUUIDsArgs,
     this.serviceDataArgs,
@@ -75,37 +75,37 @@ class AdvertisementArgs {
   );
 }
 
-class CentralArgs {
+class MyCentralArgs {
   final String addressArgs;
 
-  CentralArgs(this.addressArgs);
+  MyCentralArgs(this.addressArgs);
 }
 
-class PeripheralArgs {
+class MyPeripheralArgs {
   final String addressArgs;
 
-  PeripheralArgs(this.addressArgs);
+  MyPeripheralArgs(this.addressArgs);
 }
 
-class GattDescriptorArgs {
+class MyGattDescriptorArgs {
   final int hashCodeArgs;
   final String uuidArgs;
   final Uint8List? valueArgs;
 
-  GattDescriptorArgs(
+  MyGattDescriptorArgs(
     this.hashCodeArgs,
     this.uuidArgs,
     this.valueArgs,
   );
 }
 
-class GattCharacteristicArgs {
+class MyGattCharacteristicArgs {
   final int hashCodeArgs;
   final String uuidArgs;
   final List<int?> propertyNumbersArgs;
-  final List<GattDescriptorArgs?> descriptorsArgs;
+  final List<MyGattDescriptorArgs?> descriptorsArgs;
 
-  GattCharacteristicArgs(
+  MyGattCharacteristicArgs(
     this.hashCodeArgs,
     this.uuidArgs,
     this.propertyNumbersArgs,
@@ -113,12 +113,12 @@ class GattCharacteristicArgs {
   );
 }
 
-class GattServiceArgs {
+class MyGattServiceArgs {
   final int hashCodeArgs;
   final String uuidArgs;
-  final List<GattCharacteristicArgs?> characteristicsArgs;
+  final List<MyGattCharacteristicArgs?> characteristicsArgs;
 
-  GattServiceArgs(
+  MyGattServiceArgs(
     this.hashCodeArgs,
     this.uuidArgs,
     this.characteristicsArgs,
@@ -126,11 +126,9 @@ class GattServiceArgs {
 }
 
 @HostApi()
-abstract class CentralManagerCommandChannel {
-  @async
+abstract class MyCentralManagerMessageChannel {
   void initialize();
-  @async
-  bool requestPermission();
+  void authorize();
   @async
   void startDiscovery(List<String> serviceUUIDsArgs);
   void stopDiscovery();
@@ -138,13 +136,13 @@ abstract class CentralManagerCommandChannel {
   void connect(String addressArgs);
   @async
   void disconnect(String addressArgs);
-  List<PeripheralArgs> retrieveConnectedPeripherals();
+  List<MyPeripheralArgs> retrieveConnectedPeripherals();
   @async
   int requestMTU(String addressArgs, int mtuArgs);
   @async
   int readRSSI(String addressArgs);
   @async
-  List<GattServiceArgs> discoverServices(String addressArgs);
+  List<MyGattServiceArgs> discoverServices(String addressArgs);
   @async
   Uint8List readCharacteristic(String addressArgs, int hashCodeArgs);
   @async
@@ -171,12 +169,12 @@ abstract class CentralManagerCommandChannel {
 }
 
 @FlutterApi()
-abstract class CentralManagerEventChannel {
+abstract class MyCentralManagerEventChannel {
   void onStateChanged(int stateNumberArgs);
   void onDiscovered(
-    PeripheralArgs peripheralArgs,
+    MyPeripheralArgs peripheralArgs,
     int rssiArgs,
-    AdvertisementArgs advertisementArgs,
+    MyAdvertisementArgs advertisementArgs,
   );
   void onConnectionStateChanged(String addressArgs, bool stateArgs);
   void onMtuChanged(String addressArgs, int mtuArgs);
@@ -188,15 +186,15 @@ abstract class CentralManagerEventChannel {
 }
 
 @HostApi()
-abstract class PeripheralManagerCommandChannel {
-  @async
+abstract class MyPeripheralManagerMessageChannel {
   void initialize();
+  void authorize();
   @async
-  void addService(GattServiceArgs serviceArgs);
+  void addService(MyGattServiceArgs serviceArgs);
   void removeService(int hashCodeArgs);
   void clearServices();
   @async
-  void startAdvertising(AdvertisementArgs advertisementArgs);
+  void startAdvertising(MyAdvertisementArgs advertisementArgs);
   void stopAdvertising();
   void sendResponse(
     String addressArgs,
@@ -215,9 +213,9 @@ abstract class PeripheralManagerCommandChannel {
 }
 
 @FlutterApi()
-abstract class PeripheralManagerEventChannel {
+abstract class MyPeripheralManagerEventChannel {
   void onStateChanged(int stateNumberArgs);
-  void onConnectionStateChanged(CentralArgs centralArgs, bool stateArgs);
+  void onConnectionStateChanged(MyCentralArgs centralArgs, bool stateArgs);
   void onMtuChanged(String addressArgs, int mtuArgs);
   void onCharacteristicReadRequest(
     String addressArgs,

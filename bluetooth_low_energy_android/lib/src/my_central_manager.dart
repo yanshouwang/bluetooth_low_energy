@@ -1,49 +1,35 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
-import 'package:flutter/foundation.dart';
 
-import 'bluetooth_low_energy_manager.dart';
-import 'pigeon.g.dart';
+import 'my_channels.dart';
+import 'my_gatt_characteristic.dart';
+import 'my_gatt_descriptor.dart';
+import 'my_peripheral.dart';
 
-abstract interface class AndroidCentralManager {
-  Stream<MtuChangedEventArgs> get mtuChanged;
-
-  Future<bool> requestPermission();
-  Future<void> requestMTU(Peripheral peripheral, int mtu);
-}
-
-base class MtuChangedEventArgs extends EventArgs {
-  final Peripheral peripheral;
-  final int mtu;
-
-  MtuChangedEventArgs(this.peripheral, this.mtu);
-}
-
-base class AndroidCentralManagerImpl extends CentralManagerImpl
-    implements AndroidCentralManager, CentralManagerEventChannel {
-  final CentralManagerCommandChannel _channel;
+base class MyCentralManager extends BaseCentralManager
+    implements MyCentralManagerEventChannel {
+  final MyCentralManagerMessageChannel _channel;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
   final StreamController<DiscoveredEventArgs> _discoveredController;
   final StreamController<ConnectionStateChangedEventArgs>
       _connectionStateChangedController;
-  final StreamController<MtuChangedEventArgs> _mtuChangedController;
   final StreamController<GattCharacteristicNotifiedEventArgs>
       _characteristicNotifiedController;
 
-  final Map<String, AndroidPeripheralImpl> _peripherals;
-  final Map<String, Map<int, AndroidGattCharacteristicImpl>> _characteristics;
+  final Map<String, MyPeripheral> _peripherals;
+  final Map<String, Map<int, MyGattCharacteristic>> _characteristics;
   final Map<String, int> _mtus;
 
   BluetoothLowEnergyState _state;
 
-  AndroidCentralManagerImpl()
-      : _channel = CentralManagerCommandChannel(),
+  MyCentralManager()
+      : _channel = MyCentralManagerMessageChannel(),
         _stateChangedController = StreamController.broadcast(),
         _discoveredController = StreamController.broadcast(),
         _connectionStateChangedController = StreamController.broadcast(),
-        _mtuChangedController = StreamController.broadcast(),
         _characteristicNotifiedController = StreamController.broadcast(),
         _peripherals = {},
         _characteristics = {},
@@ -59,23 +45,20 @@ base class AndroidCentralManagerImpl extends CentralManagerImpl
   Stream<ConnectionStateChangedEventArgs> get connectionStateChanged =>
       _connectionStateChangedController.stream;
   @override
-  Stream<MtuChangedEventArgs> get mtuChanged => _mtuChangedController.stream;
-  @override
   Stream<GattCharacteristicNotifiedEventArgs> get characteristicNotified =>
       _characteristicNotifiedController.stream;
 
   @override
   void initialize() async {
     logger.info('initialize');
-    CentralManagerEventChannel.setUp(this);
+    MyCentralManagerEventChannel.setUp(this);
     await _channel.initialize();
   }
 
   @override
-  Future<bool> requestPermission() async {
-    logger.info('requestPermission');
-    final state = await _channel.requestPermission();
-    return state;
+  Future<void> authorize() async {
+    logger.info('authorize');
+    await _channel.authorize();
   }
 
   @override
@@ -101,14 +84,22 @@ base class AndroidCentralManagerImpl extends CentralManagerImpl
   }
 
   @override
-  Future<List<Peripheral>> retrieveConnectedPeripherals() {
-    // TODO: implement retrieveConnectedPeripherals
-    throw UnimplementedError();
+  Future<List<Peripheral>> retrieveConnectedPeripherals() async {
+    logger.info('retrieveConnectedPeripherals');
+    final peripheralsArgs = await _channel.retrieveConnectedPeripherals();
+    final peripherals = peripheralsArgs.cast<MyPeripheralArgs>().map((args) {
+      final peripheral = _peripherals.putIfAbsent(
+        args.addressArgs,
+        () => args.toPeripheral(),
+      );
+      return peripheral;
+    }).toList();
+    return peripherals;
   }
 
   @override
   Future<void> connect(Peripheral peripheral) async {
-    if (peripheral is! AndroidPeripheralImpl) {
+    if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
     final addressArgs = peripheral.address;
@@ -118,7 +109,7 @@ base class AndroidCentralManagerImpl extends CentralManagerImpl
 
   @override
   Future<void> disconnect(Peripheral peripheral) async {
-    if (peripheral is! AndroidPeripheralImpl) {
+    if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
     final addressArgs = peripheral.address;
@@ -127,19 +118,20 @@ base class AndroidCentralManagerImpl extends CentralManagerImpl
   }
 
   @override
-  Future<void> requestMTU(Peripheral peripheral, int mtu) async {
-    if (peripheral is! AndroidPeripheralImpl) {
+  Future<int> requestMTU(Peripheral peripheral, int mtu) async {
+    if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
     final addressArgs = peripheral.address;
     final mtuArgs = mtu;
     logger.info('requestMTU: $addressArgs - $mtuArgs');
-    await _channel.requestMTU(addressArgs, mtuArgs);
+    final size = await _channel.requestMTU(addressArgs, mtuArgs);
+    return size;
   }
 
   @override
   Future<int> readRSSI(Peripheral peripheral) async {
-    if (peripheral is! AndroidPeripheralImpl) {
+    if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
     final addressArgs = peripheral.address;
@@ -150,14 +142,14 @@ base class AndroidCentralManagerImpl extends CentralManagerImpl
 
   @override
   Future<List<GattService>> discoverGATT(Peripheral peripheral) async {
-    if (peripheral is! AndroidPeripheralImpl) {
+    if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
     final addressArgs = peripheral.address;
     logger.info('discoverServices: $addressArgs');
     final servicesArgs = await _channel.discoverServices(addressArgs);
     final services = servicesArgs
-        .cast<GattServiceArgs>()
+        .cast<MyGattServiceArgs>()
         .map((args) => args.toService(peripheral))
         .toList();
     final characteristics =
@@ -173,7 +165,7 @@ base class AndroidCentralManagerImpl extends CentralManagerImpl
   Future<Uint8List> readCharacteristic(
     GattCharacteristic characteristic,
   ) async {
-    if (characteristic is! AndroidGattCharacteristicImpl) {
+    if (characteristic is! MyGattCharacteristic) {
       throw TypeError();
     }
     final peripheral = characteristic.peripheral;
@@ -190,7 +182,7 @@ base class AndroidCentralManagerImpl extends CentralManagerImpl
     required Uint8List value,
     required GattCharacteristicWriteType type,
   }) async {
-    if (characteristic is! AndroidGattCharacteristicImpl) {
+    if (characteristic is! MyGattCharacteristic) {
       throw TypeError();
     }
     final peripheral = characteristic.peripheral;
@@ -237,7 +229,7 @@ base class AndroidCentralManagerImpl extends CentralManagerImpl
     GattCharacteristic characteristic, {
     required bool state,
   }) async {
-    if (characteristic is! AndroidGattCharacteristicImpl) {
+    if (characteristic is! MyGattCharacteristic) {
       throw TypeError();
     }
     final peripheral = characteristic.peripheral;
@@ -245,9 +237,9 @@ base class AndroidCentralManagerImpl extends CentralManagerImpl
     final hashCodeArgs = characteristic.hashCode;
     final stateArgs = state
         ? characteristic.properties.contains(GattCharacteristicProperty.notify)
-            ? GattCharacteristicNotifyStateArgs.notify
-            : GattCharacteristicNotifyStateArgs.indicate
-        : GattCharacteristicNotifyStateArgs.none;
+            ? MyGattCharacteristicNotifyStateArgs.notify
+            : MyGattCharacteristicNotifyStateArgs.indicate
+        : MyGattCharacteristicNotifyStateArgs.none;
     final stateNumberArgs = stateArgs.index;
     logger.info(
         'setCharacteristicNotifyState: $addressArgs.$hashCodeArgs - $stateArgs');
@@ -260,7 +252,7 @@ base class AndroidCentralManagerImpl extends CentralManagerImpl
 
   @override
   Future<Uint8List> readDescriptor(GattDescriptor descriptor) async {
-    if (descriptor is! AndroidGattDescriptorImpl) {
+    if (descriptor is! MyGattDescriptor) {
       throw TypeError();
     }
     final peripheral = descriptor.peripheral;
@@ -276,7 +268,7 @@ base class AndroidCentralManagerImpl extends CentralManagerImpl
     GattDescriptor descriptor, {
     required Uint8List value,
   }) async {
-    if (descriptor is! AndroidGattDescriptorImpl) {
+    if (descriptor is! MyGattDescriptor) {
       throw TypeError();
     }
     final peripheral = descriptor.peripheral;
@@ -290,7 +282,7 @@ base class AndroidCentralManagerImpl extends CentralManagerImpl
 
   @override
   void onStateChanged(int stateNumberArgs) {
-    final stateArgs = BluetoothLowEnergyStateArgs.values[stateNumberArgs];
+    final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
     logger.info('onStateChanged: $stateArgs');
     final state = stateArgs.toState();
     if (_state == state) {
@@ -303,9 +295,9 @@ base class AndroidCentralManagerImpl extends CentralManagerImpl
 
   @override
   void onDiscovered(
-    PeripheralArgs peripheralArgs,
+    MyPeripheralArgs peripheralArgs,
     int rssiArgs,
-    AdvertisementArgs advertisementArgs,
+    MyAdvertisementArgs advertisementArgs,
   ) {
     final addressArgs = peripheralArgs.addressArgs;
     logger.info('onDiscovered: $addressArgs - $rssiArgs, $advertisementArgs');
@@ -348,8 +340,6 @@ base class AndroidCentralManagerImpl extends CentralManagerImpl
     }
     final mtu = mtuArgs;
     _mtus[addressArgs] = mtu;
-    final eventArgs = MtuChangedEventArgs(peripheral, mtu);
-    _mtuChangedController.add(eventArgs);
   }
 
   @override
@@ -372,7 +362,7 @@ base class AndroidCentralManagerImpl extends CentralManagerImpl
     _characteristicNotifiedController.add(eventArgs);
   }
 
-  AndroidGattCharacteristicImpl? _retrieveCharacteristic(
+  MyGattCharacteristic? _retrieveCharacteristic(
     String addressArgs,
     int hashCodeArgs,
   ) {
@@ -381,191 +371,5 @@ base class AndroidCentralManagerImpl extends CentralManagerImpl
       return null;
     }
     return characteristics[hashCodeArgs];
-  }
-}
-
-base class AndroidPeripheralImpl extends PeripheralImpl {
-  final String address;
-
-  AndroidPeripheralImpl({
-    required this.address,
-  }) : super(
-          uuid: UUID.fromAddress(address),
-        );
-}
-
-base class AndroidGattDescriptorImpl extends GattDescriptorImpl {
-  final AndroidPeripheralImpl peripheral;
-  @override
-  final int hashCode;
-
-  AndroidGattDescriptorImpl({
-    required this.peripheral,
-    required this.hashCode,
-    required super.uuid,
-  });
-
-  @override
-  bool operator ==(Object other) {
-    return other is AndroidGattDescriptorImpl &&
-        other.peripheral == peripheral &&
-        other.hashCode == hashCode;
-  }
-}
-
-base class AndroidGattCharacteristicImpl extends GattCharacteristicImpl {
-  final AndroidPeripheralImpl peripheral;
-  @override
-  final int hashCode;
-
-  AndroidGattCharacteristicImpl({
-    required this.peripheral,
-    required this.hashCode,
-    required super.uuid,
-    required super.properties,
-    required List<AndroidGattDescriptorImpl> descriptors,
-  }) : super(descriptors: descriptors);
-
-  @override
-  List<AndroidGattDescriptorImpl> get descriptors =>
-      super.descriptors.cast<AndroidGattDescriptorImpl>();
-
-  @override
-  bool operator ==(Object other) {
-    return other is AndroidGattCharacteristicImpl &&
-        other.peripheral == peripheral &&
-        other.hashCode == hashCode;
-  }
-}
-
-base class AndroidGattServiceImpl extends GattServiceImpl {
-  final AndroidPeripheralImpl peripheral;
-  @override
-  final int hashCode;
-
-  AndroidGattServiceImpl({
-    required this.peripheral,
-    required this.hashCode,
-    required super.uuid,
-    required List<AndroidGattCharacteristicImpl> characteristics,
-  }) : super(characteristics: characteristics);
-
-  @override
-  List<AndroidGattCharacteristicImpl> get characteristics =>
-      super.characteristics.cast<AndroidGattCharacteristicImpl>();
-
-  @override
-  bool operator ==(Object other) {
-    return other is AndroidGattServiceImpl &&
-        other.peripheral == peripheral &&
-        other.hashCode == hashCode;
-  }
-}
-
-extension GattCharacteristicPropertyArgsX on GattCharacteristicPropertyArgs {
-  GattCharacteristicProperty toProperty() {
-    return GattCharacteristicProperty.values[index];
-  }
-}
-
-extension ManufacturerSpecificDataArgsX on ManufacturerSpecificDataArgs {
-  ManufacturerSpecificData toManufacturerSpecificData() {
-    final id = idArgs;
-    final data = dataArgs;
-    return ManufacturerSpecificData(
-      id: id,
-      data: data,
-    );
-  }
-}
-
-extension AdvertisementArgsX on AdvertisementArgs {
-  Advertisement toAdvertisement() {
-    final name = nameArgs;
-    final serviceUUIDs =
-        serviceUUIDsArgs.cast<String>().map((args) => args.toUUID()).toList();
-    final serviceData = serviceDataArgs.cast<String, Uint8List>().map(
-      (uuidArgs, dataArgs) {
-        final uuid = uuidArgs.toUUID();
-        final data = dataArgs;
-        return MapEntry(uuid, data);
-      },
-    );
-    final manufacturerSpecificData =
-        manufacturerSpecificDataArgs?.toManufacturerSpecificData();
-    return Advertisement(
-      name: name,
-      serviceUUIDs: serviceUUIDs,
-      serviceData: serviceData,
-      manufacturerSpecificData: manufacturerSpecificData,
-    );
-  }
-}
-
-extension PeripheralArgsX on PeripheralArgs {
-  AndroidPeripheralImpl toPeripheral() {
-    return AndroidPeripheralImpl(
-      address: addressArgs,
-    );
-  }
-}
-
-extension GattDescriptorArgsX on GattDescriptorArgs {
-  AndroidGattDescriptorImpl toDescriptor(AndroidPeripheralImpl peripheral) {
-    final hashCode = hashCodeArgs;
-    final uuid = uuidArgs.toUUID();
-    return AndroidGattDescriptorImpl(
-      peripheral: peripheral,
-      hashCode: hashCode,
-      uuid: uuid,
-    );
-  }
-}
-
-extension GattCharacteristicArgsX on GattCharacteristicArgs {
-  AndroidGattCharacteristicImpl toCharacteristic(
-      AndroidPeripheralImpl peripheral) {
-    final hashCode = hashCodeArgs;
-    final uuid = uuidArgs.toUUID();
-    final properties = propertyNumbersArgs.cast<int>().map(
-      (args) {
-        final propertyArgs = GattCharacteristicPropertyArgs.values[args];
-        return propertyArgs.toProperty();
-      },
-    ).toList();
-    final descriptors = descriptorsArgs
-        .cast<GattDescriptorArgs>()
-        .map((args) => args.toDescriptor(peripheral))
-        .toList();
-    return AndroidGattCharacteristicImpl(
-      peripheral: peripheral,
-      hashCode: hashCode,
-      uuid: uuid,
-      properties: properties,
-      descriptors: descriptors,
-    );
-  }
-}
-
-extension GattServiceArgsX on GattServiceArgs {
-  AndroidGattServiceImpl toService(AndroidPeripheralImpl peripheral) {
-    final hashCode = hashCodeArgs;
-    final uuid = uuidArgs.toUUID();
-    final characteristics = characteristicsArgs
-        .cast<GattCharacteristicArgs>()
-        .map((args) => args.toCharacteristic(peripheral))
-        .toList();
-    return AndroidGattServiceImpl(
-      peripheral: peripheral,
-      hashCode: hashCode,
-      uuid: uuid,
-      characteristics: characteristics,
-    );
-  }
-}
-
-extension GattCharacteristicWriteTypeX on GattCharacteristicWriteType {
-  GattCharacteristicWriteTypeArgs toArgs() {
-    return GattCharacteristicWriteTypeArgs.values[index];
   }
 }

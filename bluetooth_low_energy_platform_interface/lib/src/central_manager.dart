@@ -1,45 +1,24 @@
 import 'dart:typed_data';
 
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
+import 'base_central_manager.dart';
 import 'bluetooth_low_energy_manager.dart';
-
-/// Platform-specific implementations should implement this class to support [CentralManagerImpl].
-abstract base class CentralManagerImpl extends BluetoothLowEnergyManagerImpl
-    implements CentralManager {
-  static final Object _token = Object();
-
-  static CentralManagerImpl? _instance;
-
-  /// The default instance of [CentralManagerImpl] to use.
-  static CentralManagerImpl get instance {
-    final instance = _instance;
-    if (instance == null) {
-      throw UnimplementedError(
-          'CentralManager is not implemented on this platform.');
-    }
-    return instance;
-  }
-
-  /// Platform-specific implementations should set this with their own
-  /// platform-specific class that extends [CentralManagerImpl] when
-  /// they register themselves.
-  static set instance(CentralManagerImpl instance) {
-    PlatformInterface.verifyToken(instance, _token);
-    _instance = instance;
-  }
-
-  /// Constructs a [CentralManagerImpl].
-  CentralManagerImpl() : super(token: _token);
-}
+import 'connection_state_changed_event_args.dart';
+import 'discovered_event_args.dart';
+import 'gatt_characteristic.dart';
+import 'gatt_characteristic_notified_event_args.dart';
+import 'gatt_characteristic_write_type.dart';
+import 'gatt_descriptor.dart';
+import 'gatt_service.dart';
+import 'peripheral.dart';
+import 'uuid.dart';
 
 /// An object that scans for, discovers, connects to, and manages peripherals.
 abstract interface class CentralManager implements BluetoothLowEnergyManager {
   static CentralManager? _instance;
 
   /// Gets the instance of [CentralManager] to use.
-  static CentralManager get instance {
-    final instance = CentralManagerImpl.instance;
+  factory CentralManager() {
+    final instance = BaseCentralManager.instance;
     if (instance != _instance) {
       instance.initialize();
       _instance = instance;
@@ -77,7 +56,18 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   /// Cancels an active or pending local connection to a peripheral.
   Future<void> disconnect(Peripheral peripheral);
 
+  /// Request an MTU size used for a given connection. Please note that starting from Android 14,
+  /// the Android Bluetooth stack requests the BLE ATT MTU to 517 bytes when the first GATT client
+  /// requests an MTU, and disregards all subsequent MTU requests. Check out
+  /// [MTU is set to 517 for the first GATT client requesting an MTU](https://developer.android.com/about/versions/14/behavior-changes-all#mtu-set-to-517)
+  /// for more information.
+  ///
+  /// This method is only available on Android, throws [UnsupportedError] on other platforms.
+  Future<int> requestMTU(Peripheral peripheral, int mtu);
+
   /// Retrieves the current RSSI value for the peripheral while connected to the central manager.
+  ///
+  /// Throws [UnsupportedError] on Windows.
   Future<int> readRSSI(Peripheral peripheral);
 
   /// Discovers the GATT services, characteristics and descriptors of the peripheral.
@@ -109,67 +99,4 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
     GattDescriptor descriptor, {
     required Uint8List value,
   });
-}
-
-/// A remote peripheral device.
-abstract interface class Peripheral implements BluetoothLowEnergyPeer {}
-
-base class PeripheralImpl extends BluetoothLowEnergyPeerImpl
-    implements Peripheral {
-  PeripheralImpl({
-    required super.uuid,
-  });
-
-  @override
-  int get hashCode => uuid.hashCode;
-
-  @override
-  bool operator ==(Object other) {
-    return other is Peripheral && other.uuid == uuid;
-  }
-}
-
-/// The discovered event arguments.
-base class DiscoveredEventArgs extends EventArgs {
-  /// The disvered peripheral.
-  final Peripheral peripheral;
-
-  /// The rssi of the peripheral.
-  final int rssi;
-
-  /// The advertisement of the peripheral.
-  final Advertisement advertisement;
-
-  /// Constructs a [DiscoveredEventArgs].
-  DiscoveredEventArgs(this.peripheral, this.rssi, this.advertisement);
-}
-
-/// The connection state cahnged event arguments.
-base class ConnectionStateChangedEventArgs extends EventArgs {
-  /// The peripheral which connection state changed.
-  final Peripheral peripheral;
-
-  /// The connection state.
-  final bool connectionState;
-
-  /// Constructs a [ConnectionStateChangedEventArgs].
-  ConnectionStateChangedEventArgs(
-    this.peripheral,
-    this.connectionState,
-  );
-}
-
-/// The GATT characteristic notified event arguments.
-base class GattCharacteristicNotifiedEventArgs extends EventArgs {
-  /// The GATT characteristic which notified.
-  final GattCharacteristic characteristic;
-
-  /// The notified value.
-  final Uint8List value;
-
-  /// Constructs a [GattCharacteristicNotifiedEventArgs].
-  GattCharacteristicNotifiedEventArgs(
-    this.characteristic,
-    this.value,
-  );
 }

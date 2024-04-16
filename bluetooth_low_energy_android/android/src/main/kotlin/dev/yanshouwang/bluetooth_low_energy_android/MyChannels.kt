@@ -7,16 +7,17 @@ import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.le.AdvertiseData
+import android.bluetooth.le.ScanRecord
 import android.bluetooth.le.ScanResult
 import android.os.ParcelUuid
 import android.util.SparseArray
 import java.util.UUID
 
-//region ToObj
+//region ToObject
 fun MyGattCharacteristicWriteTypeArgs.toType(): Int {
     return when (this) {
-        MyGattCharacteristicWriteTypeArgs.WITHRESPONSE -> BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-        MyGattCharacteristicWriteTypeArgs.WITHOUTRESPONSE -> BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+        MyGattCharacteristicWriteTypeArgs.WITH_RESPONSE -> BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+        MyGattCharacteristicWriteTypeArgs.WITHOUT_RESPONSE -> BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
     }
 }
 
@@ -31,14 +32,14 @@ fun MyGattCharacteristicNotifyStateArgs.toValue(): ByteArray {
 fun MyGattStatusArgs.toStatus(): Int {
     return when (this) {
         MyGattStatusArgs.SUCCESS -> BluetoothGatt.GATT_SUCCESS
-        MyGattStatusArgs.READNOTPERMITTED -> BluetoothGatt.GATT_READ_NOT_PERMITTED
-        MyGattStatusArgs.WRITENOTPERMITTED -> BluetoothGatt.GATT_READ_NOT_PERMITTED
-        MyGattStatusArgs.REQUESTNOTSUPPORTED -> BluetoothGatt.GATT_READ_NOT_PERMITTED
-        MyGattStatusArgs.INVALIDOFFSET -> BluetoothGatt.GATT_INVALID_OFFSET
-        MyGattStatusArgs.INSUFFICIENTAUTHENTICATION -> BluetoothGatt.GATT_INSUFFICIENT_AUTHENTICATION
-        MyGattStatusArgs.INSUFFICIENTENCRYPTION -> BluetoothGatt.GATT_INSUFFICIENT_ENCRYPTION
-        MyGattStatusArgs.INVALIDATTRIBUTELENGTH -> BluetoothGatt.GATT_INVALID_ATTRIBUTE_LENGTH
-        MyGattStatusArgs.CONNECTIONCONGESTED -> BluetoothGatt.GATT_CONNECTION_CONGESTED
+        MyGattStatusArgs.READ_NOT_PERMITTED -> BluetoothGatt.GATT_READ_NOT_PERMITTED
+        MyGattStatusArgs.WRITE_NOT_PERMITTED -> BluetoothGatt.GATT_WRITE_NOT_PERMITTED
+        MyGattStatusArgs.REQUEST_NOT_SUPPORTED -> BluetoothGatt.GATT_REQUEST_NOT_SUPPORTED
+        MyGattStatusArgs.INVALID_OFFSET -> BluetoothGatt.GATT_INVALID_OFFSET
+        MyGattStatusArgs.INSUFFICIENT_AUTHENTICATION -> BluetoothGatt.GATT_INSUFFICIENT_AUTHENTICATION
+        MyGattStatusArgs.INSUFFICIENT_ENCRYPTION -> BluetoothGatt.GATT_INSUFFICIENT_ENCRYPTION
+        MyGattStatusArgs.INVALID_ATTRIBUTE_LENGTH -> BluetoothGatt.GATT_INVALID_ATTRIBUTE_LENGTH
+        MyGattStatusArgs.CONNECTION_CONGESTED -> BluetoothGatt.GATT_CONNECTION_CONGESTED
         MyGattStatusArgs.FAILURE -> BluetoothGatt.GATT_FAILURE
     }
 }
@@ -72,8 +73,7 @@ fun MyAdvertisementArgs.toAdvertiseData(adapter: BluetoothAdapter): AdvertiseDat
 
 fun MyGattDescriptorArgs.toDescriptor(): BluetoothGattDescriptor {
     val uuid = UUID.fromString(uuidArgs)
-    val permissions =
-        BluetoothGattDescriptor.PERMISSION_READ or BluetoothGattDescriptor.PERMISSION_WRITE
+    val permissions = BluetoothGattDescriptor.PERMISSION_READ or BluetoothGattDescriptor.PERMISSION_WRITE
     return BluetoothGattDescriptor(uuid, permissions)
 }
 
@@ -91,15 +91,13 @@ fun MyGattCharacteristicArgs.getProperties(): Int {
     }
     val read = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.READ)
     val write = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.WRITE)
-    val writeWithoutResponse =
-        propertiesArgs.contains(MyGattCharacteristicPropertyArgs.WRITEWITHOUTRESPONSE)
+    val writeWithoutResponse = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.WRITE_WITHOUT_RESPONSE)
     val notify = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.NOTIFY)
     val indicate = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.INDICATE)
     var properties = 0
     if (read) properties = properties or BluetoothGattCharacteristic.PROPERTY_READ
     if (write) properties = properties or BluetoothGattCharacteristic.PROPERTY_WRITE
-    if (writeWithoutResponse) properties =
-        properties or BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
+    if (writeWithoutResponse) properties = properties or BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
     if (notify) properties = properties or BluetoothGattCharacteristic.PROPERTY_NOTIFY
     if (indicate) properties = properties or BluetoothGattCharacteristic.PROPERTY_INDICATE
     return properties
@@ -112,12 +110,12 @@ fun MyGattCharacteristicArgs.getPermissions(): Int {
     }
     val read = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.READ)
     val write = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.WRITE)
-    val writeWithoutResponse =
-        propertiesArgs.contains(MyGattCharacteristicPropertyArgs.WRITEWITHOUTRESPONSE)
+    val writeWithoutResponse = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.WRITE_WITHOUT_RESPONSE)
     var permissions = 0
-    if (read) permissions = permissions or BluetoothGattCharacteristic.PERMISSION_READ
-    if (write || writeWithoutResponse) permissions =
-        permissions or BluetoothGattCharacteristic.PERMISSION_WRITE
+    if (read)
+        permissions = permissions or BluetoothGattCharacteristic.PERMISSION_READ
+    if (write || writeWithoutResponse)
+        permissions = permissions or BluetoothGattCharacteristic.PERMISSION_WRITE
     return permissions
 }
 
@@ -132,9 +130,9 @@ fun MyGattServiceArgs.toService(): BluetoothGattService {
 fun Int.toBluetoothLowEnergyStateArgs(): MyBluetoothLowEnergyStateArgs {
     return when (this) {
         BluetoothAdapter.STATE_OFF -> MyBluetoothLowEnergyStateArgs.OFF
-        BluetoothAdapter.STATE_TURNING_ON -> MyBluetoothLowEnergyStateArgs.TURNINGON
+        BluetoothAdapter.STATE_TURNING_ON -> MyBluetoothLowEnergyStateArgs.TURNING_ON
         BluetoothAdapter.STATE_ON -> MyBluetoothLowEnergyStateArgs.ON
-        BluetoothAdapter.STATE_TURNING_OFF -> MyBluetoothLowEnergyStateArgs.TURNINGOFF
+        BluetoothAdapter.STATE_TURNING_OFF -> MyBluetoothLowEnergyStateArgs.TURNING_OFF
         else -> MyBluetoothLowEnergyStateArgs.UNKNOWN
     }
 }
@@ -160,9 +158,7 @@ fun ScanResult.toAdvertisementArgs(): MyAdvertisementArgs {
         val serviceUUIDsArgs = emptyList<String?>()
         val serviceDataArgs = emptyMap<String?, ByteArray>()
         val manufacturerSpecificDataArgs = null
-        MyAdvertisementArgs(
-            nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs
-        )
+        MyAdvertisementArgs(nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs)
     } else {
         val nameArgs = record.deviceName
         val serviceUUIDsArgs = record.serviceUuids?.map { uuid -> uuid.toString() } ?: emptyList()
@@ -171,11 +167,8 @@ fun ScanResult.toAdvertisementArgs(): MyAdvertisementArgs {
             return@map Pair(key, value)
         }?.toTypedArray() ?: emptyArray()
         val serviceDataArgs = mapOf<String?, ByteArray?>(*pairs)
-        val manufacturerSpecificDataArgs =
-            record.manufacturerSpecificData?.toManufacturerSpecificDataArgs()
-        MyAdvertisementArgs(
-            nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs
-        )
+        val manufacturerSpecificDataArgs = record.manufacturerSpecificData?.toManufacturerSpecificDataArgs()
+        MyAdvertisementArgs(nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs)
     }
 }
 
@@ -215,7 +208,7 @@ fun BluetoothGattCharacteristic.getPropertyNumbersArgs(): List<Long> {
         numbersArgs.add(number)
     }
     if (properties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE != 0) {
-        val number = MyGattCharacteristicPropertyArgs.WRITEWITHOUTRESPONSE.raw.toLong()
+        val number = MyGattCharacteristicPropertyArgs.WRITE_WITHOUT_RESPONSE.raw.toLong()
         numbersArgs.add(number)
     }
     if (properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY != 0) {
@@ -250,21 +243,21 @@ fun ByteArray.toNotifyStateArgs(): MyGattCharacteristicNotifyStateArgs {
 
 val Any.TAG get() = this::class.java.simpleName as String
 
-//val ScanRecord.rawValues: Map<Byte, ByteArray>
-//    get() {
-//        val rawValues = mutableMapOf<Byte, ByteArray>()
-//        var index = 0
-//        val size = bytes.size
-//        while (index < size) {
-//            val length = bytes[index++].toInt() and 0xff
-//            if (length == 0) {
-//                break
-//            }
-//            val end = index + length
-//            val type = bytes[index++]
-//            val value = bytes.slice(index until end).toByteArray()
-//            rawValues[type] = value
-//            index = end
-//        }
-//        return rawValues.toMap()
-//    }
+val ScanRecord.rawValues: Map<Byte, ByteArray>
+    get() {
+        val rawValues = mutableMapOf<Byte, ByteArray>()
+        var index = 0
+        val size = bytes.size
+        while (index < size) {
+            val length = bytes[index++].toInt() and 0xff
+            if (length == 0) {
+                break
+            }
+            val end = index + length
+            val type = bytes[index++]
+            val value = bytes.slice(index until end).toByteArray()
+            rawValues[type] = value
+            index = end
+        }
+        return rawValues.toMap()
+    }

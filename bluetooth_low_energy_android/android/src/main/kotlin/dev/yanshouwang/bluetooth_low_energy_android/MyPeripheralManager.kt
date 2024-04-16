@@ -15,8 +15,7 @@ import android.content.Context
 import android.os.Build
 import io.flutter.plugin.common.BinaryMessenger
 
-class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
-    MyBluetoothLowEnergyManager(context), MyPeripheralManagerHostApi {
+class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : MyBluetoothLowEnergyManager(context), MyPeripheralManagerMessageChannel {
     companion object {
         const val REQUEST_CODE = 445
     }
@@ -24,7 +23,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
     private val advertiser get() = adapter.bluetoothLeAdvertiser
 
     private val mContext: Context
-    private val mApi: MyPeripheralManagerFlutterApi
+    private val mChannel: MyPeripheralManagerEventChannel
 
     private val bluetoothGattServerCallback: BluetoothGattServerCallback by lazy {
         MyBluetoothGattServerCallback(this, executor)
@@ -46,14 +45,13 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
     private val mCharacteristics: MutableMap<Long, BluetoothGattCharacteristic>
     private val mDescriptors: MutableMap<Long, BluetoothGattDescriptor>
 
-    private var mSetUpCallback: ((Result<Unit>) -> Unit)?
     private var mAddServiceCallback: ((Result<Unit>) -> Unit)?
     private var mStartAdvertisingCallback: ((Result<Unit>) -> Unit)?
     private val mNotifyCharacteristicValueChangedCallbacks: MutableMap<String, (Result<Unit>) -> Unit>
 
     init {
         mContext = context
-        mApi = MyPeripheralManagerFlutterApi(binaryMessenger)
+        mChannel = MyPeripheralManagerEventChannel(binaryMessenger)
 
         mServicesArgs = mutableMapOf()
         mCharacteristicsArgs = mutableMapOf()
@@ -64,7 +62,6 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         mCharacteristics = mutableMapOf()
         mDescriptors = mutableMapOf()
 
-        mSetUpCallback = null
         mAddServiceCallback = null
         mStartAdvertisingCallback = null
         mNotifyCharacteristicValueChangedCallbacks = mutableMapOf()
@@ -73,40 +70,35 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
     override val permissions: Array<String>
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             arrayOf(
-                android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                android.Manifest.permission.BLUETOOTH_ADVERTISE,
-                android.Manifest.permission.BLUETOOTH_CONNECT
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.BLUETOOTH_ADVERTISE,
+                    android.Manifest.permission.BLUETOOTH_CONNECT
             )
         } else {
             arrayOf(
-                android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION
             )
         }
 
     override val requestCode: Int
         get() = REQUEST_CODE
 
-    override fun setUp(callback: (Result<Unit>) -> Unit) {
-        try {
-            mClearState()
-            val stateArgs = if (hasFeature) {
-                val granted = checkPermissions()
-                if (granted) {
-                    registerReceiver()
-                    adapter.state.toBluetoothLowEnergyStateArgs()
-                } else {
-                    requestPermissions()
-                    mSetUpCallback = callback
-                    return
-                }
-            } else MyBluetoothLowEnergyStateArgs.UNSUPPORTED
-            mOnStateChanged(stateArgs)
-            callback(Result.success(Unit))
-        } catch (e: Throwable) {
-            callback(Result.failure(e))
-        }
+    override fun initialize() {
+        mClearState()
+        val stateArgs = if (hasFeature) {
+            val granted = checkPermissions()
+            if (granted) {
+                registerReceiver()
+                adapter.state.toBluetoothLowEnergyStateArgs()
+            } else MyBluetoothLowEnergyStateArgs.UNAUTHORIZED
+        } else MyBluetoothLowEnergyStateArgs.UNSUPPORTED
+        mOnStateChanged(stateArgs)
+    }
+
+    override fun authorize() {
+        requestPermissions()
     }
 
     override fun addService(serviceArgs: MyGattServiceArgs, callback: (Result<Unit>) -> Unit) {
@@ -162,14 +154,14 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         for (characteristicArgs in characteristicsArgs) {
             val characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
             val characteristic =
-                mCharacteristics.remove(characteristicHashCodeArgs) as BluetoothGattCharacteristic
+                    mCharacteristics.remove(characteristicHashCodeArgs) as BluetoothGattCharacteristic
             val characteristicHashCode = characteristic.hashCode()
             mCharacteristicsArgs.remove(characteristicHashCode)
             val descriptorsArgs = characteristicArgs.descriptorsArgs.filterNotNull()
             for (descriptorArgs in descriptorsArgs) {
                 val descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
                 val descriptor =
-                    mDescriptors.remove(descriptorHashCodeArgs) as BluetoothGattDescriptor
+                        mDescriptors.remove(descriptorHashCodeArgs) as BluetoothGattDescriptor
                 val descriptorHashCode = descriptor.hashCode()
                 mDescriptorsArgs.remove(descriptorHashCode)
             }
@@ -188,12 +180,12 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
     }
 
     override fun startAdvertising(
-        advertisementArgs: MyAdvertisementArgs, callback: (Result<Unit>) -> Unit
+            advertisementArgs: MyAdvertisementArgs, callback: (Result<Unit>) -> Unit
     ) {
         try {
             val settings = AdvertiseSettings.Builder()
-                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED).setConnectable(true)
-                .build()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED).setConnectable(true)
+                    .build()
             val advertiseData = advertisementArgs.toAdvertiseData(adapter)
             advertiser.startAdvertising(settings, advertiseData, advertiseCallback)
             mStartAdvertisingCallback = callback
@@ -208,11 +200,11 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
     }
 
     override fun sendResponse(
-        addressArgs: String,
-        idArgs: Long,
-        statusNumberArgs: Long,
-        offsetArgs: Long,
-        valueArgs: ByteArray?
+            addressArgs: String,
+            idArgs: Long,
+            statusNumberArgs: Long,
+            offsetArgs: Long,
+            valueArgs: ByteArray?
     ) {
         val device = mDevices[addressArgs] as BluetoothDevice
         val requestId = idArgs.toInt()
@@ -227,18 +219,18 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
     }
 
     override fun notifyCharacteristicChanged(
-        hashCodeArgs: Long,
-        valueArgs: ByteArray,
-        confirmArgs: Boolean,
-        addressArgs: String,
-        callback: (Result<Unit>) -> Unit
+            hashCodeArgs: Long,
+            valueArgs: ByteArray,
+            confirmArgs: Boolean,
+            addressArgs: String,
+            callback: (Result<Unit>) -> Unit
     ) {
         try {
             val device = mDevices[addressArgs] as BluetoothDevice
             val characteristic = mCharacteristics[hashCodeArgs] as BluetoothGattCharacteristic
             val notifying = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 val statusCode = mServer.notifyCharacteristicChanged(
-                    device, characteristic, confirmArgs, valueArgs
+                        device, characteristic, confirmArgs, valueArgs
                 )
                 statusCode == BluetoothStatusCodes.SUCCESS
             } else {
@@ -256,13 +248,11 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
     }
 
     override fun onPermissionsRequested(granted: Boolean) {
-        val callback = mSetUpCallback ?: return
         val stateArgs = if (granted) {
             registerReceiver()
             adapter.state.toBluetoothLowEnergyStateArgs()
         } else MyBluetoothLowEnergyStateArgs.UNAUTHORIZED
         mOnStateChanged(stateArgs)
-        callback(Result.success(Unit))
     }
 
     override fun onAdapterStateChanged(state: Int) {
@@ -300,20 +290,20 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         val addressArgs = centralArgs.addressArgs
         val stateArgs = newState == BluetoothProfile.STATE_CONNECTED
         mDevices[addressArgs] = device
-        mApi.onConnectionStateChanged(centralArgs, stateArgs) {}
+        mChannel.onConnectionStateChanged(centralArgs, stateArgs) {}
     }
 
     fun onMtuChanged(device: BluetoothDevice, mtu: Int) {
         val addressArgs = device.address
         val mtuArgs = mtu.toLong()
-        mApi.onMtuChanged(addressArgs, mtuArgs) {}
+        mChannel.onMtuChanged(addressArgs, mtuArgs) {}
     }
 
     fun onCharacteristicReadRequest(
-        device: BluetoothDevice,
-        requestId: Int,
-        offset: Int,
-        characteristic: BluetoothGattCharacteristic
+            device: BluetoothDevice,
+            requestId: Int,
+            offset: Int,
+            characteristic: BluetoothGattCharacteristic
     ) {
         val addressArgs = device.address
         val hashCode = characteristic.hashCode()
@@ -321,17 +311,17 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         val hashCodeArgs = characteristicArgs.hashCodeArgs
         val idArgs = requestId.toLong()
         val offsetArgs = offset.toLong()
-        mApi.onCharacteristicReadRequest(addressArgs, hashCodeArgs, idArgs, offsetArgs) {}
+        mChannel.onCharacteristicReadRequest(addressArgs, hashCodeArgs, idArgs, offsetArgs) {}
     }
 
     fun onCharacteristicWriteRequest(
-        device: BluetoothDevice,
-        requestId: Int,
-        characteristic: BluetoothGattCharacteristic,
-        preparedWrite: Boolean,
-        responseNeeded: Boolean,
-        offset: Int,
-        value: ByteArray
+            device: BluetoothDevice,
+            requestId: Int,
+            characteristic: BluetoothGattCharacteristic,
+            preparedWrite: Boolean,
+            responseNeeded: Boolean,
+            offset: Int,
+            value: ByteArray
     ) {
         val addressArgs = device.address
         val hashCode = characteristic.hashCode()
@@ -339,19 +329,19 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         val hashCodeArgs = characteristicArgs.hashCodeArgs
         val idArgs = requestId.toLong()
         val offsetArgs = offset.toLong()
-        mApi.onCharacteristicWriteRequest(
-            addressArgs, hashCodeArgs, idArgs, offsetArgs, value, preparedWrite, responseNeeded
+        mChannel.onCharacteristicWriteRequest(
+                addressArgs, hashCodeArgs, idArgs, offsetArgs, value, preparedWrite, responseNeeded
         ) {}
     }
 
     fun onExecuteWrite(device: BluetoothDevice, requestId: Int, execute: Boolean) {
         val addressArgs = device.address
         val idArgs = requestId.toLong()
-        mApi.onExecuteWrite(addressArgs, idArgs, execute) {}
+        mChannel.onExecuteWrite(addressArgs, idArgs, execute) {}
     }
 
     fun onDescriptorReadRequest(
-        device: BluetoothDevice, requestId: Int, offset: Int, descriptor: BluetoothGattDescriptor
+            device: BluetoothDevice, requestId: Int, offset: Int, descriptor: BluetoothGattDescriptor
     ) {
         val addressArgs = device.address
         val hashCode = descriptor.hashCode()
@@ -359,17 +349,17 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         val hashCodeArgs = descriptorArgs.hashCodeArgs
         val idArgs = requestId.toLong()
         val offsetArgs = offset.toLong()
-        mApi.onDescriptorReadRequest(addressArgs, hashCodeArgs, idArgs, offsetArgs) {}
+        mChannel.onDescriptorReadRequest(addressArgs, hashCodeArgs, idArgs, offsetArgs) {}
     }
 
     fun onDescriptorWriteRequest(
-        device: BluetoothDevice,
-        requestId: Int,
-        descriptor: BluetoothGattDescriptor,
-        preparedWrite: Boolean,
-        responseNeeded: Boolean,
-        offset: Int,
-        value: ByteArray
+            device: BluetoothDevice,
+            requestId: Int,
+            descriptor: BluetoothGattDescriptor,
+            preparedWrite: Boolean,
+            responseNeeded: Boolean,
+            offset: Int,
+            value: ByteArray
     ) {
         val addressArgs = device.address
         val hashCode = descriptor.hashCode()
@@ -377,8 +367,8 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         val hashCodeArgs = descriptorArgs.hashCodeArgs
         val idArgs = requestId.toLong()
         val offsetArgs = offset.toLong()
-        mApi.onDescriptorWriteRequest(
-            addressArgs, hashCodeArgs, idArgs, offsetArgs, value, preparedWrite, responseNeeded
+        mChannel.onDescriptorWriteRequest(
+                addressArgs, hashCodeArgs, idArgs, offsetArgs, value, preparedWrite, responseNeeded
         ) {}
         if (descriptor.uuid == CLIENT_CHARACTERISTIC_CONFIG_UUID) {
             val characteristic = descriptor.characteristic
@@ -393,7 +383,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
             callback(Result.success(Unit))
         } else {
             val error =
-                IllegalStateException("Notify characteristic value changed failed with status: $status")
+                    IllegalStateException("Notify characteristic value changed failed with status: $status")
             callback(Result.failure(error))
         }
     }
@@ -412,7 +402,6 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         mCharacteristics.clear()
         mDescriptors.clear()
 
-        mSetUpCallback = null
         mAddServiceCallback = null
         mStartAdvertisingCallback = null
         mNotifyCharacteristicValueChangedCallbacks.clear()
@@ -420,7 +409,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
 
     private fun mOnStateChanged(stateArgs: MyBluetoothLowEnergyStateArgs) {
         val stateNumberArgs = stateArgs.raw.toLong()
-        mApi.onStateChanged(stateNumberArgs) {}
+        mChannel.onStateChanged(stateNumberArgs) {}
         // Renew GATT server when bluetooth adapter state changed.
         when (stateArgs) {
             MyBluetoothLowEnergyStateArgs.OFF -> mCloseServer()
@@ -446,9 +435,9 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
     }
 
     private fun mOnCharacteristicNotifyStateChanged(
-        device: BluetoothDevice,
-        characteristic: BluetoothGattCharacteristic,
-        value: ByteArray
+            device: BluetoothDevice,
+            characteristic: BluetoothGattCharacteristic,
+            value: ByteArray
     ) {
         val addressArgs = device.address
         val hashCode = characteristic.hashCode()
@@ -456,6 +445,6 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) :
         val hashCodeArgs = characteristicArgs.hashCodeArgs
         val stateArgs = value.toNotifyStateArgs()
         val stateNumberArgs = stateArgs.raw.toLong()
-        mApi.onCharacteristicNotifyStateChanged(addressArgs, hashCodeArgs, stateNumberArgs) {}
+        mChannel.onCharacteristicNotifyStateChanged(addressArgs, hashCodeArgs, stateNumberArgs) {}
     }
 }
