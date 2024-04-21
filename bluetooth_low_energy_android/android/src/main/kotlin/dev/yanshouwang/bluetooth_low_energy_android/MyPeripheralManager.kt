@@ -15,7 +15,7 @@ import android.content.Context
 import android.os.Build
 import io.flutter.plugin.common.BinaryMessenger
 
-class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : MyBluetoothLowEnergyManager(context), MyPeripheralManagerMessageChannel {
+class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : MyBluetoothLowEnergyManager(context), MyPeripheralManagerHostAPI {
     companion object {
         const val REQUEST_CODE = 445
     }
@@ -23,7 +23,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
     private val advertiser get() = adapter.bluetoothLeAdvertiser
 
     private val mContext: Context
-    private val mChannel: MyPeripheralManagerEventChannel
+    private val mAPI: MyPeripheralManagerFlutterAPI
 
     private val bluetoothGattServerCallback: BluetoothGattServerCallback by lazy {
         MyBluetoothGattServerCallback(this, executor)
@@ -51,7 +51,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
 
     init {
         mContext = context
-        mChannel = MyPeripheralManagerEventChannel(binaryMessenger)
+        mAPI = MyPeripheralManagerFlutterAPI(binaryMessenger)
 
         mServicesArgs = mutableMapOf()
         mCharacteristicsArgs = mutableMapOf()
@@ -290,13 +290,13 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         val addressArgs = centralArgs.addressArgs
         val stateArgs = newState == BluetoothProfile.STATE_CONNECTED
         mDevices[addressArgs] = device
-        mChannel.onConnectionStateChanged(centralArgs, stateArgs) {}
+        mAPI.onConnectionStateChanged(centralArgs, stateArgs) {}
     }
 
     fun onMtuChanged(device: BluetoothDevice, mtu: Int) {
         val addressArgs = device.address
         val mtuArgs = mtu.toLong()
-        mChannel.onMtuChanged(addressArgs, mtuArgs) {}
+        mAPI.onMtuChanged(addressArgs, mtuArgs) {}
     }
 
     fun onCharacteristicReadRequest(
@@ -311,7 +311,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         val hashCodeArgs = characteristicArgs.hashCodeArgs
         val idArgs = requestId.toLong()
         val offsetArgs = offset.toLong()
-        mChannel.onCharacteristicReadRequest(addressArgs, hashCodeArgs, idArgs, offsetArgs) {}
+        mAPI.onCharacteristicReadRequest(addressArgs, hashCodeArgs, idArgs, offsetArgs) {}
     }
 
     fun onCharacteristicWriteRequest(
@@ -329,7 +329,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         val hashCodeArgs = characteristicArgs.hashCodeArgs
         val idArgs = requestId.toLong()
         val offsetArgs = offset.toLong()
-        mChannel.onCharacteristicWriteRequest(
+        mAPI.onCharacteristicWriteRequest(
                 addressArgs, hashCodeArgs, idArgs, offsetArgs, value, preparedWrite, responseNeeded
         ) {}
     }
@@ -337,7 +337,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
     fun onExecuteWrite(device: BluetoothDevice, requestId: Int, execute: Boolean) {
         val addressArgs = device.address
         val idArgs = requestId.toLong()
-        mChannel.onExecuteWrite(addressArgs, idArgs, execute) {}
+        mAPI.onExecuteWrite(addressArgs, idArgs, execute) {}
     }
 
     fun onDescriptorReadRequest(
@@ -349,7 +349,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         val hashCodeArgs = descriptorArgs.hashCodeArgs
         val idArgs = requestId.toLong()
         val offsetArgs = offset.toLong()
-        mChannel.onDescriptorReadRequest(addressArgs, hashCodeArgs, idArgs, offsetArgs) {}
+        mAPI.onDescriptorReadRequest(addressArgs, hashCodeArgs, idArgs, offsetArgs) {}
     }
 
     fun onDescriptorWriteRequest(
@@ -367,7 +367,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         val hashCodeArgs = descriptorArgs.hashCodeArgs
         val idArgs = requestId.toLong()
         val offsetArgs = offset.toLong()
-        mChannel.onDescriptorWriteRequest(
+        mAPI.onDescriptorWriteRequest(
                 addressArgs, hashCodeArgs, idArgs, offsetArgs, value, preparedWrite, responseNeeded
         ) {}
         if (descriptor.uuid == CLIENT_CHARACTERISTIC_CONFIG_UUID) {
@@ -409,7 +409,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
 
     private fun mOnStateChanged(stateArgs: MyBluetoothLowEnergyStateArgs) {
         val stateNumberArgs = stateArgs.raw.toLong()
-        mChannel.onStateChanged(stateNumberArgs) {}
+        mAPI.onStateChanged(stateNumberArgs) {}
         // Renew GATT server when bluetooth adapter state changed.
         when (stateArgs) {
             MyBluetoothLowEnergyStateArgs.OFF -> mCloseServer()
@@ -445,6 +445,6 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         val hashCodeArgs = characteristicArgs.hashCodeArgs
         val stateArgs = value.toNotifyStateArgs()
         val stateNumberArgs = stateArgs.raw.toLong()
-        mChannel.onCharacteristicNotifyStateChanged(addressArgs, hashCodeArgs, stateNumberArgs) {}
+        mAPI.onCharacteristicNotifyStateChanged(addressArgs, hashCodeArgs, stateNumberArgs) {}
     }
 }

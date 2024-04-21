@@ -3,12 +3,13 @@ import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
+import 'my_api.dart';
+import 'my_api.g.dart';
 import 'my_central.dart';
-import 'my_channels.dart';
 
 base class MyPeripheralManager extends BasePeripheralManager
-    implements MyPeripheralManagerEventChannel {
-  final MyPeripheralManagerMessageChannel _channel;
+    implements MyPeripheralManagerFlutterAPI {
+  final MyPeripheralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
   final StreamController<GattCharacteristicReadEventArgs>
@@ -30,7 +31,7 @@ base class MyPeripheralManager extends BasePeripheralManager
   BluetoothLowEnergyState _state;
 
   MyPeripheralManager()
-      : _channel = MyPeripheralManagerMessageChannel(),
+      : _api = MyPeripheralManagerHostAPI(),
         _stateChangedController = StreamController.broadcast(),
         _characteristicReadController = StreamController.broadcast(),
         _characteristicWrittenController = StreamController.broadcast(),
@@ -63,14 +64,14 @@ base class MyPeripheralManager extends BasePeripheralManager
   @override
   void initialize() async {
     logger.info('initialize');
-    MyPeripheralManagerEventChannel.setUp(this);
-    await _channel.initialize();
+    MyPeripheralManagerFlutterAPI.setUp(this);
+    await _api.initialize();
   }
 
   @override
   Future<void> authorize() async {
     logger.info('authorize');
-    await _channel.authorize();
+    await _api.authorize();
   }
 
   @override
@@ -114,7 +115,7 @@ base class MyPeripheralManager extends BasePeripheralManager
     }
     final serviceArgs = service.toArgs(characteristicsArgs);
     logger.info('addService: $serviceArgs');
-    await _channel.addService(serviceArgs);
+    await _api.addService(serviceArgs);
     _characteristics[serviceArgs.hashCodeArgs] = characteristics;
     _descriptors[serviceArgs.hashCodeArgs] = descriptors;
   }
@@ -123,7 +124,7 @@ base class MyPeripheralManager extends BasePeripheralManager
   Future<void> removeService(GattService service) async {
     final hashCodeArgs = service.hashCode;
     logger.info('removeService: $hashCodeArgs');
-    await _channel.removeService(hashCodeArgs);
+    await _api.removeService(hashCodeArgs);
     _characteristics.remove(hashCodeArgs);
     _descriptors.remove(hashCodeArgs);
   }
@@ -131,7 +132,7 @@ base class MyPeripheralManager extends BasePeripheralManager
   @override
   Future<void> clearServices() async {
     logger.info('clearServices');
-    await _channel.clearServices();
+    await _api.clearServices();
     _characteristics.clear();
     _descriptors.clear();
   }
@@ -140,13 +141,13 @@ base class MyPeripheralManager extends BasePeripheralManager
   Future<void> startAdvertising(Advertisement advertisement) async {
     final advertisementArgs = advertisement.toArgs();
     logger.info('startAdvertising: $advertisementArgs');
-    await _channel.startAdvertising(advertisementArgs);
+    await _api.startAdvertising(advertisementArgs);
   }
 
   @override
   Future<void> stopAdvertising() async {
     logger.info('stopAdvertising');
-    await _channel.stopAdvertising();
+    await _api.stopAdvertising();
   }
 
   @override
@@ -196,7 +197,7 @@ base class MyPeripheralManager extends BasePeripheralManager
           : trimmedValueArgs.sublist(start);
       logger.info(
           'notifyCharacteristicChanged: $hashCodeArgs - $fragmentedValueArgs, $confirm, $addressArgs');
-      await _channel.notifyCharacteristicChanged(
+      await _api.notifyCharacteristicChanged(
         hashCodeArgs,
         fragmentedValueArgs,
         confirm,
@@ -498,7 +499,7 @@ base class MyPeripheralManager extends BasePeripheralManager
   ) async {
     final statusNumberArgs = statusArgs.index;
     try {
-      _channel.sendResponse(
+      _api.sendResponse(
         addressArgs,
         idArgs,
         statusNumberArgs,

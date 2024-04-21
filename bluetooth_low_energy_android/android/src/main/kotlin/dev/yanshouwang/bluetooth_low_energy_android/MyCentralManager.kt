@@ -18,13 +18,13 @@ import android.os.ParcelUuid
 import io.flutter.plugin.common.BinaryMessenger
 
 class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
-        MyBluetoothLowEnergyManager(context), MyCentralManagerMessageChannel {
+        MyBluetoothLowEnergyManager(context), MyCentralManagerHostAPI {
     companion object {
         const val REQUEST_CODE = 443
     }
 
     private val mContext: Context
-    private val mChannel: MyCentralManagerEventChannel
+    private val mAPI: MyCentralManagerFlutterAPI
 
     private val mScanCallback: ScanCallback by lazy {
         MyScanCallback(this)
@@ -53,7 +53,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
 
     init {
         mContext = context
-        mChannel = MyCentralManagerEventChannel(binaryMessenger)
+        mAPI = MyCentralManagerFlutterAPI(binaryMessenger)
 
         mDiscovering = false
 
@@ -358,7 +358,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
         val rssiArgs = result.rssi.toLong()
         val advertisementArgs = result.toAdvertisementArgs()
         mDevices[addressArgs] = device
-        mChannel.onDiscovered(peripheralArgs, rssiArgs, advertisementArgs) {}
+        mAPI.onDiscovered(peripheralArgs, rssiArgs, advertisementArgs) {}
     }
 
     fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
@@ -413,7 +413,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
             }
         }
         val stateArgs = newState == BluetoothProfile.STATE_CONNECTED
-        mChannel.onConnectionStateChanged(addressArgs, stateArgs) {}
+        mAPI.onConnectionStateChanged(addressArgs, stateArgs) {}
         // check connect & disconnect callbacks.
         val connectCallback = mConnectCallbacks.remove(addressArgs)
         if (connectCallback != null) {
@@ -440,7 +440,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
         val addressArgs = device.address
         val result = if (status == BluetoothGatt.GATT_SUCCESS) {
             val mtuArgs = mtu.toLong()
-            mChannel.onMtuChanged(addressArgs, mtuArgs) {}
+            mAPI.onMtuChanged(addressArgs, mtuArgs) {}
             Result.success(mtuArgs)
         } else {
             val error = IllegalStateException("Read RSSI failed with status: $status")
@@ -513,7 +513,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
         val device = gatt.device
         val addressArgs = device.address
         val hashCodeArgs = characteristic.hashCode().toLong()
-        mChannel.onCharacteristicNotified(addressArgs, hashCodeArgs, value) {}
+        mAPI.onCharacteristicNotified(addressArgs, hashCodeArgs, value) {}
     }
 
     fun onDescriptorRead(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int, value: ByteArray) {
@@ -570,7 +570,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) :
 
     private fun mOnStateChanged(stateArgs: MyBluetoothLowEnergyStateArgs) {
         val stateNumberArgs = stateArgs.raw.toLong()
-        mChannel.onStateChanged(stateNumberArgs) {}
+        mAPI.onStateChanged(stateNumberArgs) {}
     }
 
     private fun mRetrieveCharacteristic(addressArgs: String, hashCodeArgs: Long): BluetoothGattCharacteristic? {

@@ -1,14 +1,11 @@
 import 'dart:typed_data';
 
-import 'base_central_manager.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+
+import 'advertisement.dart';
 import 'bluetooth_low_energy_manager.dart';
-import 'connection_state_changed_event_args.dart';
-import 'discovered_event_args.dart';
-import 'gatt_characteristic.dart';
-import 'gatt_characteristic_notified_event_args.dart';
-import 'gatt_characteristic_write_type.dart';
-import 'gatt_descriptor.dart';
-import 'gatt_service.dart';
+import 'event_args.dart';
+import 'gatt.dart';
 import 'peripheral.dart';
 import 'uuid.dart';
 
@@ -99,4 +96,78 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
     GattDescriptor descriptor, {
     required Uint8List value,
   });
+}
+
+/// The discovered event arguments.
+base class DiscoveredEventArgs extends EventArgs {
+  /// The disvered peripheral.
+  final Peripheral peripheral;
+
+  /// The rssi of the peripheral.
+  final int rssi;
+
+  /// The advertisement of the peripheral.
+  final Advertisement advertisement;
+
+  /// Constructs a [DiscoveredEventArgs].
+  DiscoveredEventArgs(this.peripheral, this.rssi, this.advertisement);
+}
+
+/// The connection state cahnged event arguments.
+base class ConnectionStateChangedEventArgs extends EventArgs {
+  /// The peripheral which connection state changed.
+  final Peripheral peripheral;
+
+  /// The connection state.
+  final bool connectionState;
+
+  /// Constructs a [ConnectionStateChangedEventArgs].
+  ConnectionStateChangedEventArgs(
+    this.peripheral,
+    this.connectionState,
+  );
+}
+
+/// The GATT characteristic notified event arguments.
+base class GattCharacteristicNotifiedEventArgs extends EventArgs {
+  /// The GATT characteristic which notified.
+  final GattCharacteristic characteristic;
+
+  /// The notified value.
+  final Uint8List value;
+
+  /// Constructs a [GattCharacteristicNotifiedEventArgs].
+  GattCharacteristicNotifiedEventArgs(
+    this.characteristic,
+    this.value,
+  );
+}
+
+/// Platform-specific implementations should implement this class to support [BaseCentralManager].
+abstract base class BaseCentralManager extends BaseBluetoothLowEnergyManager
+    implements CentralManager {
+  static final Object _token = Object();
+
+  static BaseCentralManager? _instance;
+
+  /// The default instance of [BaseCentralManager] to use.
+  static BaseCentralManager get instance {
+    final instance = _instance;
+    if (instance == null) {
+      throw UnimplementedError(
+          'CentralManager is not implemented on this platform.');
+    }
+    return instance;
+  }
+
+  /// Platform-specific implementations should set this with their own
+  /// platform-specific class that extends [BaseCentralManager] when
+  /// they register themselves.
+  static set instance(BaseCentralManager instance) {
+    PlatformInterface.verifyToken(instance, _token);
+    _instance = instance;
+  }
+
+  /// Constructs a [BaseCentralManager].
+  BaseCentralManager() : super(token: _token);
 }

@@ -1,14 +1,12 @@
 import 'dart:typed_data';
 
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+
 import 'advertisement.dart';
-import 'base_peripheral_manager.dart';
 import 'bluetooth_low_energy_manager.dart';
 import 'central.dart';
-import 'gatt_characteristic.dart';
-import 'gatt_characteristic_notify_state_changed_event_args.dart';
-import 'gatt_characteristic_read_event_args.dart';
-import 'gatt_characteristic_written_event_args.dart';
-import 'gatt_service.dart';
+import 'event_args.dart';
+import 'gatt.dart';
 
 /// An object that manages and advertises peripheral services exposed by this app.
 abstract interface class PeripheralManager
@@ -61,4 +59,90 @@ abstract interface class PeripheralManager
     required Uint8List value,
     Central? central,
   });
+}
+
+/// The GATT characteristic written event arguments.
+base class GattCharacteristicReadEventArgs extends EventArgs {
+  /// The central which read this characteristic.
+  final Central central;
+
+  /// The GATT characteristic which value is read.
+  final GattCharacteristic characteristic;
+
+  /// The value.
+  final Uint8List value;
+
+  /// Constructs a [GattCharacteristicReadEventArgs].
+  GattCharacteristicReadEventArgs(
+    this.central,
+    this.characteristic,
+    this.value,
+  );
+}
+
+/// The GATT characteristic written event arguments.
+base class GattCharacteristicWrittenEventArgs extends EventArgs {
+  /// The central which wrote this characteristic.
+  final Central central;
+
+  /// The GATT characteristic which value is written.
+  final GattCharacteristic characteristic;
+
+  /// The value.
+  final Uint8List value;
+
+  /// Constructs a [GattCharacteristicWrittenEventArgs].
+  GattCharacteristicWrittenEventArgs(
+    this.central,
+    this.characteristic,
+    this.value,
+  );
+}
+
+/// The GATT characteristic notify state changed event arguments.
+base class GattCharacteristicNotifyStateChangedEventArgs extends EventArgs {
+  /// The central which set this notify state.
+  final Central central;
+
+  /// The GATT characteristic which notify state changed.
+  final GattCharacteristic characteristic;
+
+  /// The notify state.
+  final bool state;
+
+  /// Constructs a [GattCharacteristicNotifyStateChangedEventArgs].
+  GattCharacteristicNotifyStateChangedEventArgs(
+    this.central,
+    this.characteristic,
+    this.state,
+  );
+}
+
+/// Platform-specific implementations should implement this class to support [BasePeripheralManager].
+abstract base class BasePeripheralManager extends BaseBluetoothLowEnergyManager
+    implements PeripheralManager {
+  static final Object _token = Object();
+
+  static BasePeripheralManager? _instance;
+
+  /// The default instance of [BasePeripheralManager] to use.
+  static BasePeripheralManager get instance {
+    final instance = _instance;
+    if (instance == null) {
+      throw UnimplementedError(
+          'PeripheralManager is not implemented on this platform.');
+    }
+    return instance;
+  }
+
+  /// Platform-specific implementations should set this with their own
+  /// platform-specific class that extends [BasePeripheralManager] when
+  /// they register themselves.
+  static set instance(BasePeripheralManager instance) {
+    PlatformInterface.verifyToken(instance, _token);
+    _instance = instance;
+  }
+
+  /// Constructs a [BasePeripheralManager].
+  BasePeripheralManager() : super(token: _token);
 }

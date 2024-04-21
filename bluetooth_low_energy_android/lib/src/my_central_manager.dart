@@ -3,14 +3,15 @@ import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
-import 'my_channels.dart';
+import 'my_api.dart';
+import 'my_api.g.dart';
 import 'my_gatt_characteristic.dart';
 import 'my_gatt_descriptor.dart';
 import 'my_peripheral.dart';
 
 base class MyCentralManager extends BaseCentralManager
-    implements MyCentralManagerEventChannel {
-  final MyCentralManagerMessageChannel _channel;
+    implements MyCentralManagerFlutterAPI {
+  final MyCentralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
   final StreamController<DiscoveredEventArgs> _discoveredController;
@@ -26,7 +27,7 @@ base class MyCentralManager extends BaseCentralManager
   BluetoothLowEnergyState _state;
 
   MyCentralManager()
-      : _channel = MyCentralManagerMessageChannel(),
+      : _api = MyCentralManagerHostAPI(),
         _stateChangedController = StreamController.broadcast(),
         _discoveredController = StreamController.broadcast(),
         _connectionStateChangedController = StreamController.broadcast(),
@@ -51,14 +52,14 @@ base class MyCentralManager extends BaseCentralManager
   @override
   void initialize() async {
     logger.info('initialize');
-    MyCentralManagerEventChannel.setUp(this);
-    await _channel.initialize();
+    MyCentralManagerFlutterAPI.setUp(this);
+    await _api.initialize();
   }
 
   @override
   Future<void> authorize() async {
     logger.info('authorize');
-    await _channel.authorize();
+    await _api.authorize();
   }
 
   @override
@@ -74,19 +75,19 @@ base class MyCentralManager extends BaseCentralManager
     logger.info('startDiscovery');
     final serviceUUIDsArgs =
         serviceUUIDs?.map((uuid) => uuid.toArgs()).toList() ?? [];
-    await _channel.startDiscovery(serviceUUIDsArgs);
+    await _api.startDiscovery(serviceUUIDsArgs);
   }
 
   @override
   Future<void> stopDiscovery() async {
     logger.info('stopDiscovery');
-    await _channel.stopDiscovery();
+    await _api.stopDiscovery();
   }
 
   @override
   Future<List<Peripheral>> retrieveConnectedPeripherals() async {
     logger.info('retrieveConnectedPeripherals');
-    final peripheralsArgs = await _channel.retrieveConnectedPeripherals();
+    final peripheralsArgs = await _api.retrieveConnectedPeripherals();
     final peripherals = peripheralsArgs.cast<MyPeripheralArgs>().map((args) {
       final peripheral = _peripherals.putIfAbsent(
         args.addressArgs,
@@ -104,7 +105,7 @@ base class MyCentralManager extends BaseCentralManager
     }
     final addressArgs = peripheral.address;
     logger.info('connect: $addressArgs');
-    await _channel.connect(addressArgs);
+    await _api.connect(addressArgs);
   }
 
   @override
@@ -114,7 +115,7 @@ base class MyCentralManager extends BaseCentralManager
     }
     final addressArgs = peripheral.address;
     logger.info('disconnect: $addressArgs');
-    await _channel.disconnect(addressArgs);
+    await _api.disconnect(addressArgs);
   }
 
   @override
@@ -125,7 +126,7 @@ base class MyCentralManager extends BaseCentralManager
     final addressArgs = peripheral.address;
     final mtuArgs = mtu;
     logger.info('requestMTU: $addressArgs - $mtuArgs');
-    final size = await _channel.requestMTU(addressArgs, mtuArgs);
+    final size = await _api.requestMTU(addressArgs, mtuArgs);
     return size;
   }
 
@@ -136,7 +137,7 @@ base class MyCentralManager extends BaseCentralManager
     }
     final addressArgs = peripheral.address;
     logger.info('readRSSI: $addressArgs');
-    final rssi = await _channel.readRSSI(addressArgs);
+    final rssi = await _api.readRSSI(addressArgs);
     return rssi;
   }
 
@@ -147,7 +148,7 @@ base class MyCentralManager extends BaseCentralManager
     }
     final addressArgs = peripheral.address;
     logger.info('discoverServices: $addressArgs');
-    final servicesArgs = await _channel.discoverServices(addressArgs);
+    final servicesArgs = await _api.discoverServices(addressArgs);
     final services = servicesArgs
         .cast<MyGattServiceArgs>()
         .map((args) => args.toService(peripheral))
@@ -172,7 +173,7 @@ base class MyCentralManager extends BaseCentralManager
     final addressArgs = peripheral.address;
     final hashCodeArgs = characteristic.hashCode;
     logger.info('readCharacteristic: $addressArgs.$hashCodeArgs');
-    final value = await _channel.readCharacteristic(addressArgs, hashCodeArgs);
+    final value = await _api.readCharacteristic(addressArgs, hashCodeArgs);
     return value;
   }
 
@@ -196,7 +197,7 @@ base class MyCentralManager extends BaseCentralManager
     if (type == GattCharacteristicWriteType.withResponse) {
       logger.info(
           'writeCharacteristic: $addressArgs.$hashCodeArgs - $trimmedValueArgs, $typeArgs');
-      await _channel.writeCharacteristic(
+      await _api.writeCharacteristic(
         addressArgs,
         hashCodeArgs,
         trimmedValueArgs,
@@ -213,7 +214,7 @@ base class MyCentralManager extends BaseCentralManager
             : trimmedValueArgs.sublist(start);
         logger.info(
             'writeCharacteristic: $addressArgs.$hashCodeArgs - $fragmentedValueArgs, $typeArgs');
-        await _channel.writeCharacteristic(
+        await _api.writeCharacteristic(
           addressArgs,
           hashCodeArgs,
           fragmentedValueArgs,
@@ -243,7 +244,7 @@ base class MyCentralManager extends BaseCentralManager
     final stateNumberArgs = stateArgs.index;
     logger.info(
         'setCharacteristicNotifyState: $addressArgs.$hashCodeArgs - $stateArgs');
-    await _channel.setCharacteristicNotifyState(
+    await _api.setCharacteristicNotifyState(
       addressArgs,
       hashCodeArgs,
       stateNumberArgs,
@@ -259,7 +260,7 @@ base class MyCentralManager extends BaseCentralManager
     final addressArgs = peripheral.address;
     final hashCodeArgs = descriptor.hashCode;
     logger.info('readDescriptor: $addressArgs.$hashCodeArgs');
-    final value = await _channel.readDescriptor(addressArgs, hashCodeArgs);
+    final value = await _api.readDescriptor(addressArgs, hashCodeArgs);
     return value;
   }
 
@@ -277,7 +278,7 @@ base class MyCentralManager extends BaseCentralManager
     final trimmedValueArgs = value.trimGATT();
     logger.info(
         'writeDescriptor: $addressArgs.$hashCodeArgs - $trimmedValueArgs');
-    await _channel.writeDescriptor(addressArgs, hashCodeArgs, trimmedValueArgs);
+    await _api.writeDescriptor(addressArgs, hashCodeArgs, trimmedValueArgs);
   }
 
   @override

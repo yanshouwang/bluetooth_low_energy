@@ -1,4 +1,3 @@
-package dev.yanshouwang.bluetooth_low_energy_android
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice

@@ -287,7 +287,7 @@ data class MyGattServiceArgs (
 }
 
 @Suppress("UNCHECKED_CAST")
-private object MyCentralManagerMessageChannelCodec : StandardMessageCodec() {
+private object MyCentralManagerHostAPICodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
       128.toByte() -> {
@@ -337,7 +337,7 @@ private object MyCentralManagerMessageChannelCodec : StandardMessageCodec() {
 }
 
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
-interface MyCentralManagerMessageChannel {
+interface MyCentralManagerHostAPI {
   fun initialize()
   fun authorize()
   fun startDiscovery(serviceUUIDsArgs: List<String>, callback: (Result<Unit>) -> Unit)
@@ -355,16 +355,16 @@ interface MyCentralManagerMessageChannel {
   fun writeDescriptor(addressArgs: String, hashCodeArgs: Long, valueArgs: ByteArray, callback: (Result<Unit>) -> Unit)
 
   companion object {
-    /** The codec used by MyCentralManagerMessageChannel. */
+    /** The codec used by MyCentralManagerHostAPI. */
     val codec: MessageCodec<Any?> by lazy {
-      MyCentralManagerMessageChannelCodec
+      MyCentralManagerHostAPICodec
     }
-    /** Sets up an instance of `MyCentralManagerMessageChannel` to handle messages through the `binaryMessenger`. */
+    /** Sets up an instance of `MyCentralManagerHostAPI` to handle messages through the `binaryMessenger`. */
     @Suppress("UNCHECKED_CAST")
-    fun setUp(binaryMessenger: BinaryMessenger, api: MyCentralManagerMessageChannel?, messageChannelSuffix: String = "") {
+    fun setUp(binaryMessenger: BinaryMessenger, api: MyCentralManagerHostAPI?, messageChannelSuffix: String = "") {
       val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.initialize$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.initialize$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             var wrapped: List<Any?>
@@ -381,7 +381,7 @@ interface MyCentralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.authorize$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.authorize$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             var wrapped: List<Any?>
@@ -398,7 +398,7 @@ interface MyCentralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.startDiscovery$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.startDiscovery$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -417,7 +417,7 @@ interface MyCentralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.stopDiscovery$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.stopDiscovery$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             var wrapped: List<Any?>
@@ -434,7 +434,7 @@ interface MyCentralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.connect$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.connect$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -453,7 +453,7 @@ interface MyCentralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.disconnect$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.disconnect$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -472,7 +472,7 @@ interface MyCentralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.retrieveConnectedPeripherals$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.retrieveConnectedPeripherals$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             var wrapped: List<Any?>
@@ -488,7 +488,7 @@ interface MyCentralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.requestMTU$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.requestMTU$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -509,7 +509,7 @@ interface MyCentralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.readRSSI$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.readRSSI$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -529,7 +529,7 @@ interface MyCentralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.discoverServices$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.discoverServices$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -549,7 +549,7 @@ interface MyCentralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.readCharacteristic$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.readCharacteristic$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -570,7 +570,7 @@ interface MyCentralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.writeCharacteristic$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.writeCharacteristic$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -592,7 +592,7 @@ interface MyCentralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.setCharacteristicNotifyState$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.setCharacteristicNotifyState$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -613,7 +613,7 @@ interface MyCentralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.readDescriptor$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.readDescriptor$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -634,7 +634,7 @@ interface MyCentralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.writeDescriptor$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.writeDescriptor$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -658,7 +658,7 @@ interface MyCentralManagerMessageChannel {
   }
 }
 @Suppress("UNCHECKED_CAST")
-private object MyCentralManagerEventChannelCodec : StandardMessageCodec() {
+private object MyCentralManagerFlutterAPICodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
       128.toByte() -> {
@@ -700,17 +700,17 @@ private object MyCentralManagerEventChannelCodec : StandardMessageCodec() {
 
 /** Generated class from Pigeon that represents Flutter messages that can be called from Kotlin. */
 @Suppress("UNCHECKED_CAST")
-class MyCentralManagerEventChannel(private val binaryMessenger: BinaryMessenger, private val messageChannelSuffix: String = "") {
+class MyCentralManagerFlutterAPI(private val binaryMessenger: BinaryMessenger, private val messageChannelSuffix: String = "") {
   companion object {
-    /** The codec used by MyCentralManagerEventChannel. */
+    /** The codec used by MyCentralManagerFlutterAPI. */
     val codec: MessageCodec<Any?> by lazy {
-      MyCentralManagerEventChannelCodec
+      MyCentralManagerFlutterAPICodec
     }
   }
   fun onStateChanged(stateNumberArgsArg: Long, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onStateChanged$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onStateChanged$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(stateNumberArgsArg)) {
       if (it is List<*>) {
@@ -727,7 +727,7 @@ class MyCentralManagerEventChannel(private val binaryMessenger: BinaryMessenger,
   fun onDiscovered(peripheralArgsArg: MyPeripheralArgs, rssiArgsArg: Long, advertisementArgsArg: MyAdvertisementArgs, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onDiscovered$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onDiscovered$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(peripheralArgsArg, rssiArgsArg, advertisementArgsArg)) {
       if (it is List<*>) {
@@ -744,7 +744,7 @@ class MyCentralManagerEventChannel(private val binaryMessenger: BinaryMessenger,
   fun onConnectionStateChanged(addressArgsArg: String, stateArgsArg: Boolean, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onConnectionStateChanged$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onConnectionStateChanged$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(addressArgsArg, stateArgsArg)) {
       if (it is List<*>) {
@@ -761,7 +761,7 @@ class MyCentralManagerEventChannel(private val binaryMessenger: BinaryMessenger,
   fun onMtuChanged(addressArgsArg: String, mtuArgsArg: Long, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onMtuChanged$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onMtuChanged$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(addressArgsArg, mtuArgsArg)) {
       if (it is List<*>) {
@@ -778,7 +778,7 @@ class MyCentralManagerEventChannel(private val binaryMessenger: BinaryMessenger,
   fun onCharacteristicNotified(addressArgsArg: String, hashCodeArgsArg: Long, valueArgsArg: ByteArray, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onCharacteristicNotified$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onCharacteristicNotified$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(addressArgsArg, hashCodeArgsArg, valueArgsArg)) {
       if (it is List<*>) {
@@ -794,7 +794,7 @@ class MyCentralManagerEventChannel(private val binaryMessenger: BinaryMessenger,
   }
 }
 @Suppress("UNCHECKED_CAST")
-private object MyPeripheralManagerMessageChannelCodec : StandardMessageCodec() {
+private object MyPeripheralManagerHostAPICodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
       128.toByte() -> {
@@ -853,7 +853,7 @@ private object MyPeripheralManagerMessageChannelCodec : StandardMessageCodec() {
 }
 
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
-interface MyPeripheralManagerMessageChannel {
+interface MyPeripheralManagerHostAPI {
   fun initialize()
   fun authorize()
   fun addService(serviceArgs: MyGattServiceArgs, callback: (Result<Unit>) -> Unit)
@@ -865,16 +865,16 @@ interface MyPeripheralManagerMessageChannel {
   fun notifyCharacteristicChanged(hashCodeArgs: Long, valueArgs: ByteArray, confirmArgs: Boolean, addressArgs: String, callback: (Result<Unit>) -> Unit)
 
   companion object {
-    /** The codec used by MyPeripheralManagerMessageChannel. */
+    /** The codec used by MyPeripheralManagerHostAPI. */
     val codec: MessageCodec<Any?> by lazy {
-      MyPeripheralManagerMessageChannelCodec
+      MyPeripheralManagerHostAPICodec
     }
-    /** Sets up an instance of `MyPeripheralManagerMessageChannel` to handle messages through the `binaryMessenger`. */
+    /** Sets up an instance of `MyPeripheralManagerHostAPI` to handle messages through the `binaryMessenger`. */
     @Suppress("UNCHECKED_CAST")
-    fun setUp(binaryMessenger: BinaryMessenger, api: MyPeripheralManagerMessageChannel?, messageChannelSuffix: String = "") {
+    fun setUp(binaryMessenger: BinaryMessenger, api: MyPeripheralManagerHostAPI?, messageChannelSuffix: String = "") {
       val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.initialize$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.initialize$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             var wrapped: List<Any?>
@@ -891,7 +891,7 @@ interface MyPeripheralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.authorize$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.authorize$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             var wrapped: List<Any?>
@@ -908,7 +908,7 @@ interface MyPeripheralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.addService$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.addService$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -927,7 +927,7 @@ interface MyPeripheralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.removeService$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.removeService$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -946,7 +946,7 @@ interface MyPeripheralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.clearServices$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.clearServices$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             var wrapped: List<Any?>
@@ -963,7 +963,7 @@ interface MyPeripheralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.startAdvertising$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.startAdvertising$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -982,7 +982,7 @@ interface MyPeripheralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.stopAdvertising$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.stopAdvertising$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             var wrapped: List<Any?>
@@ -999,7 +999,7 @@ interface MyPeripheralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.sendResponse$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.sendResponse$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -1022,7 +1022,7 @@ interface MyPeripheralManagerMessageChannel {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.notifyCharacteristicChanged$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.notifyCharacteristicChanged$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -1047,7 +1047,7 @@ interface MyPeripheralManagerMessageChannel {
   }
 }
 @Suppress("UNCHECKED_CAST")
-private object MyPeripheralManagerEventChannelCodec : StandardMessageCodec() {
+private object MyPeripheralManagerFlutterAPICodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
       128.toByte() -> {
@@ -1071,17 +1071,17 @@ private object MyPeripheralManagerEventChannelCodec : StandardMessageCodec() {
 
 /** Generated class from Pigeon that represents Flutter messages that can be called from Kotlin. */
 @Suppress("UNCHECKED_CAST")
-class MyPeripheralManagerEventChannel(private val binaryMessenger: BinaryMessenger, private val messageChannelSuffix: String = "") {
+class MyPeripheralManagerFlutterAPI(private val binaryMessenger: BinaryMessenger, private val messageChannelSuffix: String = "") {
   companion object {
-    /** The codec used by MyPeripheralManagerEventChannel. */
+    /** The codec used by MyPeripheralManagerFlutterAPI. */
     val codec: MessageCodec<Any?> by lazy {
-      MyPeripheralManagerEventChannelCodec
+      MyPeripheralManagerFlutterAPICodec
     }
   }
   fun onStateChanged(stateNumberArgsArg: Long, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onStateChanged$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onStateChanged$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(stateNumberArgsArg)) {
       if (it is List<*>) {
@@ -1098,7 +1098,7 @@ class MyPeripheralManagerEventChannel(private val binaryMessenger: BinaryMesseng
   fun onConnectionStateChanged(centralArgsArg: MyCentralArgs, stateArgsArg: Boolean, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onConnectionStateChanged$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onConnectionStateChanged$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(centralArgsArg, stateArgsArg)) {
       if (it is List<*>) {
@@ -1115,7 +1115,7 @@ class MyPeripheralManagerEventChannel(private val binaryMessenger: BinaryMesseng
   fun onMtuChanged(addressArgsArg: String, mtuArgsArg: Long, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onMtuChanged$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onMtuChanged$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(addressArgsArg, mtuArgsArg)) {
       if (it is List<*>) {
@@ -1132,7 +1132,7 @@ class MyPeripheralManagerEventChannel(private val binaryMessenger: BinaryMesseng
   fun onCharacteristicReadRequest(addressArgsArg: String, hashCodeArgsArg: Long, idArgsArg: Long, offsetArgsArg: Long, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicReadRequest$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicReadRequest$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(addressArgsArg, hashCodeArgsArg, idArgsArg, offsetArgsArg)) {
       if (it is List<*>) {
@@ -1149,7 +1149,7 @@ class MyPeripheralManagerEventChannel(private val binaryMessenger: BinaryMesseng
   fun onCharacteristicWriteRequest(addressArgsArg: String, hashCodeArgsArg: Long, idArgsArg: Long, offsetArgsArg: Long, valueArgsArg: ByteArray, preparedWriteArgsArg: Boolean, responseNeededArgsArg: Boolean, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicWriteRequest$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicWriteRequest$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(addressArgsArg, hashCodeArgsArg, idArgsArg, offsetArgsArg, valueArgsArg, preparedWriteArgsArg, responseNeededArgsArg)) {
       if (it is List<*>) {
@@ -1166,7 +1166,7 @@ class MyPeripheralManagerEventChannel(private val binaryMessenger: BinaryMesseng
   fun onCharacteristicNotifyStateChanged(addressArgsArg: String, hashCodeArgsArg: Long, stateNumberArgsArg: Long, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicNotifyStateChanged$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicNotifyStateChanged$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(addressArgsArg, hashCodeArgsArg, stateNumberArgsArg)) {
       if (it is List<*>) {
@@ -1183,7 +1183,7 @@ class MyPeripheralManagerEventChannel(private val binaryMessenger: BinaryMesseng
   fun onDescriptorReadRequest(addressArgsArg: String, hashCodeArgsArg: Long, idArgsArg: Long, offsetArgsArg: Long, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onDescriptorReadRequest$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorReadRequest$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(addressArgsArg, hashCodeArgsArg, idArgsArg, offsetArgsArg)) {
       if (it is List<*>) {
@@ -1200,7 +1200,7 @@ class MyPeripheralManagerEventChannel(private val binaryMessenger: BinaryMesseng
   fun onDescriptorWriteRequest(addressArgsArg: String, hashCodeArgsArg: Long, idArgsArg: Long, offsetArgsArg: Long, valueArgsArg: ByteArray, preparedWriteArgsArg: Boolean, responseNeededArgsArg: Boolean, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onDescriptorWriteRequest$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorWriteRequest$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(addressArgsArg, hashCodeArgsArg, idArgsArg, offsetArgsArg, valueArgsArg, preparedWriteArgsArg, responseNeededArgsArg)) {
       if (it is List<*>) {
@@ -1217,7 +1217,7 @@ class MyPeripheralManagerEventChannel(private val binaryMessenger: BinaryMesseng
   fun onExecuteWrite(addressArgsArg: String, idArgsArg: Long, executeArgsArg: Boolean, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onExecuteWrite$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onExecuteWrite$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(addressArgsArg, idArgsArg, executeArgsArg)) {
       if (it is List<*>) {

@@ -271,8 +271,8 @@ class MyGattServiceArgs {
   }
 }
 
-class _MyCentralManagerMessageChannelCodec extends StandardMessageCodec {
-  const _MyCentralManagerMessageChannelCodec();
+class _MyCentralManagerHostAPICodec extends StandardMessageCodec {
+  const _MyCentralManagerHostAPICodec();
   @override
   void writeValue(WriteBuffer buffer, Object? value) {
     if (value is MyGattCharacteristicArgs) {
@@ -309,21 +309,21 @@ class _MyCentralManagerMessageChannelCodec extends StandardMessageCodec {
   }
 }
 
-class MyCentralManagerMessageChannel {
-  /// Constructor for [MyCentralManagerMessageChannel].  The [binaryMessenger] named argument is
+class MyCentralManagerHostAPI {
+  /// Constructor for [MyCentralManagerHostAPI].  The [binaryMessenger] named argument is
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  MyCentralManagerMessageChannel({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
+  MyCentralManagerHostAPI({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
       : __pigeon_binaryMessenger = binaryMessenger,
         __pigeon_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
   final BinaryMessenger? __pigeon_binaryMessenger;
 
-  static const MessageCodec<Object?> pigeonChannelCodec = _MyCentralManagerMessageChannelCodec();
+  static const MessageCodec<Object?> pigeonChannelCodec = _MyCentralManagerHostAPICodec();
 
   final String __pigeon_messageChannelSuffix;
 
   Future<void> initialize() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.initialize$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.initialize$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -345,7 +345,7 @@ class MyCentralManagerMessageChannel {
   }
 
   Future<void> authorize() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.authorize$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.authorize$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -367,7 +367,7 @@ class MyCentralManagerMessageChannel {
   }
 
   Future<void> startDiscovery(List<String?> serviceUUIDsArgs) async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.startDiscovery$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.startDiscovery$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -389,7 +389,7 @@ class MyCentralManagerMessageChannel {
   }
 
   Future<void> stopDiscovery() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.stopDiscovery$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.stopDiscovery$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -411,7 +411,7 @@ class MyCentralManagerMessageChannel {
   }
 
   Future<void> connect(String addressArgs) async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.connect$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.connect$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -433,7 +433,7 @@ class MyCentralManagerMessageChannel {
   }
 
   Future<void> disconnect(String addressArgs) async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.disconnect$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.disconnect$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -455,7 +455,7 @@ class MyCentralManagerMessageChannel {
   }
 
   Future<List<MyPeripheralArgs?>> retrieveConnectedPeripherals() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.retrieveConnectedPeripherals$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.retrieveConnectedPeripherals$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -482,7 +482,7 @@ class MyCentralManagerMessageChannel {
   }
 
   Future<int> requestMTU(String addressArgs, int mtuArgs) async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.requestMTU$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.requestMTU$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -509,7 +509,7 @@ class MyCentralManagerMessageChannel {
   }
 
   Future<int> readRSSI(String addressArgs) async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.readRSSI$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.readRSSI$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -536,7 +536,7 @@ class MyCentralManagerMessageChannel {
   }
 
   Future<List<MyGattServiceArgs?>> discoverServices(String addressArgs) async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.discoverServices$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.discoverServices$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -563,7 +563,7 @@ class MyCentralManagerMessageChannel {
   }
 
   Future<Uint8List> readCharacteristic(String addressArgs, int hashCodeArgs) async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.readCharacteristic$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.readCharacteristic$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -590,7 +590,7 @@ class MyCentralManagerMessageChannel {
   }
 
   Future<void> writeCharacteristic(String addressArgs, int hashCodeArgs, Uint8List valueArgs, int typeNumberArgs) async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.writeCharacteristic$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.writeCharacteristic$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -612,7 +612,7 @@ class MyCentralManagerMessageChannel {
   }
 
   Future<void> setCharacteristicNotifyState(String addressArgs, int hashCodeArgs, int stateNumberArgs) async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.setCharacteristicNotifyState$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.setCharacteristicNotifyState$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -634,7 +634,7 @@ class MyCentralManagerMessageChannel {
   }
 
   Future<Uint8List> readDescriptor(String addressArgs, int hashCodeArgs) async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.readDescriptor$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.readDescriptor$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -661,7 +661,7 @@ class MyCentralManagerMessageChannel {
   }
 
   Future<void> writeDescriptor(String addressArgs, int hashCodeArgs, Uint8List valueArgs) async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerMessageChannel.writeDescriptor$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.writeDescriptor$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -683,8 +683,8 @@ class MyCentralManagerMessageChannel {
   }
 }
 
-class _MyCentralManagerEventChannelCodec extends StandardMessageCodec {
-  const _MyCentralManagerEventChannelCodec();
+class _MyCentralManagerFlutterAPICodec extends StandardMessageCodec {
+  const _MyCentralManagerFlutterAPICodec();
   @override
   void writeValue(WriteBuffer buffer, Object? value) {
     if (value is MyAdvertisementArgs) {
@@ -716,8 +716,8 @@ class _MyCentralManagerEventChannelCodec extends StandardMessageCodec {
   }
 }
 
-abstract class MyCentralManagerEventChannel {
-  static const MessageCodec<Object?> pigeonChannelCodec = _MyCentralManagerEventChannelCodec();
+abstract class MyCentralManagerFlutterAPI {
+  static const MessageCodec<Object?> pigeonChannelCodec = _MyCentralManagerFlutterAPICodec();
 
   void onStateChanged(int stateNumberArgs);
 
@@ -729,22 +729,22 @@ abstract class MyCentralManagerEventChannel {
 
   void onCharacteristicNotified(String addressArgs, int hashCodeArgs, Uint8List valueArgs);
 
-  static void setUp(MyCentralManagerEventChannel? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
+  static void setUp(MyCentralManagerFlutterAPI? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
       final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onStateChanged$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onStateChanged$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         __pigeon_channel.setMessageHandler(null);
       } else {
         __pigeon_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onStateChanged was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onStateChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_stateNumberArgs = (args[0] as int?);
           assert(arg_stateNumberArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onStateChanged was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onStateChanged was null, expected non-null int.');
           try {
             api.onStateChanged(arg_stateNumberArgs!);
             return wrapResponse(empty: true);
@@ -758,24 +758,24 @@ abstract class MyCentralManagerEventChannel {
     }
     {
       final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onDiscovered$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onDiscovered$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         __pigeon_channel.setMessageHandler(null);
       } else {
         __pigeon_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onDiscovered was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onDiscovered was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final MyPeripheralArgs? arg_peripheralArgs = (args[0] as MyPeripheralArgs?);
           assert(arg_peripheralArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onDiscovered was null, expected non-null MyPeripheralArgs.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onDiscovered was null, expected non-null MyPeripheralArgs.');
           final int? arg_rssiArgs = (args[1] as int?);
           assert(arg_rssiArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onDiscovered was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onDiscovered was null, expected non-null int.');
           final MyAdvertisementArgs? arg_advertisementArgs = (args[2] as MyAdvertisementArgs?);
           assert(arg_advertisementArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onDiscovered was null, expected non-null MyAdvertisementArgs.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onDiscovered was null, expected non-null MyAdvertisementArgs.');
           try {
             api.onDiscovered(arg_peripheralArgs!, arg_rssiArgs!, arg_advertisementArgs!);
             return wrapResponse(empty: true);
@@ -789,21 +789,21 @@ abstract class MyCentralManagerEventChannel {
     }
     {
       final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onConnectionStateChanged$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onConnectionStateChanged$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         __pigeon_channel.setMessageHandler(null);
       } else {
         __pigeon_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onConnectionStateChanged was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onConnectionStateChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final String? arg_addressArgs = (args[0] as String?);
           assert(arg_addressArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onConnectionStateChanged was null, expected non-null String.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onConnectionStateChanged was null, expected non-null String.');
           final bool? arg_stateArgs = (args[1] as bool?);
           assert(arg_stateArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onConnectionStateChanged was null, expected non-null bool.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onConnectionStateChanged was null, expected non-null bool.');
           try {
             api.onConnectionStateChanged(arg_addressArgs!, arg_stateArgs!);
             return wrapResponse(empty: true);
@@ -817,21 +817,21 @@ abstract class MyCentralManagerEventChannel {
     }
     {
       final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onMtuChanged$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onMtuChanged$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         __pigeon_channel.setMessageHandler(null);
       } else {
         __pigeon_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onMtuChanged was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onMtuChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final String? arg_addressArgs = (args[0] as String?);
           assert(arg_addressArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onMtuChanged was null, expected non-null String.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onMtuChanged was null, expected non-null String.');
           final int? arg_mtuArgs = (args[1] as int?);
           assert(arg_mtuArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onMtuChanged was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onMtuChanged was null, expected non-null int.');
           try {
             api.onMtuChanged(arg_addressArgs!, arg_mtuArgs!);
             return wrapResponse(empty: true);
@@ -845,24 +845,24 @@ abstract class MyCentralManagerEventChannel {
     }
     {
       final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onCharacteristicNotified$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onCharacteristicNotified$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         __pigeon_channel.setMessageHandler(null);
       } else {
         __pigeon_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onCharacteristicNotified was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onCharacteristicNotified was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final String? arg_addressArgs = (args[0] as String?);
           assert(arg_addressArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onCharacteristicNotified was null, expected non-null String.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onCharacteristicNotified was null, expected non-null String.');
           final int? arg_hashCodeArgs = (args[1] as int?);
           assert(arg_hashCodeArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onCharacteristicNotified was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onCharacteristicNotified was null, expected non-null int.');
           final Uint8List? arg_valueArgs = (args[2] as Uint8List?);
           assert(arg_valueArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerEventChannel.onCharacteristicNotified was null, expected non-null Uint8List.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onCharacteristicNotified was null, expected non-null Uint8List.');
           try {
             api.onCharacteristicNotified(arg_addressArgs!, arg_hashCodeArgs!, arg_valueArgs!);
             return wrapResponse(empty: true);
@@ -877,8 +877,8 @@ abstract class MyCentralManagerEventChannel {
   }
 }
 
-class _MyPeripheralManagerMessageChannelCodec extends StandardMessageCodec {
-  const _MyPeripheralManagerMessageChannelCodec();
+class _MyPeripheralManagerHostAPICodec extends StandardMessageCodec {
+  const _MyPeripheralManagerHostAPICodec();
   @override
   void writeValue(WriteBuffer buffer, Object? value) {
     if (value is MyAdvertisementArgs) {
@@ -920,21 +920,21 @@ class _MyPeripheralManagerMessageChannelCodec extends StandardMessageCodec {
   }
 }
 
-class MyPeripheralManagerMessageChannel {
-  /// Constructor for [MyPeripheralManagerMessageChannel].  The [binaryMessenger] named argument is
+class MyPeripheralManagerHostAPI {
+  /// Constructor for [MyPeripheralManagerHostAPI].  The [binaryMessenger] named argument is
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  MyPeripheralManagerMessageChannel({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
+  MyPeripheralManagerHostAPI({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
       : __pigeon_binaryMessenger = binaryMessenger,
         __pigeon_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
   final BinaryMessenger? __pigeon_binaryMessenger;
 
-  static const MessageCodec<Object?> pigeonChannelCodec = _MyPeripheralManagerMessageChannelCodec();
+  static const MessageCodec<Object?> pigeonChannelCodec = _MyPeripheralManagerHostAPICodec();
 
   final String __pigeon_messageChannelSuffix;
 
   Future<void> initialize() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.initialize$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.initialize$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -956,7 +956,7 @@ class MyPeripheralManagerMessageChannel {
   }
 
   Future<void> authorize() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.authorize$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.authorize$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -978,7 +978,7 @@ class MyPeripheralManagerMessageChannel {
   }
 
   Future<void> addService(MyGattServiceArgs serviceArgs) async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.addService$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.addService$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -1000,7 +1000,7 @@ class MyPeripheralManagerMessageChannel {
   }
 
   Future<void> removeService(int hashCodeArgs) async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.removeService$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.removeService$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -1022,7 +1022,7 @@ class MyPeripheralManagerMessageChannel {
   }
 
   Future<void> clearServices() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.clearServices$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.clearServices$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -1044,7 +1044,7 @@ class MyPeripheralManagerMessageChannel {
   }
 
   Future<void> startAdvertising(MyAdvertisementArgs advertisementArgs) async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.startAdvertising$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.startAdvertising$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -1066,7 +1066,7 @@ class MyPeripheralManagerMessageChannel {
   }
 
   Future<void> stopAdvertising() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.stopAdvertising$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.stopAdvertising$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -1088,7 +1088,7 @@ class MyPeripheralManagerMessageChannel {
   }
 
   Future<void> sendResponse(String addressArgs, int idArgs, int statusNumberArgs, int offsetArgs, Uint8List? valueArgs) async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.sendResponse$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.sendResponse$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -1110,7 +1110,7 @@ class MyPeripheralManagerMessageChannel {
   }
 
   Future<void> notifyCharacteristicChanged(int hashCodeArgs, Uint8List valueArgs, bool confirmArgs, String addressArgs) async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerMessageChannel.notifyCharacteristicChanged$__pigeon_messageChannelSuffix';
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.notifyCharacteristicChanged$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -1132,8 +1132,8 @@ class MyPeripheralManagerMessageChannel {
   }
 }
 
-class _MyPeripheralManagerEventChannelCodec extends StandardMessageCodec {
-  const _MyPeripheralManagerEventChannelCodec();
+class _MyPeripheralManagerFlutterAPICodec extends StandardMessageCodec {
+  const _MyPeripheralManagerFlutterAPICodec();
   @override
   void writeValue(WriteBuffer buffer, Object? value) {
     if (value is MyCentralArgs) {
@@ -1155,8 +1155,8 @@ class _MyPeripheralManagerEventChannelCodec extends StandardMessageCodec {
   }
 }
 
-abstract class MyPeripheralManagerEventChannel {
-  static const MessageCodec<Object?> pigeonChannelCodec = _MyPeripheralManagerEventChannelCodec();
+abstract class MyPeripheralManagerFlutterAPI {
+  static const MessageCodec<Object?> pigeonChannelCodec = _MyPeripheralManagerFlutterAPICodec();
 
   void onStateChanged(int stateNumberArgs);
 
@@ -1176,22 +1176,22 @@ abstract class MyPeripheralManagerEventChannel {
 
   void onExecuteWrite(String addressArgs, int idArgs, bool executeArgs);
 
-  static void setUp(MyPeripheralManagerEventChannel? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
+  static void setUp(MyPeripheralManagerFlutterAPI? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
       final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onStateChanged$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onStateChanged$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         __pigeon_channel.setMessageHandler(null);
       } else {
         __pigeon_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onStateChanged was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onStateChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final int? arg_stateNumberArgs = (args[0] as int?);
           assert(arg_stateNumberArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onStateChanged was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onStateChanged was null, expected non-null int.');
           try {
             api.onStateChanged(arg_stateNumberArgs!);
             return wrapResponse(empty: true);
@@ -1205,21 +1205,21 @@ abstract class MyPeripheralManagerEventChannel {
     }
     {
       final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onConnectionStateChanged$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onConnectionStateChanged$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         __pigeon_channel.setMessageHandler(null);
       } else {
         __pigeon_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onConnectionStateChanged was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onConnectionStateChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final MyCentralArgs? arg_centralArgs = (args[0] as MyCentralArgs?);
           assert(arg_centralArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onConnectionStateChanged was null, expected non-null MyCentralArgs.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onConnectionStateChanged was null, expected non-null MyCentralArgs.');
           final bool? arg_stateArgs = (args[1] as bool?);
           assert(arg_stateArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onConnectionStateChanged was null, expected non-null bool.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onConnectionStateChanged was null, expected non-null bool.');
           try {
             api.onConnectionStateChanged(arg_centralArgs!, arg_stateArgs!);
             return wrapResponse(empty: true);
@@ -1233,21 +1233,21 @@ abstract class MyPeripheralManagerEventChannel {
     }
     {
       final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onMtuChanged$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onMtuChanged$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         __pigeon_channel.setMessageHandler(null);
       } else {
         __pigeon_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onMtuChanged was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onMtuChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final String? arg_addressArgs = (args[0] as String?);
           assert(arg_addressArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onMtuChanged was null, expected non-null String.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onMtuChanged was null, expected non-null String.');
           final int? arg_mtuArgs = (args[1] as int?);
           assert(arg_mtuArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onMtuChanged was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onMtuChanged was null, expected non-null int.');
           try {
             api.onMtuChanged(arg_addressArgs!, arg_mtuArgs!);
             return wrapResponse(empty: true);
@@ -1261,27 +1261,27 @@ abstract class MyPeripheralManagerEventChannel {
     }
     {
       final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicReadRequest$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicReadRequest$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         __pigeon_channel.setMessageHandler(null);
       } else {
         __pigeon_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicReadRequest was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicReadRequest was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final String? arg_addressArgs = (args[0] as String?);
           assert(arg_addressArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicReadRequest was null, expected non-null String.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicReadRequest was null, expected non-null String.');
           final int? arg_hashCodeArgs = (args[1] as int?);
           assert(arg_hashCodeArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicReadRequest was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicReadRequest was null, expected non-null int.');
           final int? arg_idArgs = (args[2] as int?);
           assert(arg_idArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicReadRequest was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicReadRequest was null, expected non-null int.');
           final int? arg_offsetArgs = (args[3] as int?);
           assert(arg_offsetArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicReadRequest was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicReadRequest was null, expected non-null int.');
           try {
             api.onCharacteristicReadRequest(arg_addressArgs!, arg_hashCodeArgs!, arg_idArgs!, arg_offsetArgs!);
             return wrapResponse(empty: true);
@@ -1295,36 +1295,36 @@ abstract class MyPeripheralManagerEventChannel {
     }
     {
       final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicWriteRequest$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicWriteRequest$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         __pigeon_channel.setMessageHandler(null);
       } else {
         __pigeon_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicWriteRequest was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicWriteRequest was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final String? arg_addressArgs = (args[0] as String?);
           assert(arg_addressArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicWriteRequest was null, expected non-null String.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicWriteRequest was null, expected non-null String.');
           final int? arg_hashCodeArgs = (args[1] as int?);
           assert(arg_hashCodeArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicWriteRequest was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicWriteRequest was null, expected non-null int.');
           final int? arg_idArgs = (args[2] as int?);
           assert(arg_idArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicWriteRequest was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicWriteRequest was null, expected non-null int.');
           final int? arg_offsetArgs = (args[3] as int?);
           assert(arg_offsetArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicWriteRequest was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicWriteRequest was null, expected non-null int.');
           final Uint8List? arg_valueArgs = (args[4] as Uint8List?);
           assert(arg_valueArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicWriteRequest was null, expected non-null Uint8List.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicWriteRequest was null, expected non-null Uint8List.');
           final bool? arg_preparedWriteArgs = (args[5] as bool?);
           assert(arg_preparedWriteArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicWriteRequest was null, expected non-null bool.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicWriteRequest was null, expected non-null bool.');
           final bool? arg_responseNeededArgs = (args[6] as bool?);
           assert(arg_responseNeededArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicWriteRequest was null, expected non-null bool.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicWriteRequest was null, expected non-null bool.');
           try {
             api.onCharacteristicWriteRequest(arg_addressArgs!, arg_hashCodeArgs!, arg_idArgs!, arg_offsetArgs!, arg_valueArgs!, arg_preparedWriteArgs!, arg_responseNeededArgs!);
             return wrapResponse(empty: true);
@@ -1338,24 +1338,24 @@ abstract class MyPeripheralManagerEventChannel {
     }
     {
       final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicNotifyStateChanged$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicNotifyStateChanged$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         __pigeon_channel.setMessageHandler(null);
       } else {
         __pigeon_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicNotifyStateChanged was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicNotifyStateChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final String? arg_addressArgs = (args[0] as String?);
           assert(arg_addressArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicNotifyStateChanged was null, expected non-null String.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicNotifyStateChanged was null, expected non-null String.');
           final int? arg_hashCodeArgs = (args[1] as int?);
           assert(arg_hashCodeArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicNotifyStateChanged was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicNotifyStateChanged was null, expected non-null int.');
           final int? arg_stateNumberArgs = (args[2] as int?);
           assert(arg_stateNumberArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onCharacteristicNotifyStateChanged was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicNotifyStateChanged was null, expected non-null int.');
           try {
             api.onCharacteristicNotifyStateChanged(arg_addressArgs!, arg_hashCodeArgs!, arg_stateNumberArgs!);
             return wrapResponse(empty: true);
@@ -1369,27 +1369,27 @@ abstract class MyPeripheralManagerEventChannel {
     }
     {
       final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onDescriptorReadRequest$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorReadRequest$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         __pigeon_channel.setMessageHandler(null);
       } else {
         __pigeon_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onDescriptorReadRequest was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorReadRequest was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final String? arg_addressArgs = (args[0] as String?);
           assert(arg_addressArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onDescriptorReadRequest was null, expected non-null String.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorReadRequest was null, expected non-null String.');
           final int? arg_hashCodeArgs = (args[1] as int?);
           assert(arg_hashCodeArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onDescriptorReadRequest was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorReadRequest was null, expected non-null int.');
           final int? arg_idArgs = (args[2] as int?);
           assert(arg_idArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onDescriptorReadRequest was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorReadRequest was null, expected non-null int.');
           final int? arg_offsetArgs = (args[3] as int?);
           assert(arg_offsetArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onDescriptorReadRequest was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorReadRequest was null, expected non-null int.');
           try {
             api.onDescriptorReadRequest(arg_addressArgs!, arg_hashCodeArgs!, arg_idArgs!, arg_offsetArgs!);
             return wrapResponse(empty: true);
@@ -1403,36 +1403,36 @@ abstract class MyPeripheralManagerEventChannel {
     }
     {
       final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onDescriptorWriteRequest$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorWriteRequest$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         __pigeon_channel.setMessageHandler(null);
       } else {
         __pigeon_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onDescriptorWriteRequest was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorWriteRequest was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final String? arg_addressArgs = (args[0] as String?);
           assert(arg_addressArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onDescriptorWriteRequest was null, expected non-null String.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorWriteRequest was null, expected non-null String.');
           final int? arg_hashCodeArgs = (args[1] as int?);
           assert(arg_hashCodeArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onDescriptorWriteRequest was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorWriteRequest was null, expected non-null int.');
           final int? arg_idArgs = (args[2] as int?);
           assert(arg_idArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onDescriptorWriteRequest was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorWriteRequest was null, expected non-null int.');
           final int? arg_offsetArgs = (args[3] as int?);
           assert(arg_offsetArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onDescriptorWriteRequest was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorWriteRequest was null, expected non-null int.');
           final Uint8List? arg_valueArgs = (args[4] as Uint8List?);
           assert(arg_valueArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onDescriptorWriteRequest was null, expected non-null Uint8List.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorWriteRequest was null, expected non-null Uint8List.');
           final bool? arg_preparedWriteArgs = (args[5] as bool?);
           assert(arg_preparedWriteArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onDescriptorWriteRequest was null, expected non-null bool.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorWriteRequest was null, expected non-null bool.');
           final bool? arg_responseNeededArgs = (args[6] as bool?);
           assert(arg_responseNeededArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onDescriptorWriteRequest was null, expected non-null bool.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorWriteRequest was null, expected non-null bool.');
           try {
             api.onDescriptorWriteRequest(arg_addressArgs!, arg_hashCodeArgs!, arg_idArgs!, arg_offsetArgs!, arg_valueArgs!, arg_preparedWriteArgs!, arg_responseNeededArgs!);
             return wrapResponse(empty: true);
@@ -1446,24 +1446,24 @@ abstract class MyPeripheralManagerEventChannel {
     }
     {
       final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onExecuteWrite$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onExecuteWrite$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         __pigeon_channel.setMessageHandler(null);
       } else {
         __pigeon_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onExecuteWrite was null.');
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onExecuteWrite was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final String? arg_addressArgs = (args[0] as String?);
           assert(arg_addressArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onExecuteWrite was null, expected non-null String.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onExecuteWrite was null, expected non-null String.');
           final int? arg_idArgs = (args[1] as int?);
           assert(arg_idArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onExecuteWrite was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onExecuteWrite was null, expected non-null int.');
           final bool? arg_executeArgs = (args[2] as bool?);
           assert(arg_executeArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerEventChannel.onExecuteWrite was null, expected non-null bool.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onExecuteWrite was null, expected non-null bool.');
           try {
             api.onExecuteWrite(arg_addressArgs!, arg_idArgs!, arg_executeArgs!);
             return wrapResponse(empty: true);

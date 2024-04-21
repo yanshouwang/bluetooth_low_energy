@@ -1,12 +1,12 @@
-// Run with `dart run pigeon --input my_channels.dart`.
+// Run with `dart run pigeon --input pigeon.dart`.
 import 'package:pigeon/pigeon.dart';
 
 @ConfigurePigeon(
   PigeonOptions(
-    dartOut: 'lib/src/my_channels.g.dart',
+    dartOut: 'lib/src/my_api.g.dart',
     dartOptions: DartOptions(),
     kotlinOut:
-        'android/src/main/kotlin/dev/yanshouwang/bluetooth_low_energy_android/MyChannels.g.kt',
+        'android/src/main/kotlin/dev/yanshouwang/bluetooth_low_energy_android/MyAPI.g.kt',
     kotlinOptions: KotlinOptions(
       package: 'dev.yanshouwang.bluetooth_low_energy_android',
     ),
@@ -126,7 +126,7 @@ class MyGattServiceArgs {
 }
 
 @HostApi()
-abstract class MyCentralManagerMessageChannel {
+abstract class MyCentralManagerHostAPI {
   void initialize();
   void authorize();
   @async
@@ -169,7 +169,7 @@ abstract class MyCentralManagerMessageChannel {
 }
 
 @FlutterApi()
-abstract class MyCentralManagerEventChannel {
+abstract class MyCentralManagerFlutterAPI {
   void onStateChanged(int stateNumberArgs);
   void onDiscovered(
     MyPeripheralArgs peripheralArgs,
@@ -186,7 +186,7 @@ abstract class MyCentralManagerEventChannel {
 }
 
 @HostApi()
-abstract class MyPeripheralManagerMessageChannel {
+abstract class MyPeripheralManagerHostAPI {
   void initialize();
   void authorize();
   @async
@@ -213,7 +213,7 @@ abstract class MyPeripheralManagerMessageChannel {
 }
 
 @FlutterApi()
-abstract class MyPeripheralManagerEventChannel {
+abstract class MyPeripheralManagerFlutterAPI {
   void onStateChanged(int stateNumberArgs);
   void onConnectionStateChanged(MyCentralArgs centralArgs, bool stateArgs);
   void onMtuChanged(String addressArgs, int mtuArgs);

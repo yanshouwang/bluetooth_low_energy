@@ -16,7 +16,7 @@ void main() {
 void onStartUp() async {
   Logger.root.onRecord.listen(onLogRecord);
   // hierarchicalLoggingEnabled = true;
-  // CentralManager.instance.logLevel = Level.WARNING;
+  // centralManager.logLevel = Level.WARNING;
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
@@ -159,6 +159,7 @@ class ScannerView extends StatefulWidget {
 }
 
 class _ScannerViewState extends State<ScannerView> {
+  late final CentralManager centralManager;
   late final ValueNotifier<BluetoothLowEnergyState> state;
   late final ValueNotifier<bool> discovering;
   late final ValueNotifier<List<DiscoveredEventArgs>> discoveredEventArgs;
@@ -168,15 +169,16 @@ class _ScannerViewState extends State<ScannerView> {
   @override
   void initState() {
     super.initState();
+    centralManager = CentralManager();
     state = ValueNotifier(BluetoothLowEnergyState.unknown);
     discovering = ValueNotifier(false);
     discoveredEventArgs = ValueNotifier([]);
-    stateChangedSubscription = CentralManager.instance.stateChanged.listen(
+    stateChangedSubscription = centralManager.stateChanged.listen(
       (eventArgs) {
         state.value = eventArgs.state;
       },
     );
-    discoveredSubscription = CentralManager.instance.discovered.listen(
+    discoveredSubscription = centralManager.discovered.listen(
       (eventArgs) {
         final items = discoveredEventArgs.value;
         final i = items.indexWhere(
@@ -194,7 +196,7 @@ class _ScannerViewState extends State<ScannerView> {
   }
 
   void _initialize() async {
-    state.value = await CentralManager.instance.getState();
+    state.value = await centralManager.getState();
   }
 
   @override
@@ -239,12 +241,12 @@ class _ScannerViewState extends State<ScannerView> {
 
   Future<void> startDiscovery() async {
     discoveredEventArgs.value = [];
-    await CentralManager.instance.startDiscovery();
+    await centralManager.startDiscovery();
     discovering.value = true;
   }
 
   Future<void> stopDiscovery() async {
-    await CentralManager.instance.stopDiscovery();
+    await centralManager.stopDiscovery();
     discovering.value = false;
   }
 
@@ -390,6 +392,7 @@ class PeripheralView extends StatefulWidget {
 }
 
 class _PeripheralViewState extends State<PeripheralView> {
+  late final CentralManager centralManager;
   late final ValueNotifier<bool> connectionState;
   late final DiscoveredEventArgs eventArgs;
   late final ValueNotifier<List<GattService>> services;
@@ -406,6 +409,7 @@ class _PeripheralViewState extends State<PeripheralView> {
   void initState() {
     super.initState();
     eventArgs = widget.eventArgs;
+    centralManager = CentralManager();
     connectionState = ValueNotifier(false);
     services = ValueNotifier([]);
     characteristics = ValueNotifier([]);
@@ -415,7 +419,7 @@ class _PeripheralViewState extends State<PeripheralView> {
     logs = ValueNotifier([]);
     writeController = TextEditingController();
     connectionStateChangedSubscription =
-        CentralManager.instance.connectionStateChanged.listen(
+        centralManager.connectionStateChanged.listen(
       (eventArgs) {
         if (eventArgs.peripheral != this.eventArgs.peripheral) {
           return;
@@ -432,7 +436,7 @@ class _PeripheralViewState extends State<PeripheralView> {
       },
     );
     characteristicNotifiedSubscription =
-        CentralManager.instance.characteristicNotified.listen(
+        centralManager.characteristicNotified.listen(
       (eventArgs) {
         // final characteristic = this.characteristic.value;
         // if (eventArgs.characteristic != characteristic) {
@@ -454,7 +458,7 @@ class _PeripheralViewState extends State<PeripheralView> {
       onPopInvoked: (didPop) async {
         if (connectionState.value) {
           final peripheral = eventArgs.peripheral;
-          await CentralManager.instance.disconnect(peripheral);
+          await centralManager.disconnect(peripheral);
         }
       },
       child: Scaffold(
@@ -476,11 +480,11 @@ class _PeripheralViewState extends State<PeripheralView> {
               onPressed: () async {
                 final peripheral = eventArgs.peripheral;
                 if (state) {
-                  await CentralManager.instance.disconnect(peripheral);
+                  await centralManager.disconnect(peripheral);
                 } else {
-                  await CentralManager.instance.connect(peripheral);
+                  await centralManager.connect(peripheral);
                   services.value =
-                      await CentralManager.instance.discoverGATT(peripheral);
+                      await centralManager.discoverGATT(peripheral);
                 }
               },
               child: Text(state ? 'DISCONNECT' : 'CONNECT'),
@@ -674,7 +678,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                         ElevatedButton(
                           onPressed: characteristic != null && canNotify
                               ? () async {
-                                  await CentralManager.instance
+                                  await centralManager
                                       .setCharacteristicNotifyState(
                                     characteristic,
                                     state: true,
@@ -687,7 +691,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                         ElevatedButton(
                           onPressed: characteristic != null && canRead
                               ? () async {
-                                  final value = await CentralManager.instance
+                                  final value = await centralManager
                                       .readCharacteristic(characteristic);
                                   const type = LogType.read;
                                   final log = Log(type, value);
@@ -790,8 +794,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                                   final fragmentedValue = end < value.length
                                       ? value.sublist(start, end)
                                       : value.sublist(start);
-                                  await CentralManager.instance
-                                      .writeCharacteristic(
+                                  await centralManager.writeCharacteristic(
                                     characteristic,
                                     value: fragmentedValue,
                                     type: type,
@@ -844,6 +847,7 @@ class AdvertiserView extends StatefulWidget {
 
 class _AdvertiserViewState extends State<AdvertiserView>
     with SingleTickerProviderStateMixin {
+  late final PeripheralManager peripheralManager;
   late final ValueNotifier<BluetoothLowEnergyState> state;
   late final ValueNotifier<bool> advertising;
   late final ValueNotifier<List<Log>> logs;
@@ -855,16 +859,17 @@ class _AdvertiserViewState extends State<AdvertiserView>
   @override
   void initState() {
     super.initState();
+    peripheralManager = PeripheralManager();
     state = ValueNotifier(BluetoothLowEnergyState.unknown);
     advertising = ValueNotifier(false);
     logs = ValueNotifier([]);
-    stateChangedSubscription = PeripheralManager.instance.stateChanged.listen(
+    stateChangedSubscription = peripheralManager.stateChanged.listen(
       (eventArgs) {
         state.value = eventArgs.state;
       },
     );
     characteristicReadSubscription =
-        PeripheralManager.instance.characteristicRead.listen(
+        peripheralManager.characteristicRead.listen(
       (eventArgs) async {
         final central = eventArgs.central;
         final characteristic = eventArgs.characteristic;
@@ -881,7 +886,7 @@ class _AdvertiserViewState extends State<AdvertiserView>
       },
     );
     characteristicWrittenSubscription =
-        PeripheralManager.instance.characteristicWritten.listen(
+        peripheralManager.characteristicWritten.listen(
       (eventArgs) async {
         final central = eventArgs.central;
         final characteristic = eventArgs.characteristic;
@@ -898,7 +903,7 @@ class _AdvertiserViewState extends State<AdvertiserView>
       },
     );
     characteristicNotifyStateChangedSubscription =
-        PeripheralManager.instance.characteristicNotifyStateChanged.listen(
+        peripheralManager.characteristicNotifyStateChanged.listen(
       (eventArgs) async {
         final central = eventArgs.central;
         final characteristic = eventArgs.characteristic;
@@ -916,7 +921,7 @@ class _AdvertiserViewState extends State<AdvertiserView>
         if (state) {
           final elements = List.generate(2000, (i) => i % 256);
           final value = Uint8List.fromList(elements);
-          await PeripheralManager.instance.writeCharacteristic(
+          await peripheralManager.writeCharacteristic(
             characteristic,
             value: value,
             central: central,
@@ -928,7 +933,7 @@ class _AdvertiserViewState extends State<AdvertiserView>
   }
 
   void _initialize() async {
-    state.value = await PeripheralManager.instance.getState();
+    state.value = await peripheralManager.getState();
   }
 
   @override
@@ -972,7 +977,7 @@ class _AdvertiserViewState extends State<AdvertiserView>
   }
 
   Future<void> startAdvertising() async {
-    await PeripheralManager.instance.clearServices();
+    await peripheralManager.clearServices();
     final elements = List.generate(1000, (i) => i % 256);
     final value = Uint8List.fromList(elements);
     final service = GattService(
@@ -1022,7 +1027,7 @@ class _AdvertiserViewState extends State<AdvertiserView>
         ),
       ],
     );
-    await PeripheralManager.instance.addService(service);
+    await peripheralManager.addService(service);
     final advertisement = Advertisement(
       name: 'le12138',
       manufacturerSpecificData: ManufacturerSpecificData(
@@ -1030,12 +1035,12 @@ class _AdvertiserViewState extends State<AdvertiserView>
         data: Uint8List.fromList([0x01, 0x02, 0x03]),
       ),
     );
-    await PeripheralManager.instance.startAdvertising(advertisement);
+    await peripheralManager.startAdvertising(advertisement);
     advertising.value = true;
   }
 
   Future<void> stopAdvertising() async {
-    await PeripheralManager.instance.stopAdvertising();
+    await peripheralManager.stopAdvertising();
     advertising.value = false;
   }
 

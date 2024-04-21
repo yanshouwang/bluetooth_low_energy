@@ -14,14 +14,14 @@ class BluetoothLowEnergyAndroidPlugin : FlutterPlugin, ActivityAware {
         val binaryMessenger = binding.binaryMessenger
         mCentralManager = MyCentralManager(context, binaryMessenger)
         mPeripheralManager = MyPeripheralManager(context, binaryMessenger)
-        MyCentralManagerMessageChannel.setUp(binaryMessenger, mCentralManager)
-        MyPeripheralManagerMessageChannel.setUp(binaryMessenger, mPeripheralManager)
+        MyCentralManagerHostAPI.setUp(binaryMessenger, mCentralManager)
+        MyPeripheralManagerHostAPI.setUp(binaryMessenger, mPeripheralManager)
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         val binaryMessenger = binding.binaryMessenger
-        MyCentralManagerMessageChannel.setUp(binaryMessenger, null)
-        MyPeripheralManagerMessageChannel.setUp(binaryMessenger, null)
+        MyCentralManagerHostAPI.setUp(binaryMessenger, null)
+        MyPeripheralManagerHostAPI.setUp(binaryMessenger, null)
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
