@@ -7,7 +7,7 @@ import 'my_api.dart';
 import 'my_gatt_characteristic2.dart';
 import 'my_gatt_descriptor2.dart';
 
-class MyCentralManager extends CentralManagerAPI
+base class MyCentralManager extends BaseCentralManager
     implements MyCentralManagerFlutterApi {
   final MyCentralManagerHostApi _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>

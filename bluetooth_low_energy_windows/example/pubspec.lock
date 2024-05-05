@@ -13,10 +13,10 @@ packages:
     dependency: "direct main"
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: "5af74eb8f97a896dfdbcff2da284d4fe5b4e2e49ebb2f46f826ac1810f66e4d7"
+      sha256: "35c4a8eae74ba1b72b456ab808a6453b1d1c7830ec44ad665bbcb821d6a2f9cc"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.2"
+    version: "6.0.0-dev.2"
   bluetooth_low_energy_windows:
     dependency: "direct main"
     description:
@@ -116,6 +116,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  hybrid_logging:
+    dependency: transitive
+    description:
+      name: hybrid_logging
+      sha256: "54248d52ce68c14702a42fbc4083bac5c6be30f6afad8a41be4bbadd197b8af5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   integration_test:
     dependency: "direct dev"
     description: flutter
@@ -161,14 +169,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
-  log_service:
-    dependency: transitive
-    description:
-      name: log_service
-      sha256: "21124936899e227d1779268077921d46d57456e2592d1562e455be273594e2e4"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
   logging:
     dependency: transitive
     description:
