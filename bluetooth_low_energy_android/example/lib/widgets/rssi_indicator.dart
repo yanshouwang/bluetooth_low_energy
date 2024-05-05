@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class RssiWidget extends StatelessWidget {
+class RssiIndicator extends StatelessWidget {
   final int rssi;
 
-  const RssiWidget(
+  const RssiIndicator(
     this.rssi, {
     super.key,
   });

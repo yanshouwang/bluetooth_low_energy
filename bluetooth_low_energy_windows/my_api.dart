@@ -1,10 +1,10 @@
+// Run with `dart run pigeon --input my_api.dart`.
 import 'package:pigeon/pigeon.dart';
 
 @ConfigurePigeon(
   PigeonOptions(
     dartOut: 'lib/src/my_api.g.dart',
     dartOptions: DartOptions(),
-    dartPackageName: 'bluetooth_low_energy_windows',
     cppHeaderOut: 'windows/my_api.g.h',
     cppSourceOut: 'windows/my_api.g.cpp',
     cppOptions: CppOptions(
@@ -110,10 +110,9 @@ class MyGattServiceArgs {
 }
 
 @HostApi()
-abstract class MyCentralManagerHostApi {
-  @async
-  void setUp();
-  void startDiscovery();
+abstract class MyCentralManagerHostAPI {
+  void initialize();
+  void startDiscovery(List<String> serviceUUIDsArgs);
   void stopDiscovery();
   @async
   void connect(int addressArgs);
@@ -152,7 +151,7 @@ abstract class MyCentralManagerHostApi {
 }
 
 @FlutterApi()
-abstract class MyCentralManagerFlutterApi {
+abstract class MyCentralManagerFlutterAPI {
   void onStateChanged(int stateNumberArgs);
   void onDiscovered(
     MyPeripheralArgs peripheralArgs,
@@ -171,9 +170,8 @@ abstract class MyCentralManagerFlutterApi {
 }
 
 @HostApi()
-abstract class MyPeripheralManagerHostApi {
-  @async
-  void setUp();
+abstract class MyPeripheralManagerHostAPI {
+  void initialize();
   @async
   void addService(MyGattServiceArgs serviceArgs);
   void removeService(int handleArgs);
@@ -201,7 +199,7 @@ abstract class MyPeripheralManagerHostApi {
 }
 
 @FlutterApi()
-abstract class MyPeripheralManagerFlutterApi {
+abstract class MyPeripheralManagerFlutterAPI {
   void onStateChanged(int stateNumberArgs);
   void onReadCharacteristicCommandReceived(
     MyCentralArgs centralArgs,

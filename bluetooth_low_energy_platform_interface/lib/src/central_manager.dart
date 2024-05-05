@@ -45,6 +45,8 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   Future<void> stopDiscovery();
 
   /// Returns a list of the peripherals connected to the system.
+  ///
+  /// This method throws [UnsupportedError] on Windows.
   Future<List<Peripheral>> retrieveConnectedPeripherals();
 
   /// Establishes a local connection to a peripheral.
@@ -64,7 +66,7 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
 
   /// Retrieves the current RSSI value for the peripheral while connected to the central manager.
   ///
-  /// Throws [UnsupportedError] on Windows.
+  /// This method throws [UnsupportedError] on Windows.
   Future<int> readRSSI(Peripheral peripheral);
 
   /// Discovers the GATT services, characteristics and descriptors of the peripheral.

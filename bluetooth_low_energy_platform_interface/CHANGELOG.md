@@ -1,3 +1,8 @@
+## 6.0.0-dev.3
+
+* Remove `abstract` keyword from `Central` class.
+* Remove `abstract` keyword from `Peripheral` class.
+
 ## 6.0.0-dev.2
 
 * Remove `BluetoothLowEnergyManager#authorize` method.

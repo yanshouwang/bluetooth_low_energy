@@ -4,12 +4,13 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 import 'package:flutter/foundation.dart';
 
 import 'my_api.dart';
-import 'my_gatt_characteristic2.dart';
-import 'my_gatt_descriptor2.dart';
+import 'my_api.g.dart';
+import 'my_gatt.dart';
+import 'my_peripheral.dart';
 
 base class MyCentralManager extends BaseCentralManager
-    implements MyCentralManagerFlutterApi {
-  final MyCentralManagerHostApi _api;
+    implements MyCentralManagerFlutterAPI {
+  final MyCentralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
   final StreamController<DiscoveredEventArgs> _discoveredController;
@@ -18,13 +19,13 @@ base class MyCentralManager extends BaseCentralManager
   final StreamController<GattCharacteristicNotifiedEventArgs>
       _characteristicNotifiedController;
 
-  final Map<int, MyPeripheral> _peripherals;
-  final Map<int, Map<int, MyGattCharacteristic2>> _characteristics;
+  final Map<int, Peripheral> _peripherals;
+  final Map<int, Map<int, MyGattCharacteristic>> _characteristics;
 
   BluetoothLowEnergyState _state;
 
   MyCentralManager()
-      : _api = MyCentralManagerHostApi(),
+      : _api = MyCentralManagerHostAPI(),
         _stateChangedController = StreamController.broadcast(),
         _discoveredController = StreamController.broadcast(),
         _connectionStateChangedController = StreamController.broadcast(),
@@ -33,6 +34,8 @@ base class MyCentralManager extends BaseCentralManager
         _characteristics = {},
         _state = BluetoothLowEnergyState.unknown;
 
+  @override
+  BluetoothLowEnergyState get state => _state;
   @override
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
@@ -46,22 +49,20 @@ base class MyCentralManager extends BaseCentralManager
       _characteristicNotifiedController.stream;
 
   @override
-  Future<void> setUp() async {
-    logger.info('setUp');
-    await _api.setUp();
-    MyCentralManagerFlutterApi.setup(this);
+  Future<void> initialize() async {
+    logger.info('initialize');
+    MyCentralManagerFlutterAPI.setUp(this);
+    await _api.initialize();
   }
 
   @override
-  Future<BluetoothLowEnergyState> getState() {
-    logger.info('getState');
-    return Future.value(_state);
-  }
-
-  @override
-  Future<void> startDiscovery() async {
-    logger.info('startDiscovery');
-    await _api.startDiscovery();
+  Future<void> startDiscovery({
+    List<UUID>? serviceUUIDs,
+  }) async {
+    final serviceUUIDsArgs =
+        serviceUUIDs?.map((uuid) => uuid.toArgs()).toList() ?? [];
+    logger.info('startDiscovery: $serviceUUIDsArgs');
+    await _api.startDiscovery(serviceUUIDsArgs);
   }
 
   @override
@@ -71,11 +72,17 @@ base class MyCentralManager extends BaseCentralManager
   }
 
   @override
+  Future<List<Peripheral>> retrieveConnectedPeripherals() async {
+    throw UnsupportedError(
+        "Windows doesn't support retrieve connected peripherals.");
+  }
+
+  @override
   Future<void> connect(Peripheral peripheral) async {
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final addressArgs = peripheral.uuid.toAddressArgs();
+    final addressArgs = peripheral.address;
     logger.info('connect: $addressArgs');
     await _api.connect(addressArgs);
   }
@@ -85,20 +92,19 @@ base class MyCentralManager extends BaseCentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final addressArgs = peripheral.uuid.toAddressArgs();
+    final addressArgs = peripheral.address;
     logger.info('disconnect: $addressArgs');
     await _api.disconnect(addressArgs);
   }
 
   @override
+  Future<int> requestMTU(Peripheral peripheral, int mtu) {
+    throw UnsupportedError("Windows doesn't support reqeust MTU.");
+  }
+
+  @override
   Future<int> readRSSI(Peripheral peripheral) async {
-    if (peripheral is! MyPeripheral) {
-      throw TypeError();
-    }
-    final addressArgs = peripheral.uuid.toAddressArgs();
-    logger.info('readRSSI: $addressArgs');
-    // TODO: Windows doesn't support read RSSI after connected.
-    throw UnimplementedError();
+    throw UnsupportedError("Windows doesn't support read RSSI.");
   }
 
   @override
@@ -107,7 +113,7 @@ base class MyCentralManager extends BaseCentralManager
       throw TypeError();
     }
     // 发现 GATT 服务
-    final addressArgs = peripheral.uuid.toAddressArgs();
+    final addressArgs = peripheral.address;
     logger.info('discoverServices: $addressArgs');
     final servicesArgs = await _api
         .discoverServices(addressArgs)
@@ -131,7 +137,7 @@ base class MyCentralManager extends BaseCentralManager
       serviceArgs.characteristicsArgs = characteristicsArgs;
     }
     final services =
-        servicesArgs.map((args) => args.toService2(peripheral)).toList();
+        servicesArgs.map((args) => args.toService(peripheral)).toList();
     final characteristics =
         services.expand((service) => service.characteristics).toList();
     _characteristics[addressArgs] = {
@@ -145,11 +151,11 @@ base class MyCentralManager extends BaseCentralManager
   Future<Uint8List> readCharacteristic(
     GattCharacteristic characteristic,
   ) async {
-    if (characteristic is! MyGattCharacteristic2) {
+    if (characteristic is! MyGattCharacteristic) {
       throw TypeError();
     }
     final peripheral = characteristic.peripheral;
-    final addressArgs = peripheral.uuid.toAddressArgs();
+    final addressArgs = peripheral.address;
     final handleArgs = characteristic.handle;
     logger.info('readCharacteristic: $addressArgs.$handleArgs');
     final value = await _api.readCharacteristic(addressArgs, handleArgs);
@@ -162,11 +168,11 @@ base class MyCentralManager extends BaseCentralManager
     required Uint8List value,
     required GattCharacteristicWriteType type,
   }) async {
-    if (characteristic is! MyGattCharacteristic2) {
+    if (characteristic is! MyGattCharacteristic) {
       throw TypeError();
     }
     final peripheral = characteristic.peripheral;
-    final addressArgs = peripheral.uuid.toAddressArgs();
+    final addressArgs = peripheral.address;
     final handleArgs = characteristic.handle;
     final trimmedValueArgs = value.trimGATT();
     final typeArgs = type.toArgs();
@@ -186,11 +192,11 @@ base class MyCentralManager extends BaseCentralManager
     GattCharacteristic characteristic, {
     required bool state,
   }) async {
-    if (characteristic is! MyGattCharacteristic2) {
+    if (characteristic is! MyGattCharacteristic) {
       throw TypeError();
     }
     final peripheral = characteristic.peripheral;
-    final addressArgs = peripheral.uuid.toAddressArgs();
+    final addressArgs = peripheral.address;
     final handleArgs = characteristic.handle;
     final stateArgs = state
         ? characteristic.properties.contains(GattCharacteristicProperty.notify)
@@ -209,11 +215,11 @@ base class MyCentralManager extends BaseCentralManager
 
   @override
   Future<Uint8List> readDescriptor(GattDescriptor descriptor) async {
-    if (descriptor is! MyGattDescriptor2) {
+    if (descriptor is! MyGattDescriptor) {
       throw TypeError();
     }
     final peripheral = descriptor.peripheral;
-    final addressArgs = peripheral.uuid.toAddressArgs();
+    final addressArgs = peripheral.address;
     final handleArgs = descriptor.handle;
     logger.info('readDescriptor: $addressArgs.$handleArgs');
     final value = await _api.readDescriptor(addressArgs, handleArgs);
@@ -225,11 +231,11 @@ base class MyCentralManager extends BaseCentralManager
     GattDescriptor descriptor, {
     required Uint8List value,
   }) async {
-    if (descriptor is! MyGattDescriptor2) {
+    if (descriptor is! MyGattDescriptor) {
       throw TypeError();
     }
     final peripheral = descriptor.peripheral;
-    final addressArgs = peripheral.uuid.toAddressArgs();
+    final addressArgs = peripheral.address;
     final handleArgs = descriptor.handle;
     final trimmedValueArgs = value.trimGATT();
     logger

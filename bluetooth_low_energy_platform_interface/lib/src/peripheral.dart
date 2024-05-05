@@ -1,7 +1,7 @@
 import 'bluetooth_low_energy_peer.dart';
 
 /// A remote peripheral device.
-abstract base class Peripheral extends BluetoothLowEnergyPeer {
+base class Peripheral extends BluetoothLowEnergyPeer {
   Peripheral({
     required super.uuid,
   });

@@ -132,7 +132,7 @@ class _CentralManagerViewState extends State<CentralManagerView> {
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  RssiWidget(rssi),
+                  RssiIndicator(rssi),
                   Text('$rssi'),
                 ],
               ),

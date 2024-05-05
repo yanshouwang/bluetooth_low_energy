@@ -15,7 +15,7 @@ namespace bluetooth_low_energy_windows
 {
 	MyCentralManager::MyCentralManager(flutter::BinaryMessenger* messenger)
 	{
-		m_api = MyCentralManagerFlutterApi(messenger);
+		m_api = MyCentralManagerFlutterAPI(messenger);
 		m_watcher = winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher();
 	}
 
@@ -23,13 +23,28 @@ namespace bluetooth_low_energy_windows
 	{
 	}
 
-	void MyCentralManager::SetUp(std::function<void(std::optional<FlutterError>reply)> result)
+	std::optional<FlutterError> MyCentralManager::Initialize()
 	{
-		m_set_up(std::move(result));
+		m_initialize();
+		return std::nullopt;
 	}
 
-	std::optional<FlutterError> MyCentralManager::StartDiscovery()
+	std::optional<FlutterError> MyCentralManager::StartDiscovery(const flutter::EncodableList& service_uuids_args)
 	{
+		const auto empty = service_uuids_args.empty();
+		if (!empty)
+		{
+			const auto filter = winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementFilter::BluetoothLEAdvertisementFilter();
+			const auto advertisement = winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisement();
+			const auto& service_uuids = advertisement.ServiceUuids();
+			for (const auto& service_uuid_args : service_uuids_args) {
+				const auto& service_uuid_value = std::get<std::string>(service_uuid_args);
+				const auto service_uuid = winrt::guid(service_uuid_value);
+				service_uuids.Append(service_uuid);
+			}
+			filter.Advertisement(advertisement);
+			m_watcher->AdvertisementFilter(filter);
+		}
 		m_watcher->Start();
 		return std::nullopt;
 	}
@@ -47,23 +62,9 @@ namespace bluetooth_low_energy_windows
 
 	std::optional<FlutterError> MyCentralManager::Disconnect(int64_t address_args)
 	{
-		try
-		{
-			m_clear_device(address_args);
-			m_api->OnConnectionStateChanged(address_args, false, [] {}, [](auto error) {});
-			return std::nullopt;
-		}
-		catch (const std::exception& ex)
-		{
-			const auto code = "std::exception";
-			const auto message = ex.what();
-			return FlutterError(code, message);
-		}
-		catch (...) {
-			const auto code = "unhandled exception";
-			const auto message = "Disconnect failed with unhandled exception.";
-			return FlutterError(code, message);
-		}
+		m_disconnect(address_args);
+		m_api->OnConnectionStateChanged(address_args, false, [] {}, [](auto error) {});
+		return std::nullopt;
 	}
 
 	void MyCentralManager::DiscoverServices(int64_t address_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result)
@@ -106,62 +107,59 @@ namespace bluetooth_low_energy_windows
 		m_write_descriptor(address_args, handle_args, value_args, std::move(result));
 	}
 
-	winrt::fire_and_forget MyCentralManager::m_set_up(std::function<void(std::optional<FlutterError>reply)> result)
+	winrt::fire_and_forget MyCentralManager::m_initialize()
 	{
-		try
+		// 停止扫描
+		const auto status = m_watcher->Status();
+		if (status == winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementWatcherStatus::Started)
 		{
-			m_clear_state();
-			// 获取状态
-			if (!m_radio_state_changed_revoker) {
-				m_adapter = co_await winrt::Windows::Devices::Bluetooth::BluetoothAdapter::GetDefaultAsync();
-				m_radio = co_await m_adapter->GetRadioAsync();
-				m_radio_state_changed_revoker = m_radio->StateChanged(winrt::auto_revoke, [this](winrt::Windows::Devices::Radios::Radio radio, auto obj)
-					{
-						m_on_state_changed();
-					});
-			}
-			m_on_state_changed();
-			if (!m_watcher_received_revoker)
+			m_watcher->Stop();
+		}
+		// 断开连接
+		auto addresses = std::list<uint64_t>();
+		const auto begin = m_devices.begin();
+		const auto end = m_devices.end();
+		std::transform(
+			begin,
+			end,
+			std::back_inserter(addresses),
+			[](const auto& device)
 			{
-				m_watcher_received_revoker = m_watcher->Received(winrt::auto_revoke, [this](winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher watcher, winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementReceivedEventArgs event_args)
-					{
-						const auto type = event_args.AdvertisementType();
-						// TODO: 支持扫描响应和扫描扩展
-						if (type == winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType::ScanResponse ||
-							type == winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType::Extended)
-						{
-							return;
-						}
-						const auto address = event_args.BluetoothAddress();
-						const auto peripheral_args = m_address_to_peripheral_args(address);
-						const auto rssi = event_args.RawSignalStrengthInDBm();
-						const auto rssi_args = static_cast<int64_t>(rssi);
-						const auto advertisement = event_args.Advertisement();
-						const auto advertisement_args = m_advertisement_to_args(advertisement);
-						m_api->OnDiscovered(peripheral_args, rssi_args, advertisement_args, [] {}, [](auto error) {});
-					});
-			}
-			result(std::nullopt);
+				return device.first;
+			});
+		for (const auto& address : addresses) {
+			const auto address_args = static_cast<int64_t>(address);
+			m_disconnect(address_args);
 		}
-		catch (const winrt::hresult_error& ex) {
-			const auto code = "winrt::hresult_error";
-			const auto winrt_message = ex.message();
-			const auto message = winrt::to_string(winrt_message);
-			const auto error = FlutterError(code, message);
-			result(error);
+		// 获取状态
+		if (!m_radio_state_changed_revoker) {
+			m_adapter = co_await winrt::Windows::Devices::Bluetooth::BluetoothAdapter::GetDefaultAsync();
+			m_radio = co_await m_adapter->GetRadioAsync();
+			m_radio_state_changed_revoker = m_radio->StateChanged(winrt::auto_revoke, [this](winrt::Windows::Devices::Radios::Radio radio, auto obj)
+				{
+					m_on_state_changed();
+				});
 		}
-		catch (const std::exception& ex)
+		m_on_state_changed();
+		if (!m_watcher_received_revoker)
 		{
-			const auto code = "std::exception";
-			const auto message = ex.what();
-			const auto error = FlutterError(code, message);
-			result(error);
-		}
-		catch (...) {
-			const auto code = "unhandled exception";
-			const auto message = "Set up failed with unhandled exception.";
-			const auto error = FlutterError(code, message);
-			result(error);
+			m_watcher_received_revoker = m_watcher->Received(winrt::auto_revoke, [this](winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher watcher, winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementReceivedEventArgs event_args)
+				{
+					const auto type = event_args.AdvertisementType();
+					// TODO: 支持扫描响应和扫描扩展
+					if (type == winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType::ScanResponse ||
+						type == winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType::Extended)
+					{
+						return;
+					}
+					const auto address = event_args.BluetoothAddress();
+					const auto peripheral_args = m_address_to_peripheral_args(address);
+					const auto rssi = event_args.RawSignalStrengthInDBm();
+					const auto rssi_args = static_cast<int64_t>(rssi);
+					const auto advertisement = event_args.Advertisement();
+					const auto advertisement_args = m_advertisement_to_args(advertisement);
+					m_api->OnDiscovered(peripheral_args, rssi_args, advertisement_args, [] {}, [](auto error) {});
+				});
 		}
 	}
 
@@ -194,7 +192,7 @@ namespace bluetooth_low_energy_windows
 					m_api->OnConnectionStateChanged(address_args, state_args, [] {}, [](auto error) {});
 					if (status == winrt::Windows::Devices::Bluetooth::BluetoothConnectionStatus::Disconnected)
 					{
-						m_clear_device(address_args);
+						m_disconnect(address_args);
 					}
 				});
 			result(std::nullopt);
@@ -588,33 +586,7 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	void MyCentralManager::m_clear_state()
-	{
-		// 停止扫描
-		const auto status = m_watcher->Status();
-		if (status == winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementWatcherStatus::Started)
-		{
-			m_watcher->Stop();
-		}
-		// 断开连接
-		auto addresses = std::list<uint64_t>();
-		const auto begin = m_devices.begin();
-		const auto end = m_devices.end();
-		std::transform(
-			begin,
-			end,
-			std::back_inserter(addresses),
-			[](const auto& device)
-			{
-				return device.first;
-			});
-		for (const auto& address : addresses) {
-			const auto address_args = static_cast<int64_t>(address);
-			m_clear_device(address_args);
-		}
-	}
-
-	void MyCentralManager::m_clear_device(int64_t address_args)
+	void MyCentralManager::m_disconnect(int64_t address_args)
 	{
 		// 通过释放连接实例，触发断开连接
 		m_device_connection_status_changed_revokers.erase(address_args);
