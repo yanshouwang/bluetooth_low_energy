@@ -1,4 +1,4 @@
-// Run with `dart run pigeon --input pigeon.dart`.
+// Run with `dart run pigeon --input my_api.dart`.
 import 'package:pigeon/pigeon.dart';
 
 @ConfigurePigeon(
@@ -39,19 +39,6 @@ enum MyGattCharacteristicNotifyStateArgs {
   none,
   notify,
   indicate,
-}
-
-enum MyGattStatusArgs {
-  success,
-  readNotPermitted,
-  writeNotPermitted,
-  requestNotSupported,
-  invalidOffset,
-  insufficientAuthentication,
-  insufficientEncryption,
-  invalidAttributeLength,
-  connectionCongested,
-  failure,
 }
 
 class MyManufacturerSpecificDataArgs {
@@ -128,7 +115,6 @@ class MyGattServiceArgs {
 @HostApi()
 abstract class MyCentralManagerHostAPI {
   void initialize();
-  void authorize();
   @async
   void startDiscovery(List<String> serviceUUIDsArgs);
   void stopDiscovery();
@@ -142,7 +128,7 @@ abstract class MyCentralManagerHostAPI {
   @async
   int readRSSI(String addressArgs);
   @async
-  List<MyGattServiceArgs> discoverServices(String addressArgs);
+  List<MyGattServiceArgs> discoverGATT(String addressArgs);
   @async
   Uint8List readCharacteristic(String addressArgs, int hashCodeArgs);
   @async
@@ -188,7 +174,6 @@ abstract class MyCentralManagerFlutterAPI {
 @HostApi()
 abstract class MyPeripheralManagerHostAPI {
   void initialize();
-  void authorize();
   @async
   void addService(MyGattServiceArgs serviceArgs);
   void removeService(int hashCodeArgs);
@@ -199,12 +184,12 @@ abstract class MyPeripheralManagerHostAPI {
   void sendResponse(
     String addressArgs,
     int idArgs,
-    int statusNumberArgs,
+    int statusArgs,
     int offsetArgs,
     Uint8List? valueArgs,
   );
   @async
-  void notifyCharacteristicChanged(
+  void notifyCharacteristic(
     int hashCodeArgs,
     Uint8List valueArgs,
     bool confirmArgs,

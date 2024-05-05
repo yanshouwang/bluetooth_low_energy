@@ -24,7 +24,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "dev.yanshouwang.bluetooth_low_energy_example"
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
     compileOptions {

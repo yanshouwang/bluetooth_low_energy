@@ -1,7 +1,7 @@
+package dev.yanshouwang.bluetooth_low_energy_android
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattService
@@ -25,21 +25,6 @@ fun MyGattCharacteristicNotifyStateArgs.toValue(): ByteArray {
         MyGattCharacteristicNotifyStateArgs.NONE -> BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
         MyGattCharacteristicNotifyStateArgs.NOTIFY -> BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
         MyGattCharacteristicNotifyStateArgs.INDICATE -> BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
-    }
-}
-
-fun MyGattStatusArgs.toStatus(): Int {
-    return when (this) {
-        MyGattStatusArgs.SUCCESS -> BluetoothGatt.GATT_SUCCESS
-        MyGattStatusArgs.READ_NOT_PERMITTED -> BluetoothGatt.GATT_READ_NOT_PERMITTED
-        MyGattStatusArgs.WRITE_NOT_PERMITTED -> BluetoothGatt.GATT_WRITE_NOT_PERMITTED
-        MyGattStatusArgs.REQUEST_NOT_SUPPORTED -> BluetoothGatt.GATT_REQUEST_NOT_SUPPORTED
-        MyGattStatusArgs.INVALID_OFFSET -> BluetoothGatt.GATT_INVALID_OFFSET
-        MyGattStatusArgs.INSUFFICIENT_AUTHENTICATION -> BluetoothGatt.GATT_INSUFFICIENT_AUTHENTICATION
-        MyGattStatusArgs.INSUFFICIENT_ENCRYPTION -> BluetoothGatt.GATT_INSUFFICIENT_ENCRYPTION
-        MyGattStatusArgs.INVALID_ATTRIBUTE_LENGTH -> BluetoothGatt.GATT_INVALID_ATTRIBUTE_LENGTH
-        MyGattStatusArgs.CONNECTION_CONGESTED -> BluetoothGatt.GATT_CONNECTION_CONGESTED
-        MyGattStatusArgs.FAILURE -> BluetoothGatt.GATT_FAILURE
     }
 }
 
@@ -111,10 +96,8 @@ fun MyGattCharacteristicArgs.getPermissions(): Int {
     val write = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.WRITE)
     val writeWithoutResponse = propertiesArgs.contains(MyGattCharacteristicPropertyArgs.WRITE_WITHOUT_RESPONSE)
     var permissions = 0
-    if (read)
-        permissions = permissions or BluetoothGattCharacteristic.PERMISSION_READ
-    if (write || writeWithoutResponse)
-        permissions = permissions or BluetoothGattCharacteristic.PERMISSION_WRITE
+    if (read) permissions = permissions or BluetoothGattCharacteristic.PERMISSION_READ
+    if (write || writeWithoutResponse) permissions = permissions or BluetoothGattCharacteristic.PERMISSION_WRITE
     return permissions
 }
 

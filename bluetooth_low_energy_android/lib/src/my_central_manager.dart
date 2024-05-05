@@ -5,8 +5,7 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 
 import 'my_api.dart';
 import 'my_api.g.dart';
-import 'my_gatt_characteristic.dart';
-import 'my_gatt_descriptor.dart';
+import 'my_gatt.dart';
 import 'my_peripheral.dart';
 
 base class MyCentralManager extends BaseCentralManager
@@ -38,6 +37,8 @@ base class MyCentralManager extends BaseCentralManager
         _state = BluetoothLowEnergyState.unknown;
 
   @override
+  BluetoothLowEnergyState get state => _state;
+  @override
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
@@ -54,18 +55,6 @@ base class MyCentralManager extends BaseCentralManager
     logger.info('initialize');
     MyCentralManagerFlutterAPI.setUp(this);
     await _api.initialize();
-  }
-
-  @override
-  Future<void> authorize() async {
-    logger.info('authorize');
-    await _api.authorize();
-  }
-
-  @override
-  Future<BluetoothLowEnergyState> getState() {
-    logger.info('getState');
-    return Future.value(_state);
   }
 
   @override
@@ -148,7 +137,7 @@ base class MyCentralManager extends BaseCentralManager
     }
     final addressArgs = peripheral.address;
     logger.info('discoverServices: $addressArgs');
-    final servicesArgs = await _api.discoverServices(addressArgs);
+    final servicesArgs = await _api.discoverGATT(addressArgs);
     final services = servicesArgs
         .cast<MyGattServiceArgs>()
         .map((args) => args.toService(peripheral))

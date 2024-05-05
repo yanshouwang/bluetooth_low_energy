@@ -99,25 +99,6 @@ enum class MyGattCharacteristicNotifyStateArgs(val raw: Int) {
   }
 }
 
-enum class MyGattStatusArgs(val raw: Int) {
-  SUCCESS(0),
-  READ_NOT_PERMITTED(1),
-  WRITE_NOT_PERMITTED(2),
-  REQUEST_NOT_SUPPORTED(3),
-  INVALID_OFFSET(4),
-  INSUFFICIENT_AUTHENTICATION(5),
-  INSUFFICIENT_ENCRYPTION(6),
-  INVALID_ATTRIBUTE_LENGTH(7),
-  CONNECTION_CONGESTED(8),
-  FAILURE(9);
-
-  companion object {
-    fun ofRaw(raw: Int): MyGattStatusArgs? {
-      return values().firstOrNull { it.raw == raw }
-    }
-  }
-}
-
 /** Generated class from Pigeon that represents data sent in messages. */
 data class MyManufacturerSpecificDataArgs (
   val idArgs: Long,
@@ -339,7 +320,6 @@ private object MyCentralManagerHostAPICodec : StandardMessageCodec() {
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface MyCentralManagerHostAPI {
   fun initialize()
-  fun authorize()
   fun startDiscovery(serviceUUIDsArgs: List<String>, callback: (Result<Unit>) -> Unit)
   fun stopDiscovery()
   fun connect(addressArgs: String, callback: (Result<Unit>) -> Unit)
@@ -347,7 +327,7 @@ interface MyCentralManagerHostAPI {
   fun retrieveConnectedPeripherals(): List<MyPeripheralArgs>
   fun requestMTU(addressArgs: String, mtuArgs: Long, callback: (Result<Long>) -> Unit)
   fun readRSSI(addressArgs: String, callback: (Result<Long>) -> Unit)
-  fun discoverServices(addressArgs: String, callback: (Result<List<MyGattServiceArgs>>) -> Unit)
+  fun discoverGATT(addressArgs: String, callback: (Result<List<MyGattServiceArgs>>) -> Unit)
   fun readCharacteristic(addressArgs: String, hashCodeArgs: Long, callback: (Result<ByteArray>) -> Unit)
   fun writeCharacteristic(addressArgs: String, hashCodeArgs: Long, valueArgs: ByteArray, typeNumberArgs: Long, callback: (Result<Unit>) -> Unit)
   fun setCharacteristicNotifyState(addressArgs: String, hashCodeArgs: Long, stateNumberArgs: Long, callback: (Result<Unit>) -> Unit)
@@ -370,23 +350,6 @@ interface MyCentralManagerHostAPI {
             var wrapped: List<Any?>
             try {
               api.initialize()
-              wrapped = listOf<Any?>(null)
-            } catch (exception: Throwable) {
-              wrapped = wrapError(exception)
-            }
-            reply.reply(wrapped)
-          }
-        } else {
-          channel.setMessageHandler(null)
-        }
-      }
-      run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.authorize$separatedMessageChannelSuffix", codec)
-        if (api != null) {
-          channel.setMessageHandler { _, reply ->
-            var wrapped: List<Any?>
-            try {
-              api.authorize()
               wrapped = listOf<Any?>(null)
             } catch (exception: Throwable) {
               wrapped = wrapError(exception)
@@ -529,12 +492,12 @@ interface MyCentralManagerHostAPI {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.discoverServices$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.discoverGATT$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val addressArgsArg = args[0] as String
-            api.discoverServices(addressArgsArg) { result: Result<List<MyGattServiceArgs>> ->
+            api.discoverGATT(addressArgsArg) { result: Result<List<MyGattServiceArgs>> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))
@@ -855,14 +818,13 @@ private object MyPeripheralManagerHostAPICodec : StandardMessageCodec() {
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface MyPeripheralManagerHostAPI {
   fun initialize()
-  fun authorize()
   fun addService(serviceArgs: MyGattServiceArgs, callback: (Result<Unit>) -> Unit)
   fun removeService(hashCodeArgs: Long)
   fun clearServices()
   fun startAdvertising(advertisementArgs: MyAdvertisementArgs, callback: (Result<Unit>) -> Unit)
   fun stopAdvertising()
-  fun sendResponse(addressArgs: String, idArgs: Long, statusNumberArgs: Long, offsetArgs: Long, valueArgs: ByteArray?)
-  fun notifyCharacteristicChanged(hashCodeArgs: Long, valueArgs: ByteArray, confirmArgs: Boolean, addressArgs: String, callback: (Result<Unit>) -> Unit)
+  fun sendResponse(addressArgs: String, idArgs: Long, statusArgs: Long, offsetArgs: Long, valueArgs: ByteArray?)
+  fun notifyCharacteristic(hashCodeArgs: Long, valueArgs: ByteArray, confirmArgs: Boolean, addressArgs: String, callback: (Result<Unit>) -> Unit)
 
   companion object {
     /** The codec used by MyPeripheralManagerHostAPI. */
@@ -880,23 +842,6 @@ interface MyPeripheralManagerHostAPI {
             var wrapped: List<Any?>
             try {
               api.initialize()
-              wrapped = listOf<Any?>(null)
-            } catch (exception: Throwable) {
-              wrapped = wrapError(exception)
-            }
-            reply.reply(wrapped)
-          }
-        } else {
-          channel.setMessageHandler(null)
-        }
-      }
-      run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.authorize$separatedMessageChannelSuffix", codec)
-        if (api != null) {
-          channel.setMessageHandler { _, reply ->
-            var wrapped: List<Any?>
-            try {
-              api.authorize()
               wrapped = listOf<Any?>(null)
             } catch (exception: Throwable) {
               wrapped = wrapError(exception)
@@ -1005,12 +950,12 @@ interface MyPeripheralManagerHostAPI {
             val args = message as List<Any?>
             val addressArgsArg = args[0] as String
             val idArgsArg = args[1].let { if (it is Int) it.toLong() else it as Long }
-            val statusNumberArgsArg = args[2].let { if (it is Int) it.toLong() else it as Long }
+            val statusArgsArg = args[2].let { if (it is Int) it.toLong() else it as Long }
             val offsetArgsArg = args[3].let { if (it is Int) it.toLong() else it as Long }
             val valueArgsArg = args[4] as ByteArray?
             var wrapped: List<Any?>
             try {
-              api.sendResponse(addressArgsArg, idArgsArg, statusNumberArgsArg, offsetArgsArg, valueArgsArg)
+              api.sendResponse(addressArgsArg, idArgsArg, statusArgsArg, offsetArgsArg, valueArgsArg)
               wrapped = listOf<Any?>(null)
             } catch (exception: Throwable) {
               wrapped = wrapError(exception)
@@ -1022,7 +967,7 @@ interface MyPeripheralManagerHostAPI {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.notifyCharacteristicChanged$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.notifyCharacteristic$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -1030,7 +975,7 @@ interface MyPeripheralManagerHostAPI {
             val valueArgsArg = args[1] as ByteArray
             val confirmArgsArg = args[2] as Boolean
             val addressArgsArg = args[3] as String
-            api.notifyCharacteristicChanged(hashCodeArgsArg, valueArgsArg, confirmArgsArg, addressArgsArg) { result: Result<Unit> ->
+            api.notifyCharacteristic(hashCodeArgsArg, valueArgsArg, confirmArgsArg, addressArgsArg) { result: Result<Unit> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))

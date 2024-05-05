@@ -7,8 +7,7 @@ import android.bluetooth.BluetoothGattDescriptor
 import android.os.Build
 import java.util.concurrent.Executor
 
-class MyBluetoothGattCallback(manager: MyCentralManager, executor: Executor) :
-    BluetoothGattCallback() {
+class MyBluetoothGattCallback(manager: MyCentralManager, executor: Executor) : BluetoothGattCallback() {
     private val mManager: MyCentralManager
     private val mExecutor: Executor
 
@@ -45,12 +44,7 @@ class MyBluetoothGattCallback(manager: MyCentralManager, executor: Executor) :
         }
     }
 
-    override fun onCharacteristicRead(
-        gatt: BluetoothGatt,
-        characteristic: BluetoothGattCharacteristic,
-        value: ByteArray,
-        status: Int
-    ) {
+    override fun onCharacteristicRead(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: ByteArray, status: Int) {
         super.onCharacteristicRead(gatt, characteristic, value, status)
         mExecutor.execute {
             mManager.onCharacteristicRead(gatt, characteristic, status, value)
@@ -58,9 +52,7 @@ class MyBluetoothGattCallback(manager: MyCentralManager, executor: Executor) :
     }
 
     // TODO: remove this override when minSdkVersion >= 33
-    override fun onCharacteristicRead(
-        gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int
-    ) {
+    override fun onCharacteristicRead(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int) {
         super.onCharacteristicRead(gatt, characteristic, status)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             return
@@ -71,18 +63,14 @@ class MyBluetoothGattCallback(manager: MyCentralManager, executor: Executor) :
         }
     }
 
-    override fun onCharacteristicWrite(
-        gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int
-    ) {
+    override fun onCharacteristicWrite(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int) {
         super.onCharacteristicWrite(gatt, characteristic, status)
         mExecutor.execute {
             mManager.onCharacteristicWrite(gatt, characteristic, status)
         }
     }
 
-    override fun onCharacteristicChanged(
-        gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: ByteArray
-    ) {
+    override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: ByteArray) {
         super.onCharacteristicChanged(gatt, characteristic, value)
         mExecutor.execute {
             mManager.onCharacteristicChanged(gatt, characteristic, value)
@@ -90,9 +78,7 @@ class MyBluetoothGattCallback(manager: MyCentralManager, executor: Executor) :
     }
 
     // TODO: remove this override when minSdkVersion >= 33
-    override fun onCharacteristicChanged(
-        gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic
-    ) {
+    override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
         super.onCharacteristicChanged(gatt, characteristic)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             return
@@ -103,9 +89,7 @@ class MyBluetoothGattCallback(manager: MyCentralManager, executor: Executor) :
         }
     }
 
-    override fun onDescriptorRead(
-        gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int, value: ByteArray
-    ) {
+    override fun onDescriptorRead(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int, value: ByteArray) {
         super.onDescriptorRead(gatt, descriptor, status, value)
         mExecutor.execute {
             mManager.onDescriptorRead(gatt, descriptor, status, value)
@@ -113,9 +97,7 @@ class MyBluetoothGattCallback(manager: MyCentralManager, executor: Executor) :
     }
 
     // TODO: remove this override when minSdkVersion >= 33
-    override fun onDescriptorRead(
-        gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int
-    ) {
+    override fun onDescriptorRead(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {
         super.onDescriptorRead(gatt, descriptor, status)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             return
@@ -126,9 +108,7 @@ class MyBluetoothGattCallback(manager: MyCentralManager, executor: Executor) :
         }
     }
 
-    override fun onDescriptorWrite(
-        gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int
-    ) {
+    override fun onDescriptorWrite(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {
         super.onDescriptorWrite(gatt, descriptor, status)
         mExecutor.execute {
             mManager.onDescriptorWrite(gatt, descriptor, status)

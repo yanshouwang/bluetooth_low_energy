@@ -16,8 +16,7 @@ import java.util.concurrent.Executor
 
 abstract class MyBluetoothLowEnergyManager(context: Context) {
     companion object {
-        val CLIENT_CHARACTERISTIC_CONFIG_UUID =
-            UUID.fromString("00002902-0000-1000-8000-00805f9b34fb") as UUID
+        val CLIENT_CHARACTERISTIC_CONFIG_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb") as UUID
     }
 
     private val mContext: Context
@@ -40,16 +39,12 @@ abstract class MyBluetoothLowEnergyManager(context: Context) {
     protected val executor get() = ContextCompat.getMainExecutor(mContext) as Executor
     protected val hasFeature get() = mContext.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
     protected val manager
-        get() = ContextCompat.getSystemService(
-            mContext, BluetoothManager::class.java
-        ) as BluetoothManager
+        get() = ContextCompat.getSystemService(mContext, BluetoothManager::class.java) as BluetoothManager
     protected val adapter get() = manager.adapter as BluetoothAdapter
 
     protected fun checkPermissions(): Boolean {
         return permissions.all { permission ->
-            ActivityCompat.checkSelfPermission(
-                mContext, permission
-            ) == PackageManager.PERMISSION_GRANTED
+            ActivityCompat.checkSelfPermission(mContext, permission) == PackageManager.PERMISSION_GRANTED
         }
     }
 
@@ -67,14 +62,11 @@ abstract class MyBluetoothLowEnergyManager(context: Context) {
         mBinding.removeRequestPermissionsResultListener(mRequestPermissionsResultListener)
     }
 
-    fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>, results: IntArray
-    ): Boolean {
+    fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, results: IntArray): Boolean {
         if (this.requestCode != requestCode) {
             return false
         }
-        val granted =
-            permissions.contentEquals(this.permissions) && results.all { r -> r == PackageManager.PERMISSION_GRANTED }
+        val granted = permissions.contentEquals(this.permissions) && results.all { r -> r == PackageManager.PERMISSION_GRANTED }
         onPermissionsRequested(granted)
         return true
     }

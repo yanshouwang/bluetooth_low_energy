@@ -1,4 +1,4 @@
-import 'package:hybrid_core/hybrid_core.dart';
+import 'package:hybrid_logging/hybrid_logging.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'bluetooth_low_energy_state.dart';
@@ -10,12 +10,7 @@ abstract interface class BluetoothLowEnergyManager implements LogController {
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged;
 
   /// Gets the manager's state.
-  Future<BluetoothLowEnergyState> getState();
-
-  /// Authorizes the [BluetoothLowEnergyManager].
-  ///
-  /// This method is only available on Android, throws [UnsupportedError] on other platforms.
-  Future<void> authorize();
+  BluetoothLowEnergyState get state;
 }
 
 /// The bluetooth low energy state changed event arguments.
@@ -29,7 +24,7 @@ base class BluetoothLowEnergyStateChangedEventArgs extends EventArgs {
 
 /// The abstract base channel class that manages central and peripheral objects.
 abstract base class BaseBluetoothLowEnergyManager extends PlatformInterface
-    with LoggerProvider, LoggerController
+    with TypeLogger, LoggerController
     implements BluetoothLowEnergyManager {
   /// Constructs a [BaseBluetoothLowEnergyManager].
   BaseBluetoothLowEnergyManager({

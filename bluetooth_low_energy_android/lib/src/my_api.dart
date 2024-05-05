@@ -4,9 +4,7 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 
 import 'my_api.g.dart';
 import 'my_central.dart';
-import 'my_gatt_characteristic.dart';
-import 'my_gatt_descriptor.dart';
-import 'my_gatt_service.dart';
+import 'my_gatt.dart';
 import 'my_peripheral.dart';
 
 extension StringX on String {
@@ -15,7 +13,7 @@ extension StringX on String {
   }
 }
 
-extension UuidX on UUID {
+extension UUIDX on UUID {
   String toArgs() {
     return toString();
   }

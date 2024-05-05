@@ -1,4 +1,13 @@
-## 5.1.0
+## 6.0.0-dev.2
+
+* Remove `BluetoothLowEnergyManager#authorize` method.
+* Move `BluetoothLowEnergyManager#getState` to `BluetoothLowEnergyManager#state`.
+
+## 6.0.0-dev.1
+
+* Migrate `hybrid_core` to `hybrid_logging`.
+
+## 6.0.0-dev.0
 
 * [Add `CentralManager#retrieveConnectedPeripherals` method.](https://github.com/yanshouwang/bluetooth_low_energy/issues/61)
 * [Add optional `serviceUUIDs` argument to the `CentralManager#startDiscovery` method.](https://github.com/yanshouwang/bluetooth_low_energy/issues/53)

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
+import 'jni.g.dart';
 import 'my_api.dart';
 import 'my_api.g.dart';
 import 'my_central.dart';
@@ -48,6 +49,8 @@ base class MyPeripheralManager extends BasePeripheralManager
         _state = BluetoothLowEnergyState.unknown;
 
   @override
+  BluetoothLowEnergyState get state => _state;
+  @override
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
@@ -66,18 +69,6 @@ base class MyPeripheralManager extends BasePeripheralManager
     logger.info('initialize');
     MyPeripheralManagerFlutterAPI.setUp(this);
     await _api.initialize();
-  }
-
-  @override
-  Future<void> authorize() async {
-    logger.info('authorize');
-    await _api.authorize();
-  }
-
-  @override
-  Future<BluetoothLowEnergyState> getState() {
-    logger.info('getState');
-    return Future.value(_state);
   }
 
   @override
@@ -196,8 +187,8 @@ base class MyPeripheralManager extends BasePeripheralManager
           ? trimmedValueArgs.sublist(start, end)
           : trimmedValueArgs.sublist(start);
       logger.info(
-          'notifyCharacteristicChanged: $hashCodeArgs - $fragmentedValueArgs, $confirm, $addressArgs');
-      await _api.notifyCharacteristicChanged(
+          'notifyCharacteristic: $hashCodeArgs - $fragmentedValueArgs, $confirm, $addressArgs');
+      await _api.notifyCharacteristic(
         hashCodeArgs,
         fragmentedValueArgs,
         confirm,
@@ -259,7 +250,7 @@ base class MyPeripheralManager extends BasePeripheralManager
     if (characteristic == null) {
       return;
     }
-    const statusArgs = MyGattStatusArgs.success;
+    const statusArgs = BluetoothGatt.GATT_SUCCESS;
     final offset = offsetArgs;
     final valueArgs = _onCharacteristicRead(central, characteristic, offset);
     await _trySendResponse(
@@ -291,12 +282,12 @@ base class MyPeripheralManager extends BasePeripheralManager
     if (characteristic == null) {
       return;
     }
-    final MyGattStatusArgs statusArgs;
+    final int statusArgs;
     if (preparedWriteArgs) {
       final preparedCharacteristic = _preparedCharacteristics[addressArgs];
       if (preparedCharacteristic != null &&
           preparedCharacteristic != characteristic) {
-        statusArgs = MyGattStatusArgs.connectionCongested;
+        statusArgs = BluetoothGatt.GATT_CONNECTION_CONGESTED;
       } else {
         final preparedValueArgs = _preparedValue[addressArgs];
         if (preparedValueArgs == null) {
@@ -306,12 +297,12 @@ base class MyPeripheralManager extends BasePeripheralManager
         } else {
           preparedValueArgs.insertAll(offsetArgs, valueArgs);
         }
-        statusArgs = MyGattStatusArgs.success;
+        statusArgs = BluetoothGatt.GATT_SUCCESS;
       }
     } else {
       final value = valueArgs;
       _onCharacteristicWritten(central, characteristic, value);
-      statusArgs = MyGattStatusArgs.success;
+      statusArgs = BluetoothGatt.GATT_SUCCESS;
     }
     if (responseNeededArgs) {
       await _trySendResponse(
@@ -375,7 +366,7 @@ base class MyPeripheralManager extends BasePeripheralManager
     if (descriptor == null) {
       return;
     }
-    const statusArgs = MyGattStatusArgs.success;
+    const statusArgs = BluetoothGatt.GATT_SUCCESS;
     final offset = offsetArgs;
     final valueArgs = descriptor.value.sublist(offset);
     await _trySendResponse(
@@ -407,11 +398,11 @@ base class MyPeripheralManager extends BasePeripheralManager
     if (descriptor == null) {
       return;
     }
-    final MyGattStatusArgs statusArgs;
+    final int statusArgs;
     if (preparedWriteArgs) {
-      final preparedDescriptor = _preparedCharacteristics[addressArgs];
+      final preparedDescriptor = _preparedDescriptors[addressArgs];
       if (preparedDescriptor != null && preparedDescriptor != descriptor) {
-        statusArgs = MyGattStatusArgs.connectionCongested;
+        statusArgs = BluetoothGatt.GATT_CONNECTION_CONGESTED;
       } else {
         final preparedValueArgs = _preparedValue[addressArgs];
         if (preparedValueArgs == null) {
@@ -421,11 +412,11 @@ base class MyPeripheralManager extends BasePeripheralManager
         } else {
           preparedValueArgs.insertAll(offsetArgs, valueArgs);
         }
-        statusArgs = MyGattStatusArgs.success;
+        statusArgs = BluetoothGatt.GATT_SUCCESS;
       }
     } else {
       descriptor.value = valueArgs;
-      statusArgs = MyGattStatusArgs.success;
+      statusArgs = BluetoothGatt.GATT_SUCCESS;
     }
     if (responseNeededArgs) {
       await _trySendResponse(
@@ -461,10 +452,11 @@ base class MyPeripheralManager extends BasePeripheralManager
         descriptor.value = value;
       }
     }
+    const statusArgs = BluetoothGatt.GATT_SUCCESS;
     await _trySendResponse(
       addressArgs,
       idArgs,
-      MyGattStatusArgs.success,
+      statusArgs,
       0,
       null,
     );
@@ -493,16 +485,15 @@ base class MyPeripheralManager extends BasePeripheralManager
   Future<void> _trySendResponse(
     String addressArgs,
     int idArgs,
-    MyGattStatusArgs statusArgs,
+    int statusArgs,
     int offsetArgs,
     Uint8List? valueArgs,
   ) async {
-    final statusNumberArgs = statusArgs.index;
     try {
       _api.sendResponse(
         addressArgs,
         idArgs,
-        statusNumberArgs,
+        statusArgs,
         offsetArgs,
         valueArgs,
       );

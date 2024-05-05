@@ -1,0 +1,13 @@
+# Run with `dart run jnigen --config jnigen.yaml`.
+android_sdk_config:
+  add_gradle_deps: true
+  android_example: example/
+suspend_fun_to_async: true
+enable_experiment:
+  - interface_implementation
+output:
+  dart:
+    structure: single_file
+    path: lib/src/jni.g.dart
+classes:
+  - android.bluetooth.BluetoothGatt

@@ -23,14 +23,15 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "5.1.0"
+    version: "6.0.0-dev.0"
   bluetooth_low_energy_platform_interface:
     dependency: "direct main"
     description:
-      path: "../../bluetooth_low_energy_platform_interface"
-      relative: true
-    source: path
-    version: "5.1.0"
+      name: bluetooth_low_energy_platform_interface
+      sha256: "35c4a8eae74ba1b72b456ab808a6453b1d1c7830ec44ad665bbcb821d6a2f9cc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.0-dev.2"
   boolean_selector:
     dependency: transitive
     description:
@@ -75,10 +76,10 @@ packages:
     dependency: "direct main"
     description:
       name: cupertino_icons
-      sha256: d57953e10f9f8327ce64a508a355f0b1ec902193f66288e8cb5070e7c47eeb2d
+      sha256: ba631d1c7f7bef6b729a622b7b752645a2d076dba9976925b8f25725a30e1ee6
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.6"
+    version: "1.0.8"
   fake_async:
     dependency: transitive
     description:
@@ -126,59 +127,32 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_web_plugins:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   fuchsia_remote_debug_protocol:
     dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"
-  hybrid_core:
-    dependency: transitive
+  go_router:
+    dependency: "direct main"
     description:
-      name: hybrid_core
-      sha256: a0ca63d4e20a52663cb190462049c762a8df911df43ed8921f1ea7834002805e
+      name: go_router
+      sha256: "9e0f7d1a3e7dc5010903e330fbc5497872c4c3cf6626381d69083cc1d5113c1e"
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.1"
-  hybrid_core_android:
-    dependency: transitive
+    version: "14.0.2"
+  hybrid_logging:
+    dependency: "direct main"
     description:
-      name: hybrid_core_android
-      sha256: d575b9c643abb85c2d6ee01d99b89706847a6aec95a3716c88df8871ff8d6d3a
+      name: hybrid_logging
+      sha256: "54248d52ce68c14702a42fbc4083bac5c6be30f6afad8a41be4bbadd197b8af5"
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.2"
-  hybrid_core_darwin:
-    dependency: transitive
-    description:
-      name: hybrid_core_darwin
-      sha256: c086f07f2f24f0b78b3f963b4202e409987157b4c55071476d0e3f432ccc2a7b
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.5.0"
-  hybrid_core_linux:
-    dependency: transitive
-    description:
-      name: hybrid_core_linux
-      sha256: "9c71fc1751bc5b83257306999c6bce3b90948425bfbbef7d0d8651704eef761d"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.5.0"
-  hybrid_core_platform_interface:
-    dependency: transitive
-    description:
-      name: hybrid_core_platform_interface
-      sha256: "504aad6922525d0c0b5e1151933768111b103ed9c78068e8b24453643c5e51ee"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.5.0"
-  hybrid_core_windows:
-    dependency: transitive
-    description:
-      name: hybrid_core_windows
-      sha256: "8bb6cfc802e21aa985890888b4a483b70342c28e126b5ce8a15883ab0aeb0829"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.5.2"
+    version: "1.0.0"
   integration_test:
     dependency: "direct dev"
     description: flutter
@@ -196,10 +170,10 @@ packages:
     dependency: transitive
     description:
       name: jni
-      sha256: "63984817b9ac1d07a02d0a8da20b1d526ba1872d75c6667b4d667f4facc39222"
+      sha256: "4f20a803314e2e07d3a284b4841f1109bbc17784f111f02f1a37bd5ffd3176af"
       url: "https://pub.dev"
     source: hosted
-    version: "0.8.0"
+    version: "0.9.0"
   leak_tracker:
     dependency: transitive
     description:
@@ -399,4 +373,4 @@ packages:
     version: "3.0.3"
 sdks:
   dart: ">=3.3.0 <4.0.0"
-  flutter: ">=3.0.0"
+  flutter: ">=3.16.0"
