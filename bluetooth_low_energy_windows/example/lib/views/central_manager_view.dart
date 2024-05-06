@@ -95,7 +95,7 @@ class _CentralManagerViewState extends State<CentralManagerView> {
     eventArgses.value = [];
     // final serviceUUIDs = [
     //   UUID.short(0x180f),
-    //   UUID.short(0xfd92),
+    //   // UUID.short(0xfd92),
     // ];
     // await centralManager.startDiscovery(
     //   serviceUUIDs: serviceUUIDs,

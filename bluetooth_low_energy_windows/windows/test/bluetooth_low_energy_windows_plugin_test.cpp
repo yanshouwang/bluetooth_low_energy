@@ -8,7 +8,7 @@
 #include <string>
 #include <variant>
 
-#include "bluetooth_low_energy_windows.h"
+#include "bluetooth_low_energy_windows_plugin.h"
 
 namespace bluetooth_low_energy_windows {
 namespace test {
@@ -22,8 +22,8 @@ using flutter::MethodResultFunctions;
 
 }  // namespace
 
-TEST(BluetoothLowEnergyWindows, GetPlatformVersion) {
-  BluetoothLowEnergyWindows plugin;
+TEST(BluetoothLowEnergyWindowsPlugin, GetPlatformVersion) {
+  BluetoothLowEnergyWindowsPlugin plugin;
   // Save the reply value from the success callback.
   std::string result_string;
   plugin.HandleMethodCall(

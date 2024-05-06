@@ -1,11 +1,11 @@
 name: bluetooth_low_energy_windows
-description: Windows implementation of the bluetooth_low_energy plugin.
-version: 5.0.3
-homepage: https://github.com/yanshouwang/bluetooth_low_energy
+description: "Windows implementation of the bluetooth_low_energy plugin."
+version: 6.0.0-dev.0
+homepage: "https://github.com/yanshouwang/bluetooth_low_energy"
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
-  flutter: ">=3.0.0"
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.0.0'
 
 dependencies:
   flutter:
@@ -23,5 +23,5 @@ flutter:
     implements: bluetooth_low_energy
     platforms:
       windows:
-        pluginClass: BluetoothLowEnergyWindowsCApi
-        dartPluginClass: BluetoothLowEnergyWindows
+        pluginClass: BluetoothLowEnergyWindowsPluginCApi
+        dartPluginClass: BluetoothLowEnergyWindowsPlugin

@@ -45,21 +45,21 @@ include_directories(BEFORE SYSTEM ${CMAKE_BINARY_DIR}/include)
 
 # Any new source files that you add to the plugin should be added here.
 list(APPEND PLUGIN_SOURCES
-  "bluetooth_low_energy_windows.cpp"
-  "bluetooth_low_energy_windows.h"
-  "my_api.g.cpp"
+  "bluetooth_low_energy_windows_plugin.h"
+  "bluetooth_low_energy_windows_plugin.cpp"
   "my_api.g.h"
-  "my_exception.cpp"
-  "my_exception.h"
-  "my_central_manager.cpp"
+  "my_api.g.cpp"
   "my_central_manager.h"
+  "my_central_manager.cpp"
+  "my_exception.h"
+  "my_exception.cpp"
 )
 
 # Define the plugin library target. Its name must not be changed (see comment
 # on PLUGIN_NAME above).
 add_library(${PLUGIN_NAME} SHARED
-  "include/bluetooth_low_energy_windows/bluetooth_low_energy_windows_c_api.h"
-  "bluetooth_low_energy_windows_c_api.cpp"
+  "include/bluetooth_low_energy_windows/bluetooth_low_energy_windows_plugin_c_api.h"
+  "bluetooth_low_energy_windows_plugin_c_api.cpp"
   ${PLUGIN_SOURCES}
 )
 

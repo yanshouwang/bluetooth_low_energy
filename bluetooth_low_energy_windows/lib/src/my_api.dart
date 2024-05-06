@@ -125,14 +125,14 @@ extension MyGattServiceArgsX on MyGattServiceArgs {
   }
 }
 
-extension MyAddressArgsX on int {
+extension MyIntX on int {
   UUID toUUID() {
     final node = (this & 0xFFFFFFFFFFFF).toRadixString(16).padLeft(12, '0');
     return UUID.fromString('00000000-0000-0000-0000-$node');
   }
 }
 
-extension MyUuidArgsX on String {
+extension MyStringX on String {
   UUID toUUID() {
     return UUID.fromString(this);
   }
