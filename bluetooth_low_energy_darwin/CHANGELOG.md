@@ -8,7 +8,6 @@
 * Remove `BluetoothLowEnergyManager#setUp` method.
 * Use new capitalization rules.
 
-
 ## 5.0.5
 
 * Change flutter minimum version to 3.0.0.
