@@ -13,20 +13,20 @@ base class MyPeripheralManager extends BasePeripheralManager
   final MyPeripheralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
-  final StreamController<GattCharacteristicReadEventArgs>
+  final StreamController<GATTCharacteristicReadEventArgs>
       _characteristicReadController;
-  final StreamController<GattCharacteristicWrittenEventArgs>
+  final StreamController<GATTCharacteristicWrittenEventArgs>
       _characteristicWrittenController;
-  final StreamController<GattCharacteristicNotifyStateChangedEventArgs>
+  final StreamController<GATTCharacteristicNotifyStateChangedEventArgs>
       _characteristicNotifyStateChangedController;
 
   final Map<String, MyCentral> _centrals;
-  final Map<int, Map<int, MutableGattCharacteristic>> _characteristics;
-  final Map<int, Map<int, MutableGattDescriptor>> _descriptors;
+  final Map<int, Map<int, MutableGATTCharacteristic>> _characteristics;
+  final Map<int, Map<int, MutableGATTDescriptor>> _descriptors;
   final Map<String, int> _mtus;
   final Map<String, Map<int, bool>> _confirms;
-  final Map<String, MutableGattCharacteristic> _preparedCharacteristics;
-  final Map<String, MutableGattDescriptor> _preparedDescriptors;
+  final Map<String, MutableGATTCharacteristic> _preparedCharacteristics;
+  final Map<String, MutableGATTDescriptor> _preparedDescriptors;
   final Map<String, List<int>> _preparedValue;
 
   BluetoothLowEnergyState _state;
@@ -54,40 +54,40 @@ base class MyPeripheralManager extends BasePeripheralManager
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
-  Stream<GattCharacteristicReadEventArgs> get characteristicRead =>
+  Stream<GATTCharacteristicReadEventArgs> get characteristicRead =>
       _characteristicReadController.stream;
   @override
-  Stream<GattCharacteristicWrittenEventArgs> get characteristicWritten =>
+  Stream<GATTCharacteristicWrittenEventArgs> get characteristicWritten =>
       _characteristicWrittenController.stream;
   @override
-  Stream<GattCharacteristicNotifyStateChangedEventArgs>
+  Stream<GATTCharacteristicNotifyStateChangedEventArgs>
       get characteristicNotifyStateChanged =>
           _characteristicNotifyStateChangedController.stream;
 
   @override
   void initialize() async {
-    logger.info('initialize');
     MyPeripheralManagerFlutterAPI.setUp(this);
+    logger.info('initialize');
     await _api.initialize();
   }
 
   @override
-  Future<void> addService(GattService service) async {
-    if (service is! MutableGattService) {
+  Future<void> addService(GATTService service) async {
+    if (service is! MutableGATTService) {
       throw TypeError();
     }
-    final characteristics = <int, MutableGattCharacteristic>{};
-    final descriptors = <int, MutableGattDescriptor>{};
+    final characteristics = <int, MutableGATTCharacteristic>{};
+    final descriptors = <int, MutableGATTDescriptor>{};
     final characteristicsArgs = <MyGattCharacteristicArgs>[];
     for (var characteristic in service.characteristics) {
       final descriptorsArgs = <MyGattDescriptorArgs>[];
       final properties = characteristic.properties;
       final canNotify =
-          properties.contains(GattCharacteristicProperty.notify) ||
-              properties.contains(GattCharacteristicProperty.indicate);
+          properties.contains(GATTCharacteristicProperty.notify) ||
+              properties.contains(GATTCharacteristicProperty.indicate);
       if (canNotify) {
         // CLIENT_CHARACTERISTIC_CONFIG
-        final cccDescriptor = MutableGattDescriptor(
+        final cccDescriptor = MutableGATTDescriptor(
           uuid: UUID.short(0x2902),
           value: Uint8List.fromList([0x00, 0x00]),
         );
@@ -112,7 +112,7 @@ base class MyPeripheralManager extends BasePeripheralManager
   }
 
   @override
-  Future<void> removeService(GattService service) async {
+  Future<void> removeService(GATTService service) async {
     final hashCodeArgs = service.hashCode;
     logger.info('removeService: $hashCodeArgs');
     await _api.removeService(hashCodeArgs);
@@ -142,8 +142,8 @@ base class MyPeripheralManager extends BasePeripheralManager
   }
 
   @override
-  Future<Uint8List> readCharacteristic(GattCharacteristic characteristic) {
-    if (characteristic is! MutableGattCharacteristic) {
+  Future<Uint8List> readCharacteristic(GATTCharacteristic characteristic) {
+    if (characteristic is! MutableGATTCharacteristic) {
       throw TypeError();
     }
     final hashCodeArgs = characteristic.hashCode;
@@ -154,11 +154,11 @@ base class MyPeripheralManager extends BasePeripheralManager
 
   @override
   Future<void> writeCharacteristic(
-    GattCharacteristic characteristic, {
+    GATTCharacteristic characteristic, {
     required Uint8List value,
     Central? central,
   }) async {
-    if (characteristic is! MutableGattCharacteristic) {
+    if (characteristic is! MutableGATTCharacteristic) {
       throw TypeError();
     }
     characteristic.value = value;
@@ -341,7 +341,7 @@ base class MyPeripheralManager extends BasePeripheralManager
     } else {
       confirms.remove(hashCodeArgs);
     }
-    final eventArgs = GattCharacteristicNotifyStateChangedEventArgs(
+    final eventArgs = GATTCharacteristicNotifyStateChangedEventArgs(
       central,
       characteristic,
       state,
@@ -462,13 +462,13 @@ base class MyPeripheralManager extends BasePeripheralManager
     );
   }
 
-  MutableGattCharacteristic? _retrieveCharacteristic(int hashCodeArgs) {
+  MutableGATTCharacteristic? _retrieveCharacteristic(int hashCodeArgs) {
     final characteristics = _characteristics.values
         .reduce((value, element) => value..addAll(element));
     return characteristics[hashCodeArgs];
   }
 
-  MutableGattDescriptor? _retrieveDescriptor(int hashCodeArgs) {
+  MutableGATTDescriptor? _retrieveDescriptor(int hashCodeArgs) {
     final descriptors =
         _descriptors.values.reduce((value, element) => value..addAll(element));
     return descriptors[hashCodeArgs];
@@ -504,13 +504,13 @@ base class MyPeripheralManager extends BasePeripheralManager
 
   Uint8List _onCharacteristicRead(
     MyCentral central,
-    MutableGattCharacteristic characteristic,
+    MutableGATTCharacteristic characteristic,
     int offset,
   ) {
     final value = characteristic.value;
     final trimmedValue = value.sublist(offset);
     if (offset == 0) {
-      final eventArgs = GattCharacteristicReadEventArgs(
+      final eventArgs = GATTCharacteristicReadEventArgs(
         central,
         characteristic,
         value,
@@ -522,12 +522,12 @@ base class MyPeripheralManager extends BasePeripheralManager
 
   void _onCharacteristicWritten(
     MyCentral central,
-    MutableGattCharacteristic characteristic,
+    MutableGATTCharacteristic characteristic,
     Uint8List value,
   ) async {
     characteristic.value = value;
     final trimmedValue = characteristic.value;
-    final eventArgs = GattCharacteristicWrittenEventArgs(
+    final eventArgs = GATTCharacteristicWrittenEventArgs(
       central,
       characteristic,
       trimmedValue,

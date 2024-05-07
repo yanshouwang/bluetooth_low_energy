@@ -24,11 +24,11 @@ class _PeripheralViewState extends State<PeripheralView> {
   late final CentralManager centralManager;
   late final ValueNotifier<bool> connectionState;
   late final DiscoveredEventArgs eventArgs;
-  late final ValueNotifier<List<GattService>> services;
-  late final ValueNotifier<List<GattCharacteristic>> characteristics;
-  late final ValueNotifier<GattService?> service;
-  late final ValueNotifier<GattCharacteristic?> characteristic;
-  late final ValueNotifier<GattCharacteristicWriteType> writeType;
+  late final ValueNotifier<List<GATTService>> services;
+  late final ValueNotifier<List<GATTCharacteristic>> characteristics;
+  late final ValueNotifier<GATTService?> service;
+  late final ValueNotifier<GATTCharacteristic?> characteristic;
+  late final ValueNotifier<GATTCharacteristicWriteType> writeType;
   late final ValueNotifier<List<Log>> logs;
   late final TextEditingController writeController;
   late final StreamSubscription connectionStateChangedSubscription;
@@ -44,7 +44,7 @@ class _PeripheralViewState extends State<PeripheralView> {
     characteristics = ValueNotifier([]);
     service = ValueNotifier(null);
     characteristic = ValueNotifier(null);
-    writeType = ValueNotifier(GattCharacteristicWriteType.withResponse);
+    writeType = ValueNotifier(GATTCharacteristicWriteType.withResponse);
     logs = ValueNotifier([]);
     writeController = TextEditingController();
     connectionStateChangedSubscription =
@@ -193,25 +193,25 @@ class _PeripheralViewState extends State<PeripheralView> {
                       this.characteristic.value = characteristic;
                       final writeType = this.writeType.value;
                       final canWrite = characteristic.properties.contains(
-                        GattCharacteristicProperty.write,
+                        GATTCharacteristicProperty.write,
                       );
                       final canWriteWithoutResponse =
                           characteristic.properties.contains(
-                        GattCharacteristicProperty.writeWithoutResponse,
+                        GATTCharacteristicProperty.writeWithoutResponse,
                       );
                       if (writeType ==
-                              GattCharacteristicWriteType.withResponse &&
+                              GATTCharacteristicWriteType.withResponse &&
                           !canWrite &&
                           canWriteWithoutResponse) {
                         this.writeType.value =
-                            GattCharacteristicWriteType.withoutResponse;
+                            GATTCharacteristicWriteType.withoutResponse;
                       }
                       if (writeType ==
-                              GattCharacteristicWriteType.withoutResponse &&
+                              GATTCharacteristicWriteType.withoutResponse &&
                           !canWriteWithoutResponse &&
                           canWrite) {
                         this.writeType.value =
-                            GattCharacteristicWriteType.withResponse;
+                            GATTCharacteristicWriteType.withResponse;
                       }
                     },
                   );
@@ -280,19 +280,19 @@ class _PeripheralViewState extends State<PeripheralView> {
               } else {
                 final properties = characteristic.properties;
                 canNotify = properties.contains(
-                      GattCharacteristicProperty.notify,
+                      GATTCharacteristicProperty.notify,
                     ) ||
                     properties.contains(
-                      GattCharacteristicProperty.indicate,
+                      GATTCharacteristicProperty.indicate,
                     );
                 canRead = properties.contains(
-                  GattCharacteristicProperty.read,
+                  GATTCharacteristicProperty.read,
                 );
                 canWrite = properties.contains(
-                  GattCharacteristicProperty.write,
+                  GATTCharacteristicProperty.write,
                 );
                 canWriteWithoutResponse = properties.contains(
-                  GattCharacteristicProperty.writeWithoutResponse,
+                  GATTCharacteristicProperty.writeWithoutResponse,
                 );
               }
               return Column(
@@ -361,7 +361,7 @@ class _PeripheralViewState extends State<PeripheralView> {
                                       return;
                                     }
                                     final type =
-                                        GattCharacteristicWriteType.values[i];
+                                        GATTCharacteristicWriteType.values[i];
                                     this.writeType.value = type;
                                   }
                                 : null,
@@ -370,10 +370,10 @@ class _PeripheralViewState extends State<PeripheralView> {
                               minHeight: 0.0,
                             ),
                             borderRadius: BorderRadius.circular(4.0),
-                            isSelected: GattCharacteristicWriteType.values
+                            isSelected: GATTCharacteristicWriteType.values
                                 .map((type) => type == writeType)
                                 .toList(),
-                            children: GattCharacteristicWriteType.values.map(
+                            children: GATTCharacteristicWriteType.values.map(
                               (type) {
                                 return Container(
                                   margin: const EdgeInsets.symmetric(

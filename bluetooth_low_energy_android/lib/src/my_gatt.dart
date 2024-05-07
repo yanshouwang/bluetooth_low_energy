@@ -2,31 +2,26 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 
 import 'my_peripheral.dart';
 
-base class MyGattService extends BaseGattService {
+base class MyGattDescriptor extends BaseGATTDescriptor {
   final MyPeripheral peripheral;
   @override
   final int hashCode;
 
-  MyGattService({
+  MyGattDescriptor({
     required this.peripheral,
     required this.hashCode,
     required super.uuid,
-    required List<MyGattCharacteristic> characteristics,
-  }) : super(characteristics: characteristics);
-
-  @override
-  List<MyGattCharacteristic> get characteristics =>
-      super.characteristics.cast<MyGattCharacteristic>();
+  });
 
   @override
   bool operator ==(Object other) {
-    return other is MyGattService &&
+    return other is MyGattDescriptor &&
         other.peripheral == peripheral &&
         other.hashCode == hashCode;
   }
 }
 
-base class MyGattCharacteristic extends BaseGattCharacteristic {
+base class MyGattCharacteristic extends BaseGATTCharacteristic {
   final MyPeripheral peripheral;
   @override
   final int hashCode;
@@ -51,20 +46,25 @@ base class MyGattCharacteristic extends BaseGattCharacteristic {
   }
 }
 
-base class MyGattDescriptor extends BaseGattDescriptor {
+base class MyGattService extends BaseGATTService {
   final MyPeripheral peripheral;
   @override
   final int hashCode;
 
-  MyGattDescriptor({
+  MyGattService({
     required this.peripheral,
     required this.hashCode,
     required super.uuid,
-  });
+    required List<MyGattCharacteristic> characteristics,
+  }) : super(characteristics: characteristics);
+
+  @override
+  List<MyGattCharacteristic> get characteristics =>
+      super.characteristics.cast<MyGattCharacteristic>();
 
   @override
   bool operator ==(Object other) {
-    return other is MyGattDescriptor &&
+    return other is MyGattService &&
         other.peripheral == peripheral &&
         other.hashCode == hashCode;
   }

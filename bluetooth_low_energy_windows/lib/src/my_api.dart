@@ -1,3 +1,5 @@
+// ignore_for_file: camel_case_extensions
+
 import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
@@ -24,8 +26,8 @@ extension MyBluetoothLowEnergyStateArgsX on MyBluetoothLowEnergyStateArgs {
 
 extension MyGattCharacteristicPropertyArgsX
     on MyGattCharacteristicPropertyArgs {
-  GattCharacteristicProperty toProperty() {
-    return GattCharacteristicProperty.values[index];
+  GATTCharacteristicProperty toProperty() {
+    return GATTCharacteristicProperty.values[index];
   }
 }
 
@@ -125,27 +127,27 @@ extension MyGattServiceArgsX on MyGattServiceArgs {
   }
 }
 
-extension MyIntX on int {
+extension intX on int {
   UUID toUUID() {
     final node = (this & 0xFFFFFFFFFFFF).toRadixString(16).padLeft(12, '0');
     return UUID.fromString('00000000-0000-0000-0000-$node');
   }
 }
 
-extension MyStringX on String {
+extension StringX on String {
   UUID toUUID() {
     return UUID.fromString(this);
   }
 }
 
 // ToArgs
-extension GattCharacteristicPropertyX on GattCharacteristicProperty {
+extension GattCharacteristicPropertyX on GATTCharacteristicProperty {
   MyGattCharacteristicPropertyArgs toArgs() {
     return MyGattCharacteristicPropertyArgs.values[index];
   }
 }
 
-extension GattCharacteristicWriteTypeX on GattCharacteristicWriteType {
+extension GattCharacteristicWriteTypeX on GATTCharacteristicWriteType {
   MyGattCharacteristicWriteTypeArgs toArgs() {
     return MyGattCharacteristicWriteTypeArgs.values[index];
   }

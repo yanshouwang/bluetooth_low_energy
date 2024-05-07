@@ -16,7 +16,7 @@ base class MyCentralManager extends BaseCentralManager
   final StreamController<DiscoveredEventArgs> _discoveredController;
   final StreamController<ConnectionStateChangedEventArgs>
       _connectionStateChangedController;
-  final StreamController<GattCharacteristicNotifiedEventArgs>
+  final StreamController<GATTCharacteristicNotifiedEventArgs>
       _characteristicNotifiedController;
 
   final Map<int, Peripheral> _peripherals;
@@ -45,13 +45,13 @@ base class MyCentralManager extends BaseCentralManager
   Stream<ConnectionStateChangedEventArgs> get connectionStateChanged =>
       _connectionStateChangedController.stream;
   @override
-  Stream<GattCharacteristicNotifiedEventArgs> get characteristicNotified =>
+  Stream<GATTCharacteristicNotifiedEventArgs> get characteristicNotified =>
       _characteristicNotifiedController.stream;
 
   @override
   Future<void> initialize() async {
-    logger.info('initialize');
     MyCentralManagerFlutterAPI.setUp(this);
+    logger.info('initialize');
     await _api.initialize();
   }
 
@@ -108,7 +108,7 @@ base class MyCentralManager extends BaseCentralManager
   }
 
   @override
-  Future<List<GattService>> discoverGATT(Peripheral peripheral) async {
+  Future<List<GATTService>> discoverGATT(Peripheral peripheral) async {
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
@@ -149,7 +149,7 @@ base class MyCentralManager extends BaseCentralManager
 
   @override
   Future<Uint8List> readCharacteristic(
-    GattCharacteristic characteristic,
+    GATTCharacteristic characteristic,
   ) async {
     if (characteristic is! MyGattCharacteristic) {
       throw TypeError();
@@ -164,9 +164,9 @@ base class MyCentralManager extends BaseCentralManager
 
   @override
   Future<void> writeCharacteristic(
-    GattCharacteristic characteristic, {
+    GATTCharacteristic characteristic, {
     required Uint8List value,
-    required GattCharacteristicWriteType type,
+    required GATTCharacteristicWriteType type,
   }) async {
     if (characteristic is! MyGattCharacteristic) {
       throw TypeError();
@@ -189,7 +189,7 @@ base class MyCentralManager extends BaseCentralManager
 
   @override
   Future<void> setCharacteristicNotifyState(
-    GattCharacteristic characteristic, {
+    GATTCharacteristic characteristic, {
     required bool state,
   }) async {
     if (characteristic is! MyGattCharacteristic) {
@@ -199,7 +199,7 @@ base class MyCentralManager extends BaseCentralManager
     final addressArgs = peripheral.address;
     final handleArgs = characteristic.handle;
     final stateArgs = state
-        ? characteristic.properties.contains(GattCharacteristicProperty.notify)
+        ? characteristic.properties.contains(GATTCharacteristicProperty.notify)
             ? MyGattCharacteristicNotifyStateArgs.notify
             : MyGattCharacteristicNotifyStateArgs.indicate
         : MyGattCharacteristicNotifyStateArgs.none;
@@ -214,7 +214,7 @@ base class MyCentralManager extends BaseCentralManager
   }
 
   @override
-  Future<Uint8List> readDescriptor(GattDescriptor descriptor) async {
+  Future<Uint8List> readDescriptor(GATTDescriptor descriptor) async {
     if (descriptor is! MyGattDescriptor) {
       throw TypeError();
     }
@@ -228,7 +228,7 @@ base class MyCentralManager extends BaseCentralManager
 
   @override
   Future<void> writeDescriptor(
-    GattDescriptor descriptor, {
+    GATTDescriptor descriptor, {
     required Uint8List value,
   }) async {
     if (descriptor is! MyGattDescriptor) {
@@ -306,14 +306,14 @@ base class MyCentralManager extends BaseCentralManager
       return;
     }
     final value = valueArgs;
-    final eventArgs = GattCharacteristicNotifiedEventArgs(
+    final eventArgs = GATTCharacteristicNotifiedEventArgs(
       characteristic,
       value,
     );
     _characteristicNotifiedController.add(eventArgs);
   }
 
-  GattCharacteristic? _retrieveCharacteristic(int addressArgs, int handleArgs) {
+  GATTCharacteristic? _retrieveCharacteristic(int addressArgs, int handleArgs) {
     final characteristics = _characteristics[addressArgs];
     if (characteristics == null) {
       return null;
