@@ -14,7 +14,7 @@ base class MyCentralManager extends BaseCentralManager
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
   final StreamController<DiscoveredEventArgs> _discoveredController;
-  final StreamController<ConnectionStateChangedEventArgs>
+  final StreamController<PeripheralConnectionStateChangedEventArgs>
       _connectionStateChangedController;
   final StreamController<GATTCharacteristicNotifiedEventArgs>
       _characteristicNotifiedController;
@@ -44,8 +44,8 @@ base class MyCentralManager extends BaseCentralManager
   @override
   Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
   @override
-  Stream<ConnectionStateChangedEventArgs> get connectionStateChanged =>
-      _connectionStateChangedController.stream;
+  Stream<PeripheralConnectionStateChangedEventArgs>
+      get connectionStateChanged => _connectionStateChangedController.stream;
   @override
   Stream<GATTCharacteristicNotifiedEventArgs> get characteristicNotified =>
       _characteristicNotifiedController.stream;
@@ -313,7 +313,8 @@ base class MyCentralManager extends BaseCentralManager
       return;
     }
     final state = stateArgs;
-    final eventArgs = ConnectionStateChangedEventArgs(peripheral, state);
+    final eventArgs =
+        PeripheralConnectionStateChangedEventArgs(peripheral, state);
     _connectionStateChangedController.add(eventArgs);
     if (!state) {
       _characteristics.remove(addressArgs);

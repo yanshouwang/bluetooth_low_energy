@@ -48,7 +48,7 @@ class _PeripheralViewState extends State<PeripheralView> {
     logs = ValueNotifier([]);
     writeController = TextEditingController();
     connectionStateChangedSubscription =
-        centralManager.connectionStateChanged.listen(
+        centralManager.peripheralStateChanged.listen(
       (eventArgs) {
         if (eventArgs.peripheral != this.eventArgs.peripheral) {
           return;

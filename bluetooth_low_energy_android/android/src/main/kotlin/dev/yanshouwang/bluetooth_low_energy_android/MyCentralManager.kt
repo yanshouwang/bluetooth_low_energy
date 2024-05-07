@@ -169,6 +169,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
     }
 
     override fun retrieveConnectedPeripherals(): List<MyPeripheralArgs> {
+        // TODO: Use `GATT_SERVER` instead of `GATT`
         val devices = manager.getConnectedDevices(BluetoothProfile.GATT)
         val peripheralsArgs = devices.map { device ->
             val peripheralArgs = device.toPeripheralArgs()

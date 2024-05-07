@@ -39,8 +39,7 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
         state.value = eventArgs.state;
       },
     );
-    characteristicReadSubscription =
-        peripheralManager.characteristicRead.listen(
+    characteristicReadSubscription = peripheralManager.read.listen(
       (eventArgs) async {
         final central = eventArgs.central;
         final characteristic = eventArgs.characteristic;
@@ -56,8 +55,7 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
         ];
       },
     );
-    characteristicWrittenSubscription =
-        peripheralManager.characteristicWritten.listen(
+    characteristicWrittenSubscription = peripheralManager.written.listen(
       (eventArgs) async {
         final central = eventArgs.central;
         final characteristic = eventArgs.characteristic;

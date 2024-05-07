@@ -2,11 +2,11 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 
 import 'my_peripheral.dart';
 
-base class MyGattDescriptor extends BaseGATTDescriptor {
+base class MyGATTDescriptor extends BaseGATTDescriptor {
   final MyPeripheral peripheral;
   final int handle;
 
-  MyGattDescriptor({
+  MyGATTDescriptor({
     required this.peripheral,
     required this.handle,
     required super.uuid,
@@ -17,60 +17,60 @@ base class MyGattDescriptor extends BaseGATTDescriptor {
 
   @override
   bool operator ==(Object other) {
-    return other is MyGattDescriptor &&
+    return other is MyGATTDescriptor &&
         other.peripheral == peripheral &&
         other.handle == handle;
   }
 }
 
-base class MyGattCharacteristic extends BaseGATTCharacteristic {
+base class MyGATTCharacteristic extends BaseGATTCharacteristic {
   final MyPeripheral peripheral;
   final int handle;
 
-  MyGattCharacteristic({
+  MyGATTCharacteristic({
     required this.peripheral,
     required this.handle,
     required super.uuid,
     required super.properties,
-    required List<MyGattDescriptor> descriptors,
+    required List<MyGATTDescriptor> descriptors,
   }) : super(descriptors: descriptors);
 
   @override
-  List<MyGattDescriptor> get descriptors =>
-      super.descriptors.cast<MyGattDescriptor>();
+  List<MyGATTDescriptor> get descriptors =>
+      super.descriptors.cast<MyGATTDescriptor>();
 
   @override
   int get hashCode => Object.hash(peripheral, handle);
 
   @override
   bool operator ==(Object other) {
-    return other is MyGattCharacteristic &&
+    return other is MyGATTCharacteristic &&
         other.peripheral == peripheral &&
         other.handle == handle;
   }
 }
 
-base class MyGattService extends BaseGATTService {
+base class MyGATTService extends BaseGATTService {
   final MyPeripheral peripheral;
   final int handle;
 
-  MyGattService({
+  MyGATTService({
     required this.peripheral,
     required this.handle,
     required super.uuid,
-    required List<MyGattCharacteristic> characteristics,
+    required List<MyGATTCharacteristic> characteristics,
   }) : super(characteristics: characteristics);
 
   @override
-  List<MyGattCharacteristic> get characteristics =>
-      super.characteristics.cast<MyGattCharacteristic>();
+  List<MyGATTCharacteristic> get characteristics =>
+      super.characteristics.cast<MyGATTCharacteristic>();
 
   @override
   int get hashCode => Object.hash(peripheral, handle);
 
   @override
   bool operator ==(Object other) {
-    return other is MyGattService &&
+    return other is MyGATTService &&
         other.peripheral == peripheral &&
         other.handle == handle;
   }

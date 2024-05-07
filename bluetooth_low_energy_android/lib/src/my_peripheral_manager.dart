@@ -54,10 +54,10 @@ base class MyPeripheralManager extends BasePeripheralManager
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
-  Stream<GATTCharacteristicReadEventArgs> get characteristicRead =>
+  Stream<GATTCharacteristicReadEventArgs> get read =>
       _characteristicReadController.stream;
   @override
-  Stream<GATTCharacteristicWrittenEventArgs> get characteristicWritten =>
+  Stream<GATTCharacteristicWrittenEventArgs> get written =>
       _characteristicWrittenController.stream;
   @override
   Stream<GATTCharacteristicNotifyStateChangedEventArgs>

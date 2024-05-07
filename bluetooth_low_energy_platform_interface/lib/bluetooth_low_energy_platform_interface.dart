@@ -12,6 +12,7 @@ export 'src/uuid.dart';
 export 'src/bluetooth_low_energy_state.dart';
 export 'src/manufacturer_specific_data.dart';
 export 'src/advertisement.dart';
+export 'src/connection_state.dart';
 export 'src/gatt.dart';
 
 export 'src/bluetooth_low_energy_manager.dart';

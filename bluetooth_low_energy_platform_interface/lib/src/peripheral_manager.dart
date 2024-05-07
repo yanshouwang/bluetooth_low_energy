@@ -8,7 +8,7 @@ import 'central.dart';
 import 'event_args.dart';
 import 'gatt.dart';
 
-/// The GATT characteristic written event arguments.
+/// The GATT characteristic read event arguments.
 final class GATTCharacteristicReadEventArgs extends EventArgs {
   /// The central which read this characteristic.
   final Central central;

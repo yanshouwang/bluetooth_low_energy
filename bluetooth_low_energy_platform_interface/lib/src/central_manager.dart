@@ -24,29 +24,6 @@ final class DiscoveredEventArgs extends EventArgs {
   DiscoveredEventArgs(this.peripheral, this.rssi, this.advertisement);
 }
 
-/// The connection state cahnged event arguments.
-final class ConnectionStateChangedEventArgs extends EventArgs {
-  /// The peripheral which connection state changed.
-  final Peripheral peripheral;
-
-  /// The connection state.
-  final bool connectionState;
-
-  /// Constructs a [ConnectionStateChangedEventArgs].
-  ConnectionStateChangedEventArgs(this.peripheral, this.connectionState);
-}
-
-/// The MTU changed event arguments.
-final class MTUChangedEventArgs extends EventArgs {
-  /// The peripheral which MTU changed.
-  final Peripheral peripheral;
-
-  /// The MTU.
-  final int mtu;
-
-  MTUChangedEventArgs(this.peripheral, this.mtu);
-}
-
 /// The GATT characteristic notified event arguments.
 final class GATTCharacteristicNotifiedEventArgs extends EventArgs {
   /// The GATT characteristic which notified.
@@ -81,14 +58,6 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
 
   /// Tells that retrieving the specified peripheral's connection lost.
   Stream<ConnectionStateChangedEventArgs> get connectionStateChanged;
-
-  /// Callback indicating the MTU for a given device connection has changed.
-  ///
-  /// This callback is triggered in response to the BluetoothGatt#requestMtu function,
-  /// or in response to a connection event.
-  ///
-  /// This event is available on Android, throws [UnsupportedError] on other platforms.
-  Stream<MTUChangedEventArgs> get mtuChanged;
 
   /// Tells that retrieving the specified characteristic’s value changed.
   Stream<GATTCharacteristicNotifiedEventArgs> get characteristicNotified;

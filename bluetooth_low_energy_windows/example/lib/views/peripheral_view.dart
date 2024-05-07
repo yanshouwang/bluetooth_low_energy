@@ -6,6 +6,7 @@ import 'package:bluetooth_low_energy_example/models.dart';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:convert/convert.dart';
 import 'package:flutter/material.dart';
+import 'package:hybrid_logging/hybrid_logging.dart';
 import 'package:intl/intl.dart';
 
 class PeripheralView extends StatefulWidget {
@@ -20,7 +21,7 @@ class PeripheralView extends StatefulWidget {
   State<PeripheralView> createState() => _PeripheralViewState();
 }
 
-class _PeripheralViewState extends State<PeripheralView> {
+class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
   late final CentralManager centralManager;
   late final ValueNotifier<bool> connectionState;
   late final DiscoveredEventArgs eventArgs;
@@ -32,6 +33,7 @@ class _PeripheralViewState extends State<PeripheralView> {
   late final ValueNotifier<List<Log>> logs;
   late final TextEditingController writeController;
   late final StreamSubscription connectionStateChangedSubscription;
+  late final StreamSubscription mtuChangedSubscription;
   late final StreamSubscription characteristicNotifiedSubscription;
 
   @override
@@ -62,6 +64,15 @@ class _PeripheralViewState extends State<PeripheralView> {
           characteristic.value = null;
           logs.value = [];
         }
+      },
+    );
+    mtuChangedSubscription = centralManager.mtuChanged.listen(
+      (eventArgs) {
+        if (eventArgs.peripheral != this.eventArgs.peripheral) {
+          return;
+        }
+        final mtu = eventArgs.mtu;
+        logger.info('new MTU size: $mtu');
       },
     );
     characteristicNotifiedSubscription =
@@ -455,6 +466,7 @@ class _PeripheralViewState extends State<PeripheralView> {
   void dispose() {
     super.dispose();
     connectionStateChangedSubscription.cancel();
+    mtuChangedSubscription.cancel();
     characteristicNotifiedSubscription.cancel();
     connectionState.dispose();
     services.dispose();

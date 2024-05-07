@@ -170,33 +170,6 @@ MyAdvertisementArgs MyAdvertisementArgs::FromEncodableList(const EncodableList& 
   return decoded;
 }
 
-// MyCentralArgs
-
-MyCentralArgs::MyCentralArgs(int64_t address_args)
- : address_args_(address_args) {}
-
-int64_t MyCentralArgs::address_args() const {
-  return address_args_;
-}
-
-void MyCentralArgs::set_address_args(int64_t value_arg) {
-  address_args_ = value_arg;
-}
-
-
-EncodableList MyCentralArgs::ToEncodableList() const {
-  EncodableList list;
-  list.reserve(1);
-  list.push_back(EncodableValue(address_args_));
-  return list;
-}
-
-MyCentralArgs MyCentralArgs::FromEncodableList(const EncodableList& list) {
-  MyCentralArgs decoded(
-    list[0].LongValue());
-  return decoded;
-}
-
 // MyPeripheralArgs
 
 MyPeripheralArgs::MyPeripheralArgs(int64_t address_args)
@@ -224,76 +197,50 @@ MyPeripheralArgs MyPeripheralArgs::FromEncodableList(const EncodableList& list) 
   return decoded;
 }
 
-// MyGattDescriptorArgs
+// MyGATTDescriptorArgs
 
-MyGattDescriptorArgs::MyGattDescriptorArgs(
+MyGATTDescriptorArgs::MyGATTDescriptorArgs(
   int64_t handle_args,
   const std::string& uuid_args)
  : handle_args_(handle_args),
     uuid_args_(uuid_args) {}
 
-MyGattDescriptorArgs::MyGattDescriptorArgs(
-  int64_t handle_args,
-  const std::string& uuid_args,
-  const std::vector<uint8_t>* value_args)
- : handle_args_(handle_args),
-    uuid_args_(uuid_args),
-    value_args_(value_args ? std::optional<std::vector<uint8_t>>(*value_args) : std::nullopt) {}
-
-int64_t MyGattDescriptorArgs::handle_args() const {
+int64_t MyGATTDescriptorArgs::handle_args() const {
   return handle_args_;
 }
 
-void MyGattDescriptorArgs::set_handle_args(int64_t value_arg) {
+void MyGATTDescriptorArgs::set_handle_args(int64_t value_arg) {
   handle_args_ = value_arg;
 }
 
 
-const std::string& MyGattDescriptorArgs::uuid_args() const {
+const std::string& MyGATTDescriptorArgs::uuid_args() const {
   return uuid_args_;
 }
 
-void MyGattDescriptorArgs::set_uuid_args(std::string_view value_arg) {
+void MyGATTDescriptorArgs::set_uuid_args(std::string_view value_arg) {
   uuid_args_ = value_arg;
 }
 
 
-const std::vector<uint8_t>* MyGattDescriptorArgs::value_args() const {
-  return value_args_ ? &(*value_args_) : nullptr;
-}
-
-void MyGattDescriptorArgs::set_value_args(const std::vector<uint8_t>* value_arg) {
-  value_args_ = value_arg ? std::optional<std::vector<uint8_t>>(*value_arg) : std::nullopt;
-}
-
-void MyGattDescriptorArgs::set_value_args(const std::vector<uint8_t>& value_arg) {
-  value_args_ = value_arg;
-}
-
-
-EncodableList MyGattDescriptorArgs::ToEncodableList() const {
+EncodableList MyGATTDescriptorArgs::ToEncodableList() const {
   EncodableList list;
-  list.reserve(3);
+  list.reserve(2);
   list.push_back(EncodableValue(handle_args_));
   list.push_back(EncodableValue(uuid_args_));
-  list.push_back(value_args_ ? EncodableValue(*value_args_) : EncodableValue());
   return list;
 }
 
-MyGattDescriptorArgs MyGattDescriptorArgs::FromEncodableList(const EncodableList& list) {
-  MyGattDescriptorArgs decoded(
+MyGATTDescriptorArgs MyGATTDescriptorArgs::FromEncodableList(const EncodableList& list) {
+  MyGATTDescriptorArgs decoded(
     list[0].LongValue(),
     std::get<std::string>(list[1]));
-  auto& encodable_value_args = list[2];
-  if (!encodable_value_args.IsNull()) {
-    decoded.set_value_args(std::get<std::vector<uint8_t>>(encodable_value_args));
-  }
   return decoded;
 }
 
-// MyGattCharacteristicArgs
+// MyGATTCharacteristicArgs
 
-MyGattCharacteristicArgs::MyGattCharacteristicArgs(
+MyGATTCharacteristicArgs::MyGATTCharacteristicArgs(
   int64_t handle_args,
   const std::string& uuid_args,
   const EncodableList& property_numbers_args,
@@ -303,43 +250,43 @@ MyGattCharacteristicArgs::MyGattCharacteristicArgs(
     property_numbers_args_(property_numbers_args),
     descriptors_args_(descriptors_args) {}
 
-int64_t MyGattCharacteristicArgs::handle_args() const {
+int64_t MyGATTCharacteristicArgs::handle_args() const {
   return handle_args_;
 }
 
-void MyGattCharacteristicArgs::set_handle_args(int64_t value_arg) {
+void MyGATTCharacteristicArgs::set_handle_args(int64_t value_arg) {
   handle_args_ = value_arg;
 }
 
 
-const std::string& MyGattCharacteristicArgs::uuid_args() const {
+const std::string& MyGATTCharacteristicArgs::uuid_args() const {
   return uuid_args_;
 }
 
-void MyGattCharacteristicArgs::set_uuid_args(std::string_view value_arg) {
+void MyGATTCharacteristicArgs::set_uuid_args(std::string_view value_arg) {
   uuid_args_ = value_arg;
 }
 
 
-const EncodableList& MyGattCharacteristicArgs::property_numbers_args() const {
+const EncodableList& MyGATTCharacteristicArgs::property_numbers_args() const {
   return property_numbers_args_;
 }
 
-void MyGattCharacteristicArgs::set_property_numbers_args(const EncodableList& value_arg) {
+void MyGATTCharacteristicArgs::set_property_numbers_args(const EncodableList& value_arg) {
   property_numbers_args_ = value_arg;
 }
 
 
-const EncodableList& MyGattCharacteristicArgs::descriptors_args() const {
+const EncodableList& MyGATTCharacteristicArgs::descriptors_args() const {
   return descriptors_args_;
 }
 
-void MyGattCharacteristicArgs::set_descriptors_args(const EncodableList& value_arg) {
+void MyGATTCharacteristicArgs::set_descriptors_args(const EncodableList& value_arg) {
   descriptors_args_ = value_arg;
 }
 
 
-EncodableList MyGattCharacteristicArgs::ToEncodableList() const {
+EncodableList MyGATTCharacteristicArgs::ToEncodableList() const {
   EncodableList list;
   list.reserve(4);
   list.push_back(EncodableValue(handle_args_));
@@ -349,8 +296,8 @@ EncodableList MyGattCharacteristicArgs::ToEncodableList() const {
   return list;
 }
 
-MyGattCharacteristicArgs MyGattCharacteristicArgs::FromEncodableList(const EncodableList& list) {
-  MyGattCharacteristicArgs decoded(
+MyGATTCharacteristicArgs MyGATTCharacteristicArgs::FromEncodableList(const EncodableList& list) {
+  MyGATTCharacteristicArgs decoded(
     list[0].LongValue(),
     std::get<std::string>(list[1]),
     std::get<EncodableList>(list[2]),
@@ -358,9 +305,9 @@ MyGattCharacteristicArgs MyGattCharacteristicArgs::FromEncodableList(const Encod
   return decoded;
 }
 
-// MyGattServiceArgs
+// MyGATTServiceArgs
 
-MyGattServiceArgs::MyGattServiceArgs(
+MyGATTServiceArgs::MyGATTServiceArgs(
   int64_t handle_args,
   const std::string& uuid_args,
   const EncodableList& characteristics_args)
@@ -368,34 +315,34 @@ MyGattServiceArgs::MyGattServiceArgs(
     uuid_args_(uuid_args),
     characteristics_args_(characteristics_args) {}
 
-int64_t MyGattServiceArgs::handle_args() const {
+int64_t MyGATTServiceArgs::handle_args() const {
   return handle_args_;
 }
 
-void MyGattServiceArgs::set_handle_args(int64_t value_arg) {
+void MyGATTServiceArgs::set_handle_args(int64_t value_arg) {
   handle_args_ = value_arg;
 }
 
 
-const std::string& MyGattServiceArgs::uuid_args() const {
+const std::string& MyGATTServiceArgs::uuid_args() const {
   return uuid_args_;
 }
 
-void MyGattServiceArgs::set_uuid_args(std::string_view value_arg) {
+void MyGATTServiceArgs::set_uuid_args(std::string_view value_arg) {
   uuid_args_ = value_arg;
 }
 
 
-const EncodableList& MyGattServiceArgs::characteristics_args() const {
+const EncodableList& MyGATTServiceArgs::characteristics_args() const {
   return characteristics_args_;
 }
 
-void MyGattServiceArgs::set_characteristics_args(const EncodableList& value_arg) {
+void MyGATTServiceArgs::set_characteristics_args(const EncodableList& value_arg) {
   characteristics_args_ = value_arg;
 }
 
 
-EncodableList MyGattServiceArgs::ToEncodableList() const {
+EncodableList MyGATTServiceArgs::ToEncodableList() const {
   EncodableList list;
   list.reserve(3);
   list.push_back(EncodableValue(handle_args_));
@@ -404,8 +351,8 @@ EncodableList MyGattServiceArgs::ToEncodableList() const {
   return list;
 }
 
-MyGattServiceArgs MyGattServiceArgs::FromEncodableList(const EncodableList& list) {
-  MyGattServiceArgs decoded(
+MyGATTServiceArgs MyGATTServiceArgs::FromEncodableList(const EncodableList& list) {
+  MyGATTServiceArgs decoded(
     list[0].LongValue(),
     std::get<std::string>(list[1]),
     std::get<EncodableList>(list[2]));
@@ -420,11 +367,11 @@ EncodableValue MyCentralManagerHostAPICodecSerializer::ReadValueOfType(
   flutter::ByteStreamReader* stream) const {
   switch (type) {
     case 128:
-      return CustomEncodableValue(MyGattCharacteristicArgs::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+      return CustomEncodableValue(MyGATTCharacteristicArgs::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
     case 129:
-      return CustomEncodableValue(MyGattDescriptorArgs::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+      return CustomEncodableValue(MyGATTDescriptorArgs::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
     case 130:
-      return CustomEncodableValue(MyGattServiceArgs::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
+      return CustomEncodableValue(MyGATTServiceArgs::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
     default:
       return flutter::StandardCodecSerializer::ReadValueOfType(type, stream);
   }
@@ -434,19 +381,19 @@ void MyCentralManagerHostAPICodecSerializer::WriteValue(
   const EncodableValue& value,
   flutter::ByteStreamWriter* stream) const {
   if (const CustomEncodableValue* custom_value = std::get_if<CustomEncodableValue>(&value)) {
-    if (custom_value->type() == typeid(MyGattCharacteristicArgs)) {
+    if (custom_value->type() == typeid(MyGATTCharacteristicArgs)) {
       stream->WriteByte(128);
-      WriteValue(EncodableValue(std::any_cast<MyGattCharacteristicArgs>(*custom_value).ToEncodableList()), stream);
+      WriteValue(EncodableValue(std::any_cast<MyGATTCharacteristicArgs>(*custom_value).ToEncodableList()), stream);
       return;
     }
-    if (custom_value->type() == typeid(MyGattDescriptorArgs)) {
+    if (custom_value->type() == typeid(MyGATTDescriptorArgs)) {
       stream->WriteByte(129);
-      WriteValue(EncodableValue(std::any_cast<MyGattDescriptorArgs>(*custom_value).ToEncodableList()), stream);
+      WriteValue(EncodableValue(std::any_cast<MyGATTDescriptorArgs>(*custom_value).ToEncodableList()), stream);
       return;
     }
-    if (custom_value->type() == typeid(MyGattServiceArgs)) {
+    if (custom_value->type() == typeid(MyGATTServiceArgs)) {
       stream->WriteByte(130);
-      WriteValue(EncodableValue(std::any_cast<MyGattServiceArgs>(*custom_value).ToEncodableList()), stream);
+      WriteValue(EncodableValue(std::any_cast<MyGATTServiceArgs>(*custom_value).ToEncodableList()), stream);
       return;
     }
   }
@@ -755,13 +702,13 @@ void MyCentralManagerHostAPI::SetUp(
             return;
           }
           const auto& value_args_arg = std::get<std::vector<uint8_t>>(encodable_value_args_arg);
-          const auto& encodable_type_number_args_arg = args.at(3);
-          if (encodable_type_number_args_arg.IsNull()) {
-            reply(WrapError("type_number_args_arg unexpectedly null."));
+          const auto& encodable_type_args_arg = args.at(3);
+          if (encodable_type_args_arg.IsNull()) {
+            reply(WrapError("type_args_arg unexpectedly null."));
             return;
           }
-          const int64_t type_number_args_arg = encodable_type_number_args_arg.LongValue();
-          api->WriteCharacteristic(address_args_arg, handle_args_arg, value_args_arg, type_number_args_arg, [reply](std::optional<FlutterError>&& output) {
+          const MyGATTCharacteristicWriteTypeArgs& type_args_arg = (MyGATTCharacteristicWriteTypeArgs)encodable_type_args_arg.LongValue();
+          api->WriteCharacteristic(address_args_arg, handle_args_arg, value_args_arg, type_args_arg, [reply](std::optional<FlutterError>&& output) {
             if (output.has_value()) {
               reply(WrapError(output.value()));
               return;
@@ -796,13 +743,13 @@ void MyCentralManagerHostAPI::SetUp(
             return;
           }
           const int64_t handle_args_arg = encodable_handle_args_arg.LongValue();
-          const auto& encodable_state_number_args_arg = args.at(2);
-          if (encodable_state_number_args_arg.IsNull()) {
-            reply(WrapError("state_number_args_arg unexpectedly null."));
+          const auto& encodable_state_args_arg = args.at(2);
+          if (encodable_state_args_arg.IsNull()) {
+            reply(WrapError("state_args_arg unexpectedly null."));
             return;
           }
-          const int64_t state_number_args_arg = encodable_state_number_args_arg.LongValue();
-          api->SetCharacteristicNotifyState(address_args_arg, handle_args_arg, state_number_args_arg, [reply](std::optional<FlutterError>&& output) {
+          const MyGATTCharacteristicNotifyStateArgs& state_args_arg = (MyGATTCharacteristicNotifyStateArgs)encodable_state_args_arg.LongValue();
+          api->SetCharacteristicNotifyState(address_args_arg, handle_args_arg, state_args_arg, [reply](std::optional<FlutterError>&& output) {
             if (output.has_value()) {
               reply(WrapError(output.value()));
               return;
@@ -970,13 +917,13 @@ const flutter::StandardMessageCodec& MyCentralManagerFlutterAPI::GetCodec() {
 }
 
 void MyCentralManagerFlutterAPI::OnStateChanged(
-  int64_t state_number_args_arg,
+  const MyBluetoothLowEnergyStateArgs& state_args_arg,
   std::function<void(void)>&& on_success,
   std::function<void(const FlutterError&)>&& on_error) {
   const std::string channel_name = "dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterAPI.onStateChanged" + message_channel_suffix_;
   BasicMessageChannel<> channel(binary_messenger_, channel_name, &GetCodec());
   EncodableValue encoded_api_arguments = EncodableValue(EncodableList{
-    EncodableValue(state_number_args_arg),
+    EncodableValue((int)state_args_arg),
   });
   channel.Send(encoded_api_arguments, [channel_name, on_success = std::move(on_success), on_error = std::move(on_error)](const uint8_t* reply, size_t reply_size) {
     std::unique_ptr<EncodableValue> response = GetCodec().DecodeMessage(reply, reply_size);
@@ -1050,6 +997,33 @@ void MyCentralManagerFlutterAPI::OnConnectionStateChanged(
   });
 }
 
+void MyCentralManagerFlutterAPI::OnMTUChanged(
+  int64_t address_args_arg,
+  int64_t mtu_args_arg,
+  std::function<void(void)>&& on_success,
+  std::function<void(const FlutterError&)>&& on_error) {
+  const std::string channel_name = "dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterAPI.onMTUChanged" + message_channel_suffix_;
+  BasicMessageChannel<> channel(binary_messenger_, channel_name, &GetCodec());
+  EncodableValue encoded_api_arguments = EncodableValue(EncodableList{
+    EncodableValue(address_args_arg),
+    EncodableValue(mtu_args_arg),
+  });
+  channel.Send(encoded_api_arguments, [channel_name, on_success = std::move(on_success), on_error = std::move(on_error)](const uint8_t* reply, size_t reply_size) {
+    std::unique_ptr<EncodableValue> response = GetCodec().DecodeMessage(reply, reply_size);
+    const auto& encodable_return_value = *response;
+    const auto* list_return_value = std::get_if<EncodableList>(&encodable_return_value);
+    if (list_return_value) {
+      if (list_return_value->size() > 1) {
+        on_error(FlutterError(std::get<std::string>(list_return_value->at(0)), std::get<std::string>(list_return_value->at(1)), list_return_value->at(2)));
+      } else {
+        on_success();
+      }
+    } else {
+      on_error(CreateConnectionError(channel_name));
+    } 
+  });
+}
+
 void MyCentralManagerFlutterAPI::OnCharacteristicNotified(
   int64_t address_args_arg,
   int64_t handle_args_arg,
@@ -1062,524 +1036,6 @@ void MyCentralManagerFlutterAPI::OnCharacteristicNotified(
     EncodableValue(address_args_arg),
     EncodableValue(handle_args_arg),
     EncodableValue(value_args_arg),
-  });
-  channel.Send(encoded_api_arguments, [channel_name, on_success = std::move(on_success), on_error = std::move(on_error)](const uint8_t* reply, size_t reply_size) {
-    std::unique_ptr<EncodableValue> response = GetCodec().DecodeMessage(reply, reply_size);
-    const auto& encodable_return_value = *response;
-    const auto* list_return_value = std::get_if<EncodableList>(&encodable_return_value);
-    if (list_return_value) {
-      if (list_return_value->size() > 1) {
-        on_error(FlutterError(std::get<std::string>(list_return_value->at(0)), std::get<std::string>(list_return_value->at(1)), list_return_value->at(2)));
-      } else {
-        on_success();
-      }
-    } else {
-      on_error(CreateConnectionError(channel_name));
-    } 
-  });
-}
-
-
-MyPeripheralManagerHostAPICodecSerializer::MyPeripheralManagerHostAPICodecSerializer() {}
-
-EncodableValue MyPeripheralManagerHostAPICodecSerializer::ReadValueOfType(
-  uint8_t type,
-  flutter::ByteStreamReader* stream) const {
-  switch (type) {
-    case 128:
-      return CustomEncodableValue(MyAdvertisementArgs::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
-    case 129:
-      return CustomEncodableValue(MyGattCharacteristicArgs::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
-    case 130:
-      return CustomEncodableValue(MyGattDescriptorArgs::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
-    case 131:
-      return CustomEncodableValue(MyGattServiceArgs::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
-    case 132:
-      return CustomEncodableValue(MyManufacturerSpecificDataArgs::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
-    default:
-      return flutter::StandardCodecSerializer::ReadValueOfType(type, stream);
-  }
-}
-
-void MyPeripheralManagerHostAPICodecSerializer::WriteValue(
-  const EncodableValue& value,
-  flutter::ByteStreamWriter* stream) const {
-  if (const CustomEncodableValue* custom_value = std::get_if<CustomEncodableValue>(&value)) {
-    if (custom_value->type() == typeid(MyAdvertisementArgs)) {
-      stream->WriteByte(128);
-      WriteValue(EncodableValue(std::any_cast<MyAdvertisementArgs>(*custom_value).ToEncodableList()), stream);
-      return;
-    }
-    if (custom_value->type() == typeid(MyGattCharacteristicArgs)) {
-      stream->WriteByte(129);
-      WriteValue(EncodableValue(std::any_cast<MyGattCharacteristicArgs>(*custom_value).ToEncodableList()), stream);
-      return;
-    }
-    if (custom_value->type() == typeid(MyGattDescriptorArgs)) {
-      stream->WriteByte(130);
-      WriteValue(EncodableValue(std::any_cast<MyGattDescriptorArgs>(*custom_value).ToEncodableList()), stream);
-      return;
-    }
-    if (custom_value->type() == typeid(MyGattServiceArgs)) {
-      stream->WriteByte(131);
-      WriteValue(EncodableValue(std::any_cast<MyGattServiceArgs>(*custom_value).ToEncodableList()), stream);
-      return;
-    }
-    if (custom_value->type() == typeid(MyManufacturerSpecificDataArgs)) {
-      stream->WriteByte(132);
-      WriteValue(EncodableValue(std::any_cast<MyManufacturerSpecificDataArgs>(*custom_value).ToEncodableList()), stream);
-      return;
-    }
-  }
-  flutter::StandardCodecSerializer::WriteValue(value, stream);
-}
-
-/// The codec used by MyPeripheralManagerHostAPI.
-const flutter::StandardMessageCodec& MyPeripheralManagerHostAPI::GetCodec() {
-  return flutter::StandardMessageCodec::GetInstance(&MyPeripheralManagerHostAPICodecSerializer::GetInstance());
-}
-
-// Sets up an instance of `MyPeripheralManagerHostAPI` to handle messages through the `binary_messenger`.
-void MyPeripheralManagerHostAPI::SetUp(
-  flutter::BinaryMessenger* binary_messenger,
-  MyPeripheralManagerHostAPI* api) {
-  MyPeripheralManagerHostAPI::SetUp(binary_messenger, api, "");
-}
-
-void MyPeripheralManagerHostAPI::SetUp(
-  flutter::BinaryMessenger* binary_messenger,
-  MyPeripheralManagerHostAPI* api,
-  const std::string& message_channel_suffix) {
-  const std::string prepended_suffix = message_channel_suffix.length() > 0 ? std::string(".") + message_channel_suffix : "";
-  {
-    BasicMessageChannel<> channel(binary_messenger, "dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.initialize" + prepended_suffix, &GetCodec());
-    if (api != nullptr) {
-      channel.SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
-        try {
-          std::optional<FlutterError> output = api->Initialize();
-          if (output.has_value()) {
-            reply(WrapError(output.value()));
-            return;
-          }
-          EncodableList wrapped;
-          wrapped.push_back(EncodableValue());
-          reply(EncodableValue(std::move(wrapped)));
-        } catch (const std::exception& exception) {
-          reply(WrapError(exception.what()));
-        }
-      });
-    } else {
-      channel.SetMessageHandler(nullptr);
-    }
-  }
-  {
-    BasicMessageChannel<> channel(binary_messenger, "dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.addService" + prepended_suffix, &GetCodec());
-    if (api != nullptr) {
-      channel.SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
-        try {
-          const auto& args = std::get<EncodableList>(message);
-          const auto& encodable_service_args_arg = args.at(0);
-          if (encodable_service_args_arg.IsNull()) {
-            reply(WrapError("service_args_arg unexpectedly null."));
-            return;
-          }
-          const auto& service_args_arg = std::any_cast<const MyGattServiceArgs&>(std::get<CustomEncodableValue>(encodable_service_args_arg));
-          api->AddService(service_args_arg, [reply](std::optional<FlutterError>&& output) {
-            if (output.has_value()) {
-              reply(WrapError(output.value()));
-              return;
-            }
-            EncodableList wrapped;
-            wrapped.push_back(EncodableValue());
-            reply(EncodableValue(std::move(wrapped)));
-          });
-        } catch (const std::exception& exception) {
-          reply(WrapError(exception.what()));
-        }
-      });
-    } else {
-      channel.SetMessageHandler(nullptr);
-    }
-  }
-  {
-    BasicMessageChannel<> channel(binary_messenger, "dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.removeService" + prepended_suffix, &GetCodec());
-    if (api != nullptr) {
-      channel.SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
-        try {
-          const auto& args = std::get<EncodableList>(message);
-          const auto& encodable_handle_args_arg = args.at(0);
-          if (encodable_handle_args_arg.IsNull()) {
-            reply(WrapError("handle_args_arg unexpectedly null."));
-            return;
-          }
-          const int64_t handle_args_arg = encodable_handle_args_arg.LongValue();
-          std::optional<FlutterError> output = api->RemoveService(handle_args_arg);
-          if (output.has_value()) {
-            reply(WrapError(output.value()));
-            return;
-          }
-          EncodableList wrapped;
-          wrapped.push_back(EncodableValue());
-          reply(EncodableValue(std::move(wrapped)));
-        } catch (const std::exception& exception) {
-          reply(WrapError(exception.what()));
-        }
-      });
-    } else {
-      channel.SetMessageHandler(nullptr);
-    }
-  }
-  {
-    BasicMessageChannel<> channel(binary_messenger, "dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.clearServices" + prepended_suffix, &GetCodec());
-    if (api != nullptr) {
-      channel.SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
-        try {
-          std::optional<FlutterError> output = api->ClearServices();
-          if (output.has_value()) {
-            reply(WrapError(output.value()));
-            return;
-          }
-          EncodableList wrapped;
-          wrapped.push_back(EncodableValue());
-          reply(EncodableValue(std::move(wrapped)));
-        } catch (const std::exception& exception) {
-          reply(WrapError(exception.what()));
-        }
-      });
-    } else {
-      channel.SetMessageHandler(nullptr);
-    }
-  }
-  {
-    BasicMessageChannel<> channel(binary_messenger, "dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.startAdvertising" + prepended_suffix, &GetCodec());
-    if (api != nullptr) {
-      channel.SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
-        try {
-          const auto& args = std::get<EncodableList>(message);
-          const auto& encodable_advertisement_args_arg = args.at(0);
-          if (encodable_advertisement_args_arg.IsNull()) {
-            reply(WrapError("advertisement_args_arg unexpectedly null."));
-            return;
-          }
-          const auto& advertisement_args_arg = std::any_cast<const MyAdvertisementArgs&>(std::get<CustomEncodableValue>(encodable_advertisement_args_arg));
-          api->StartAdvertising(advertisement_args_arg, [reply](std::optional<FlutterError>&& output) {
-            if (output.has_value()) {
-              reply(WrapError(output.value()));
-              return;
-            }
-            EncodableList wrapped;
-            wrapped.push_back(EncodableValue());
-            reply(EncodableValue(std::move(wrapped)));
-          });
-        } catch (const std::exception& exception) {
-          reply(WrapError(exception.what()));
-        }
-      });
-    } else {
-      channel.SetMessageHandler(nullptr);
-    }
-  }
-  {
-    BasicMessageChannel<> channel(binary_messenger, "dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.stopAdvertising" + prepended_suffix, &GetCodec());
-    if (api != nullptr) {
-      channel.SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
-        try {
-          std::optional<FlutterError> output = api->StopAdvertising();
-          if (output.has_value()) {
-            reply(WrapError(output.value()));
-            return;
-          }
-          EncodableList wrapped;
-          wrapped.push_back(EncodableValue());
-          reply(EncodableValue(std::move(wrapped)));
-        } catch (const std::exception& exception) {
-          reply(WrapError(exception.what()));
-        }
-      });
-    } else {
-      channel.SetMessageHandler(nullptr);
-    }
-  }
-  {
-    BasicMessageChannel<> channel(binary_messenger, "dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.sendReadCharacteristicReply" + prepended_suffix, &GetCodec());
-    if (api != nullptr) {
-      channel.SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
-        try {
-          const auto& args = std::get<EncodableList>(message);
-          const auto& encodable_address_args_arg = args.at(0);
-          if (encodable_address_args_arg.IsNull()) {
-            reply(WrapError("address_args_arg unexpectedly null."));
-            return;
-          }
-          const int64_t address_args_arg = encodable_address_args_arg.LongValue();
-          const auto& encodable_handle_args_arg = args.at(1);
-          if (encodable_handle_args_arg.IsNull()) {
-            reply(WrapError("handle_args_arg unexpectedly null."));
-            return;
-          }
-          const int64_t handle_args_arg = encodable_handle_args_arg.LongValue();
-          const auto& encodable_status_args_arg = args.at(2);
-          if (encodable_status_args_arg.IsNull()) {
-            reply(WrapError("status_args_arg unexpectedly null."));
-            return;
-          }
-          const auto& status_args_arg = std::get<bool>(encodable_status_args_arg);
-          const auto& encodable_value_args_arg = args.at(3);
-          if (encodable_value_args_arg.IsNull()) {
-            reply(WrapError("value_args_arg unexpectedly null."));
-            return;
-          }
-          const auto& value_args_arg = std::get<std::vector<uint8_t>>(encodable_value_args_arg);
-          std::optional<FlutterError> output = api->SendReadCharacteristicReply(address_args_arg, handle_args_arg, status_args_arg, value_args_arg);
-          if (output.has_value()) {
-            reply(WrapError(output.value()));
-            return;
-          }
-          EncodableList wrapped;
-          wrapped.push_back(EncodableValue());
-          reply(EncodableValue(std::move(wrapped)));
-        } catch (const std::exception& exception) {
-          reply(WrapError(exception.what()));
-        }
-      });
-    } else {
-      channel.SetMessageHandler(nullptr);
-    }
-  }
-  {
-    BasicMessageChannel<> channel(binary_messenger, "dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.sendWriteCharacteristicReply" + prepended_suffix, &GetCodec());
-    if (api != nullptr) {
-      channel.SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
-        try {
-          const auto& args = std::get<EncodableList>(message);
-          const auto& encodable_address_args_arg = args.at(0);
-          if (encodable_address_args_arg.IsNull()) {
-            reply(WrapError("address_args_arg unexpectedly null."));
-            return;
-          }
-          const int64_t address_args_arg = encodable_address_args_arg.LongValue();
-          const auto& encodable_handle_args_arg = args.at(1);
-          if (encodable_handle_args_arg.IsNull()) {
-            reply(WrapError("handle_args_arg unexpectedly null."));
-            return;
-          }
-          const int64_t handle_args_arg = encodable_handle_args_arg.LongValue();
-          const auto& encodable_status_args_arg = args.at(2);
-          if (encodable_status_args_arg.IsNull()) {
-            reply(WrapError("status_args_arg unexpectedly null."));
-            return;
-          }
-          const auto& status_args_arg = std::get<bool>(encodable_status_args_arg);
-          std::optional<FlutterError> output = api->SendWriteCharacteristicReply(address_args_arg, handle_args_arg, status_args_arg);
-          if (output.has_value()) {
-            reply(WrapError(output.value()));
-            return;
-          }
-          EncodableList wrapped;
-          wrapped.push_back(EncodableValue());
-          reply(EncodableValue(std::move(wrapped)));
-        } catch (const std::exception& exception) {
-          reply(WrapError(exception.what()));
-        }
-      });
-    } else {
-      channel.SetMessageHandler(nullptr);
-    }
-  }
-  {
-    BasicMessageChannel<> channel(binary_messenger, "dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.notifyCharacteristic" + prepended_suffix, &GetCodec());
-    if (api != nullptr) {
-      channel.SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
-        try {
-          const auto& args = std::get<EncodableList>(message);
-          const auto& encodable_address_args_arg = args.at(0);
-          if (encodable_address_args_arg.IsNull()) {
-            reply(WrapError("address_args_arg unexpectedly null."));
-            return;
-          }
-          const int64_t address_args_arg = encodable_address_args_arg.LongValue();
-          const auto& encodable_handle_args_arg = args.at(1);
-          if (encodable_handle_args_arg.IsNull()) {
-            reply(WrapError("handle_args_arg unexpectedly null."));
-            return;
-          }
-          const int64_t handle_args_arg = encodable_handle_args_arg.LongValue();
-          const auto& encodable_value_args_arg = args.at(2);
-          if (encodable_value_args_arg.IsNull()) {
-            reply(WrapError("value_args_arg unexpectedly null."));
-            return;
-          }
-          const auto& value_args_arg = std::get<std::vector<uint8_t>>(encodable_value_args_arg);
-          api->NotifyCharacteristic(address_args_arg, handle_args_arg, value_args_arg, [reply](std::optional<FlutterError>&& output) {
-            if (output.has_value()) {
-              reply(WrapError(output.value()));
-              return;
-            }
-            EncodableList wrapped;
-            wrapped.push_back(EncodableValue());
-            reply(EncodableValue(std::move(wrapped)));
-          });
-        } catch (const std::exception& exception) {
-          reply(WrapError(exception.what()));
-        }
-      });
-    } else {
-      channel.SetMessageHandler(nullptr);
-    }
-  }
-}
-
-EncodableValue MyPeripheralManagerHostAPI::WrapError(std::string_view error_message) {
-  return EncodableValue(EncodableList{
-    EncodableValue(std::string(error_message)),
-    EncodableValue("Error"),
-    EncodableValue()
-  });
-}
-
-EncodableValue MyPeripheralManagerHostAPI::WrapError(const FlutterError& error) {
-  return EncodableValue(EncodableList{
-    EncodableValue(error.code()),
-    EncodableValue(error.message()),
-    error.details()
-  });
-}
-
-
-MyPeripheralManagerFlutterAPICodecSerializer::MyPeripheralManagerFlutterAPICodecSerializer() {}
-
-EncodableValue MyPeripheralManagerFlutterAPICodecSerializer::ReadValueOfType(
-  uint8_t type,
-  flutter::ByteStreamReader* stream) const {
-  switch (type) {
-    case 128:
-      return CustomEncodableValue(MyCentralArgs::FromEncodableList(std::get<EncodableList>(ReadValue(stream))));
-    default:
-      return flutter::StandardCodecSerializer::ReadValueOfType(type, stream);
-  }
-}
-
-void MyPeripheralManagerFlutterAPICodecSerializer::WriteValue(
-  const EncodableValue& value,
-  flutter::ByteStreamWriter* stream) const {
-  if (const CustomEncodableValue* custom_value = std::get_if<CustomEncodableValue>(&value)) {
-    if (custom_value->type() == typeid(MyCentralArgs)) {
-      stream->WriteByte(128);
-      WriteValue(EncodableValue(std::any_cast<MyCentralArgs>(*custom_value).ToEncodableList()), stream);
-      return;
-    }
-  }
-  flutter::StandardCodecSerializer::WriteValue(value, stream);
-}
-
-// Generated class from Pigeon that represents Flutter messages that can be called from C++.
-MyPeripheralManagerFlutterAPI::MyPeripheralManagerFlutterAPI(flutter::BinaryMessenger* binary_messenger)
- : binary_messenger_(binary_messenger),
-    message_channel_suffix_("") {}
-
-MyPeripheralManagerFlutterAPI::MyPeripheralManagerFlutterAPI(
-  flutter::BinaryMessenger* binary_messenger,
-  const std::string& message_channel_suffix)
- : binary_messenger_(binary_messenger),
-    message_channel_suffix_(message_channel_suffix.length() > 0 ? std::string(".") + message_channel_suffix : "") {}
-
-const flutter::StandardMessageCodec& MyPeripheralManagerFlutterAPI::GetCodec() {
-  return flutter::StandardMessageCodec::GetInstance(&MyPeripheralManagerFlutterAPICodecSerializer::GetInstance());
-}
-
-void MyPeripheralManagerFlutterAPI::OnStateChanged(
-  int64_t state_number_args_arg,
-  std::function<void(void)>&& on_success,
-  std::function<void(const FlutterError&)>&& on_error) {
-  const std::string channel_name = "dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterAPI.onStateChanged" + message_channel_suffix_;
-  BasicMessageChannel<> channel(binary_messenger_, channel_name, &GetCodec());
-  EncodableValue encoded_api_arguments = EncodableValue(EncodableList{
-    EncodableValue(state_number_args_arg),
-  });
-  channel.Send(encoded_api_arguments, [channel_name, on_success = std::move(on_success), on_error = std::move(on_error)](const uint8_t* reply, size_t reply_size) {
-    std::unique_ptr<EncodableValue> response = GetCodec().DecodeMessage(reply, reply_size);
-    const auto& encodable_return_value = *response;
-    const auto* list_return_value = std::get_if<EncodableList>(&encodable_return_value);
-    if (list_return_value) {
-      if (list_return_value->size() > 1) {
-        on_error(FlutterError(std::get<std::string>(list_return_value->at(0)), std::get<std::string>(list_return_value->at(1)), list_return_value->at(2)));
-      } else {
-        on_success();
-      }
-    } else {
-      on_error(CreateConnectionError(channel_name));
-    } 
-  });
-}
-
-void MyPeripheralManagerFlutterAPI::OnReadCharacteristicCommandReceived(
-  const MyCentralArgs& central_args_arg,
-  int64_t handle_args_arg,
-  std::function<void(void)>&& on_success,
-  std::function<void(const FlutterError&)>&& on_error) {
-  const std::string channel_name = "dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterAPI.onReadCharacteristicCommandReceived" + message_channel_suffix_;
-  BasicMessageChannel<> channel(binary_messenger_, channel_name, &GetCodec());
-  EncodableValue encoded_api_arguments = EncodableValue(EncodableList{
-    CustomEncodableValue(central_args_arg),
-    EncodableValue(handle_args_arg),
-  });
-  channel.Send(encoded_api_arguments, [channel_name, on_success = std::move(on_success), on_error = std::move(on_error)](const uint8_t* reply, size_t reply_size) {
-    std::unique_ptr<EncodableValue> response = GetCodec().DecodeMessage(reply, reply_size);
-    const auto& encodable_return_value = *response;
-    const auto* list_return_value = std::get_if<EncodableList>(&encodable_return_value);
-    if (list_return_value) {
-      if (list_return_value->size() > 1) {
-        on_error(FlutterError(std::get<std::string>(list_return_value->at(0)), std::get<std::string>(list_return_value->at(1)), list_return_value->at(2)));
-      } else {
-        on_success();
-      }
-    } else {
-      on_error(CreateConnectionError(channel_name));
-    } 
-  });
-}
-
-void MyPeripheralManagerFlutterAPI::OnWriteCharacteristicCommandReceived(
-  const MyCentralArgs& central_args_arg,
-  int64_t handle_args_arg,
-  const std::vector<uint8_t>& value_args_arg,
-  std::function<void(void)>&& on_success,
-  std::function<void(const FlutterError&)>&& on_error) {
-  const std::string channel_name = "dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterAPI.onWriteCharacteristicCommandReceived" + message_channel_suffix_;
-  BasicMessageChannel<> channel(binary_messenger_, channel_name, &GetCodec());
-  EncodableValue encoded_api_arguments = EncodableValue(EncodableList{
-    CustomEncodableValue(central_args_arg),
-    EncodableValue(handle_args_arg),
-    EncodableValue(value_args_arg),
-  });
-  channel.Send(encoded_api_arguments, [channel_name, on_success = std::move(on_success), on_error = std::move(on_error)](const uint8_t* reply, size_t reply_size) {
-    std::unique_ptr<EncodableValue> response = GetCodec().DecodeMessage(reply, reply_size);
-    const auto& encodable_return_value = *response;
-    const auto* list_return_value = std::get_if<EncodableList>(&encodable_return_value);
-    if (list_return_value) {
-      if (list_return_value->size() > 1) {
-        on_error(FlutterError(std::get<std::string>(list_return_value->at(0)), std::get<std::string>(list_return_value->at(1)), list_return_value->at(2)));
-      } else {
-        on_success();
-      }
-    } else {
-      on_error(CreateConnectionError(channel_name));
-    } 
-  });
-}
-
-void MyPeripheralManagerFlutterAPI::OnCharacteristicNotifyStateChanged(
-  const MyCentralArgs& central_args_arg,
-  int64_t handle_args_arg,
-  bool state_args_arg,
-  std::function<void(void)>&& on_success,
-  std::function<void(const FlutterError&)>&& on_error) {
-  const std::string channel_name = "dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerFlutterAPI.onCharacteristicNotifyStateChanged" + message_channel_suffix_;
-  BasicMessageChannel<> channel(binary_messenger_, channel_name, &GetCodec());
-  EncodableValue encoded_api_arguments = EncodableValue(EncodableList{
-    CustomEncodableValue(central_args_arg),
-    EncodableValue(handle_args_arg),
-    EncodableValue(state_args_arg),
   });
   channel.Send(encoded_api_arguments, [channel_name, on_success = std::move(on_success), on_error = std::move(on_error)](const uint8_t* reply, size_t reply_size) {
     std::unique_ptr<EncodableValue> response = GetCodec().DecodeMessage(reply, reply_size);
