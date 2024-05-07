@@ -1,5 +1,5 @@
 /// 128 bit universally unique identifier used in Bluetooth.
-class UUID {
+final class UUID {
   /// The value of the UUID in 16 bytes.
   final List<int> value;
 

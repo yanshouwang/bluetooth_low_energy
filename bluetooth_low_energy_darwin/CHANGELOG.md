@@ -1,3 +1,14 @@
+## 6.0.0-dev.0
+
+* Add `serviceUUIDs` argument to `CentralManager#startDiscovery` method.
+* Add `CentralManager#retrieveConnectedPeripherals` method.
+* Move `BluetoothLowEnergyManager#getState` to `BluetoothLowEnergyManager#state`.
+* Move `CentralManger.instance` to factory constructor.
+* Move `PeripheralManager.instance` to factory constructor.
+* Remove `BluetoothLowEnergyManager#setUp` method.
+* Use new capitalization rules.
+
+
 ## 5.0.5
 
 * Change flutter minimum version to 3.0.0.

@@ -3,157 +3,157 @@ import 'dart:typed_data';
 import 'uuid.dart';
 
 /// A representation of common aspects of services offered by a peripheral.
-abstract interface class GattAttribute {
+abstract interface class GATTAttribute {
   /// The Bluetooth-specific UUID of the attribute.
   UUID get uuid;
 }
 
 /// An object that provides further information about a remote peripheral’s characteristic.
-abstract interface class GattDescriptor implements GattAttribute {
-  /// Constructs a [GattDescriptor].
-  factory GattDescriptor({
+abstract interface class GATTDescriptor implements GATTAttribute {
+  /// Constructs a [GATTDescriptor].
+  factory GATTDescriptor({
     required UUID uuid,
     Uint8List? value,
   }) =>
-      MutableGattDescriptor(
+      MutableGATTDescriptor(
         uuid: uuid,
         value: value,
       );
 }
 
 /// A characteristic of a remote peripheral’s service.
-abstract interface class GattCharacteristic implements GattAttribute {
+abstract interface class GATTCharacteristic implements GATTAttribute {
   /// The properties of the characteristic.
-  List<GattCharacteristicProperty> get properties;
+  List<GATTCharacteristicProperty> get properties;
 
   /// A list of the descriptors discovered in this characteristic.
-  List<GattDescriptor> get descriptors;
+  List<GATTDescriptor> get descriptors;
 
-  /// Constructs a [GattCharacteristic].
-  factory GattCharacteristic({
+  /// Constructs a [GATTCharacteristic].
+  factory GATTCharacteristic({
     required UUID uuid,
-    required List<GattCharacteristicProperty> properties,
+    required List<GATTCharacteristicProperty> properties,
     Uint8List? value,
-    required List<GattDescriptor> descriptors,
+    required List<GATTDescriptor> descriptors,
   }) =>
-      MutableGattCharacteristic(
+      MutableGATTCharacteristic(
         uuid: uuid,
         properties: properties,
         value: value,
-        descriptors: descriptors.cast<MutableGattDescriptor>(),
+        descriptors: descriptors.cast<MutableGATTDescriptor>(),
       );
 }
 
 /// A collection of data and associated behaviors that accomplish a function or feature of a device.
-abstract interface class GattService implements GattAttribute {
+abstract interface class GATTService implements GATTAttribute {
   /// A list of characteristics discovered in this service.
-  List<GattCharacteristic> get characteristics;
+  List<GATTCharacteristic> get characteristics;
 
-  /// Constructs a [GattService].
-  factory GattService({
+  /// Constructs a [GATTService].
+  factory GATTService({
     required UUID uuid,
-    required List<GattCharacteristic> characteristics,
+    required List<GATTCharacteristic> characteristics,
   }) =>
-      MutableGattService(
+      MutableGATTService(
         uuid: uuid,
-        characteristics: characteristics.cast<MutableGattCharacteristic>(),
+        characteristics: characteristics.cast<MutableGATTCharacteristic>(),
       );
 }
 
-abstract base class BaseGattAttribute implements GattAttribute {
+abstract base class BaseGATTAttribute implements GATTAttribute {
   @override
   final UUID uuid;
 
-  BaseGattAttribute({
+  BaseGATTAttribute({
     required this.uuid,
   });
 }
 
-abstract base class BaseGattDescriptor extends BaseGattAttribute
-    implements GattDescriptor {
-  BaseGattDescriptor({
+abstract base class BaseGATTDescriptor extends BaseGATTAttribute
+    implements GATTDescriptor {
+  BaseGATTDescriptor({
     required super.uuid,
   });
 }
 
-abstract base class BaseGattCharacteristic extends BaseGattAttribute
-    implements GattCharacteristic {
+abstract base class BaseGATTCharacteristic extends BaseGATTAttribute
+    implements GATTCharacteristic {
   @override
-  final List<GattCharacteristicProperty> properties;
+  final List<GATTCharacteristicProperty> properties;
 
   @override
-  final List<GattDescriptor> descriptors;
+  final List<GATTDescriptor> descriptors;
 
-  BaseGattCharacteristic({
+  BaseGATTCharacteristic({
     required super.uuid,
     required this.properties,
     required this.descriptors,
   });
 }
 
-abstract base class BaseGattService extends BaseGattAttribute
-    implements GattService {
+abstract base class BaseGATTService extends BaseGATTAttribute
+    implements GATTService {
   @override
-  final List<GattCharacteristic> characteristics;
+  final List<GATTCharacteristic> characteristics;
 
-  BaseGattService({
+  BaseGATTService({
     required super.uuid,
     required this.characteristics,
   });
 }
 
-base class MutableGattDescriptor extends BaseGattDescriptor {
-  Uint8List _value;
+final class MutableGATTDescriptor extends BaseGATTDescriptor {
+  Uint8List? _value;
 
-  MutableGattDescriptor({
+  MutableGATTDescriptor({
     required super.uuid,
     Uint8List? value,
-  }) : _value = value?.trimGATT() ?? Uint8List(0);
+  }) : _value = value?.trimGATT();
 
-  Uint8List get value => _value;
-  set value(Uint8List value) {
-    _value = value.trimGATT();
+  Uint8List? get value => _value;
+  set value(Uint8List? value) {
+    _value = value?.trimGATT();
   }
 }
 
-base class MutableGattCharacteristic extends BaseGattCharacteristic {
-  Uint8List _value;
+final class MutableGATTCharacteristic extends BaseGATTCharacteristic {
+  Uint8List? _value;
 
-  MutableGattCharacteristic({
+  MutableGATTCharacteristic({
     required super.uuid,
     required super.properties,
     Uint8List? value,
-    required List<MutableGattDescriptor> descriptors,
-  })  : _value = value?.trimGATT() ?? Uint8List(0),
+    required List<MutableGATTDescriptor> descriptors,
+  })  : _value = value?.trimGATT(),
         super(
           descriptors: descriptors,
         );
 
-  Uint8List get value => _value;
-  set value(Uint8List value) {
-    _value = value.trimGATT();
+  Uint8List? get value => _value;
+  set value(Uint8List? value) {
+    _value = value?.trimGATT();
   }
 
   @override
-  List<MutableGattDescriptor> get descriptors =>
-      super.descriptors.cast<MutableGattDescriptor>();
+  List<MutableGATTDescriptor> get descriptors =>
+      super.descriptors.cast<MutableGATTDescriptor>();
 }
 
-base class MutableGattService extends BaseGattService {
-  MutableGattService({
+final class MutableGATTService extends BaseGATTService {
+  MutableGATTService({
     required super.uuid,
-    required List<MutableGattCharacteristic> characteristics,
+    required List<MutableGATTCharacteristic> characteristics,
   }) : super(
           characteristics: characteristics,
         );
 
   @override
-  List<MutableGattCharacteristic> get characteristics =>
-      super.characteristics.cast<MutableGattCharacteristic>();
+  List<MutableGATTCharacteristic> get characteristics =>
+      super.characteristics.cast<MutableGATTCharacteristic>();
 }
 
 /// The properity for a GATT characteristic.
-enum GattCharacteristicProperty {
+enum GATTCharacteristicProperty {
   /// The GATT characteristic is able to read.
   read,
 
@@ -171,7 +171,7 @@ enum GattCharacteristicProperty {
 }
 
 /// The write type for a GATT characteristic.
-enum GattCharacteristicWriteType {
+enum GATTCharacteristicWriteType {
   // Write with response
   withResponse,
   // Write without response
@@ -181,7 +181,7 @@ enum GattCharacteristicWriteType {
 }
 
 /// The GATT Unit8List extension.
-extension GattUint8List on Uint8List {
+extension GATTUint8List on Uint8List {
   Uint8List trimGATT() {
     return length > 512 ? sublist(0, 512) : this;
   }

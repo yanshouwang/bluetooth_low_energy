@@ -4,15 +4,14 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'bluetooth_low_energy_darwin'
-  s.version          = '2.0.2'
-  s.summary          = 'iOS and macOS implementation of the bluetooth_low_energy plugin.'
+  s.version          = '0.0.1'
+  s.summary          = 'A new Flutter plugin project.'
   s.description      = <<-DESC
-iOS and macOS implementation of the bluetooth_low_energy plugin.
+A new Flutter plugin project.
                        DESC
-  s.homepage         = 'https://github.com/yanshouwang/bluetooth_low_energy'
+  s.homepage         = 'http://example.com'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'yanshouwang' => 'yanshouwang@outlook.com' }
-
+  s.author           = { 'Your Company' => 'email@example.com' }
   s.source           = { :path => '.' }
   s.source_files     = 'Classes/**/*'
 

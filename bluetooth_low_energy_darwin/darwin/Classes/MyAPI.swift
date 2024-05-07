@@ -17,7 +17,7 @@ import FlutterMacOS
 #endif
 
 // ToObj
-extension [MyGattCharacteristicPropertyArgs] {
+extension [MyGATTCharacteristicPropertyArgs] {
     func toProperties() -> CBCharacteristicProperties {
         var properties: CBCharacteristicProperties = []
         for args in self {
@@ -53,7 +53,7 @@ extension [MyGattCharacteristicPropertyArgs] {
     }
 }
 
-extension MyGattCharacteristicWriteTypeArgs {
+extension MyGATTCharacteristicWriteTypeArgs {
     func toWriteType() -> CBCharacteristicWriteType {
         switch self {
         case .withResponse:
@@ -64,7 +64,7 @@ extension MyGattCharacteristicWriteTypeArgs {
     }
 }
 
-extension MyGattErrorArgs {
+extension MyATTErrorArgs {
     func toError() -> CBATTError.Code {
         switch self {
         case .success:
@@ -116,22 +116,15 @@ extension MyAdvertisementArgs {
             let name = nameArgs!
             advertisement[CBAdvertisementDataLocalNameKey] = name
         }
-        if serviceUUIDsArgs.count > 0 {
-            var serviceUUIDs = [CBUUID]()
-            for args in serviceUUIDsArgs {
-                guard let uuidArgs = args else {
-                    continue
-                }
-                let uuid = uuidArgs.toCBUUID()
-                serviceUUIDs.append(uuid)
-            }
+        if !serviceUUIDsArgs.isEmpty {
+            let serviceUUIDs = serviceUUIDsArgs.map { serviceUUIDArgs in serviceUUIDArgs!.toCBUUID() }
             advertisement[CBAdvertisementDataServiceUUIDsKey] = serviceUUIDs
         }
         return advertisement
     }
 }
 
-extension MyGattDescriptorArgs {
+extension MyMutableGATTDescriptorArgs {
     func toDescriptor() -> CBMutableDescriptor {
         let type = uuidArgs.toCBUUID()
         let value = valueArgs?.data
@@ -139,19 +132,12 @@ extension MyGattDescriptorArgs {
     }
 }
 
-extension MyGattCharacteristicArgs {
+extension MyMutableGATTCharacteristicArgs {
     func toCharacteristic() -> CBMutableCharacteristic {
         let type = uuidArgs.toCBUUID()
-        var propertiesArgs = [MyGattCharacteristicPropertyArgs]()
-        for args in propertyNumbersArgs {
-            guard let propertyNumberArgs = args else {
-                continue
-            }
-            let propertyNumber = propertyNumberArgs.toInt()
-            guard let propertyArgs = MyGattCharacteristicPropertyArgs(rawValue: propertyNumber) else {
-                continue
-            }
-            propertiesArgs.append(propertyArgs)
+        let propertiesArgs = propertyNumbersArgs.map { propertyNumberArgs in
+            let propertyNumber = propertyNumberArgs!.toInt()
+            return MyGATTCharacteristicPropertyArgs(rawValue: propertyNumber)!
         }
         let properties = propertiesArgs.toProperties()
         let permissions = propertiesArgs.toPermissions()
@@ -159,7 +145,7 @@ extension MyGattCharacteristicArgs {
     }
 }
 
-extension MyGattServiceArgs {
+extension MyMutableGATTServiceArgs {
     func toService() -> CBMutableService {
         let type = uuidArgs.toCBUUID()
         let primary = true
@@ -245,26 +231,26 @@ extension CBPeripheral {
 }
 
 extension CBDescriptor {
-    func toArgs() -> MyGattDescriptorArgs {
+    func toArgs() -> MyGATTDescriptorArgs {
         let hashCodeArgs = hash.toInt64()
         let uuidArgs = uuid.toArgs()
-        return MyGattDescriptorArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs)
+        return MyGATTDescriptorArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs)
     }
 }
 
 extension CBCharacteristic {
-    func toArgs() -> MyGattCharacteristicArgs {
+    func toArgs() -> MyGATTCharacteristicArgs {
         let hashCodeArgs = hash.toInt64()
         let uuidArgs = uuid.toArgs()
         let propertyNumbersArgs = properties.toArgs().map { args in args.rawValue.toInt64() }
         let descriptorsArgs = descriptors?.map { descriptor in descriptor.toArgs() } ?? []
-        return MyGattCharacteristicArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, propertyNumbersArgs: propertyNumbersArgs, descriptorsArgs: descriptorsArgs)
+        return MyGATTCharacteristicArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, propertyNumbersArgs: propertyNumbersArgs, descriptorsArgs: descriptorsArgs)
     }
 }
 
 extension CBCharacteristicProperties {
-    func toArgs() -> [MyGattCharacteristicPropertyArgs] {
-        var args = [MyGattCharacteristicPropertyArgs]()
+    func toArgs() -> [MyGATTCharacteristicPropertyArgs] {
+        var args = [MyGATTCharacteristicPropertyArgs]()
         if contains(.read) {
             args.append(.read)
         }
@@ -285,11 +271,11 @@ extension CBCharacteristicProperties {
 }
 
 extension CBService {
-    func toArgs() -> MyGattServiceArgs {
+    func toArgs() -> MyGATTServiceArgs {
         let hashCodeArgs = hash.toInt64()
         let uuidArgs = uuid.toArgs()
         let characteristicsArgs = characteristics?.map { characteristic in characteristic.toArgs() } ?? []
-        return MyGattServiceArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, characteristicsArgs: characteristicsArgs)
+        return MyGATTServiceArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, characteristicsArgs: characteristicsArgs)
     }
 }
 
@@ -314,21 +300,9 @@ extension CBUUID {
 // This extension of Error is required to do use FlutterError in any Swift code.
 extension FlutterError: Error {}
 
-extension String {
-    var data: Data { data(using: String.Encoding.utf8)! }
-}
-
-extension NSNumber {
-    var data: Data {
-        var source = self
-        // TODO: resolve warning: Forming 'UnsafeRawPointer' to a variable of type 'NSNumber'; this is likely incorrect because 'NSNumber' may contain an object reference.
-        return Data(bytes: &source, count: MemoryLayout<NSNumber>.size)
-    }
-}
-
 extension UInt16 {
     var data: Data {
-        var source = self
-        return Data(bytes: &source, count: MemoryLayout<UInt16>.size)
+        var bytes = self
+        return Data(bytes: &bytes, count: MemoryLayout<UInt16>.size)
     }
 }

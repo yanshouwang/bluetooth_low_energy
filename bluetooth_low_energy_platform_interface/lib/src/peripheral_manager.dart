@@ -8,6 +8,63 @@ import 'central.dart';
 import 'event_args.dart';
 import 'gatt.dart';
 
+/// The GATT characteristic written event arguments.
+final class GATTCharacteristicReadEventArgs extends EventArgs {
+  /// The central which read this characteristic.
+  final Central central;
+
+  /// The GATT characteristic which value is read.
+  final GATTCharacteristic characteristic;
+
+  /// The value.
+  final Uint8List value;
+
+  /// Constructs a [GATTCharacteristicReadEventArgs].
+  GATTCharacteristicReadEventArgs(
+    this.central,
+    this.characteristic,
+    this.value,
+  );
+}
+
+/// The GATT characteristic written event arguments.
+final class GATTCharacteristicWrittenEventArgs extends EventArgs {
+  /// The central which wrote this characteristic.
+  final Central central;
+
+  /// The GATT characteristic which value is written.
+  final GATTCharacteristic characteristic;
+
+  /// The value.
+  final Uint8List value;
+
+  /// Constructs a [GATTCharacteristicWrittenEventArgs].
+  GATTCharacteristicWrittenEventArgs(
+    this.central,
+    this.characteristic,
+    this.value,
+  );
+}
+
+/// The GATT characteristic notify state changed event arguments.
+final class GATTCharacteristicNotifyStateChangedEventArgs extends EventArgs {
+  /// The central which set this notify state.
+  final Central central;
+
+  /// The GATT characteristic which notify state changed.
+  final GATTCharacteristic characteristic;
+
+  /// The notify state.
+  final bool state;
+
+  /// Constructs a [GATTCharacteristicNotifyStateChangedEventArgs].
+  GATTCharacteristicNotifyStateChangedEventArgs(
+    this.central,
+    this.characteristic,
+    this.state,
+  );
+}
+
 /// An object that manages and advertises peripheral services exposed by this app.
 abstract interface class PeripheralManager
     implements BluetoothLowEnergyManager {
@@ -24,20 +81,20 @@ abstract interface class PeripheralManager
   }
 
   /// Tells that the local peripheral device received an Attribute Protocol (ATT) read request for a characteristic with a dynamic value.
-  Stream<GattCharacteristicReadEventArgs> get characteristicRead;
+  Stream<GATTCharacteristicReadEventArgs> get characteristicRead;
 
   /// Tells that the local peripheral device received an Attribute Protocol (ATT) write request for a characteristic with a dynamic value.
-  Stream<GattCharacteristicWrittenEventArgs> get characteristicWritten;
+  Stream<GATTCharacteristicWrittenEventArgs> get characteristicWritten;
 
   /// Tells that the peripheral manager received a characteristic’s notify changed.
-  Stream<GattCharacteristicNotifyStateChangedEventArgs>
+  Stream<GATTCharacteristicNotifyStateChangedEventArgs>
       get characteristicNotifyStateChanged;
 
   /// Publishes a service and any of its associated characteristics and characteristic descriptors to the local GATT database.
-  Future<void> addService(GattService service);
+  Future<void> addService(GATTService service);
 
   /// Removes a specified published service from the local GATT database.
-  Future<void> removeService(GattService service);
+  Future<void> removeService(GATTService service);
 
   /// Removes all published services from the local GATT database.
   Future<void> clearServices();
@@ -49,73 +106,16 @@ abstract interface class PeripheralManager
   Future<void> stopAdvertising();
 
   /// Retrieves the value of a specified characteristic.
-  Future<Uint8List> readCharacteristic(GattCharacteristic characteristic);
+  Future<Uint8List> readCharacteristic(GATTCharacteristic characteristic);
 
   /// Writes the value of a characteristic and sends an updated characteristic value to one or more subscribed centrals, using a notification or indication.
   ///
   /// The maximum size of the value is 512, all bytes that exceed this size will be discarded.
   Future<void> writeCharacteristic(
-    GattCharacteristic characteristic, {
+    GATTCharacteristic characteristic, {
     required Uint8List value,
     Central? central,
   });
-}
-
-/// The GATT characteristic written event arguments.
-base class GattCharacteristicReadEventArgs extends EventArgs {
-  /// The central which read this characteristic.
-  final Central central;
-
-  /// The GATT characteristic which value is read.
-  final GattCharacteristic characteristic;
-
-  /// The value.
-  final Uint8List value;
-
-  /// Constructs a [GattCharacteristicReadEventArgs].
-  GattCharacteristicReadEventArgs(
-    this.central,
-    this.characteristic,
-    this.value,
-  );
-}
-
-/// The GATT characteristic written event arguments.
-base class GattCharacteristicWrittenEventArgs extends EventArgs {
-  /// The central which wrote this characteristic.
-  final Central central;
-
-  /// The GATT characteristic which value is written.
-  final GattCharacteristic characteristic;
-
-  /// The value.
-  final Uint8List value;
-
-  /// Constructs a [GattCharacteristicWrittenEventArgs].
-  GattCharacteristicWrittenEventArgs(
-    this.central,
-    this.characteristic,
-    this.value,
-  );
-}
-
-/// The GATT characteristic notify state changed event arguments.
-base class GattCharacteristicNotifyStateChangedEventArgs extends EventArgs {
-  /// The central which set this notify state.
-  final Central central;
-
-  /// The GATT characteristic which notify state changed.
-  final GattCharacteristic characteristic;
-
-  /// The notify state.
-  final bool state;
-
-  /// Constructs a [GattCharacteristicNotifyStateChangedEventArgs].
-  GattCharacteristicNotifyStateChangedEventArgs(
-    this.central,
-    this.characteristic,
-    this.state,
-  );
 }
 
 /// Platform-specific implementations should implement this class to support [BasePeripheralManager].

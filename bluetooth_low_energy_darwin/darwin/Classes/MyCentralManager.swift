@@ -16,8 +16,8 @@ import FlutterMacOS
 #error("Unsupported platform.")
 #endif
 
-class MyCentralManager: MyCentralManagerHostApi {
-    private let _api: MyCentralManagerFlutterApi
+class MyCentralManager: MyCentralManagerHostAPI {
+    private let _api: MyCentralManagerFlutterAPI
     private let _centralManager: CBCentralManager
     
     private lazy var _centralManagerDelegate = MyCentralManagerDelegate(centralManager: self)
@@ -31,9 +31,9 @@ class MyCentralManager: MyCentralManagerHostApi {
     private var _connectCompletions: [String: (Result<Void, Error>) -> Void]
     private var _disconnectCompletions: [String: (Result<Void, Error>) -> Void]
     private var _readRssiCompletions: [String: (Result<Int64, Error>) -> Void]
-    private var _discoverServicesCompletions: [String: (Result<[MyGattServiceArgs], Error>) -> Void]
-    private var _discoverCharacteristicsCompletions: [String: [Int64: (Result<[MyGattCharacteristicArgs], Error>) -> Void]]
-    private var _discoverDescriptorsCompletions: [String: [Int64: (Result<[MyGattDescriptorArgs], Error>) -> Void]]
+    private var _discoverServicesCompletions: [String: (Result<[MyGATTServiceArgs], Error>) -> Void]
+    private var _discoverCharacteristicsCompletions: [String: [Int64: (Result<[MyGATTCharacteristicArgs], Error>) -> Void]]
+    private var _discoverDescriptorsCompletions: [String: [Int64: (Result<[MyGATTDescriptorArgs], Error>) -> Void]]
     private var _readCharacteristicCompletions: [String: [Int64: (Result<FlutterStandardTypedData, Error>) -> Void]]
     private var _writeCharacteristicCompletions: [String: [Int64: (Result<Void, Error>) -> Void]]
     private var _setCharacteristicNotifyStateCompletions: [String: [Int64: (Result<Void, Error>) -> Void]]
@@ -41,7 +41,7 @@ class MyCentralManager: MyCentralManagerHostApi {
     private var _writeDescriptorCompletions: [String: [Int64: (Result<Void, Error>) -> Void]]
     
     init(messenger: FlutterBinaryMessenger) {
-        _api = MyCentralManagerFlutterApi(binaryMessenger: messenger)
+        _api = MyCentralManagerFlutterAPI(binaryMessenger: messenger)
         _centralManager = CBCentralManager()
         
         _peripherals = [:]
@@ -62,21 +62,62 @@ class MyCentralManager: MyCentralManagerHostApi {
         _writeDescriptorCompletions = [:]
     }
     
-    func setUp() throws {
-        _clearState()
+    func initialize() throws {
+        if(_centralManager.isScanning) {
+            _centralManager.stopScan()
+        }
+        
+        for peripheral in _peripherals.values {
+            if peripheral.state != .disconnected {
+                _centralManager.cancelPeripheralConnection(peripheral)
+            }
+        }
+        
+        _peripherals.removeAll()
+        _services.removeAll()
+        _characteristics.removeAll()
+        _descriptors.removeAll()
+        
+        _connectCompletions.removeAll()
+        _disconnectCompletions.removeAll()
+        _readRssiCompletions.removeAll()
+        _discoverServicesCompletions.removeAll()
+        _discoverCharacteristicsCompletions.removeAll()
+        _discoverDescriptorsCompletions.removeAll()
+        _readCharacteristicCompletions.removeAll()
+        _writeCharacteristicCompletions.removeAll()
+        _setCharacteristicNotifyStateCompletions.removeAll()
+        _readDescriptorCompletions.removeAll()
+        _writeDescriptorCompletions.removeAll()
+        
         if _centralManager.delegate == nil {
             _centralManager.delegate = _centralManagerDelegate
         }
         didUpdateState(central: _centralManager)
     }
     
-    func startDiscovery() throws {
+    func startDiscovery(serviceUUIDsArgs: [String]) throws {
+        let serviceUUIDs = serviceUUIDsArgs.isEmpty ? nil : serviceUUIDsArgs.map { serviceUUIDArgs in serviceUUIDArgs.toCBUUID() }
         let options = [CBCentralManagerScanOptionAllowDuplicatesKey: true]
-        _centralManager.scanForPeripherals(withServices: nil, options: options)
+        _centralManager.scanForPeripherals(withServices: serviceUUIDs, options: options)
     }
     
     func stopDiscovery() throws {
         _centralManager.stopScan()
+    }
+    
+    func retrieveConnectedPeripherals() throws -> [MyPeripheralArgs] {
+        let peripherals = _centralManager.retrieveConnectedPeripherals(withServices: [])
+        let peripheralsArgs = peripherals.map { peripheral in
+            let peripheralArgs = peripheral.toArgs()
+            let uuidArgs = peripheralArgs.uuidArgs
+            if peripheral.delegate == nil {
+                peripheral.delegate = _peripheralDelegate
+            }
+            _peripherals[uuidArgs] = peripheral
+            return peripheralArgs
+        }
+        return peripheralsArgs
     }
     
     func connect(uuidArgs: String, completion: @escaping (Result<Void, Error>) -> Void) {
@@ -103,12 +144,12 @@ class MyCentralManager: MyCentralManagerHostApi {
         }
     }
     
-    func getMaximumWriteValueLength(uuidArgs: String, typeNumberArgs: Int64) throws -> Int64 {
+    func maximumWriteValueLength(uuidArgs: String, typeNumberArgs: Int64) throws -> Int64 {
         guard let peripheral = _peripherals[uuidArgs] else {
             throw MyError.illegalArgument
         }
         let typeNumber = typeNumberArgs.toInt()
-        guard let typeArgs = MyGattCharacteristicWriteTypeArgs(rawValue: typeNumber) else {
+        guard let typeArgs = MyGATTCharacteristicWriteTypeArgs(rawValue: typeNumber) else {
             throw MyError.illegalArgument
         }
         let type = typeArgs.toWriteType()
@@ -129,7 +170,7 @@ class MyCentralManager: MyCentralManagerHostApi {
         }
     }
     
-    func discoverServices(uuidArgs: String, completion: @escaping (Result<[MyGattServiceArgs], Error>) -> Void) {
+    func discoverServices(uuidArgs: String, completion: @escaping (Result<[MyGATTServiceArgs], Error>) -> Void) {
         do {
             guard let peripheral = _peripherals[uuidArgs] else {
                 throw MyError.illegalArgument
@@ -141,7 +182,7 @@ class MyCentralManager: MyCentralManagerHostApi {
         }
     }
     
-    func discoverCharacteristics(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<[MyGattCharacteristicArgs], Error>) -> Void) {
+    func discoverCharacteristics(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<[MyGATTCharacteristicArgs], Error>) -> Void) {
         do {
             guard let peripheral = _peripherals[uuidArgs] else {
                 throw MyError.illegalArgument
@@ -156,7 +197,7 @@ class MyCentralManager: MyCentralManagerHostApi {
         }
     }
     
-    func discoverDescriptors(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<[MyGattDescriptorArgs], Error>) -> Void){
+    func discoverDescriptors(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<[MyGATTDescriptorArgs], Error>) -> Void){
         do {
             guard let peripheral = _peripherals[uuidArgs] else {
                 throw MyError.illegalArgument
@@ -196,7 +237,7 @@ class MyCentralManager: MyCentralManagerHostApi {
             }
             let data = valueArgs.data
             let typeNumber = typeNumberArgs.toInt()
-            guard let typeArgs = MyGattCharacteristicWriteTypeArgs(rawValue: typeNumber) else {
+            guard let typeArgs = MyGATTCharacteristicWriteTypeArgs(rawValue: typeNumber) else {
                 throw MyError.illegalArgument
             }
             let type = typeArgs.toWriteType()
@@ -262,7 +303,7 @@ class MyCentralManager: MyCentralManagerHostApi {
         let state = central.state
         let stateArgs = state.toArgs()
         let stateNumberArgs = stateArgs.rawValue.toInt64()
-        _api.onStateChanged(stateNumberArgs: stateNumberArgs) {_ in }
+        _api.onStateChanged(stateNumberArgs: stateNumberArgs) { _ in }
     }
     
     func didDiscover(central: CBCentralManager, peripheral: CBPeripheral, advertisementData: [String : Any], rssi: NSNumber) {
@@ -280,7 +321,7 @@ class MyCentralManager: MyCentralManagerHostApi {
     func didConnect(central: CBCentralManager, peripheral: CBPeripheral) {
         let uuidArgs = peripheral.identifier.toArgs()
         let stateArgs = true
-        _api.onConnectionStateChanged(uuidArgs: uuidArgs, stateArgs: stateArgs) {_ in }
+        _api.onConnectionStateChanged(uuidArgs: uuidArgs, stateArgs: stateArgs) { _ in }
         guard let completion = _connectCompletions.removeValue(forKey: uuidArgs) else {
             return
         }
@@ -355,7 +396,7 @@ class MyCentralManager: MyCentralManagerHostApi {
             }
         }
         let stateArgs = false
-        _api.onConnectionStateChanged(uuidArgs: uuidArgs, stateArgs: stateArgs) {_ in }
+        _api.onConnectionStateChanged(uuidArgs: uuidArgs, stateArgs: stateArgs) { _ in }
         guard let completion = _disconnectCompletions.removeValue(forKey: uuidArgs) else {
             return
         }
@@ -444,7 +485,7 @@ class MyCentralManager: MyCentralManagerHostApi {
         let value = characteristic.value ?? Data()
         let valueArgs = FlutterStandardTypedData(bytes: value)
         guard let completion = _readCharacteristicCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
-            _api.onCharacteristicNotified(uuidArgs: uuidArgs, hashCodeArgs: hashCodeArgs, valueArgs: valueArgs) {_ in }
+            _api.onCharacteristicNotified(uuidArgs: uuidArgs, hashCodeArgs: hashCodeArgs, valueArgs: valueArgs) { _ in }
             return
         }
         if error == nil {
@@ -487,41 +528,20 @@ class MyCentralManager: MyCentralManagerHostApi {
             return
         }
         if error == nil {
-            // TODO: confirm the corresponding descriptor types and values are correct.
             let valueArgs: FlutterStandardTypedData
-            let value = descriptor.value
-            do {
-                switch descriptor.uuid.uuidString {
-                case CBUUIDCharacteristicExtendedPropertiesString:
-                    fallthrough
-                case CBUUIDClientCharacteristicConfigurationString:
-                    fallthrough
-                case CBUUIDServerCharacteristicConfigurationString:
-                    guard let numberValue = value as? NSNumber else {
-                        throw MyError.illegalArgument
-                    }
-                    valueArgs = FlutterStandardTypedData(bytes: numberValue.data)
-                case CBUUIDCharacteristicUserDescriptionString:
-                    fallthrough
-                case CBUUIDCharacteristicAggregateFormatString:
-                    guard let stringValue = value as? String else {
-                        throw MyError.illegalArgument
-                    }
-                    valueArgs = FlutterStandardTypedData(bytes: stringValue.data)
-                case CBUUIDCharacteristicFormatString:
-                    guard let bytes = value as? Data else {
-                        throw MyError.illegalArgument
-                    }
-                    valueArgs = FlutterStandardTypedData(bytes: bytes)
-                case CBUUIDL2CAPPSMCharacteristicString:
-                    guard let uint16Value = value as? UInt16 else {
-                        throw MyError.illegalArgument
-                    }
-                    valueArgs = FlutterStandardTypedData(bytes: uint16Value.data)
-                default:
-                    throw MyError.illegalArgument
-                }
-            } catch {
+            switch descriptor.value {
+            case let bytes as Data:
+                valueArgs = FlutterStandardTypedData(bytes: bytes)
+            case let value as String:
+                let bytes = value.data(using: .utf8) ?? Data()
+                valueArgs = FlutterStandardTypedData(bytes: bytes)
+            case let value as UInt16:
+                let bytes = value.data
+                valueArgs = FlutterStandardTypedData(bytes: bytes)
+            case let value as NSNumber:
+                let bytes = withUnsafeBytes(of: value) { elements in Data(elements) }
+                valueArgs = FlutterStandardTypedData(bytes: bytes)
+            default:
                 valueArgs = FlutterStandardTypedData()
             }
             completion(.success((valueArgs)))
@@ -541,34 +561,6 @@ class MyCentralManager: MyCentralManagerHostApi {
         } else {
             completion(.failure(error!))
         }
-    }
-    
-    private func _clearState() {
-        if(_centralManager.isScanning) {
-            _centralManager.stopScan()
-        }
-        for peripheral in _peripherals.values {
-            if peripheral.state != .disconnected {
-                _centralManager.cancelPeripheralConnection(peripheral)
-            }
-        }
-        
-        _peripherals.removeAll()
-        _services.removeAll()
-        _characteristics.removeAll()
-        _descriptors.removeAll()
-        
-        _connectCompletions.removeAll()
-        _disconnectCompletions.removeAll()
-        _readRssiCompletions.removeAll()
-        _discoverServicesCompletions.removeAll()
-        _discoverCharacteristicsCompletions.removeAll()
-        _discoverDescriptorsCompletions.removeAll()
-        _readCharacteristicCompletions.removeAll()
-        _writeCharacteristicCompletions.removeAll()
-        _setCharacteristicNotifyStateCompletions.removeAll()
-        _readDescriptorCompletions.removeAll()
-        _writeDescriptorCompletions.removeAll()
     }
     
     private func _retrieveService(uuidArgs: String, hashCodeArgs: Int64) -> CBService? {

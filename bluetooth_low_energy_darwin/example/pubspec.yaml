@@ -17,7 +17,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  bluetooth_low_energy_platform_interface: ^5.0.0
+  bluetooth_low_energy_platform_interface: ^6.0.0-dev.5
   bluetooth_low_energy_darwin:
     # When depending on this package from a real application you should use:
     #   bluetooth_low_energy: ^x.y.z
@@ -32,6 +32,7 @@ dependencies:
   convert: ^3.1.1
   intl: ^0.19.0
   logging: ^1.2.0
+  go_router: ^14.0.2
 
 dev_dependencies:
   integration_test:

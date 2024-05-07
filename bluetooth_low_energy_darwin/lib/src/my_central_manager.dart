@@ -4,26 +4,26 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 import 'package:flutter/foundation.dart';
 
 import 'my_api.dart';
-import 'my_gatt_characteristic2.dart';
-import 'my_gatt_descriptor2.dart';
+import 'my_api.g.dart';
+import 'my_gatt.dart';
 
-class MyCentralManager extends CentralManager
-    implements MyCentralManagerFlutterApi {
-  final MyCentralManagerHostApi _api;
+base class MyCentralManager extends BaseCentralManager
+    implements MyCentralManagerFlutterAPI {
+  final MyCentralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
   final StreamController<DiscoveredEventArgs> _discoveredController;
   final StreamController<ConnectionStateChangedEventArgs>
       _connectionStateChangedController;
-  final StreamController<GattCharacteristicNotifiedEventArgs>
+  final StreamController<GATTCharacteristicNotifiedEventArgs>
       _characteristicNotifiedController;
-  final Map<String, MyPeripheral> _peripherals;
-  final Map<String, Map<int, MyGattCharacteristic2>> _characteristics;
+  final Map<String, Peripheral> _peripherals;
+  final Map<String, Map<int, MyGATTCharacteristic>> _characteristics;
 
   BluetoothLowEnergyState _state;
 
   MyCentralManager()
-      : _api = MyCentralManagerHostApi(),
+      : _api = MyCentralManagerHostAPI(),
         _stateChangedController = StreamController.broadcast(),
         _discoveredController = StreamController.broadcast(),
         _connectionStateChangedController = StreamController.broadcast(),
@@ -33,6 +33,8 @@ class MyCentralManager extends CentralManager
         _state = BluetoothLowEnergyState.unknown;
 
   @override
+  BluetoothLowEnergyState get state => _state;
+  @override
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
@@ -41,26 +43,27 @@ class MyCentralManager extends CentralManager
   Stream<ConnectionStateChangedEventArgs> get connectionStateChanged =>
       _connectionStateChangedController.stream;
   @override
-  Stream<GattCharacteristicNotifiedEventArgs> get characteristicNotified =>
+  Stream<MTUChangedEventArgs> get mtuChanged =>
+      throw UnsupportedError('`mtuChanged` is not supported on Darwin.');
+  @override
+  Stream<GATTCharacteristicNotifiedEventArgs> get characteristicNotified =>
       _characteristicNotifiedController.stream;
 
   @override
-  Future<void> setUp() async {
-    logger.info('setUp');
-    await _api.setUp();
-    MyCentralManagerFlutterApi.setup(this);
+  Future<void> initialize() async {
+    MyCentralManagerFlutterAPI.setUp(this);
+    logger.info('initialize');
+    await _api.initialize();
   }
 
   @override
-  Future<BluetoothLowEnergyState> getState() {
-    logger.info('getState');
-    return Future.value(_state);
-  }
-
-  @override
-  Future<void> startDiscovery() async {
-    logger.info('startDiscovery');
-    await _api.startDiscovery();
+  Future<void> startDiscovery({
+    List<UUID>? serviceUUIDs,
+  }) async {
+    final serviceUUIDsArgs =
+        serviceUUIDs?.map((uuid) => uuid.toArgs()).toList() ?? [];
+    logger.info('startDiscovery: $serviceUUIDsArgs');
+    await _api.startDiscovery(serviceUUIDsArgs);
   }
 
   @override
@@ -70,10 +73,21 @@ class MyCentralManager extends CentralManager
   }
 
   @override
+  Future<List<Peripheral>> retrieveConnectedPeripherals() async {
+    logger.info('retrieveConnectedPeripherals');
+    final peripheralsArgs = await _api.retrieveConnectedPeripherals();
+    final peripherals = peripheralsArgs.cast<MyPeripheralArgs>().map((args) {
+      final peripheral = _peripherals.putIfAbsent(
+        args.uuidArgs,
+        () => args.toPeripheral(),
+      );
+      return peripheral;
+    }).toList();
+    return peripherals;
+  }
+
+  @override
   Future<void> connect(Peripheral peripheral) async {
-    if (peripheral is! MyPeripheral) {
-      throw TypeError();
-    }
     final uuidArgs = peripheral.uuid.toArgs();
     logger.info('connect: $uuidArgs');
     await _api.connect(uuidArgs);
@@ -81,19 +95,18 @@ class MyCentralManager extends CentralManager
 
   @override
   Future<void> disconnect(Peripheral peripheral) async {
-    if (peripheral is! MyPeripheral) {
-      throw TypeError();
-    }
     final uuidArgs = peripheral.uuid.toArgs();
     logger.info('disconnect: $uuidArgs');
     await _api.disconnect(uuidArgs);
   }
 
   @override
+  Future<int> requestMTU(Peripheral peripheral, int mtu) {
+    throw UnsupportedError("Darwin doesn't support request MTU.");
+  }
+
+  @override
   Future<int> readRSSI(Peripheral peripheral) async {
-    if (peripheral is! MyPeripheral) {
-      throw TypeError();
-    }
     final uuidArgs = peripheral.uuid.toArgs();
     logger.info('readRSSI: $uuidArgs');
     final rssi = await _api.readRSSI(uuidArgs);
@@ -101,36 +114,33 @@ class MyCentralManager extends CentralManager
   }
 
   @override
-  Future<List<GattService>> discoverGATT(Peripheral peripheral) async {
-    if (peripheral is! MyPeripheral) {
-      throw TypeError();
-    }
+  Future<List<GATTService>> discoverGATT(Peripheral peripheral) async {
     // 发现 GATT 服务
     final uuidArgs = peripheral.uuid.toArgs();
     logger.info('discoverServices: $uuidArgs');
     final servicesArgs = await _api
         .discoverServices(uuidArgs)
-        .then((args) => args.cast<MyGattServiceArgs>());
+        .then((args) => args.cast<MyGATTServiceArgs>());
     for (var serviceArgs in servicesArgs) {
       // 发现 GATT 特征值
       final hashCodeArgs = serviceArgs.hashCodeArgs;
       logger.info('discoverCharacteristics: $uuidArgs.$hashCodeArgs');
       final characteristicsArgs = await _api
           .discoverCharacteristics(uuidArgs, hashCodeArgs)
-          .then((args) => args.cast<MyGattCharacteristicArgs>());
+          .then((args) => args.cast<MyGATTCharacteristicArgs>());
       for (var characteristicArgs in characteristicsArgs) {
         // 发现 GATT 描述值
         final hashCodeArgs = characteristicArgs.hashCodeArgs;
         logger.info('discoverDescriptors: $uuidArgs.$hashCodeArgs');
         final descriptorsArgs = await _api
             .discoverDescriptors(uuidArgs, hashCodeArgs)
-            .then((args) => args.cast<MyGattDescriptorArgs>());
+            .then((args) => args.cast<MyGATTDescriptorArgs>());
         characteristicArgs.descriptorsArgs = descriptorsArgs;
       }
       serviceArgs.characteristicsArgs = characteristicsArgs;
     }
     final services =
-        servicesArgs.map((args) => args.toService2(peripheral)).toList();
+        servicesArgs.map((args) => args.toService(peripheral)).toList();
     final characteristics =
         services.expand((service) => service.characteristics).toList();
     _characteristics[uuidArgs] = {
@@ -142,9 +152,9 @@ class MyCentralManager extends CentralManager
 
   @override
   Future<Uint8List> readCharacteristic(
-    GattCharacteristic characteristic,
+    GATTCharacteristic characteristic,
   ) async {
-    if (characteristic is! MyGattCharacteristic2) {
+    if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
     final peripheral = characteristic.peripheral;
@@ -157,11 +167,11 @@ class MyCentralManager extends CentralManager
 
   @override
   Future<void> writeCharacteristic(
-    GattCharacteristic characteristic, {
+    GATTCharacteristic characteristic, {
     required Uint8List value,
-    required GattCharacteristicWriteType type,
+    required GATTCharacteristicWriteType type,
   }) async {
-    if (characteristic is! MyGattCharacteristic2) {
+    if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
     final peripheral = characteristic.peripheral;
@@ -170,7 +180,7 @@ class MyCentralManager extends CentralManager
     final trimmedValueArgs = value.trimGATT();
     final typeArgs = type.toArgs();
     final typeNumberArgs = typeArgs.index;
-    final fragmentSize = await _api.getMaximumWriteValueLength(
+    final fragmentSize = await _api.maximumWriteValueLength(
       uuidArgs,
       typeNumberArgs,
     );
@@ -194,10 +204,10 @@ class MyCentralManager extends CentralManager
 
   @override
   Future<void> setCharacteristicNotifyState(
-    GattCharacteristic characteristic, {
+    GATTCharacteristic characteristic, {
     required bool state,
   }) async {
-    if (characteristic is! MyGattCharacteristic2) {
+    if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
     final peripheral = characteristic.peripheral;
@@ -214,8 +224,8 @@ class MyCentralManager extends CentralManager
   }
 
   @override
-  Future<Uint8List> readDescriptor(GattDescriptor descriptor) async {
-    if (descriptor is! MyGattDescriptor2) {
+  Future<Uint8List> readDescriptor(GATTDescriptor descriptor) async {
+    if (descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
     final peripheral = descriptor.peripheral;
@@ -231,10 +241,10 @@ class MyCentralManager extends CentralManager
 
   @override
   Future<void> writeDescriptor(
-    GattDescriptor descriptor, {
+    GATTDescriptor descriptor, {
     required Uint8List value,
   }) async {
-    if (descriptor is! MyGattDescriptor2) {
+    if (descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
     final peripheral = descriptor.peripheral;
@@ -311,14 +321,14 @@ class MyCentralManager extends CentralManager
       return;
     }
     final value = valueArgs;
-    final eventArgs = GattCharacteristicNotifiedEventArgs(
+    final eventArgs = GATTCharacteristicNotifiedEventArgs(
       characteristic,
       value,
     );
     _characteristicNotifiedController.add(eventArgs);
   }
 
-  MyGattCharacteristic2? _retrieveCharacteristic(
+  MyGATTCharacteristic? _retrieveCharacteristic(
     String uuidArgs,
     int hashCodeArgs,
   ) {

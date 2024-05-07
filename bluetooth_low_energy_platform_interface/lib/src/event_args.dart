@@ -1,2 +1,2 @@
 /// The base event arguments.
-abstract base class EventArgs {}
+base class EventArgs {}

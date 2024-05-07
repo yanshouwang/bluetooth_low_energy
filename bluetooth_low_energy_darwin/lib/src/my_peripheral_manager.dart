@@ -4,71 +4,71 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 import 'package:flutter/foundation.dart';
 
 import 'my_api.dart';
+import 'my_api.g.dart';
 
-class MyPeripheralManager extends PeripheralManager
-    implements MyPeripheralManagerFlutterApi {
-  final MyPeripheralManagerHostApi _api;
+base class MyPeripheralManager extends BasePeripheralManager
+    implements MyPeripheralManagerFlutterAPI {
+  final MyPeripheralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
-  final StreamController<GattCharacteristicReadEventArgs>
+  final StreamController<GATTCharacteristicReadEventArgs>
       _characteristicReadController;
-  final StreamController<GattCharacteristicWrittenEventArgs>
+  final StreamController<GATTCharacteristicWrittenEventArgs>
       _characteristicWrittenController;
-  final StreamController<GattCharacteristicNotifyStateChangedEventArgs>
+  final StreamController<GATTCharacteristicNotifyStateChangedEventArgs>
       _characteristicNotifyStateChangedController;
+  final StreamController<EventArgs> _isReadyController;
 
-  final Map<int, Map<int, MyGattCharacteristic>> _characteristics;
+  final Map<int, Map<int, MutableGATTCharacteristic>> _characteristics;
   final Map<String, Map<int, bool>> _listeners;
 
   BluetoothLowEnergyState _state;
 
   MyPeripheralManager()
-      : _api = MyPeripheralManagerHostApi(),
+      : _api = MyPeripheralManagerHostAPI(),
         _stateChangedController = StreamController.broadcast(),
         _characteristicReadController = StreamController.broadcast(),
         _characteristicWrittenController = StreamController.broadcast(),
         _characteristicNotifyStateChangedController =
             StreamController.broadcast(),
+        _isReadyController = StreamController.broadcast(),
         _characteristics = {},
         _listeners = {},
         _state = BluetoothLowEnergyState.unknown;
 
   @override
+  BluetoothLowEnergyState get state => _state;
+  @override
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
-  Stream<GattCharacteristicReadEventArgs> get characteristicRead =>
+  Stream<GATTCharacteristicReadEventArgs> get characteristicRead =>
       _characteristicReadController.stream;
   @override
-  Stream<GattCharacteristicWrittenEventArgs> get characteristicWritten =>
+  Stream<GATTCharacteristicWrittenEventArgs> get characteristicWritten =>
       _characteristicWrittenController.stream;
   @override
-  Stream<GattCharacteristicNotifyStateChangedEventArgs>
+  Stream<GATTCharacteristicNotifyStateChangedEventArgs>
       get characteristicNotifyStateChanged =>
           _characteristicNotifyStateChangedController.stream;
+  Stream<EventArgs> get _isReady => _isReadyController.stream;
 
   @override
-  Future<void> setUp() async {
-    logger.info('setUp');
-    await _api.setUp();
-    MyPeripheralManagerFlutterApi.setup(this);
+  Future<void> initialize() async {
+    MyPeripheralManagerFlutterAPI.setUp(this);
+    logger.info('initialize');
+    await _api.initialize();
   }
 
   @override
-  Future<BluetoothLowEnergyState> getState() {
-    logger.info('getState');
-    return Future.value(_state);
-  }
-
-  @override
-  Future<void> addService(GattService service) async {
-    if (service is! MyGattService) {
+  Future<void> addService(GATTService service) async {
+    if (service is! MutableGATTService) {
       throw TypeError();
     }
-    final characteristics = <int, MyGattCharacteristic>{};
-    final characteristicsArgs = <MyGattCharacteristicArgs>[];
+    final characteristics = <int, MutableGATTCharacteristic>{};
+    final characteristicsArgs = <MyMutableGATTCharacteristicArgs>[];
     for (var characteristic in service.characteristics) {
-      final descriptorsArgs = <MyGattDescriptorArgs>[];
+      final descriptorsArgs = <MyMutableGATTDescriptorArgs>[];
       for (var descriptor in characteristic.descriptors) {
         final descriptorArgs = descriptor.toArgs();
         descriptorsArgs.add(descriptorArgs);
@@ -84,7 +84,7 @@ class MyPeripheralManager extends PeripheralManager
   }
 
   @override
-  Future<void> removeService(GattService service) async {
+  Future<void> removeService(GATTService service) async {
     final hashCodeArgs = service.hashCode;
     logger.info('removeService: $hashCodeArgs');
     await _api.removeService(hashCodeArgs);
@@ -112,8 +112,8 @@ class MyPeripheralManager extends PeripheralManager
   }
 
   @override
-  Future<Uint8List> readCharacteristic(GattCharacteristic characteristic) {
-    if (characteristic is! MyGattCharacteristic) {
+  Future<Uint8List> readCharacteristic(GATTCharacteristic characteristic) {
+    if (characteristic is! MutableGATTCharacteristic) {
       throw TypeError();
     }
     final hashCodeArgs = characteristic.hashCode;
@@ -124,19 +124,16 @@ class MyPeripheralManager extends PeripheralManager
 
   @override
   Future<void> writeCharacteristic(
-    GattCharacteristic characteristic, {
+    GATTCharacteristic characteristic, {
     required Uint8List value,
     Central? central,
   }) async {
-    if (characteristic is! MyGattCharacteristic) {
+    if (characteristic is! MutableGATTCharacteristic) {
       throw TypeError();
     }
     characteristic.value = value;
     if (central == null) {
       return;
-    }
-    if (central is! MyCentral) {
-      throw TypeError();
     }
     final uuidArgs = central.uuid.toArgs();
     final hashCodeArgs = characteristic.hashCode;
@@ -147,20 +144,29 @@ class MyPeripheralManager extends PeripheralManager
     }
     final uuidsArgs = [uuidArgs];
     final trimmedValueArgs = characteristic.value;
-    final fragmentSize = await _api.getMaximumUpdateValueLength(uuidArgs);
+    if (trimmedValueArgs == null) {
+      throw ArgumentError.notNull();
+    }
+    final fragmentSize = await _api.maximumUpdateValueLength(uuidArgs);
     var start = 0;
     while (start < trimmedValueArgs.length) {
       final end = start + fragmentSize;
       final fragmentedValueArgs = end < trimmedValueArgs.length
           ? trimmedValueArgs.sublist(start, end)
           : trimmedValueArgs.sublist(start);
-      logger.info(
-          'notifyCharacteristicChanged: $hashCodeArgs - $fragmentedValueArgs, $uuidsArgs');
-      await _api.updateCharacteristic(
-        hashCodeArgs,
-        fragmentedValueArgs,
-        uuidsArgs,
-      );
+      while (true) {
+        logger.info(
+            'updateValue: $hashCodeArgs - $fragmentedValueArgs, $uuidsArgs');
+        final updated = await _api.updateValue(
+          hashCodeArgs,
+          fragmentedValueArgs,
+          uuidsArgs,
+        );
+        if (updated) {
+          break;
+        }
+        await _isReady.first;
+      }
       start = end;
     }
   }
@@ -179,54 +185,74 @@ class MyPeripheralManager extends PeripheralManager
   }
 
   @override
-  void onCharacteristicReadRequest(
-    MyCentralArgs centralArgs,
-    int hashCodeArgs,
-    int idArgs,
-    int offsetArgs,
-  ) async {
-    final uuidArgs = centralArgs.uuidArgs;
+  void didReceiveRead(MyATTRequestArgs requestArgs) async {
+    final hashCodeArgs = requestArgs.hashCodeArgs;
+    final centralArgs = requestArgs.centralArgs;
+    final characteristicHashCodeArgs = requestArgs.characteristicHashCodeArgs;
+    final offsetArgs = requestArgs.offsetArgs;
+    final valueArgs = requestArgs.valueArgs;
     logger.info(
-        'onCharacteristicReadRequest: $uuidArgs.$hashCodeArgs - $idArgs, $offsetArgs');
+        'didReceiveRead: $hashCodeArgs - ${centralArgs.uuidArgs}.$characteristicHashCodeArgs, $offsetArgs, $valueArgs');
     final central = centralArgs.toCentral();
     final characteristic = _retrieveCharacteristic(hashCodeArgs);
     if (characteristic == null) {
-      return;
+      const errorArgs = MyATTErrorArgs.attributeNotFound;
+      await _respond(hashCodeArgs, errorArgs, null);
+    } else {
+      const errorArgs = MyATTErrorArgs.success;
+      final offset = offsetArgs;
+      final valueArgs = _onCharacteristicRead(central, characteristic, offset);
+      await _respond(hashCodeArgs, errorArgs, valueArgs);
     }
-    const errorArgs = MyGattErrorArgs.success;
-    final offset = offsetArgs;
-    final valueArgs = _onCharacteristicRead(central, characteristic, offset);
-    await _tryRespond(
-      idArgs,
-      errorArgs,
-      valueArgs,
-    );
   }
 
   @override
-  void onCharacteristicWriteRequest(
-    MyCentralArgs centralArgs,
-    int hashCodeArgs,
-    int idArgs,
-    int offsetArgs,
-    Uint8List valueArgs,
-  ) async {
-    final uuidArgs = centralArgs.uuidArgs;
+  void didReceiveWrite(List<MyATTRequestArgs?> requestsArgs) async {
+    // When you respond to a write request, note that the first parameter of the respond(to:with
+    // Result:) method expects a single CBATTRequest object, even though you received an array of
+    // them from the peripheralManager(_:didReceiveWrite:) method. To respond properly,
+    // pass in the first request of the requests array.
+    // see: https://developer.apple.com/documentation/corebluetooth/cbperipheralmanagerdelegate/1393315-peripheralmanager#discussion
+    final requestArgs = requestsArgs.firstOrNull;
+    if (requestArgs == null) {
+      return;
+    }
+    final hashCodeArgs = requestArgs.hashCodeArgs;
+    final centralArgs = requestArgs.centralArgs;
+    final characteristicHashCodeArgs = requestArgs.characteristicHashCodeArgs;
+    final offsetArgs = requestArgs.offsetArgs;
+    final valueArgs = requestArgs.valueArgs;
     logger.info(
-        'onCharacteristicWriteRequest: $uuidArgs.$hashCodeArgs - $idArgs, $offsetArgs, $valueArgs');
+        'didReceiveWrite: $hashCodeArgs - ${centralArgs.uuidArgs}.$characteristicHashCodeArgs, $offsetArgs, $valueArgs');
+    if (requestsArgs.length > 1) {
+      // TODO: how to respond multi requests.
+      const errorArgs = MyATTErrorArgs.requestNotSupported;
+      await _respond(hashCodeArgs, errorArgs, null);
+    }
     final central = centralArgs.toCentral();
     final characteristic = _retrieveCharacteristic(hashCodeArgs);
     if (characteristic == null) {
-      return;
+      const errorArgs = MyATTErrorArgs.attributeNotFound;
+      await _respond(hashCodeArgs, errorArgs, null);
+    } else if (valueArgs == null) {
+      const errorArgs = MyATTErrorArgs.requestNotSupported;
+      await _respond(hashCodeArgs, errorArgs, null);
+    } else {
+      const errorArgs = MyATTErrorArgs.success;
+      final value = valueArgs;
+      _onCharacteristicWritten(central, characteristic, value);
+      await _respond(
+        hashCodeArgs,
+        errorArgs,
+        null,
+      );
     }
-    const errorArgs = MyGattErrorArgs.success;
-    final value = valueArgs;
-    _onCharacteristicWritten(central, characteristic, value);
-    await _tryRespond(
-      idArgs,
-      errorArgs,
-      null,
-    );
+  }
+
+  @override
+  void isReady() {
+    final eventArgs = EventArgs();
+    _isReadyController.add(eventArgs);
   }
 
   @override
@@ -250,7 +276,7 @@ class MyPeripheralManager extends PeripheralManager
     } else {
       listeners.remove(hashCodeArgs);
     }
-    final eventArgs = GattCharacteristicNotifyStateChangedEventArgs(
+    final eventArgs = GATTCharacteristicNotifyStateChangedEventArgs(
       central,
       characteristic,
       state,
@@ -258,7 +284,7 @@ class MyPeripheralManager extends PeripheralManager
     _characteristicNotifyStateChangedController.add(eventArgs);
   }
 
-  MyGattCharacteristic? _retrieveCharacteristic(int hashCodeArgs) {
+  MutableGATTCharacteristic? _retrieveCharacteristic(int hashCodeArgs) {
     final characteristics = _characteristics.values
         .reduce((value, element) => value..addAll(element));
     return characteristics[hashCodeArgs];
@@ -272,17 +298,18 @@ class MyPeripheralManager extends PeripheralManager
     return listeners[hashCodeArgs];
   }
 
-  Future<void> _tryRespond(
-    int idArgs,
-    MyGattErrorArgs errorArgs,
+  Future<void> _respond(
+    int hashCodeArgs,
+    MyATTErrorArgs errorArgs,
     Uint8List? valueArgs,
   ) async {
     final errorNumberArgs = errorArgs.index;
     try {
-      _api.respond(
-        idArgs,
-        errorNumberArgs,
+      logger.info('respond: $hashCodeArgs - $valueArgs, $errorNumberArgs');
+      await _api.respond(
+        hashCodeArgs,
         valueArgs,
+        errorNumberArgs,
       );
     } catch (e, stack) {
       logger.shout('Respond failed.', e, stack);
@@ -290,31 +317,33 @@ class MyPeripheralManager extends PeripheralManager
   }
 
   Uint8List _onCharacteristicRead(
-    MyCentral central,
-    MyGattCharacteristic characteristic,
+    Central central,
+    MutableGATTCharacteristic characteristic,
     int offset,
   ) {
-    final value = characteristic.value;
-    final trimmedValue = value.sublist(offset);
+    final value = characteristic.value ?? Uint8List.fromList([]);
     if (offset == 0) {
-      final eventArgs = GattCharacteristicReadEventArgs(
+      final eventArgs = GATTCharacteristicReadEventArgs(
         central,
         characteristic,
         value,
       );
       _characteristicReadController.add(eventArgs);
     }
-    return trimmedValue;
+    return value.sublist(offset);
   }
 
   void _onCharacteristicWritten(
-    MyCentral central,
-    MyGattCharacteristic characteristic,
+    Central central,
+    MutableGATTCharacteristic characteristic,
     Uint8List value,
   ) async {
     characteristic.value = value;
     final trimmedValue = characteristic.value;
-    final eventArgs = GattCharacteristicWrittenEventArgs(
+    if (trimmedValue == null) {
+      throw ArgumentError.notNull();
+    }
+    final eventArgs = GATTCharacteristicWrittenEventArgs(
       central,
       characteristic,
       trimmedValue,

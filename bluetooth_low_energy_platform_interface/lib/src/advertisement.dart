@@ -4,7 +4,7 @@ import 'manufacturer_specific_data.dart';
 import 'uuid.dart';
 
 /// The advertisement of the peripheral.
-class Advertisement {
+final class Advertisement {
   /// The name of the peripheral.
   final String? name;
 

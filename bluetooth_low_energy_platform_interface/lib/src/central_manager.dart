@@ -9,6 +9,59 @@ import 'gatt.dart';
 import 'peripheral.dart';
 import 'uuid.dart';
 
+/// The discovered event arguments.
+final class DiscoveredEventArgs extends EventArgs {
+  /// The disvered peripheral.
+  final Peripheral peripheral;
+
+  /// The rssi of the peripheral.
+  final int rssi;
+
+  /// The advertisement of the peripheral.
+  final Advertisement advertisement;
+
+  /// Constructs a [DiscoveredEventArgs].
+  DiscoveredEventArgs(this.peripheral, this.rssi, this.advertisement);
+}
+
+/// The connection state cahnged event arguments.
+final class ConnectionStateChangedEventArgs extends EventArgs {
+  /// The peripheral which connection state changed.
+  final Peripheral peripheral;
+
+  /// The connection state.
+  final bool connectionState;
+
+  /// Constructs a [ConnectionStateChangedEventArgs].
+  ConnectionStateChangedEventArgs(this.peripheral, this.connectionState);
+}
+
+/// The MTU changed event arguments.
+final class MTUChangedEventArgs extends EventArgs {
+  /// The peripheral which MTU changed.
+  final Peripheral peripheral;
+
+  /// The MTU.
+  final int mtu;
+
+  MTUChangedEventArgs(this.peripheral, this.mtu);
+}
+
+/// The GATT characteristic notified event arguments.
+final class GATTCharacteristicNotifiedEventArgs extends EventArgs {
+  /// The GATT characteristic which notified.
+  final GATTCharacteristic characteristic;
+
+  /// The notified value.
+  final Uint8List value;
+
+  /// Constructs a [GATTCharacteristicNotifiedEventArgs].
+  GATTCharacteristicNotifiedEventArgs(
+    this.characteristic,
+    this.value,
+  );
+}
+
 /// An object that scans for, discovers, connects to, and manages peripherals.
 abstract interface class CentralManager implements BluetoothLowEnergyManager {
   static CentralManager? _instance;
@@ -29,8 +82,16 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   /// Tells that retrieving the specified peripheral's connection lost.
   Stream<ConnectionStateChangedEventArgs> get connectionStateChanged;
 
+  /// Callback indicating the MTU for a given device connection has changed.
+  ///
+  /// This callback is triggered in response to the BluetoothGatt#requestMtu function,
+  /// or in response to a connection event.
+  ///
+  /// This event is available on Android, throws [UnsupportedError] on other platforms.
+  Stream<MTUChangedEventArgs> get mtuChanged;
+
   /// Tells that retrieving the specified characteristic’s value changed.
-  Stream<GattCharacteristicNotifiedEventArgs> get characteristicNotified;
+  Stream<GATTCharacteristicNotifiedEventArgs> get characteristicNotified;
 
   /// Scans for peripherals that are advertising services.
   ///
@@ -46,7 +107,7 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
 
   /// Returns a list of the peripherals connected to the system.
   ///
-  /// This method throws [UnsupportedError] on Windows.
+  /// This method is available on Android and iOS, throws [UnsupportedError] on other platforms.
   Future<List<Peripheral>> retrieveConnectedPeripherals();
 
   /// Establishes a local connection to a peripheral.
@@ -61,88 +122,43 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   /// [MTU is set to 517 for the first GATT client requesting an MTU](https://developer.android.com/about/versions/14/behavior-changes-all#mtu-set-to-517)
   /// for more information.
   ///
-  /// This method is only available on Android, throws [UnsupportedError] on other platforms.
+  /// This method is available on Android, throws [UnsupportedError] on other platforms.
   Future<int> requestMTU(Peripheral peripheral, int mtu);
 
   /// Retrieves the current RSSI value for the peripheral while connected to the central manager.
   ///
-  /// This method throws [UnsupportedError] on Windows.
+  /// This method is available on Android, iOS, macOS and Linux, throws [UnsupportedError] on other platforms.
   Future<int> readRSSI(Peripheral peripheral);
 
   /// Discovers the GATT services, characteristics and descriptors of the peripheral.
-  Future<List<GattService>> discoverGATT(Peripheral peripheral);
+  Future<List<GATTService>> discoverGATT(Peripheral peripheral);
 
   /// Retrieves the value of a specified characteristic.
-  Future<Uint8List> readCharacteristic(GattCharacteristic characteristic);
+  Future<Uint8List> readCharacteristic(GATTCharacteristic characteristic);
 
   /// Writes the value of a characteristic.
   ///
   /// The maximum size of the value is 512, all bytes that exceed this size will be discarded.
   Future<void> writeCharacteristic(
-    GattCharacteristic characteristic, {
+    GATTCharacteristic characteristic, {
     required Uint8List value,
-    required GattCharacteristicWriteType type,
+    required GATTCharacteristicWriteType type,
   });
 
   /// Sets notifications or indications for the value of a specified characteristic.
   Future<void> setCharacteristicNotifyState(
-    GattCharacteristic characteristic, {
+    GATTCharacteristic characteristic, {
     required bool state,
   });
 
   /// Retrieves the value of a specified characteristic descriptor.
-  Future<Uint8List> readDescriptor(GattDescriptor descriptor);
+  Future<Uint8List> readDescriptor(GATTDescriptor descriptor);
 
   /// Writes the value of a characteristic descriptor.
   Future<void> writeDescriptor(
-    GattDescriptor descriptor, {
+    GATTDescriptor descriptor, {
     required Uint8List value,
   });
-}
-
-/// The discovered event arguments.
-base class DiscoveredEventArgs extends EventArgs {
-  /// The disvered peripheral.
-  final Peripheral peripheral;
-
-  /// The rssi of the peripheral.
-  final int rssi;
-
-  /// The advertisement of the peripheral.
-  final Advertisement advertisement;
-
-  /// Constructs a [DiscoveredEventArgs].
-  DiscoveredEventArgs(this.peripheral, this.rssi, this.advertisement);
-}
-
-/// The connection state cahnged event arguments.
-base class ConnectionStateChangedEventArgs extends EventArgs {
-  /// The peripheral which connection state changed.
-  final Peripheral peripheral;
-
-  /// The connection state.
-  final bool connectionState;
-
-  /// Constructs a [ConnectionStateChangedEventArgs].
-  ConnectionStateChangedEventArgs(
-    this.peripheral,
-    this.connectionState,
-  );
-}
-
-/// The GATT characteristic notified event arguments.
-base class GattCharacteristicNotifiedEventArgs extends EventArgs {
-  /// The GATT characteristic which notified.
-  final GattCharacteristic characteristic;
-
-  /// The notified value.
-  final Uint8List value;
-
-  /// Constructs a [GattCharacteristicNotifiedEventArgs].
-  GattCharacteristicNotifiedEventArgs(
-    this.characteristic,
-    this.value,
-  );
 }
 
 /// Platform-specific implementations should implement this class to support [BaseCentralManager].

@@ -1,3 +1,13 @@
+## 6.0.0-dev.5
+
+* Use new capitalization rules.
+
+## 6.0.0-dev.4
+
+* Add `CentralManager#mtuChanged` event.
+* Add modifiers to all classes.
+* Use new capitalization rules.
+
 ## 6.0.0-dev.3
 
 * Remove `abstract` keyword from `Central` class.

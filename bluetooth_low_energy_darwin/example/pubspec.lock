@@ -15,15 +15,15 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "5.0.5"
+    version: "6.0.0-dev.0"
   bluetooth_low_energy_platform_interface:
     dependency: "direct main"
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: "5af74eb8f97a896dfdbcff2da284d4fe5b4e2e49ebb2f46f826ac1810f66e4d7"
+      sha256: "43ca79209d4514b51066a7fa6e5534eb237fec1ab3c18629acaaf141075dea5b"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.2"
+    version: "6.0.0-dev.5"
   boolean_selector:
     dependency: transitive
     description:
@@ -68,10 +68,10 @@ packages:
     dependency: "direct main"
     description:
       name: cupertino_icons
-      sha256: d57953e10f9f8327ce64a508a355f0b1ec902193f66288e8cb5070e7c47eeb2d
+      sha256: ba631d1c7f7bef6b729a622b7b752645a2d076dba9976925b8f25725a30e1ee6
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.6"
+    version: "1.0.8"
   fake_async:
     dependency: transitive
     description:
@@ -111,11 +111,32 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_web_plugins:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   fuchsia_remote_debug_protocol:
     dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"
+  go_router:
+    dependency: "direct main"
+    description:
+      name: go_router
+      sha256: "9e0f7d1a3e7dc5010903e330fbc5497872c4c3cf6626381d69083cc1d5113c1e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "14.0.2"
+  hybrid_logging:
+    dependency: transitive
+    description:
+      name: hybrid_logging
+      sha256: "54248d52ce68c14702a42fbc4083bac5c6be30f6afad8a41be4bbadd197b8af5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   integration_test:
     dependency: "direct dev"
     description: flutter
@@ -161,14 +182,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
-  log_service:
-    dependency: transitive
-    description:
-      name: log_service
-      sha256: "21124936899e227d1779268077921d46d57456e2592d1562e455be273594e2e4"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
   logging:
     dependency: "direct main"
     description:
@@ -327,5 +340,5 @@ packages:
     source: hosted
     version: "3.0.3"
 sdks:
-  dart: ">=3.2.0-0 <4.0.0"
-  flutter: ">=3.0.0"
+  dart: ">=3.2.0 <4.0.0"
+  flutter: ">=3.16.0"
