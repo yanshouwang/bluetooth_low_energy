@@ -1,3 +1,11 @@
+## 6.0.0-dev.6
+
+* Move `ConnectionStateChangedEventArgs` to `PeripheralConnectionStateChangedEventArgs`.
+* Move `MTUChangedEventArgs` to `PeripheralMTUChangedEventArgs`.
+* Add `ConnectionState` enum.
+* Add `CentralMTUChangedEventArgs` class.
+* Add `PeripheralManager#mtuChanged` event.
+
 ## 6.0.0-dev.5
 
 * Use new capitalization rules.

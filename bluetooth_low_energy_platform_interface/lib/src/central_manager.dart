@@ -4,6 +4,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'advertisement.dart';
 import 'bluetooth_low_energy_manager.dart';
+import 'connection_state.dart';
 import 'event_args.dart';
 import 'gatt.dart';
 import 'peripheral.dart';
@@ -22,6 +23,29 @@ final class DiscoveredEventArgs extends EventArgs {
 
   /// Constructs a [DiscoveredEventArgs].
   DiscoveredEventArgs(this.peripheral, this.rssi, this.advertisement);
+}
+
+/// The connection state cahnged event arguments.
+final class PeripheralConnectionStateChangedEventArgs extends EventArgs {
+  /// The peripheral which connection state changed.
+  final Peripheral peripheral;
+
+  /// The state.
+  final ConnectionState state;
+
+  /// Constructs a [PeripheralConnectionStateChangedEventArgs].
+  PeripheralConnectionStateChangedEventArgs(this.peripheral, this.state);
+}
+
+/// The peripheral MTU changed event arguments.
+final class PeripheralMTUChangedEventArgs extends EventArgs {
+  /// The peripheral which MTU changed.
+  final Peripheral peripheral;
+
+  /// The MTU.
+  final int mtu;
+
+  PeripheralMTUChangedEventArgs(this.peripheral, this.mtu);
 }
 
 /// The GATT characteristic notified event arguments.
@@ -56,8 +80,16 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   /// Tells the central manager discovered a peripheral while scanning for devices.
   Stream<DiscoveredEventArgs> get discovered;
 
-  /// Tells that retrieving the specified peripheral's connection lost.
-  Stream<ConnectionStateChangedEventArgs> get connectionStateChanged;
+  /// Tells that retrieving the specified peripheral's connection state changed.
+  Stream<PeripheralConnectionStateChangedEventArgs> get connectionStateChanged;
+
+  /// Callback indicating the MTU for a given device connection has changed.
+  ///
+  /// This callback is triggered in response to the BluetoothGatt#requestMtu function,
+  /// or in response to a connection event.
+  ///
+  /// This event is available on Android and Windows, throws [UnsupportedError] on other platforms.
+  Stream<PeripheralMTUChangedEventArgs> get mtuChanged;
 
   /// Tells that retrieving the specified characteristic’s value changed.
   Stream<GATTCharacteristicNotifiedEventArgs> get characteristicNotified;

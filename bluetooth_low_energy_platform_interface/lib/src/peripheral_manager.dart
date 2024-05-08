@@ -8,6 +8,17 @@ import 'central.dart';
 import 'event_args.dart';
 import 'gatt.dart';
 
+/// The central MTU changed event arguments.
+final class CentralMTUChangedEventArgs extends EventArgs {
+  /// The central which MTU changed.
+  final Central central;
+
+  /// The MTU.
+  final int mtu;
+
+  CentralMTUChangedEventArgs(this.central, this.mtu);
+}
+
 /// The GATT characteristic read event arguments.
 final class GATTCharacteristicReadEventArgs extends EventArgs {
   /// The central which read this characteristic.
@@ -79,6 +90,14 @@ abstract interface class PeripheralManager
     }
     return instance;
   }
+
+  /// Callback indicating the MTU for a given device connection has changed.
+  ///
+  /// This callback will be invoked if a remote client has requested to change the
+  /// MTU for a given connection.
+  ///
+  /// This event is available on Android, throws [UnsupportedError] on other platforms.
+  Stream<CentralMTUChangedEventArgs> get mtuChanged;
 
   /// Tells that the local peripheral device received an Attribute Protocol (ATT) read request for a characteristic with a dynamic value.
   Stream<GATTCharacteristicReadEventArgs> get characteristicRead;
