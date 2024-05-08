@@ -16,6 +16,7 @@ base class MyCentralManager extends BaseCentralManager
   final StreamController<DiscoveredEventArgs> _discoveredController;
   final StreamController<PeripheralConnectionStateChangedEventArgs>
       _connectionStateChangedController;
+  final StreamController<PeripheralMTUChangedEventArgs> _mtuChangedController;
   final StreamController<GATTCharacteristicNotifiedEventArgs>
       _characteristicNotifiedController;
 
@@ -30,6 +31,7 @@ base class MyCentralManager extends BaseCentralManager
         _stateChangedController = StreamController.broadcast(),
         _discoveredController = StreamController.broadcast(),
         _connectionStateChangedController = StreamController.broadcast(),
+        _mtuChangedController = StreamController.broadcast(),
         _characteristicNotifiedController = StreamController.broadcast(),
         _peripherals = {},
         _characteristics = {},
@@ -46,6 +48,9 @@ base class MyCentralManager extends BaseCentralManager
   @override
   Stream<PeripheralConnectionStateChangedEventArgs>
       get connectionStateChanged => _connectionStateChangedController.stream;
+  @override
+  Stream<PeripheralMTUChangedEventArgs> get mtuChanged =>
+      _mtuChangedController.stream;
   @override
   Stream<GATTCharacteristicNotifiedEventArgs> get characteristicNotified =>
       _characteristicNotifiedController.stream;
@@ -136,7 +141,7 @@ base class MyCentralManager extends BaseCentralManager
       throw TypeError();
     }
     final addressArgs = peripheral.address;
-    logger.info('discoverServices: $addressArgs');
+    logger.info('discoverGATT: $addressArgs');
     final servicesArgs = await _api.discoverGATT(addressArgs);
     final services = servicesArgs
         .cast<MyGattServiceArgs>()
