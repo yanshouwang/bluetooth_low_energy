@@ -2,7 +2,7 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 
 import 'my_peripheral.dart';
 
-base class MyGATTDescriptor extends BaseGATTDescriptor {
+final class MyGATTDescriptor extends BaseGATTDescriptor {
   final MyPeripheral peripheral;
   final int handle;
 
@@ -23,7 +23,7 @@ base class MyGATTDescriptor extends BaseGATTDescriptor {
   }
 }
 
-base class MyGATTCharacteristic extends BaseGATTCharacteristic {
+final class MyGATTCharacteristic extends BaseGATTCharacteristic {
   final MyPeripheral peripheral;
   final int handle;
 
@@ -50,7 +50,7 @@ base class MyGATTCharacteristic extends BaseGATTCharacteristic {
   }
 }
 
-base class MyGATTService extends BaseGATTService {
+final class MyGATTService extends BaseGATTService {
   final MyPeripheral peripheral;
   final int handle;
 

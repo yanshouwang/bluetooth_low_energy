@@ -24,6 +24,17 @@ extension MyBluetoothLowEnergyStateArgsX on MyBluetoothLowEnergyStateArgs {
   }
 }
 
+extension MyConnectionStateArgsX on MyConnectionStateArgs {
+  ConnectionState toState() {
+    switch (this) {
+      case MyConnectionStateArgs.disconnected:
+        return ConnectionState.disconnected;
+      case MyConnectionStateArgs.connected:
+        return ConnectionState.connected;
+    }
+  }
+}
+
 extension MyGATTCharacteristicPropertyArgsX
     on MyGATTCharacteristicPropertyArgs {
   GATTCharacteristicProperty toProperty() {

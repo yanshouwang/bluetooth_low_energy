@@ -8,7 +8,7 @@ import 'my_api.g.dart';
 import 'my_gatt.dart';
 import 'my_peripheral.dart';
 
-base class MyCentralManager extends BaseCentralManager
+final class MyCentralManager extends BaseCentralManager
     implements MyCentralManagerFlutterAPI {
   final MyCentralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
@@ -281,19 +281,22 @@ base class MyCentralManager extends BaseCentralManager
   }
 
   @override
-  void onConnectionStateChanged(int addressArgs, bool stateArgs) {
+  void onConnectionStateChanged(
+    int addressArgs,
+    MyConnectionStateArgs stateArgs,
+  ) {
     logger.info('onConnectionStateChanged: $addressArgs - $stateArgs');
     final peripheral = _peripherals[addressArgs];
     if (peripheral == null) {
       return;
     }
-    final state = stateArgs;
+    final state = stateArgs.toState();
+    if (state == ConnectionState.disconnected) {
+      _characteristics.remove(addressArgs);
+    }
     final eventArgs =
         PeripheralConnectionStateChangedEventArgs(peripheral, state);
     _connectionStateChangedController.add(eventArgs);
-    if (!state) {
-      _characteristics.remove(addressArgs);
-    }
   }
 
   @override

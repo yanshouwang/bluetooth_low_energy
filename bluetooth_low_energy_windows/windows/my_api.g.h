@@ -64,6 +64,11 @@ enum class MyBluetoothLowEnergyStateArgs {
   on = 3
 };
 
+enum class MyConnectionStateArgs {
+  disconnected = 0,
+  connected = 1
+};
+
 enum class MyGATTCharacteristicPropertyArgs {
   read = 0,
   write = 1,
@@ -406,7 +411,7 @@ class MyCentralManagerFlutterAPI {
     std::function<void(const FlutterError&)>&& on_error);
   void OnConnectionStateChanged(
     int64_t address_args,
-    bool state_args,
+    const MyConnectionStateArgs& state_args,
     std::function<void(void)>&& on_success,
     std::function<void(const FlutterError&)>&& on_error);
   void OnMTUChanged(

@@ -19,6 +19,11 @@ enum MyBluetoothLowEnergyStateArgs {
   on,
 }
 
+enum MyConnectionStateArgs {
+  disconnected,
+  connected,
+}
+
 enum MyGATTCharacteristicPropertyArgs {
   read,
   write,
@@ -150,7 +155,10 @@ abstract class MyCentralManagerFlutterAPI {
     int rssiArgs,
     MyAdvertisementArgs advertisementArgs,
   );
-  void onConnectionStateChanged(int addressArgs, bool stateArgs);
+  void onConnectionStateChanged(
+    int addressArgs,
+    MyConnectionStateArgs stateArgs,
+  );
   void onMTUChanged(int addressArgs, int mtuArgs);
   void onCharacteristicNotified(
     int addressArgs,

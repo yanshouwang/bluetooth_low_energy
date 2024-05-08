@@ -1,3 +1,9 @@
+## 6.0.0-dev.1
+
+* Add `CentralManager#mtuChanged` event.
+* Add modifiers to all classes.
+* Use new capitalization rules.
+
 ## 6.0.0-dev.0
 
 * Add `serviceUUIDs` argument to `CentralManager#startDiscovery` method.

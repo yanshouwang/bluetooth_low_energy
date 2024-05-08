@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'package:bluetooth_low_energy_example/models.dart';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:convert/convert.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide ConnectionState;
 import 'package:hybrid_logging/hybrid_logging.dart';
 import 'package:intl/intl.dart';
 
@@ -23,7 +23,7 @@ class PeripheralView extends StatefulWidget {
 
 class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
   late final CentralManager centralManager;
-  late final ValueNotifier<bool> connectionState;
+  late final ValueNotifier<ConnectionState> connectionState;
   late final DiscoveredEventArgs eventArgs;
   late final ValueNotifier<List<GATTService>> services;
   late final ValueNotifier<List<GATTCharacteristic>> characteristics;
@@ -41,7 +41,7 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
     super.initState();
     eventArgs = widget.eventArgs;
     centralManager = CentralManager();
-    connectionState = ValueNotifier(false);
+    connectionState = ValueNotifier(ConnectionState.disconnected);
     services = ValueNotifier([]);
     characteristics = ValueNotifier([]);
     service = ValueNotifier(null);
@@ -55,15 +55,15 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
         if (eventArgs.peripheral != this.eventArgs.peripheral) {
           return;
         }
-        final connectionState = eventArgs.connectionState;
-        this.connectionState.value = connectionState;
-        if (!connectionState) {
+        final state = eventArgs.state;
+        if (state == ConnectionState.disconnected) {
           services.value = [];
           characteristics.value = [];
           service.value = null;
           characteristic.value = null;
           logs.value = [];
         }
+        connectionState.value = state;
       },
     );
     mtuChangedSubscription = centralManager.mtuChanged.listen(
@@ -96,7 +96,7 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
   Widget build(BuildContext context) {
     return PopScope(
       onPopInvoked: (didPop) async {
-        if (connectionState.value) {
+        if (connectionState.value == ConnectionState.connected) {
           final peripheral = eventArgs.peripheral;
           await centralManager.disconnect(peripheral);
         }
@@ -115,11 +115,12 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
       actions: [
         ValueListenableBuilder(
           valueListenable: connectionState,
-          builder: (context, state, child) {
+          builder: (context, connectionState, child) {
+            final connected = connectionState == ConnectionState.connected;
             return TextButton(
               onPressed: () async {
                 final peripheral = eventArgs.peripheral;
-                if (state) {
+                if (connected) {
                   await centralManager.disconnect(peripheral);
                 } else {
                   await centralManager.connect(peripheral);
@@ -127,7 +128,7 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
                       await centralManager.discoverGATT(peripheral);
                 }
               },
-              child: Text(state ? 'DISCONNECT' : 'CONNECT'),
+              child: Text(connected ? 'DISCONNECT' : 'CONNECT'),
             );
           },
         ),
@@ -397,7 +398,7 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
                             ).toList(),
                           );
                           // final segments =
-                          //     GattCharacteristicWriteType.values.map((type) {
+                          //     GATTCharacteristicWriteType.values.map((type) {
                           //   return ButtonSegment(
                           //     value: type,
                           //     label: Text(type.name),

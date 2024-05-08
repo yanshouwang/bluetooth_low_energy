@@ -32,6 +32,11 @@ enum MyBluetoothLowEnergyStateArgs {
   on,
 }
 
+enum MyConnectionStateArgs {
+  disconnected,
+  connected,
+}
+
 enum MyGATTCharacteristicPropertyArgs {
   read,
   write,
@@ -627,7 +632,7 @@ abstract class MyCentralManagerFlutterAPI {
 
   void onDiscovered(MyPeripheralArgs peripheralArgs, int rssiArgs, MyAdvertisementArgs advertisementArgs);
 
-  void onConnectionStateChanged(int addressArgs, bool stateArgs);
+  void onConnectionStateChanged(int addressArgs, MyConnectionStateArgs stateArgs);
 
   void onMTUChanged(int addressArgs, int mtuArgs);
 
@@ -705,9 +710,9 @@ abstract class MyCentralManagerFlutterAPI {
           final int? arg_addressArgs = (args[0] as int?);
           assert(arg_addressArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterAPI.onConnectionStateChanged was null, expected non-null int.');
-          final bool? arg_stateArgs = (args[1] as bool?);
+          final MyConnectionStateArgs? arg_stateArgs = args[1] == null ? null : MyConnectionStateArgs.values[args[1]! as int];
           assert(arg_stateArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterAPI.onConnectionStateChanged was null, expected non-null bool.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterAPI.onConnectionStateChanged was null, expected non-null MyConnectionStateArgs.');
           try {
             api.onConnectionStateChanged(arg_addressArgs!, arg_stateArgs!);
             return wrapResponse(empty: true);

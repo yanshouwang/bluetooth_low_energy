@@ -972,14 +972,14 @@ void MyCentralManagerFlutterAPI::OnDiscovered(
 
 void MyCentralManagerFlutterAPI::OnConnectionStateChanged(
   int64_t address_args_arg,
-  bool state_args_arg,
+  const MyConnectionStateArgs& state_args_arg,
   std::function<void(void)>&& on_success,
   std::function<void(const FlutterError&)>&& on_error) {
   const std::string channel_name = "dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterAPI.onConnectionStateChanged" + message_channel_suffix_;
   BasicMessageChannel<> channel(binary_messenger_, channel_name, &GetCodec());
   EncodableValue encoded_api_arguments = EncodableValue(EncodableList{
     EncodableValue(address_args_arg),
-    EncodableValue(state_args_arg),
+    EncodableValue((int)state_args_arg),
   });
   channel.Send(encoded_api_arguments, [channel_name, on_success = std::move(on_success), on_error = std::move(on_error)](const uint8_t* reply, size_t reply_size) {
     std::unique_ptr<EncodableValue> response = GetCodec().DecodeMessage(reply, reply_size);

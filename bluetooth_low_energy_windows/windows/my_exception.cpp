@@ -2,8 +2,16 @@
 
 namespace bluetooth_low_energy_windows
 {
+	MyException::MyException(const std::string& message) :m_message(message)
+	{
+	}
+
+	MyException::~MyException()
+	{
+	}
+
 	const char* MyException::what() const noexcept
 	{
-		return message.c_str();
+		return m_message.c_str();
 	}
 }
