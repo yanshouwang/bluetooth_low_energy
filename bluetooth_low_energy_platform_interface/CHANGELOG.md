@@ -1,3 +1,8 @@
+## 6.0.0-dev.7
+
+* Add `logLevel` argument to the `CentralManager` construstor.
+* Add `logLevel` argument to the `PeripheralManager` construstor.
+
 ## 6.0.0-dev.6
 
 * Move `ConnectionStateChangedEventArgs` to `PeripheralConnectionStateChangedEventArgs`.

@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:logging/logging.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'advertisement.dart';
@@ -82,8 +83,10 @@ abstract interface class PeripheralManager
   static PeripheralManager? _instance;
 
   /// Gets the instance of [PeripheralManager] to use.
-  factory PeripheralManager() {
-    final instance = BasePeripheralManager.instance;
+  factory PeripheralManager({
+    Level? logLevel,
+  }) {
+    final instance = BasePeripheralManager.instance..logLevel = logLevel;
     if (instance != _instance) {
       instance.initialize();
       _instance = instance;
