@@ -21,10 +21,10 @@ namespace bluetooth_low_energy_windows
 		MyCentralManager& operator=(const MyCentralManager&) = delete;
 
 		// 通过 MyCentralManagerHostApi 继承
-		std::optional<FlutterError> Initialize() override;
+		void Initialize(std::function<void(ErrorOr<MyCentralManagerArgs> reply)> result) override;
 		std::optional<FlutterError> StartDiscovery(const flutter::EncodableList& service_uuids_args) override;
 		std::optional<FlutterError> StopDiscovery() override;
-		void Connect(int64_t address_args, std::function<void(std::optional<FlutterError>reply)> result) override;
+		void Connect(int64_t address_args, std::function<void(ErrorOr<MyConnectionArgs> reply)> result) override;
 		std::optional<FlutterError> Disconnect(int64_t address_args) override;
 		void DiscoverServices(int64_t address_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result) override;
 		void DiscoverCharacteristics(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result) override;
@@ -50,8 +50,8 @@ namespace bluetooth_low_energy_windows
 		std::map<int64_t, std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession::MaxPduSizeChanged_revoker>> m_session_max_pdu_size_changed_revokers;
 		std::map<int64_t, std::map<int64_t, std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic::ValueChanged_revoker>>> m_characteristic_value_changed_revokers;
 
-		winrt::fire_and_forget m_initialize();
-		winrt::fire_and_forget m_connect(int64_t address_args, std::function<void(std::optional<FlutterError>reply)> result);
+		winrt::fire_and_forget m_initialize(std::function<void(ErrorOr<MyCentralManagerArgs> reply)> result);
+		winrt::fire_and_forget m_connect(int64_t address_args, std::function<void(ErrorOr<MyConnectionArgs> reply)> result);
 		winrt::fire_and_forget m_discover_services(int64_t address_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
 		winrt::fire_and_forget m_discover_characteristics(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
 		winrt::fire_and_forget m_discover_descriptors(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
@@ -62,7 +62,6 @@ namespace bluetooth_low_energy_windows
 		winrt::fire_and_forget m_write_descriptor(int64_t address_args, int64_t handle_args, const std::vector<uint8_t>& value_args, std::function<void(std::optional<FlutterError> reply)> result);
 
 		void m_disconnect(int64_t address_args);
-		void m_on_state_changed();
 		MyBluetoothLowEnergyStateArgs m_radio_state_to_args(const winrt::Windows::Devices::Radios::RadioState& state);
 		MyConnectionStateArgs m_connection_status_to_args(const winrt::Windows::Devices::Bluetooth::BluetoothConnectionStatus& status);
 		MyAdvertisementArgs m_advertisement_to_args(const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisement& advertisement);

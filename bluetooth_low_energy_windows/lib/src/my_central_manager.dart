@@ -60,7 +60,10 @@ final class MyCentralManager extends BaseCentralManager
     Timer.run(() async {
       try {
         logger.info('initialize');
-        await _api.initialize();
+        final args = await _api.initialize();
+        final stateArgs = args.stateArgs;
+        logger.info('initialized: $stateArgs');
+        onStateChanged(stateArgs);
       } catch (e, stack) {
         logger.severe('initialize failed.', e, stack);
       }
@@ -96,7 +99,10 @@ final class MyCentralManager extends BaseCentralManager
     }
     final addressArgs = peripheral.address;
     logger.info('connect: $addressArgs');
-    await _api.connect(addressArgs);
+    final args = await _api.connect(addressArgs);
+    final mtuArgs = args.mtuArgs;
+    onConnectionStateChanged(addressArgs, MyConnectionStateArgs.connected);
+    onMTUChanged(addressArgs, mtuArgs);
   }
 
   @override
@@ -107,6 +113,7 @@ final class MyCentralManager extends BaseCentralManager
     final addressArgs = peripheral.address;
     logger.info('disconnect: $addressArgs');
     await _api.disconnect(addressArgs);
+    onConnectionStateChanged(addressArgs, MyConnectionStateArgs.disconnected);
   }
 
   @override

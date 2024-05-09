@@ -128,7 +128,7 @@ class _CentralManagerViewState extends State<CentralManagerView> {
               onLongPress: () {
                 onLongPressEventArgs(eventArgs);
               },
-              title: Text(name ?? 'N/A'),
+              title: Text(name ?? ''),
               subtitle: Text(
                 '$uuid',
                 style: theme.textTheme.bodySmall,
