@@ -1,3 +1,8 @@
+## 6.0.0-dev.8
+
+* Remove `logLevel` argument from the `CentralManager` construstor.
+* Remove `logLevel` argument from the `PeripheralManager` construstor.
+
 ## 6.0.0-dev.7
 
 * Add `logLevel` argument to the `CentralManager` construstor.

@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:logging/logging.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'advertisement.dart';
@@ -69,10 +68,8 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   static CentralManager? _instance;
 
   /// Gets the instance of [CentralManager] to use.
-  factory CentralManager({
-    Level? logLevel,
-  }) {
-    final instance = BaseCentralManager.instance..logLevel = logLevel;
+  factory CentralManager() {
+    final instance = BaseCentralManager.instance;
     if (instance != _instance) {
       instance.initialize();
       _instance = instance;
