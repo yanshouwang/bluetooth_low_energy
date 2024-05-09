@@ -54,10 +54,17 @@ final class MyCentralManager extends BaseCentralManager
       _characteristicNotifiedController.stream;
 
   @override
-  Future<void> initialize() async {
+  void initialize() {
     MyCentralManagerFlutterAPI.setUp(this);
-    logger.info('initialize');
-    await _api.initialize();
+    // Here we use `Timer.run()` to make it possible to change the `logLevel` before `initialize()`.
+    Timer.run(() async {
+      try {
+        logger.info('initialize');
+        await _api.initialize();
+      } catch (e, stack) {
+        logger.severe('initialize failed.', e, stack);
+      }
+    });
   }
 
   @override

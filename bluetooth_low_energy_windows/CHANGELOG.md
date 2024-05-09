@@ -1,3 +1,7 @@
+## 6.0.0-dev.2
+
+* Make it possible to change the `logLevel` before `initialize()`.
+
 ## 6.0.0-dev.1
 
 * Add `CentralManager#mtuChanged` event.

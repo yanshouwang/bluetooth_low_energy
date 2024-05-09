@@ -498,7 +498,7 @@ base class MyPeripheralManager extends BasePeripheralManager
         valueArgs,
       );
     } catch (e, stack) {
-      logger.shout('Send response failed.', e, stack);
+      logger.severe('sendResponse failed.', e, stack);
     }
   }
 
