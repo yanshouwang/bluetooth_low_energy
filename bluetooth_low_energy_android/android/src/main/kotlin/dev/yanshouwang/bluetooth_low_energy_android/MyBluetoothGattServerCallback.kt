@@ -51,13 +51,6 @@ class MyBluetoothGattServerCallback(manager: MyPeripheralManager, mExecutor: Exe
         }
     }
 
-    override fun onExecuteWrite(device: BluetoothDevice, requestId: Int, execute: Boolean) {
-        super.onExecuteWrite(device, requestId, execute)
-        mExecutor.execute {
-            mManager.onExecuteWrite(device, requestId, execute)
-        }
-    }
-
     override fun onNotificationSent(device: BluetoothDevice, status: Int) {
         super.onNotificationSent(device, status)
         mExecutor.execute {
@@ -76,6 +69,13 @@ class MyBluetoothGattServerCallback(manager: MyPeripheralManager, mExecutor: Exe
         super.onDescriptorWriteRequest(device, requestId, descriptor, preparedWrite, responseNeeded, offset, value)
         mExecutor.execute {
             mManager.onDescriptorWriteRequest(device, requestId, descriptor, preparedWrite, responseNeeded, offset, value)
+        }
+    }
+
+    override fun onExecuteWrite(device: BluetoothDevice, requestId: Int, execute: Boolean) {
+        super.onExecuteWrite(device, requestId, execute)
+        mExecutor.execute {
+            mManager.onExecuteWrite(device, requestId, execute)
         }
     }
 }

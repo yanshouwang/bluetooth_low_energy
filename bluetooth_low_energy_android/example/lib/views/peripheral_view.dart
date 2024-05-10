@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'package:bluetooth_low_energy_example/models.dart';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:convert/convert.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide ConnectionState;
 import 'package:hybrid_logging/hybrid_logging.dart';
 import 'package:intl/intl.dart';
 
@@ -23,13 +23,13 @@ class PeripheralView extends StatefulWidget {
 
 class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
   late final CentralManager centralManager;
-  late final ValueNotifier<bool> connectionState;
+  late final ValueNotifier<ConnectionState> connectionState;
   late final DiscoveredEventArgs eventArgs;
-  late final ValueNotifier<List<GattService>> services;
-  late final ValueNotifier<List<GattCharacteristic>> characteristics;
-  late final ValueNotifier<GattService?> service;
-  late final ValueNotifier<GattCharacteristic?> characteristic;
-  late final ValueNotifier<GattCharacteristicWriteType> writeType;
+  late final ValueNotifier<List<GATTService>> services;
+  late final ValueNotifier<List<GATTCharacteristic>> characteristics;
+  late final ValueNotifier<GATTService?> service;
+  late final ValueNotifier<GATTCharacteristic?> characteristic;
+  late final ValueNotifier<GATTCharacteristicWriteType> writeType;
   late final ValueNotifier<List<Log>> logs;
   late final TextEditingController writeController;
   late final StreamSubscription connectionStateChangedSubscription;
@@ -40,12 +40,12 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
     super.initState();
     eventArgs = widget.eventArgs;
     centralManager = CentralManager();
-    connectionState = ValueNotifier(false);
+    connectionState = ValueNotifier(ConnectionState.disconnected);
     services = ValueNotifier([]);
     characteristics = ValueNotifier([]);
     service = ValueNotifier(null);
     characteristic = ValueNotifier(null);
-    writeType = ValueNotifier(GattCharacteristicWriteType.withResponse);
+    writeType = ValueNotifier(GATTCharacteristicWriteType.withResponse);
     logs = ValueNotifier([]);
     writeController = TextEditingController();
     connectionStateChangedSubscription =
@@ -54,9 +54,9 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
         if (eventArgs.peripheral != this.eventArgs.peripheral) {
           return;
         }
-        final connectionState = eventArgs.connectionState;
-        this.connectionState.value = connectionState;
-        if (!connectionState) {
+        final state = eventArgs.state;
+        connectionState.value = state;
+        if (state == ConnectionState.disconnected) {
           services.value = [];
           characteristics.value = [];
           service.value = null;
@@ -86,7 +86,7 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
   Widget build(BuildContext context) {
     return PopScope(
       onPopInvoked: (didPop) async {
-        if (connectionState.value) {
+        if (connectionState.value == ConnectionState.connected) {
           final peripheral = eventArgs.peripheral;
           await centralManager.disconnect(peripheral);
         }
@@ -106,10 +106,11 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
         ValueListenableBuilder(
           valueListenable: connectionState,
           builder: (context, state, child) {
+            final connected = state == ConnectionState.connected;
             return TextButton(
               onPressed: () async {
                 final peripheral = eventArgs.peripheral;
-                if (state) {
+                if (connected) {
                   await centralManager.disconnect(peripheral);
                 } else {
                   await centralManager.connect(peripheral);
@@ -119,7 +120,7 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
                   logger.info('New MTU size: $mtu');
                 }
               },
-              child: Text(state ? 'DISCONNECT' : 'CONNECT'),
+              child: Text(connected ? 'DISCONNECT' : 'CONNECT'),
             );
           },
         ),
@@ -196,25 +197,25 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
                       this.characteristic.value = characteristic;
                       final writeType = this.writeType.value;
                       final canWrite = characteristic.properties.contains(
-                        GattCharacteristicProperty.write,
+                        GATTCharacteristicProperty.write,
                       );
                       final canWriteWithoutResponse =
                           characteristic.properties.contains(
-                        GattCharacteristicProperty.writeWithoutResponse,
+                        GATTCharacteristicProperty.writeWithoutResponse,
                       );
                       if (writeType ==
-                              GattCharacteristicWriteType.withResponse &&
+                              GATTCharacteristicWriteType.withResponse &&
                           !canWrite &&
                           canWriteWithoutResponse) {
                         this.writeType.value =
-                            GattCharacteristicWriteType.withoutResponse;
+                            GATTCharacteristicWriteType.withoutResponse;
                       }
                       if (writeType ==
-                              GattCharacteristicWriteType.withoutResponse &&
+                              GATTCharacteristicWriteType.withoutResponse &&
                           !canWriteWithoutResponse &&
                           canWrite) {
                         this.writeType.value =
-                            GattCharacteristicWriteType.withResponse;
+                            GATTCharacteristicWriteType.withResponse;
                       }
                     },
                   );
@@ -283,19 +284,19 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
               } else {
                 final properties = characteristic.properties;
                 canNotify = properties.contains(
-                      GattCharacteristicProperty.notify,
+                      GATTCharacteristicProperty.notify,
                     ) ||
                     properties.contains(
-                      GattCharacteristicProperty.indicate,
+                      GATTCharacteristicProperty.indicate,
                     );
                 canRead = properties.contains(
-                  GattCharacteristicProperty.read,
+                  GATTCharacteristicProperty.read,
                 );
                 canWrite = properties.contains(
-                  GattCharacteristicProperty.write,
+                  GATTCharacteristicProperty.write,
                 );
                 canWriteWithoutResponse = properties.contains(
-                  GattCharacteristicProperty.writeWithoutResponse,
+                  GATTCharacteristicProperty.writeWithoutResponse,
                 );
               }
               return Column(
@@ -364,7 +365,7 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
                                       return;
                                     }
                                     final type =
-                                        GattCharacteristicWriteType.values[i];
+                                        GATTCharacteristicWriteType.values[i];
                                     this.writeType.value = type;
                                   }
                                 : null,
@@ -373,10 +374,10 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
                               minHeight: 0.0,
                             ),
                             borderRadius: BorderRadius.circular(4.0),
-                            isSelected: GattCharacteristicWriteType.values
+                            isSelected: GATTCharacteristicWriteType.values
                                 .map((type) => type == writeType)
                                 .toList(),
-                            children: GattCharacteristicWriteType.values.map(
+                            children: GATTCharacteristicWriteType.values.map(
                               (type) {
                                 return Container(
                                   margin: const EdgeInsets.symmetric(
@@ -389,7 +390,7 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
                             ).toList(),
                           );
                           // final segments =
-                          //     GattCharacteristicWriteType.values.map((type) {
+                          //     GATTCharacteristicWriteType.values.map((type) {
                           //   return ButtonSegment(
                           //     value: type,
                           //     label: Text(type.name),

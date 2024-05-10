@@ -12,7 +12,8 @@ import java.util.UUID
 
 abstract class MyBluetoothLowEnergyManager(val context: Context) {
     companion object {
-        val CLIENT_CHARACTERISTIC_CONFIG_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb") as UUID
+        const val AUTHORIZE_CODE = 0x00
+        const val SHOW_APP_SETTINGS_CODE = 0x01
     }
 
     private val mBroadcastReceiver: BroadcastReceiver by lazy { MyBroadcastReceiver(this) }

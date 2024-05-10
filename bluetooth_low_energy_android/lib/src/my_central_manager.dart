@@ -26,6 +26,8 @@ base class MyCentralManager extends BaseCentralManager
   final Map<String, Map<int, MyGATTCharacteristic>> _characteristics;
   final Map<String, int> _mtus;
 
+  late final MyCentralManagerArgs _args;
+
   BluetoothLowEnergyState _state;
 
   MyCentralManager()
@@ -77,7 +79,7 @@ base class MyCentralManager extends BaseCentralManager
     Timer.run(() async {
       try {
         logger.info('initialize');
-        await _api.initialize();
+        _args = await _api.initialize();
         _updateState();
       } catch (e, stack) {
         logger.severe('initialize failed.', e, stack);
@@ -267,17 +269,26 @@ base class MyCentralManager extends BaseCentralManager
     final peripheral = characteristic.peripheral;
     final addressArgs = peripheral.address;
     final hashCodeArgs = characteristic.hashCode;
-    final stateArgs = state
-        ? characteristic.properties.contains(GATTCharacteristicProperty.notify)
-            ? MyGATTCharacteristicNotifyStateArgs.notify
-            : MyGATTCharacteristicNotifyStateArgs.indicate
-        : MyGATTCharacteristicNotifyStateArgs.none;
+    final enableArgs = state;
     logger.info(
-        'setCharacteristicNotifyState: $addressArgs.$hashCodeArgs - $stateArgs');
-    await _api.setCharacteristicNotifyState(
+        'setCharacteristicNotification: $addressArgs.$hashCodeArgs - $enableArgs');
+    await _api.setCharacteristicNotification(
       addressArgs,
       hashCodeArgs,
-      stateArgs,
+      enableArgs,
+    );
+    // TODO: Seems the docs is not correct, this operation is necessary for all characteristics.
+    // https://developer.android.com/guide/topics/connectivity/bluetooth/transfer-ble-data#notification
+    final descriptor = characteristic.descriptors
+        .firstWhere((descriptor) => descriptor.uuid == UUID.short(0x2902));
+    final value = state
+        ? characteristic.properties.contains(GATTCharacteristicProperty.notify)
+            ? _args.enableNotificationValue
+            : _args.enableIndicationValue
+        : _args.disableNotificationValue;
+    await writeDescriptor(
+      descriptor,
+      value: value,
     );
   }
 

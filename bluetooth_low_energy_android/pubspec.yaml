@@ -11,13 +11,13 @@ dependencies:
   flutter:
     sdk: flutter
   bluetooth_low_energy_platform_interface: ^6.0.0-dev.9
+  collection: ^1.18.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
   pigeon: ^18.0.0
-  jnigen: ^0.9.0
 
 flutter:
   plugin:

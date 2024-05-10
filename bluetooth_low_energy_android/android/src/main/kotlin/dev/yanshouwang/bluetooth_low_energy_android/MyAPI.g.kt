@@ -100,34 +100,73 @@ enum class MyGATTCharacteristicWriteTypeArgs(val raw: Int) {
   }
 }
 
-enum class MyGATTCharacteristicNotifyStateArgs(val raw: Int) {
-  NONE(0),
-  NOTIFY(1),
-  INDICATE(2);
-
-  companion object {
-    fun ofRaw(raw: Int): MyGATTCharacteristicNotifyStateArgs? {
-      return values().firstOrNull { it.raw == raw }
-    }
-  }
-}
-
 enum class MyGATTStatusArgs(val raw: Int) {
   SUCCESS(0),
   READ_NOT_PERMITTED(1),
   WRITE_NOT_PERMITTED(2),
-  REQUEST_NOT_SUPPORTED(3),
-  INVALID_OFFSET(4),
-  INSUFFICIENT_AUTHENTICATION(5),
-  INSUFFICIENT_ENCRYPTION(6),
-  INVALID_ATTRIBUTE_LENGTH(7),
-  CONNECTION_CONGESTED(8),
-  FAILURE(9);
+  INSUFFICIENT_AUTHENTICATION(3),
+  REQUEST_NOT_SUPPORTED(4),
+  INSUFFICIENT_ENCRYPTION(5),
+  INVALID_OFFSET(6),
+  INSUFFICIENT_AUTHORIZATION(7),
+  INVALID_ATTRIBUTE_LENGTH(8),
+  CONNECTION_CONGESTED(9),
+  FAILURE(10);
 
   companion object {
     fun ofRaw(raw: Int): MyGATTStatusArgs? {
       return values().firstOrNull { it.raw == raw }
     }
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class MyCentralManagerArgs (
+  val enableNotificationValue: ByteArray,
+  val enableIndicationValue: ByteArray,
+  val disableNotificationValue: ByteArray
+
+) {
+  companion object {
+    @Suppress("UNCHECKED_CAST")
+    fun fromList(list: List<Any?>): MyCentralManagerArgs {
+      val enableNotificationValue = list[0] as ByteArray
+      val enableIndicationValue = list[1] as ByteArray
+      val disableNotificationValue = list[2] as ByteArray
+      return MyCentralManagerArgs(enableNotificationValue, enableIndicationValue, disableNotificationValue)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf<Any?>(
+      enableNotificationValue,
+      enableIndicationValue,
+      disableNotificationValue,
+    )
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class MyPeripheralManagerArgs (
+  val enableNotificationValue: ByteArray,
+  val enableIndicationValue: ByteArray,
+  val disableNotificationValue: ByteArray
+
+) {
+  companion object {
+    @Suppress("UNCHECKED_CAST")
+    fun fromList(list: List<Any?>): MyPeripheralManagerArgs {
+      val enableNotificationValue = list[0] as ByteArray
+      val enableIndicationValue = list[1] as ByteArray
+      val disableNotificationValue = list[2] as ByteArray
+      return MyPeripheralManagerArgs(enableNotificationValue, enableIndicationValue, disableNotificationValue)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf<Any?>(
+      enableNotificationValue,
+      enableIndicationValue,
+      disableNotificationValue,
+    )
   }
 }
 
@@ -383,20 +422,25 @@ private object MyCentralManagerHostAPICodec : StandardMessageCodec() {
     return when (type) {
       128.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          MyGATTCharacteristicArgs.fromList(it)
+          MyCentralManagerArgs.fromList(it)
         }
       }
       129.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          MyGATTDescriptorArgs.fromList(it)
+          MyGATTCharacteristicArgs.fromList(it)
         }
       }
       130.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          MyGATTServiceArgs.fromList(it)
+          MyGATTDescriptorArgs.fromList(it)
         }
       }
       131.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          MyGATTServiceArgs.fromList(it)
+        }
+      }
+      132.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
           MyPeripheralArgs.fromList(it)
         }
@@ -406,20 +450,24 @@ private object MyCentralManagerHostAPICodec : StandardMessageCodec() {
   }
   override fun writeValue(stream: ByteArrayOutputStream, value: Any?)   {
     when (value) {
-      is MyGATTCharacteristicArgs -> {
+      is MyCentralManagerArgs -> {
         stream.write(128)
         writeValue(stream, value.toList())
       }
-      is MyGATTDescriptorArgs -> {
+      is MyGATTCharacteristicArgs -> {
         stream.write(129)
         writeValue(stream, value.toList())
       }
-      is MyGATTServiceArgs -> {
+      is MyGATTDescriptorArgs -> {
         stream.write(130)
         writeValue(stream, value.toList())
       }
-      is MyPeripheralArgs -> {
+      is MyGATTServiceArgs -> {
         stream.write(131)
+        writeValue(stream, value.toList())
+      }
+      is MyPeripheralArgs -> {
+        stream.write(132)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -429,7 +477,7 @@ private object MyCentralManagerHostAPICodec : StandardMessageCodec() {
 
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface MyCentralManagerHostAPI {
-  fun initialize()
+  fun initialize(): MyCentralManagerArgs
   fun getState(): MyBluetoothLowEnergyStateArgs
   fun authorize(callback: (Result<Boolean>) -> Unit)
   fun showAppSettings(callback: (Result<Unit>) -> Unit)
@@ -443,7 +491,7 @@ interface MyCentralManagerHostAPI {
   fun discoverGATT(addressArgs: String, callback: (Result<List<MyGATTServiceArgs>>) -> Unit)
   fun readCharacteristic(addressArgs: String, hashCodeArgs: Long, callback: (Result<ByteArray>) -> Unit)
   fun writeCharacteristic(addressArgs: String, hashCodeArgs: Long, valueArgs: ByteArray, typeArgs: MyGATTCharacteristicWriteTypeArgs, callback: (Result<Unit>) -> Unit)
-  fun setCharacteristicNotifyState(addressArgs: String, hashCodeArgs: Long, stateArgs: MyGATTCharacteristicNotifyStateArgs, callback: (Result<Unit>) -> Unit)
+  fun setCharacteristicNotification(addressArgs: String, hashCodeArgs: Long, enableArgs: Boolean)
   fun readDescriptor(addressArgs: String, hashCodeArgs: Long, callback: (Result<ByteArray>) -> Unit)
   fun writeDescriptor(addressArgs: String, hashCodeArgs: Long, valueArgs: ByteArray, callback: (Result<Unit>) -> Unit)
 
@@ -462,8 +510,7 @@ interface MyCentralManagerHostAPI {
           channel.setMessageHandler { _, reply ->
             var wrapped: List<Any?>
             try {
-              api.initialize()
-              wrapped = listOf<Any?>(null)
+              wrapped = listOf<Any?>(api.initialize())
             } catch (exception: Throwable) {
               wrapped = wrapError(exception)
             }
@@ -719,21 +766,21 @@ interface MyCentralManagerHostAPI {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.setCharacteristicNotifyState$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerHostAPI.setCharacteristicNotification$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val addressArgsArg = args[0] as String
             val hashCodeArgsArg = args[1].let { if (it is Int) it.toLong() else it as Long }
-            val stateArgsArg = MyGATTCharacteristicNotifyStateArgs.ofRaw(args[2] as Int)!!
-            api.setCharacteristicNotifyState(addressArgsArg, hashCodeArgsArg, stateArgsArg) { result: Result<Unit> ->
-              val error = result.exceptionOrNull()
-              if (error != null) {
-                reply.reply(wrapError(error))
-              } else {
-                reply.reply(wrapResult(null))
-              }
+            val enableArgsArg = args[2] as Boolean
+            var wrapped: List<Any?>
+            try {
+              api.setCharacteristicNotification(addressArgsArg, hashCodeArgsArg, enableArgsArg)
+              wrapped = listOf<Any?>(null)
+            } catch (exception: Throwable) {
+              wrapped = wrapError(exception)
             }
+            reply.reply(wrapped)
           }
         } else {
           channel.setMessageHandler(null)
@@ -949,6 +996,11 @@ private object MyPeripheralManagerHostAPICodec : StandardMessageCodec() {
           MyMutableGATTServiceArgs.fromList(it)
         }
       }
+      133.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          MyPeripheralManagerArgs.fromList(it)
+        }
+      }
       else -> super.readValueOfType(type, buffer)
     }
   }
@@ -974,6 +1026,10 @@ private object MyPeripheralManagerHostAPICodec : StandardMessageCodec() {
         stream.write(132)
         writeValue(stream, value.toList())
       }
+      is MyPeripheralManagerArgs -> {
+        stream.write(133)
+        writeValue(stream, value.toList())
+      }
       else -> super.writeValue(stream, value)
     }
   }
@@ -981,7 +1037,7 @@ private object MyPeripheralManagerHostAPICodec : StandardMessageCodec() {
 
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface MyPeripheralManagerHostAPI {
-  fun initialize()
+  fun initialize(): MyPeripheralManagerArgs
   fun getState(): MyBluetoothLowEnergyStateArgs
   fun authorize(callback: (Result<Boolean>) -> Unit)
   fun showAppSettings(callback: (Result<Unit>) -> Unit)
@@ -1008,8 +1064,7 @@ interface MyPeripheralManagerHostAPI {
           channel.setMessageHandler { _, reply ->
             var wrapped: List<Any?>
             try {
-              api.initialize()
-              wrapped = listOf<Any?>(null)
+              wrapped = listOf<Any?>(api.initialize())
             } catch (exception: Throwable) {
               wrapped = wrapError(exception)
             }
@@ -1258,12 +1313,12 @@ class MyPeripheralManagerFlutterAPI(private val binaryMessenger: BinaryMessenger
       } 
     }
   }
-  fun onConnectionStateChanged(centralArgsArg: MyCentralArgs, stateArgsArg: MyConnectionStateArgs, callback: (Result<Unit>) -> Unit)
+  fun onConnectionStateChanged(centralArgsArg: MyCentralArgs, statusArgsArg: Long, stateArgsArg: MyConnectionStateArgs, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
     val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onConnectionStateChanged$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(centralArgsArg, stateArgsArg.raw)) {
+    channel.send(listOf(centralArgsArg, statusArgsArg, stateArgsArg.raw)) {
       if (it is List<*>) {
         if (it.size > 1) {
           callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
@@ -1292,12 +1347,12 @@ class MyPeripheralManagerFlutterAPI(private val binaryMessenger: BinaryMessenger
       } 
     }
   }
-  fun onCharacteristicReadRequest(addressArgsArg: String, hashCodeArgsArg: Long, idArgsArg: Long, offsetArgsArg: Long, callback: (Result<Unit>) -> Unit)
+  fun onCharacteristicReadRequest(addressArgsArg: String, idArgsArg: Long, offsetArgsArg: Long, hashCodeArgsArg: Long, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
     val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicReadRequest$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(addressArgsArg, hashCodeArgsArg, idArgsArg, offsetArgsArg)) {
+    channel.send(listOf(addressArgsArg, idArgsArg, offsetArgsArg, hashCodeArgsArg)) {
       if (it is List<*>) {
         if (it.size > 1) {
           callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
@@ -1309,12 +1364,12 @@ class MyPeripheralManagerFlutterAPI(private val binaryMessenger: BinaryMessenger
       } 
     }
   }
-  fun onCharacteristicWriteRequest(addressArgsArg: String, hashCodeArgsArg: Long, idArgsArg: Long, offsetArgsArg: Long, valueArgsArg: ByteArray, preparedWriteArgsArg: Boolean, responseNeededArgsArg: Boolean, callback: (Result<Unit>) -> Unit)
+  fun onCharacteristicWriteRequest(addressArgsArg: String, idArgsArg: Long, hashCodeArgsArg: Long, preparedWriteArgsArg: Boolean, responseNeededArgsArg: Boolean, offsetArgsArg: Long, valueArgsArg: ByteArray, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
     val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicWriteRequest$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(addressArgsArg, hashCodeArgsArg, idArgsArg, offsetArgsArg, valueArgsArg, preparedWriteArgsArg, responseNeededArgsArg)) {
+    channel.send(listOf(addressArgsArg, idArgsArg, hashCodeArgsArg, preparedWriteArgsArg, responseNeededArgsArg, offsetArgsArg, valueArgsArg)) {
       if (it is List<*>) {
         if (it.size > 1) {
           callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
@@ -1326,29 +1381,12 @@ class MyPeripheralManagerFlutterAPI(private val binaryMessenger: BinaryMessenger
       } 
     }
   }
-  fun onCharacteristicNotifyStateChanged(addressArgsArg: String, hashCodeArgsArg: Long, stateArgsArg: MyGATTCharacteristicNotifyStateArgs, callback: (Result<Unit>) -> Unit)
-{
-    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onCharacteristicNotifyStateChanged$separatedMessageChannelSuffix"
-    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(addressArgsArg, hashCodeArgsArg, stateArgsArg.raw)) {
-      if (it is List<*>) {
-        if (it.size > 1) {
-          callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
-        } else {
-          callback(Result.success(Unit))
-        }
-      } else {
-        callback(Result.failure(createConnectionError(channelName)))
-      } 
-    }
-  }
-  fun onDescriptorReadRequest(addressArgsArg: String, hashCodeArgsArg: Long, idArgsArg: Long, offsetArgsArg: Long, callback: (Result<Unit>) -> Unit)
+  fun onDescriptorReadRequest(addressArgsArg: String, idArgsArg: Long, offsetArgsArg: Long, hashCodeArgsArg: Long, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
     val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorReadRequest$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(addressArgsArg, hashCodeArgsArg, idArgsArg, offsetArgsArg)) {
+    channel.send(listOf(addressArgsArg, idArgsArg, offsetArgsArg, hashCodeArgsArg)) {
       if (it is List<*>) {
         if (it.size > 1) {
           callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
@@ -1360,12 +1398,12 @@ class MyPeripheralManagerFlutterAPI(private val binaryMessenger: BinaryMessenger
       } 
     }
   }
-  fun onDescriptorWriteRequest(addressArgsArg: String, hashCodeArgsArg: Long, idArgsArg: Long, offsetArgsArg: Long, valueArgsArg: ByteArray, preparedWriteArgsArg: Boolean, responseNeededArgsArg: Boolean, callback: (Result<Unit>) -> Unit)
+  fun onDescriptorWriteRequest(addressArgsArg: String, idArgsArg: Long, hashCodeArgsArg: Long, preparedWriteArgsArg: Boolean, responseNeededArgsArg: Boolean, offsetArgsArg: Long, valueArgsArg: ByteArray, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
     val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerFlutterAPI.onDescriptorWriteRequest$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(addressArgsArg, hashCodeArgsArg, idArgsArg, offsetArgsArg, valueArgsArg, preparedWriteArgsArg, responseNeededArgsArg)) {
+    channel.send(listOf(addressArgsArg, idArgsArg, hashCodeArgsArg, preparedWriteArgsArg, responseNeededArgsArg, offsetArgsArg, valueArgsArg)) {
       if (it is List<*>) {
         if (it.size > 1) {
           callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))

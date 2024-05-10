@@ -2,6 +2,7 @@ package dev.yanshouwang.bluetooth_low_energy_android
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattService
@@ -21,11 +22,19 @@ fun MyGATTCharacteristicWriteTypeArgs.toType(): Int {
     }
 }
 
-fun MyGATTCharacteristicNotifyStateArgs.toValue(): ByteArray {
+fun MyGATTStatusArgs.toStatus(): Int {
     return when (this) {
-        MyGATTCharacteristicNotifyStateArgs.NONE -> BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
-        MyGATTCharacteristicNotifyStateArgs.NOTIFY -> BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-        MyGATTCharacteristicNotifyStateArgs.INDICATE -> BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
+        MyGATTStatusArgs.SUCCESS -> BluetoothGatt.GATT_SUCCESS
+        MyGATTStatusArgs.READ_NOT_PERMITTED -> BluetoothGatt.GATT_READ_NOT_PERMITTED
+        MyGATTStatusArgs.WRITE_NOT_PERMITTED -> BluetoothGatt.GATT_WRITE_NOT_PERMITTED
+        MyGATTStatusArgs.INSUFFICIENT_AUTHENTICATION -> BluetoothGatt.GATT_INSUFFICIENT_AUTHENTICATION
+        MyGATTStatusArgs.REQUEST_NOT_SUPPORTED -> BluetoothGatt.GATT_REQUEST_NOT_SUPPORTED
+        MyGATTStatusArgs.INSUFFICIENT_ENCRYPTION -> BluetoothGatt.GATT_INSUFFICIENT_ENCRYPTION
+        MyGATTStatusArgs.INVALID_OFFSET -> BluetoothGatt.GATT_INVALID_OFFSET
+        MyGATTStatusArgs.INSUFFICIENT_AUTHORIZATION -> BluetoothGatt.GATT_INSUFFICIENT_AUTHORIZATION
+        MyGATTStatusArgs.INVALID_ATTRIBUTE_LENGTH -> BluetoothGatt.GATT_INVALID_ATTRIBUTE_LENGTH
+        MyGATTStatusArgs.CONNECTION_CONGESTED -> BluetoothGatt.GATT_CONNECTION_CONGESTED
+        MyGATTStatusArgs.FAILURE -> BluetoothGatt.GATT_FAILURE
     }
 }
 
@@ -33,8 +42,7 @@ fun MyAdvertisementArgs.toAdvertiseData(adapter: BluetoothAdapter): AdvertiseDat
     val advertiseDataBuilder = AdvertiseData.Builder()
     if (nameArgs == null) {
         advertiseDataBuilder.setIncludeDeviceName(false)
-    } else {
-        // TODO: There is an issue that Android will use the cached name before setName takes effect.
+    } else { // TODO: There is an issue that Android will use the cached name before setName takes effect.
         // see https://stackoverflow.com/questions/8377558/change-the-android-bluetooth-device-name
         adapter.name = nameArgs
         advertiseDataBuilder.setIncludeDeviceName(true)
@@ -58,8 +66,7 @@ fun MyAdvertisementArgs.toAdvertiseData(adapter: BluetoothAdapter): AdvertiseDat
 
 fun MyMutableGATTDescriptorArgs.toDescriptor(): BluetoothGattDescriptor {
     val uuid = UUID.fromString(uuidArgs)
-    val permissions =
-        BluetoothGattDescriptor.PERMISSION_READ or BluetoothGattDescriptor.PERMISSION_WRITE
+    val permissions = BluetoothGattDescriptor.PERMISSION_READ or BluetoothGattDescriptor.PERMISSION_WRITE
     return BluetoothGattDescriptor(uuid, permissions)
 }
 
@@ -77,15 +84,13 @@ fun MyMutableGATTCharacteristicArgs.getProperties(): Int {
     }
     val read = propertiesArgs.contains(MyGATTCharacteristicPropertyArgs.READ)
     val write = propertiesArgs.contains(MyGATTCharacteristicPropertyArgs.WRITE)
-    val writeWithoutResponse =
-        propertiesArgs.contains(MyGATTCharacteristicPropertyArgs.WRITE_WITHOUT_RESPONSE)
+    val writeWithoutResponse = propertiesArgs.contains(MyGATTCharacteristicPropertyArgs.WRITE_WITHOUT_RESPONSE)
     val notify = propertiesArgs.contains(MyGATTCharacteristicPropertyArgs.NOTIFY)
     val indicate = propertiesArgs.contains(MyGATTCharacteristicPropertyArgs.INDICATE)
     var properties = 0
     if (read) properties = properties or BluetoothGattCharacteristic.PROPERTY_READ
     if (write) properties = properties or BluetoothGattCharacteristic.PROPERTY_WRITE
-    if (writeWithoutResponse) properties =
-        properties or BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
+    if (writeWithoutResponse) properties = properties or BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
     if (notify) properties = properties or BluetoothGattCharacteristic.PROPERTY_NOTIFY
     if (indicate) properties = properties or BluetoothGattCharacteristic.PROPERTY_INDICATE
     return properties
@@ -98,12 +103,10 @@ fun MyMutableGATTCharacteristicArgs.getPermissions(): Int {
     }
     val read = propertiesArgs.contains(MyGATTCharacteristicPropertyArgs.READ)
     val write = propertiesArgs.contains(MyGATTCharacteristicPropertyArgs.WRITE)
-    val writeWithoutResponse =
-        propertiesArgs.contains(MyGATTCharacteristicPropertyArgs.WRITE_WITHOUT_RESPONSE)
+    val writeWithoutResponse = propertiesArgs.contains(MyGATTCharacteristicPropertyArgs.WRITE_WITHOUT_RESPONSE)
     var permissions = 0
     if (read) permissions = permissions or BluetoothGattCharacteristic.PERMISSION_READ
-    if (write || writeWithoutResponse) permissions =
-        permissions or BluetoothGattCharacteristic.PERMISSION_WRITE
+    if (write || writeWithoutResponse) permissions = permissions or BluetoothGattCharacteristic.PERMISSION_WRITE
     return permissions
 }
 
@@ -111,8 +114,7 @@ fun MyMutableGATTServiceArgs.toService(): BluetoothGattService {
     val uuid = UUID.fromString(uuidArgs)
     val serviceType = BluetoothGattService.SERVICE_TYPE_PRIMARY
     return BluetoothGattService(uuid, serviceType)
-}
-//endregion
+} //endregion
 
 //region ToArgs
 fun Int.toBluetoothLowEnergyStateArgs(): MyBluetoothLowEnergyStateArgs {
@@ -156,12 +158,7 @@ fun ScanResult.toAdvertisementArgs(): MyAdvertisementArgs {
         val serviceUUIDsArgs = emptyList<String?>()
         val serviceDataArgs = emptyMap<String?, ByteArray>()
         val manufacturerSpecificDataArgs = null
-        MyAdvertisementArgs(
-            nameArgs,
-            serviceUUIDsArgs,
-            serviceDataArgs,
-            manufacturerSpecificDataArgs
-        )
+        MyAdvertisementArgs(nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs)
     } else {
         val nameArgs = record.deviceName
         val serviceUUIDsArgs = record.serviceUuids?.map { uuid -> uuid.toString() } ?: emptyList()
@@ -170,14 +167,8 @@ fun ScanResult.toAdvertisementArgs(): MyAdvertisementArgs {
             return@map Pair(key, value)
         }?.toTypedArray() ?: emptyArray()
         val serviceDataArgs = mapOf<String?, ByteArray?>(*pairs)
-        val manufacturerSpecificDataArgs =
-            record.manufacturerSpecificData?.toManufacturerSpecificDataArgs()
-        MyAdvertisementArgs(
-            nameArgs,
-            serviceUUIDsArgs,
-            serviceDataArgs,
-            manufacturerSpecificDataArgs
-        )
+        val manufacturerSpecificDataArgs = record.manufacturerSpecificData?.toManufacturerSpecificDataArgs()
+        MyAdvertisementArgs(nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs)
     }
 }
 
@@ -235,38 +226,25 @@ fun BluetoothGattDescriptor.toArgs(): MyGATTDescriptorArgs {
     val hashCodeArgs = hashCode().toLong()
     val uuidArgs = this.uuid.toString()
     return MyGATTDescriptorArgs(hashCodeArgs, uuidArgs)
-}
+} //endregion
 
-fun ByteArray.toNotifyStateArgs(): MyGATTCharacteristicNotifyStateArgs {
-    return if (this contentEquals BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE) {
-        MyGATTCharacteristicNotifyStateArgs.NOTIFY
-    } else if (this contentEquals BluetoothGattDescriptor.ENABLE_INDICATION_VALUE) {
-        MyGATTCharacteristicNotifyStateArgs.INDICATE
-    } else if (this contentEquals BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE) {
-        MyGATTCharacteristicNotifyStateArgs.NONE
-    } else {
-        throw IllegalArgumentException()
-    }
-}
-//endregion
-
-val Any.TAG get() = this::class.java.simpleName as String
-
-val ScanRecord.rawValues: Map<Byte, ByteArray>
-    get() {
-        val rawValues = mutableMapOf<Byte, ByteArray>()
-        var index = 0
-        val size = bytes.size
-        while (index < size) {
-            val length = bytes[index++].toInt() and 0xff
-            if (length == 0) {
-                break
-            }
-            val end = index + length
-            val type = bytes[index++]
-            val value = bytes.slice(index until end).toByteArray()
-            rawValues[type] = value
-            index = end
-        }
-        return rawValues.toMap()
-    }
+//val Any.TAG get() = this::class.java.simpleName as String
+//
+//val ScanRecord.rawValues: Map<Byte, ByteArray>
+//    get() {
+//        val rawValues = mutableMapOf<Byte, ByteArray>()
+//        var index = 0
+//        val size = bytes.size
+//        while (index < size) {
+//            val length = bytes[index++].toInt() and 0xff
+//            if (length == 0) {
+//                break
+//            }
+//            val end = index + length
+//            val type = bytes[index++]
+//            val value = bytes.slice(index until end).toByteArray()
+//            rawValues[type] = value
+//            index = end
+//        }
+//        return rawValues.toMap()
+//    }

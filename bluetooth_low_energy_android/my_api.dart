@@ -42,23 +42,42 @@ enum MyGATTCharacteristicWriteTypeArgs {
   withoutResponse,
 }
 
-enum MyGATTCharacteristicNotifyStateArgs {
-  none,
-  notify,
-  indicate,
-}
-
 enum MyGATTStatusArgs {
   success,
   readNotPermitted,
   writeNotPermitted,
-  requestNotSupported,
-  invalidOffset,
   insufficientAuthentication,
+  requestNotSupported,
   insufficientEncryption,
+  invalidOffset,
+  insufficientAuthorization,
   invalidAttributeLength,
   connectionCongested,
   failure,
+}
+
+class MyCentralManagerArgs {
+  final Uint8List enableNotificationValue;
+  final Uint8List enableIndicationValue;
+  final Uint8List disableNotificationValue;
+
+  MyCentralManagerArgs(
+    this.enableNotificationValue,
+    this.enableIndicationValue,
+    this.disableNotificationValue,
+  );
+}
+
+class MyPeripheralManagerArgs {
+  final Uint8List enableNotificationValue;
+  final Uint8List enableIndicationValue;
+  final Uint8List disableNotificationValue;
+
+  MyPeripheralManagerArgs(
+    this.enableNotificationValue,
+    this.enableIndicationValue,
+    this.disableNotificationValue,
+  );
 }
 
 class MyManufacturerSpecificDataArgs {
@@ -172,7 +191,7 @@ class MyMutableGATTServiceArgs {
 
 @HostApi()
 abstract class MyCentralManagerHostAPI {
-  void initialize();
+  MyCentralManagerArgs initialize();
   MyBluetoothLowEnergyStateArgs getState();
   @async
   bool authorize();
@@ -201,11 +220,10 @@ abstract class MyCentralManagerHostAPI {
     Uint8List valueArgs,
     MyGATTCharacteristicWriteTypeArgs typeArgs,
   );
-  @async
-  void setCharacteristicNotifyState(
+  void setCharacteristicNotification(
     String addressArgs,
     int hashCodeArgs,
-    MyGATTCharacteristicNotifyStateArgs stateArgs,
+    bool enableArgs,
   );
   @async
   Uint8List readDescriptor(String addressArgs, int hashCodeArgs);
@@ -239,7 +257,7 @@ abstract class MyCentralManagerFlutterAPI {
 
 @HostApi()
 abstract class MyPeripheralManagerHostAPI {
-  void initialize();
+  MyPeripheralManagerArgs initialize();
   MyBluetoothLowEnergyStateArgs getState();
   @async
   bool authorize();
@@ -273,43 +291,39 @@ abstract class MyPeripheralManagerFlutterAPI {
   void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs);
   void onConnectionStateChanged(
     MyCentralArgs centralArgs,
+    int statusArgs,
     MyConnectionStateArgs stateArgs,
   );
   void onMTUChanged(String addressArgs, int mtuArgs);
   void onCharacteristicReadRequest(
     String addressArgs,
-    int hashCodeArgs,
     int idArgs,
     int offsetArgs,
+    int hashCodeArgs,
   );
   void onCharacteristicWriteRequest(
     String addressArgs,
-    int hashCodeArgs,
     int idArgs,
-    int offsetArgs,
-    Uint8List valueArgs,
+    int hashCodeArgs,
     bool preparedWriteArgs,
     bool responseNeededArgs,
-  );
-  void onCharacteristicNotifyStateChanged(
-    String addressArgs,
-    int hashCodeArgs,
-    MyGATTCharacteristicNotifyStateArgs stateArgs,
+    int offsetArgs,
+    Uint8List valueArgs,
   );
   void onDescriptorReadRequest(
     String addressArgs,
-    int hashCodeArgs,
     int idArgs,
     int offsetArgs,
+    int hashCodeArgs,
   );
   void onDescriptorWriteRequest(
     String addressArgs,
-    int hashCodeArgs,
     int idArgs,
-    int offsetArgs,
-    Uint8List valueArgs,
+    int hashCodeArgs,
     bool preparedWriteArgs,
     bool responseNeededArgs,
+    int offsetArgs,
+    Uint8List valueArgs,
   );
   void onExecuteWrite(
     String addressArgs,

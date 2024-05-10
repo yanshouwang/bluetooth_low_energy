@@ -95,7 +95,9 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
           await peripheralManager.writeCharacteristic(
             characteristic,
             value: value,
-            central: central,
+          );
+          await peripheralManager.notifyCharacteristic(
+            characteristic,
           );
         }
       },
@@ -146,47 +148,47 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
     await peripheralManager.clearServices();
     final elements = List.generate(1000, (i) => i % 256);
     final value = Uint8List.fromList(elements);
-    final service = GattService(
+    final service = GATTService(
       uuid: UUID.short(100),
       characteristics: [
-        GattCharacteristic(
+        GATTCharacteristic(
           uuid: UUID.short(200),
           properties: [
-            GattCharacteristicProperty.read,
+            GATTCharacteristicProperty.read,
           ],
           value: value,
           descriptors: [],
         ),
-        GattCharacteristic(
+        GATTCharacteristic(
           uuid: UUID.short(201),
           properties: [
-            GattCharacteristicProperty.write,
-            GattCharacteristicProperty.writeWithoutResponse,
+            GATTCharacteristicProperty.write,
+            GATTCharacteristicProperty.writeWithoutResponse,
           ],
           descriptors: [],
         ),
-        GattCharacteristic(
+        GATTCharacteristic(
           uuid: UUID.short(202),
           properties: [
-            GattCharacteristicProperty.notify,
+            GATTCharacteristicProperty.notify,
           ],
           descriptors: [],
         ),
-        GattCharacteristic(
+        GATTCharacteristic(
           uuid: UUID.short(203),
           properties: [
-            GattCharacteristicProperty.indicate,
+            GATTCharacteristicProperty.indicate,
           ],
           descriptors: [],
         ),
-        GattCharacteristic(
+        GATTCharacteristic(
           uuid: UUID.short(204),
           properties: [
-            GattCharacteristicProperty.read,
-            GattCharacteristicProperty.write,
-            GattCharacteristicProperty.writeWithoutResponse,
-            GattCharacteristicProperty.notify,
-            GattCharacteristicProperty.indicate,
+            GATTCharacteristicProperty.read,
+            GATTCharacteristicProperty.write,
+            GATTCharacteristicProperty.writeWithoutResponse,
+            GATTCharacteristicProperty.notify,
+            GATTCharacteristicProperty.indicate,
           ],
           value: value,
           descriptors: [],
