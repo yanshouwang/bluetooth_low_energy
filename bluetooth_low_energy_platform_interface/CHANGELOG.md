@@ -1,3 +1,8 @@
+## 6.0.0-dev.9
+
+* Add `BluetoothLowEnergyManager#authorize` method.
+* Add `BluetoothLowEnergyManager#showAppSettings` method.
+
 ## 6.0.0-dev.8
 
 * Remove `logLevel` argument from the `CentralManager` construstor.

@@ -133,7 +133,14 @@ abstract interface class PeripheralManager
   Future<void> writeCharacteristic(
     GATTCharacteristic characteristic, {
     required Uint8List value,
-    Central? central,
+  });
+
+  /// Notifies an updated characteristic value to one or more subscribed centrals, using a notification or indication.
+  ///
+  /// The maximum size of the value is 512, all bytes that exceed this size will be discarded.
+  Future<void> notifyCharacteristic(
+    GATTCharacteristic characteristic, {
+    List<Central>? centrals,
   });
 }
 
