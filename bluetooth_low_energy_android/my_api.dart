@@ -24,7 +24,9 @@ enum MyBluetoothLowEnergyStateArgs {
 
 enum MyConnectionStateArgs {
   disconnected,
+  connecting,
   connected,
+  disconnecting,
 }
 
 enum MyGATTCharacteristicPropertyArgs {
@@ -44,6 +46,19 @@ enum MyGATTCharacteristicNotifyStateArgs {
   none,
   notify,
   indicate,
+}
+
+enum MyGATTStatusArgs {
+  success,
+  readNotPermitted,
+  writeNotPermitted,
+  requestNotSupported,
+  invalidOffset,
+  insufficientAuthentication,
+  insufficientEncryption,
+  invalidAttributeLength,
+  connectionCongested,
+  failure,
 }
 
 class MyManufacturerSpecificDataArgs {
@@ -158,6 +173,11 @@ class MyMutableGATTServiceArgs {
 @HostApi()
 abstract class MyCentralManagerHostAPI {
   void initialize();
+  MyBluetoothLowEnergyStateArgs getState();
+  @async
+  bool authorize();
+  @async
+  void showAppSettings();
   @async
   void startDiscovery(List<String> serviceUUIDsArgs);
   void stopDiscovery();
@@ -220,6 +240,11 @@ abstract class MyCentralManagerFlutterAPI {
 @HostApi()
 abstract class MyPeripheralManagerHostAPI {
   void initialize();
+  MyBluetoothLowEnergyStateArgs getState();
+  @async
+  bool authorize();
+  @async
+  void showAppSettings();
   @async
   void addService(MyMutableGATTServiceArgs serviceArgs);
   void removeService(int hashCodeArgs);
@@ -230,16 +255,16 @@ abstract class MyPeripheralManagerHostAPI {
   void sendResponse(
     String addressArgs,
     int idArgs,
-    int statusArgs,
+    MyGATTStatusArgs statusArgs,
     int offsetArgs,
     Uint8List? valueArgs,
   );
   @async
-  void notifyCharacteristic(
-    int hashCodeArgs,
-    Uint8List valueArgs,
-    bool confirmArgs,
+  void notifyCharacteristicChanged(
     String addressArgs,
+    int hashCodeArgs,
+    bool confirmArgs,
+    Uint8List valueArgs,
   );
 }
 

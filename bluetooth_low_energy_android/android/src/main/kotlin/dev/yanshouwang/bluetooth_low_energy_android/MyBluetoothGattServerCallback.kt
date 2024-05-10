@@ -7,13 +7,13 @@ import android.bluetooth.BluetoothGattServerCallback
 import android.bluetooth.BluetoothGattService
 import java.util.concurrent.Executor
 
-class MyBluetoothGattServerCallback(manager: MyPeripheralManager, executor: Executor) : BluetoothGattServerCallback() {
+class MyBluetoothGattServerCallback(manager: MyPeripheralManager, mExecutor: Executor) : BluetoothGattServerCallback() {
     private val mManager: MyPeripheralManager
     private val mExecutor: Executor
 
     init {
         mManager = manager
-        mExecutor = executor
+        this.mExecutor = mExecutor
     }
 
     override fun onServiceAdded(status: Int, service: BluetoothGattService) {

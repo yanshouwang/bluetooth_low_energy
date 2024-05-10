@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
+import 'package:flutter/widgets.dart' hide ConnectionState;
 
 import 'my_api.dart';
 import 'my_api.g.dart';
@@ -9,6 +10,7 @@ import 'my_gatt.dart';
 import 'my_peripheral.dart';
 
 base class MyCentralManager extends BaseCentralManager
+    with WidgetsBindingObserver
     implements MyCentralManagerFlutterAPI {
   final MyCentralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
@@ -21,7 +23,7 @@ base class MyCentralManager extends BaseCentralManager
       _characteristicNotifiedController;
 
   final Map<String, MyPeripheral> _peripherals;
-  final Map<String, Map<int, MyGattCharacteristic>> _characteristics;
+  final Map<String, Map<int, MyGATTCharacteristic>> _characteristics;
   final Map<String, int> _mtus;
 
   BluetoothLowEnergyState _state;
@@ -56,10 +58,46 @@ base class MyCentralManager extends BaseCentralManager
       _characteristicNotifiedController.stream;
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    logger.info('didChangeAppLifecycleState: $state');
+    if (state != AppLifecycleState.resumed) {
+      return;
+    }
+    _updateState();
+  }
+
+  @override
   void initialize() async {
     MyCentralManagerFlutterAPI.setUp(this);
-    logger.info('initialize');
-    await _api.initialize();
+    // Add lifecycle observer.
+    final binding = WidgetsFlutterBinding.ensureInitialized();
+    binding.addObserver(this);
+    // Here we use `Timer.run()` to make it possible to change the `logLevel` before `initialize()`.
+    Timer.run(() async {
+      try {
+        logger.info('initialize');
+        await _api.initialize();
+        _updateState();
+      } catch (e, stack) {
+        logger.severe('initialize failed.', e, stack);
+      }
+    });
+  }
+
+  @override
+  Future<bool> authorize() async {
+    logger.info('authorize');
+    final authorized = await _api.authorize();
+    _updateState();
+    return authorized;
+  }
+
+  @override
+  Future<void> showAppSettings() async {
+    logger.info('showAppSettings');
+    await _api.authorize();
+    _updateState();
   }
 
   @override
@@ -144,7 +182,7 @@ base class MyCentralManager extends BaseCentralManager
     logger.info('discoverGATT: $addressArgs');
     final servicesArgs = await _api.discoverGATT(addressArgs);
     final services = servicesArgs
-        .cast<MyGattServiceArgs>()
+        .cast<MyGATTServiceArgs>()
         .map((args) => args.toService(peripheral))
         .toList();
     final characteristics =
@@ -160,7 +198,7 @@ base class MyCentralManager extends BaseCentralManager
   Future<Uint8List> readCharacteristic(
     GATTCharacteristic characteristic,
   ) async {
-    if (characteristic is! MyGattCharacteristic) {
+    if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
     final peripheral = characteristic.peripheral;
@@ -177,7 +215,7 @@ base class MyCentralManager extends BaseCentralManager
     required Uint8List value,
     required GATTCharacteristicWriteType type,
   }) async {
-    if (characteristic is! MyGattCharacteristic) {
+    if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
     final peripheral = characteristic.peripheral;
@@ -185,7 +223,6 @@ base class MyCentralManager extends BaseCentralManager
     final hashCodeArgs = characteristic.hashCode;
     final trimmedValueArgs = value.trimGATT();
     final typeArgs = type.toArgs();
-    final typeNumberArgs = typeArgs.index;
     // When write without response, fragments the value by MTU - 3 size.
     // If mtu is null, use 23 as default MTU size.
     if (type == GATTCharacteristicWriteType.withResponse) {
@@ -195,7 +232,7 @@ base class MyCentralManager extends BaseCentralManager
         addressArgs,
         hashCodeArgs,
         trimmedValueArgs,
-        typeNumberArgs,
+        typeArgs,
       );
     } else {
       final mtu = _mtus[addressArgs] ?? 23;
@@ -212,7 +249,7 @@ base class MyCentralManager extends BaseCentralManager
           addressArgs,
           hashCodeArgs,
           fragmentedValueArgs,
-          typeNumberArgs,
+          typeArgs,
         );
         start = end;
       }
@@ -224,7 +261,7 @@ base class MyCentralManager extends BaseCentralManager
     GATTCharacteristic characteristic, {
     required bool state,
   }) async {
-    if (characteristic is! MyGattCharacteristic) {
+    if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
     final peripheral = characteristic.peripheral;
@@ -232,22 +269,21 @@ base class MyCentralManager extends BaseCentralManager
     final hashCodeArgs = characteristic.hashCode;
     final stateArgs = state
         ? characteristic.properties.contains(GATTCharacteristicProperty.notify)
-            ? MyGattCharacteristicNotifyStateArgs.notify
-            : MyGattCharacteristicNotifyStateArgs.indicate
-        : MyGattCharacteristicNotifyStateArgs.none;
-    final stateNumberArgs = stateArgs.index;
+            ? MyGATTCharacteristicNotifyStateArgs.notify
+            : MyGATTCharacteristicNotifyStateArgs.indicate
+        : MyGATTCharacteristicNotifyStateArgs.none;
     logger.info(
         'setCharacteristicNotifyState: $addressArgs.$hashCodeArgs - $stateArgs');
     await _api.setCharacteristicNotifyState(
       addressArgs,
       hashCodeArgs,
-      stateNumberArgs,
+      stateArgs,
     );
   }
 
   @override
   Future<Uint8List> readDescriptor(GATTDescriptor descriptor) async {
-    if (descriptor is! MyGattDescriptor) {
+    if (descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
     final peripheral = descriptor.peripheral;
@@ -263,7 +299,7 @@ base class MyCentralManager extends BaseCentralManager
     GATTDescriptor descriptor, {
     required Uint8List value,
   }) async {
-    if (descriptor is! MyGattDescriptor) {
+    if (descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
     final peripheral = descriptor.peripheral;
@@ -276,8 +312,7 @@ base class MyCentralManager extends BaseCentralManager
   }
 
   @override
-  void onStateChanged(int stateNumberArgs) {
-    final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
+  void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs) {
     logger.info('onStateChanged: $stateArgs');
     final state = stateArgs.toState();
     if (_state == state) {
@@ -311,31 +346,38 @@ base class MyCentralManager extends BaseCentralManager
   }
 
   @override
-  void onConnectionStateChanged(String addressArgs, bool stateArgs) {
+  void onConnectionStateChanged(
+    String addressArgs,
+    MyConnectionStateArgs stateArgs,
+  ) {
     logger.info('onConnectionStateChanged: $addressArgs - $stateArgs');
     final peripheral = _peripherals[addressArgs];
     if (peripheral == null) {
       return;
     }
-    final state = stateArgs;
-    final eventArgs =
-        PeripheralConnectionStateChangedEventArgs(peripheral, state);
-    _connectionStateChangedController.add(eventArgs);
-    if (!state) {
+    final state = stateArgs.toState();
+    if (state == ConnectionState.disconnected) {
       _characteristics.remove(addressArgs);
       _mtus.remove(addressArgs);
     }
+    final eventArgs = PeripheralConnectionStateChangedEventArgs(
+      peripheral,
+      state,
+    );
+    _connectionStateChangedController.add(eventArgs);
   }
 
   @override
-  void onMtuChanged(String addressArgs, int mtuArgs) {
-    logger.info('onMtuChanged: $addressArgs - $mtuArgs');
+  void onMTUChanged(String addressArgs, int mtuArgs) {
+    logger.info('onMTUChanged: $addressArgs - $mtuArgs');
     final peripheral = _peripherals[addressArgs];
     if (peripheral == null) {
       return;
     }
     final mtu = mtuArgs;
     _mtus[addressArgs] = mtu;
+    final eventArgs = PeripheralMTUChangedEventArgs(peripheral, mtu);
+    _mtuChangedController.add(eventArgs);
   }
 
   @override
@@ -358,7 +400,17 @@ base class MyCentralManager extends BaseCentralManager
     _characteristicNotifiedController.add(eventArgs);
   }
 
-  MyGattCharacteristic? _retrieveCharacteristic(
+  void _updateState() async {
+    try {
+      logger.info('getState');
+      final stateArgs = await _api.getState();
+      onStateChanged(stateArgs);
+    } catch (e, stack) {
+      logger.severe('getState failed.', e, stack);
+    }
+  }
+
+  MyGATTCharacteristic? _retrieveCharacteristic(
     String addressArgs,
     int hashCodeArgs,
   ) {
