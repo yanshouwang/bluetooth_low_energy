@@ -1,3 +1,7 @@
+## 6.0.0-dev.10
+
+* Fix bugs.
+
 ## 6.0.0-dev.9
 
 * Add `BluetoothLowEnergyManager#authorize` method.

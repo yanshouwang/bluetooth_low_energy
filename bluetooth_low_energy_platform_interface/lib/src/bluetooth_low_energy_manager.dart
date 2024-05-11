@@ -20,19 +20,6 @@ abstract interface class BluetoothLowEnergyManager implements LogController {
 
   /// Tells the manager's state updated.
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged;
-}
-
-/// The abstract base channel class that manages central and peripheral objects.
-abstract base class BaseBluetoothLowEnergyManager extends PlatformInterface
-    with TypeLogger, LoggerController
-    implements BluetoothLowEnergyManager {
-  /// Constructs a [BaseBluetoothLowEnergyManager].
-  BaseBluetoothLowEnergyManager({
-    required super.token,
-  });
-
-  /// Initializes the [BaseBluetoothLowEnergyManager].
-  void initialize();
 
   /// Requests permissions to be granted to this application. These permissions
   /// must be requested in your manifest, they should not be granted to your app,
@@ -46,4 +33,17 @@ abstract base class BaseBluetoothLowEnergyManager extends PlatformInterface
   ///
   /// This method is available on Android, throws [UnsupportedError] on other platforms.
   Future<void> showAppSettings();
+}
+
+/// The abstract base channel class that manages central and peripheral objects.
+abstract base class BaseBluetoothLowEnergyManager extends PlatformInterface
+    with TypeLogger, LoggerController
+    implements BluetoothLowEnergyManager {
+  /// Constructs a [BaseBluetoothLowEnergyManager].
+  BaseBluetoothLowEnergyManager({
+    required super.token,
+  });
+
+  /// Initializes the [BaseBluetoothLowEnergyManager].
+  void initialize();
 }
