@@ -52,6 +52,11 @@ enum MyBluetoothLowEnergyStateArgs: Int {
   case poweredOn = 5
 }
 
+enum MyConnectionStateArgs: Int {
+  case disconnected = 0
+  case connected = 1
+}
+
 enum MyGATTCharacteristicPropertyArgs: Int {
   case read = 0
   case write = 1
@@ -434,13 +439,13 @@ protocol MyCentralManagerHostAPI {
   func retrieveConnectedPeripherals() throws -> [MyPeripheralArgs]
   func connect(uuidArgs: String, completion: @escaping (Result<Void, Error>) -> Void)
   func disconnect(uuidArgs: String, completion: @escaping (Result<Void, Error>) -> Void)
-  func maximumWriteValueLength(uuidArgs: String, typeNumberArgs: Int64) throws -> Int64
+  func maximumWriteValueLength(uuidArgs: String, typeArgs: MyGATTCharacteristicWriteTypeArgs) throws -> Int64
   func readRSSI(uuidArgs: String, completion: @escaping (Result<Int64, Error>) -> Void)
   func discoverServices(uuidArgs: String, completion: @escaping (Result<[MyGATTServiceArgs], Error>) -> Void)
   func discoverCharacteristics(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<[MyGATTCharacteristicArgs], Error>) -> Void)
   func discoverDescriptors(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<[MyGATTDescriptorArgs], Error>) -> Void)
   func readCharacteristic(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void)
-  func writeCharacteristic(uuidArgs: String, hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData, typeNumberArgs: Int64, completion: @escaping (Result<Void, Error>) -> Void)
+  func writeCharacteristic(uuidArgs: String, hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData, typeArgs: MyGATTCharacteristicWriteTypeArgs, completion: @escaping (Result<Void, Error>) -> Void)
   func setCharacteristicNotifyState(uuidArgs: String, hashCodeArgs: Int64, stateArgs: Bool, completion: @escaping (Result<Void, Error>) -> Void)
   func readDescriptor(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void)
   func writeDescriptor(uuidArgs: String, hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData, completion: @escaping (Result<Void, Error>) -> Void)
@@ -546,9 +551,9 @@ class MyCentralManagerHostAPISetup {
       maximumWriteValueLengthChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let uuidArgsArg = args[0] as! String
-        let typeNumberArgsArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
+        let typeArgsArg = MyGATTCharacteristicWriteTypeArgs(rawValue: args[1] as! Int)!
         do {
-          let result = try api.maximumWriteValueLength(uuidArgs: uuidArgsArg, typeNumberArgs: typeNumberArgsArg)
+          let result = try api.maximumWriteValueLength(uuidArgs: uuidArgsArg, typeArgs: typeArgsArg)
           reply(wrapResult(result))
         } catch {
           reply(wrapError(error))
@@ -652,8 +657,8 @@ class MyCentralManagerHostAPISetup {
         let uuidArgsArg = args[0] as! String
         let hashCodeArgsArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
         let valueArgsArg = args[2] as! FlutterStandardTypedData
-        let typeNumberArgsArg = args[3] is Int64 ? args[3] as! Int64 : Int64(args[3] as! Int32)
-        api.writeCharacteristic(uuidArgs: uuidArgsArg, hashCodeArgs: hashCodeArgsArg, valueArgs: valueArgsArg, typeNumberArgs: typeNumberArgsArg) { result in
+        let typeArgsArg = MyGATTCharacteristicWriteTypeArgs(rawValue: args[3] as! Int)!
+        api.writeCharacteristic(uuidArgs: uuidArgsArg, hashCodeArgs: hashCodeArgsArg, valueArgs: valueArgsArg, typeArgs: typeArgsArg) { result in
           switch result {
           case .success:
             reply(wrapResult(nil))
@@ -771,9 +776,9 @@ class MyCentralManagerFlutterAPICodec: FlutterStandardMessageCodec {
 
 /// Generated protocol from Pigeon that represents Flutter messages that can be called from Swift.
 protocol MyCentralManagerFlutterAPIProtocol {
-  func onStateChanged(stateNumberArgs stateNumberArgsArg: Int64, completion: @escaping (Result<Void, FlutterError>) -> Void)
+  func onStateChanged(stateArgs stateArgsArg: MyBluetoothLowEnergyStateArgs, completion: @escaping (Result<Void, FlutterError>) -> Void)
   func onDiscovered(peripheralArgs peripheralArgsArg: MyPeripheralArgs, rssiArgs rssiArgsArg: Int64, advertisementArgs advertisementArgsArg: MyAdvertisementArgs, completion: @escaping (Result<Void, FlutterError>) -> Void)
-  func onConnectionStateChanged(uuidArgs uuidArgsArg: String, stateArgs stateArgsArg: Bool, completion: @escaping (Result<Void, FlutterError>) -> Void)
+  func onConnectionStateChanged(uuidArgs uuidArgsArg: String, stateArgs stateArgsArg: MyConnectionStateArgs, completion: @escaping (Result<Void, FlutterError>) -> Void)
   func onCharacteristicNotified(uuidArgs uuidArgsArg: String, hashCodeArgs hashCodeArgsArg: Int64, valueArgs valueArgsArg: FlutterStandardTypedData, completion: @escaping (Result<Void, FlutterError>) -> Void)
 }
 class MyCentralManagerFlutterAPI: MyCentralManagerFlutterAPIProtocol {
@@ -786,10 +791,10 @@ class MyCentralManagerFlutterAPI: MyCentralManagerFlutterAPIProtocol {
   var codec: FlutterStandardMessageCodec {
     return MyCentralManagerFlutterAPICodec.shared
   }
-  func onStateChanged(stateNumberArgs stateNumberArgsArg: Int64, completion: @escaping (Result<Void, FlutterError>) -> Void) {
+  func onStateChanged(stateArgs stateArgsArg: MyBluetoothLowEnergyStateArgs, completion: @escaping (Result<Void, FlutterError>) -> Void) {
     let channelName: String = "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerFlutterAPI.onStateChanged\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([stateNumberArgsArg] as [Any?]) { response in
+    channel.sendMessage([stateArgsArg.rawValue] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {
         completion(.failure(createConnectionError(withChannelName: channelName)))
         return
@@ -822,10 +827,10 @@ class MyCentralManagerFlutterAPI: MyCentralManagerFlutterAPIProtocol {
       }
     }
   }
-  func onConnectionStateChanged(uuidArgs uuidArgsArg: String, stateArgs stateArgsArg: Bool, completion: @escaping (Result<Void, FlutterError>) -> Void) {
+  func onConnectionStateChanged(uuidArgs uuidArgsArg: String, stateArgs stateArgsArg: MyConnectionStateArgs, completion: @escaping (Result<Void, FlutterError>) -> Void) {
     let channelName: String = "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerFlutterAPI.onConnectionStateChanged\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([uuidArgsArg, stateArgsArg] as [Any?]) { response in
+    channel.sendMessage([uuidArgsArg, stateArgsArg.rawValue] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {
         completion(.failure(createConnectionError(withChannelName: channelName)))
         return
@@ -924,7 +929,7 @@ protocol MyPeripheralManagerHostAPI {
   func startAdvertising(advertisementArgs: MyAdvertisementArgs, completion: @escaping (Result<Void, Error>) -> Void)
   func stopAdvertising() throws
   func maximumUpdateValueLength(uuidArgs: String) throws -> Int64
-  func respond(hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData?, errorNumberArgs: Int64) throws
+  func respond(hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData?, errorArgs: MyATTErrorArgs) throws
   func updateValue(hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData, uuidsArgs: [String]?) throws -> Bool
 }
 
@@ -1044,9 +1049,9 @@ class MyPeripheralManagerHostAPISetup {
         let args = message as! [Any?]
         let hashCodeArgsArg = args[0] is Int64 ? args[0] as! Int64 : Int64(args[0] as! Int32)
         let valueArgsArg: FlutterStandardTypedData? = nilOrValue(args[1])
-        let errorNumberArgsArg = args[2] is Int64 ? args[2] as! Int64 : Int64(args[2] as! Int32)
+        let errorArgsArg = MyATTErrorArgs(rawValue: args[2] as! Int)!
         do {
-          try api.respond(hashCodeArgs: hashCodeArgsArg, valueArgs: valueArgsArg, errorNumberArgs: errorNumberArgsArg)
+          try api.respond(hashCodeArgs: hashCodeArgsArg, valueArgs: valueArgsArg, errorArgs: errorArgsArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -1122,7 +1127,7 @@ class MyPeripheralManagerFlutterAPICodec: FlutterStandardMessageCodec {
 
 /// Generated protocol from Pigeon that represents Flutter messages that can be called from Swift.
 protocol MyPeripheralManagerFlutterAPIProtocol {
-  func onStateChanged(stateNumberArgs stateNumberArgsArg: Int64, completion: @escaping (Result<Void, FlutterError>) -> Void)
+  func onStateChanged(stateArgs stateArgsArg: MyBluetoothLowEnergyStateArgs, completion: @escaping (Result<Void, FlutterError>) -> Void)
   func didReceiveRead(requestArgs requestArgsArg: MyATTRequestArgs, completion: @escaping (Result<Void, FlutterError>) -> Void)
   func didReceiveWrite(requestsArgs requestsArgsArg: [MyATTRequestArgs], completion: @escaping (Result<Void, FlutterError>) -> Void)
   func isReady(completion: @escaping (Result<Void, FlutterError>) -> Void)
@@ -1138,10 +1143,10 @@ class MyPeripheralManagerFlutterAPI: MyPeripheralManagerFlutterAPIProtocol {
   var codec: FlutterStandardMessageCodec {
     return MyPeripheralManagerFlutterAPICodec.shared
   }
-  func onStateChanged(stateNumberArgs stateNumberArgsArg: Int64, completion: @escaping (Result<Void, FlutterError>) -> Void) {
+  func onStateChanged(stateArgs stateArgsArg: MyBluetoothLowEnergyStateArgs, completion: @escaping (Result<Void, FlutterError>) -> Void) {
     let channelName: String = "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerFlutterAPI.onStateChanged\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([stateNumberArgsArg] as [Any?]) { response in
+    channel.sendMessage([stateArgsArg.rawValue] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {
         completion(.failure(createConnectionError(withChannelName: channelName)))
         return

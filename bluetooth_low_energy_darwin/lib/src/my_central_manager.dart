@@ -7,13 +7,13 @@ import 'my_api.dart';
 import 'my_api.g.dart';
 import 'my_gatt.dart';
 
-base class MyCentralManager extends BaseCentralManager
+final class MyCentralManager extends BaseCentralManager
     implements MyCentralManagerFlutterAPI {
   final MyCentralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
   final StreamController<DiscoveredEventArgs> _discoveredController;
-  final StreamController<ConnectionStateChangedEventArgs>
+  final StreamController<PeripheralConnectionStateChangedEventArgs>
       _connectionStateChangedController;
   final StreamController<GATTCharacteristicNotifiedEventArgs>
       _characteristicNotifiedController;
@@ -40,20 +40,29 @@ base class MyCentralManager extends BaseCentralManager
   @override
   Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
   @override
-  Stream<ConnectionStateChangedEventArgs> get connectionStateChanged =>
-      _connectionStateChangedController.stream;
+  Stream<PeripheralConnectionStateChangedEventArgs>
+      get connectionStateChanged => _connectionStateChangedController.stream;
   @override
-  Stream<MTUChangedEventArgs> get mtuChanged =>
+  Stream<PeripheralMTUChangedEventArgs> get mtuChanged =>
       throw UnsupportedError('mtuChanged is not supported on Darwin.');
   @override
   Stream<GATTCharacteristicNotifiedEventArgs> get characteristicNotified =>
       _characteristicNotifiedController.stream;
 
   @override
-  Future<void> initialize() async {
+  void initialize() {
     MyCentralManagerFlutterAPI.setUp(this);
-    logger.info('initialize');
-    await _api.initialize();
+    _initialize();
+  }
+
+  @override
+  Future<bool> authorize() {
+    throw UnsupportedError('authorize is not supported on Darwin.');
+  }
+
+  @override
+  Future<void> showAppSettings() {
+    throw UnsupportedError('showAppSettings is not supported on Darwin.');
   }
 
   @override
@@ -301,11 +310,14 @@ base class MyCentralManager extends BaseCentralManager
       return;
     }
     final state = stateArgs;
-    final eventArgs = ConnectionStateChangedEventArgs(peripheral, state);
-    _connectionStateChangedController.add(eventArgs);
     if (!state) {
       _characteristics.remove(uuidArgs);
     }
+    final eventArgs = PeripheralConnectionStateChangedEventArgs(
+      peripheral,
+      state,
+    );
+    _connectionStateChangedController.add(eventArgs);
   }
 
   @override
@@ -326,6 +338,18 @@ base class MyCentralManager extends BaseCentralManager
       value,
     );
     _characteristicNotifiedController.add(eventArgs);
+  }
+
+  Future<void> _initialize() async {
+    // Here we use `Future()` to make it possible to change the `logLevel` before `initialize()`.
+    await Future(() async {
+      try {
+        logger.info('initialize');
+        await _api.initialize();
+      } catch (e) {
+        logger.severe('initialize failed.', e);
+      }
+    });
   }
 
   MyGATTCharacteristic? _retrieveCharacteristic(

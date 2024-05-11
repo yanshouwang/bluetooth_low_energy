@@ -34,6 +34,11 @@ enum MyBluetoothLowEnergyStateArgs {
   poweredOn,
 }
 
+enum MyConnectionStateArgs {
+  disconnected,
+  connected,
+}
+
 enum MyGATTCharacteristicPropertyArgs {
   read,
   write,
@@ -599,7 +604,7 @@ class MyCentralManagerHostAPI {
     }
   }
 
-  Future<int> maximumWriteValueLength(String uuidArgs, int typeNumberArgs) async {
+  Future<int> maximumWriteValueLength(String uuidArgs, MyGATTCharacteristicWriteTypeArgs typeArgs) async {
     final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerHostAPI.maximumWriteValueLength$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
@@ -607,7 +612,7 @@ class MyCentralManagerHostAPI {
       binaryMessenger: __pigeon_binaryMessenger,
     );
     final List<Object?>? __pigeon_replyList =
-        await __pigeon_channel.send(<Object?>[uuidArgs, typeNumberArgs]) as List<Object?>?;
+        await __pigeon_channel.send(<Object?>[uuidArgs, typeArgs.index]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {
@@ -761,7 +766,7 @@ class MyCentralManagerHostAPI {
     }
   }
 
-  Future<void> writeCharacteristic(String uuidArgs, int hashCodeArgs, Uint8List valueArgs, int typeNumberArgs) async {
+  Future<void> writeCharacteristic(String uuidArgs, int hashCodeArgs, Uint8List valueArgs, MyGATTCharacteristicWriteTypeArgs typeArgs) async {
     final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerHostAPI.writeCharacteristic$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
@@ -769,7 +774,7 @@ class MyCentralManagerHostAPI {
       binaryMessenger: __pigeon_binaryMessenger,
     );
     final List<Object?>? __pigeon_replyList =
-        await __pigeon_channel.send(<Object?>[uuidArgs, hashCodeArgs, valueArgs, typeNumberArgs]) as List<Object?>?;
+        await __pigeon_channel.send(<Object?>[uuidArgs, hashCodeArgs, valueArgs, typeArgs.index]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {
@@ -891,11 +896,11 @@ class _MyCentralManagerFlutterAPICodec extends StandardMessageCodec {
 abstract class MyCentralManagerFlutterAPI {
   static const MessageCodec<Object?> pigeonChannelCodec = _MyCentralManagerFlutterAPICodec();
 
-  void onStateChanged(int stateNumberArgs);
+  void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs);
 
   void onDiscovered(MyPeripheralArgs peripheralArgs, int rssiArgs, MyAdvertisementArgs advertisementArgs);
 
-  void onConnectionStateChanged(String uuidArgs, bool stateArgs);
+  void onConnectionStateChanged(String uuidArgs, MyConnectionStateArgs stateArgs);
 
   void onCharacteristicNotified(String uuidArgs, int hashCodeArgs, Uint8List valueArgs);
 
@@ -912,11 +917,11 @@ abstract class MyCentralManagerFlutterAPI {
           assert(message != null,
           'Argument for dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerFlutterAPI.onStateChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_stateNumberArgs = (args[0] as int?);
-          assert(arg_stateNumberArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerFlutterAPI.onStateChanged was null, expected non-null int.');
+          final MyBluetoothLowEnergyStateArgs? arg_stateArgs = args[0] == null ? null : MyBluetoothLowEnergyStateArgs.values[args[0]! as int];
+          assert(arg_stateArgs != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerFlutterAPI.onStateChanged was null, expected non-null MyBluetoothLowEnergyStateArgs.');
           try {
-            api.onStateChanged(arg_stateNumberArgs!);
+            api.onStateChanged(arg_stateArgs!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
@@ -971,9 +976,9 @@ abstract class MyCentralManagerFlutterAPI {
           final String? arg_uuidArgs = (args[0] as String?);
           assert(arg_uuidArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerFlutterAPI.onConnectionStateChanged was null, expected non-null String.');
-          final bool? arg_stateArgs = (args[1] as bool?);
+          final MyConnectionStateArgs? arg_stateArgs = args[1] == null ? null : MyConnectionStateArgs.values[args[1]! as int];
           assert(arg_stateArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerFlutterAPI.onConnectionStateChanged was null, expected non-null bool.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerFlutterAPI.onConnectionStateChanged was null, expected non-null MyConnectionStateArgs.');
           try {
             api.onConnectionStateChanged(arg_uuidArgs!, arg_stateArgs!);
             return wrapResponse(empty: true);
@@ -1234,7 +1239,7 @@ class MyPeripheralManagerHostAPI {
     }
   }
 
-  Future<void> respond(int hashCodeArgs, Uint8List? valueArgs, int errorNumberArgs) async {
+  Future<void> respond(int hashCodeArgs, Uint8List? valueArgs, MyATTErrorArgs errorArgs) async {
     final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerHostAPI.respond$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
@@ -1242,7 +1247,7 @@ class MyPeripheralManagerHostAPI {
       binaryMessenger: __pigeon_binaryMessenger,
     );
     final List<Object?>? __pigeon_replyList =
-        await __pigeon_channel.send(<Object?>[hashCodeArgs, valueArgs, errorNumberArgs]) as List<Object?>?;
+        await __pigeon_channel.send(<Object?>[hashCodeArgs, valueArgs, errorArgs.index]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {
@@ -1320,7 +1325,7 @@ class _MyPeripheralManagerFlutterAPICodec extends StandardMessageCodec {
 abstract class MyPeripheralManagerFlutterAPI {
   static const MessageCodec<Object?> pigeonChannelCodec = _MyPeripheralManagerFlutterAPICodec();
 
-  void onStateChanged(int stateNumberArgs);
+  void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs);
 
   void didReceiveRead(MyATTRequestArgs requestArgs);
 
@@ -1343,11 +1348,11 @@ abstract class MyPeripheralManagerFlutterAPI {
           assert(message != null,
           'Argument for dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerFlutterAPI.onStateChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final int? arg_stateNumberArgs = (args[0] as int?);
-          assert(arg_stateNumberArgs != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerFlutterAPI.onStateChanged was null, expected non-null int.');
+          final MyBluetoothLowEnergyStateArgs? arg_stateArgs = args[0] == null ? null : MyBluetoothLowEnergyStateArgs.values[args[0]! as int];
+          assert(arg_stateArgs != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerFlutterAPI.onStateChanged was null, expected non-null MyBluetoothLowEnergyStateArgs.');
           try {
-            api.onStateChanged(arg_stateNumberArgs!);
+            api.onStateChanged(arg_stateArgs!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);

@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'my_api.dart';
 import 'my_api.g.dart';
 
-base class MyPeripheralManager extends BasePeripheralManager
+final class MyPeripheralManager extends BasePeripheralManager
     implements MyPeripheralManagerFlutterAPI {
   final MyPeripheralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
@@ -20,7 +20,7 @@ base class MyPeripheralManager extends BasePeripheralManager
   final StreamController<EventArgs> _isReadyController;
 
   final Map<int, Map<int, MutableGATTCharacteristic>> _characteristics;
-  final Map<String, Map<int, bool>> _listeners;
+  final Map<int, Map<String, Central>> _subscribedCentrals;
 
   BluetoothLowEnergyState _state;
 
@@ -32,8 +32,8 @@ base class MyPeripheralManager extends BasePeripheralManager
         _characteristicNotifyStateChangedController =
             StreamController.broadcast(),
         _isReadyController = StreamController.broadcast(),
+        _subscribedCentrals = {},
         _characteristics = {},
-        _listeners = {},
         _state = BluetoothLowEnergyState.unknown;
 
   @override
@@ -41,6 +41,9 @@ base class MyPeripheralManager extends BasePeripheralManager
   @override
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
+  @override
+  Stream<CentralMTUChangedEventArgs> get mtuChanged =>
+      throw UnsupportedError('mtuChanged is not supported on Darwin.');
   @override
   Stream<GATTCharacteristicReadEventArgs> get characteristicRead =>
       _characteristicReadController.stream;
@@ -54,10 +57,19 @@ base class MyPeripheralManager extends BasePeripheralManager
   Stream<EventArgs> get _isReady => _isReadyController.stream;
 
   @override
-  Future<void> initialize() async {
+  void initialize() {
     MyPeripheralManagerFlutterAPI.setUp(this);
-    logger.info('initialize');
-    await _api.initialize();
+    _initialize();
+  }
+
+  @override
+  Future<bool> authorize() {
+    throw UnsupportedError('authorize is not supported on Darwin.');
+  }
+
+  @override
+  Future<void> showAppSettings() {
+    throw UnsupportedError('showAppSettings is not supported on Darwin.');
   }
 
   @override
@@ -88,7 +100,13 @@ base class MyPeripheralManager extends BasePeripheralManager
     final hashCodeArgs = service.hashCode;
     logger.info('removeService: $hashCodeArgs');
     await _api.removeService(hashCodeArgs);
-    _characteristics.remove(hashCodeArgs);
+    final characteristics = _characteristics.remove(hashCodeArgs);
+    if (characteristics == null) {
+      return;
+    }
+    for (var key in characteristics.keys) {
+      _subscribedCentrals.remove(key);
+    }
   }
 
   @override
@@ -96,6 +114,7 @@ base class MyPeripheralManager extends BasePeripheralManager
     logger.info('clearServices');
     await _api.clearServices();
     _characteristics.clear();
+    _subscribedCentrals.clear();
   }
 
   @override
@@ -127,47 +146,61 @@ base class MyPeripheralManager extends BasePeripheralManager
     GATTCharacteristic characteristic, {
     required Uint8List value,
     Central? central,
-  }) async {
+  }) {
     if (characteristic is! MutableGATTCharacteristic) {
       throw TypeError();
     }
     characteristic.value = value;
-    if (central == null) {
-      return;
+    return Future.value();
+  }
+
+  @override
+  Future<void> notifyCharacteristic(
+    GATTCharacteristic characteristic, {
+    List<Central>? centrals,
+  }) async {
+    if (characteristic is! MutableGATTCharacteristic) {
+      throw TypeError();
     }
-    final uuidArgs = central.uuid.toArgs();
     final hashCodeArgs = characteristic.hashCode;
-    final listener = _retrieveListener(uuidArgs, hashCodeArgs);
-    if (listener == null) {
-      logger.warning('The central is not listening.');
+    final subscribedCentrals = _subscribedCentrals[hashCodeArgs];
+    if (subscribedCentrals == null) {
       return;
     }
-    final uuidsArgs = [uuidArgs];
-    final trimmedValueArgs = characteristic.value;
-    if (trimmedValueArgs == null) {
-      throw ArgumentError.notNull();
-    }
-    final fragmentSize = await _api.maximumUpdateValueLength(uuidArgs);
-    var start = 0;
-    while (start < trimmedValueArgs.length) {
-      final end = start + fragmentSize;
-      final fragmentedValueArgs = end < trimmedValueArgs.length
-          ? trimmedValueArgs.sublist(start, end)
-          : trimmedValueArgs.sublist(start);
-      while (true) {
-        logger.info(
-            'updateValue: $hashCodeArgs - $fragmentedValueArgs, $uuidsArgs');
-        final updated = await _api.updateValue(
-          hashCodeArgs,
-          fragmentedValueArgs,
-          uuidsArgs,
-        );
-        if (updated) {
-          break;
-        }
-        await _isReady.first;
+    centrals ??= subscribedCentrals.values.toList();
+    for (var central in centrals) {
+      final uuidArgs = central.uuid.toArgs();
+      final subscribed = subscribedCentrals.containsKey(uuidArgs);
+      if (!subscribed) {
+        continue;
       }
-      start = end;
+      final uuidsArgs = [uuidArgs];
+      final trimmedValueArgs = characteristic.value;
+      if (trimmedValueArgs == null) {
+        throw ArgumentError.notNull();
+      }
+      final fragmentSize = await _api.maximumUpdateValueLength(uuidArgs);
+      var start = 0;
+      while (start < trimmedValueArgs.length) {
+        final end = start + fragmentSize;
+        final fragmentedValueArgs = end < trimmedValueArgs.length
+            ? trimmedValueArgs.sublist(start, end)
+            : trimmedValueArgs.sublist(start);
+        while (true) {
+          logger.info(
+              'updateValue: $hashCodeArgs - $fragmentedValueArgs, $uuidsArgs');
+          final updated = await _api.updateValue(
+            hashCodeArgs,
+            fragmentedValueArgs,
+            uuidsArgs,
+          );
+          if (updated) {
+            break;
+          }
+          await _isReady.first;
+        }
+        start = end;
+      }
     }
   }
 
@@ -186,13 +219,13 @@ base class MyPeripheralManager extends BasePeripheralManager
 
   @override
   void didReceiveRead(MyATTRequestArgs requestArgs) async {
-    final hashCodeArgs = requestArgs.hashCodeArgs;
     final centralArgs = requestArgs.centralArgs;
+    final hashCodeArgs = requestArgs.hashCodeArgs;
     final characteristicHashCodeArgs = requestArgs.characteristicHashCodeArgs;
     final offsetArgs = requestArgs.offsetArgs;
     final valueArgs = requestArgs.valueArgs;
     logger.info(
-        'didReceiveRead: $hashCodeArgs - ${centralArgs.uuidArgs}.$characteristicHashCodeArgs, $offsetArgs, $valueArgs');
+        'didReceiveRead: ${centralArgs.uuidArgs} - $hashCodeArgs, $characteristicHashCodeArgs, $offsetArgs, $valueArgs');
     final central = centralArgs.toCentral();
     final characteristic = _retrieveCharacteristic(hashCodeArgs);
     if (characteristic == null) {
@@ -217,13 +250,13 @@ base class MyPeripheralManager extends BasePeripheralManager
     if (requestArgs == null) {
       return;
     }
-    final hashCodeArgs = requestArgs.hashCodeArgs;
     final centralArgs = requestArgs.centralArgs;
+    final hashCodeArgs = requestArgs.hashCodeArgs;
     final characteristicHashCodeArgs = requestArgs.characteristicHashCodeArgs;
     final offsetArgs = requestArgs.offsetArgs;
     final valueArgs = requestArgs.valueArgs;
     logger.info(
-        'didReceiveWrite: $hashCodeArgs - ${centralArgs.uuidArgs}.$characteristicHashCodeArgs, $offsetArgs, $valueArgs');
+        'didReceiveWrite: ${centralArgs.uuidArgs} - $hashCodeArgs, $characteristicHashCodeArgs, $offsetArgs, $valueArgs');
     if (requestsArgs.length > 1) {
       // TODO: how to respond multi requests.
       const errorArgs = MyATTErrorArgs.requestNotSupported;
@@ -263,18 +296,19 @@ base class MyPeripheralManager extends BasePeripheralManager
   ) {
     final uuidArgs = centralArgs.uuidArgs;
     logger.info(
-        'onCharacteristicNotifyStateChanged: $uuidArgs.$hashCodeArgs - $stateArgs');
+        'onCharacteristicNotifyStateChanged: $uuidArgs - $hashCodeArgs, $stateArgs');
     final central = centralArgs.toCentral();
     final characteristic = _retrieveCharacteristic(hashCodeArgs);
     if (characteristic == null) {
       return;
     }
     final state = stateArgs;
-    final listeners = _listeners.putIfAbsent(uuidArgs, () => {});
+    final subscribedCentrals =
+        _subscribedCentrals.putIfAbsent(hashCodeArgs, () => {});
     if (state) {
-      listeners[hashCodeArgs] = true;
+      subscribedCentrals[uuidArgs] = central;
     } else {
-      listeners.remove(hashCodeArgs);
+      subscribedCentrals.remove(uuidArgs);
     }
     final eventArgs = GATTCharacteristicNotifyStateChangedEventArgs(
       central,
@@ -284,18 +318,16 @@ base class MyPeripheralManager extends BasePeripheralManager
     _characteristicNotifyStateChangedController.add(eventArgs);
   }
 
-  MutableGATTCharacteristic? _retrieveCharacteristic(int hashCodeArgs) {
-    final characteristics = _characteristics.values
-        .reduce((value, element) => value..addAll(element));
-    return characteristics[hashCodeArgs];
-  }
-
-  bool? _retrieveListener(String uuidArgs, int hashCodeArgs) {
-    final listeners = _listeners[uuidArgs];
-    if (listeners == null) {
-      return null;
-    }
-    return listeners[hashCodeArgs];
+  Future<void> _initialize() async {
+    // Here we use `Future()` to make it possible to change the `logLevel` before `initialize()`.
+    await Future(() async {
+      try {
+        logger.info('initialize');
+        await _api.initialize();
+      } catch (e) {
+        logger.severe('initialize failed.', e);
+      }
+    });
   }
 
   Future<void> _respond(
@@ -349,5 +381,11 @@ base class MyPeripheralManager extends BasePeripheralManager
       trimmedValue,
     );
     _characteristicWrittenController.add(eventArgs);
+  }
+
+  MutableGATTCharacteristic? _retrieveCharacteristic(int hashCodeArgs) {
+    final characteristics = _characteristics.values
+        .reduce((value, element) => value..addAll(element));
+    return characteristics[hashCodeArgs];
   }
 }

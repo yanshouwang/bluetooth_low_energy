@@ -90,7 +90,7 @@ final class MyPeripheralManager extends BasePeripheralManager
   }
 
   @override
-  void initialize() async {
+  void initialize() {
     MyPeripheralManagerFlutterAPI.setUp(this);
     final binding = WidgetsFlutterBinding.ensureInitialized();
     binding.addObserver(this);
@@ -122,6 +122,7 @@ final class MyPeripheralManager extends BasePeripheralManager
     final cccCharacteristics = <int, MutableGATTCharacteristic>{};
     final cccDescriptors = <int, MutableGATTDescriptor>{};
     final characteristicsArgs = <MyMutableGATTCharacteristicArgs>[];
+    final cccUUID = UUID.short(0x2902);
     for (var characteristic in service.characteristics) {
       final descriptorsArgs = <MyMutableGATTDescriptorArgs>[];
       final properties = characteristic.properties;
@@ -131,7 +132,7 @@ final class MyPeripheralManager extends BasePeripheralManager
       if (canNotify) {
         // CLIENT_CHARACTERISTIC_CONFIG
         final cccDescriptor = MutableGATTDescriptor(
-          uuid: UUID.short(0x2902),
+          uuid: cccUUID,
           value: _args.disableNotificationValue,
         );
         final cccDescriptorArgs = cccDescriptor.toArgs();
@@ -141,6 +142,9 @@ final class MyPeripheralManager extends BasePeripheralManager
         cccDescriptors[characteristic.hashCode] = cccDescriptor;
       }
       for (var descriptor in characteristic.descriptors) {
+        if (descriptor.uuid == cccUUID) {
+          continue;
+        }
         final descriptorArgs = descriptor.toArgs();
         descriptorsArgs.add(descriptorArgs);
         descriptors[descriptorArgs.hashCodeArgs] = descriptor;
@@ -223,6 +227,7 @@ final class MyPeripheralManager extends BasePeripheralManager
     if (characteristic is! MutableGATTCharacteristic) {
       throw TypeError();
     }
+    // TODO: fix multi centrals notify logic.
     final descriptor = _retrieveCCCDescriptor(characteristic.hashCode);
     if (descriptor == null) {
       throw ArgumentError.notNull();

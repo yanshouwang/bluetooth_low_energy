@@ -18,6 +18,11 @@ enum MyBluetoothLowEnergyStateArgs {
   poweredOn,
 }
 
+enum MyConnectionStateArgs {
+  disconnected,
+  connected,
+}
+
 enum MyGATTCharacteristicPropertyArgs {
   read,
   write,
@@ -187,7 +192,10 @@ abstract class MyCentralManagerHostAPI {
   void connect(String uuidArgs);
   @async
   void disconnect(String uuidArgs);
-  int maximumWriteValueLength(String uuidArgs, int typeNumberArgs);
+  int maximumWriteValueLength(
+    String uuidArgs,
+    MyGATTCharacteristicWriteTypeArgs typeArgs,
+  );
   @async
   int readRSSI(String uuidArgs);
   @async
@@ -209,7 +217,7 @@ abstract class MyCentralManagerHostAPI {
     String uuidArgs,
     int hashCodeArgs,
     Uint8List valueArgs,
-    int typeNumberArgs,
+    MyGATTCharacteristicWriteTypeArgs typeArgs,
   );
   @async
   void setCharacteristicNotifyState(
@@ -225,13 +233,16 @@ abstract class MyCentralManagerHostAPI {
 
 @FlutterApi()
 abstract class MyCentralManagerFlutterAPI {
-  void onStateChanged(int stateNumberArgs);
+  void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs);
   void onDiscovered(
     MyPeripheralArgs peripheralArgs,
     int rssiArgs,
     MyAdvertisementArgs advertisementArgs,
   );
-  void onConnectionStateChanged(String uuidArgs, bool stateArgs);
+  void onConnectionStateChanged(
+    String uuidArgs,
+    MyConnectionStateArgs stateArgs,
+  );
   void onCharacteristicNotified(
     String uuidArgs,
     int hashCodeArgs,
@@ -250,7 +261,11 @@ abstract class MyPeripheralManagerHostAPI {
   void startAdvertising(MyAdvertisementArgs advertisementArgs);
   void stopAdvertising();
   int maximumUpdateValueLength(String uuidArgs);
-  void respond(int hashCodeArgs, Uint8List? valueArgs, int errorNumberArgs);
+  void respond(
+    int hashCodeArgs,
+    Uint8List? valueArgs,
+    MyATTErrorArgs errorArgs,
+  );
   bool updateValue(
     int hashCodeArgs,
     Uint8List valueArgs,
@@ -260,7 +275,7 @@ abstract class MyPeripheralManagerHostAPI {
 
 @FlutterApi()
 abstract class MyPeripheralManagerFlutterAPI {
-  void onStateChanged(int stateNumberArgs);
+  void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs);
   void didReceiveRead(MyATTRequestArgs requestArgs);
   void didReceiveWrite(List<MyATTRequestArgs> requestsArgs);
   void isReady();
