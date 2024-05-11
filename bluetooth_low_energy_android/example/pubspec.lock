@@ -20,10 +20,10 @@ packages:
     dependency: "direct main"
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: "040fd5bc36241e095e22cc8b4e1cbb5ae045369c817c9673256a5454534c4f87"
+      sha256: "28a3339b20357708123ee260f5a697bb2b1bb62316b847904d62991dd3292b83"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0-dev.9"
+    version: "6.0.0-dev.10"
   boolean_selector:
     dependency: transitive
     description:

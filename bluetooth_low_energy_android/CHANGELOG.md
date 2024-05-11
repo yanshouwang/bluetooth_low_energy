@@ -1,3 +1,13 @@
+## 6.0.0-dev.1
+
+* Add `CentralManager#mtuChanged` event.
+* Add `PeripheralManager#mtuChanged` event.
+* Add `BluetoothLowEnergyManager.authorize()` method.
+* Add `BluetoothLowEnergyManager.showAppSettings()` method.
+* Add modifiers to all classes.
+* Use new capitalization rules.
+* Make it possible to change the `logLevel` before `initialize()`.
+
 ## 6.0.0-dev.0
 
 * Add `serviceUUIDs` argument to `CentralManager#startDiscovery` method.

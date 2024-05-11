@@ -9,7 +9,7 @@ import 'my_api.dart';
 import 'my_api.g.dart';
 import 'my_central.dart';
 
-base class MyPeripheralManager extends BasePeripheralManager
+final class MyPeripheralManager extends BasePeripheralManager
     with WidgetsBindingObserver
     implements MyPeripheralManagerFlutterAPI {
   final MyPeripheralManagerHostAPI _api;
@@ -101,8 +101,8 @@ base class MyPeripheralManager extends BasePeripheralManager
         logger.info('initialize');
         _args = await _api.initialize();
         _updateState();
-      } catch (e, stack) {
-        logger.severe('initialize failed.', e, stack);
+      } catch (e) {
+        logger.severe('initialize failed.', e);
       }
     });
   }
@@ -286,11 +286,22 @@ base class MyPeripheralManager extends BasePeripheralManager
   }
 
   @override
-  void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs) {
+  void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs) async {
     logger.info('onStateChanged: $stateArgs');
     final state = stateArgs.toState();
     if (_state == state) {
       return;
+    }
+    // Renew GATT server when bluetooth adapter state changed.
+    switch (state) {
+      case BluetoothLowEnergyState.poweredOn:
+        await _openGATTServer();
+        break;
+      case BluetoothLowEnergyState.poweredOff:
+        await _closeGATTServer();
+        break;
+      default:
+        break;
     }
     _state = state;
     final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
@@ -319,8 +330,14 @@ base class MyPeripheralManager extends BasePeripheralManager
   @override
   void onMTUChanged(String addressArgs, int mtuArgs) {
     logger.info('onMTUChanged: $addressArgs - $mtuArgs');
+    final central = _centrals[addressArgs];
+    if (central == null) {
+      return;
+    }
     final mtu = mtuArgs;
     _mtus[addressArgs] = mtu;
+    final eventArgs = CentralMTUChangedEventArgs(central, mtu);
+    _mtuChangedController.add(eventArgs);
   }
 
   @override
@@ -508,7 +525,7 @@ base class MyPeripheralManager extends BasePeripheralManager
             descriptor.value = value;
             statusArgs = MyGATTStatusArgs.success;
             final state =
-                _valueEquality.equals(value, _args.disableNotificationValue) ||
+                _valueEquality.equals(value, _args.enableNotificationValue) ||
                     _valueEquality.equals(value, _args.enableIndicationValue);
             final eventArgs = GATTCharacteristicNotifyStateChangedEventArgs(
               central,
@@ -568,6 +585,30 @@ base class MyPeripheralManager extends BasePeripheralManager
     );
   }
 
+  MutableGATTCharacteristic? _retrieveCharacteristic(int hashCodeArgs) {
+    final characteristics = _characteristics.values
+        .reduce((value, element) => value..addAll(element));
+    return characteristics[hashCodeArgs];
+  }
+
+  MutableGATTCharacteristic? _retrieveCCCCharacteristic(int hashCode) {
+    final characteristics = _cccCharacteristics.values
+        .reduce((value, element) => value..addAll(element));
+    return characteristics[hashCode];
+  }
+
+  MutableGATTDescriptor? _retrieveCCCDescriptor(int hashCode) {
+    final descriptors = _cccDescriptors.values
+        .reduce((value, element) => value..addAll(element));
+    return descriptors[hashCode];
+  }
+
+  MutableGATTDescriptor? _retrieveDescriptor(int hashCodeArgs) {
+    final descriptors =
+        _descriptors.values.reduce((value, element) => value..addAll(element));
+    return descriptors[hashCodeArgs];
+  }
+
   Future<void> _updateState() async {
     try {
       logger.info('getState');
@@ -575,6 +616,24 @@ base class MyPeripheralManager extends BasePeripheralManager
       onStateChanged(stateArgs);
     } catch (e) {
       logger.severe('getState failed.', e);
+    }
+  }
+
+  Future<void> _openGATTServer() async {
+    try {
+      logger.info('openGATTServer');
+      await _api.openGATTServer();
+    } catch (e) {
+      logger.severe('openGATTServer failed.', e);
+    }
+  }
+
+  Future<void> _closeGATTServer() async {
+    try {
+      logger.info('closeGATTServer');
+      await _api.closeGATTServer();
+    } catch (e) {
+      logger.severe('closeGATTServer failed.', e);
     }
   }
 
@@ -598,30 +657,6 @@ base class MyPeripheralManager extends BasePeripheralManager
     } catch (e) {
       logger.severe('sendResponse failed.', e);
     }
-  }
-
-  MutableGATTCharacteristic? _retrieveCharacteristic(int hashCodeArgs) {
-    final characteristics = _characteristics.values
-        .reduce((value, element) => value..addAll(element));
-    return characteristics[hashCodeArgs];
-  }
-
-  MutableGATTCharacteristic? _retrieveCCCCharacteristic(int hashCode) {
-    final characteristics = _cccCharacteristics.values
-        .reduce((value, element) => value..addAll(element));
-    return characteristics[hashCode];
-  }
-
-  MutableGATTDescriptor? _retrieveCCCDescriptor(int hashCode) {
-    final descriptors = _cccDescriptors.values
-        .reduce((value, element) => value..addAll(element));
-    return descriptors[hashCode];
-  }
-
-  MutableGATTDescriptor? _retrieveDescriptor(int hashCodeArgs) {
-    final descriptors =
-        _descriptors.values.reduce((value, element) => value..addAll(element));
-    return descriptors[hashCodeArgs];
   }
 
   Uint8List _onCharacteristicRead(

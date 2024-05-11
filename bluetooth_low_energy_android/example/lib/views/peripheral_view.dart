@@ -33,6 +33,7 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
   late final ValueNotifier<List<Log>> logs;
   late final TextEditingController writeController;
   late final StreamSubscription connectionStateChangedSubscription;
+  late final StreamSubscription mtuChangedSubscription;
   late final StreamSubscription characteristicNotifiedSubscription;
 
   @override
@@ -49,37 +50,40 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
     logs = ValueNotifier([]);
     writeController = TextEditingController();
     connectionStateChangedSubscription =
-        centralManager.connectionStateChanged.listen(
-      (eventArgs) {
-        if (eventArgs.peripheral != this.eventArgs.peripheral) {
-          return;
-        }
-        final state = eventArgs.state;
-        connectionState.value = state;
-        if (state == ConnectionState.disconnected) {
-          services.value = [];
-          characteristics.value = [];
-          service.value = null;
-          characteristic.value = null;
-          logs.value = [];
-        }
-      },
-    );
+        centralManager.connectionStateChanged.listen((eventArgs) {
+      if (eventArgs.peripheral != this.eventArgs.peripheral) {
+        return;
+      }
+      final state = eventArgs.state;
+      connectionState.value = state;
+      if (state == ConnectionState.disconnected) {
+        services.value = [];
+        characteristics.value = [];
+        service.value = null;
+        characteristic.value = null;
+        logs.value = [];
+      }
+    });
+    mtuChangedSubscription = centralManager.mtuChanged.listen((eventArgs) {
+      if (eventArgs.peripheral != this.eventArgs.peripheral) {
+        return;
+      }
+      final mtu = eventArgs.mtu;
+      logger.info('MTU changed: $mtu');
+    });
     characteristicNotifiedSubscription =
-        centralManager.characteristicNotified.listen(
-      (eventArgs) {
-        // final characteristic = this.characteristic.value;
-        // if (eventArgs.characteristic != characteristic) {
-        //   return;
-        // }
-        const type = LogType.notify;
-        final log = Log(type, eventArgs.value);
-        logs.value = [
-          ...logs.value,
-          log,
-        ];
-      },
-    );
+        centralManager.characteristicNotified.listen((eventArgs) {
+      // final characteristic = this.characteristic.value;
+      // if (eventArgs.characteristic != characteristic) {
+      //   return;
+      // }
+      const type = LogType.notify;
+      final log = Log(type, eventArgs.value);
+      logs.value = [
+        ...logs.value,
+        log,
+      ];
+    });
   }
 
   @override
@@ -459,6 +463,7 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
   void dispose() {
     super.dispose();
     connectionStateChangedSubscription.cancel();
+    mtuChangedSubscription.cancel();
     characteristicNotifiedSubscription.cancel();
     connectionState.dispose();
     services.dispose();

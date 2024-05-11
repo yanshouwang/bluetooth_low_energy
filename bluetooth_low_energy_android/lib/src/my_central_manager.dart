@@ -9,7 +9,7 @@ import 'my_api.g.dart';
 import 'my_gatt.dart';
 import 'my_peripheral.dart';
 
-base class MyCentralManager extends BaseCentralManager
+final class MyCentralManager extends BaseCentralManager
     with WidgetsBindingObserver
     implements MyCentralManagerFlutterAPI {
   final MyCentralManagerHostAPI _api;
@@ -81,8 +81,8 @@ base class MyCentralManager extends BaseCentralManager
         logger.info('initialize');
         _args = await _api.initialize();
         _updateState();
-      } catch (e, stack) {
-        logger.severe('initialize failed.', e, stack);
+      } catch (e) {
+        logger.severe('initialize failed.', e);
       }
     });
   }
@@ -91,15 +91,13 @@ base class MyCentralManager extends BaseCentralManager
   Future<bool> authorize() async {
     logger.info('authorize');
     final authorized = await _api.authorize();
-    _updateState();
     return authorized;
   }
 
   @override
   Future<void> showAppSettings() async {
     logger.info('showAppSettings');
-    await _api.authorize();
-    _updateState();
+    await _api.showAppSettings();
   }
 
   @override
@@ -277,7 +275,7 @@ base class MyCentralManager extends BaseCentralManager
       hashCodeArgs,
       enableArgs,
     );
-    // TODO: Seems the docs is not correct, this operation is necessary for all characteristics.
+    // Seems the docs is not correct, this operation is necessary for all characteristics.
     // https://developer.android.com/guide/topics/connectivity/bluetooth/transfer-ble-data#notification
     final descriptor = characteristic.descriptors
         .firstWhere((descriptor) => descriptor.uuid == UUID.short(0x2902));
@@ -411,16 +409,6 @@ base class MyCentralManager extends BaseCentralManager
     _characteristicNotifiedController.add(eventArgs);
   }
 
-  void _updateState() async {
-    try {
-      logger.info('getState');
-      final stateArgs = await _api.getState();
-      onStateChanged(stateArgs);
-    } catch (e, stack) {
-      logger.severe('getState failed.', e, stack);
-    }
-  }
-
   MyGATTCharacteristic? _retrieveCharacteristic(
     String addressArgs,
     int hashCodeArgs,
@@ -430,5 +418,15 @@ base class MyCentralManager extends BaseCentralManager
       return null;
     }
     return characteristics[hashCodeArgs];
+  }
+
+  void _updateState() async {
+    try {
+      logger.info('getState');
+      final stateArgs = await _api.getState();
+      onStateChanged(stateArgs);
+    } catch (e) {
+      logger.severe('getState failed.', e);
+    }
   }
 }

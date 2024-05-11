@@ -1041,6 +1041,8 @@ interface MyPeripheralManagerHostAPI {
   fun getState(): MyBluetoothLowEnergyStateArgs
   fun authorize(callback: (Result<Boolean>) -> Unit)
   fun showAppSettings(callback: (Result<Unit>) -> Unit)
+  fun openGATTServer()
+  fun closeGATTServer()
   fun addService(serviceArgs: MyMutableGATTServiceArgs, callback: (Result<Unit>) -> Unit)
   fun removeService(hashCodeArgs: Long)
   fun clearServices()
@@ -1120,6 +1122,40 @@ interface MyPeripheralManagerHostAPI {
                 reply.reply(wrapResult(null))
               }
             }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.openGATTServer$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            var wrapped: List<Any?>
+            try {
+              api.openGATTServer()
+              wrapped = listOf<Any?>(null)
+            } catch (exception: Throwable) {
+              wrapped = wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.MyPeripheralManagerHostAPI.closeGATTServer$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            var wrapped: List<Any?>
+            try {
+              api.closeGATTServer()
+              wrapped = listOf<Any?>(null)
+            } catch (exception: Throwable) {
+              wrapped = wrapError(exception)
+            }
+            reply.reply(wrapped)
           }
         } else {
           channel.setMessageHandler(null)

@@ -31,8 +31,12 @@ class _CentralManagerViewState extends State<CentralManagerView> {
     discovering = ValueNotifier(false);
     eventArgses = ValueNotifier([]);
     stateChangedSubscription = centralManager.stateChanged.listen(
-      (eventArgs) {
-        state.value = eventArgs.state;
+      (eventArgs) async {
+        final state = eventArgs.state;
+        if (state == BluetoothLowEnergyState.unauthorized) {
+          await centralManager.authorize();
+        }
+        this.state.value = state;
       },
     );
     discoveredSubscription = centralManager.discovered.listen(
@@ -54,62 +58,70 @@ class _CentralManagerViewState extends State<CentralManagerView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar(context),
-      body: buildBody(context),
-    );
-  }
-
-  PreferredSizeWidget buildAppBar(BuildContext context) {
-    return AppBar(
-      title: const Text('Central Manager'),
-      actions: [
-        ValueListenableBuilder(
-          valueListenable: state,
-          builder: (context, state, child) {
-            return ValueListenableBuilder(
-              valueListenable: discovering,
-              builder: (context, discovering, child) {
-                return TextButton(
-                  onPressed: state == BluetoothLowEnergyState.poweredOn
-                      ? () async {
-                          if (discovering) {
-                            await stopDiscovery();
-                          } else {
-                            await startDiscovery();
+      appBar: AppBar(
+        title: const Text('Central Manager'),
+        actions: [
+          ValueListenableBuilder(
+            valueListenable: state,
+            builder: (context, state, child) {
+              return ValueListenableBuilder(
+                valueListenable: discovering,
+                builder: (context, discovering, child) {
+                  return TextButton(
+                    onPressed: state == BluetoothLowEnergyState.poweredOn
+                        ? () async {
+                            if (discovering) {
+                              await stopDiscovery();
+                            } else {
+                              await startDiscovery();
+                            }
                           }
-                        }
-                      : null,
-                  child: Text(
-                    discovering ? 'END' : 'BEGIN',
-                  ),
-                );
-              },
-            );
-          },
-        ),
-      ],
+                        : null,
+                    child: Text(
+                      discovering ? 'END' : 'BEGIN',
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ],
+      ),
+      body: ValueListenableBuilder(
+        valueListenable: state,
+        builder: (context, state, child) {
+          if (state == BluetoothLowEnergyState.unauthorized) {
+            return buildUnauthorizedView(context);
+          } else {
+            return buildAuthorizedView(context);
+          }
+        },
+      ),
     );
   }
 
-  Future<void> startDiscovery() async {
-    eventArgses.value = [];
-    // final serviceUUIDs = [
-    //   UUID.short(0x180f),
-    //   UUID.short(0xfd92),
-    // ];
-    // await centralManager.startDiscovery(
-    //   serviceUUIDs: serviceUUIDs,
-    // );
-    await centralManager.startDiscovery();
-    discovering.value = true;
+  Widget buildUnauthorizedView(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'UNAUTHORIZED',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 20.0),
+          TextButton(
+            onPressed: () async {
+              await centralManager.showAppSettings();
+            },
+            child: const Text('SHOW SETTINGS'),
+          ),
+        ],
+      ),
+    );
   }
 
-  Future<void> stopDiscovery() async {
-    await centralManager.stopDiscovery();
-    discovering.value = false;
-  }
-
-  Widget buildBody(BuildContext context) {
+  Widget buildAuthorizedView(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: eventArgses,
       builder: (context, eventArgses, child) {
@@ -128,7 +140,7 @@ class _CentralManagerViewState extends State<CentralManagerView> {
               onLongPress: () {
                 onLongPressEventArgs(eventArgs);
               },
-              title: Text(name ?? 'N/A'),
+              title: Text(name ?? ''),
               subtitle: Text(
                 '$uuid',
                 style: theme.textTheme.bodySmall,
@@ -164,6 +176,24 @@ class _CentralManagerViewState extends State<CentralManagerView> {
     state.dispose();
     discovering.dispose();
     eventArgses.dispose();
+  }
+
+  Future<void> startDiscovery() async {
+    eventArgses.value = [];
+    // final serviceUUIDs = [
+    //   UUID.short(0x180f),
+    //   UUID.short(0xfd92),
+    // ];
+    // await centralManager.startDiscovery(
+    //   serviceUUIDs: serviceUUIDs,
+    // );
+    await centralManager.startDiscovery();
+    discovering.value = true;
+  }
+
+  Future<void> stopDiscovery() async {
+    await centralManager.stopDiscovery();
+    discovering.value = false;
   }
 
   void onTapEventArgs(DiscoveredEventArgs eventArgs) async {

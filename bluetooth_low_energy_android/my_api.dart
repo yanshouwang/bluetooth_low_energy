@@ -263,6 +263,8 @@ abstract class MyPeripheralManagerHostAPI {
   bool authorize();
   @async
   void showAppSettings();
+  void openGATTServer();
+  void closeGATTServer();
   @async
   void addService(MyMutableGATTServiceArgs serviceArgs);
   void removeService(int hashCodeArgs);

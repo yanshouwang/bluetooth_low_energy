@@ -311,8 +311,8 @@ base class MyPeripheralManager extends BasePeripheralManager
         valueArgs,
         errorNumberArgs,
       );
-    } catch (e, stack) {
-      logger.severe('respond failed.', e, stack);
+    } catch (e) {
+      logger.severe('respond failed.', e);
     }
   }
 

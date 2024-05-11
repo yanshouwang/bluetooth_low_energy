@@ -15,6 +15,7 @@ import android.bluetooth.le.AdvertiseSettings
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
@@ -26,12 +27,11 @@ import java.util.concurrent.Executor
 class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : MyBluetoothLowEnergyManager(context), MyPeripheralManagerHostAPI {
     private val mAPI: MyPeripheralManagerFlutterAPI
 
-    private val mBluetoothGattServerCallback: BluetoothGattServerCallback by lazy { MyBluetoothGattServerCallback(this, mMainExecutor) }
+    private val mBluetoothGattServerCallback: BluetoothGattServerCallback by lazy { MyBluetoothGattServerCallback(this, executor) }
     private val mAdvertiseCallback: AdvertiseCallback by lazy { MyAdvertiseCallback(this) }
 
-    private lateinit var mServer: BluetoothGattServer
-    private var mOpening = false
-    private var mAdvertising = false
+    private var mServer: BluetoothGattServer?
+    private var mAdvertising: Boolean
 
     private val mServicesArgs: MutableMap<Int, MyMutableGATTServiceArgs>
     private val mCharacteristicsArgs: MutableMap<Int, MyMutableGATTCharacteristicArgs>
@@ -50,6 +50,9 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
 
     init {
         mAPI = MyPeripheralManagerFlutterAPI(binaryMessenger)
+
+        mServer = null
+        mAdvertising = false
 
         mServicesArgs = mutableMapOf()
         mCharacteristicsArgs = mutableMapOf()
@@ -73,15 +76,18 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         } else {
             arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION)
         }
-    private val mManager get() = ContextCompat.getSystemService(context, BluetoothManager::class.java) as BluetoothManager
-    private val mAdapter get() = mManager.adapter as BluetoothAdapter
-    private val mAdvertiser get() = mAdapter.bluetoothLeAdvertiser
-    private val mMainExecutor get() = ContextCompat.getMainExecutor(context) as Executor
+    private val manager get() = ContextCompat.getSystemService(context, BluetoothManager::class.java) as BluetoothManager
+    private val adapter get() = manager.adapter as BluetoothAdapter
+    private val advertiser get() = adapter.bluetoothLeAdvertiser
+    private val server get() = mServer ?: throw IllegalStateException()
+    private val executor get() = ContextCompat.getMainExecutor(context) as Executor
 
     override fun initialize(): MyPeripheralManagerArgs {
         if (mAdvertising) {
             stopAdvertising()
         }
+
+        mServer?.close()
 
         mServicesArgs.clear()
         mCharacteristicsArgs.clear()
@@ -108,7 +114,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         val supported = context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
         return if (supported) {
             val authorized = mPermissions.all { permission -> ActivityCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED }
-            return if (authorized) mAdapter.state.toBluetoothLowEnergyStateArgs()
+            return if (authorized) adapter.state.toBluetoothLowEnergyStateArgs()
             else MyBluetoothLowEnergyStateArgs.UNAUTHORIZED
         } else MyBluetoothLowEnergyStateArgs.UNSUPPORTED
     }
@@ -125,12 +131,21 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
     override fun showAppSettings(callback: (Result<Unit>) -> Unit) {
         try {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            intent.data = Uri.fromParts("package", activity.packageName, null)
             val options = ActivityOptionsCompat.makeBasic().toBundle()
             ActivityCompat.startActivityForResult(activity, intent, SHOW_APP_SETTINGS_CODE, options)
             mShowAppSettingsCallback = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
+    }
+
+    override fun openGATTServer() {
+        mServer = manager.openGattServer(context, mBluetoothGattServerCallback)
+    }
+
+    override fun closeGATTServer() {
+        server.close()
     }
 
     override fun addService(serviceArgs: MyMutableGATTServiceArgs, callback: (Result<Unit>) -> Unit) {
@@ -164,7 +179,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
             val serviceHashCode = service.hashCode()
             this.mServicesArgs[serviceHashCode] = serviceArgs
             this.mServices[serviceHashCodeArgs] = service
-            val adding = mServer.addService(service)
+            val adding = server.addService(service)
             if (!adding) {
                 throw IllegalStateException()
             }
@@ -176,7 +191,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
 
     override fun removeService(hashCodeArgs: Long) {
         val service = mServices.remove(hashCodeArgs) as BluetoothGattService
-        val removed = mServer.removeService(service)
+        val removed = server.removeService(service)
         if (!removed) {
             throw IllegalStateException()
         }
@@ -199,7 +214,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
     }
 
     override fun clearServices() {
-        mServer.clearServices()
+        server.clearServices()
         mServices.clear()
         mCharacteristics.clear()
         mDescriptors.clear()
@@ -212,8 +227,8 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
     override fun startAdvertising(advertisementArgs: MyAdvertisementArgs, callback: (Result<Unit>) -> Unit) {
         try {
             val settings = AdvertiseSettings.Builder().setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED).setConnectable(true).build()
-            val advertiseData = advertisementArgs.toAdvertiseData(mAdapter)
-            mAdvertiser.startAdvertising(settings, advertiseData, mAdvertiseCallback)
+            val advertiseData = advertisementArgs.toAdvertiseData(adapter)
+            advertiser.startAdvertising(settings, advertiseData, mAdvertiseCallback)
             mStartAdvertisingCallback = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
@@ -221,7 +236,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
     }
 
     override fun stopAdvertising() {
-        mAdvertiser.stopAdvertising(mAdvertiseCallback)
+        advertiser.stopAdvertising(mAdvertiseCallback)
         mAdvertising = false
     }
 
@@ -230,7 +245,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         val requestId = idArgs.toInt()
         val status = statusArgs.toStatus()
         val offset = offsetArgs.toInt()
-        val sent = mServer.sendResponse(device, requestId, status, offset, valueArgs)
+        val sent = server.sendResponse(device, requestId, status, offset, valueArgs)
         if (!sent) {
             throw IllegalStateException("Send response failed.")
         }
@@ -241,11 +256,11 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
             val device = mDevices[addressArgs] as BluetoothDevice
             val characteristic = mCharacteristics[hashCodeArgs] as BluetoothGattCharacteristic
             val notifying = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                val statusCode = mServer.notifyCharacteristicChanged(device, characteristic, confirmArgs, valueArgs)
+                val statusCode = server.notifyCharacteristicChanged(device, characteristic, confirmArgs, valueArgs)
                 statusCode == BluetoothStatusCodes.SUCCESS
             } else { // TODO: remove this when minSdkVersion >= 33
                 characteristic.value = valueArgs
-                mServer.notifyCharacteristicChanged(device, characteristic, confirmArgs)
+                server.notifyCharacteristicChanged(device, characteristic, confirmArgs)
             }
             if (!notifying) {
                 throw IllegalStateException()
@@ -260,12 +275,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         if (intent.action != BluetoothAdapter.ACTION_STATE_CHANGED) {
             return
         }
-        val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF) // Renew GATT server when bluetooth adapter state changed.
-        when (state) {
-            BluetoothAdapter.STATE_OFF -> mCloseServer()
-            BluetoothAdapter.STATE_ON -> mOpenServer()
-            else -> {}
-        }
+        val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF)
         val stateArgs = state.toBluetoothLowEnergyStateArgs()
         mAPI.onStateChanged(stateArgs) {}
     }
@@ -339,7 +349,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         val characteristicArgs = mCharacteristicsArgs[hashCode]
         if (characteristicArgs == null) {
             val status = BluetoothGatt.GATT_FAILURE
-            mServer.sendResponse(device, requestId, status, offset, null)
+            server.sendResponse(device, requestId, status, offset, null)
         } else {
             val hashCodeArgs = characteristicArgs.hashCodeArgs
             mAPI.onCharacteristicReadRequest(addressArgs, idArgs, offsetArgs, hashCodeArgs) {}
@@ -356,7 +366,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
                 return
             }
             val status = BluetoothGatt.GATT_FAILURE
-            mServer.sendResponse(device, requestId, status, offset, null)
+            server.sendResponse(device, requestId, status, offset, null)
         } else {
             val hashCodeArgs = characteristicArgs.hashCodeArgs
             val offsetArgs = offset.toLong()
@@ -383,7 +393,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         val descriptorArgs = mDescriptorsArgs[hashCode]
         if (descriptorArgs == null) {
             val status = BluetoothGatt.GATT_FAILURE
-            mServer.sendResponse(device, requestId, status, offset, null)
+            server.sendResponse(device, requestId, status, offset, null)
         } else {
             val hashCodeArgs = descriptorArgs.hashCodeArgs
             mAPI.onDescriptorReadRequest(addressArgs, idArgs, offsetArgs, hashCodeArgs) {}
@@ -400,7 +410,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
                 return
             }
             val status = BluetoothGatt.GATT_FAILURE
-            mServer.sendResponse(device, requestId, status, offset, null)
+            server.sendResponse(device, requestId, status, offset, null)
         } else {
             val hashCodeArgs = descriptorArgs.hashCodeArgs
             val offsetArgs = offset.toLong()
@@ -412,21 +422,5 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         val addressArgs = device.address
         val idArgs = requestId.toLong()
         mAPI.onExecuteWrite(addressArgs, idArgs, execute) {}
-    }
-
-    private fun mOpenServer() {
-        if (mOpening) {
-            return
-        }
-        mServer = mManager.openGattServer(context, mBluetoothGattServerCallback)
-        mOpening = true
-    }
-
-    private fun mCloseServer() {
-        if (!mOpening) {
-            return
-        }
-        mServer.close()
-        mOpening = false
     }
 }

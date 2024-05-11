@@ -17,6 +17,7 @@ import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.ParcelUuid
 import android.provider.Settings
@@ -30,7 +31,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
     private val mAPI: MyCentralManagerFlutterAPI
 
     private val mScanCallback: ScanCallback by lazy { MyScanCallback(this) }
-    private val mBluetoothGattCallback: BluetoothGattCallback by lazy { MyBluetoothGattCallback(this, mMainExecutor) }
+    private val mBluetoothGattCallback: BluetoothGattCallback by lazy { MyBluetoothGattCallback(this, executor) }
 
     private var mDiscovering: Boolean
 
@@ -76,16 +77,16 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
         mWriteDescriptorCallbacks = mutableMapOf()
     }
 
-    private val mPermissions: Array<String>
+    private val permissions: Array<String>
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.BLUETOOTH_SCAN, android.Manifest.permission.BLUETOOTH_CONNECT)
         } else {
             arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION)
         }
-    private val mManager get() = ContextCompat.getSystemService(context, BluetoothManager::class.java) as BluetoothManager
-    private val mAdapter get() = mManager.adapter as BluetoothAdapter
-    private val mScanner: BluetoothLeScanner get() = mAdapter.bluetoothLeScanner
-    private val mMainExecutor get() = ContextCompat.getMainExecutor(context) as Executor
+    private val manager get() = ContextCompat.getSystemService(context, BluetoothManager::class.java) as BluetoothManager
+    private val adapter get() = manager.adapter as BluetoothAdapter
+    private val scanner: BluetoothLeScanner get() = adapter.bluetoothLeScanner
+    private val executor get() = ContextCompat.getMainExecutor(context) as Executor
 
     override fun initialize(): MyCentralManagerArgs {
         if (mDiscovering) {
@@ -123,15 +124,15 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
     override fun getState(): MyBluetoothLowEnergyStateArgs {
         val supported = context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
         return if (supported) {
-            val authorized = mPermissions.all { permission -> ActivityCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED }
-            return if (authorized) mAdapter.state.toBluetoothLowEnergyStateArgs()
+            val authorized = permissions.all { permission -> ActivityCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED }
+            return if (authorized) adapter.state.toBluetoothLowEnergyStateArgs()
             else MyBluetoothLowEnergyStateArgs.UNAUTHORIZED
         } else MyBluetoothLowEnergyStateArgs.UNSUPPORTED
     }
 
     override fun authorize(callback: (Result<Boolean>) -> Unit) {
         try {
-            ActivityCompat.requestPermissions(activity, mPermissions, AUTHORIZE_CODE)
+            ActivityCompat.requestPermissions(activity, permissions, AUTHORIZE_CODE)
             mAuthorizeCallback = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
@@ -141,6 +142,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
     override fun showAppSettings(callback: (Result<Unit>) -> Unit) {
         try {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            intent.data = Uri.fromParts("package", activity.packageName, null)
             val options = ActivityOptionsCompat.makeBasic().toBundle()
             ActivityCompat.startActivityForResult(activity, intent, SHOW_APP_SETTINGS_CODE, options)
             mShowAppSettingsCallback = callback
@@ -158,8 +160,8 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
                 filters.add(filter)
             }
             val settings = ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
-            mScanner.startScan(filters, settings, mScanCallback)
-            mMainExecutor.execute { onScanSucceeded() }
+            scanner.startScan(filters, settings, mScanCallback)
+            executor.execute { onScanSucceeded() }
             mStartDiscoveryCallback = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
@@ -167,7 +169,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
     }
 
     override fun stopDiscovery() {
-        mScanner.stopScan(mScanCallback)
+        scanner.stopScan(mScanCallback)
         mDiscovering = false
     }
 
@@ -197,8 +199,9 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
         }
     }
 
-    override fun retrieveConnectedPeripherals(): List<MyPeripheralArgs> { // TODO: Use `GATT_SERVER` instead of `GATT`
-        val devices = mManager.getConnectedDevices(BluetoothProfile.GATT)
+    override fun retrieveConnectedPeripherals(): List<MyPeripheralArgs> {
+        // The `BluetoothProfile.GATT` and `BluetoothProfile.GATT_SERVER` return same devices.
+        val devices = manager.getConnectedDevices(BluetoothProfile.GATT)
         val peripheralsArgs = devices.map { device ->
             val peripheralArgs = device.toPeripheralArgs()
             val addressArgs = peripheralArgs.addressArgs
@@ -251,7 +254,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
     override fun readCharacteristic(addressArgs: String, hashCodeArgs: Long, callback: (Result<ByteArray>) -> Unit) {
         try {
             val gatt = mGATTs[addressArgs] as BluetoothGatt
-            val characteristic = mRetrieveCharacteristic(addressArgs, hashCodeArgs) as BluetoothGattCharacteristic
+            val characteristic = retrieveCharacteristic(addressArgs, hashCodeArgs) as BluetoothGattCharacteristic
             val reading = gatt.readCharacteristic(characteristic)
             if (!reading) {
                 throw IllegalStateException()
@@ -266,7 +269,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
     override fun writeCharacteristic(addressArgs: String, hashCodeArgs: Long, valueArgs: ByteArray, typeArgs: MyGATTCharacteristicWriteTypeArgs, callback: (Result<Unit>) -> Unit) {
         try {
             val gatt = mGATTs[addressArgs] as BluetoothGatt
-            val characteristic = mRetrieveCharacteristic(addressArgs, hashCodeArgs) as BluetoothGattCharacteristic
+            val characteristic = retrieveCharacteristic(addressArgs, hashCodeArgs) as BluetoothGattCharacteristic
             val type = typeArgs.toType()
             val writing = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 val code = gatt.writeCharacteristic(characteristic, valueArgs, type)
@@ -288,7 +291,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
 
     override fun setCharacteristicNotification(addressArgs: String, hashCodeArgs: Long, enableArgs: Boolean) {
         val gatt = mGATTs[addressArgs] as BluetoothGatt
-        val characteristic = mRetrieveCharacteristic(addressArgs, hashCodeArgs) as BluetoothGattCharacteristic
+        val characteristic = retrieveCharacteristic(addressArgs, hashCodeArgs) as BluetoothGattCharacteristic
         val notifying = gatt.setCharacteristicNotification(characteristic, enableArgs)
         if (!notifying) {
             throw IllegalStateException()
@@ -298,7 +301,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
     override fun readDescriptor(addressArgs: String, hashCodeArgs: Long, callback: (Result<ByteArray>) -> Unit) {
         try {
             val gatt = mGATTs[addressArgs] as BluetoothGatt
-            val descriptor = mRetrieveDescriptor(addressArgs, hashCodeArgs) as BluetoothGattDescriptor
+            val descriptor = retrieveDescriptor(addressArgs, hashCodeArgs) as BluetoothGattDescriptor
             val reading = gatt.readDescriptor(descriptor)
             if (!reading) {
                 throw IllegalStateException()
@@ -313,7 +316,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
     override fun writeDescriptor(addressArgs: String, hashCodeArgs: Long, valueArgs: ByteArray, callback: (Result<Unit>) -> Unit) {
         try {
             val gatt = mGATTs[addressArgs] as BluetoothGatt
-            val descriptor = mRetrieveDescriptor(addressArgs, hashCodeArgs) as BluetoothGattDescriptor
+            val descriptor = retrieveDescriptor(addressArgs, hashCodeArgs) as BluetoothGattDescriptor
             val writing = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 val code = gatt.writeDescriptor(descriptor, valueArgs)
                 code == BluetoothStatusCodes.SUCCESS
@@ -346,7 +349,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
         }
         val callback = mAuthorizeCallback ?: return false
         mAuthorizeCallback = null
-        val authorized = permissions.contentEquals(this.mPermissions) && results.all { r -> r == PackageManager.PERMISSION_GRANTED }
+        val authorized = permissions.contentEquals(this.permissions) && results.all { r -> r == PackageManager.PERMISSION_GRANTED }
         callback(Result.success(authorized))
         return true
     }
@@ -566,12 +569,12 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
         }
     }
 
-    private fun mRetrieveCharacteristic(addressArgs: String, hashCodeArgs: Long): BluetoothGattCharacteristic? {
+    private fun retrieveCharacteristic(addressArgs: String, hashCodeArgs: Long): BluetoothGattCharacteristic? {
         val characteristics = mCharacteristics[addressArgs] ?: return null
         return characteristics[hashCodeArgs]
     }
 
-    private fun mRetrieveDescriptor(addressArgs: String, hashCodeArgs: Long): BluetoothGattDescriptor? {
+    private fun retrieveDescriptor(addressArgs: String, hashCodeArgs: Long): BluetoothGattDescriptor? {
         val descriptors = mDescriptors[addressArgs] ?: return null
         return descriptors[hashCodeArgs]
     }

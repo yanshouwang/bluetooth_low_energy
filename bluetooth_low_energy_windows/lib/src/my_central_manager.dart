@@ -64,8 +64,8 @@ final class MyCentralManager extends BaseCentralManager
         final stateArgs = args.stateArgs;
         logger.info('initialized: $stateArgs');
         onStateChanged(stateArgs);
-      } catch (e, stack) {
-        logger.severe('initialize failed.', e, stack);
+      } catch (e) {
+        logger.severe('initialize failed.', e);
       }
     });
   }
