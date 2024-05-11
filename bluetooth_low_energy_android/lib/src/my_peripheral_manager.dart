@@ -92,19 +92,9 @@ final class MyPeripheralManager extends BasePeripheralManager
   @override
   void initialize() async {
     MyPeripheralManagerFlutterAPI.setUp(this);
-    // Add lifecycle observer.
     final binding = WidgetsFlutterBinding.ensureInitialized();
     binding.addObserver(this);
-    // Here we use `Timer.run()` to make it possible to change the `logLevel` before `initialize()`.
-    Timer.run(() async {
-      try {
-        logger.info('initialize');
-        _args = await _api.initialize();
-        _updateState();
-      } catch (e) {
-        logger.severe('initialize failed.', e);
-      }
-    });
+    _initialize();
   }
 
   @override
@@ -585,28 +575,17 @@ final class MyPeripheralManager extends BasePeripheralManager
     );
   }
 
-  MutableGATTCharacteristic? _retrieveCharacteristic(int hashCodeArgs) {
-    final characteristics = _characteristics.values
-        .reduce((value, element) => value..addAll(element));
-    return characteristics[hashCodeArgs];
-  }
-
-  MutableGATTCharacteristic? _retrieveCCCCharacteristic(int hashCode) {
-    final characteristics = _cccCharacteristics.values
-        .reduce((value, element) => value..addAll(element));
-    return characteristics[hashCode];
-  }
-
-  MutableGATTDescriptor? _retrieveCCCDescriptor(int hashCode) {
-    final descriptors = _cccDescriptors.values
-        .reduce((value, element) => value..addAll(element));
-    return descriptors[hashCode];
-  }
-
-  MutableGATTDescriptor? _retrieveDescriptor(int hashCodeArgs) {
-    final descriptors =
-        _descriptors.values.reduce((value, element) => value..addAll(element));
-    return descriptors[hashCodeArgs];
+  Future<void> _initialize() async {
+    // Here we use `Future()` to make it possible to change the `logLevel` before `initialize()`.
+    await Future(() async {
+      try {
+        logger.info('initialize');
+        _args = await _api.initialize();
+        _updateState();
+      } catch (e) {
+        logger.severe('initialize failed.', e);
+      }
+    });
   }
 
   Future<void> _updateState() async {
@@ -693,5 +672,29 @@ final class MyPeripheralManager extends BasePeripheralManager
       trimmedValue,
     );
     _characteristicWrittenController.add(eventArgs);
+  }
+
+  MutableGATTCharacteristic? _retrieveCharacteristic(int hashCodeArgs) {
+    final characteristics = _characteristics.values
+        .reduce((value, element) => value..addAll(element));
+    return characteristics[hashCodeArgs];
+  }
+
+  MutableGATTCharacteristic? _retrieveCCCCharacteristic(int hashCode) {
+    final characteristics = _cccCharacteristics.values
+        .reduce((value, element) => value..addAll(element));
+    return characteristics[hashCode];
+  }
+
+  MutableGATTDescriptor? _retrieveCCCDescriptor(int hashCode) {
+    final descriptors = _cccDescriptors.values
+        .reduce((value, element) => value..addAll(element));
+    return descriptors[hashCode];
+  }
+
+  MutableGATTDescriptor? _retrieveDescriptor(int hashCodeArgs) {
+    final descriptors =
+        _descriptors.values.reduce((value, element) => value..addAll(element));
+    return descriptors[hashCodeArgs];
   }
 }

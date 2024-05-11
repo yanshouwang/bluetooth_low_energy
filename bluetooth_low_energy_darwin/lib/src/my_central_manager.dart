@@ -44,7 +44,7 @@ base class MyCentralManager extends BaseCentralManager
       _connectionStateChangedController.stream;
   @override
   Stream<MTUChangedEventArgs> get mtuChanged =>
-      throw UnsupportedError('`mtuChanged` is not supported on Darwin.');
+      throw UnsupportedError('mtuChanged is not supported on Darwin.');
   @override
   Stream<GATTCharacteristicNotifiedEventArgs> get characteristicNotified =>
       _characteristicNotifiedController.stream;
@@ -102,7 +102,7 @@ base class MyCentralManager extends BaseCentralManager
 
   @override
   Future<int> requestMTU(Peripheral peripheral, int mtu) {
-    throw UnsupportedError("Darwin doesn't support request MTU.");
+    throw UnsupportedError('requestMTU is not supported on Darwin.');
   }
 
   @override

@@ -21,19 +21,21 @@ namespace bluetooth_low_energy_windows
 		MyCentralManager& operator=(const MyCentralManager&) = delete;
 
 		// 通过 MyCentralManagerHostApi 继承
-		void Initialize(std::function<void(ErrorOr<MyCentralManagerArgs> reply)> result) override;
+		void Initialize(std::function<void(std::optional<FlutterError> reply)> result) override;
+		ErrorOr<MyBluetoothLowEnergyStateArgs> GetState() override;
 		std::optional<FlutterError> StartDiscovery(const flutter::EncodableList& service_uuids_args) override;
 		std::optional<FlutterError> StopDiscovery() override;
-		void Connect(int64_t address_args, std::function<void(ErrorOr<MyConnectionArgs> reply)> result) override;
+		void Connect(int64_t address_args, std::function<void(std::optional<FlutterError> reply)> result) override;
 		std::optional<FlutterError> Disconnect(int64_t address_args) override;
-		void DiscoverServices(int64_t address_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result) override;
-		void DiscoverCharacteristics(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result) override;
-		void DiscoverDescriptors(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result) override;
-		void ReadCharacteristic(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<std::vector<uint8_t>>reply)> result) override;
-		void WriteCharacteristic(int64_t address_args, int64_t handle_args, const std::vector<uint8_t>& value_args, const MyGATTCharacteristicWriteTypeArgs& type_args, std::function<void(std::optional<FlutterError>reply)> result) override;
-		void SetCharacteristicNotifyState(int64_t address_args, int64_t handle_args, const MyGATTCharacteristicNotifyStateArgs& state_args, std::function<void(std::optional<FlutterError>reply)> result) override;
-		void ReadDescriptor(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<std::vector<uint8_t>>reply)> result) override;
-		void WriteDescriptor(int64_t address_args, int64_t handle_args, const std::vector<uint8_t>& value_args, std::function<void(std::optional<FlutterError>reply)> result) override;
+		ErrorOr<int64_t> GetMTU(int64_t address_args) override;
+		void DiscoverServices(int64_t address_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result) override;
+		void DiscoverCharacteristics(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result) override;
+		void DiscoverDescriptors(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result) override;
+		void ReadCharacteristic(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result) override;
+		void WriteCharacteristic(int64_t address_args, int64_t handle_args, const std::vector<uint8_t>& value_args, const MyGATTCharacteristicWriteTypeArgs& type_args, std::function<void(std::optional<FlutterError> reply)> result) override;
+		void SetCharacteristicNotifyState(int64_t address_args, int64_t handle_args, const MyGATTCharacteristicNotifyStateArgs& state_args, std::function<void(std::optional<FlutterError> reply)> result) override;
+		void ReadDescriptor(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result) override;
+		void WriteDescriptor(int64_t address_args, int64_t handle_args, const std::vector<uint8_t>& value_args, std::function<void(std::optional<FlutterError> reply)> result) override;
 	private:
 		std::optional<MyCentralManagerFlutterAPI> m_api;
 		std::optional<winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher> m_watcher;
@@ -50,8 +52,8 @@ namespace bluetooth_low_energy_windows
 		std::map<int64_t, std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession::MaxPduSizeChanged_revoker>> m_session_max_pdu_size_changed_revokers;
 		std::map<int64_t, std::map<int64_t, std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic::ValueChanged_revoker>>> m_characteristic_value_changed_revokers;
 
-		winrt::fire_and_forget m_initialize(std::function<void(ErrorOr<MyCentralManagerArgs> reply)> result);
-		winrt::fire_and_forget m_connect(int64_t address_args, std::function<void(ErrorOr<MyConnectionArgs> reply)> result);
+		winrt::fire_and_forget m_initialize(std::function<void(std::optional<FlutterError> reply)> result);
+		winrt::fire_and_forget m_connect(int64_t address_args, std::function<void(std::optional<FlutterError> reply)> result);
 		winrt::fire_and_forget m_discover_services(int64_t address_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
 		winrt::fire_and_forget m_discover_characteristics(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
 		winrt::fire_and_forget m_discover_descriptors(int64_t address_args, int64_t handle_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);

@@ -43,12 +43,6 @@ enum MyGATTCharacteristicNotifyStateArgs {
   indicate,
 }
 
-class MyCentralManagerArgs {
-  final MyBluetoothLowEnergyStateArgs stateArgs;
-
-  MyCentralManagerArgs(this.stateArgs);
-}
-
 class MyManufacturerSpecificDataArgs {
   final int idArgs;
   final Uint8List dataArgs;
@@ -74,12 +68,6 @@ class MyPeripheralArgs {
   final int addressArgs;
 
   MyPeripheralArgs(this.addressArgs);
-}
-
-class MyConnectionArgs {
-  final int mtuArgs;
-
-  MyConnectionArgs(this.mtuArgs);
 }
 
 class MyGATTDescriptorArgs {
@@ -121,12 +109,14 @@ class MyGATTServiceArgs {
 @HostApi()
 abstract class MyCentralManagerHostAPI {
   @async
-  MyCentralManagerArgs initialize();
+  void initialize();
+  MyBluetoothLowEnergyStateArgs getState();
   void startDiscovery(List<String> serviceUUIDsArgs);
   void stopDiscovery();
   @async
-  MyConnectionArgs connect(int addressArgs);
+  void connect(int addressArgs);
   void disconnect(int addressArgs);
+  int getMTU(int addressArgs);
   @async
   List<MyGATTServiceArgs> discoverServices(int addressArgs);
   @async

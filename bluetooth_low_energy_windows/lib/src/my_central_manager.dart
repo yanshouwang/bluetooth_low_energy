@@ -56,18 +56,17 @@ final class MyCentralManager extends BaseCentralManager
   @override
   void initialize() {
     MyCentralManagerFlutterAPI.setUp(this);
-    // Here we use `Timer.run()` to make it possible to change the `logLevel` before `initialize()`.
-    Timer.run(() async {
-      try {
-        logger.info('initialize');
-        final args = await _api.initialize();
-        final stateArgs = args.stateArgs;
-        logger.info('initialized: $stateArgs');
-        onStateChanged(stateArgs);
-      } catch (e) {
-        logger.severe('initialize failed.', e);
-      }
-    });
+    _initialize();
+  }
+
+  @override
+  Future<bool> authorize() {
+    throw UnsupportedError('authorize is not supported on Windows.');
+  }
+
+  @override
+  Future<void> showAppSettings() {
+    throw UnsupportedError('showAppSettings is not supported on Windows.');
   }
 
   @override
@@ -87,9 +86,9 @@ final class MyCentralManager extends BaseCentralManager
   }
 
   @override
-  Future<List<Peripheral>> retrieveConnectedPeripherals() async {
+  Future<List<Peripheral>> retrieveConnectedPeripherals() {
     throw UnsupportedError(
-        "Windows doesn't support retrieve connected peripherals.");
+        'retrieveConnectedPeripherals is not supported on Windows.');
   }
 
   @override
@@ -99,10 +98,9 @@ final class MyCentralManager extends BaseCentralManager
     }
     final addressArgs = peripheral.address;
     logger.info('connect: $addressArgs');
-    final args = await _api.connect(addressArgs);
-    final mtuArgs = args.mtuArgs;
+    await _api.connect(addressArgs);
     onConnectionStateChanged(addressArgs, MyConnectionStateArgs.connected);
-    onMTUChanged(addressArgs, mtuArgs);
+    _updateMTU(addressArgs);
   }
 
   @override
@@ -118,12 +116,12 @@ final class MyCentralManager extends BaseCentralManager
 
   @override
   Future<int> requestMTU(Peripheral peripheral, int mtu) {
-    throw UnsupportedError("Windows doesn't support reqeust MTU.");
+    throw UnsupportedError('requestMTU is not supported on Windows.');
   }
 
   @override
   Future<int> readRSSI(Peripheral peripheral) async {
-    throw UnsupportedError("Windows doesn't support read RSSI.");
+    throw UnsupportedError('readRSSI is not supported on Windows.');
   }
 
   @override
@@ -343,6 +341,39 @@ final class MyCentralManager extends BaseCentralManager
       value,
     );
     _characteristicNotifiedController.add(eventArgs);
+  }
+
+  Future<void> _initialize() async {
+    // Here we use `Future()` to make it possible to change the `logLevel` before `initialize()`.
+    await Future(() async {
+      try {
+        logger.info('initialize');
+        await _api.initialize();
+        _updateState();
+      } catch (e) {
+        logger.severe('initialize failed.', e);
+      }
+    });
+  }
+
+  Future<void> _updateState() async {
+    try {
+      logger.info('getState');
+      final stateArgs = await _api.getState();
+      onStateChanged(stateArgs);
+    } catch (e) {
+      logger.severe('getState failed.', e);
+    }
+  }
+
+  Future<void> _updateMTU(int addressArgs) async {
+    try {
+      logger.info('getMTU: $addressArgs');
+      final mtuArgs = await _api.getMTU(addressArgs);
+      onMTUChanged(addressArgs, mtuArgs);
+    } catch (e) {
+      logger.severe('getMTU failed.', e);
+    }
   }
 
   GATTCharacteristic? _retrieveCharacteristic(int addressArgs, int handleArgs) {

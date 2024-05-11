@@ -89,28 +89,6 @@ enum class MyGATTCharacteristicNotifyStateArgs {
 };
 
 // Generated class from Pigeon that represents data sent in messages.
-class MyCentralManagerArgs {
- public:
-  // Constructs an object setting all fields.
-  explicit MyCentralManagerArgs(const MyBluetoothLowEnergyStateArgs& state_args);
-
-  const MyBluetoothLowEnergyStateArgs& state_args() const;
-  void set_state_args(const MyBluetoothLowEnergyStateArgs& value_arg);
-
-
- private:
-  static MyCentralManagerArgs FromEncodableList(const flutter::EncodableList& list);
-  flutter::EncodableList ToEncodableList() const;
-  friend class MyCentralManagerHostAPI;
-  friend class MyCentralManagerHostAPICodecSerializer;
-  friend class MyCentralManagerFlutterAPI;
-  friend class MyCentralManagerFlutterAPICodecSerializer;
-  MyBluetoothLowEnergyStateArgs state_args_;
-
-};
-
-
-// Generated class from Pigeon that represents data sent in messages.
 class MyManufacturerSpecificDataArgs {
  public:
   // Constructs an object setting all fields.
@@ -207,28 +185,6 @@ class MyPeripheralArgs {
   friend class MyCentralManagerFlutterAPI;
   friend class MyCentralManagerFlutterAPICodecSerializer;
   int64_t address_args_;
-
-};
-
-
-// Generated class from Pigeon that represents data sent in messages.
-class MyConnectionArgs {
- public:
-  // Constructs an object setting all fields.
-  explicit MyConnectionArgs(int64_t mtu_args);
-
-  int64_t mtu_args() const;
-  void set_mtu_args(int64_t value_arg);
-
-
- private:
-  static MyConnectionArgs FromEncodableList(const flutter::EncodableList& list);
-  flutter::EncodableList ToEncodableList() const;
-  friend class MyCentralManagerHostAPI;
-  friend class MyCentralManagerHostAPICodecSerializer;
-  friend class MyCentralManagerFlutterAPI;
-  friend class MyCentralManagerFlutterAPICodecSerializer;
-  int64_t mtu_args_;
 
 };
 
@@ -356,13 +312,15 @@ class MyCentralManagerHostAPI {
   MyCentralManagerHostAPI(const MyCentralManagerHostAPI&) = delete;
   MyCentralManagerHostAPI& operator=(const MyCentralManagerHostAPI&) = delete;
   virtual ~MyCentralManagerHostAPI() {}
-  virtual void Initialize(std::function<void(ErrorOr<MyCentralManagerArgs> reply)> result) = 0;
+  virtual void Initialize(std::function<void(std::optional<FlutterError> reply)> result) = 0;
+  virtual ErrorOr<MyBluetoothLowEnergyStateArgs> GetState() = 0;
   virtual std::optional<FlutterError> StartDiscovery(const flutter::EncodableList& service_u_u_i_ds_args) = 0;
   virtual std::optional<FlutterError> StopDiscovery() = 0;
   virtual void Connect(
     int64_t address_args,
-    std::function<void(ErrorOr<MyConnectionArgs> reply)> result) = 0;
+    std::function<void(std::optional<FlutterError> reply)> result) = 0;
   virtual std::optional<FlutterError> Disconnect(int64_t address_args) = 0;
+  virtual ErrorOr<int64_t> GetMTU(int64_t address_args) = 0;
   virtual void DiscoverServices(
     int64_t address_args,
     std::function<void(ErrorOr<flutter::EncodableList> reply)> result) = 0;

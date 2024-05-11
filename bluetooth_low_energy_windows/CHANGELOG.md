@@ -1,3 +1,7 @@
+## 6.0.0-dev.3
+
+* Fix errors.
+
 ## 6.0.0-dev.2
 
 * Make it possible to change the `logLevel` before `initialize()`.

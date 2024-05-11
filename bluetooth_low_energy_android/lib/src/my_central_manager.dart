@@ -70,21 +70,11 @@ final class MyCentralManager extends BaseCentralManager
   }
 
   @override
-  void initialize() async {
+  void initialize() {
     MyCentralManagerFlutterAPI.setUp(this);
-    // Add lifecycle observer.
     final binding = WidgetsFlutterBinding.ensureInitialized();
     binding.addObserver(this);
-    // Here we use `Timer.run()` to make it possible to change the `logLevel` before `initialize()`.
-    Timer.run(() async {
-      try {
-        logger.info('initialize');
-        _args = await _api.initialize();
-        _updateState();
-      } catch (e) {
-        logger.severe('initialize failed.', e);
-      }
-    });
+    _initialize();
   }
 
   @override
@@ -409,6 +399,29 @@ final class MyCentralManager extends BaseCentralManager
     _characteristicNotifiedController.add(eventArgs);
   }
 
+  Future<void> _initialize() async {
+    // Here we use `Future()` to make it possible to change the `logLevel` before `initialize()`.
+    await Future(() async {
+      try {
+        logger.info('initialize');
+        _args = await _api.initialize();
+        _updateState();
+      } catch (e) {
+        logger.severe('initialize failed.', e);
+      }
+    });
+  }
+
+  Future<void> _updateState() async {
+    try {
+      logger.info('getState');
+      final stateArgs = await _api.getState();
+      onStateChanged(stateArgs);
+    } catch (e) {
+      logger.severe('getState failed.', e);
+    }
+  }
+
   MyGATTCharacteristic? _retrieveCharacteristic(
     String addressArgs,
     int hashCodeArgs,
@@ -418,15 +431,5 @@ final class MyCentralManager extends BaseCentralManager
       return null;
     }
     return characteristics[hashCodeArgs];
-  }
-
-  void _updateState() async {
-    try {
-      logger.info('getState');
-      final stateArgs = await _api.getState();
-      onStateChanged(stateArgs);
-    } catch (e) {
-      logger.severe('getState failed.', e);
-    }
   }
 }

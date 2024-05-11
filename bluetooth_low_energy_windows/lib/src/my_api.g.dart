@@ -56,27 +56,6 @@ enum MyGATTCharacteristicNotifyStateArgs {
   indicate,
 }
 
-class MyCentralManagerArgs {
-  MyCentralManagerArgs({
-    required this.stateArgs,
-  });
-
-  MyBluetoothLowEnergyStateArgs stateArgs;
-
-  Object encode() {
-    return <Object?>[
-      stateArgs.index,
-    ];
-  }
-
-  static MyCentralManagerArgs decode(Object result) {
-    result as List<Object?>;
-    return MyCentralManagerArgs(
-      stateArgs: MyBluetoothLowEnergyStateArgs.values[result[0]! as int],
-    );
-  }
-}
-
 class MyManufacturerSpecificDataArgs {
   MyManufacturerSpecificDataArgs({
     required this.idArgs,
@@ -156,27 +135,6 @@ class MyPeripheralArgs {
     result as List<Object?>;
     return MyPeripheralArgs(
       addressArgs: result[0]! as int,
-    );
-  }
-}
-
-class MyConnectionArgs {
-  MyConnectionArgs({
-    required this.mtuArgs,
-  });
-
-  int mtuArgs;
-
-  Object encode() {
-    return <Object?>[
-      mtuArgs,
-    ];
-  }
-
-  static MyConnectionArgs decode(Object result) {
-    result as List<Object?>;
-    return MyConnectionArgs(
-      mtuArgs: result[0]! as int,
     );
   }
 }
@@ -278,20 +236,14 @@ class _MyCentralManagerHostAPICodec extends StandardMessageCodec {
   const _MyCentralManagerHostAPICodec();
   @override
   void writeValue(WriteBuffer buffer, Object? value) {
-    if (value is MyCentralManagerArgs) {
+    if (value is MyGATTCharacteristicArgs) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
-    } else if (value is MyConnectionArgs) {
+    } else if (value is MyGATTDescriptorArgs) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is MyGATTCharacteristicArgs) {
-      buffer.putUint8(130);
-      writeValue(buffer, value.encode());
-    } else if (value is MyGATTDescriptorArgs) {
-      buffer.putUint8(131);
-      writeValue(buffer, value.encode());
     } else if (value is MyGATTServiceArgs) {
-      buffer.putUint8(132);
+      buffer.putUint8(130);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -302,14 +254,10 @@ class _MyCentralManagerHostAPICodec extends StandardMessageCodec {
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
       case 128: 
-        return MyCentralManagerArgs.decode(readValue(buffer)!);
-      case 129: 
-        return MyConnectionArgs.decode(readValue(buffer)!);
-      case 130: 
         return MyGATTCharacteristicArgs.decode(readValue(buffer)!);
-      case 131: 
+      case 129: 
         return MyGATTDescriptorArgs.decode(readValue(buffer)!);
-      case 132: 
+      case 130: 
         return MyGATTServiceArgs.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -330,8 +278,30 @@ class MyCentralManagerHostAPI {
 
   final String __pigeon_messageChannelSuffix;
 
-  Future<MyCentralManagerArgs> initialize() async {
+  Future<void> initialize() async {
     final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostAPI.initialize$__pigeon_messageChannelSuffix';
+    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+      __pigeon_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: __pigeon_binaryMessenger,
+    );
+    final List<Object?>? __pigeon_replyList =
+        await __pigeon_channel.send(null) as List<Object?>?;
+    if (__pigeon_replyList == null) {
+      throw _createConnectionError(__pigeon_channelName);
+    } else if (__pigeon_replyList.length > 1) {
+      throw PlatformException(
+        code: __pigeon_replyList[0]! as String,
+        message: __pigeon_replyList[1] as String?,
+        details: __pigeon_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<MyBluetoothLowEnergyStateArgs> getState() async {
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostAPI.getState$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -353,7 +323,7 @@ class MyCentralManagerHostAPI {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (__pigeon_replyList[0] as MyCentralManagerArgs?)!;
+      return MyBluetoothLowEnergyStateArgs.values[__pigeon_replyList[0]! as int];
     }
   }
 
@@ -401,7 +371,7 @@ class MyCentralManagerHostAPI {
     }
   }
 
-  Future<MyConnectionArgs> connect(int addressArgs) async {
+  Future<void> connect(int addressArgs) async {
     final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostAPI.connect$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
@@ -418,13 +388,8 @@ class MyCentralManagerHostAPI {
         message: __pigeon_replyList[1] as String?,
         details: __pigeon_replyList[2],
       );
-    } else if (__pigeon_replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
     } else {
-      return (__pigeon_replyList[0] as MyConnectionArgs?)!;
+      return;
     }
   }
 
@@ -447,6 +412,33 @@ class MyCentralManagerHostAPI {
       );
     } else {
       return;
+    }
+  }
+
+  Future<int> getMTU(int addressArgs) async {
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerHostAPI.getMTU$__pigeon_messageChannelSuffix';
+    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+      __pigeon_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: __pigeon_binaryMessenger,
+    );
+    final List<Object?>? __pigeon_replyList =
+        await __pigeon_channel.send(<Object?>[addressArgs]) as List<Object?>?;
+    if (__pigeon_replyList == null) {
+      throw _createConnectionError(__pigeon_channelName);
+    } else if (__pigeon_replyList.length > 1) {
+      throw PlatformException(
+        code: __pigeon_replyList[0]! as String,
+        message: __pigeon_replyList[1] as String?,
+        details: __pigeon_replyList[2],
+      );
+    } else if (__pigeon_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (__pigeon_replyList[0] as int?)!;
     }
   }
 

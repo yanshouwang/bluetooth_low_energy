@@ -23,9 +23,16 @@ namespace bluetooth_low_energy_windows
 	{
 	}
 
-	void MyCentralManager::Initialize(std::function<void(ErrorOr<MyCentralManagerArgs> reply)> result)
+	void MyCentralManager::Initialize(std::function<void(std::optional<FlutterError> reply)> result)
 	{
 		m_initialize(std::move(result));
+	}
+
+	ErrorOr<MyBluetoothLowEnergyStateArgs> MyCentralManager::GetState()
+	{
+		const auto state = m_radio->State();
+		const auto state_args = m_radio_state_to_args(state);
+		return state_args;
 	}
 
 	std::optional<FlutterError> MyCentralManager::StartDiscovery(const flutter::EncodableList& service_uuids_args)
@@ -54,7 +61,7 @@ namespace bluetooth_low_energy_windows
 		return std::nullopt;
 	}
 
-	void MyCentralManager::Connect(int64_t address_args, std::function<void(ErrorOr<MyConnectionArgs> reply)> result)
+	void MyCentralManager::Connect(int64_t address_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
 		m_connect(address_args, std::move(result));
 	}
@@ -63,6 +70,14 @@ namespace bluetooth_low_energy_windows
 	{
 		m_disconnect(address_args);
 		return std::nullopt;
+	}
+
+	ErrorOr<int64_t> MyCentralManager::GetMTU(int64_t address_args)
+	{
+		const auto& session = m_sessions[address_args];
+		const auto mtu = session->MaxPduSize();
+		const auto mtu_args = static_cast<int64_t>(mtu);
+		return mtu_args;
 	}
 
 	void MyCentralManager::DiscoverServices(int64_t address_args, std::function<void(ErrorOr<flutter::EncodableList>reply)> result)
@@ -105,7 +120,7 @@ namespace bluetooth_low_energy_windows
 		m_write_descriptor(address_args, handle_args, value_args, std::move(result));
 	}
 
-	winrt::fire_and_forget MyCentralManager::m_initialize(std::function<void(ErrorOr<MyCentralManagerArgs> reply)> result)
+	winrt::fire_and_forget MyCentralManager::m_initialize(std::function<void(std::optional<FlutterError> reply)> result)
 	{
 		try
 		{
@@ -131,7 +146,7 @@ namespace bluetooth_low_energy_windows
 				const auto address_args = static_cast<int64_t>(address);
 				m_disconnect(address_args);
 			}
-			// 获取状态
+			// 监听状态
 			if (!m_radio_state_changed_revoker) {
 				m_adapter = co_await winrt::Windows::Devices::Bluetooth::BluetoothAdapter::GetDefaultAsync();
 				m_radio = co_await m_adapter->GetRadioAsync();
@@ -169,10 +184,7 @@ namespace bluetooth_low_energy_windows
 						m_api->OnDiscovered(peripheral_args, rssi_args, advertisement_args, [] {}, [](auto error) {});
 					});
 			}
-			const auto state = m_radio->State();
-			const auto state_args = m_radio_state_to_args(state);
-			const auto central_manager_args = MyCentralManagerArgs(state_args);
-			result(central_manager_args);
+			result(std::nullopt);
 		}
 		catch (const winrt::hresult_error& ex) {
 			const auto code = "winrt::hresult_error";
@@ -196,7 +208,7 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	winrt::fire_and_forget MyCentralManager::m_connect(int64_t address_args, std::function<void(ErrorOr<MyConnectionArgs> reply)> result)
+	winrt::fire_and_forget MyCentralManager::m_connect(int64_t address_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
 		try
 		{
@@ -206,6 +218,8 @@ namespace bluetooth_low_energy_windows
 			// 参考：https://learn.microsoft.com/zh-cn/windows/uwp/devices-sensors/gatt-client#connecting-to-the-device
 			const auto address = static_cast<uint64_t>(address_args);
 			const auto& device = co_await winrt::Windows::Devices::Bluetooth::BluetoothLEDevice::FromBluetoothAddressAsync(address);
+			const auto id = device.BluetoothDeviceId();
+			const auto& session = co_await winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession::FromDeviceIdAsync(id);
 			const auto& r = co_await device.GetGattServicesAsync(winrt::Windows::Devices::Bluetooth::BluetoothCacheMode::Uncached);
 			const auto r_status = r.Status();
 			if (r_status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
@@ -214,12 +228,6 @@ namespace bluetooth_low_energy_windows
 				const auto message = "Connect failed with status: " + std::to_string(r_status_code);
 				throw MyException(message);
 			}
-			const auto id = device.BluetoothDeviceId();
-			const auto& session = co_await winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession::FromDeviceIdAsync(id);
-			const auto mtu = session.MaxPduSize();
-			const auto mtu_args = static_cast<int64_t>(mtu);
-			m_devices[address_args] = device;
-			m_sessions[address_args] = session;
 			m_device_connection_status_changed_revokers[address_args] = device.ConnectionStatusChanged(winrt::auto_revoke, [this](winrt::Windows::Devices::Bluetooth::BluetoothLEDevice device, auto obj)
 				{
 					const auto address = device.BluetoothAddress();
@@ -240,8 +248,9 @@ namespace bluetooth_low_energy_windows
 					const auto mtu_args = static_cast<int64_t>(mtu);
 					m_api->OnMTUChanged(address_args, mtu_args, [] {}, [](auto error) {});
 				});
-			const auto connection_args = MyConnectionArgs(mtu_args);
-			result(connection_args);
+			m_devices[address_args] = device;
+			m_sessions[address_args] = session;
+			result(std::nullopt);
 		}
 		catch (const winrt::hresult_error& ex) {
 			const auto code = "winrt::hresult_error";

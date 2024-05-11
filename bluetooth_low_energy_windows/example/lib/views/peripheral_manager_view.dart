@@ -95,8 +95,8 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
           await peripheralManager.writeCharacteristic(
             characteristic,
             value: value,
-            central: central,
           );
+          await peripheralManager.notifyCharacteristic(characteristic);
         }
       },
     );
