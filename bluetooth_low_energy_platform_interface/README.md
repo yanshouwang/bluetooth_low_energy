@@ -9,12 +9,12 @@ same interface.
 # Usage
 
 To implement a new platform-specific implementation of `bluetooth_low_energy`, 
-extend [`BaseCentralManager`][2] with an implementation that performs the
+extend [`PlatformCentralManager`][2] with an implementation that performs the
 platform-specific behavior, and when you register your plugin, set the default
-`BaseCentralManager` by calling `BaseCentralManager.instance = XXXCentralManager()`, 
-extend [`BasePeripheralManager`][3] with an implementation that performs the
+`PlatformCentralManager` by calling `PlatformCentralManager.instance = XXXCentralManager()`, 
+extend [`PlatformPeripheralManager`][3] with an implementation that performs the
 platform-specific behavior, and when you register your plugin, set the default
-`BasePeripheralManager` by calling `BasePeripheralManager.instance = XXXPeripheralManager()`.
+`PlatformPeripheralManager` by calling `PlatformPeripheralManager.instance = XXXPeripheralManager()`.
 
 # Note on breaking changes
 

@@ -4,7 +4,6 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'advertisement.dart';
 import 'bluetooth_low_energy_manager.dart';
-import 'connection_state.dart';
 import 'event_args.dart';
 import 'gatt.dart';
 import 'peripheral.dart';
@@ -22,30 +21,36 @@ final class DiscoveredEventArgs extends EventArgs {
   final Advertisement advertisement;
 
   /// Constructs a [DiscoveredEventArgs].
-  DiscoveredEventArgs(this.peripheral, this.rssi, this.advertisement);
+  DiscoveredEventArgs(
+    this.peripheral,
+    this.rssi,
+    this.advertisement,
+  );
 }
 
-/// The connection state cahnged event arguments.
-final class PeripheralConnectionStateChangedEventArgs extends EventArgs {
+/// The peripheral connection state cahnged event arguments.
+final class PeripheralConnectionStateChangedEventArgs
+    extends ConnectionStateChangedEventArgs {
   /// The peripheral which connection state changed.
   final Peripheral peripheral;
 
-  /// The state.
-  final ConnectionState state;
-
   /// Constructs a [PeripheralConnectionStateChangedEventArgs].
-  PeripheralConnectionStateChangedEventArgs(this.peripheral, this.state);
+  PeripheralConnectionStateChangedEventArgs(
+    this.peripheral,
+    super.state,
+  );
 }
 
 /// The peripheral MTU changed event arguments.
-final class PeripheralMTUChangedEventArgs extends EventArgs {
+final class PeripheralMTUChangedEventArgs extends MTUChangedEventArgs {
   /// The peripheral which MTU changed.
   final Peripheral peripheral;
 
-  /// The MTU.
-  final int mtu;
-
-  PeripheralMTUChangedEventArgs(this.peripheral, this.mtu);
+  /// Constructs a [PeripheralMTUChangedEventArgs].
+  PeripheralMTUChangedEventArgs(
+    this.peripheral,
+    super.mtu,
+  );
 }
 
 /// The GATT characteristic notified event arguments.
@@ -69,7 +74,7 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
 
   /// Gets the instance of [CentralManager] to use.
   factory CentralManager() {
-    final instance = BaseCentralManager.instance;
+    final instance = PlatformCentralManager.instance;
     if (instance != _instance) {
       instance.initialize();
       _instance = instance;
@@ -85,10 +90,11 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
 
   /// Callback indicating the MTU for a given device connection has changed.
   ///
-  /// This callback is triggered in response to the BluetoothGatt#requestMtu function,
-  /// or in response to a connection event.
+  /// This callback is triggered in response to the BluetoothGatt#requestMtu
+  /// function, or in response to a connection event.
   ///
-  /// This event is available on Android and Windows, throws [UnsupportedError] on other platforms.
+  /// This event is available on Android and Windows, throws [UnsupportedError]
+  /// on other platforms.
   Stream<PeripheralMTUChangedEventArgs> get mtuChanged;
 
   /// Tells that retrieving the specified characteristic’s value changed.
@@ -108,7 +114,8 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
 
   /// Returns a list of the peripherals connected to the system.
   ///
-  /// This method is available on Android and iOS, throws [UnsupportedError] on other platforms.
+  /// This method is available on Android and iOS, throws [UnsupportedError] on
+  /// other platforms.
   Future<List<Peripheral>> retrieveConnectedPeripherals();
 
   /// Establishes a local connection to a peripheral.
@@ -117,18 +124,32 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   /// Cancels an active or pending local connection to a peripheral.
   Future<void> disconnect(Peripheral peripheral);
 
-  /// Request an MTU size used for a given connection. Please note that starting from Android 14,
-  /// the Android Bluetooth stack requests the BLE ATT MTU to 517 bytes when the first GATT client
-  /// requests an MTU, and disregards all subsequent MTU requests. Check out
-  /// [MTU is set to 517 for the first GATT client requesting an MTU](https://developer.android.com/about/versions/14/behavior-changes-all#mtu-set-to-517)
+  /// Request an MTU size used for a given connection. Please note that starting
+  /// from Android 14, the Android Bluetooth stack requests the BLE ATT MTU to
+  /// 517 bytes when the first GATT client requests an MTU, and disregards all
+  /// subsequent MTU requests. Check out [MTU is set to 517 for the first GATT
+  /// client requesting an MTU](https://developer.android.com/about/versions/14/behavior-changes-all#mtu-set-to-517)
   /// for more information.
   ///
-  /// This method is available on Android, throws [UnsupportedError] on other platforms.
-  Future<int> requestMTU(Peripheral peripheral, int mtu);
+  /// This method is available on Android, throws [UnsupportedError] on other
+  /// platforms.
+  Future<int> requestMTU(
+    Peripheral peripheral, {
+    required int mtu,
+  });
 
-  /// Retrieves the current RSSI value for the peripheral while connected to the central manager.
+  /// The maximum amount of data, in bytes, you can send to a characteristic in
+  /// a single write type.
+  Future<int> getMaximumWriteLength(
+    Peripheral peripheral, {
+    required GATTCharacteristicWriteType type,
+  });
+
+  /// Retrieves the current RSSI value for the peripheral while connected to the
+  /// central manager.
   ///
-  /// This method is available on Android, iOS, macOS and Linux, throws [UnsupportedError] on other platforms.
+  /// This method is available on Android, iOS, macOS and Linux, throws
+  /// [UnsupportedError] on other platforms.
   Future<int> readRSSI(Peripheral peripheral);
 
   /// Discovers the GATT services, characteristics and descriptors of the peripheral.
@@ -138,8 +159,6 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   Future<Uint8List> readCharacteristic(GATTCharacteristic characteristic);
 
   /// Writes the value of a characteristic.
-  ///
-  /// The maximum size of the value is 512, all bytes that exceed this size will be discarded.
   Future<void> writeCharacteristic(
     GATTCharacteristic characteristic, {
     required Uint8List value,
@@ -162,15 +181,16 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   });
 }
 
-/// Platform-specific implementations should implement this class to support [BaseCentralManager].
-abstract base class BaseCentralManager extends BaseBluetoothLowEnergyManager
-    implements CentralManager {
+/// Platform-specific implementations should implement this class to support
+/// [PlatformCentralManager].
+abstract base class PlatformCentralManager
+    extends PlatformBluetoothLowEnergyManager implements CentralManager {
   static final Object _token = Object();
 
-  static BaseCentralManager? _instance;
+  static PlatformCentralManager? _instance;
 
-  /// The default instance of [BaseCentralManager] to use.
-  static BaseCentralManager get instance {
+  /// The default instance of [PlatformCentralManager] to use.
+  static PlatformCentralManager get instance {
     final instance = _instance;
     if (instance == null) {
       throw UnimplementedError(
@@ -180,13 +200,13 @@ abstract base class BaseCentralManager extends BaseBluetoothLowEnergyManager
   }
 
   /// Platform-specific implementations should set this with their own
-  /// platform-specific class that extends [BaseCentralManager] when
+  /// platform-specific class that extends [PlatformCentralManager] when
   /// they register themselves.
-  static set instance(BaseCentralManager instance) {
+  static set instance(PlatformCentralManager instance) {
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
   }
 
-  /// Constructs a [BaseCentralManager].
-  BaseCentralManager() : super(token: _token);
+  /// Constructs a [PlatformCentralManager].
+  PlatformCentralManager() : super(token: _token);
 }

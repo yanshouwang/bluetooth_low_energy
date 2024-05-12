@@ -2,6 +2,7 @@ import 'package:hybrid_logging/hybrid_logging.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'bluetooth_low_energy_state.dart';
+import 'connection_state.dart';
 import 'event_args.dart';
 
 /// The bluetooth low energy state changed event arguments.
@@ -11,6 +12,24 @@ final class BluetoothLowEnergyStateChangedEventArgs extends EventArgs {
 
   /// Constructs a [BluetoothLowEnergyStateChangedEventArgs].
   BluetoothLowEnergyStateChangedEventArgs(this.state);
+}
+
+/// The connection state cahnged event arguments.
+abstract base class ConnectionStateChangedEventArgs extends EventArgs {
+  /// The state.
+  final ConnectionState state;
+
+  /// Constructs a [ConnectionStateChangedEventArgs].
+  ConnectionStateChangedEventArgs(this.state);
+}
+
+/// The MTU changed event arguments.
+abstract base class MTUChangedEventArgs extends EventArgs {
+  /// The MTU.
+  final int mtu;
+
+  /// Constructs a [MTUChangedEventArgs].
+  MTUChangedEventArgs(this.mtu);
 }
 
 /// The abstract base class that manages central and peripheral objects.
@@ -36,14 +55,14 @@ abstract interface class BluetoothLowEnergyManager implements LogController {
 }
 
 /// The abstract base channel class that manages central and peripheral objects.
-abstract base class BaseBluetoothLowEnergyManager extends PlatformInterface
+abstract base class PlatformBluetoothLowEnergyManager extends PlatformInterface
     with TypeLogger, LoggerController
     implements BluetoothLowEnergyManager {
-  /// Constructs a [BaseBluetoothLowEnergyManager].
-  BaseBluetoothLowEnergyManager({
+  /// Constructs a [PlatformBluetoothLowEnergyManager].
+  PlatformBluetoothLowEnergyManager({
     required super.token,
   });
 
-  /// Initializes the [BaseBluetoothLowEnergyManager].
+  /// Initializes the [PlatformBluetoothLowEnergyManager].
   void initialize();
 }

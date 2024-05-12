@@ -8,52 +8,56 @@ import 'central.dart';
 import 'event_args.dart';
 import 'gatt.dart';
 
+/// The central connection state cahnged event arguments.
+final class CentralConnectionStateChangedEventArgs
+    extends ConnectionStateChangedEventArgs {
+  /// The central which connection state changed.
+  final Central central;
+
+  /// Constructs a [CentralConnectionStateChangedEventArgs].
+  CentralConnectionStateChangedEventArgs(
+    this.central,
+    super.state,
+  );
+}
+
 /// The central MTU changed event arguments.
-final class CentralMTUChangedEventArgs extends EventArgs {
+final class CentralMTUChangedEventArgs extends MTUChangedEventArgs {
   /// The central which MTU changed.
   final Central central;
 
-  /// The MTU.
-  final int mtu;
-
-  CentralMTUChangedEventArgs(this.central, this.mtu);
+  /// Constructs a [CentralMTUChangedEventArgs].
+  CentralMTUChangedEventArgs(
+    this.central,
+    super.mtu,
+  );
 }
 
 /// The GATT characteristic read event arguments.
-final class GATTCharacteristicReadEventArgs extends EventArgs {
+final class GATTCharacteristicReadRequestedEventArgs extends EventArgs {
   /// The central which read this characteristic.
   final Central central;
 
-  /// The GATT characteristic which value is read.
-  final GATTCharacteristic characteristic;
+  final GATTCharacteristicReadRequest request;
 
-  /// The value.
-  final Uint8List value;
-
-  /// Constructs a [GATTCharacteristicReadEventArgs].
-  GATTCharacteristicReadEventArgs(
+  /// Constructs a [GATTCharacteristicReadRequestedEventArgs].
+  GATTCharacteristicReadRequestedEventArgs(
     this.central,
-    this.characteristic,
-    this.value,
+    this.request,
   );
 }
 
 /// The GATT characteristic written event arguments.
-final class GATTCharacteristicWrittenEventArgs extends EventArgs {
+final class GATTCharacteristicWriteRequestedEventArgs extends EventArgs {
   /// The central which wrote this characteristic.
   final Central central;
 
-  /// The GATT characteristic which value is written.
-  final GATTCharacteristic characteristic;
+  final GATTCharacteristicWriteRequest request;
 
-  /// The value.
-  final Uint8List value;
-
-  /// Constructs a [GATTCharacteristicWrittenEventArgs].
-  GATTCharacteristicWrittenEventArgs(
+  /// Constructs a [GATTCharacteristicWriteRequestedEventArgs].
+  GATTCharacteristicWriteRequestedEventArgs(
     this.central,
-    this.characteristic,
-    this.value,
+    this.request,
   );
 }
 
@@ -83,7 +87,7 @@ abstract interface class PeripheralManager
 
   /// Gets the instance of [PeripheralManager] to use.
   factory PeripheralManager() {
-    final instance = BasePeripheralManager.instance;
+    final instance = PlatformPeripheralManager.instance;
     if (instance != _instance) {
       instance.initialize();
       _instance = instance;
@@ -91,32 +95,44 @@ abstract interface class PeripheralManager
     return instance;
   }
 
+  /// Callback indicating when a remote device has been connected or disconnected.
+  ///
+  /// This event is available on Android, throws [UnsupportedError] on other
+  /// platforms.
+  Stream<CentralConnectionStateChangedEventArgs> get connectionStateChanged;
+
   /// Callback indicating the MTU for a given device connection has changed.
   ///
-  /// This callback will be invoked if a remote client has requested to change the
-  /// MTU for a given connection.
+  /// This callback will be invoked if a remote client has requested to change
+  /// the MTU for a given connection.
   ///
-  /// This event is available on Android, throws [UnsupportedError] on other platforms.
+  /// This event is available on Android, throws [UnsupportedError] on other
+  /// platforms.
   Stream<CentralMTUChangedEventArgs> get mtuChanged;
 
-  /// Tells that the local peripheral device received an Attribute Protocol (ATT) read request for a characteristic with a dynamic value.
-  Stream<GATTCharacteristicReadEventArgs> get characteristicRead;
+  /// Tells that the local peripheral device received an Attribute Protocol (ATT)
+  /// read request for a characteristic with a dynamic value.
+  Stream<GATTCharacteristicReadRequestedEventArgs>
+      get characteristicReadRequested;
 
-  /// Tells that the local peripheral device received an Attribute Protocol (ATT) write request for a characteristic with a dynamic value.
-  Stream<GATTCharacteristicWrittenEventArgs> get characteristicWritten;
+  /// Tells that the local peripheral device received an Attribute Protocol (ATT)
+  /// write request for a characteristic with a dynamic value.
+  Stream<GATTCharacteristicWriteRequestedEventArgs>
+      get characteristicWriteRequested;
 
   /// Tells that the peripheral manager received a characteristic’s notify changed.
   Stream<GATTCharacteristicNotifyStateChangedEventArgs>
       get characteristicNotifyStateChanged;
 
-  /// Publishes a service and any of its associated characteristics and characteristic descriptors to the local GATT database.
+  /// Publishes a service and any of its associated characteristics and characteristic
+  /// descriptors to the local GATT database.
   Future<void> addService(GATTService service);
 
   /// Removes a specified published service from the local GATT database.
   Future<void> removeService(GATTService service);
 
   /// Removes all published services from the local GATT database.
-  Future<void> clearServices();
+  Future<void> removeAllServices();
 
   /// Advertises peripheral manager data.
   Future<void> startAdvertising(Advertisement advertisement);
@@ -124,35 +140,62 @@ abstract interface class PeripheralManager
   /// Stops advertising peripheral manager data.
   Future<void> stopAdvertising();
 
-  /// Retrieves the value of a specified characteristic.
-  Future<Uint8List> readCharacteristic(GATTCharacteristic characteristic);
+  /// The maximum amount of data, in bytes, that the central can receive in a
+  /// single notification or indication.
+  Future<void> getMaximumNotifyLength(Central central);
 
-  /// Writes the value of a characteristic and sends an updated characteristic value to one or more subscribed centrals, using a notification or indication.
-  ///
-  /// The maximum size of the value is 512, all bytes that exceed this size will be discarded.
-  Future<void> writeCharacteristic(
-    GATTCharacteristic characteristic, {
+  /// Responds to a read request from a connected central.
+  Future<void> respondCharacteristicReadRequestWithValue(
+    GATTCharacteristicReadRequest request, {
     required Uint8List value,
   });
 
-  /// Notifies an updated characteristic value to one or more subscribed centrals, using a notification or indication.
+  /// Responds to a read request from a connected central.
+  Future<void> respondCharacteristicReadRequestWithError(
+    GATTCharacteristicReadRequest request, {
+    required GATTError error,
+  });
+
+  /// Responds to a write request from a connected central.
+  Future<void> respondCharacteristicWriteRequest(
+    GATTCharacteristicWriteRequest request,
+  );
+
+  /// Responds to a write request from a connected central.
+  Future<void> respondCharacteristicWriteRequestWithError(
+    GATTCharacteristicWriteRequest request, {
+    required GATTError error,
+  });
+
+  /// Send an updated characteristic value to one or more subscribed centrals,
+  /// using a notification or indication.
   ///
-  /// The maximum size of the value is 512, all bytes that exceed this size will be discarded.
+  /// [characteristic] The characteristic whose value has changed.
+  ///
+  /// [value] The characteristic value you want to send via a notification or
+  /// indication.
+  ///
+  /// [central] A list of centrals (represented by CBCentral objects) that have
+  /// subscribed to receive updates of the characteristic’s value. If nil, the
+  /// manager updates all subscribed centrals. The manager ignores any centrals
+  /// that haven’t subscribed to the characteristic’s value.
   Future<void> notifyCharacteristic(
     GATTCharacteristic characteristic, {
-    List<Central>? centrals,
+    Uint8List value,
+    Central? central,
   });
 }
 
-/// Platform-specific implementations should implement this class to support [BasePeripheralManager].
-abstract base class BasePeripheralManager extends BaseBluetoothLowEnergyManager
-    implements PeripheralManager {
+/// Platform-specific implementations should implement this class to support
+/// [PlatformPeripheralManager].
+abstract base class PlatformPeripheralManager
+    extends PlatformBluetoothLowEnergyManager implements PeripheralManager {
   static final Object _token = Object();
 
-  static BasePeripheralManager? _instance;
+  static PlatformPeripheralManager? _instance;
 
-  /// The default instance of [BasePeripheralManager] to use.
-  static BasePeripheralManager get instance {
+  /// The default instance of [PlatformPeripheralManager] to use.
+  static PlatformPeripheralManager get instance {
     final instance = _instance;
     if (instance == null) {
       throw UnimplementedError(
@@ -162,13 +205,13 @@ abstract base class BasePeripheralManager extends BaseBluetoothLowEnergyManager
   }
 
   /// Platform-specific implementations should set this with their own
-  /// platform-specific class that extends [BasePeripheralManager] when
+  /// platform-specific class that extends [PlatformPeripheralManager] when
   /// they register themselves.
-  static set instance(BasePeripheralManager instance) {
+  static set instance(PlatformPeripheralManager instance) {
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
   }
 
-  /// Constructs a [BasePeripheralManager].
-  BasePeripheralManager() : super(token: _token);
+  /// Constructs a [PlatformPeripheralManager].
+  PlatformPeripheralManager() : super(token: _token);
 }

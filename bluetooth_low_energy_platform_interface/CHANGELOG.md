@@ -1,3 +1,40 @@
+## 6.0.0-dev.11
+
+* Add `ConnectionStateChangedEventArgs` class.
+* Add `MTUChangedEventArgs` class.
+* Add `CentralConnectionStateChangedEventArgs` class.
+* Add `GATTCharacteristicReadRequestedEventArgs` class.
+* Add `GATTCharacteristicWriteRequestedEventArgs` class.
+* Add `CentralManager#getMaximumWriteLength` method.
+* Add `PeripheralManager#connectionStateChanged` event.
+* Add `PeripheralManager#characteristicReadRequested` event.
+* Add `PeripheralManager#characteristicWriteRequested` event.
+* Add `PeripheralManager#getMaximumNotifyLength` method.
+* Add `PeripheralManager#respondCharacteristicReadRequestWithValue` method.
+* Add `PeripheralManager#respondCharacteristicReadRequestWithError` method.
+* Add `PeripheralManager#respondCharacteristicWriteRequest` method.
+* Add `PeripheralManager#respondCharacteristicWriteRequestWithError` method.
+* Add `ImmutableGATTCharacteristic` class.
+* Add `GATTCharacteristicRequest` class.
+* Add `GATTCharacteristicReadRequest` class.
+* Add `GATTCharacteristicWriteRequest` class.
+* Add `GATTCharacteristicPermission` enum.
+* Add `GATTError` enum.
+* Move `PeripheralManager#clearServices` to `PeripheralManager#removeAllServices`.
+* Move `BaseBluetoothLowEnergyManager` to `PlatformBluetoothLowEnergyManager`.
+* Move `BaseCentralManager` to `PlatformCentralManager`.
+* Move `BasePeripheralManager` to `PlatformPeripheralManager`.
+* Move `BaseGATTAttribute` to `GATTAttribute`.
+* Move `BaseGATTDescriptor` to `GATTDescriptor`.
+* Move `BaseGATTCharacteristic` to `GATTCharacteristic`.
+* Move `BaseGATTService` to `GATTService`.
+* Move `MutableGATTDescriptor` to `ImmutableGATTCharacteristic`.
+* Remove `GATTCharacteristicReadEventArgs` class.
+* Remove `GATTCharacteristicWrittenEventArgs` class.
+* Remove `PeripheralManager#characteristicRead` event.
+* Remove `PeripheralManager#characteristicWritten` event.
+* Remove `MutableGATTService`.
+
 ## 6.0.0-dev.10
 
 * Fix bugs.
