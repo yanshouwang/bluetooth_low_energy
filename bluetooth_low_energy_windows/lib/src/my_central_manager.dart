@@ -8,7 +8,7 @@ import 'my_api.g.dart';
 import 'my_gatt.dart';
 import 'my_peripheral.dart';
 
-final class MyCentralManager extends BaseCentralManager
+final class MyCentralManager extends PlatformCentralManager
     implements MyCentralManagerFlutterAPI {
   final MyCentralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
@@ -20,9 +20,6 @@ final class MyCentralManager extends BaseCentralManager
   final StreamController<GATTCharacteristicNotifiedEventArgs>
       _characteristicNotifiedController;
 
-  final Map<int, Peripheral> _peripherals;
-  final Map<int, Map<int, MyGATTCharacteristic>> _characteristics;
-
   BluetoothLowEnergyState _state;
 
   MyCentralManager()
@@ -32,8 +29,6 @@ final class MyCentralManager extends BaseCentralManager
         _connectionStateChangedController = StreamController.broadcast(),
         _mtuChangedController = StreamController.broadcast(),
         _characteristicNotifiedController = StreamController.broadcast(),
-        _peripherals = {},
-        _characteristics = {},
         _state = BluetoothLowEnergyState.unknown;
 
   @override
@@ -99,8 +94,13 @@ final class MyCentralManager extends BaseCentralManager
     final addressArgs = peripheral.address;
     logger.info('connect: $addressArgs');
     await _api.connect(addressArgs);
-    onConnectionStateChanged(addressArgs, MyConnectionStateArgs.connected);
-    _updateMTU(addressArgs);
+    // 通过单独调用此方法创建 BluetoothLEDevice 对象不（一定）会启动连接。 若要启动连接，请将
+    // GattSession.MaintainConnection 设置为 true，或在 BluetoothLEDevice 上调用未缓
+    // 存的服务发现方法，或对设备执行读/写操作。
+    // 参考：https://learn.microsoft.com/zh-cn/windows/uwp/devices-sensors/gatt-client#connecting-to-the-device
+    const modeArgs = MyCacheModeArgs.uncached;
+    logger.info('getServicesAsync: $addressArgs - $modeArgs');
+    await _api.getServicesAsync(addressArgs, modeArgs);
   }
 
   @override
@@ -111,12 +111,34 @@ final class MyCentralManager extends BaseCentralManager
     final addressArgs = peripheral.address;
     logger.info('disconnect: $addressArgs');
     await _api.disconnect(addressArgs);
-    onConnectionStateChanged(addressArgs, MyConnectionStateArgs.disconnected);
+    final peripheralArgs = peripheral.toArgs();
+    onConnectionStateChanged(
+      peripheralArgs,
+      MyConnectionStateArgs.disconnected,
+    );
   }
 
   @override
-  Future<int> requestMTU(Peripheral peripheral, int mtu) {
+  Future<int> requestMTU(
+    Peripheral peripheral, {
+    required int mtu,
+  }) {
     throw UnsupportedError('requestMTU is not supported on Windows.');
+  }
+
+  @override
+  Future<int> getMaximumWriteLength(
+    Peripheral peripheral, {
+    required GATTCharacteristicWriteType type,
+  }) async {
+    if (peripheral is! MyPeripheral) {
+      throw TypeError();
+    }
+    final addressArgs = peripheral.address;
+    logger.info('getMTU: $addressArgs');
+    final mtuArgs = await _api.getMTU(addressArgs);
+    final maximumWriteLength = (mtuArgs - 3).clamp(20, 512);
+    return maximumWriteLength;
   }
 
   @override
@@ -129,38 +151,16 @@ final class MyCentralManager extends BaseCentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    // 发现 GATT 服务
     final addressArgs = peripheral.address;
-    logger.info('discoverServices: $addressArgs');
+    const modeArgs = MyCacheModeArgs.uncached;
+    logger.info('getServicesAsync: $addressArgs - $modeArgs');
     final servicesArgs = await _api
-        .discoverServices(addressArgs)
+        .getServicesAsync(addressArgs, modeArgs)
         .then((args) => args.cast<MyGATTServiceArgs>());
     for (var serviceArgs in servicesArgs) {
-      // 发现 GATT 特征值
-      final handleArgs = serviceArgs.handleArgs;
-      logger.info('discoverCharacteristics: $addressArgs.$handleArgs');
-      final characteristicsArgs = await _api
-          .discoverCharacteristics(addressArgs, handleArgs)
-          .then((args) => args.cast<MyGATTCharacteristicArgs>());
-      for (var characteristicArgs in characteristicsArgs) {
-        // 发现 GATT 描述值
-        final handleArgs = characteristicArgs.handleArgs;
-        logger.info('discoverDescriptors: $addressArgs.$handleArgs');
-        final descriptorsArgs = await _api
-            .discoverDescriptors(addressArgs, handleArgs)
-            .then((args) => args.cast<MyGATTDescriptorArgs>());
-        characteristicArgs.descriptorsArgs = descriptorsArgs;
-      }
-      serviceArgs.characteristicsArgs = characteristicsArgs;
+      await _getIncludedServices(serviceArgs, modeArgs);
     }
-    final services =
-        servicesArgs.map((args) => args.toService(peripheral)).toList();
-    final characteristics =
-        services.expand((service) => service.characteristics).toList();
-    _characteristics[addressArgs] = {
-      for (var characteristic in characteristics)
-        characteristic.handle: characteristic
-    };
+    final services = servicesArgs.map((args) => args.toService()).toList();
     return services;
   }
 
@@ -171,11 +171,15 @@ final class MyCentralManager extends BaseCentralManager
     if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final peripheral = characteristic.peripheral;
-    final addressArgs = peripheral.address;
+    final addressArgs = characteristic.address;
     final handleArgs = characteristic.handle;
-    logger.info('readCharacteristic: $addressArgs.$handleArgs');
-    final value = await _api.readCharacteristic(addressArgs, handleArgs);
+    const modeArgs = MyCacheModeArgs.uncached;
+    logger.info('readCharacteristic: $addressArgs.$handleArgs - $modeArgs');
+    final value = await _api.readCharacteristic(
+      addressArgs,
+      handleArgs,
+      modeArgs,
+    );
     return value;
   }
 
@@ -188,17 +192,16 @@ final class MyCentralManager extends BaseCentralManager
     if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final peripheral = characteristic.peripheral;
-    final addressArgs = peripheral.address;
+    final addressArgs = characteristic.address;
     final handleArgs = characteristic.handle;
-    final trimmedValueArgs = value.trimGATT();
+    final valueArgs = value;
     final typeArgs = type.toArgs();
     logger.info(
-        'writeCharacteristic: $addressArgs.$handleArgs - $trimmedValueArgs, $typeArgs');
+        'writeCharacteristic: $addressArgs.$handleArgs - $valueArgs, $typeArgs');
     await _api.writeCharacteristic(
       addressArgs,
       handleArgs,
-      trimmedValueArgs,
+      valueArgs,
       typeArgs,
     );
   }
@@ -211,8 +214,7 @@ final class MyCentralManager extends BaseCentralManager
     if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final peripheral = characteristic.peripheral;
-    final addressArgs = peripheral.address;
+    final addressArgs = characteristic.address;
     final handleArgs = characteristic.handle;
     final stateArgs = state
         ? characteristic.properties.contains(GATTCharacteristicProperty.notify)
@@ -233,11 +235,11 @@ final class MyCentralManager extends BaseCentralManager
     if (descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
-    final peripheral = descriptor.peripheral;
-    final addressArgs = peripheral.address;
+    final addressArgs = descriptor.address;
     final handleArgs = descriptor.handle;
-    logger.info('readDescriptor: $addressArgs.$handleArgs');
-    final value = await _api.readDescriptor(addressArgs, handleArgs);
+    const modeArgs = MyCacheModeArgs.uncached;
+    logger.info('readDescriptor: $addressArgs.$handleArgs - $modeArgs');
+    final value = await _api.readDescriptor(addressArgs, handleArgs, modeArgs);
     return value;
   }
 
@@ -249,13 +251,11 @@ final class MyCentralManager extends BaseCentralManager
     if (descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
-    final peripheral = descriptor.peripheral;
-    final addressArgs = peripheral.address;
+    final addressArgs = descriptor.address;
     final handleArgs = descriptor.handle;
-    final trimmedValueArgs = value.trimGATT();
-    logger
-        .info('writeDescriptor: $addressArgs.$handleArgs - $trimmedValueArgs');
-    await _api.writeDescriptor(addressArgs, handleArgs, trimmedValueArgs);
+    final valueArgs = value;
+    logger.info('writeDescriptor: $addressArgs.$handleArgs - $valueArgs');
+    await _api.writeDescriptor(addressArgs, handleArgs, valueArgs);
   }
 
   @override
@@ -278,10 +278,7 @@ final class MyCentralManager extends BaseCentralManager
   ) {
     final addressArgs = peripheralArgs.addressArgs;
     logger.info('onDiscovered: $addressArgs - $rssiArgs, $advertisementArgs');
-    final peripheral = _peripherals.putIfAbsent(
-      peripheralArgs.addressArgs,
-      () => peripheralArgs.toPeripheral(),
-    );
+    final peripheral = peripheralArgs.toPeripheral();
     final rssi = rssiArgs;
     final advertisement = advertisementArgs.toAdvertisement();
     final eventArgs = DiscoveredEventArgs(
@@ -294,30 +291,25 @@ final class MyCentralManager extends BaseCentralManager
 
   @override
   void onConnectionStateChanged(
-    int addressArgs,
+    MyPeripheralArgs peripheralArgs,
     MyConnectionStateArgs stateArgs,
   ) {
+    final addressArgs = peripheralArgs.addressArgs;
     logger.info('onConnectionStateChanged: $addressArgs - $stateArgs');
-    final peripheral = _peripherals[addressArgs];
-    if (peripheral == null) {
-      return;
-    }
+    final peripheral = peripheralArgs.toPeripheral();
     final state = stateArgs.toState();
-    if (state == ConnectionState.disconnected) {
-      _characteristics.remove(addressArgs);
-    }
-    final eventArgs =
-        PeripheralConnectionStateChangedEventArgs(peripheral, state);
+    final eventArgs = PeripheralConnectionStateChangedEventArgs(
+      peripheral,
+      state,
+    );
     _connectionStateChangedController.add(eventArgs);
   }
 
   @override
-  void onMTUChanged(int addressArgs, int mtuArgs) {
+  void onMTUChanged(MyPeripheralArgs peripheralArgs, int mtuArgs) {
+    final addressArgs = peripheralArgs.addressArgs;
     logger.info('onMTUChanged: $addressArgs - $mtuArgs');
-    final peripheral = _peripherals[addressArgs];
-    if (peripheral == null) {
-      return;
-    }
+    final peripheral = peripheralArgs.toPeripheral();
     final mtu = mtuArgs;
     final eventArgs = PeripheralMTUChangedEventArgs(peripheral, mtu);
     _mtuChangedController.add(eventArgs);
@@ -325,16 +317,14 @@ final class MyCentralManager extends BaseCentralManager
 
   @override
   void onCharacteristicNotified(
-    int addressArgs,
-    int handleArgs,
+    MyGATTCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
   ) {
+    final addressArgs = characteristicArgs.addressArgs;
+    final handleArgs = characteristicArgs.handleArgs;
     logger.info(
         'onCharacteristicNotified: $addressArgs.$handleArgs - $valueArgs');
-    final characteristic = _retrieveCharacteristic(addressArgs, handleArgs);
-    if (characteristic == null) {
-      return;
-    }
+    final characteristic = characteristicArgs.toCharacteristic();
     final value = valueArgs;
     final eventArgs = GATTCharacteristicNotifiedEventArgs(
       characteristic,
@@ -366,21 +356,54 @@ final class MyCentralManager extends BaseCentralManager
     }
   }
 
-  Future<void> _updateMTU(int addressArgs) async {
-    try {
-      logger.info('getMTU: $addressArgs');
-      final mtuArgs = await _api.getMTU(addressArgs);
-      onMTUChanged(addressArgs, mtuArgs);
-    } catch (e) {
-      logger.severe('getMTU failed.', e);
+  Future<void> _getIncludedServices(
+    MyGATTServiceArgs serviceArgs,
+    MyCacheModeArgs modeArgs,
+  ) async {
+    final addressArgs = serviceArgs.addressArgs;
+    final handleArgs = serviceArgs.handleArgs;
+    logger
+        .info('getIncludedServicesAsync: $addressArgs.$handleArgs - $modeArgs');
+    final includedServicesArgs = await _api
+        .getIncludedServicesAsync(addressArgs, handleArgs, modeArgs)
+        .then((args) => args.cast<MyGATTServiceArgs>());
+    if (includedServicesArgs.isEmpty) {
+      await _getCharacteristicsArgs(serviceArgs, modeArgs);
+    } else {
+      for (var includedServiceArgs in includedServicesArgs) {
+        await _getIncludedServices(includedServiceArgs, modeArgs);
+      }
+      serviceArgs.includedServicesArgs = includedServicesArgs;
     }
   }
 
-  GATTCharacteristic? _retrieveCharacteristic(int addressArgs, int handleArgs) {
-    final characteristics = _characteristics[addressArgs];
-    if (characteristics == null) {
-      return null;
+  Future<void> _getCharacteristicsArgs(
+    MyGATTServiceArgs serviceArgs,
+    MyCacheModeArgs modeArgs,
+  ) async {
+    final addressArgs = serviceArgs.addressArgs;
+    final handleArgs = serviceArgs.handleArgs;
+    logger
+        .info('getCharacteristicsAsync: $addressArgs.$handleArgs - $modeArgs');
+    final characteristicsArgs = await _api
+        .getCharacteristicsAsync(addressArgs, handleArgs, modeArgs)
+        .then((args) => args.cast<MyGATTCharacteristicArgs>());
+    for (var characteristicArgs in characteristicsArgs) {
+      await _getDescriptorsArgs(characteristicArgs, modeArgs);
     }
-    return characteristics[handleArgs];
+    serviceArgs.characteristicsArgs = characteristicsArgs;
+  }
+
+  Future<void> _getDescriptorsArgs(
+    MyGATTCharacteristicArgs characteristicArgs,
+    MyCacheModeArgs modeArgs,
+  ) async {
+    final addressArgs = characteristicArgs.addressArgs;
+    final handleArgs = characteristicArgs.handleArgs;
+    logger.info('getDescriptorsAsync: $addressArgs.$handleArgs - $modeArgs');
+    final descriptorsArgs = await _api
+        .getDescriptorsAsync(addressArgs, handleArgs, modeArgs)
+        .then((args) => args.cast<MyGATTDescriptorArgs>());
+    characteristicArgs.descriptorsArgs = descriptorsArgs;
   }
 }

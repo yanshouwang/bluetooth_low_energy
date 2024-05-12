@@ -43,6 +43,11 @@ enum MyGATTCharacteristicNotifyStateArgs {
   indicate,
 }
 
+enum MyCacheModeArgs {
+  cached,
+  uncached,
+}
+
 class MyManufacturerSpecificDataArgs {
   final int idArgs;
   final Uint8List dataArgs;
@@ -71,22 +76,26 @@ class MyPeripheralArgs {
 }
 
 class MyGATTDescriptorArgs {
+  final int addressArgs;
   final int handleArgs;
   final String uuidArgs;
 
   MyGATTDescriptorArgs(
+    this.addressArgs,
     this.handleArgs,
     this.uuidArgs,
   );
 }
 
 class MyGATTCharacteristicArgs {
+  final int addressArgs;
   final int handleArgs;
   final String uuidArgs;
   final List<int?> propertyNumbersArgs;
   final List<MyGATTDescriptorArgs?> descriptorsArgs;
 
   MyGATTCharacteristicArgs(
+    this.addressArgs,
     this.handleArgs,
     this.uuidArgs,
     this.propertyNumbersArgs,
@@ -95,13 +104,17 @@ class MyGATTCharacteristicArgs {
 }
 
 class MyGATTServiceArgs {
+  final int addressArgs;
   final int handleArgs;
   final String uuidArgs;
+  final List<MyGATTServiceArgs?> includedServicesArgs;
   final List<MyGATTCharacteristicArgs?> characteristicsArgs;
 
   MyGATTServiceArgs(
+    this.addressArgs,
     this.handleArgs,
     this.uuidArgs,
+    this.includedServicesArgs,
     this.characteristicsArgs,
   );
 }
@@ -118,19 +131,34 @@ abstract class MyCentralManagerHostAPI {
   void disconnect(int addressArgs);
   int getMTU(int addressArgs);
   @async
-  List<MyGATTServiceArgs> discoverServices(int addressArgs);
-  @async
-  List<MyGATTCharacteristicArgs> discoverCharacteristics(
+  List<MyGATTServiceArgs> getServicesAsync(
     int addressArgs,
-    int handleArgs,
+    MyCacheModeArgs modeArgs,
   );
   @async
-  List<MyGATTDescriptorArgs> discoverDescriptors(
+  List<MyGATTServiceArgs> getIncludedServicesAsync(
     int addressArgs,
     int handleArgs,
+    MyCacheModeArgs modeArgs,
   );
   @async
-  Uint8List readCharacteristic(int addressArgs, int handleArgs);
+  List<MyGATTCharacteristicArgs> getCharacteristicsAsync(
+    int addressArgs,
+    int handleArgs,
+    MyCacheModeArgs modeArgs,
+  );
+  @async
+  List<MyGATTDescriptorArgs> getDescriptorsAsync(
+    int addressArgs,
+    int handleArgs,
+    MyCacheModeArgs modeArgs,
+  );
+  @async
+  Uint8List readCharacteristic(
+    int addressArgs,
+    int handleArgs,
+    MyCacheModeArgs modeArgs,
+  );
   @async
   void writeCharacteristic(
     int addressArgs,
@@ -145,7 +173,11 @@ abstract class MyCentralManagerHostAPI {
     MyGATTCharacteristicNotifyStateArgs stateArgs,
   );
   @async
-  Uint8List readDescriptor(int addressArgs, int handleArgs);
+  Uint8List readDescriptor(
+    int addressArgs,
+    int handleArgs,
+    MyCacheModeArgs modeArgs,
+  );
   @async
   void writeDescriptor(int addressArgs, int handleArgs, Uint8List valueArgs);
 }
@@ -159,13 +191,12 @@ abstract class MyCentralManagerFlutterAPI {
     MyAdvertisementArgs advertisementArgs,
   );
   void onConnectionStateChanged(
-    int addressArgs,
+    MyPeripheralArgs peripheralArgs,
     MyConnectionStateArgs stateArgs,
   );
-  void onMTUChanged(int addressArgs, int mtuArgs);
+  void onMTUChanged(MyPeripheralArgs peripheralArgs, int mtuArgs);
   void onCharacteristicNotified(
-    int addressArgs,
-    int handleArgs,
+    MyGATTCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
   );
 }

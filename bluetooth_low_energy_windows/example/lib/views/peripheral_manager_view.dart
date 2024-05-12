@@ -22,8 +22,8 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
   late final ValueNotifier<bool> advertising;
   late final ValueNotifier<List<Log>> logs;
   late final StreamSubscription stateChangedSubscription;
-  late final StreamSubscription characteristicReadSubscription;
-  late final StreamSubscription characteristicWrittenSubscription;
+  late final StreamSubscription characteristicReadRequestedSubscription;
+  late final StreamSubscription characteristicWriteRequestedSubscription;
   late final StreamSubscription characteristicNotifyStateChangedSubscription;
 
   @override
@@ -39,38 +39,49 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
         state.value = eventArgs.state;
       },
     );
-    characteristicReadSubscription =
-        peripheralManager.characteristicRead.listen(
+    characteristicReadRequestedSubscription =
+        peripheralManager.characteristicReadRequested.listen(
       (eventArgs) async {
         final central = eventArgs.central;
-        final characteristic = eventArgs.characteristic;
-        final value = eventArgs.value;
+        final request = eventArgs.request;
+        final characteristic = request.characteristic;
+        final offset = request.offset;
+        final elements = List.generate(1000, (i) => i % 256);
+        final value = Uint8List.fromList(elements);
+        final trimmedValue = value.sublist(offset);
         final log = Log(
           LogType.read,
-          value,
-          'central: ${central.uuid}; characteristic: ${characteristic.uuid}',
+          Uint8List.fromList([]),
+          '${central.uuid} - ${characteristic.uuid}, $offset',
         );
         logs.value = [
           ...logs.value,
           log,
         ];
+        await peripheralManager.respondCharacteristicReadRequestWithValue(
+          request,
+          value: trimmedValue,
+        );
       },
     );
-    characteristicWrittenSubscription =
-        peripheralManager.characteristicWritten.listen(
+    characteristicWriteRequestedSubscription =
+        peripheralManager.characteristicWriteRequested.listen(
       (eventArgs) async {
         final central = eventArgs.central;
-        final characteristic = eventArgs.characteristic;
-        final value = eventArgs.value;
+        final request = eventArgs.request;
+        final characteristic = request.characteristic;
+        final offset = request.offset;
+        final value = request.value;
         final log = Log(
           LogType.write,
           value,
-          'central: ${central.uuid}; characteristic: ${characteristic.uuid}',
+          '${central.uuid} - ${characteristic.uuid}, $offset',
         );
         logs.value = [
           ...logs.value,
           log,
         ];
+        await peripheralManager.respondCharacteristicWriteRequest(request);
       },
     );
     characteristicNotifyStateChangedSubscription =
@@ -82,7 +93,7 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
         final log = Log(
           LogType.notify,
           Uint8List.fromList([]),
-          'central: ${central.uuid}; characteristic: ${characteristic.uuid}; state: $state',
+          '${central.uuid} - ${characteristic.uuid}, $state',
         );
         logs.value = [
           ...logs.value,
@@ -92,11 +103,10 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
         if (state) {
           final elements = List.generate(2000, (i) => i % 256);
           final value = Uint8List.fromList(elements);
-          await peripheralManager.writeCharacteristic(
+          await peripheralManager.notifyCharacteristic(
             characteristic,
             value: value,
           );
-          await peripheralManager.notifyCharacteristic(characteristic);
         }
       },
     );
@@ -143,43 +153,46 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
   }
 
   Future<void> startAdvertising() async {
-    await peripheralManager.clearServices();
+    await peripheralManager.removeAllServices();
     final elements = List.generate(1000, (i) => i % 256);
     final value = Uint8List.fromList(elements);
     final service = GATTService(
       uuid: UUID.short(100),
+      includedServices: [],
       characteristics: [
-        GATTCharacteristic(
+        GATTCharacteristic.immutable(
           uuid: UUID.short(200),
-          properties: [
-            GATTCharacteristicProperty.read,
-          ],
           value: value,
           descriptors: [],
         ),
-        GATTCharacteristic(
+        GATTCharacteristic.mutable(
           uuid: UUID.short(201),
           properties: [
             GATTCharacteristicProperty.write,
             GATTCharacteristicProperty.writeWithoutResponse,
           ],
+          permissions: [
+            GATTCharacteristicPermission.write,
+          ],
           descriptors: [],
         ),
-        GATTCharacteristic(
+        GATTCharacteristic.mutable(
           uuid: UUID.short(202),
           properties: [
             GATTCharacteristicProperty.notify,
           ],
+          permissions: [],
           descriptors: [],
         ),
-        GATTCharacteristic(
+        GATTCharacteristic.mutable(
           uuid: UUID.short(203),
           properties: [
             GATTCharacteristicProperty.indicate,
           ],
+          permissions: [],
           descriptors: [],
         ),
-        GATTCharacteristic(
+        GATTCharacteristic.mutable(
           uuid: UUID.short(204),
           properties: [
             GATTCharacteristicProperty.read,
@@ -188,7 +201,10 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
             GATTCharacteristicProperty.notify,
             GATTCharacteristicProperty.indicate,
           ],
-          value: value,
+          permissions: [
+            GATTCharacteristicPermission.read,
+            GATTCharacteristicPermission.write,
+          ],
           descriptors: [],
         ),
       ],
@@ -267,8 +283,8 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
   void dispose() {
     super.dispose();
     stateChangedSubscription.cancel();
-    characteristicReadSubscription.cancel();
-    characteristicWrittenSubscription.cancel();
+    characteristicReadRequestedSubscription.cancel();
+    characteristicWriteRequestedSubscription.cancel();
     characteristicNotifyStateChangedSubscription.cancel();
     state.dispose();
     advertising.dispose();

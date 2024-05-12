@@ -88,6 +88,11 @@ enum class MyGATTCharacteristicNotifyStateArgs {
   indicate = 2
 };
 
+enum class MyCacheModeArgs {
+  cached = 0,
+  uncached = 1
+};
+
 // Generated class from Pigeon that represents data sent in messages.
 class MyManufacturerSpecificDataArgs {
  public:
@@ -194,8 +199,12 @@ class MyGATTDescriptorArgs {
  public:
   // Constructs an object setting all fields.
   explicit MyGATTDescriptorArgs(
+    int64_t address_args,
     int64_t handle_args,
     const std::string& uuid_args);
+
+  int64_t address_args() const;
+  void set_address_args(int64_t value_arg);
 
   int64_t handle_args() const;
   void set_handle_args(int64_t value_arg);
@@ -211,6 +220,7 @@ class MyGATTDescriptorArgs {
   friend class MyCentralManagerHostAPICodecSerializer;
   friend class MyCentralManagerFlutterAPI;
   friend class MyCentralManagerFlutterAPICodecSerializer;
+  int64_t address_args_;
   int64_t handle_args_;
   std::string uuid_args_;
 
@@ -222,10 +232,14 @@ class MyGATTCharacteristicArgs {
  public:
   // Constructs an object setting all fields.
   explicit MyGATTCharacteristicArgs(
+    int64_t address_args,
     int64_t handle_args,
     const std::string& uuid_args,
     const flutter::EncodableList& property_numbers_args,
     const flutter::EncodableList& descriptors_args);
+
+  int64_t address_args() const;
+  void set_address_args(int64_t value_arg);
 
   int64_t handle_args() const;
   void set_handle_args(int64_t value_arg);
@@ -247,6 +261,7 @@ class MyGATTCharacteristicArgs {
   friend class MyCentralManagerHostAPICodecSerializer;
   friend class MyCentralManagerFlutterAPI;
   friend class MyCentralManagerFlutterAPICodecSerializer;
+  int64_t address_args_;
   int64_t handle_args_;
   std::string uuid_args_;
   flutter::EncodableList property_numbers_args_;
@@ -260,15 +275,23 @@ class MyGATTServiceArgs {
  public:
   // Constructs an object setting all fields.
   explicit MyGATTServiceArgs(
+    int64_t address_args,
     int64_t handle_args,
     const std::string& uuid_args,
+    const flutter::EncodableList& included_services_args,
     const flutter::EncodableList& characteristics_args);
+
+  int64_t address_args() const;
+  void set_address_args(int64_t value_arg);
 
   int64_t handle_args() const;
   void set_handle_args(int64_t value_arg);
 
   const std::string& uuid_args() const;
   void set_uuid_args(std::string_view value_arg);
+
+  const flutter::EncodableList& included_services_args() const;
+  void set_included_services_args(const flutter::EncodableList& value_arg);
 
   const flutter::EncodableList& characteristics_args() const;
   void set_characteristics_args(const flutter::EncodableList& value_arg);
@@ -281,8 +304,10 @@ class MyGATTServiceArgs {
   friend class MyCentralManagerHostAPICodecSerializer;
   friend class MyCentralManagerFlutterAPI;
   friend class MyCentralManagerFlutterAPICodecSerializer;
+  int64_t address_args_;
   int64_t handle_args_;
   std::string uuid_args_;
+  flutter::EncodableList included_services_args_;
   flutter::EncodableList characteristics_args_;
 
 };
@@ -321,20 +346,29 @@ class MyCentralManagerHostAPI {
     std::function<void(std::optional<FlutterError> reply)> result) = 0;
   virtual std::optional<FlutterError> Disconnect(int64_t address_args) = 0;
   virtual ErrorOr<int64_t> GetMTU(int64_t address_args) = 0;
-  virtual void DiscoverServices(
+  virtual void GetServicesAsync(
     int64_t address_args,
+    const MyCacheModeArgs& mode_args,
     std::function<void(ErrorOr<flutter::EncodableList> reply)> result) = 0;
-  virtual void DiscoverCharacteristics(
+  virtual void GetIncludedServicesAsync(
     int64_t address_args,
     int64_t handle_args,
+    const MyCacheModeArgs& mode_args,
     std::function<void(ErrorOr<flutter::EncodableList> reply)> result) = 0;
-  virtual void DiscoverDescriptors(
+  virtual void GetCharacteristicsAsync(
     int64_t address_args,
     int64_t handle_args,
+    const MyCacheModeArgs& mode_args,
+    std::function<void(ErrorOr<flutter::EncodableList> reply)> result) = 0;
+  virtual void GetDescriptorsAsync(
+    int64_t address_args,
+    int64_t handle_args,
+    const MyCacheModeArgs& mode_args,
     std::function<void(ErrorOr<flutter::EncodableList> reply)> result) = 0;
   virtual void ReadCharacteristic(
     int64_t address_args,
     int64_t handle_args,
+    const MyCacheModeArgs& mode_args,
     std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result) = 0;
   virtual void WriteCharacteristic(
     int64_t address_args,
@@ -350,6 +384,7 @@ class MyCentralManagerHostAPI {
   virtual void ReadDescriptor(
     int64_t address_args,
     int64_t handle_args,
+    const MyCacheModeArgs& mode_args,
     std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result) = 0;
   virtual void WriteDescriptor(
     int64_t address_args,
@@ -412,18 +447,17 @@ class MyCentralManagerFlutterAPI {
     std::function<void(void)>&& on_success,
     std::function<void(const FlutterError&)>&& on_error);
   void OnConnectionStateChanged(
-    int64_t address_args,
+    const MyPeripheralArgs& peripheral_args,
     const MyConnectionStateArgs& state_args,
     std::function<void(void)>&& on_success,
     std::function<void(const FlutterError&)>&& on_error);
   void OnMTUChanged(
-    int64_t address_args,
+    const MyPeripheralArgs& peripheral_args,
     int64_t mtu_args,
     std::function<void(void)>&& on_success,
     std::function<void(const FlutterError&)>&& on_error);
   void OnCharacteristicNotified(
-    int64_t address_args,
-    int64_t handle_args,
+    const MyGATTCharacteristicArgs& characteristic_args,
     const std::vector<uint8_t>& value_args,
     std::function<void(void)>&& on_success,
     std::function<void(const FlutterError&)>&& on_error);

@@ -86,11 +86,12 @@ extension MyPeripheralArgsX on MyPeripheralArgs {
 }
 
 extension MyGATTDescriptorArgsX on MyGATTDescriptorArgs {
-  MyGATTDescriptor toDescriptor(MyPeripheral peripheral) {
+  MyGATTDescriptor toDescriptor() {
+    final address = addressArgs;
     final handle = handleArgs;
     final uuid = uuidArgs.toUUID();
     return MyGATTDescriptor(
-      peripheral: peripheral,
+      address: address,
       handle: handle,
       uuid: uuid,
     );
@@ -98,7 +99,8 @@ extension MyGATTDescriptorArgsX on MyGATTDescriptorArgs {
 }
 
 extension MyGATTCharacteristicArgsX on MyGATTCharacteristicArgs {
-  MyGATTCharacteristic toCharacteristic(MyPeripheral peripheral) {
+  MyGATTCharacteristic toCharacteristic() {
+    final address = addressArgs;
     final handle = handleArgs;
     final uuid = uuidArgs.toUUID();
     final properties = propertyNumbersArgs.cast<int>().map(
@@ -109,10 +111,10 @@ extension MyGATTCharacteristicArgsX on MyGATTCharacteristicArgs {
     ).toList();
     final descriptors = descriptorsArgs
         .cast<MyGATTDescriptorArgs>()
-        .map((args) => args.toDescriptor(peripheral))
+        .map((args) => args.toDescriptor())
         .toList();
     return MyGATTCharacteristic(
-      peripheral: peripheral,
+      address: address,
       handle: handle,
       uuid: uuid,
       properties: properties,
@@ -122,17 +124,23 @@ extension MyGATTCharacteristicArgsX on MyGATTCharacteristicArgs {
 }
 
 extension MyGATTServiceArgsX on MyGATTServiceArgs {
-  MyGATTService toService(MyPeripheral peripheral) {
+  MyGATTService toService() {
+    final address = addressArgs;
     final handle = handleArgs;
     final uuid = uuidArgs.toUUID();
+    final includedServices = includedServicesArgs
+        .cast<MyGATTServiceArgs>()
+        .map((args) => args.toService())
+        .toList();
     final characteristics = characteristicsArgs
         .cast<MyGATTCharacteristicArgs>()
-        .map((args) => args.toCharacteristic(peripheral))
+        .map((args) => args.toCharacteristic())
         .toList();
     return MyGATTService(
-      peripheral: peripheral,
+      address: address,
       handle: handle,
       uuid: uuid,
+      includedServices: includedServices,
       characteristics: characteristics,
     );
   }
@@ -152,6 +160,15 @@ extension StringX on String {
 }
 
 // ToArgs
+extension MyPeripheralX on MyPeripheral {
+  MyPeripheralArgs toArgs() {
+    final addressArgs = address;
+    return MyPeripheralArgs(
+      addressArgs: addressArgs,
+    );
+  }
+}
+
 extension GATTCharacteristicPropertyX on GATTCharacteristicProperty {
   MyGATTCharacteristicPropertyArgs toArgs() {
     return MyGATTCharacteristicPropertyArgs.values[index];

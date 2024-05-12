@@ -1,3 +1,8 @@
+## 6.0.0-dev.4
+
+* Add `CentralManager#getMaximumWriteLength` method.
+* Add `GATTService#includedServices` field.
+
 ## 6.0.0-dev.3
 
 * Fix errors.
