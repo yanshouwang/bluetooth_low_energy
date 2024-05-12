@@ -218,10 +218,6 @@ namespace bluetooth_low_energy_windows
 	{
 		try
 		{
-			// 通过单独调用此方法创建 BluetoothLEDevice 对象不（一定）会启动连接。 若要启动连接，请将 
-			// GattSession.MaintainConnection 设置为 true，或在 BluetoothLEDevice 上调用未缓存
-			// 的服务发现方法，或对设备执行读/写操作。
-			// 参考：https://learn.microsoft.com/zh-cn/windows/uwp/devices-sensors/gatt-client#connecting-to-the-device
 			const auto address = static_cast<uint64_t>(address_args);
 			const auto& device = co_await winrt::Windows::Devices::Bluetooth::BluetoothLEDevice::FromBluetoothAddressAsync(address);
 			const auto id = device.BluetoothDeviceId();
