@@ -1,3 +1,17 @@
+## 6.0.0-dev.15
+
+* Add `GATTReadRequest` class.
+* Add `GATTWriteRequest` class.
+* Remove `ConnectionStateChangedEventArgs` class.
+* Remove `MTUChangedEventArgs` class.
+* Remove `GATTRequest` class.
+* Remove `GATTDescriptorRequest` class.
+* Remove `GATTDescriptorReadRequest` class.
+* Remove `GATTDescriptorWriteRequest` class.
+* Remove `GATTCharacteristicRequest` class.
+* Remove `GATTCharacteristicReadRequest` class.
+* Remove `GATTCharacteristicWriteRequest` class.
+
 ## 6.0.0-dev.14
 
 * Fix errors.

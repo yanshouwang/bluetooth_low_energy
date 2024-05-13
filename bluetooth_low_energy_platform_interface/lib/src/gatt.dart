@@ -133,6 +133,14 @@ final class MutableGATTDescriptor extends GATTDescriptor {
   /// The permissions of the descriptor value.
   final List<GATTCharacteristicPermission> permissions;
 
+  /// Creates a mutable descriptor with a specified value.
+  ///
+  /// [uuid] A 128-bit UUID that identifies the characteristic. You must use only
+  /// one of the two currently supported descriptor types:
+  /// CBUUIDCharacteristicUserDescriptionString or CBUUIDCharacteristicFormatString.
+  /// For more details about these descriptor types, see CBUUID.
+  ///
+  /// [permissions] The permissions of the descriptor value.
   MutableGATTDescriptor({
     required super.uuid,
     required this.permissions,
@@ -145,7 +153,7 @@ final class ImmutableGATTDescriptor extends MutableGATTDescriptor {
   /// The value of the descriptor.
   final Uint8List value;
 
-  /// Creates a immutable descriptor with a specified value.
+  /// Creates an immutable descriptor with a specified value.
   ///
   /// [uuid] A 128-bit UUID that identifies the characteristic. You must use only
   /// one of the two currently supported descriptor types:
@@ -189,7 +197,7 @@ final class ImmutableGATTCharacteristic extends MutableGATTCharacteristic {
   /// The value of the characteristic.
   final Uint8List value;
 
-  /// Creates a immutable characteristic with a specified value.
+  /// Creates an immutable characteristic with a specified value.
   ///
   /// [uuid] A 128-bit UUID that identifies the characteristic.
   ///
@@ -209,83 +217,28 @@ final class ImmutableGATTCharacteristic extends MutableGATTCharacteristic {
         );
 }
 
-/// A request that uses the Attribute Protocol (ATT).
-abstract base class GATTRequest {
-  /// The zero-based index of the first byte for the read or write request.
+/// A read request that uses the Attribute Protocol (ATT).
+abstract base class GATTReadRequest {
+  /// The zero-based index of the first byte for the read request.
   final int offset;
 
-  /// Constructs a [GATTRequest].
-  GATTRequest({
+  /// Constructs a [GATTReadRequest].
+  GATTReadRequest({
     required this.offset,
   });
 }
 
-/// A request that uses the Attribute Protocol (ATT).
-abstract base class GATTCharacteristicRequest extends GATTRequest {
-  /// The characteristic to read or write the value of.
-  final GATTCharacteristic characteristic;
-
-  /// Constructs a [GATTCharacteristicRequest].
-  GATTCharacteristicRequest({
-    required this.characteristic,
-    required super.offset,
-  });
-}
-
-/// A read request that uses the Attribute Protocol (ATT).
-abstract base class GATTCharacteristicReadRequest
-    extends GATTCharacteristicRequest {
-  /// Constructs a [GATTCharacteristicReadRequest].
-  GATTCharacteristicReadRequest({
-    required super.characteristic,
-    required super.offset,
-  });
-}
-
 /// A write request that uses the Attribute Protocol (ATT).
-abstract base class GATTCharacteristicWriteRequest
-    extends GATTCharacteristicRequest {
+abstract base class GATTWriteRequest {
+  /// The zero-based index of the first byte for the write request.
+  final int offset;
+
   /// The data that the central writes to the peripheral.
   final Uint8List value;
 
-  /// Constructs a [GATTCharacteristicWriteRequest].
-  GATTCharacteristicWriteRequest({
-    required super.characteristic,
-    required super.offset,
-    required this.value,
-  });
-}
-
-/// A request that uses the Attribute Protocol (ATT).
-abstract base class GATTDescriptorRequest extends GATTRequest {
-  /// The descriptor to read or write the value of.
-  final GATTDescriptor descriptor;
-
-  /// Constructs a [GATTDescriptorRequest].
-  GATTDescriptorRequest({
-    required this.descriptor,
-    required super.offset,
-  });
-}
-
-/// A read request that uses the Attribute Protocol (ATT).
-abstract base class GATTDescriptorReadRequest extends GATTDescriptorRequest {
-  /// Constructs a [GATTDescriptorReadRequest].
-  GATTDescriptorReadRequest({
-    required super.descriptor,
-    required super.offset,
-  });
-}
-
-/// A write request that uses the Attribute Protocol (ATT).
-abstract base class GATTDescriptorWriteRequest extends GATTDescriptorRequest {
-  /// The data that the central writes to the peripheral.
-  final Uint8List value;
-
-  /// Constructs a [GATTDescriptorWriteRequest].
-  GATTDescriptorWriteRequest({
-    required super.descriptor,
-    required super.offset,
+  /// Constructs a [GATTWriteRequest].
+  GATTWriteRequest({
+    required this.offset,
     required this.value,
   });
 }

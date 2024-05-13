@@ -4,6 +4,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'advertisement.dart';
 import 'bluetooth_low_energy_manager.dart';
+import 'connection_state.dart';
 import 'event_args.dart';
 import 'gatt.dart';
 import 'peripheral.dart';
@@ -29,27 +30,32 @@ final class DiscoveredEventArgs extends EventArgs {
 }
 
 /// The peripheral connection state cahnged event arguments.
-final class PeripheralConnectionStateChangedEventArgs
-    extends ConnectionStateChangedEventArgs {
+final class PeripheralConnectionStateChangedEventArgs extends EventArgs {
   /// The peripheral which connection state changed.
   final Peripheral peripheral;
+
+  /// The connection state.
+  final ConnectionState state;
 
   /// Constructs a [PeripheralConnectionStateChangedEventArgs].
   PeripheralConnectionStateChangedEventArgs(
     this.peripheral,
-    super.state,
+    this.state,
   );
 }
 
 /// The peripheral MTU changed event arguments.
-final class PeripheralMTUChangedEventArgs extends MTUChangedEventArgs {
+final class PeripheralMTUChangedEventArgs extends EventArgs {
   /// The peripheral which MTU changed.
   final Peripheral peripheral;
+
+  /// The MTU.
+  final int mtu;
 
   /// Constructs a [PeripheralMTUChangedEventArgs].
   PeripheralMTUChangedEventArgs(
     this.peripheral,
-    super.mtu,
+    this.mtu,
   );
 }
 
