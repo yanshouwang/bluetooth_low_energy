@@ -5,7 +5,7 @@ import 'src/my_peripheral_manager.dart';
 
 abstract class BluetoothLowEnergyAndroidPlugin {
   static void registerWith() {
-    BaseCentralManager.instance = MyCentralManager();
-    BasePeripheralManager.instance = MyPeripheralManager();
+    PlatformCentralManager.instance = MyCentralManager();
+    PlatformPeripheralManager.instance = MyPeripheralManager();
   }
 }

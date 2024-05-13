@@ -8,29 +8,36 @@ import 'package:flutter/widgets.dart' hide ConnectionState;
 import 'my_api.dart';
 import 'my_api.g.dart';
 import 'my_central.dart';
+import 'my_gatt.dart';
 
-final class MyPeripheralManager extends BasePeripheralManager
+final class MyPeripheralManager extends PlatformPeripheralManager
     with WidgetsBindingObserver
     implements MyPeripheralManagerFlutterAPI {
   final MyPeripheralManagerHostAPI _api;
   final ListEquality<int> _valueEquality;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
+  final StreamController<CentralConnectionStateChangedEventArgs>
+      _connnectionStateChangedController;
   final StreamController<CentralMTUChangedEventArgs> _mtuChangedController;
-  final StreamController<GATTCharacteristicReadEventArgs>
-      _characteristicReadController;
-  final StreamController<GATTCharacteristicWrittenEventArgs>
-      _characteristicWrittenController;
+  final StreamController<GATTCharacteristicReadRequestedEventArgs>
+      _characteristicReadRequestedController;
+  final StreamController<GATTCharacteristicWriteRequestedEventArgs>
+      _characteristicWriteRequestedController;
   final StreamController<GATTCharacteristicNotifyStateChangedEventArgs>
       _characteristicNotifyStateChangedController;
+  final StreamController<GATTDescriptorReadRequestedEventArgs>
+      _descriptorReadRequestedController;
+  final StreamController<GATTDescriptorWriteRequestedEventArgs>
+      _descriptorWriteRequestedController;
 
   final Map<String, MyCentral> _centrals;
-  final Map<int, Map<int, MutableGATTCharacteristic>> _characteristics;
-  final Map<int, Map<int, MutableGATTDescriptor>> _descriptors;
-  // CCCD hashCode -> characteristic
-  final Map<int, Map<int, MutableGATTCharacteristic>> _cccCharacteristics;
-  // characteristic hashCode -> CCCD
-  final Map<int, Map<int, MutableGATTDescriptor>> _cccDescriptors;
+  final Map<int, MutableGATTCharacteristic> _characteristics;
+  final Map<int, MutableGATTDescriptor> _descriptors;
+  // CCC descriptor hashCodeArgs -> characteristic
+  final Map<int, MutableGATTCharacteristic> _cccCharacteristics;
+  // characteristic hashCodeArgs -> central addressArgs -> CCC Value
+  final Map<int, Map<String, Uint8List>> _cccValues;
   final Map<String, int> _mtus;
   final Map<String, MutableGATTCharacteristic> _preparedCharacteristics;
   final Map<String, MutableGATTDescriptor> _preparedDescriptors;
@@ -44,40 +51,55 @@ final class MyPeripheralManager extends BasePeripheralManager
       : _api = MyPeripheralManagerHostAPI(),
         _valueEquality = const ListEquality(),
         _stateChangedController = StreamController.broadcast(),
+        _connnectionStateChangedController = StreamController.broadcast(),
         _mtuChangedController = StreamController.broadcast(),
-        _characteristicReadController = StreamController.broadcast(),
-        _characteristicWrittenController = StreamController.broadcast(),
+        _characteristicReadRequestedController = StreamController.broadcast(),
+        _characteristicWriteRequestedController = StreamController.broadcast(),
         _characteristicNotifyStateChangedController =
             StreamController.broadcast(),
+        _descriptorReadRequestedController = StreamController.broadcast(),
+        _descriptorWriteRequestedController = StreamController.broadcast(),
         _centrals = {},
         _characteristics = {},
         _descriptors = {},
         _cccCharacteristics = {},
-        _cccDescriptors = {},
+        _cccValues = {},
         _mtus = {},
         _preparedCharacteristics = {},
         _preparedDescriptors = {},
         _preparedValue = {},
         _state = BluetoothLowEnergyState.unknown;
 
+  UUID get cccUUID => UUID.short(0x2902);
   @override
   BluetoothLowEnergyState get state => _state;
   @override
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
+  Stream<CentralConnectionStateChangedEventArgs> get connectionStateChanged =>
+      _connnectionStateChangedController.stream;
+  @override
   Stream<CentralMTUChangedEventArgs> get mtuChanged =>
       _mtuChangedController.stream;
   @override
-  Stream<GATTCharacteristicReadEventArgs> get characteristicRead =>
-      _characteristicReadController.stream;
+  Stream<GATTCharacteristicReadRequestedEventArgs>
+      get characteristicReadRequested =>
+          _characteristicReadRequestedController.stream;
   @override
-  Stream<GATTCharacteristicWrittenEventArgs> get characteristicWritten =>
-      _characteristicWrittenController.stream;
+  Stream<GATTCharacteristicWriteRequestedEventArgs>
+      get characteristicWriteRequested =>
+          _characteristicWriteRequestedController.stream;
   @override
   Stream<GATTCharacteristicNotifyStateChangedEventArgs>
       get characteristicNotifyStateChanged =>
           _characteristicNotifyStateChangedController.stream;
+  @override
+  Stream<GATTDescriptorReadRequestedEventArgs> get descriptorReadRequested =>
+      _descriptorReadRequestedController.stream;
+  @override
+  Stream<GATTDescriptorWriteRequestedEventArgs> get descriptorWriteRequested =>
+      _descriptorWriteRequestedController.stream;
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -86,7 +108,7 @@ final class MyPeripheralManager extends BasePeripheralManager
     if (state != AppLifecycleState.resumed) {
       return;
     }
-    _updateState();
+    _getState();
   }
 
   @override
@@ -101,7 +123,7 @@ final class MyPeripheralManager extends BasePeripheralManager
   Future<bool> authorize() async {
     logger.info('authorize');
     final authorized = await _api.authorize();
-    _updateState();
+    _getState();
     return authorized;
   }
 
@@ -109,57 +131,63 @@ final class MyPeripheralManager extends BasePeripheralManager
   Future<void> showAppSettings() async {
     logger.info('showAppSettings');
     await _api.authorize();
-    _updateState();
+    _getState();
   }
 
   @override
   Future<void> addService(GATTService service) async {
-    if (service is! MutableGATTService) {
-      throw TypeError();
-    }
     final characteristics = <int, MutableGATTCharacteristic>{};
     final descriptors = <int, MutableGATTDescriptor>{};
     final cccCharacteristics = <int, MutableGATTCharacteristic>{};
-    final cccDescriptors = <int, MutableGATTDescriptor>{};
-    final characteristicsArgs = <MyMutableGATTCharacteristicArgs>[];
-    final cccUUID = UUID.short(0x2902);
+    final cccValues = <int, Map<String, Uint8List>>{};
     for (var characteristic in service.characteristics) {
-      final descriptorsArgs = <MyMutableGATTDescriptorArgs>[];
-      final properties = characteristic.properties;
-      final canNotify =
-          properties.contains(GATTCharacteristicProperty.notify) ||
-              properties.contains(GATTCharacteristicProperty.indicate);
-      if (canNotify) {
-        // CLIENT_CHARACTERISTIC_CONFIG
-        final cccDescriptor = MutableGATTDescriptor(
-          uuid: cccUUID,
-          value: _args.disableNotificationValue,
-        );
-        final cccDescriptorArgs = cccDescriptor.toArgs();
-        descriptorsArgs.add(cccDescriptorArgs);
-        descriptors[cccDescriptorArgs.hashCodeArgs] = cccDescriptor;
-        cccCharacteristics[cccDescriptor.hashCode] = characteristic;
-        cccDescriptors[characteristic.hashCode] = cccDescriptor;
+      if (characteristic is! MutableGATTCharacteristic) {
+        throw TypeError();
       }
+      final cccUUID = UUID.short(0x2902);
       for (var descriptor in characteristic.descriptors) {
+        if (descriptor is! MutableGATTDescriptor) {
+          throw TypeError();
+        }
         if (descriptor.uuid == cccUUID) {
           continue;
         }
-        final descriptorArgs = descriptor.toArgs();
-        descriptorsArgs.add(descriptorArgs);
-        descriptors[descriptorArgs.hashCodeArgs] = descriptor;
+        descriptors[descriptor.hashCode] = descriptor;
       }
-      final characteristicArgs = characteristic.toArgs(descriptorsArgs);
-      characteristicsArgs.add(characteristicArgs);
-      characteristics[characteristicArgs.hashCodeArgs] = characteristic;
+      characteristics[characteristic.hashCode] = characteristic;
     }
-    final serviceArgs = service.toArgs(characteristicsArgs);
+    final serviceArgs = service.toArgs();
+    final cccUUIDArgs = cccUUID.toArgs();
+    final characteristicsArgs =
+        serviceArgs.characteristicsArgs.cast<MyMutableGATTCharacteristicArgs>();
+    for (var characteristicArgs in characteristicsArgs) {
+      final characteristic = characteristics[characteristicArgs.hashCodeArgs];
+      if (characteristic == null) {
+        throw ArgumentError.notNull();
+      }
+      final descriptorsArgs = characteristicArgs.descriptorsArgs
+          .cast<MyMutableGATTDescriptorArgs>()
+          .where((element) => element.uuidArgs != cccUUIDArgs)
+          .toList();
+      final cccDescriptor = MutableGATTDescriptor(
+        uuid: cccUUID,
+        permissions: [
+          GATTCharacteristicPermission.read,
+          GATTCharacteristicPermission.write,
+        ],
+      );
+      final cccDescriptorArgs = cccDescriptor.toArgs();
+      cccCharacteristics[cccDescriptorArgs.hashCodeArgs] = characteristic;
+      cccValues[characteristicArgs.hashCodeArgs] = {};
+      descriptorsArgs.add(cccDescriptorArgs);
+      characteristicArgs.descriptorsArgs = descriptorsArgs;
+    }
     logger.info('addService: $serviceArgs');
     await _api.addService(serviceArgs);
-    _characteristics[serviceArgs.hashCodeArgs] = characteristics;
-    _descriptors[serviceArgs.hashCodeArgs] = descriptors;
-    _cccCharacteristics[serviceArgs.hashCodeArgs] = cccCharacteristics;
-    _cccDescriptors[serviceArgs.hashCodeArgs] = cccDescriptors;
+    _characteristics.addAll(characteristics);
+    _descriptors.addAll(descriptors);
+    _cccCharacteristics.addAll(cccCharacteristics);
+    _cccValues.addAll(cccValues);
   }
 
   @override
@@ -167,20 +195,26 @@ final class MyPeripheralManager extends BasePeripheralManager
     final hashCodeArgs = service.hashCode;
     logger.info('removeService: $hashCodeArgs');
     await _api.removeService(hashCodeArgs);
-    _characteristics.remove(hashCodeArgs);
-    _descriptors.remove(hashCodeArgs);
-    _cccCharacteristics.remove(hashCodeArgs);
-    _cccDescriptors.remove(hashCodeArgs);
+    for (var characteristic in service.characteristics) {
+      for (var descriptor in characteristic.descriptors) {
+        final hashCodeArgs = descriptor.hashCode;
+        _descriptors.remove(hashCodeArgs);
+        _cccCharacteristics.remove(hashCodeArgs);
+      }
+      final hashCodeArgs = characteristic.hashCode;
+      _characteristics.remove(hashCodeArgs);
+      _cccValues.remove(hashCodeArgs);
+    }
   }
 
   @override
-  Future<void> clearServices() async {
-    logger.info('clearServices');
-    await _api.clearServices();
+  Future<void> removeAllServices() async {
+    logger.info('removeAllServices');
+    await _api.removeAllServices();
     _characteristics.clear();
     _descriptors.clear();
     _cccCharacteristics.clear();
-    _cccDescriptors.clear();
+    _cccValues.clear();
   }
 
   @override
@@ -197,42 +231,66 @@ final class MyPeripheralManager extends BasePeripheralManager
   }
 
   @override
-  Future<Uint8List> readCharacteristic(GATTCharacteristic characteristic) {
-    if (characteristic is! MutableGATTCharacteristic) {
+  Future<int> getMaximumNotifyLength(Central central) {
+    if (central is! MyCentral) {
       throw TypeError();
     }
-    final hashCodeArgs = characteristic.hashCode;
-    logger.info('readCharacteristic: $hashCodeArgs');
-    final value = characteristic.value;
-    return Future.value(value);
+    final addressArgs = central.address;
+    final mtu = _mtus[addressArgs] ?? 23;
+    final maximumNotifyLength = (mtu - 3).clamp(20, 512);
+    return Future.value(maximumNotifyLength);
   }
 
   @override
-  Future<void> writeCharacteristic(
-    GATTCharacteristic characteristic, {
+  Future<void> respondCharacteristicReadRequestWithValue(
+    GATTCharacteristicReadRequest request, {
     required Uint8List value,
   }) {
-    if (characteristic is! MutableGATTCharacteristic) {
-      throw TypeError();
-    }
-    characteristic.value = value;
-    return Future.value();
+    // TODO: implement respondCharacteristicReadRequestWithValue
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> respondCharacteristicReadRequestWithError(
+    GATTCharacteristicReadRequest request, {
+    required GATTError error,
+  }) {
+    // TODO: implement respondCharacteristicReadRequestWithError
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> respondCharacteristicWriteRequest(
+    GATTCharacteristicWriteRequest request,
+  ) {
+    // TODO: implement respondCharacteristicWriteRequest
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> respondCharacteristicWriteRequestWithError(
+    GATTCharacteristicWriteRequest request, {
+    required GATTError error,
+  }) {
+    // TODO: implement respondCharacteristicWriteRequestWithError
+    throw UnimplementedError();
   }
 
   @override
   Future<void> notifyCharacteristic(
     GATTCharacteristic characteristic, {
-    List<Central>? centrals,
+    required Uint8List value,
+    Central? central,
   }) async {
     if (characteristic is! MutableGATTCharacteristic) {
       throw TypeError();
     }
-    // TODO: fix multi centrals notify logic.
-    final descriptor = _retrieveCCCDescriptor(characteristic.hashCode);
-    if (descriptor == null) {
+    if (central == null) {
+    } else {}
+    final value = _retrieveCCCValue(characteristic.hashCode);
+    if (value == null) {
       throw ArgumentError.notNull();
     }
-    final value = descriptor.value;
     final notificationEnabled = _valueEquality.equals(
       value,
       _args.enableNotificationValue,
@@ -278,6 +336,41 @@ final class MyPeripheralManager extends BasePeripheralManager
         start = end;
       }
     }
+  }
+
+  @override
+  Future<void> respondDescriptorReadRequestWithError(
+    GATTDescriptorReadRequest request, {
+    required GATTError error,
+  }) {
+    // TODO: implement respondDescriptorReadRequestWithError
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> respondDescriptorReadRequestWithValue(
+    GATTDescriptorReadRequest request, {
+    required Uint8List value,
+  }) {
+    // TODO: implement respondDescriptorReadRequestWithValue
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> respondDescriptorWriteRequest(
+    GATTDescriptorWriteRequest request,
+  ) {
+    // TODO: implement respondDescriptorWriteRequest
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> respondDescriptorWriteRequestWithError(
+    GATTDescriptorWriteRequest request, {
+    required GATTError error,
+  }) {
+    // TODO: implement respondDescriptorWriteRequestWithError
+    throw UnimplementedError();
   }
 
   @override
@@ -441,8 +534,7 @@ final class MyPeripheralManager extends BasePeripheralManager
     logger.info(
         'onDescriptorReadRequest: $addressArgs - $idArgs, $offsetArgs, $hashCodeArgs');
     final central = _centrals[addressArgs];
-    final descriptor = _retrieveDescriptor(hashCodeArgs);
-    if (central == null || descriptor == null) {
+    if (central == null) {
       const statusArgs = MyGATTStatusArgs.failure;
       await _sendResponse(
         addressArgs,
@@ -451,18 +543,59 @@ final class MyPeripheralManager extends BasePeripheralManager
         offsetArgs,
         null,
       );
+      return;
+    }
+    final descriptor = _descriptors[hashCodeArgs];
+    if (descriptor == null) {
+      final characteristic = _cccCharacteristics[hashCodeArgs];
+      if (characteristic == null) {
+        const statusArgs = MyGATTStatusArgs.failure;
+        await _sendResponse(
+          addressArgs,
+          idArgs,
+          statusArgs,
+          offsetArgs,
+          null,
+        );
+      } else {
+        const statusArgs = MyGATTStatusArgs.success;
+        final offset = offsetArgs;
+        final hashCodeArgs = characteristic.hashCode;
+        final value = _retrieveCCCValue(hashCodeArgs, addressArgs);
+        final valueArgs = value.sublist(offset);
+        await _sendResponse(
+          addressArgs,
+          idArgs,
+          statusArgs,
+          offsetArgs,
+          valueArgs,
+        );
+      }
     } else {
-      const statusArgs = MyGATTStatusArgs.success;
-      final offset = offsetArgs;
-      final value = descriptor.value ?? Uint8List.fromList([]);
-      final valueArgs = value.sublist(offset);
-      await _sendResponse(
-        addressArgs,
-        idArgs,
-        statusArgs,
-        offsetArgs,
-        valueArgs,
-      );
+      if (descriptor is ImmutableGATTDescriptor) {
+        const statusArgs = MyGATTStatusArgs.success;
+        final offset = offsetArgs;
+        final value = descriptor.value;
+        final valueArgs = value.sublist(offset);
+        await _sendResponse(
+          addressArgs,
+          idArgs,
+          statusArgs,
+          offsetArgs,
+          valueArgs,
+        );
+      } else {
+        final request = MyGATTDescriptorReadRequest(
+          id: id,
+          descriptor: descriptor,
+          offset: offset,
+        );
+        final eventArgs = GATTDescriptorReadRequestedEventArgs(
+          central,
+          request,
+        );
+        _descriptorReadRequestedController.add(eventArgs);
+      }
     }
   }
 
@@ -586,14 +719,14 @@ final class MyPeripheralManager extends BasePeripheralManager
       try {
         logger.info('initialize');
         _args = await _api.initialize();
-        _updateState();
+        _getState();
       } catch (e) {
         logger.severe('initialize failed.', e);
       }
     });
   }
 
-  Future<void> _updateState() async {
+  Future<void> _getState() async {
     try {
       logger.info('getState');
       final stateArgs = await _api.getState();
@@ -643,63 +776,28 @@ final class MyPeripheralManager extends BasePeripheralManager
     }
   }
 
-  Uint8List _onCharacteristicRead(
-    MyCentral central,
-    MutableGATTCharacteristic characteristic,
-    int offset,
-  ) {
-    final value = characteristic.value ?? Uint8List.fromList([]);
-    final trimmedValue = value.sublist(offset);
-    if (offset == 0) {
-      final eventArgs = GATTCharacteristicReadEventArgs(
-        central,
-        characteristic,
-        value,
-      );
-      _characteristicReadController.add(eventArgs);
-    }
-    return trimmedValue;
+  Future<void> _notifyCharacteristicChanged(
+    String addressArgs,
+    int hashCodeArgs,
+    bool confirmArgs,
+    Uint8List valueArgs,
+  ) async {
+    logger.info(
+        'notifyCharacteristicChanged: $addressArgs - $hashCodeArgs, $confirmArgs, $valueArgs');
+    await _api.notifyCharacteristicChanged(
+      addressArgs,
+      hashCodeArgs,
+      confirmArgs,
+      valueArgs,
+    );
   }
 
-  void _onCharacteristicWritten(
-    MyCentral central,
-    MutableGATTCharacteristic characteristic,
-    Uint8List value,
-  ) async {
-    characteristic.value = value;
-    final trimmedValue = characteristic.value;
-    if (trimmedValue == null) {
+  Uint8List _retrieveCCCValue(int hashCodeArgs, String addressArgs) {
+    final values = _cccValues[hashCodeArgs];
+    if (values == null) {
       throw ArgumentError.notNull();
     }
-    final eventArgs = GATTCharacteristicWrittenEventArgs(
-      central,
-      characteristic,
-      trimmedValue,
-    );
-    _characteristicWrittenController.add(eventArgs);
-  }
-
-  MutableGATTCharacteristic? _retrieveCharacteristic(int hashCodeArgs) {
-    final characteristics = _characteristics.values
-        .reduce((value, element) => value..addAll(element));
-    return characteristics[hashCodeArgs];
-  }
-
-  MutableGATTCharacteristic? _retrieveCCCCharacteristic(int hashCode) {
-    final characteristics = _cccCharacteristics.values
-        .reduce((value, element) => value..addAll(element));
-    return characteristics[hashCode];
-  }
-
-  MutableGATTDescriptor? _retrieveCCCDescriptor(int hashCode) {
-    final descriptors = _cccDescriptors.values
-        .reduce((value, element) => value..addAll(element));
-    return descriptors[hashCode];
-  }
-
-  MutableGATTDescriptor? _retrieveDescriptor(int hashCodeArgs) {
-    final descriptors =
-        _descriptors.values.reduce((value, element) => value..addAll(element));
-    return descriptors[hashCodeArgs];
+    final value = values[addressArgs];
+    return value ?? _args.disableNotificationValue;
   }
 }

@@ -37,6 +37,13 @@ enum MyGATTCharacteristicPropertyArgs {
   indicate,
 }
 
+enum MyGATTCharacteristicPermissionArgs {
+  read,
+  readEncrypted,
+  write,
+  writeEncrypted,
+}
+
 enum MyGATTCharacteristicWriteTypeArgs {
   withResponse,
   withoutResponse,
@@ -114,22 +121,26 @@ class MyPeripheralArgs {
 }
 
 class MyGATTDescriptorArgs {
+  final String addressArgs;
   final int hashCodeArgs;
   final String uuidArgs;
 
   MyGATTDescriptorArgs(
+    this.addressArgs,
     this.hashCodeArgs,
     this.uuidArgs,
   );
 }
 
 class MyGATTCharacteristicArgs {
+  final String addressArgs;
   final int hashCodeArgs;
   final String uuidArgs;
   final List<int?> propertyNumbersArgs;
   final List<MyGATTDescriptorArgs?> descriptorsArgs;
 
   MyGATTCharacteristicArgs(
+    this.addressArgs,
     this.hashCodeArgs,
     this.uuidArgs,
     this.propertyNumbersArgs,
@@ -138,13 +149,17 @@ class MyGATTCharacteristicArgs {
 }
 
 class MyGATTServiceArgs {
+  final String addressArgs;
   final int hashCodeArgs;
   final String uuidArgs;
+  final List<MyGATTServiceArgs?> includedServicesArgs;
   final List<MyGATTCharacteristicArgs?> characteristicsArgs;
 
   MyGATTServiceArgs(
+    this.addressArgs,
     this.hashCodeArgs,
     this.uuidArgs,
+    this.includedServicesArgs,
     this.characteristicsArgs,
   );
 }
@@ -152,27 +167,27 @@ class MyGATTServiceArgs {
 class MyMutableGATTDescriptorArgs {
   final int hashCodeArgs;
   final String uuidArgs;
-  final Uint8List? valueArgs;
+  final List<int?> permissionNumbersArgs;
 
   MyMutableGATTDescriptorArgs(
     this.hashCodeArgs,
     this.uuidArgs,
-    this.valueArgs,
+    this.permissionNumbersArgs,
   );
 }
 
 class MyMutableGATTCharacteristicArgs {
   final int hashCodeArgs;
   final String uuidArgs;
+  final List<int?> permissionNumbersArgs;
   final List<int?> propertyNumbersArgs;
-  final Uint8List? valueArgs;
   final List<MyMutableGATTDescriptorArgs?> descriptorsArgs;
 
   MyMutableGATTCharacteristicArgs(
     this.hashCodeArgs,
     this.uuidArgs,
+    this.permissionNumbersArgs,
     this.propertyNumbersArgs,
-    this.valueArgs,
     this.descriptorsArgs,
   );
 }
@@ -180,11 +195,13 @@ class MyMutableGATTCharacteristicArgs {
 class MyMutableGATTServiceArgs {
   final int hashCodeArgs;
   final String uuidArgs;
+  final List<MyMutableGATTServiceArgs?> includedServicesArgs;
   final List<MyMutableGATTCharacteristicArgs?> characteristicsArgs;
 
   MyMutableGATTServiceArgs(
     this.hashCodeArgs,
     this.uuidArgs,
+    this.includedServicesArgs,
     this.characteristicsArgs,
   );
 }
@@ -244,13 +261,12 @@ abstract class MyCentralManagerFlutterAPI {
     MyAdvertisementArgs advertisementArgs,
   );
   void onConnectionStateChanged(
-    String addressArgs,
+    MyPeripheralArgs peripheralArgs,
     MyConnectionStateArgs stateArgs,
   );
-  void onMTUChanged(String addressArgs, int mtuArgs);
+  void onMTUChanged(MyPeripheralArgs peripheralArgs, int mtuArgs);
   void onCharacteristicNotified(
-    String addressArgs,
-    int hashCodeArgs,
+    MyGATTCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
   );
 }
@@ -268,7 +284,7 @@ abstract class MyPeripheralManagerHostAPI {
   @async
   void addService(MyMutableGATTServiceArgs serviceArgs);
   void removeService(int hashCodeArgs);
-  void clearServices();
+  void removeAllServices();
   @async
   void startAdvertising(MyAdvertisementArgs advertisementArgs);
   void stopAdvertising();

@@ -1,14 +1,12 @@
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
-import 'my_peripheral.dart';
-
-final class MyGATTDescriptor extends BaseGATTDescriptor {
-  final MyPeripheral peripheral;
+final class MyGATTDescriptor extends GATTDescriptor {
+  final String address;
   @override
   final int hashCode;
 
   MyGATTDescriptor({
-    required this.peripheral,
+    required this.address,
     required this.hashCode,
     required super.uuid,
   });
@@ -16,23 +14,25 @@ final class MyGATTDescriptor extends BaseGATTDescriptor {
   @override
   bool operator ==(Object other) {
     return other is MyGATTDescriptor &&
-        other.peripheral == peripheral &&
+        other.address == address &&
         other.hashCode == hashCode;
   }
 }
 
-final class MyGATTCharacteristic extends BaseGATTCharacteristic {
-  final MyPeripheral peripheral;
+final class MyGATTCharacteristic extends GATTCharacteristic {
+  final String address;
   @override
   final int hashCode;
 
   MyGATTCharacteristic({
-    required this.peripheral,
+    required this.address,
     required this.hashCode,
     required super.uuid,
     required super.properties,
     required List<MyGATTDescriptor> descriptors,
-  }) : super(descriptors: descriptors);
+  }) : super(
+          descriptors: descriptors,
+        );
 
   @override
   List<MyGATTDescriptor> get descriptors =>
@@ -41,22 +41,26 @@ final class MyGATTCharacteristic extends BaseGATTCharacteristic {
   @override
   bool operator ==(Object other) {
     return other is MyGATTCharacteristic &&
-        other.peripheral == peripheral &&
+        other.address == address &&
         other.hashCode == hashCode;
   }
 }
 
-final class MyGATTService extends BaseGATTService {
-  final MyPeripheral peripheral;
+final class MyGATTService extends GATTService {
+  final String address;
   @override
   final int hashCode;
 
   MyGATTService({
-    required this.peripheral,
+    required this.address,
     required this.hashCode,
     required super.uuid,
+    required List<MyGATTService> includedServices,
     required List<MyGATTCharacteristic> characteristics,
-  }) : super(characteristics: characteristics);
+  }) : super(
+          includedServices: includedServices,
+          characteristics: characteristics,
+        );
 
   @override
   List<MyGATTCharacteristic> get characteristics =>
@@ -65,7 +69,51 @@ final class MyGATTService extends BaseGATTService {
   @override
   bool operator ==(Object other) {
     return other is MyGATTService &&
-        other.peripheral == peripheral &&
+        other.address == address &&
         other.hashCode == hashCode;
   }
+}
+
+final class MyGATTCharacteristicReadRequest
+    extends GATTCharacteristicReadRequest {
+  final int id;
+
+  MyGATTCharacteristicReadRequest({
+    required this.id,
+    required super.characteristic,
+    required super.offset,
+  });
+}
+
+final class MyGATTCharacteristicWriteRequest
+    extends GATTCharacteristicWriteRequest {
+  final int id;
+
+  MyGATTCharacteristicWriteRequest({
+    required this.id,
+    required super.characteristic,
+    required super.offset,
+    required super.value,
+  });
+}
+
+final class MyGATTDescriptorReadRequest extends GATTDescriptorReadRequest {
+  final int id;
+
+  MyGATTDescriptorReadRequest({
+    required this.id,
+    required super.descriptor,
+    required super.offset,
+  });
+}
+
+final class MyGATTDescriptorWriteRequest extends GATTDescriptorWriteRequest {
+  final int id;
+
+  MyGATTDescriptorWriteRequest({
+    required this.id,
+    required super.descriptor,
+    required super.offset,
+    required super.value,
+  });
 }

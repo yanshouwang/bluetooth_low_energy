@@ -9,7 +9,7 @@ import 'my_api.g.dart';
 import 'my_gatt.dart';
 import 'my_peripheral.dart';
 
-final class MyCentralManager extends BaseCentralManager
+final class MyCentralManager extends PlatformCentralManager
     with WidgetsBindingObserver
     implements MyCentralManagerFlutterAPI {
   final MyCentralManagerHostAPI _api;
@@ -22,8 +22,6 @@ final class MyCentralManager extends BaseCentralManager
   final StreamController<GATTCharacteristicNotifiedEventArgs>
       _characteristicNotifiedController;
 
-  final Map<String, MyPeripheral> _peripherals;
-  final Map<String, Map<int, MyGATTCharacteristic>> _characteristics;
   final Map<String, int> _mtus;
 
   late final MyCentralManagerArgs _args;
@@ -37,8 +35,6 @@ final class MyCentralManager extends BaseCentralManager
         _connectionStateChangedController = StreamController.broadcast(),
         _mtuChangedController = StreamController.broadcast(),
         _characteristicNotifiedController = StreamController.broadcast(),
-        _peripherals = {},
-        _characteristics = {},
         _mtus = {},
         _state = BluetoothLowEnergyState.unknown;
 
@@ -66,7 +62,7 @@ final class MyCentralManager extends BaseCentralManager
     if (state != AppLifecycleState.resumed) {
       return;
     }
-    _updateState();
+    _getState();
   }
 
   @override
@@ -110,13 +106,10 @@ final class MyCentralManager extends BaseCentralManager
   Future<List<Peripheral>> retrieveConnectedPeripherals() async {
     logger.info('retrieveConnectedPeripherals');
     final peripheralsArgs = await _api.retrieveConnectedPeripherals();
-    final peripherals = peripheralsArgs.cast<MyPeripheralArgs>().map((args) {
-      final peripheral = _peripherals.putIfAbsent(
-        args.addressArgs,
-        () => args.toPeripheral(),
-      );
-      return peripheral;
-    }).toList();
+    final peripherals = peripheralsArgs
+        .cast<MyPeripheralArgs>()
+        .map((args) => args.toPeripheral())
+        .toList();
     return peripherals;
   }
 
@@ -141,7 +134,10 @@ final class MyCentralManager extends BaseCentralManager
   }
 
   @override
-  Future<int> requestMTU(Peripheral peripheral, int mtu) async {
+  Future<int> requestMTU(
+    Peripheral peripheral, {
+    required int mtu,
+  }) async {
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
@@ -150,6 +146,20 @@ final class MyCentralManager extends BaseCentralManager
     logger.info('requestMTU: $addressArgs - $mtuArgs');
     final size = await _api.requestMTU(addressArgs, mtuArgs);
     return size;
+  }
+
+  @override
+  Future<int> getMaximumWriteLength(
+    Peripheral peripheral, {
+    required GATTCharacteristicWriteType type,
+  }) {
+    if (peripheral is! MyPeripheral) {
+      throw TypeError();
+    }
+    final addressArgs = peripheral.address;
+    final mtu = _mtus[addressArgs] ?? 23;
+    final maximumWriteLength = (mtu - 3).clamp(20, 512);
+    return Future.value(maximumWriteLength);
   }
 
   @override
@@ -173,14 +183,8 @@ final class MyCentralManager extends BaseCentralManager
     final servicesArgs = await _api.discoverGATT(addressArgs);
     final services = servicesArgs
         .cast<MyGATTServiceArgs>()
-        .map((args) => args.toService(peripheral))
+        .map((args) => args.toService())
         .toList();
-    final characteristics =
-        services.expand((service) => service.characteristics).toList();
-    _characteristics[addressArgs] = {
-      for (var characteristic in characteristics)
-        characteristic.hashCode: characteristic
-    };
     return services;
   }
 
@@ -191,8 +195,7 @@ final class MyCentralManager extends BaseCentralManager
     if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final peripheral = characteristic.peripheral;
-    final addressArgs = peripheral.address;
+    final addressArgs = characteristic.address;
     final hashCodeArgs = characteristic.hashCode;
     logger.info('readCharacteristic: $addressArgs.$hashCodeArgs');
     final value = await _api.readCharacteristic(addressArgs, hashCodeArgs);
@@ -208,13 +211,10 @@ final class MyCentralManager extends BaseCentralManager
     if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final peripheral = characteristic.peripheral;
-    final addressArgs = peripheral.address;
+    final addressArgs = characteristic.address;
     final hashCodeArgs = characteristic.hashCode;
     final trimmedValueArgs = value.trimGATT();
     final typeArgs = type.toArgs();
-    // When write without response, fragments the value by MTU - 3 size.
-    // If mtu is null, use 23 as default MTU size.
     if (type == GATTCharacteristicWriteType.withResponse) {
       logger.info(
           'writeCharacteristic: $addressArgs.$hashCodeArgs - $trimmedValueArgs, $typeArgs');
@@ -225,6 +225,8 @@ final class MyCentralManager extends BaseCentralManager
         typeArgs,
       );
     } else {
+      // When write without response, fragments the value by MTU - 3 size.
+      // If mtu is null, use 23 as default MTU size.
       final mtu = _mtus[addressArgs] ?? 23;
       final fragmentSize = (mtu - 3).clamp(20, 512);
       var start = 0;
@@ -254,8 +256,7 @@ final class MyCentralManager extends BaseCentralManager
     if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final peripheral = characteristic.peripheral;
-    final addressArgs = peripheral.address;
+    final addressArgs = characteristic.address;
     final hashCodeArgs = characteristic.hashCode;
     final enableArgs = state;
     logger.info(
@@ -285,8 +286,7 @@ final class MyCentralManager extends BaseCentralManager
     if (descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
-    final peripheral = descriptor.peripheral;
-    final addressArgs = peripheral.address;
+    final addressArgs = descriptor.address;
     final hashCodeArgs = descriptor.hashCode;
     logger.info('readDescriptor: $addressArgs.$hashCodeArgs');
     final value = await _api.readDescriptor(addressArgs, hashCodeArgs);
@@ -301,8 +301,7 @@ final class MyCentralManager extends BaseCentralManager
     if (descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
-    final peripheral = descriptor.peripheral;
-    final addressArgs = peripheral.address;
+    final addressArgs = descriptor.address;
     final hashCodeArgs = descriptor.hashCode;
     final trimmedValueArgs = value.trimGATT();
     logger.info(
@@ -330,10 +329,7 @@ final class MyCentralManager extends BaseCentralManager
   ) {
     final addressArgs = peripheralArgs.addressArgs;
     logger.info('onDiscovered: $addressArgs - $rssiArgs, $advertisementArgs');
-    final peripheral = _peripherals.putIfAbsent(
-      peripheralArgs.addressArgs,
-      () => peripheralArgs.toPeripheral(),
-    );
+    final peripheral = peripheralArgs.toPeripheral();
     final rssi = rssiArgs;
     final advertisement = advertisementArgs.toAdvertisement();
     final eventArgs = DiscoveredEventArgs(
@@ -346,17 +342,14 @@ final class MyCentralManager extends BaseCentralManager
 
   @override
   void onConnectionStateChanged(
-    String addressArgs,
+    MyPeripheralArgs peripheralArgs,
     MyConnectionStateArgs stateArgs,
   ) {
+    final addressArgs = peripheralArgs.addressArgs;
     logger.info('onConnectionStateChanged: $addressArgs - $stateArgs');
-    final peripheral = _peripherals[addressArgs];
-    if (peripheral == null) {
-      return;
-    }
+    final peripheral = peripheralArgs.toPeripheral();
     final state = stateArgs.toState();
     if (state == ConnectionState.disconnected) {
-      _characteristics.remove(addressArgs);
       _mtus.remove(addressArgs);
     }
     final eventArgs = PeripheralConnectionStateChangedEventArgs(
@@ -367,12 +360,10 @@ final class MyCentralManager extends BaseCentralManager
   }
 
   @override
-  void onMTUChanged(String addressArgs, int mtuArgs) {
+  void onMTUChanged(MyPeripheralArgs peripheralArgs, int mtuArgs) {
+    final addressArgs = peripheralArgs.addressArgs;
     logger.info('onMTUChanged: $addressArgs - $mtuArgs');
-    final peripheral = _peripherals[addressArgs];
-    if (peripheral == null) {
-      return;
-    }
+    final peripheral = peripheralArgs.toPeripheral();
     final mtu = mtuArgs;
     _mtus[addressArgs] = mtu;
     final eventArgs = PeripheralMTUChangedEventArgs(peripheral, mtu);
@@ -381,16 +372,14 @@ final class MyCentralManager extends BaseCentralManager
 
   @override
   void onCharacteristicNotified(
-    String addressArgs,
-    int hashCodeArgs,
+    MyGATTCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
   ) {
+    final addressArgs = characteristicArgs.addressArgs;
+    final hashCodeArgs = characteristicArgs.hashCodeArgs;
     logger.info(
         'onCharacteristicNotified: $addressArgs.$hashCodeArgs - $valueArgs');
-    final characteristic = _retrieveCharacteristic(addressArgs, hashCodeArgs);
-    if (characteristic == null) {
-      return;
-    }
+    final characteristic = characteristicArgs.toCharacteristic();
     final value = valueArgs;
     final eventArgs = GATTCharacteristicNotifiedEventArgs(
       characteristic,
@@ -405,14 +394,14 @@ final class MyCentralManager extends BaseCentralManager
       try {
         logger.info('initialize');
         _args = await _api.initialize();
-        _updateState();
+        _getState();
       } catch (e) {
         logger.severe('initialize failed.', e);
       }
     });
   }
 
-  Future<void> _updateState() async {
+  Future<void> _getState() async {
     try {
       logger.info('getState');
       final stateArgs = await _api.getState();
@@ -420,16 +409,5 @@ final class MyCentralManager extends BaseCentralManager
     } catch (e) {
       logger.severe('getState failed.', e);
     }
-  }
-
-  MyGATTCharacteristic? _retrieveCharacteristic(
-    String addressArgs,
-    int hashCodeArgs,
-  ) {
-    final characteristics = _characteristics[addressArgs];
-    if (characteristics == null) {
-      return null;
-    }
-    return characteristics[hashCodeArgs];
   }
 }
