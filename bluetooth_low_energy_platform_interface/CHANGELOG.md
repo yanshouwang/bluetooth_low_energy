@@ -1,3 +1,19 @@
+## 6.0.0-dev.12
+
+* Add `GATTDescriptorReadRequestedEventArgs` class.
+* Add `GATTDescriptorWriteRequestedEventArgs` class.
+* Add `GATTRequest` class.
+* Add `GATTDescriptorRequest` class.
+* Add `GATTDescriptorReadRequest` class.
+* Add `GATTDescriptorWriteRequest` class.
+* Add `PeripheralManager#descriptorReadRequested` event.
+* Add `PeripheralManager#descriptorWriteRequested` event.
+* Add `PeripheralManager#respondDescriptorReadRequestWithValue` method.
+* Add `PeripheralManager#respondDescriptorReadRequestWithError` method.
+* Add `PeripheralManager#respondDescriptorWriteRequest` method.
+* Add `PeripheralManager#respondDescriptorWriteRequestWithError` method.
+* Fix errors.
+
 ## 6.0.0-dev.11
 
 * Add `ConnectionStateChangedEventArgs` class.

@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
+
 import 'uuid.dart';
 
 /// A representation of common aspects of services offered by a peripheral.
@@ -20,6 +22,19 @@ abstract base class GATTDescriptor extends GATTAttribute {
   GATTDescriptor({
     required super.uuid,
   });
+
+  /// Creates a mutable descriptor.
+  ///
+  /// [uuid] A 128-bit UUID that identifies the characteristic. You must use only
+  /// one of the two currently supported descriptor types:
+  /// CBUUIDCharacteristicUserDescriptionString or CBUUIDCharacteristicFormatString.
+  /// For more details about these descriptor types, see CBUUID.
+  factory GATTDescriptor.mutable({
+    required UUID uuid,
+  }) =>
+      MutableGATTDescriptor(
+        uuid: uuid,
+      );
 
   /// Creates a immutable descriptor with a specified value.
   ///
@@ -112,7 +127,15 @@ base class GATTService extends GATTAttribute {
 
 /// An object that provides additional information about a local peripheral’s
 /// characteristic.
-final class ImmutableGATTDescriptor extends GATTDescriptor {
+final class MutableGATTDescriptor extends GATTDescriptor {
+  MutableGATTDescriptor({
+    required super.uuid,
+  });
+}
+
+/// An object that provides additional information about a local peripheral’s
+/// characteristic.
+final class ImmutableGATTDescriptor extends MutableGATTDescriptor {
   /// The value of the descriptor.
   final Uint8List value;
 
@@ -177,17 +200,25 @@ final class ImmutableGATTCharacteristic extends MutableGATTCharacteristic {
 }
 
 /// A request that uses the Attribute Protocol (ATT).
-abstract base class GATTCharacteristicRequest {
-  /// The characteristic to read or write the value of.
-  final GATTCharacteristic characteristic;
-
+abstract base class GATTRequest {
   /// The zero-based index of the first byte for the read or write request.
   final int offset;
+
+  /// Constructs a [GATTRequest].
+  GATTRequest({
+    required this.offset,
+  });
+}
+
+/// A request that uses the Attribute Protocol (ATT).
+abstract base class GATTCharacteristicRequest extends GATTRequest {
+  /// The characteristic to read or write the value of.
+  final GATTCharacteristic characteristic;
 
   /// Constructs a [GATTCharacteristicRequest].
   GATTCharacteristicRequest({
     required this.characteristic,
-    required this.offset,
+    required super.offset,
   });
 }
 
@@ -209,6 +240,42 @@ abstract base class GATTCharacteristicWriteRequest
 
   /// Constructs a [GATTCharacteristicWriteRequest].
   GATTCharacteristicWriteRequest({
+    required super.characteristic,
+    required super.offset,
+    required this.value,
+  });
+}
+
+/// A request that uses the Attribute Protocol (ATT).
+abstract base class GATTDescriptorRequest extends GATTRequest {
+  /// The descriptor to read or write the value of.
+  final GATTDescriptor descriptor;
+
+  /// Constructs a [GATTDescriptorRequest].
+  GATTDescriptorRequest({
+    required this.descriptor,
+    required super.offset,
+  });
+}
+
+/// A read request that uses the Attribute Protocol (ATT).
+abstract base class GATTDescriptorReadRequest
+    extends GATTCharacteristicRequest {
+  /// Constructs a [GATTDescriptorReadRequest].
+  GATTDescriptorReadRequest({
+    required super.characteristic,
+    required super.offset,
+  });
+}
+
+/// A write request that uses the Attribute Protocol (ATT).
+abstract base class GATTDescriptorWriteRequest
+    extends GATTCharacteristicRequest {
+  /// The data that the central writes to the peripheral.
+  final Uint8List value;
+
+  /// Constructs a [GATTDescriptorWriteRequest].
+  GATTDescriptorWriteRequest({
     required super.characteristic,
     required super.offset,
     required this.value,

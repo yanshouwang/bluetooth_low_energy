@@ -33,11 +33,12 @@ final class CentralMTUChangedEventArgs extends MTUChangedEventArgs {
   );
 }
 
-/// The GATT characteristic read event arguments.
+/// The GATT characteristic read requested event arguments.
 final class GATTCharacteristicReadRequestedEventArgs extends EventArgs {
   /// The central which read this characteristic.
   final Central central;
 
+  /// The read request.
   final GATTCharacteristicReadRequest request;
 
   /// Constructs a [GATTCharacteristicReadRequestedEventArgs].
@@ -47,11 +48,12 @@ final class GATTCharacteristicReadRequestedEventArgs extends EventArgs {
   );
 }
 
-/// The GATT characteristic written event arguments.
+/// The GATT characteristic write requested event arguments.
 final class GATTCharacteristicWriteRequestedEventArgs extends EventArgs {
   /// The central which wrote this characteristic.
   final Central central;
 
+  /// The write request.
   final GATTCharacteristicWriteRequest request;
 
   /// Constructs a [GATTCharacteristicWriteRequestedEventArgs].
@@ -77,6 +79,36 @@ final class GATTCharacteristicNotifyStateChangedEventArgs extends EventArgs {
     this.central,
     this.characteristic,
     this.state,
+  );
+}
+
+/// The GATT descriptor read requested event arguments.
+final class GATTDescriptorReadRequestedEventArgs extends EventArgs {
+  /// The central which read this characteristic.
+  final Central central;
+
+  /// The read request.
+  final GATTDescriptorReadRequest request;
+
+  /// Constructs a [GATTDescriptorReadRequestedEventArgs].
+  GATTDescriptorReadRequestedEventArgs(
+    this.central,
+    this.request,
+  );
+}
+
+/// The GATT descriptor write requested event arguments.
+final class GATTDescriptorWriteRequestedEventArgs extends EventArgs {
+  /// The central which wrote this characteristic.
+  final Central central;
+
+  /// The write request.
+  final GATTDescriptorWriteRequest request;
+
+  /// Constructs a [GATTDescriptorWriteRequestedEventArgs].
+  GATTDescriptorWriteRequestedEventArgs(
+    this.central,
+    this.request,
   );
 }
 
@@ -123,6 +155,14 @@ abstract interface class PeripheralManager
   /// Tells that the peripheral manager received a characteristic’s notify changed.
   Stream<GATTCharacteristicNotifyStateChangedEventArgs>
       get characteristicNotifyStateChanged;
+
+  /// Tells that the local peripheral device received an Attribute Protocol (ATT)
+  /// read request for a descriptor with a dynamic value.
+  Stream<GATTDescriptorReadRequestedEventArgs> get descriptorReadRequested;
+
+  /// Tells that the local peripheral device received an Attribute Protocol (ATT)
+  /// write request for a descriptor with a dynamic value.
+  Stream<GATTDescriptorWriteRequestedEventArgs> get descriptorWriteRequested;
 
   /// Publishes a service and any of its associated characteristics and characteristic
   /// descriptors to the local GATT database.
@@ -181,8 +221,31 @@ abstract interface class PeripheralManager
   /// that haven’t subscribed to the characteristic’s value.
   Future<void> notifyCharacteristic(
     GATTCharacteristic characteristic, {
-    Uint8List value,
+    required Uint8List value,
     Central? central,
+  });
+
+  /// Responds to a read request from a connected central.
+  Future<void> respondDescriptorReadRequestWithValue(
+    GATTDescriptorReadRequest request, {
+    required Uint8List value,
+  });
+
+  /// Responds to a read request from a connected central.
+  Future<void> respondDescriptorReadRequestWithError(
+    GATTDescriptorReadRequest request, {
+    required GATTError error,
+  });
+
+  /// Responds to a write request from a connected central.
+  Future<void> respondDescriptorWriteRequest(
+    GATTDescriptorWriteRequest request,
+  );
+
+  /// Responds to a write request from a connected central.
+  Future<void> respondDescriptorWriteRequestWithError(
+    GATTDescriptorWriteRequest request, {
+    required GATTError error,
   });
 }
 
