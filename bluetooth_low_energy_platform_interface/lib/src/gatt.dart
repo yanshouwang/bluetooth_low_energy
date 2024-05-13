@@ -269,24 +269,22 @@ abstract base class GATTDescriptorRequest extends GATTRequest {
 }
 
 /// A read request that uses the Attribute Protocol (ATT).
-abstract base class GATTDescriptorReadRequest
-    extends GATTCharacteristicRequest {
+abstract base class GATTDescriptorReadRequest extends GATTDescriptorRequest {
   /// Constructs a [GATTDescriptorReadRequest].
   GATTDescriptorReadRequest({
-    required super.characteristic,
+    required super.descriptor,
     required super.offset,
   });
 }
 
 /// A write request that uses the Attribute Protocol (ATT).
-abstract base class GATTDescriptorWriteRequest
-    extends GATTCharacteristicRequest {
+abstract base class GATTDescriptorWriteRequest extends GATTDescriptorRequest {
   /// The data that the central writes to the peripheral.
   final Uint8List value;
 
   /// Constructs a [GATTDescriptorWriteRequest].
   GATTDescriptorWriteRequest({
-    required super.characteristic,
+    required super.descriptor,
     required super.offset,
     required this.value,
   });

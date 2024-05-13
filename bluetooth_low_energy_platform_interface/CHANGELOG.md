@@ -1,3 +1,7 @@
+## 6.0.0-dev.14
+
+* Fix errors.
+
 ## 6.0.0-dev.13
 
 * Add `MutableGATTDescriptor#permissions` field.
