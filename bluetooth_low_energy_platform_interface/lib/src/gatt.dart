@@ -31,9 +31,11 @@ abstract base class GATTDescriptor extends GATTAttribute {
   /// For more details about these descriptor types, see CBUUID.
   factory GATTDescriptor.mutable({
     required UUID uuid,
+    required List<GATTCharacteristicPermission> permissions,
   }) =>
       MutableGATTDescriptor(
         uuid: uuid,
+        permissions: permissions,
       );
 
   /// Creates a immutable descriptor with a specified value.
@@ -128,8 +130,12 @@ base class GATTService extends GATTAttribute {
 /// An object that provides additional information about a local peripheral’s
 /// characteristic.
 final class MutableGATTDescriptor extends GATTDescriptor {
+  /// The permissions of the descriptor value.
+  final List<GATTCharacteristicPermission> permissions;
+
   MutableGATTDescriptor({
     required super.uuid,
+    required this.permissions,
   });
 }
 
@@ -151,7 +157,11 @@ final class ImmutableGATTDescriptor extends MutableGATTDescriptor {
   ImmutableGATTDescriptor({
     required super.uuid,
     required this.value,
-  });
+  }) : super(
+          permissions: [
+            GATTCharacteristicPermission.read,
+          ],
+        );
 }
 
 /// A mutable characteristic of a local peripheral’s service.

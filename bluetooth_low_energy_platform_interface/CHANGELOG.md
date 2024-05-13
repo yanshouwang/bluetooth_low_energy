@@ -1,3 +1,8 @@
+## 6.0.0-dev.13
+
+* Add `MutableGATTDescriptor#permissions` field.
+* Fix errors.
+
 ## 6.0.0-dev.12
 
 * Add `GATTDescriptorReadRequestedEventArgs` class.
