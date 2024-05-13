@@ -74,45 +74,22 @@ final class MyGATTService extends GATTService {
   }
 }
 
-final class MyGATTCharacteristicReadRequest
-    extends GATTCharacteristicReadRequest {
+final class MyGATTReadRequest extends GATTReadRequest {
   final int id;
 
-  MyGATTCharacteristicReadRequest({
+  MyGATTReadRequest({
     required this.id,
-    required super.characteristic,
     required super.offset,
   });
 }
 
-final class MyGATTCharacteristicWriteRequest
-    extends GATTCharacteristicWriteRequest {
+final class MyGATTWriteRequest extends GATTWriteRequest {
   final int id;
+  final bool responseNeeded;
 
-  MyGATTCharacteristicWriteRequest({
+  MyGATTWriteRequest({
     required this.id,
-    required super.characteristic,
-    required super.offset,
-    required super.value,
-  });
-}
-
-final class MyGATTDescriptorReadRequest extends GATTDescriptorReadRequest {
-  final int id;
-
-  MyGATTDescriptorReadRequest({
-    required this.id,
-    required super.descriptor,
-    required super.offset,
-  });
-}
-
-final class MyGATTDescriptorWriteRequest extends GATTDescriptorWriteRequest {
-  final int id;
-
-  MyGATTDescriptorWriteRequest({
-    required this.id,
-    required super.descriptor,
+    required this.responseNeeded,
     required super.offset,
     required super.value,
   });

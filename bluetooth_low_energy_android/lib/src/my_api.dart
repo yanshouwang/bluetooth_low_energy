@@ -187,6 +187,31 @@ extension GATTCharacteristicWriteTypeX on GATTCharacteristicWriteType {
   }
 }
 
+extension GATTErrorX on GATTError {
+  MyGATTStatusArgs toArgs() {
+    switch (this) {
+      case GATTError.readNotPermitted:
+        return MyGATTStatusArgs.readNotPermitted;
+      case GATTError.writeNotPermitted:
+        return MyGATTStatusArgs.writeNotPermitted;
+      case GATTError.insufficientAuthentication:
+        return MyGATTStatusArgs.insufficientAuthentication;
+      case GATTError.requestNotSupported:
+        return MyGATTStatusArgs.requestNotSupported;
+      case GATTError.invalidOffset:
+        return MyGATTStatusArgs.invalidOffset;
+      case GATTError.insufficientAuthorization:
+        return MyGATTStatusArgs.insufficientAuthorization;
+      case GATTError.invalidAttributeValueLength:
+        return MyGATTStatusArgs.invalidAttributeLength;
+      case GATTError.insufficientEncryption:
+        return MyGATTStatusArgs.insufficientEncryption;
+      default:
+        return MyGATTStatusArgs.failure;
+    }
+  }
+}
+
 extension ManufacturerSpecificDataX on ManufacturerSpecificData {
   MyManufacturerSpecificDataArgs toArgs() {
     final idArgs = id;
