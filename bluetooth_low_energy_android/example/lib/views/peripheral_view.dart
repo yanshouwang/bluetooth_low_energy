@@ -121,8 +121,7 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
                       await centralManager.discoverGATT(peripheral);
                   final mtu = await centralManager.requestMTU(
                     peripheral,
-                    // mtu: 517,
-                    mtu: 37,
+                    mtu: 517,
                   );
                   logger.info('requestMTU: $mtu');
                 }
