@@ -1,3 +1,8 @@
+## 6.0.0-dev.16
+
+* Add `GATTService.isPrimary` field.
+* Add `peripheral` argument to all methods.
+
 ## 6.0.0-dev.15
 
 * Add `GATTReadRequest` class.

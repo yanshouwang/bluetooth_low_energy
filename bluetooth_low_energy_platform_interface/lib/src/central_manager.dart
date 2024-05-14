@@ -61,6 +61,9 @@ final class PeripheralMTUChangedEventArgs extends EventArgs {
 
 /// The GATT characteristic notified event arguments.
 final class GATTCharacteristicNotifiedEventArgs extends EventArgs {
+  /// The peripheral which notified.
+  final Peripheral peripheral;
+
   /// The GATT characteristic which notified.
   final GATTCharacteristic characteristic;
 
@@ -69,6 +72,7 @@ final class GATTCharacteristicNotifiedEventArgs extends EventArgs {
 
   /// Constructs a [GATTCharacteristicNotifiedEventArgs].
   GATTCharacteristicNotifiedEventArgs(
+    this.peripheral,
     this.characteristic,
     this.value,
   );
@@ -162,10 +166,14 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   Future<List<GATTService>> discoverGATT(Peripheral peripheral);
 
   /// Retrieves the value of a specified characteristic.
-  Future<Uint8List> readCharacteristic(GATTCharacteristic characteristic);
+  Future<Uint8List> readCharacteristic(
+    Peripheral peripheral,
+    GATTCharacteristic characteristic,
+  );
 
   /// Writes the value of a characteristic.
   Future<void> writeCharacteristic(
+    Peripheral peripheral,
     GATTCharacteristic characteristic, {
     required Uint8List value,
     required GATTCharacteristicWriteType type,
@@ -173,15 +181,20 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
 
   /// Sets notifications or indications for the value of a specified characteristic.
   Future<void> setCharacteristicNotifyState(
+    Peripheral peripheral,
     GATTCharacteristic characteristic, {
     required bool state,
   });
 
   /// Retrieves the value of a specified characteristic descriptor.
-  Future<Uint8List> readDescriptor(GATTDescriptor descriptor);
+  Future<Uint8List> readDescriptor(
+    Peripheral peripheral,
+    GATTDescriptor descriptor,
+  );
 
   /// Writes the value of a characteristic descriptor.
   Future<void> writeDescriptor(
+    Peripheral peripheral,
     GATTDescriptor descriptor, {
     required Uint8List value,
   });

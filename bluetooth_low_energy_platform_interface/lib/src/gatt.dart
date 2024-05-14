@@ -113,15 +113,21 @@ abstract base class GATTCharacteristic extends GATTAttribute {
 /// A collection of data and associated behaviors that accomplish a function or
 /// feature of a device.
 base class GATTService extends GATTAttribute {
+  /// A Boolean value that indicates whether the type of service is primary or
+  /// secondary.
+  final bool isPrimary;
+
   /// A list of included services discovered in this service.
   final List<GATTService> includedServices;
 
   /// A list of characteristics discovered in this service.
   final List<GATTCharacteristic> characteristics;
 
-  /// Creates a newly initialized mutable service specified by UUID and service type.
+  /// Creates a newly initialized mutable service specified by UUID and service
+  /// type.
   GATTService({
     required super.uuid,
+    required this.isPrimary,
     required this.includedServices,
     required this.characteristics,
   });
