@@ -1,6 +1,8 @@
 // Run with `dart run pigeon --input my_api.dart`.
 import 'package:pigeon/pigeon.dart';
 
+// TODO: use `@ProxyApi` to manage instancs when this feature released:
+// https://github.com/flutter/flutter/issues/147486
 @ConfigurePigeon(
   PigeonOptions(
     dartOut: 'lib/src/my_api.g.dart',
@@ -29,6 +31,13 @@ enum MyGATTCharacteristicPropertyArgs {
   writeWithoutResponse,
   notify,
   indicate,
+}
+
+enum MyGATTCharacteristicPermissionArgs {
+  read,
+  readEncrypted,
+  write,
+  writeEncrypted,
 }
 
 enum MyGATTCharacteristicWriteTypeArgs {
@@ -117,11 +126,15 @@ class MyGATTCharacteristicArgs {
 class MyGATTServiceArgs {
   final int hashCodeArgs;
   final String uuidArgs;
+  final bool isPrimaryArgs;
+  final List<MyGATTServiceArgs?> includedServicesArgs;
   final List<MyGATTCharacteristicArgs?> characteristicsArgs;
 
   MyGATTServiceArgs(
     this.hashCodeArgs,
     this.uuidArgs,
+    this.isPrimaryArgs,
+    this.includedServicesArgs,
     this.characteristicsArgs,
   );
 }
@@ -142,6 +155,7 @@ class MyMutableGATTCharacteristicArgs {
   final int hashCodeArgs;
   final String uuidArgs;
   final List<int?> propertyNumbersArgs;
+  final List<int?> permissionNumbersArgs;
   final Uint8List? valueArgs;
   final List<MyMutableGATTDescriptorArgs?> descriptorsArgs;
 
@@ -149,6 +163,7 @@ class MyMutableGATTCharacteristicArgs {
     this.hashCodeArgs,
     this.uuidArgs,
     this.propertyNumbersArgs,
+    this.permissionNumbersArgs,
     this.valueArgs,
     this.descriptorsArgs,
   );
@@ -157,11 +172,15 @@ class MyMutableGATTCharacteristicArgs {
 class MyMutableGATTServiceArgs {
   final int hashCodeArgs;
   final String uuidArgs;
+  final bool isPrimaryArgs;
+  final List<MyMutableGATTServiceArgs?> includedServices;
   final List<MyMutableGATTCharacteristicArgs?> characteristicsArgs;
 
   MyMutableGATTServiceArgs(
     this.hashCodeArgs,
     this.uuidArgs,
+    this.isPrimaryArgs,
+    this.includedServices,
     this.characteristicsArgs,
   );
 }
@@ -192,7 +211,7 @@ abstract class MyCentralManagerHostAPI {
   void connect(String uuidArgs);
   @async
   void disconnect(String uuidArgs);
-  int maximumWriteValueLength(
+  int getMaximumWriteLength(
     String uuidArgs,
     MyGATTCharacteristicWriteTypeArgs typeArgs,
   );
@@ -240,12 +259,12 @@ abstract class MyCentralManagerFlutterAPI {
     MyAdvertisementArgs advertisementArgs,
   );
   void onConnectionStateChanged(
-    String uuidArgs,
+    MyPeripheralArgs peripheralArgs,
     MyConnectionStateArgs stateArgs,
   );
   void onCharacteristicNotified(
-    String uuidArgs,
-    int hashCodeArgs,
+    MyPeripheralArgs peripheralArgs,
+    MyGATTCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
   );
 }
@@ -256,11 +275,11 @@ abstract class MyPeripheralManagerHostAPI {
   @async
   void addService(MyMutableGATTServiceArgs serviceArgs);
   void removeService(int hashCodeArgs);
-  void clearServices();
+  void removeAllServices();
   @async
   void startAdvertising(MyAdvertisementArgs advertisementArgs);
   void stopAdvertising();
-  int maximumUpdateValueLength(String uuidArgs);
+  int getMaximumNotifyLength(String uuidArgs);
   void respond(
     int hashCodeArgs,
     Uint8List? valueArgs,

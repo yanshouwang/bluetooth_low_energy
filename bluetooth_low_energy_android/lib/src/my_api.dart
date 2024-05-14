@@ -279,10 +279,8 @@ extension MutableGATTCharacteristicX on MutableGATTCharacteristic {
 extension GATTServiceX on GATTService {
   MyMutableGATTServiceArgs toArgs() {
     final uuidArgs = uuid.toArgs();
-    final includedServicesArgs = includedServices
-        .cast<GATTService>()
-        .map((service) => service.toArgs())
-        .toList();
+    final includedServicesArgs =
+        includedServices.map((service) => service.toArgs()).toList();
     final characteristicsArgs = characteristics
         .cast<MutableGATTCharacteristic>()
         .map((characteristic) => characteristic.toArgs())

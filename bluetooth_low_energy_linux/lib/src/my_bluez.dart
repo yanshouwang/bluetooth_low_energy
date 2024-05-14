@@ -5,36 +5,34 @@ import 'package:bluez/bluez.dart';
 
 import 'my_gatt_characteristic2.dart';
 import 'my_gatt_descriptor2.dart';
-import 'my_gatt_service2.dart';
+import 'my_gatt.dart';
 
 extension BlueZGattCharacteristicFlagX on BlueZGattCharacteristicFlag {
-  GattCharacteristicProperty? toMyProperty() {
+  GATTCharacteristicProperty? toMyProperty() {
     switch (this) {
       case BlueZGattCharacteristicFlag.read:
-        return GattCharacteristicProperty.read;
+        return GATTCharacteristicProperty.read;
       case BlueZGattCharacteristicFlag.write:
-        return GattCharacteristicProperty.write;
+        return GATTCharacteristicProperty.write;
       case BlueZGattCharacteristicFlag.writeWithoutResponse:
-        return GattCharacteristicProperty.writeWithoutResponse;
+        return GATTCharacteristicProperty.writeWithoutResponse;
       case BlueZGattCharacteristicFlag.notify:
-        return GattCharacteristicProperty.notify;
+        return GATTCharacteristicProperty.notify;
       case BlueZGattCharacteristicFlag.indicate:
-        return GattCharacteristicProperty.indicate;
+        return GATTCharacteristicProperty.indicate;
       default:
         return null;
     }
   }
 }
 
-extension GattCharacteristicWriteTypeX on GattCharacteristicWriteType {
+extension GattCharacteristicWriteTypeX on GATTCharacteristicWriteType {
   BlueZGattCharacteristicWriteType toBlueZWriteType() {
     switch (this) {
-      case GattCharacteristicWriteType.withResponse:
+      case GATTCharacteristicWriteType.withResponse:
         return BlueZGattCharacteristicWriteType.request;
-      case GattCharacteristicWriteType.withoutResponse:
+      case GATTCharacteristicWriteType.withoutResponse:
         return BlueZGattCharacteristicWriteType.command;
-      default:
-        throw UnimplementedError();
     }
   }
 }
@@ -50,8 +48,8 @@ extension BlueZAdapterX on BlueZAdapter {
 extension BlueZDeviceX on BlueZDevice {
   UUID get myUUID => UUID.fromAddress(address);
 
-  List<MyGattService2> get myServices =>
-      gattServices.map((service) => MyGattService2(service)).toList();
+  List<MyGATTService> get myServices =>
+      gattServices.map((service) => MyGATTService(service)).toList();
 
   Advertisement get myAdvertisement {
     final myName = name.isNotEmpty ? name : null;
@@ -90,20 +88,20 @@ extension BlueZGattDescriptorX on BlueZGattDescriptor {
 extension MyBlueZGattCharacteristic on BlueZGattCharacteristic {
   UUID get myUUID => uuid.toMyUUID();
 
-  List<GattCharacteristicProperty> get myProperties => flags
+  List<GATTCharacteristicProperty> get myProperties => flags
       .map((e) => e.toMyProperty())
-      .whereType<GattCharacteristicProperty>()
+      .whereType<GATTCharacteristicProperty>()
       .toList();
 
-  List<MyGattDescriptor2> get myDescriptors =>
-      descriptors.map((descriptor) => MyGattDescriptor2(descriptor)).toList();
+  List<MyGATTDescriptor> get myDescriptors =>
+      descriptors.map((descriptor) => MyGATTDescriptor(descriptor)).toList();
 }
 
 extension BlueZGattServiceX on BlueZGattService {
   UUID get myUUID => uuid.toMyUUID();
 
-  List<MyGattCharacteristic2> get myCharacteristics => characteristics
-      .map((characteristic) => MyGattCharacteristic2(characteristic))
+  List<MyGATTCharacteristic> get myCharacteristics => characteristics
+      .map((characteristic) => MyGATTCharacteristic(characteristic))
       .toList();
 }
 

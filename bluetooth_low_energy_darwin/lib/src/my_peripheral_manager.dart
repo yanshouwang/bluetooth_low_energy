@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:flutter/foundation.dart';
@@ -6,15 +7,15 @@ import 'package:flutter/foundation.dart';
 import 'my_api.dart';
 import 'my_api.g.dart';
 
-final class MyPeripheralManager extends BasePeripheralManager
+final class MyPeripheralManager extends PlatformPeripheralManager
     implements MyPeripheralManagerFlutterAPI {
   final MyPeripheralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
-  final StreamController<GATTCharacteristicReadEventArgs>
-      _characteristicReadController;
-  final StreamController<GATTCharacteristicWrittenEventArgs>
-      _characteristicWrittenController;
+  final StreamController<GATTCharacteristicReadRequestedEventArgs>
+      _characteristicReadRequestedController;
+  final StreamController<GATTCharacteristicWriteRequestedEventArgs>
+      _characteristicWriteRequestedController;
   final StreamController<GATTCharacteristicNotifyStateChangedEventArgs>
       _characteristicNotifyStateChangedController;
   final StreamController<EventArgs> _isReadyController;
@@ -27,8 +28,8 @@ final class MyPeripheralManager extends BasePeripheralManager
   MyPeripheralManager()
       : _api = MyPeripheralManagerHostAPI(),
         _stateChangedController = StreamController.broadcast(),
-        _characteristicReadController = StreamController.broadcast(),
-        _characteristicWrittenController = StreamController.broadcast(),
+        _characteristicReadRequestedController = StreamController.broadcast(),
+        _characteristicWriteRequestedController = StreamController.broadcast(),
         _characteristicNotifyStateChangedController =
             StreamController.broadcast(),
         _isReadyController = StreamController.broadcast(),
@@ -42,18 +43,32 @@ final class MyPeripheralManager extends BasePeripheralManager
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
+  Stream<CentralConnectionStateChangedEventArgs> get connectionStateChanged =>
+      throw UnsupportedError(
+          'connectionStateChanged is not supported on Darwin.');
+  @override
   Stream<CentralMTUChangedEventArgs> get mtuChanged =>
       throw UnsupportedError('mtuChanged is not supported on Darwin.');
   @override
-  Stream<GATTCharacteristicReadEventArgs> get characteristicRead =>
-      _characteristicReadController.stream;
+  Stream<GATTCharacteristicReadRequestedEventArgs>
+      get characteristicReadRequested =>
+          _characteristicReadRequestedController.stream;
   @override
-  Stream<GATTCharacteristicWrittenEventArgs> get characteristicWritten =>
-      _characteristicWrittenController.stream;
+  Stream<GATTCharacteristicWriteRequestedEventArgs>
+      get characteristicWriteRequested =>
+          _characteristicWriteRequestedController.stream;
   @override
   Stream<GATTCharacteristicNotifyStateChangedEventArgs>
       get characteristicNotifyStateChanged =>
           _characteristicNotifyStateChangedController.stream;
+  @override
+  Stream<GATTDescriptorReadRequestedEventArgs> get descriptorReadRequested =>
+      throw UnsupportedError(
+          'descriptorReadRequested is not supported on Darwin.');
+  @override
+  Stream<GATTDescriptorWriteRequestedEventArgs> get descriptorWriteRequested =>
+      throw UnsupportedError(
+          'descriptorWriteRequested is not supported on Darwin.');
   Stream<EventArgs> get _isReady => _isReadyController.stream;
 
   @override
@@ -110,9 +125,9 @@ final class MyPeripheralManager extends BasePeripheralManager
   }
 
   @override
-  Future<void> clearServices() async {
-    logger.info('clearServices');
-    await _api.clearServices();
+  Future<void> removeAllServices() async {
+    logger.info('removeAllServices');
+    await _api.removeAllServices();
     _characteristics.clear();
     _subscribedCentrals.clear();
   }
@@ -131,33 +146,61 @@ final class MyPeripheralManager extends BasePeripheralManager
   }
 
   @override
-  Future<Uint8List> readCharacteristic(GATTCharacteristic characteristic) {
-    if (characteristic is! MutableGATTCharacteristic) {
-      throw TypeError();
-    }
-    final hashCodeArgs = characteristic.hashCode;
-    logger.info('readCharacteristic: $hashCodeArgs');
-    final value = characteristic.value;
-    return Future.value(value);
+  Future<int> getMaximumNotifyLength(Central central) async {
+    final uuidArgs = central.uuid.toArgs();
+    logger.info('getMaximumNotifyLength: $uuidArgs');
+    final maximumNotifyLength = await _api.getMaximumNotifyLength(uuidArgs);
+    return maximumNotifyLength;
   }
 
   @override
-  Future<void> writeCharacteristic(
+  Future<void> respondCharacteristicReadRequestWithValue(
+    Central central,
     GATTCharacteristic characteristic, {
+    required GATTReadRequest request,
     required Uint8List value,
-    Central? central,
   }) {
-    if (characteristic is! MutableGATTCharacteristic) {
-      throw TypeError();
-    }
-    characteristic.value = value;
-    return Future.value();
+    // TODO: implement respondCharacteristicReadRequestWithValue
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> respondCharacteristicReadRequestWithError(
+    Central central,
+    GATTCharacteristic characteristic, {
+    required GATTReadRequest request,
+    required GATTError error,
+  }) {
+    // TODO: implement respondCharacteristicReadRequestWithError
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> respondCharacteristicWriteRequest(
+    Central central,
+    GATTCharacteristic characteristic, {
+    required GATTWriteRequest request,
+  }) {
+    // TODO: implement respondCharacteristicWriteRequest
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> respondCharacteristicWriteRequestWithError(
+    Central central,
+    GATTCharacteristic characteristic, {
+    required GATTWriteRequest request,
+    required GATTError error,
+  }) {
+    // TODO: implement respondCharacteristicWriteRequestWithError
+    throw UnimplementedError();
   }
 
   @override
   Future<void> notifyCharacteristic(
+    Central central,
     GATTCharacteristic characteristic, {
-    List<Central>? centrals,
+    required Uint8List value,
   }) async {
     if (characteristic is! MutableGATTCharacteristic) {
       throw TypeError();
@@ -205,8 +248,50 @@ final class MyPeripheralManager extends BasePeripheralManager
   }
 
   @override
-  void onStateChanged(int stateNumberArgs) {
-    final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
+  Future<void> respondDescriptorReadRequestWithValue(
+    Central central,
+    GATTDescriptor descriptor, {
+    required GATTReadRequest request,
+    required Uint8List value,
+  }) {
+    throw UnsupportedError(
+        'respondDescriptorReadRequestWithValue is not supported on Darwin.');
+  }
+
+  @override
+  Future<void> respondDescriptorReadRequestWithError(
+    Central central,
+    GATTDescriptor descriptor, {
+    required GATTReadRequest request,
+    required GATTError error,
+  }) {
+    throw UnsupportedError(
+        'respondDescriptorReadRequestWithError is not supported on Darwin.');
+  }
+
+  @override
+  Future<void> respondDescriptorWriteRequest(
+    Central central,
+    GATTDescriptor descriptor, {
+    required GATTWriteRequest request,
+  }) {
+    throw UnsupportedError(
+        'respondDescriptorWriteRequest is not supported on Darwin.');
+  }
+
+  @override
+  Future<void> respondDescriptorWriteRequestWithError(
+    Central central,
+    GATTDescriptor descriptor, {
+    required GATTWriteRequest request,
+    required GATTError error,
+  }) {
+    throw UnsupportedError(
+        'respondDescriptorWriteRequestWithError is not supported on Darwin.');
+  }
+
+  @override
+  void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs) {
     logger.info('onStateChanged: $stateArgs');
     final state = stateArgs.toState();
     if (_state == state) {
@@ -346,46 +431,5 @@ final class MyPeripheralManager extends BasePeripheralManager
     } catch (e) {
       logger.severe('respond failed.', e);
     }
-  }
-
-  Uint8List _onCharacteristicRead(
-    Central central,
-    MutableGATTCharacteristic characteristic,
-    int offset,
-  ) {
-    final value = characteristic.value ?? Uint8List.fromList([]);
-    if (offset == 0) {
-      final eventArgs = GATTCharacteristicReadEventArgs(
-        central,
-        characteristic,
-        value,
-      );
-      _characteristicReadController.add(eventArgs);
-    }
-    return value.sublist(offset);
-  }
-
-  void _onCharacteristicWritten(
-    Central central,
-    MutableGATTCharacteristic characteristic,
-    Uint8List value,
-  ) async {
-    characteristic.value = value;
-    final trimmedValue = characteristic.value;
-    if (trimmedValue == null) {
-      throw ArgumentError.notNull();
-    }
-    final eventArgs = GATTCharacteristicWrittenEventArgs(
-      central,
-      characteristic,
-      trimmedValue,
-    );
-    _characteristicWrittenController.add(eventArgs);
-  }
-
-  MutableGATTCharacteristic? _retrieveCharacteristic(int hashCodeArgs) {
-    final characteristics = _characteristics.values
-        .reduce((value, element) => value..addAll(element));
-    return characteristics[hashCodeArgs];
   }
 }

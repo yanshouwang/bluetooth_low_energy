@@ -4,6 +4,6 @@ import 'src/my_central_manager.dart';
 
 abstract class BluetoothLowEnergyLinux {
   static void registerWith() {
-    CentralManager.instance = MyCentralManager();
+    PlatformCentralManager.instance = MyCentralManager();
   }
 }
