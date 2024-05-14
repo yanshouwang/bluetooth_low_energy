@@ -38,6 +38,7 @@ final class MyCentralManager extends PlatformCentralManager
         _mtus = {},
         _state = BluetoothLowEnergyState.unknown;
 
+  UUID get cccUUID => UUID.short(0x2902);
   @override
   BluetoothLowEnergyState get state => _state;
   @override
@@ -118,7 +119,7 @@ final class MyCentralManager extends PlatformCentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final addressArgs = peripheral.address;
+    final addressArgs = peripheral.addressArgs;
     logger.info('connect: $addressArgs');
     await _api.connect(addressArgs);
   }
@@ -128,7 +129,7 @@ final class MyCentralManager extends PlatformCentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final addressArgs = peripheral.address;
+    final addressArgs = peripheral.addressArgs;
     logger.info('disconnect: $addressArgs');
     await _api.disconnect(addressArgs);
   }
@@ -141,7 +142,7 @@ final class MyCentralManager extends PlatformCentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final addressArgs = peripheral.address;
+    final addressArgs = peripheral.addressArgs;
     final mtuArgs = mtu;
     logger.info('requestMTU: $addressArgs - $mtuArgs');
     final size = await _api.requestMTU(addressArgs, mtuArgs);
@@ -156,7 +157,7 @@ final class MyCentralManager extends PlatformCentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final addressArgs = peripheral.address;
+    final addressArgs = peripheral.addressArgs;
     final mtu = _mtus[addressArgs] ?? 23;
     final maximumWriteLength = (mtu - 3).clamp(20, 512);
     return Future.value(maximumWriteLength);
@@ -167,7 +168,7 @@ final class MyCentralManager extends PlatformCentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final addressArgs = peripheral.address;
+    final addressArgs = peripheral.addressArgs;
     logger.info('readRSSI: $addressArgs');
     final rssi = await _api.readRSSI(addressArgs);
     return rssi;
@@ -178,7 +179,7 @@ final class MyCentralManager extends PlatformCentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final addressArgs = peripheral.address;
+    final addressArgs = peripheral.addressArgs;
     logger.info('discoverGATT: $addressArgs');
     final servicesArgs = await _api.discoverGATT(addressArgs);
     final services = servicesArgs
@@ -190,13 +191,15 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<Uint8List> readCharacteristic(
+    Peripheral peripheral,
     GATTCharacteristic characteristic,
   ) async {
-    if (characteristic is! MyGATTCharacteristic) {
+    if (peripheral is! MyPeripheral ||
+        characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final addressArgs = characteristic.address;
-    final hashCodeArgs = characteristic.hashCode;
+    final addressArgs = peripheral.addressArgs;
+    final hashCodeArgs = characteristic.hashCodeArgs;
     logger.info('readCharacteristic: $addressArgs.$hashCodeArgs');
     final value = await _api.readCharacteristic(addressArgs, hashCodeArgs);
     return value;
@@ -204,60 +207,41 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<void> writeCharacteristic(
+    Peripheral peripheral,
     GATTCharacteristic characteristic, {
     required Uint8List value,
     required GATTCharacteristicWriteType type,
   }) async {
-    if (characteristic is! MyGATTCharacteristic) {
+    if (peripheral is! MyPeripheral ||
+        characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final addressArgs = characteristic.address;
-    final hashCodeArgs = characteristic.hashCode;
-    final trimmedValueArgs = value.trimGATT();
+    final addressArgs = peripheral.addressArgs;
+    final hashCodeArgs = characteristic.hashCodeArgs;
+    final valueArgs = value;
     final typeArgs = type.toArgs();
-    if (type == GATTCharacteristicWriteType.withResponse) {
-      logger.info(
-          'writeCharacteristic: $addressArgs.$hashCodeArgs - $trimmedValueArgs, $typeArgs');
-      await _api.writeCharacteristic(
-        addressArgs,
-        hashCodeArgs,
-        trimmedValueArgs,
-        typeArgs,
-      );
-    } else {
-      // When write without response, fragments the value by MTU - 3 size.
-      // If mtu is null, use 23 as default MTU size.
-      final mtu = _mtus[addressArgs] ?? 23;
-      final fragmentSize = (mtu - 3).clamp(20, 512);
-      var start = 0;
-      while (start < trimmedValueArgs.length) {
-        final end = start + fragmentSize;
-        final fragmentedValueArgs = end < trimmedValueArgs.length
-            ? trimmedValueArgs.sublist(start, end)
-            : trimmedValueArgs.sublist(start);
-        logger.info(
-            'writeCharacteristic: $addressArgs.$hashCodeArgs - $fragmentedValueArgs, $typeArgs');
-        await _api.writeCharacteristic(
-          addressArgs,
-          hashCodeArgs,
-          fragmentedValueArgs,
-          typeArgs,
-        );
-        start = end;
-      }
-    }
+    logger.info(
+        'writeCharacteristic: $addressArgs.$hashCodeArgs - $valueArgs, $typeArgs');
+    await _api.writeCharacteristic(
+      addressArgs,
+      hashCodeArgs,
+      valueArgs,
+      typeArgs,
+    );
   }
 
   @override
   Future<void> setCharacteristicNotifyState(
+    Peripheral peripheral,
     GATTCharacteristic characteristic, {
     required bool state,
   }) async {
-    if (characteristic is! MyGATTCharacteristic) {
+    if (peripheral is! MyPeripheral ||
+        characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final addressArgs = characteristic.address;
-    final hashCodeArgs = characteristic.hashCode;
+    final addressArgs = peripheral.addressArgs;
+    final hashCodeArgs = characteristic.hashCodeArgs;
     final enableArgs = state;
     logger.info(
         'setCharacteristicNotification: $addressArgs.$hashCodeArgs - $enableArgs');
@@ -269,25 +253,29 @@ final class MyCentralManager extends PlatformCentralManager
     // Seems the docs is not correct, this operation is necessary for all characteristics.
     // https://developer.android.com/guide/topics/connectivity/bluetooth/transfer-ble-data#notification
     final descriptor = characteristic.descriptors
-        .firstWhere((descriptor) => descriptor.uuid == UUID.short(0x2902));
+        .firstWhere((descriptor) => descriptor.uuid == cccUUID);
     final value = state
         ? characteristic.properties.contains(GATTCharacteristicProperty.notify)
             ? _args.enableNotificationValue
             : _args.enableIndicationValue
         : _args.disableNotificationValue;
     await writeDescriptor(
+      peripheral,
       descriptor,
       value: value,
     );
   }
 
   @override
-  Future<Uint8List> readDescriptor(GATTDescriptor descriptor) async {
-    if (descriptor is! MyGATTDescriptor) {
+  Future<Uint8List> readDescriptor(
+    Peripheral peripheral,
+    GATTDescriptor descriptor,
+  ) async {
+    if (peripheral is! MyPeripheral || descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
-    final addressArgs = descriptor.address;
-    final hashCodeArgs = descriptor.hashCode;
+    final addressArgs = peripheral.addressArgs;
+    final hashCodeArgs = descriptor.hashCodeArgs;
     logger.info('readDescriptor: $addressArgs.$hashCodeArgs');
     final value = await _api.readDescriptor(addressArgs, hashCodeArgs);
     return value;
@@ -295,18 +283,18 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<void> writeDescriptor(
+    Peripheral peripheral,
     GATTDescriptor descriptor, {
     required Uint8List value,
   }) async {
-    if (descriptor is! MyGATTDescriptor) {
+    if (peripheral is! MyPeripheral || descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
-    final addressArgs = descriptor.address;
-    final hashCodeArgs = descriptor.hashCode;
-    final trimmedValueArgs = value.trimGATT();
-    logger.info(
-        'writeDescriptor: $addressArgs.$hashCodeArgs - $trimmedValueArgs');
-    await _api.writeDescriptor(addressArgs, hashCodeArgs, trimmedValueArgs);
+    final addressArgs = peripheral.addressArgs;
+    final hashCodeArgs = descriptor.hashCodeArgs;
+    final valueArgs = value;
+    logger.info('writeDescriptor: $addressArgs.$hashCodeArgs - $valueArgs');
+    await _api.writeDescriptor(addressArgs, hashCodeArgs, valueArgs);
   }
 
   @override
@@ -372,16 +360,19 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   void onCharacteristicNotified(
+    MyPeripheralArgs peripheralArgs,
     MyGATTCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
   ) {
-    final addressArgs = characteristicArgs.addressArgs;
+    final addressArgs = peripheralArgs.addressArgs;
     final hashCodeArgs = characteristicArgs.hashCodeArgs;
     logger.info(
         'onCharacteristicNotified: $addressArgs.$hashCodeArgs - $valueArgs');
+    final peripheral = peripheralArgs.toPeripheral();
     final characteristic = characteristicArgs.toCharacteristic();
     final value = valueArgs;
     final eventArgs = GATTCharacteristicNotifiedEventArgs(
+      peripheral,
       characteristic,
       value,
     );

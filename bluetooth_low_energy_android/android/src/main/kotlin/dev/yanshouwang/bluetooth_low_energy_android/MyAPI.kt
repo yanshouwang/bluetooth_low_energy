@@ -8,8 +8,8 @@ import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.AdvertiseData
-import android.bluetooth.le.ScanRecord
 import android.bluetooth.le.ScanResult
+import android.os.Build
 import android.os.ParcelUuid
 import android.util.SparseArray
 import java.util.UUID
@@ -31,7 +31,8 @@ fun MyGATTStatusArgs.toStatus(): Int {
         MyGATTStatusArgs.REQUEST_NOT_SUPPORTED -> BluetoothGatt.GATT_REQUEST_NOT_SUPPORTED
         MyGATTStatusArgs.INSUFFICIENT_ENCRYPTION -> BluetoothGatt.GATT_INSUFFICIENT_ENCRYPTION
         MyGATTStatusArgs.INVALID_OFFSET -> BluetoothGatt.GATT_INVALID_OFFSET
-        MyGATTStatusArgs.INSUFFICIENT_AUTHORIZATION -> BluetoothGatt.GATT_INSUFFICIENT_AUTHORIZATION
+        MyGATTStatusArgs.INSUFFICIENT_AUTHORIZATION -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) BluetoothGatt.GATT_INSUFFICIENT_AUTHORIZATION
+        else BluetoothGatt.GATT_FAILURE
         MyGATTStatusArgs.INVALID_ATTRIBUTE_LENGTH -> BluetoothGatt.GATT_INVALID_ATTRIBUTE_LENGTH
         MyGATTStatusArgs.CONNECTION_CONGESTED -> BluetoothGatt.GATT_CONNECTION_CONGESTED
         MyGATTStatusArgs.FAILURE -> BluetoothGatt.GATT_FAILURE
@@ -112,9 +113,11 @@ fun MyMutableGATTCharacteristicArgs.getPermissions(): Int {
 
 fun MyMutableGATTServiceArgs.toService(): BluetoothGattService {
     val uuid = UUID.fromString(uuidArgs)
-    val serviceType = BluetoothGattService.SERVICE_TYPE_PRIMARY
+    val serviceType = if (isPrimaryArgs) BluetoothGattService.SERVICE_TYPE_PRIMARY
+    else BluetoothGattService.SERVICE_TYPE_SECONDARY
     return BluetoothGattService(uuid, serviceType)
-} //endregion
+}
+//endregion
 
 //region ToArgs
 fun Int.toBluetoothLowEnergyStateArgs(): MyBluetoothLowEnergyStateArgs {
@@ -182,19 +185,10 @@ fun BluetoothDevice.toPeripheralArgs(): MyPeripheralArgs {
     return MyPeripheralArgs(addressArgs)
 }
 
-fun BluetoothGattService.toArgs(): MyGATTServiceArgs {
+fun BluetoothGattDescriptor.toArgs(): MyGATTDescriptorArgs {
     val hashCodeArgs = hashCode().toLong()
     val uuidArgs = this.uuid.toString()
-    val characteristicsArgs = characteristics.map { it.toArgs() }
-    return MyGATTServiceArgs(hashCodeArgs, uuidArgs, characteristicsArgs)
-}
-
-fun BluetoothGattCharacteristic.toArgs(): MyGATTCharacteristicArgs {
-    val hashCodeArgs = hashCode().toLong()
-    val uuidArgs = this.uuid.toString()
-    val propertyNumbersArgs = getPropertyNumbersArgs()
-    val descriptorsArgs = descriptors.map { it.toArgs() }
-    return MyGATTCharacteristicArgs(hashCodeArgs, uuidArgs, propertyNumbersArgs, descriptorsArgs)
+    return MyGATTDescriptorArgs(hashCodeArgs, uuidArgs)
 }
 
 fun BluetoothGattCharacteristic.getPropertyNumbersArgs(): List<Long> {
@@ -222,11 +216,23 @@ fun BluetoothGattCharacteristic.getPropertyNumbersArgs(): List<Long> {
     return numbersArgs
 }
 
-fun BluetoothGattDescriptor.toArgs(): MyGATTDescriptorArgs {
+fun BluetoothGattCharacteristic.toArgs(): MyGATTCharacteristicArgs {
     val hashCodeArgs = hashCode().toLong()
     val uuidArgs = this.uuid.toString()
-    return MyGATTDescriptorArgs(hashCodeArgs, uuidArgs)
-} //endregion
+    val propertyNumbersArgs = getPropertyNumbersArgs()
+    val descriptorsArgs = descriptors.map { it.toArgs() }
+    return MyGATTCharacteristicArgs(hashCodeArgs, uuidArgs, propertyNumbersArgs, descriptorsArgs)
+}
+
+fun BluetoothGattService.toArgs(): MyGATTServiceArgs {
+    val hashCodeArgs = hashCode().toLong()
+    val uuidArgs = uuid.toString()
+    val isPrimaryArgs = type == BluetoothGattService.SERVICE_TYPE_PRIMARY
+    val includedServicesArgs = includedServices.map { it.toArgs() }
+    val characteristicsArgs = characteristics.map { it.toArgs() }
+    return MyGATTServiceArgs(hashCodeArgs, uuidArgs, isPrimaryArgs, includedServicesArgs, characteristicsArgs)
+}
+//endregion
 
 //val Any.TAG get() = this::class.java.simpleName as String
 //

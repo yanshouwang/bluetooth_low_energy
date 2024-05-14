@@ -103,19 +103,16 @@ extension MyCentralArgsX on MyCentralArgs {
 extension MyPeripheralArgsX on MyPeripheralArgs {
   MyPeripheral toPeripheral() {
     return MyPeripheral(
-      address: addressArgs,
+      addressArgs: addressArgs,
     );
   }
 }
 
 extension MyGATTDescriptorArgsX on MyGATTDescriptorArgs {
   MyGATTDescriptor toDescriptor() {
-    final address = addressArgs;
-    final hashCode = hashCodeArgs;
     final uuid = uuidArgs.toUUID();
     return MyGATTDescriptor(
-      address: address,
-      hashCode: hashCode,
+      hashCodeArgs: hashCodeArgs,
       uuid: uuid,
     );
   }
@@ -123,8 +120,6 @@ extension MyGATTDescriptorArgsX on MyGATTDescriptorArgs {
 
 extension MyGATTCharacteristicArgsX on MyGATTCharacteristicArgs {
   MyGATTCharacteristic toCharacteristic() {
-    final address = addressArgs;
-    final hashCode = hashCodeArgs;
     final uuid = uuidArgs.toUUID();
     final properties = propertyNumbersArgs.cast<int>().map(
       (args) {
@@ -137,8 +132,7 @@ extension MyGATTCharacteristicArgsX on MyGATTCharacteristicArgs {
         .map((args) => args.toDescriptor())
         .toList();
     return MyGATTCharacteristic(
-      address: address,
-      hashCode: hashCode,
+      hashCodeArgs: hashCodeArgs,
       uuid: uuid,
       properties: properties,
       descriptors: descriptors,
@@ -148,8 +142,6 @@ extension MyGATTCharacteristicArgsX on MyGATTCharacteristicArgs {
 
 extension MyGATTServiceArgsX on MyGATTServiceArgs {
   MyGATTService toService() {
-    final address = addressArgs;
-    final hashCode = hashCodeArgs;
     final uuid = uuidArgs.toUUID();
     final includedServices = includedServicesArgs
         .cast<MyGATTServiceArgs>()
@@ -160,9 +152,9 @@ extension MyGATTServiceArgsX on MyGATTServiceArgs {
         .map((args) => args.toCharacteristic())
         .toList();
     return MyGATTService(
-      address: address,
-      hashCode: hashCode,
+      hashCodeArgs: hashCodeArgs,
       uuid: uuid,
+      isPrimary: isPrimaryArgs,
       includedServices: includedServices,
       characteristics: characteristics,
     );
@@ -286,7 +278,6 @@ extension MutableGATTCharacteristicX on MutableGATTCharacteristic {
 
 extension GATTServiceX on GATTService {
   MyMutableGATTServiceArgs toArgs() {
-    final hashCodeArgs = hashCode;
     final uuidArgs = uuid.toArgs();
     final includedServicesArgs = includedServices
         .cast<GATTService>()
@@ -297,8 +288,9 @@ extension GATTServiceX on GATTService {
         .map((characteristic) => characteristic.toArgs())
         .toList();
     return MyMutableGATTServiceArgs(
-      hashCodeArgs: hashCodeArgs,
+      hashCodeArgs: hashCode,
       uuidArgs: uuidArgs,
+      isPrimaryArgs: isPrimary,
       includedServicesArgs: includedServicesArgs,
       characteristicsArgs: characteristicsArgs,
     );

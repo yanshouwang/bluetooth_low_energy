@@ -1,3 +1,7 @@
+## 6.0.0-dev.2
+
+* Implement new APIs.
+
 ## 6.0.0-dev.1
 
 * Add `CentralManager#mtuChanged` event.

@@ -3,10 +3,8 @@ import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_example/models.dart';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
-import 'package:convert/convert.dart';
 import 'package:flutter/material.dart';
 import 'package:hybrid_logging/hybrid_logging.dart';
-import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
 
 class PeripheralManagerView extends StatefulWidget {
@@ -23,9 +21,10 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
   late final ValueNotifier<bool> advertising;
   late final ValueNotifier<List<Log>> logs;
   late final StreamSubscription stateChangedSubscription;
+  late final StreamSubscription connectionStateChangedSubscription;
   late final StreamSubscription mtuChangedSubscription;
-  late final StreamSubscription characteristicReadSubscription;
-  late final StreamSubscription characteristicWrittenSubscription;
+  late final StreamSubscription characteristicReadRequestedSubscription;
+  late final StreamSubscription characteristicWriteRequestedSubscription;
   late final StreamSubscription characteristicNotifyStateChangedSubscription;
 
   @override
@@ -36,43 +35,64 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
     state = ValueNotifier(peripheralManager.state);
     advertising = ValueNotifier(false);
     logs = ValueNotifier([]);
+    final elements = List.generate(100, (i) => i % 256);
+    final value = Uint8List.fromList(elements);
     stateChangedSubscription =
         peripheralManager.stateChanged.listen((eventArgs) {
       state.value = eventArgs.state;
     });
+    connectionStateChangedSubscription =
+        peripheralManager.connectionStateChanged.listen((eventArgs) {
+      final central = eventArgs.central;
+      final state = eventArgs.state;
+      logger.info('connectionStateChanged: ${central.uuid} - $state');
+    });
     mtuChangedSubscription = peripheralManager.mtuChanged.listen((eventArgs) {
+      final central = eventArgs.central;
       final mtu = eventArgs.mtu;
-      logger.info('MTU changed: $mtu');
+      logger.info('mtuChanged: ${central.uuid} - $mtu');
     });
-    characteristicReadSubscription =
-        peripheralManager.characteristicRead.listen((eventArgs) async {
+    characteristicReadRequestedSubscription =
+        peripheralManager.characteristicReadRequested.listen((eventArgs) async {
       final central = eventArgs.central;
       final characteristic = eventArgs.characteristic;
-      final value = eventArgs.value;
+      final request = eventArgs.request;
+      final offset = request.offset;
       final log = Log(
-        LogType.read,
-        value,
-        'central: ${central.uuid}; characteristic: ${characteristic.uuid}',
+        'characteristicReadRequested\n${central.uuid} - ${characteristic.uuid}, $offset',
       );
       logs.value = [
         ...logs.value,
         log,
       ];
+      final trimmedValue = value.sublist(offset);
+      await peripheralManager.respondCharacteristicReadRequestWithValue(
+        central,
+        characteristic,
+        request: request,
+        value: trimmedValue,
+      );
     });
-    characteristicWrittenSubscription =
-        peripheralManager.characteristicWritten.listen((eventArgs) async {
+    characteristicWriteRequestedSubscription = peripheralManager
+        .characteristicWriteRequested
+        .listen((eventArgs) async {
       final central = eventArgs.central;
       final characteristic = eventArgs.characteristic;
-      final value = eventArgs.value;
+      final request = eventArgs.request;
+      final offset = request.offset;
+      final value = request.value;
       final log = Log(
-        LogType.write,
-        value,
-        'central: ${central.uuid}; characteristic: ${characteristic.uuid}',
+        'characteristicWriteRequested\n${central.uuid} - ${characteristic.uuid}, $offset, $value',
       );
       logs.value = [
         ...logs.value,
         log,
       ];
+      await peripheralManager.respondCharacteristicWriteRequest(
+        central,
+        characteristic,
+        request: request,
+      );
     });
     characteristicNotifyStateChangedSubscription = peripheralManager
         .characteristicNotifyStateChanged
@@ -81,9 +101,7 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
       final characteristic = eventArgs.characteristic;
       final state = eventArgs.state;
       final log = Log(
-        LogType.notify,
-        Uint8List.fromList([]),
-        'central: ${central.uuid}; characteristic: ${characteristic.uuid}; state: $state',
+        'characteristicNotifyStateChanged\n${central.uuid} - ${characteristic.uuid}, $state',
       );
       logs.value = [
         ...logs.value,
@@ -91,14 +109,12 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
       ];
       // Write someting to the central when notify started.
       if (state) {
-        final elements = List.generate(2000, (i) => i % 256);
+        final elements = List.generate(1000, (i) => i % 256);
         final value = Uint8List.fromList(elements);
-        await peripheralManager.writeCharacteristic(
+        await peripheralManager.notifyCharacteristic(
+          central,
           characteristic,
           value: value,
-        );
-        await peripheralManager.notifyCharacteristic(
-          characteristic,
         );
       }
     });
@@ -145,52 +161,32 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
   }
 
   Future<void> startAdvertising() async {
-    await peripheralManager.clearServices();
-    final elements = List.generate(1000, (i) => i % 256);
+    await peripheralManager.removeAllServices();
+    final elements = List.generate(100, (i) => i % 256);
     final value = Uint8List.fromList(elements);
     final service = GATTService(
       uuid: UUID.short(100),
+      isPrimary: true,
+      includedServices: [],
       characteristics: [
-        GATTCharacteristic(
+        GATTCharacteristic.immutable(
           uuid: UUID.short(200),
-          properties: [
-            GATTCharacteristicProperty.read,
-          ],
           value: value,
           descriptors: [],
         ),
-        GATTCharacteristic(
+        GATTCharacteristic.mutable(
           uuid: UUID.short(201),
           properties: [
-            GATTCharacteristicProperty.write,
-            GATTCharacteristicProperty.writeWithoutResponse,
-          ],
-          descriptors: [],
-        ),
-        GATTCharacteristic(
-          uuid: UUID.short(202),
-          properties: [
-            GATTCharacteristicProperty.notify,
-          ],
-          descriptors: [],
-        ),
-        GATTCharacteristic(
-          uuid: UUID.short(203),
-          properties: [
-            GATTCharacteristicProperty.indicate,
-          ],
-          descriptors: [],
-        ),
-        GATTCharacteristic(
-          uuid: UUID.short(204),
-          properties: [
             GATTCharacteristicProperty.read,
             GATTCharacteristicProperty.write,
             GATTCharacteristicProperty.writeWithoutResponse,
             GATTCharacteristicProperty.notify,
             GATTCharacteristicProperty.indicate,
           ],
-          value: value,
+          permissions: [
+            GATTCharacteristicPermission.read,
+            GATTCharacteristicPermission.write,
+          ],
           descriptors: [],
         ),
       ],
@@ -213,51 +209,13 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
   }
 
   Widget buildBody(BuildContext context) {
-    final theme = Theme.of(context);
     return ValueListenableBuilder(
       valueListenable: logs,
       builder: (context, logs, child) {
         return ListView.builder(
           itemBuilder: (context, i) {
             final log = logs[i];
-            final type = log.type.name.toUpperCase().characters.first;
-            final Color typeColor;
-            switch (log.type) {
-              case LogType.read:
-                typeColor = Colors.blue;
-                break;
-              case LogType.write:
-                typeColor = Colors.amber;
-                break;
-              case LogType.notify:
-                typeColor = Colors.red;
-                break;
-              default:
-                typeColor = Colors.black;
-            }
-            final time = DateFormat.Hms().format(log.time);
-            final value = log.value;
-            final message = '${log.detail}; ${hex.encode(value)}';
-            return Text.rich(
-              TextSpan(
-                text: '[$type:${value.length}]',
-                children: [
-                  TextSpan(
-                    text: ' $time: ',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.green,
-                    ),
-                  ),
-                  TextSpan(
-                    text: message,
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                ],
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: typeColor,
-                ),
-              ),
-            );
+            return Text('$log');
           },
           itemCount: logs.length,
         );
@@ -269,9 +227,10 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
   void dispose() {
     super.dispose();
     stateChangedSubscription.cancel();
+    connectionStateChangedSubscription.cancel();
     mtuChangedSubscription.cancel();
-    characteristicReadSubscription.cancel();
-    characteristicWrittenSubscription.cancel();
+    characteristicReadRequestedSubscription.cancel();
+    characteristicWriteRequestedSubscription.cancel();
     characteristicNotifyStateChangedSubscription.cancel();
     state.dispose();
     advertising.dispose();

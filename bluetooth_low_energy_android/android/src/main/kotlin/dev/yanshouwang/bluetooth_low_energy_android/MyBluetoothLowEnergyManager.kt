@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.PluginRegistry
-import java.util.UUID
 
 abstract class MyBluetoothLowEnergyManager(val context: Context) {
     companion object {

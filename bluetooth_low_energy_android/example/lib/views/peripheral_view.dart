@@ -4,10 +4,8 @@ import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_example/models.dart';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
-import 'package:convert/convert.dart';
 import 'package:flutter/material.dart' hide ConnectionState;
 import 'package:hybrid_logging/hybrid_logging.dart';
-import 'package:intl/intl.dart';
 
 class PeripheralView extends StatefulWidget {
   final DiscoveredEventArgs eventArgs;
@@ -36,6 +34,8 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
   late final StreamSubscription mtuChangedSubscription;
   late final StreamSubscription characteristicNotifiedSubscription;
 
+  Peripheral get peripheral => eventArgs.peripheral;
+
   @override
   void initState() {
     super.initState();
@@ -51,7 +51,7 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
     writeController = TextEditingController();
     connectionStateChangedSubscription =
         centralManager.connectionStateChanged.listen((eventArgs) {
-      if (eventArgs.peripheral != this.eventArgs.peripheral) {
+      if (eventArgs.peripheral != peripheral) {
         return;
       }
       final state = eventArgs.state;
@@ -65,11 +65,11 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
       }
     });
     mtuChangedSubscription = centralManager.mtuChanged.listen((eventArgs) {
-      if (eventArgs.peripheral != this.eventArgs.peripheral) {
+      if (eventArgs.peripheral != peripheral) {
         return;
       }
       final mtu = eventArgs.mtu;
-      logger.info('MTU changed: $mtu');
+      logger.info('mtuChanged: $mtu');
     });
     characteristicNotifiedSubscription =
         centralManager.characteristicNotified.listen((eventArgs) {
@@ -77,8 +77,9 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
       // if (eventArgs.characteristic != characteristic) {
       //   return;
       // }
-      const type = LogType.notify;
-      final log = Log(type, eventArgs.value);
+      final characteristic = eventArgs.characteristic;
+      final value = eventArgs.value;
+      final log = Log('characteristicNotified\n${characteristic.uuid}, $value');
       logs.value = [
         ...logs.value,
         log,
@@ -91,7 +92,6 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
     return PopScope(
       onPopInvoked: (didPop) async {
         if (connectionState.value == ConnectionState.connected) {
-          final peripheral = eventArgs.peripheral;
           await centralManager.disconnect(peripheral);
         }
       },
@@ -113,15 +113,18 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
             final connected = state == ConnectionState.connected;
             return TextButton(
               onPressed: () async {
-                final peripheral = eventArgs.peripheral;
                 if (connected) {
                   await centralManager.disconnect(peripheral);
                 } else {
                   await centralManager.connect(peripheral);
                   services.value =
                       await centralManager.discoverGATT(peripheral);
-                  final mtu = await centralManager.requestMTU(peripheral, 517);
-                  logger.info('New MTU size: $mtu');
+                  final mtu = await centralManager.requestMTU(
+                    peripheral,
+                    // mtu: 517,
+                    mtu: 37,
+                  );
+                  logger.info('requestMTU: $mtu');
                 }
               },
               child: Text(connected ? 'DISCONNECT' : 'CONNECT'),
@@ -234,44 +237,7 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
                 return ListView.builder(
                   itemBuilder: (context, i) {
                     final log = logs[i];
-                    final type = log.type.name.toUpperCase().characters.first;
-                    final Color typeColor;
-                    switch (log.type) {
-                      case LogType.read:
-                        typeColor = Colors.blue;
-                        break;
-                      case LogType.write:
-                        typeColor = Colors.amber;
-                        break;
-                      case LogType.notify:
-                        typeColor = Colors.red;
-                        break;
-                      default:
-                        typeColor = Colors.black;
-                    }
-                    final time = DateFormat.Hms().format(log.time);
-                    final value = log.value;
-                    final message = hex.encode(value);
-                    return Text.rich(
-                      TextSpan(
-                        text: '[$type:${value.length}]',
-                        children: [
-                          TextSpan(
-                            text: ' $time: ',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: Colors.green,
-                            ),
-                          ),
-                          TextSpan(
-                            text: message,
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ],
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: typeColor,
-                        ),
-                      ),
-                    );
+                    return Text('$log');
                   },
                   itemCount: logs.length,
                 );
@@ -317,6 +283,7 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
                               ? () async {
                                   await centralManager
                                       .setCharacteristicNotifyState(
+                                    peripheral,
                                     characteristic,
                                     state: true,
                                   );
@@ -328,11 +295,17 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
                         ElevatedButton(
                           onPressed: characteristic != null && canRead
                               ? () async {
-                                  final value = await centralManager
-                                      .readCharacteristic(characteristic);
-                                  const type = LogType.read;
-                                  final log = Log(type, value);
-                                  logs.value = [...logs.value, log];
+                                  final value =
+                                      await centralManager.readCharacteristic(
+                                    peripheral,
+                                    characteristic,
+                                  );
+                                  final log = Log(
+                                      'readCharacteristic\n${characteristic.uuid} - $value');
+                                  logs.value = [
+                                    ...logs.value,
+                                    log,
+                                  ];
                                 }
                               : null,
                           child: const Text('READ'),
@@ -423,8 +396,13 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
                                 final elements = utf8.encode(text);
                                 final value = Uint8List.fromList(elements);
                                 final type = writeType.value;
-                                // Fragments the value by 512 bytes.
-                                const fragmentSize = 512;
+                                // Fragments the value by maximumWriteLength.
+                                final fragmentSize =
+                                    await centralManager.getMaximumWriteLength(
+                                  peripheral,
+                                  type: type,
+                                );
+                                logger.info('fragmentSize: $fragmentSize');
                                 var start = 0;
                                 while (start < value.length) {
                                   final end = start + fragmentSize;
@@ -432,15 +410,17 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
                                       ? value.sublist(start, end)
                                       : value.sublist(start);
                                   await centralManager.writeCharacteristic(
+                                    peripheral,
                                     characteristic,
                                     value: fragmentedValue,
                                     type: type,
                                   );
                                   final log = Log(
-                                    LogType.write,
-                                    fragmentedValue,
-                                  );
-                                  logs.value = [...logs.value, log];
+                                      'writeCharacteristic\n${characteristic.uuid} - $value');
+                                  logs.value = [
+                                    ...logs.value,
+                                    log,
+                                  ];
                                   start = end;
                                 }
                               }

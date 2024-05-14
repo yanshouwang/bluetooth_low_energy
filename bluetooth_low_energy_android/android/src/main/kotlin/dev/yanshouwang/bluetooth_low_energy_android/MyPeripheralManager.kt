@@ -150,35 +150,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
 
     override fun addService(serviceArgs: MyMutableGATTServiceArgs, callback: (Result<Unit>) -> Unit) {
         try {
-            val service = serviceArgs.toService()
-            val characteristicsArgs = serviceArgs.characteristicsArgs.requireNoNulls()
-            for (characteristicArgs in characteristicsArgs) {
-                val characteristic = characteristicArgs.toCharacteristic()
-                val descriptorsArgs = characteristicArgs.descriptorsArgs.requireNoNulls()
-                for (descriptorArgs in descriptorsArgs) {
-                    val descriptor = descriptorArgs.toDescriptor()
-                    val descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
-                    val descriptorHashCode = descriptor.hashCode()
-                    this.mDescriptorsArgs[descriptorHashCode] = descriptorArgs
-                    this.mDescriptors[descriptorHashCodeArgs] = descriptor
-                    val descriptorAdded = characteristic.addDescriptor(descriptor)
-                    if (!descriptorAdded) {
-                        throw IllegalStateException()
-                    }
-                }
-                val characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
-                val characteristicHashCode = characteristic.hashCode()
-                this.mCharacteristicsArgs[characteristicHashCode] = characteristicArgs
-                this.mCharacteristics[characteristicHashCodeArgs] = characteristic
-                val characteristicAdded = service.addCharacteristic(characteristic)
-                if (!characteristicAdded) {
-                    throw IllegalStateException()
-                }
-            }
-            val serviceHashCodeArgs = serviceArgs.hashCodeArgs
-            val serviceHashCode = service.hashCode()
-            this.mServicesArgs[serviceHashCode] = serviceArgs
-            this.mServices[serviceHashCodeArgs] = service
+            val service = addServiceArgs(serviceArgs)
             val adding = server.addService(service)
             if (!adding) {
                 throw IllegalStateException()
@@ -190,30 +162,17 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
     }
 
     override fun removeService(hashCodeArgs: Long) {
-        val service = mServices.remove(hashCodeArgs) as BluetoothGattService
+        val service = mServices[hashCodeArgs] ?: throw IllegalArgumentException()
         val removed = server.removeService(service)
         if (!removed) {
             throw IllegalStateException()
         }
         val hashCode = service.hashCode()
-        val serviceArgs = mServicesArgs.remove(hashCode) as MyMutableGATTServiceArgs
-        val characteristicsArgs = serviceArgs.characteristicsArgs.requireNoNulls()
-        for (characteristicArgs in characteristicsArgs) {
-            val characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
-            val characteristic = mCharacteristics.remove(characteristicHashCodeArgs) as BluetoothGattCharacteristic
-            val characteristicHashCode = characteristic.hashCode()
-            mCharacteristicsArgs.remove(characteristicHashCode)
-            val descriptorsArgs = characteristicArgs.descriptorsArgs.requireNoNulls()
-            for (descriptorArgs in descriptorsArgs) {
-                val descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
-                val descriptor = mDescriptors.remove(descriptorHashCodeArgs) as BluetoothGattDescriptor
-                val descriptorHashCode = descriptor.hashCode()
-                mDescriptorsArgs.remove(descriptorHashCode)
-            }
-        }
+        val serviceArgs = mServicesArgs[hashCode] ?: throw IllegalArgumentException()
+        removeServiceArgs(serviceArgs)
     }
 
-    override fun clearServices() {
+    override fun removeAllServices() {
         server.clearServices()
         mServices.clear()
         mCharacteristics.clear()
@@ -241,7 +200,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
     }
 
     override fun sendResponse(addressArgs: String, idArgs: Long, statusArgs: MyGATTStatusArgs, offsetArgs: Long, valueArgs: ByteArray?) {
-        val device = mDevices[addressArgs] as BluetoothDevice
+        val device = mDevices[addressArgs] ?: throw IllegalArgumentException()
         val requestId = idArgs.toInt()
         val status = statusArgs.toStatus()
         val offset = offsetArgs.toInt()
@@ -253,8 +212,8 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
 
     override fun notifyCharacteristicChanged(addressArgs: String, hashCodeArgs: Long, confirmArgs: Boolean, valueArgs: ByteArray, callback: (Result<Unit>) -> Unit) {
         try {
-            val device = mDevices[addressArgs] as BluetoothDevice
-            val characteristic = mCharacteristics[hashCodeArgs] as BluetoothGattCharacteristic
+            val device = mDevices[addressArgs] ?: throw IllegalArgumentException()
+            val characteristic = mCharacteristics[hashCodeArgs] ?: throw IllegalArgumentException()
             val notifying = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 val statusCode = server.notifyCharacteristicChanged(device, characteristic, confirmArgs, valueArgs)
                 statusCode == BluetoothStatusCodes.SUCCESS
@@ -422,5 +381,71 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         val addressArgs = device.address
         val idArgs = requestId.toLong()
         mAPI.onExecuteWrite(addressArgs, idArgs, execute) {}
+    }
+
+    private fun addServiceArgs(serviceArgs: MyMutableGATTServiceArgs): BluetoothGattService {
+        val service = serviceArgs.toService()
+        val includedServicesArgs = serviceArgs.includedServicesArgs.requireNoNulls()
+        for (includedServiceArgs in includedServicesArgs) {
+            val includedService = addServiceArgs(includedServiceArgs)
+            val adding = service.addService(includedService)
+            if (!adding) {
+                throw IllegalStateException()
+            }
+        }
+        val characteristicsArgs = serviceArgs.characteristicsArgs.requireNoNulls()
+        for (characteristicArgs in characteristicsArgs) {
+            val characteristic = characteristicArgs.toCharacteristic()
+            val descriptorsArgs = characteristicArgs.descriptorsArgs.requireNoNulls()
+            for (descriptorArgs in descriptorsArgs) {
+                val descriptor = descriptorArgs.toDescriptor()
+                val descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
+                val descriptorHashCode = descriptor.hashCode()
+                this.mDescriptorsArgs[descriptorHashCode] = descriptorArgs
+                this.mDescriptors[descriptorHashCodeArgs] = descriptor
+                val descriptorAdded = characteristic.addDescriptor(descriptor)
+                if (!descriptorAdded) {
+                    throw IllegalStateException()
+                }
+            }
+            val characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
+            val characteristicHashCode = characteristic.hashCode()
+            this.mCharacteristicsArgs[characteristicHashCode] = characteristicArgs
+            this.mCharacteristics[characteristicHashCodeArgs] = characteristic
+            val characteristicAdded = service.addCharacteristic(characteristic)
+            if (!characteristicAdded) {
+                throw IllegalStateException()
+            }
+        }
+        val serviceHashCodeArgs = serviceArgs.hashCodeArgs
+        val serviceHashCode = service.hashCode()
+        this.mServicesArgs[serviceHashCode] = serviceArgs
+        this.mServices[serviceHashCodeArgs] = service
+        return service
+    }
+
+    private fun removeServiceArgs(serviceArgs: MyMutableGATTServiceArgs) {
+        val includedServicesArgs = serviceArgs.includedServicesArgs.requireNoNulls()
+        for (includedServiceArgs in includedServicesArgs) {
+            removeServiceArgs(includedServiceArgs)
+        }
+        val characteristicsArgs = serviceArgs.characteristicsArgs.requireNoNulls()
+        for (characteristicArgs in characteristicsArgs) {
+            val descriptorsArgs = characteristicArgs.descriptorsArgs.requireNoNulls()
+            for (descriptorArgs in descriptorsArgs) {
+                val hashCodeArgs = descriptorArgs.hashCodeArgs
+                val descriptor = mDescriptors.remove(hashCodeArgs) ?: throw IllegalArgumentException()
+                val hashCode = descriptor.hashCode()
+                mDescriptorsArgs.remove(hashCode)
+            }
+            val hashCodeArgs = characteristicArgs.hashCodeArgs
+            val characteristic = mCharacteristics.remove(hashCodeArgs) ?: throw IllegalArgumentException()
+            val hashCode = characteristic.hashCode()
+            mCharacteristicsArgs.remove(hashCode)
+        }
+        val hashCodeArgs = serviceArgs.hashCodeArgs
+        val service = mServices.remove(hashCodeArgs) ?: throw IllegalArgumentException()
+        val hashCode = service.hashCode()
+        mServicesArgs.remove(hashCode)
     }
 }

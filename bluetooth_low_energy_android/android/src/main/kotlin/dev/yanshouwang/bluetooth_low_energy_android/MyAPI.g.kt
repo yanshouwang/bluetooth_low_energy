@@ -274,7 +274,6 @@ data class MyPeripheralArgs (
 
 /** Generated class from Pigeon that represents data sent in messages. */
 data class MyGATTDescriptorArgs (
-  val addressArgs: String,
   val hashCodeArgs: Long,
   val uuidArgs: String
 
@@ -282,15 +281,13 @@ data class MyGATTDescriptorArgs (
   companion object {
     @Suppress("LocalVariableName")
     fun fromList(__pigeon_list: List<Any?>): MyGATTDescriptorArgs {
-      val addressArgs = __pigeon_list[0] as String
-      val hashCodeArgs = __pigeon_list[1].let { num -> if (num is Int) num.toLong() else num as Long }
-      val uuidArgs = __pigeon_list[2] as String
-      return MyGATTDescriptorArgs(addressArgs, hashCodeArgs, uuidArgs)
+      val hashCodeArgs = __pigeon_list[0].let { num -> if (num is Int) num.toLong() else num as Long }
+      val uuidArgs = __pigeon_list[1] as String
+      return MyGATTDescriptorArgs(hashCodeArgs, uuidArgs)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
-      addressArgs,
       hashCodeArgs,
       uuidArgs,
     )
@@ -299,7 +296,6 @@ data class MyGATTDescriptorArgs (
 
 /** Generated class from Pigeon that represents data sent in messages. */
 data class MyGATTCharacteristicArgs (
-  val addressArgs: String,
   val hashCodeArgs: Long,
   val uuidArgs: String,
   val propertyNumbersArgs: List<Long?>,
@@ -309,17 +305,15 @@ data class MyGATTCharacteristicArgs (
   companion object {
     @Suppress("LocalVariableName")
     fun fromList(__pigeon_list: List<Any?>): MyGATTCharacteristicArgs {
-      val addressArgs = __pigeon_list[0] as String
-      val hashCodeArgs = __pigeon_list[1].let { num -> if (num is Int) num.toLong() else num as Long }
-      val uuidArgs = __pigeon_list[2] as String
-      val propertyNumbersArgs = __pigeon_list[3] as List<Long?>
-      val descriptorsArgs = __pigeon_list[4] as List<MyGATTDescriptorArgs?>
-      return MyGATTCharacteristicArgs(addressArgs, hashCodeArgs, uuidArgs, propertyNumbersArgs, descriptorsArgs)
+      val hashCodeArgs = __pigeon_list[0].let { num -> if (num is Int) num.toLong() else num as Long }
+      val uuidArgs = __pigeon_list[1] as String
+      val propertyNumbersArgs = __pigeon_list[2] as List<Long?>
+      val descriptorsArgs = __pigeon_list[3] as List<MyGATTDescriptorArgs?>
+      return MyGATTCharacteristicArgs(hashCodeArgs, uuidArgs, propertyNumbersArgs, descriptorsArgs)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
-      addressArgs,
       hashCodeArgs,
       uuidArgs,
       propertyNumbersArgs,
@@ -330,9 +324,9 @@ data class MyGATTCharacteristicArgs (
 
 /** Generated class from Pigeon that represents data sent in messages. */
 data class MyGATTServiceArgs (
-  val addressArgs: String,
   val hashCodeArgs: Long,
   val uuidArgs: String,
+  val isPrimaryArgs: Boolean,
   val includedServicesArgs: List<MyGATTServiceArgs?>,
   val characteristicsArgs: List<MyGATTCharacteristicArgs?>
 
@@ -340,19 +334,19 @@ data class MyGATTServiceArgs (
   companion object {
     @Suppress("LocalVariableName")
     fun fromList(__pigeon_list: List<Any?>): MyGATTServiceArgs {
-      val addressArgs = __pigeon_list[0] as String
-      val hashCodeArgs = __pigeon_list[1].let { num -> if (num is Int) num.toLong() else num as Long }
-      val uuidArgs = __pigeon_list[2] as String
+      val hashCodeArgs = __pigeon_list[0].let { num -> if (num is Int) num.toLong() else num as Long }
+      val uuidArgs = __pigeon_list[1] as String
+      val isPrimaryArgs = __pigeon_list[2] as Boolean
       val includedServicesArgs = __pigeon_list[3] as List<MyGATTServiceArgs?>
       val characteristicsArgs = __pigeon_list[4] as List<MyGATTCharacteristicArgs?>
-      return MyGATTServiceArgs(addressArgs, hashCodeArgs, uuidArgs, includedServicesArgs, characteristicsArgs)
+      return MyGATTServiceArgs(hashCodeArgs, uuidArgs, isPrimaryArgs, includedServicesArgs, characteristicsArgs)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
-      addressArgs,
       hashCodeArgs,
       uuidArgs,
+      isPrimaryArgs,
       includedServicesArgs,
       characteristicsArgs,
     )
@@ -419,6 +413,7 @@ data class MyMutableGATTCharacteristicArgs (
 data class MyMutableGATTServiceArgs (
   val hashCodeArgs: Long,
   val uuidArgs: String,
+  val isPrimaryArgs: Boolean,
   val includedServicesArgs: List<MyMutableGATTServiceArgs?>,
   val characteristicsArgs: List<MyMutableGATTCharacteristicArgs?>
 
@@ -428,15 +423,17 @@ data class MyMutableGATTServiceArgs (
     fun fromList(__pigeon_list: List<Any?>): MyMutableGATTServiceArgs {
       val hashCodeArgs = __pigeon_list[0].let { num -> if (num is Int) num.toLong() else num as Long }
       val uuidArgs = __pigeon_list[1] as String
-      val includedServicesArgs = __pigeon_list[2] as List<MyMutableGATTServiceArgs?>
-      val characteristicsArgs = __pigeon_list[3] as List<MyMutableGATTCharacteristicArgs?>
-      return MyMutableGATTServiceArgs(hashCodeArgs, uuidArgs, includedServicesArgs, characteristicsArgs)
+      val isPrimaryArgs = __pigeon_list[2] as Boolean
+      val includedServicesArgs = __pigeon_list[3] as List<MyMutableGATTServiceArgs?>
+      val characteristicsArgs = __pigeon_list[4] as List<MyMutableGATTCharacteristicArgs?>
+      return MyMutableGATTServiceArgs(hashCodeArgs, uuidArgs, isPrimaryArgs, includedServicesArgs, characteristicsArgs)
     }
   }
   fun toList(): List<Any?> {
     return listOf<Any?>(
       hashCodeArgs,
       uuidArgs,
+      isPrimaryArgs,
       includedServicesArgs,
       characteristicsArgs,
     )
@@ -985,12 +982,12 @@ class MyCentralManagerFlutterAPI(private val binaryMessenger: BinaryMessenger, p
       } 
     }
   }
-  fun onCharacteristicNotified(characteristicArgsArg: MyGATTCharacteristicArgs, valueArgsArg: ByteArray, callback: (Result<Unit>) -> Unit)
+  fun onCharacteristicNotified(peripheralArgsArg: MyPeripheralArgs, characteristicArgsArg: MyGATTCharacteristicArgs, valueArgsArg: ByteArray, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
     val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.MyCentralManagerFlutterAPI.onCharacteristicNotified$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(characteristicArgsArg, valueArgsArg)) {
+    channel.send(listOf(peripheralArgsArg, characteristicArgsArg, valueArgsArg)) {
       if (it is List<*>) {
         if (it.size > 1) {
           callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
