@@ -1,3 +1,7 @@
+## 6.0.0-dev.5
+
+* Implement new APIs.
+
 ## 6.0.0-dev.4
 
 * Add `CentralManager#getMaximumWriteLength` method.

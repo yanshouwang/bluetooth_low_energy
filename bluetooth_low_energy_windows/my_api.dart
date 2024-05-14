@@ -1,4 +1,6 @@
 // Run with `dart run pigeon --input my_api.dart`.
+// TODO: use `@ProxyApi` to manage instancs when this feature released:
+// https://github.com/flutter/flutter/issues/147486
 import 'package:pigeon/pigeon.dart';
 
 @ConfigurePigeon(
@@ -76,26 +78,22 @@ class MyPeripheralArgs {
 }
 
 class MyGATTDescriptorArgs {
-  final int addressArgs;
   final int handleArgs;
   final String uuidArgs;
 
   MyGATTDescriptorArgs(
-    this.addressArgs,
     this.handleArgs,
     this.uuidArgs,
   );
 }
 
 class MyGATTCharacteristicArgs {
-  final int addressArgs;
   final int handleArgs;
   final String uuidArgs;
   final List<int?> propertyNumbersArgs;
   final List<MyGATTDescriptorArgs?> descriptorsArgs;
 
   MyGATTCharacteristicArgs(
-    this.addressArgs,
     this.handleArgs,
     this.uuidArgs,
     this.propertyNumbersArgs,
@@ -104,16 +102,16 @@ class MyGATTCharacteristicArgs {
 }
 
 class MyGATTServiceArgs {
-  final int addressArgs;
   final int handleArgs;
   final String uuidArgs;
+  final bool isPrimaryArgs;
   final List<MyGATTServiceArgs?> includedServicesArgs;
   final List<MyGATTCharacteristicArgs?> characteristicsArgs;
 
   MyGATTServiceArgs(
-    this.addressArgs,
     this.handleArgs,
     this.uuidArgs,
+    this.isPrimaryArgs,
     this.includedServicesArgs,
     this.characteristicsArgs,
   );
@@ -196,6 +194,7 @@ abstract class MyCentralManagerFlutterAPI {
   );
   void onMTUChanged(MyPeripheralArgs peripheralArgs, int mtuArgs);
   void onCharacteristicNotified(
+    MyPeripheralArgs peripheralArgs,
     MyGATTCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
   );

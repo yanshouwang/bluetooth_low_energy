@@ -53,6 +53,10 @@ namespace bluetooth_low_energy_windows
 		std::map<int64_t, std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession::MaxPduSizeChanged_revoker>> m_session_max_pdu_size_changed_revokers;
 		std::map<int64_t, std::map<int64_t, std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic::ValueChanged_revoker>>> m_characteristic_value_changed_revokers;
 
+		std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService> m_retrieve_service(int64_t address_args, int64_t handle_args);
+		std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic> m_retrieve_characteristic(int64_t address, int64_t handle_args);
+		std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor> m_retrieve_descriptor(int64_t address_args, int64_t handle_args);
+
 		winrt::fire_and_forget m_initialize(std::function<void(std::optional<FlutterError> reply)> result);
 		winrt::fire_and_forget m_connect(int64_t address_args, std::function<void(std::optional<FlutterError> reply)> result);
 		winrt::fire_and_forget m_get_services_async(int64_t address_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
@@ -69,17 +73,14 @@ namespace bluetooth_low_energy_windows
 		MyBluetoothLowEnergyStateArgs m_radio_state_to_args(const winrt::Windows::Devices::Radios::RadioState& state);
 		MyConnectionStateArgs m_connection_status_to_args(const winrt::Windows::Devices::Bluetooth::BluetoothConnectionStatus& status);
 		MyAdvertisementArgs m_advertisement_to_args(const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisement& advertisement);
-		MyGATTServiceArgs m_service_to_args(int64_t address_args, const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService& service);
-		MyGATTCharacteristicArgs m_characteristic_to_args(int64_t address_args, const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic& characteristic);
+		MyGATTServiceArgs m_service_to_args(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService& service);
+		MyGATTCharacteristicArgs m_characteristic_to_args(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic& characteristic);
 		flutter::EncodableList m_characteristic_properties_to_args(winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristicProperties properties);
-		MyGATTDescriptorArgs m_descriptor_to_args(int64_t address_args, const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor& descriptor);
+		MyGATTDescriptorArgs m_descriptor_to_args(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor& descriptor);
 		std::string m_uuid_to_args(const winrt::guid& uuid);
 		winrt::Windows::Devices::Bluetooth::BluetoothCacheMode m_cache_mode_args_to_cache_mode(const MyCacheModeArgs& mode_args);
 		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteOption m_write_type_args_to_write_option(const MyGATTCharacteristicWriteTypeArgs& type_args);
 		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattClientCharacteristicConfigurationDescriptorValue m_notify_state_args_to_descriptor_value(const MyGATTCharacteristicNotifyStateArgs& state_args);
-		std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService> m_retrieve_service(int64_t address_args, int64_t handle_args);
-		std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic> m_retrieve_characteristic(int64_t address, int64_t handle_args);
-		std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor> m_retrieve_descriptor(int64_t address_args, int64_t handle_args);
 	};
 
 }

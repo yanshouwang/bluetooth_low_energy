@@ -199,12 +199,8 @@ class MyGATTDescriptorArgs {
  public:
   // Constructs an object setting all fields.
   explicit MyGATTDescriptorArgs(
-    int64_t address_args,
     int64_t handle_args,
     const std::string& uuid_args);
-
-  int64_t address_args() const;
-  void set_address_args(int64_t value_arg);
 
   int64_t handle_args() const;
   void set_handle_args(int64_t value_arg);
@@ -220,7 +216,6 @@ class MyGATTDescriptorArgs {
   friend class MyCentralManagerHostAPICodecSerializer;
   friend class MyCentralManagerFlutterAPI;
   friend class MyCentralManagerFlutterAPICodecSerializer;
-  int64_t address_args_;
   int64_t handle_args_;
   std::string uuid_args_;
 
@@ -232,14 +227,10 @@ class MyGATTCharacteristicArgs {
  public:
   // Constructs an object setting all fields.
   explicit MyGATTCharacteristicArgs(
-    int64_t address_args,
     int64_t handle_args,
     const std::string& uuid_args,
     const flutter::EncodableList& property_numbers_args,
     const flutter::EncodableList& descriptors_args);
-
-  int64_t address_args() const;
-  void set_address_args(int64_t value_arg);
 
   int64_t handle_args() const;
   void set_handle_args(int64_t value_arg);
@@ -261,7 +252,6 @@ class MyGATTCharacteristicArgs {
   friend class MyCentralManagerHostAPICodecSerializer;
   friend class MyCentralManagerFlutterAPI;
   friend class MyCentralManagerFlutterAPICodecSerializer;
-  int64_t address_args_;
   int64_t handle_args_;
   std::string uuid_args_;
   flutter::EncodableList property_numbers_args_;
@@ -275,20 +265,20 @@ class MyGATTServiceArgs {
  public:
   // Constructs an object setting all fields.
   explicit MyGATTServiceArgs(
-    int64_t address_args,
     int64_t handle_args,
     const std::string& uuid_args,
+    bool is_primary_args,
     const flutter::EncodableList& included_services_args,
     const flutter::EncodableList& characteristics_args);
-
-  int64_t address_args() const;
-  void set_address_args(int64_t value_arg);
 
   int64_t handle_args() const;
   void set_handle_args(int64_t value_arg);
 
   const std::string& uuid_args() const;
   void set_uuid_args(std::string_view value_arg);
+
+  bool is_primary_args() const;
+  void set_is_primary_args(bool value_arg);
 
   const flutter::EncodableList& included_services_args() const;
   void set_included_services_args(const flutter::EncodableList& value_arg);
@@ -304,9 +294,9 @@ class MyGATTServiceArgs {
   friend class MyCentralManagerHostAPICodecSerializer;
   friend class MyCentralManagerFlutterAPI;
   friend class MyCentralManagerFlutterAPICodecSerializer;
-  int64_t address_args_;
   int64_t handle_args_;
   std::string uuid_args_;
+  bool is_primary_args_;
   flutter::EncodableList included_services_args_;
   flutter::EncodableList characteristics_args_;
 
@@ -457,6 +447,7 @@ class MyCentralManagerFlutterAPI {
     std::function<void(void)>&& on_success,
     std::function<void(const FlutterError&)>&& on_error);
   void OnCharacteristicNotified(
+    const MyPeripheralArgs& peripheral_args,
     const MyGATTCharacteristicArgs& characteristic_args,
     const std::vector<uint8_t>& value_args,
     std::function<void(void)>&& on_success,

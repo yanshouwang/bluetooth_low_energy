@@ -125,6 +125,24 @@ namespace bluetooth_low_energy_windows
 		m_write_descriptor(address_args, handle_args, value_args, std::move(result));
 	}
 
+	std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService> MyCentralManager::m_retrieve_service(int64_t address_args, int64_t handle_args)
+	{
+		auto& services = m_services[address_args];
+		return services[handle_args];
+	}
+
+	std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic> MyCentralManager::m_retrieve_characteristic(int64_t address_args, int64_t handle_args)
+	{
+		auto& characteristics = m_characteristics[address_args];
+		return characteristics[handle_args];
+	}
+
+	std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor> MyCentralManager::m_retrieve_descriptor(int64_t address_args, int64_t handle_args)
+	{
+		auto& descriptors = m_descriptors[address_args];
+		return descriptors[handle_args];
+	}
+
 	winrt::fire_and_forget MyCentralManager::m_initialize(std::function<void(std::optional<FlutterError> reply)> result)
 	{
 		try
@@ -283,7 +301,7 @@ namespace bluetooth_low_energy_windows
 			const auto services = r.Services();
 			auto services_args_values = flutter::EncodableList();
 			for (const auto service : services) {
-				const auto service_args = m_service_to_args(address_args, service);
+				const auto service_args = m_service_to_args(service);
 				const auto service_args_value = flutter::CustomEncodableValue(service_args);
 				const auto service_handle_args = service_args.handle_args();
 				m_services[address_args][service_handle_args] = service;
@@ -330,7 +348,7 @@ namespace bluetooth_low_energy_windows
 			const auto included_services = r.Services();
 			auto included_services_args_values = flutter::EncodableList();
 			for (const auto included_service : included_services) {
-				const auto service_args = m_service_to_args(address_args, included_service);
+				const auto service_args = m_service_to_args(included_service);
 				const auto service_args_value = flutter::CustomEncodableValue(service_args);
 				const auto service_handle_args = service_args.handle_args();
 				m_services[address_args][service_handle_args] = included_service;
@@ -378,18 +396,19 @@ namespace bluetooth_low_energy_windows
 			auto& revokers = m_characteristic_value_changed_revokers[address_args];
 			auto characteristics_args_values = flutter::EncodableList();
 			for (const auto characteristic : characteristics) {
-				const auto characteristic_args = m_characteristic_to_args(address_args, characteristic);
+				const auto characteristic_args = m_characteristic_to_args(characteristic);
 				const auto characteristic_args_value = flutter::CustomEncodableValue(characteristic_args);
 				const auto characteristic_handle_args = characteristic_args.handle_args();
 				m_characteristics[address_args][characteristic_handle_args] = characteristic;
 				revokers[characteristic_handle_args] = characteristic.ValueChanged(winrt::auto_revoke, [this, address_args](const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic& characteristic, const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattValueChangedEventArgs& event_args)
 					{
-						const auto characteristic_args = m_characteristic_to_args(address_args, characteristic);
+						const auto peripheral_args = MyPeripheralArgs(address_args);
+						const auto characteristic_args = m_characteristic_to_args(characteristic);
 						const auto value = event_args.CharacteristicValue();
 						const auto begin = value.data();
 						const auto end = begin + value.Length();
 						const auto value_args = std::vector<uint8_t>(begin, end);
-						m_api->OnCharacteristicNotified(characteristic_args, value_args, []() {}, [](const auto& error) {});
+						m_api->OnCharacteristicNotified(peripheral_args, characteristic_args, value_args, []() {}, [](const auto& error) {});
 					});
 				characteristics_args_values.emplace_back(characteristic_args_value);
 			}
@@ -434,7 +453,7 @@ namespace bluetooth_low_energy_windows
 			const auto descriptors = r.Descriptors();
 			auto descriptor_args_values = flutter::EncodableList();
 			for (const auto descriptor : descriptors) {
-				const auto descriptor_args = m_descriptor_to_args(address_args, descriptor);
+				const auto descriptor_args = m_descriptor_to_args(descriptor);
 				const auto descriptor_args_value = flutter::CustomEncodableValue(descriptor_args);
 				const auto descriptor_handle_args = descriptor_args.handle_args();
 				m_descriptors[address_args][descriptor_handle_args] = descriptor;
@@ -778,18 +797,19 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	MyGATTServiceArgs MyCentralManager::m_service_to_args(int64_t address_args, const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService& service)
+	MyGATTServiceArgs MyCentralManager::m_service_to_args(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService& service)
 	{
 		const auto handle = service.AttributeHandle();
 		const auto handle_args = static_cast<int64_t>(handle);
 		const auto uuid = service.Uuid();
 		const auto uuid_args = m_uuid_to_args(uuid);
+		const auto is_primary_args = true;
 		const auto included_services_args = flutter::EncodableList();
 		const auto characteristics_args = flutter::EncodableList();
-		return MyGATTServiceArgs(address_args, handle_args, uuid_args, included_services_args, characteristics_args);
+		return MyGATTServiceArgs(handle_args, uuid_args, is_primary_args, included_services_args, characteristics_args);
 	}
 
-	MyGATTCharacteristicArgs MyCentralManager::m_characteristic_to_args(int64_t address_args, const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic& characteristic)
+	MyGATTCharacteristicArgs MyCentralManager::m_characteristic_to_args(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic& characteristic)
 	{
 		const auto handle = characteristic.AttributeHandle();
 		const auto handle_args = static_cast<int64_t>(handle);
@@ -798,7 +818,7 @@ namespace bluetooth_low_energy_windows
 		const auto properties = characteristic.CharacteristicProperties();
 		const auto property_numbers_args = m_characteristic_properties_to_args(properties);
 		const auto descriptors_args = flutter::EncodableList();
-		return MyGATTCharacteristicArgs(address_args, handle_args, uuid_args, property_numbers_args, descriptors_args);
+		return MyGATTCharacteristicArgs(handle_args, uuid_args, property_numbers_args, descriptors_args);
 	}
 
 	flutter::EncodableList MyCentralManager::m_characteristic_properties_to_args(winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristicProperties properties)
@@ -837,13 +857,13 @@ namespace bluetooth_low_energy_windows
 		return property_numbers_args;
 	}
 
-	MyGATTDescriptorArgs MyCentralManager::m_descriptor_to_args(int64_t address_args, const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor& descriptor)
+	MyGATTDescriptorArgs MyCentralManager::m_descriptor_to_args(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor& descriptor)
 	{
 		const auto handle = descriptor.AttributeHandle();
 		const auto handle_args = static_cast<int64_t>(handle);
 		const auto uuid = descriptor.Uuid();
 		const auto uuid_args = m_uuid_to_args(uuid);
-		return MyGATTDescriptorArgs(address_args, handle_args, uuid_args);
+		return MyGATTDescriptorArgs(handle_args, uuid_args);
 	}
 
 	std::string MyCentralManager::m_uuid_to_args(const winrt::guid& uuid)
@@ -892,24 +912,6 @@ namespace bluetooth_low_energy_windows
 		default:
 			throw std::bad_cast();
 		}
-	}
-
-	std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService> MyCentralManager::m_retrieve_service(int64_t address_args, int64_t handle_args)
-	{
-		auto& services = m_services[address_args];
-		return services[handle_args];
-	}
-
-	std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic> MyCentralManager::m_retrieve_characteristic(int64_t address_args, int64_t handle_args)
-	{
-		auto& characteristics = m_characteristics[address_args];
-		return characteristics[handle_args];
-	}
-
-	std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor> MyCentralManager::m_retrieve_descriptor(int64_t address_args, int64_t handle_args)
-	{
-		auto& descriptors = m_descriptors[address_args];
-		return descriptors[handle_args];
 	}
 }
 

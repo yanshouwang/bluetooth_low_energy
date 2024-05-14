@@ -3,11 +3,11 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 import 'my_api.dart';
 
 final class MyPeripheral extends Peripheral {
-  final int address;
+  final int addressArgs;
 
   MyPeripheral({
-    required this.address,
+    required this.addressArgs,
   }) : super(
-          uuid: address.toUUID(),
+          uuid: addressArgs.toUUID(),
         );
 }

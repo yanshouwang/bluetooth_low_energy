@@ -91,7 +91,7 @@ final class MyCentralManager extends PlatformCentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final addressArgs = peripheral.address;
+    final addressArgs = peripheral.addressArgs;
     logger.info('connect: $addressArgs');
     await _api.connect(addressArgs);
     // 通过单独调用此方法创建 BluetoothLEDevice 对象不（一定）会启动连接。 若要启动连接，请将
@@ -108,7 +108,7 @@ final class MyCentralManager extends PlatformCentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final addressArgs = peripheral.address;
+    final addressArgs = peripheral.addressArgs;
     logger.info('disconnect: $addressArgs');
     await _api.disconnect(addressArgs);
     final peripheralArgs = peripheral.toArgs();
@@ -134,7 +134,7 @@ final class MyCentralManager extends PlatformCentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final addressArgs = peripheral.address;
+    final addressArgs = peripheral.addressArgs;
     logger.info('getMTU: $addressArgs');
     final mtuArgs = await _api.getMTU(addressArgs);
     final maximumWriteLength = (mtuArgs - 3).clamp(20, 512);
@@ -151,14 +151,14 @@ final class MyCentralManager extends PlatformCentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final addressArgs = peripheral.address;
+    final addressArgs = peripheral.addressArgs;
     const modeArgs = MyCacheModeArgs.uncached;
     logger.info('getServicesAsync: $addressArgs - $modeArgs');
     final servicesArgs = await _api
         .getServicesAsync(addressArgs, modeArgs)
         .then((args) => args.cast<MyGATTServiceArgs>());
     for (var serviceArgs in servicesArgs) {
-      await _getIncludedServices(serviceArgs, modeArgs);
+      await _getIncludedServices(addressArgs, serviceArgs, modeArgs);
     }
     final services = servicesArgs.map((args) => args.toService()).toList();
     return services;
@@ -166,13 +166,15 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<Uint8List> readCharacteristic(
+    Peripheral peripheral,
     GATTCharacteristic characteristic,
   ) async {
-    if (characteristic is! MyGATTCharacteristic) {
+    if (peripheral is! MyPeripheral ||
+        characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final addressArgs = characteristic.address;
-    final handleArgs = characteristic.handle;
+    final addressArgs = peripheral.addressArgs;
+    final handleArgs = characteristic.handleArgs;
     const modeArgs = MyCacheModeArgs.uncached;
     logger.info('readCharacteristic: $addressArgs.$handleArgs - $modeArgs');
     final value = await _api.readCharacteristic(
@@ -185,15 +187,17 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<void> writeCharacteristic(
+    Peripheral peripheral,
     GATTCharacteristic characteristic, {
     required Uint8List value,
     required GATTCharacteristicWriteType type,
   }) async {
-    if (characteristic is! MyGATTCharacteristic) {
+    if (peripheral is! MyPeripheral ||
+        characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final addressArgs = characteristic.address;
-    final handleArgs = characteristic.handle;
+    final addressArgs = peripheral.addressArgs;
+    final handleArgs = characteristic.handleArgs;
     final valueArgs = value;
     final typeArgs = type.toArgs();
     logger.info(
@@ -208,14 +212,16 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<void> setCharacteristicNotifyState(
+    Peripheral peripheral,
     GATTCharacteristic characteristic, {
     required bool state,
   }) async {
-    if (characteristic is! MyGATTCharacteristic) {
+    if (peripheral is! MyPeripheral ||
+        characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final addressArgs = characteristic.address;
-    final handleArgs = characteristic.handle;
+    final addressArgs = peripheral.addressArgs;
+    final handleArgs = characteristic.handleArgs;
     final stateArgs = state
         ? characteristic.properties.contains(GATTCharacteristicProperty.notify)
             ? MyGATTCharacteristicNotifyStateArgs.notify
@@ -231,12 +237,15 @@ final class MyCentralManager extends PlatformCentralManager
   }
 
   @override
-  Future<Uint8List> readDescriptor(GATTDescriptor descriptor) async {
-    if (descriptor is! MyGATTDescriptor) {
+  Future<Uint8List> readDescriptor(
+    Peripheral peripheral,
+    GATTDescriptor descriptor,
+  ) async {
+    if (peripheral is! MyPeripheral || descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
-    final addressArgs = descriptor.address;
-    final handleArgs = descriptor.handle;
+    final addressArgs = peripheral.addressArgs;
+    final handleArgs = descriptor.handleArgs;
     const modeArgs = MyCacheModeArgs.uncached;
     logger.info('readDescriptor: $addressArgs.$handleArgs - $modeArgs');
     final value = await _api.readDescriptor(addressArgs, handleArgs, modeArgs);
@@ -245,14 +254,15 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<void> writeDescriptor(
+    Peripheral peripheral,
     GATTDescriptor descriptor, {
     required Uint8List value,
   }) async {
-    if (descriptor is! MyGATTDescriptor) {
+    if (peripheral is! MyPeripheral || descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
-    final addressArgs = descriptor.address;
-    final handleArgs = descriptor.handle;
+    final addressArgs = peripheral.addressArgs;
+    final handleArgs = descriptor.handleArgs;
     final valueArgs = value;
     logger.info('writeDescriptor: $addressArgs.$handleArgs - $valueArgs');
     await _api.writeDescriptor(addressArgs, handleArgs, valueArgs);
@@ -317,16 +327,19 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   void onCharacteristicNotified(
+    MyPeripheralArgs peripheralArgs,
     MyGATTCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
   ) {
-    final addressArgs = characteristicArgs.addressArgs;
+    final addressArgs = peripheralArgs.addressArgs;
     final handleArgs = characteristicArgs.handleArgs;
     logger.info(
         'onCharacteristicNotified: $addressArgs.$handleArgs - $valueArgs');
+    final peripheral = peripheralArgs.toPeripheral();
     final characteristic = characteristicArgs.toCharacteristic();
     final value = valueArgs;
     final eventArgs = GATTCharacteristicNotifiedEventArgs(
+      peripheral,
       characteristic,
       value,
     );
@@ -357,31 +370,28 @@ final class MyCentralManager extends PlatformCentralManager
   }
 
   Future<void> _getIncludedServices(
+    int addressArgs,
     MyGATTServiceArgs serviceArgs,
     MyCacheModeArgs modeArgs,
   ) async {
-    final addressArgs = serviceArgs.addressArgs;
     final handleArgs = serviceArgs.handleArgs;
     logger
         .info('getIncludedServicesAsync: $addressArgs.$handleArgs - $modeArgs');
     final includedServicesArgs = await _api
         .getIncludedServicesAsync(addressArgs, handleArgs, modeArgs)
         .then((args) => args.cast<MyGATTServiceArgs>());
-    if (includedServicesArgs.isEmpty) {
-      await _getCharacteristicsArgs(serviceArgs, modeArgs);
-    } else {
-      for (var includedServiceArgs in includedServicesArgs) {
-        await _getIncludedServices(includedServiceArgs, modeArgs);
-      }
-      serviceArgs.includedServicesArgs = includedServicesArgs;
+    for (var includedServiceArgs in includedServicesArgs) {
+      await _getIncludedServices(addressArgs, includedServiceArgs, modeArgs);
     }
+    serviceArgs.includedServicesArgs = includedServicesArgs;
+    await _getCharacteristicsArgs(addressArgs, serviceArgs, modeArgs);
   }
 
   Future<void> _getCharacteristicsArgs(
+    int addressArgs,
     MyGATTServiceArgs serviceArgs,
     MyCacheModeArgs modeArgs,
   ) async {
-    final addressArgs = serviceArgs.addressArgs;
     final handleArgs = serviceArgs.handleArgs;
     logger
         .info('getCharacteristicsAsync: $addressArgs.$handleArgs - $modeArgs');
@@ -389,16 +399,16 @@ final class MyCentralManager extends PlatformCentralManager
         .getCharacteristicsAsync(addressArgs, handleArgs, modeArgs)
         .then((args) => args.cast<MyGATTCharacteristicArgs>());
     for (var characteristicArgs in characteristicsArgs) {
-      await _getDescriptorsArgs(characteristicArgs, modeArgs);
+      await _getDescriptorsArgs(addressArgs, characteristicArgs, modeArgs);
     }
     serviceArgs.characteristicsArgs = characteristicsArgs;
   }
 
   Future<void> _getDescriptorsArgs(
+    int addressArgs,
     MyGATTCharacteristicArgs characteristicArgs,
     MyCacheModeArgs modeArgs,
   ) async {
-    final addressArgs = characteristicArgs.addressArgs;
     final handleArgs = characteristicArgs.handleArgs;
     logger.info('getDescriptorsAsync: $addressArgs.$handleArgs - $modeArgs');
     final descriptorsArgs = await _api

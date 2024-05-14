@@ -200,21 +200,10 @@ MyPeripheralArgs MyPeripheralArgs::FromEncodableList(const EncodableList& list) 
 // MyGATTDescriptorArgs
 
 MyGATTDescriptorArgs::MyGATTDescriptorArgs(
-  int64_t address_args,
   int64_t handle_args,
   const std::string& uuid_args)
- : address_args_(address_args),
-    handle_args_(handle_args),
+ : handle_args_(handle_args),
     uuid_args_(uuid_args) {}
-
-int64_t MyGATTDescriptorArgs::address_args() const {
-  return address_args_;
-}
-
-void MyGATTDescriptorArgs::set_address_args(int64_t value_arg) {
-  address_args_ = value_arg;
-}
-
 
 int64_t MyGATTDescriptorArgs::handle_args() const {
   return handle_args_;
@@ -236,8 +225,7 @@ void MyGATTDescriptorArgs::set_uuid_args(std::string_view value_arg) {
 
 EncodableList MyGATTDescriptorArgs::ToEncodableList() const {
   EncodableList list;
-  list.reserve(3);
-  list.push_back(EncodableValue(address_args_));
+  list.reserve(2);
   list.push_back(EncodableValue(handle_args_));
   list.push_back(EncodableValue(uuid_args_));
   return list;
@@ -246,33 +234,21 @@ EncodableList MyGATTDescriptorArgs::ToEncodableList() const {
 MyGATTDescriptorArgs MyGATTDescriptorArgs::FromEncodableList(const EncodableList& list) {
   MyGATTDescriptorArgs decoded(
     list[0].LongValue(),
-    list[1].LongValue(),
-    std::get<std::string>(list[2]));
+    std::get<std::string>(list[1]));
   return decoded;
 }
 
 // MyGATTCharacteristicArgs
 
 MyGATTCharacteristicArgs::MyGATTCharacteristicArgs(
-  int64_t address_args,
   int64_t handle_args,
   const std::string& uuid_args,
   const EncodableList& property_numbers_args,
   const EncodableList& descriptors_args)
- : address_args_(address_args),
-    handle_args_(handle_args),
+ : handle_args_(handle_args),
     uuid_args_(uuid_args),
     property_numbers_args_(property_numbers_args),
     descriptors_args_(descriptors_args) {}
-
-int64_t MyGATTCharacteristicArgs::address_args() const {
-  return address_args_;
-}
-
-void MyGATTCharacteristicArgs::set_address_args(int64_t value_arg) {
-  address_args_ = value_arg;
-}
-
 
 int64_t MyGATTCharacteristicArgs::handle_args() const {
   return handle_args_;
@@ -312,8 +288,7 @@ void MyGATTCharacteristicArgs::set_descriptors_args(const EncodableList& value_a
 
 EncodableList MyGATTCharacteristicArgs::ToEncodableList() const {
   EncodableList list;
-  list.reserve(5);
-  list.push_back(EncodableValue(address_args_));
+  list.reserve(4);
   list.push_back(EncodableValue(handle_args_));
   list.push_back(EncodableValue(uuid_args_));
   list.push_back(EncodableValue(property_numbers_args_));
@@ -324,35 +299,25 @@ EncodableList MyGATTCharacteristicArgs::ToEncodableList() const {
 MyGATTCharacteristicArgs MyGATTCharacteristicArgs::FromEncodableList(const EncodableList& list) {
   MyGATTCharacteristicArgs decoded(
     list[0].LongValue(),
-    list[1].LongValue(),
-    std::get<std::string>(list[2]),
-    std::get<EncodableList>(list[3]),
-    std::get<EncodableList>(list[4]));
+    std::get<std::string>(list[1]),
+    std::get<EncodableList>(list[2]),
+    std::get<EncodableList>(list[3]));
   return decoded;
 }
 
 // MyGATTServiceArgs
 
 MyGATTServiceArgs::MyGATTServiceArgs(
-  int64_t address_args,
   int64_t handle_args,
   const std::string& uuid_args,
+  bool is_primary_args,
   const EncodableList& included_services_args,
   const EncodableList& characteristics_args)
- : address_args_(address_args),
-    handle_args_(handle_args),
+ : handle_args_(handle_args),
     uuid_args_(uuid_args),
+    is_primary_args_(is_primary_args),
     included_services_args_(included_services_args),
     characteristics_args_(characteristics_args) {}
-
-int64_t MyGATTServiceArgs::address_args() const {
-  return address_args_;
-}
-
-void MyGATTServiceArgs::set_address_args(int64_t value_arg) {
-  address_args_ = value_arg;
-}
-
 
 int64_t MyGATTServiceArgs::handle_args() const {
   return handle_args_;
@@ -369,6 +334,15 @@ const std::string& MyGATTServiceArgs::uuid_args() const {
 
 void MyGATTServiceArgs::set_uuid_args(std::string_view value_arg) {
   uuid_args_ = value_arg;
+}
+
+
+bool MyGATTServiceArgs::is_primary_args() const {
+  return is_primary_args_;
+}
+
+void MyGATTServiceArgs::set_is_primary_args(bool value_arg) {
+  is_primary_args_ = value_arg;
 }
 
 
@@ -393,9 +367,9 @@ void MyGATTServiceArgs::set_characteristics_args(const EncodableList& value_arg)
 EncodableList MyGATTServiceArgs::ToEncodableList() const {
   EncodableList list;
   list.reserve(5);
-  list.push_back(EncodableValue(address_args_));
   list.push_back(EncodableValue(handle_args_));
   list.push_back(EncodableValue(uuid_args_));
+  list.push_back(EncodableValue(is_primary_args_));
   list.push_back(EncodableValue(included_services_args_));
   list.push_back(EncodableValue(characteristics_args_));
   return list;
@@ -404,8 +378,8 @@ EncodableList MyGATTServiceArgs::ToEncodableList() const {
 MyGATTServiceArgs MyGATTServiceArgs::FromEncodableList(const EncodableList& list) {
   MyGATTServiceArgs decoded(
     list[0].LongValue(),
-    list[1].LongValue(),
-    std::get<std::string>(list[2]),
+    std::get<std::string>(list[1]),
+    std::get<bool>(list[2]),
     std::get<EncodableList>(list[3]),
     std::get<EncodableList>(list[4]));
   return decoded;
@@ -1212,6 +1186,7 @@ void MyCentralManagerFlutterAPI::OnMTUChanged(
 }
 
 void MyCentralManagerFlutterAPI::OnCharacteristicNotified(
+  const MyPeripheralArgs& peripheral_args_arg,
   const MyGATTCharacteristicArgs& characteristic_args_arg,
   const std::vector<uint8_t>& value_args_arg,
   std::function<void(void)>&& on_success,
@@ -1219,6 +1194,7 @@ void MyCentralManagerFlutterAPI::OnCharacteristicNotified(
   const std::string channel_name = "dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterAPI.onCharacteristicNotified" + message_channel_suffix_;
   BasicMessageChannel<> channel(binary_messenger_, channel_name, &GetCodec());
   EncodableValue encoded_api_arguments = EncodableValue(EncodableList{
+    CustomEncodableValue(peripheral_args_arg),
     CustomEncodableValue(characteristic_args_arg),
     EncodableValue(value_args_arg),
   });

@@ -146,12 +146,9 @@ class MyPeripheralArgs {
 
 class MyGATTDescriptorArgs {
   MyGATTDescriptorArgs({
-    required this.addressArgs,
     required this.handleArgs,
     required this.uuidArgs,
   });
-
-  int addressArgs;
 
   int handleArgs;
 
@@ -159,7 +156,6 @@ class MyGATTDescriptorArgs {
 
   Object encode() {
     return <Object?>[
-      addressArgs,
       handleArgs,
       uuidArgs,
     ];
@@ -168,23 +164,19 @@ class MyGATTDescriptorArgs {
   static MyGATTDescriptorArgs decode(Object result) {
     result as List<Object?>;
     return MyGATTDescriptorArgs(
-      addressArgs: result[0]! as int,
-      handleArgs: result[1]! as int,
-      uuidArgs: result[2]! as String,
+      handleArgs: result[0]! as int,
+      uuidArgs: result[1]! as String,
     );
   }
 }
 
 class MyGATTCharacteristicArgs {
   MyGATTCharacteristicArgs({
-    required this.addressArgs,
     required this.handleArgs,
     required this.uuidArgs,
     required this.propertyNumbersArgs,
     required this.descriptorsArgs,
   });
-
-  int addressArgs;
 
   int handleArgs;
 
@@ -196,7 +188,6 @@ class MyGATTCharacteristicArgs {
 
   Object encode() {
     return <Object?>[
-      addressArgs,
       handleArgs,
       uuidArgs,
       propertyNumbersArgs,
@@ -207,29 +198,28 @@ class MyGATTCharacteristicArgs {
   static MyGATTCharacteristicArgs decode(Object result) {
     result as List<Object?>;
     return MyGATTCharacteristicArgs(
-      addressArgs: result[0]! as int,
-      handleArgs: result[1]! as int,
-      uuidArgs: result[2]! as String,
-      propertyNumbersArgs: (result[3] as List<Object?>?)!.cast<int?>(),
-      descriptorsArgs: (result[4] as List<Object?>?)!.cast<MyGATTDescriptorArgs?>(),
+      handleArgs: result[0]! as int,
+      uuidArgs: result[1]! as String,
+      propertyNumbersArgs: (result[2] as List<Object?>?)!.cast<int?>(),
+      descriptorsArgs: (result[3] as List<Object?>?)!.cast<MyGATTDescriptorArgs?>(),
     );
   }
 }
 
 class MyGATTServiceArgs {
   MyGATTServiceArgs({
-    required this.addressArgs,
     required this.handleArgs,
     required this.uuidArgs,
+    required this.isPrimaryArgs,
     required this.includedServicesArgs,
     required this.characteristicsArgs,
   });
 
-  int addressArgs;
-
   int handleArgs;
 
   String uuidArgs;
+
+  bool isPrimaryArgs;
 
   List<MyGATTServiceArgs?> includedServicesArgs;
 
@@ -237,9 +227,9 @@ class MyGATTServiceArgs {
 
   Object encode() {
     return <Object?>[
-      addressArgs,
       handleArgs,
       uuidArgs,
+      isPrimaryArgs,
       includedServicesArgs,
       characteristicsArgs,
     ];
@@ -248,9 +238,9 @@ class MyGATTServiceArgs {
   static MyGATTServiceArgs decode(Object result) {
     result as List<Object?>;
     return MyGATTServiceArgs(
-      addressArgs: result[0]! as int,
-      handleArgs: result[1]! as int,
-      uuidArgs: result[2]! as String,
+      handleArgs: result[0]! as int,
+      uuidArgs: result[1]! as String,
+      isPrimaryArgs: result[2]! as bool,
       includedServicesArgs: (result[3] as List<Object?>?)!.cast<MyGATTServiceArgs?>(),
       characteristicsArgs: (result[4] as List<Object?>?)!.cast<MyGATTCharacteristicArgs?>(),
     );
@@ -750,7 +740,7 @@ abstract class MyCentralManagerFlutterAPI {
 
   void onMTUChanged(MyPeripheralArgs peripheralArgs, int mtuArgs);
 
-  void onCharacteristicNotified(MyGATTCharacteristicArgs characteristicArgs, Uint8List valueArgs);
+  void onCharacteristicNotified(MyPeripheralArgs peripheralArgs, MyGATTCharacteristicArgs characteristicArgs, Uint8List valueArgs);
 
   static void setUp(MyCentralManagerFlutterAPI? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
@@ -877,14 +867,17 @@ abstract class MyCentralManagerFlutterAPI {
           assert(message != null,
           'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterAPI.onCharacteristicNotified was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final MyGATTCharacteristicArgs? arg_characteristicArgs = (args[0] as MyGATTCharacteristicArgs?);
+          final MyPeripheralArgs? arg_peripheralArgs = (args[0] as MyPeripheralArgs?);
+          assert(arg_peripheralArgs != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterAPI.onCharacteristicNotified was null, expected non-null MyPeripheralArgs.');
+          final MyGATTCharacteristicArgs? arg_characteristicArgs = (args[1] as MyGATTCharacteristicArgs?);
           assert(arg_characteristicArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterAPI.onCharacteristicNotified was null, expected non-null MyGATTCharacteristicArgs.');
-          final Uint8List? arg_valueArgs = (args[1] as Uint8List?);
+          final Uint8List? arg_valueArgs = (args[2] as Uint8List?);
           assert(arg_valueArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterAPI.onCharacteristicNotified was null, expected non-null Uint8List.');
           try {
-            api.onCharacteristicNotified(arg_characteristicArgs!, arg_valueArgs!);
+            api.onCharacteristicNotified(arg_peripheralArgs!, arg_characteristicArgs!, arg_valueArgs!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
