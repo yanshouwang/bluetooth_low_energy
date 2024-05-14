@@ -17,7 +17,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  bluetooth_low_energy_platform_interface: ^5.0.0
+  bluetooth_low_energy_platform_interface: ^6.0.0-dev.16
   bluetooth_low_energy_linux:
     # When depending on this package from a real application you should use:
     #   bluetooth_low_energy: ^x.y.z
@@ -43,7 +43,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^3.0.0
+  flutter_lints: ^4.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

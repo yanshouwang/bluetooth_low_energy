@@ -12,12 +12,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  bluetooth_low_energy_platform_interface: ^6.0.0-dev.10
+  bluetooth_low_energy_platform_interface: ^6.0.0-dev.16
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
+  flutter_lints: ^4.0.0
   pigeon: ^18.0.0
 
 flutter:

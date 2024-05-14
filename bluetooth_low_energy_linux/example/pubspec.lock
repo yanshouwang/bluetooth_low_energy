@@ -5,10 +5,10 @@ packages:
     dependency: transitive
     description:
       name: args
-      sha256: eef6c46b622e0494a36c5a12d10d77fb4e855501a91c1b9ef9339326e58f0596
+      sha256: "7cf60b9f0cc88203c5a190b4cd62a99feea42759a7fa695010eb5de1c0b2252a"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.2"
+    version: "2.5.0"
   async:
     dependency: transitive
     description:
@@ -23,15 +23,15 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "5.0.2"
+    version: "6.0.0-dev.0"
   bluetooth_low_energy_platform_interface:
     dependency: "direct main"
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: "5af74eb8f97a896dfdbcff2da284d4fe5b4e2e49ebb2f46f826ac1810f66e4d7"
+      sha256: "7972bcdece3e0fcc804b8bf0209709a103cb5ffcd7577c617fb23c7ff64b834d"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.2"
+    version: "6.0.0-dev.16"
   bluez:
     dependency: transitive
     description:
@@ -84,10 +84,10 @@ packages:
     dependency: "direct main"
     description:
       name: cupertino_icons
-      sha256: d57953e10f9f8327ce64a508a355f0b1ec902193f66288e8cb5070e7c47eeb2d
+      sha256: ba631d1c7f7bef6b729a622b7b752645a2d076dba9976925b8f25725a30e1ee6
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.6"
+    version: "1.0.8"
   dbus:
     dependency: transitive
     description:
@@ -134,10 +134,10 @@ packages:
     dependency: "direct dev"
     description:
       name: flutter_lints
-      sha256: "9e8c3858111da373efc5aa341de011d9bd23e2c5c5e0c62bccf32438e192d7b1"
+      sha256: "3f41d009ba7172d5ff9be5f6e6e6abb4300e263aab8866d2a0842ed2a70f8f0c"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.2"
+    version: "4.0.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -148,6 +148,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  hybrid_logging:
+    dependency: transitive
+    description:
+      name: hybrid_logging
+      sha256: "54248d52ce68c14702a42fbc4083bac5c6be30f6afad8a41be4bbadd197b8af5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   integration_test:
     dependency: "direct dev"
     description: flutter
@@ -189,18 +197,10 @@ packages:
     dependency: transitive
     description:
       name: lints
-      sha256: cbf8d4b858bb0134ef3ef87841abdf8d63bfc255c266b7bf6b39daa1085c4290
+      sha256: "976c774dd944a42e83e2467f4cc670daef7eed6295b10b36ae8c85bcbf828235"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0"
-  log_service:
-    dependency: transitive
-    description:
-      name: log_service
-      sha256: "21124936899e227d1779268077921d46d57456e2592d1562e455be273594e2e4"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
+    version: "4.0.0"
   logging:
     dependency: transitive
     description:
