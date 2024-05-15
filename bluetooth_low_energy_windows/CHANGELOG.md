@@ -1,3 +1,7 @@
+## 6.0.0-dev.6
+
+* Fix the issue that [`Cannot access value of empty optional`](https://github.com/yanshouwang/bluetooth_low_energy/issues/63)
+
 ## 6.0.0-dev.5
 
 * Implement new APIs.

@@ -94,13 +94,6 @@ final class MyCentralManager extends PlatformCentralManager
     final addressArgs = peripheral.addressArgs;
     logger.info('connect: $addressArgs');
     await _api.connect(addressArgs);
-    // 通过单独调用此方法创建 BluetoothLEDevice 对象不（一定）会启动连接。 若要启动连接，请将
-    // GattSession.MaintainConnection 设置为 true，或在 BluetoothLEDevice 上调用未缓
-    // 存的服务发现方法，或对设备执行读/写操作。
-    // 参考：https://learn.microsoft.com/zh-cn/windows/uwp/devices-sensors/gatt-client#connecting-to-the-device
-    const modeArgs = MyCacheModeArgs.uncached;
-    logger.info('getServicesAsync: $addressArgs - $modeArgs');
-    await _api.getServicesAsync(addressArgs, modeArgs);
   }
 
   @override

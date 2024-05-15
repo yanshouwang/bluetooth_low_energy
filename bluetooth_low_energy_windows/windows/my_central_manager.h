@@ -1,12 +1,20 @@
 #ifndef BLEW_MY_CENTRAL_MANAGER_H_
 #define BLEW_MY_CENTRAL_MANAGER_H_
 
+#include "my_api.g.h"
+#include "my_exception.h"
+#include "my_format.h"
+
 #include "winrt/Windows.Devices.Bluetooth.h"
 #include "winrt/Windows.Devices.Bluetooth.Advertisement.h"
 #include "winrt/Windows.Devices.Bluetooth.GenericAttributeProfile.h"
 #include "winrt/Windows.Devices.Radios.h"
+#include "winrt/Windows.Foundation.Collections.h"
+#include "winrt/Windows.Security.Cryptography.h"
+#include "winrt/Windows.Storage.Streams.h"
 
-#include "my_api.g.h"
+#include <iomanip>
+#include <sstream>
 
 namespace bluetooth_low_energy_windows
 {
@@ -53,9 +61,9 @@ namespace bluetooth_low_energy_windows
 		std::map<int64_t, std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession::MaxPduSizeChanged_revoker>> m_session_max_pdu_size_changed_revokers;
 		std::map<int64_t, std::map<int64_t, std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic::ValueChanged_revoker>>> m_characteristic_value_changed_revokers;
 
-		std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService> m_retrieve_service(int64_t address_args, int64_t handle_args);
-		std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic> m_retrieve_characteristic(int64_t address, int64_t handle_args);
-		std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor> m_retrieve_descriptor(int64_t address_args, int64_t handle_args);
+		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService& m_retrieve_service(int64_t address_args, int64_t handle_args);
+		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic& m_retrieve_characteristic(int64_t address, int64_t handle_args);
+		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor& m_retrieve_descriptor(int64_t address_args, int64_t handle_args);
 
 		winrt::fire_and_forget m_initialize(std::function<void(std::optional<FlutterError> reply)> result);
 		winrt::fire_and_forget m_connect(int64_t address_args, std::function<void(std::optional<FlutterError> reply)> result);
@@ -82,7 +90,5 @@ namespace bluetooth_low_energy_windows
 		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteOption m_write_type_args_to_write_option(const MyGATTCharacteristicWriteTypeArgs& type_args);
 		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattClientCharacteristicConfigurationDescriptorValue m_notify_state_args_to_descriptor_value(const MyGATTCharacteristicNotifyStateArgs& state_args);
 	};
-
 }
-
 #endif // !PIGEON_MY_CENTRAL_MANAGER_API_H_

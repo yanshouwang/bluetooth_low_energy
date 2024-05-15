@@ -49,10 +49,14 @@ list(APPEND PLUGIN_SOURCES
   "bluetooth_low_energy_windows_plugin.cpp"
   "my_api.g.h"
   "my_api.g.cpp"
-  "my_central_manager.h"
-  "my_central_manager.cpp"
   "my_exception.h"
   "my_exception.cpp"
+  "my_format.h"
+  "my_format.cpp"
+  "my_central_manager.h"
+  "my_central_manager.cpp"
+  "my_peripheral_manager.h"
+  "my_peripheral_manager.cpp"
 )
 
 # Define the plugin library target. Its name must not be changed (see comment
