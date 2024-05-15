@@ -477,6 +477,7 @@ protocol MyCentralManagerHostAPI {
   func getMaximumWriteLength(uuidArgs: String, typeArgs: MyGATTCharacteristicWriteTypeArgs) throws -> Int64
   func readRSSI(uuidArgs: String, completion: @escaping (Result<Int64, Error>) -> Void)
   func discoverServices(uuidArgs: String, completion: @escaping (Result<[MyGATTServiceArgs], Error>) -> Void)
+  func discoverIncludedServices(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<[MyGATTServiceArgs], Error>) -> Void)
   func discoverCharacteristics(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<[MyGATTCharacteristicArgs], Error>) -> Void)
   func discoverDescriptors(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<[MyGATTDescriptorArgs], Error>) -> Void)
   func readCharacteristic(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void)
@@ -630,6 +631,24 @@ class MyCentralManagerHostAPISetup {
       }
     } else {
       discoverServicesChannel.setMessageHandler(nil)
+    }
+    let discoverIncludedServicesChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerHostAPI.discoverIncludedServices\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      discoverIncludedServicesChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let uuidArgsArg = args[0] as! String
+        let hashCodeArgsArg = args[1] is Int64 ? args[1] as! Int64 : Int64(args[1] as! Int32)
+        api.discoverIncludedServices(uuidArgs: uuidArgsArg, hashCodeArgs: hashCodeArgsArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      discoverIncludedServicesChannel.setMessageHandler(nil)
     }
     let discoverCharacteristicsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerHostAPI.discoverCharacteristics\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {

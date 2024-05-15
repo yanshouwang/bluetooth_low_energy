@@ -220,6 +220,11 @@ abstract class MyCentralManagerHostAPI {
   @async
   List<MyGATTServiceArgs> discoverServices(String uuidArgs);
   @async
+  List<MyGATTServiceArgs> discoverIncludedServices(
+    String uuidArgs,
+    int hashCodeArgs,
+  );
+  @async
   List<MyGATTCharacteristicArgs> discoverCharacteristics(
     String uuidArgs,
     int hashCodeArgs,
