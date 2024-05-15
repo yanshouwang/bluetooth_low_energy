@@ -36,7 +36,8 @@ namespace bluetooth_low_energy_windows
 			const auto filter = winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementFilter::BluetoothLEAdvertisementFilter();
 			const auto advertisement = winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisement();
 			const auto service_uuids = advertisement.ServiceUuids();
-			for (const auto& service_uuid_args : service_uuids_args) {
+			for (const auto& service_uuid_args : service_uuids_args)
+			{
 				const auto& service_uuid_value = std::get<std::string>(service_uuid_args);
 				const auto service_uuid = winrt::guid(service_uuid_value);
 				service_uuids.Append(service_uuid);
@@ -142,13 +143,12 @@ namespace bluetooth_low_energy_windows
 		try
 		{
 			const auto& watcher = m_watcher.value();
-			// 停止扫描
 			const auto status = watcher.Status();
 			if (status == winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementWatcherStatus::Started)
 			{
 				watcher.Stop();
 			}
-			// 断开连接
+
 			auto addresses = std::list<uint64_t>();
 			const auto begin = m_devices.begin();
 			const auto end = m_devices.end();
@@ -160,12 +160,14 @@ namespace bluetooth_low_energy_windows
 				{
 					return device.first;
 				});
-			for (const auto address : addresses) {
+			for (const auto address : addresses)
+			{
 				const auto address_args = static_cast<int64_t>(address);
 				m_disconnect(address_args);
 			}
-			// 监听状态
-			if (!m_radio_state_changed_revoker) {
+
+			if (!m_radio_state_changed_revoker)
+			{
 				const auto& adapter = co_await winrt::Windows::Devices::Bluetooth::BluetoothAdapter::GetDefaultAsync();
 				const auto& radio = co_await adapter.GetRadioAsync();
 				m_adapter = adapter;
@@ -175,6 +177,7 @@ namespace bluetooth_low_energy_windows
 						auto& api = m_api.value();
 						const auto state = radio.State();
 						const auto state_args = m_radio_state_to_args(state);
+						// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
 						api.OnStateChanged(state_args, [] {}, [](auto error) {});
 					});
 			}
@@ -183,7 +186,7 @@ namespace bluetooth_low_energy_windows
 				m_watcher_received_revoker = watcher.Received(winrt::auto_revoke, [this](winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher watcher, winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementReceivedEventArgs event_args)
 					{
 						const auto type = event_args.AdvertisementType();
-						// TODO: 支持扫描响应和扫描扩展
+						// TODO: Resolve scan response and extended advertisement.
 						if (type == winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType::ScanResponse ||
 							type == winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType::Extended)
 						{
@@ -198,18 +201,13 @@ namespace bluetooth_low_energy_windows
 						const auto advertisement = event_args.Advertisement();
 						const auto advertisement_args = m_advertisement_to_args(advertisement);
 						// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
-						// 
-						// [ERROR:flutter/shell/common/shell.cc(1038)] The 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterAPI.onDiscovered' 
-						// channel sent a message from native to Flutter on a non-platform thread. Platform channel messages must be sent on the platform thread. 
-						// Failure to do so may result in data loss or crashes, and must be fixed in the plugin or application code creating that channel.
-						// 
-						// See https ://docs.flutter.dev/platform-integration/platform-channels#channels-and-platform-threading for more information.
 						api.OnDiscovered(peripheral_args, rssi_args, advertisement_args, [] {}, [](auto error) {});
 					});
 			}
 			result(std::nullopt);
 		}
-		catch (const winrt::hresult_error& ex) {
+		catch (const winrt::hresult_error& ex)
+		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
 			const auto message = winrt::to_string(winrt_message);
@@ -240,10 +238,11 @@ namespace bluetooth_low_energy_windows
 			const auto& device = co_await winrt::Windows::Devices::Bluetooth::BluetoothLEDevice::FromBluetoothAddressAsync(address);
 			const auto id = device.BluetoothDeviceId();
 			const auto& session = co_await winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession::FromDeviceIdAsync(id);
-			// 通过单独调用此方法创建 BluetoothLEDevice 对象不（一定）会启动连接。 若要启动连接，请将
-			// GattSession.MaintainConnection 设置为 true，或在 BluetoothLEDevice 上调用未缓
-			// 存的服务发现方法，或对设备执行读/写操作。
-			// 参考：https://learn.microsoft.com/zh-cn/windows/uwp/devices-sensors/gatt-client#connecting-to-the-device
+			// Creating a BluetoothLEDevice object by calling this method alone doesn't (necessarily) initiate a 
+			// connection. To initiate a connection, set GattSession.MaintainConnection to true, or call an 
+			// uncached service discovery method on BluetoothLEDevice, or perform a read/write operation against 
+			// the device.
+			// See：https://learn.microsoft.com/en-us/windows/uwp/devices-sensors/gatt-client#connecting-to-the-device
 			const auto& r = co_await device.GetGattServicesAsync(winrt::Windows::Devices::Bluetooth::BluetoothCacheMode::Uncached);
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
@@ -269,6 +268,7 @@ namespace bluetooth_low_energy_windows
 					auto& api = m_api.value();
 					const auto peripheral_args = MyPeripheralArgs(address_args);
 					const auto state_args = m_connection_status_to_args(status);
+					// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
 					api.OnConnectionStateChanged(peripheral_args, state_args, [] {}, [](auto error) {});
 				});
 			m_session_max_pdu_size_changed_revokers[address_args] = session.MaxPduSizeChanged(winrt::auto_revoke, [this, address_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession session, auto obj)
@@ -277,13 +277,15 @@ namespace bluetooth_low_energy_windows
 					const auto peripheral_args = MyPeripheralArgs(address_args);
 					const auto mtu = session.MaxPduSize();
 					const auto mtu_args = static_cast<int64_t>(mtu);
+					// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
 					api.OnMTUChanged(peripheral_args, mtu_args, [] {}, [](auto error) {});
 				});
 			m_devices[address_args] = device;
 			m_sessions[address_args] = session;
 			result(std::nullopt);
 		}
-		catch (const winrt::hresult_error& ex) {
+		catch (const winrt::hresult_error& ex)
+		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
 			const auto message = winrt::to_string(winrt_message);
@@ -322,7 +324,8 @@ namespace bluetooth_low_energy_windows
 			}
 			const auto services = r.Services();
 			auto services_args_values = flutter::EncodableList();
-			for (const auto service : services) {
+			for (const auto service : services)
+			{
 				const auto service_args = m_service_to_args(service);
 				const auto service_args_value = flutter::CustomEncodableValue(service_args);
 				const auto service_handle_args = service_args.handle_args();
@@ -331,7 +334,8 @@ namespace bluetooth_low_energy_windows
 			}
 			result(services_args_values);
 		}
-		catch (const winrt::hresult_error& ex) {
+		catch (const winrt::hresult_error& ex)
+		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
 			const auto message = winrt::to_string(winrt_message);
@@ -370,7 +374,8 @@ namespace bluetooth_low_energy_windows
 			}
 			const auto included_services = r.Services();
 			auto included_services_args_values = flutter::EncodableList();
-			for (const auto included_service : included_services) {
+			for (const auto included_service : included_services)
+			{
 				const auto service_args = m_service_to_args(included_service);
 				const auto service_args_value = flutter::CustomEncodableValue(service_args);
 				const auto service_handle_args = service_args.handle_args();
@@ -379,7 +384,8 @@ namespace bluetooth_low_energy_windows
 			}
 			result(included_services_args_values);
 		}
-		catch (const winrt::hresult_error& ex) {
+		catch (const winrt::hresult_error& ex)
+		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
 			const auto message = winrt::to_string(winrt_message);
@@ -419,7 +425,8 @@ namespace bluetooth_low_energy_windows
 			const auto characteristics = r.Characteristics();
 			auto& revokers = m_characteristic_value_changed_revokers[address_args];
 			auto characteristics_args_values = flutter::EncodableList();
-			for (const auto characteristic : characteristics) {
+			for (const auto characteristic : characteristics)
+			{
 				const auto characteristic_args = m_characteristic_to_args(characteristic);
 				const auto characteristic_args_value = flutter::CustomEncodableValue(characteristic_args);
 				const auto characteristic_handle_args = characteristic_args.handle_args();
@@ -433,13 +440,15 @@ namespace bluetooth_low_energy_windows
 						const auto begin = value.data();
 						const auto end = begin + value.Length();
 						const auto value_args = std::vector<uint8_t>(begin, end);
+						// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
 						api.OnCharacteristicNotified(peripheral_args, characteristic_args, value_args, []() {}, [](const auto& error) {});
 					});
 				characteristics_args_values.emplace_back(characteristic_args_value);
 			}
 			result(characteristics_args_values);
 		}
-		catch (const winrt::hresult_error& ex) {
+		catch (const winrt::hresult_error& ex)
+		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
 			const auto message = winrt::to_string(winrt_message);
@@ -478,7 +487,8 @@ namespace bluetooth_low_energy_windows
 			}
 			const auto descriptors = r.Descriptors();
 			auto descriptor_args_values = flutter::EncodableList();
-			for (const auto descriptor : descriptors) {
+			for (const auto descriptor : descriptors)
+			{
 				const auto descriptor_args = m_descriptor_to_args(descriptor);
 				const auto descriptor_args_value = flutter::CustomEncodableValue(descriptor_args);
 				const auto descriptor_handle_args = descriptor_args.handle_args();
@@ -487,7 +497,8 @@ namespace bluetooth_low_energy_windows
 			}
 			result(descriptor_args_values);
 		}
-		catch (const winrt::hresult_error& ex) {
+		catch (const winrt::hresult_error& ex)
+		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
 			const auto message = winrt::to_string(winrt_message);
@@ -530,7 +541,8 @@ namespace bluetooth_low_energy_windows
 			const auto value_args = std::vector<uint8_t>(begin, end);
 			result(value_args);
 		}
-		catch (const winrt::hresult_error& ex) {
+		catch (const winrt::hresult_error& ex)
+		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
 			const auto message = winrt::to_string(winrt_message);
@@ -569,7 +581,8 @@ namespace bluetooth_low_energy_windows
 			}
 			result(std::nullopt);
 		}
-		catch (const winrt::hresult_error& ex) {
+		catch (const winrt::hresult_error& ex)
+		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
 			const auto message = winrt::to_string(winrt_message);
@@ -607,7 +620,8 @@ namespace bluetooth_low_energy_windows
 			}
 			result(std::nullopt);
 		}
-		catch (const winrt::hresult_error& ex) {
+		catch (const winrt::hresult_error& ex)
+		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
 			const auto message = winrt::to_string(winrt_message);
@@ -650,7 +664,8 @@ namespace bluetooth_low_energy_windows
 			const auto value_args = std::vector<uint8_t>(begin, end);
 			result(value_args);
 		}
-		catch (const winrt::hresult_error& ex) {
+		catch (const winrt::hresult_error& ex)
+		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
 			const auto message = winrt::to_string(winrt_message);
@@ -688,7 +703,8 @@ namespace bluetooth_low_energy_windows
 			}
 			result(std::nullopt);
 		}
-		catch (const winrt::hresult_error& ex) {
+		catch (const winrt::hresult_error& ex)
+		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
 			const auto message = winrt::to_string(winrt_message);
@@ -713,7 +729,6 @@ namespace bluetooth_low_energy_windows
 
 	void MyCentralManager::m_disconnect(int64_t address_args)
 	{
-		// 通过释放连接实例，触发断开连接
 		m_device_connection_status_changed_revokers.erase(address_args);
 		m_session_max_pdu_size_changed_revokers.erase(address_args);
 		m_characteristic_value_changed_revokers.erase(address_args);
@@ -760,7 +775,8 @@ namespace bluetooth_low_energy_windows
 		const auto name_args = winrt::to_string(name);
 		const auto service_uuids = advertisement.ServiceUuids();
 		auto service_uuids_args = flutter::EncodableList();
-		for (const auto uuid : service_uuids) {
+		for (const auto uuid : service_uuids)
+		{
 			const auto uuid_args = m_uuid_to_args(uuid);
 			service_uuids_args.emplace_back(uuid_args);
 		}
