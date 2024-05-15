@@ -144,15 +144,10 @@ final class MyCentralManager extends PlatformCentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final addressArgs = peripheral.addressArgs;
-    const modeArgs = MyCacheModeArgs.uncached;
-    logger.info('getServicesAsync: $addressArgs - $modeArgs');
-    final servicesArgs = await _api
-        .getServicesAsync(addressArgs, modeArgs)
-        .then((args) => args.cast<MyGATTServiceArgs>());
-    for (var serviceArgs in servicesArgs) {
-      await _getIncludedServices(addressArgs, serviceArgs, modeArgs);
-    }
+    final servicesArgs = await _getServicesAsync(
+      peripheral.addressArgs,
+      MyCacheModeArgs.uncached,
+    );
     final services = servicesArgs.map((args) => args.toService()).toList();
     return services;
   }
@@ -345,14 +340,14 @@ final class MyCentralManager extends PlatformCentralManager
       try {
         logger.info('initialize');
         await _api.initialize();
-        _updateState();
+        _getState();
       } catch (e) {
         logger.severe('initialize failed.', e);
       }
     });
   }
 
-  Future<void> _updateState() async {
+  Future<void> _getState() async {
     try {
       logger.info('getState');
       final stateArgs = await _api.getState();
@@ -362,51 +357,91 @@ final class MyCentralManager extends PlatformCentralManager
     }
   }
 
-  Future<void> _getIncludedServices(
+  Future<List<MyGATTServiceArgs>> _getServicesAsync(
     int addressArgs,
-    MyGATTServiceArgs serviceArgs,
     MyCacheModeArgs modeArgs,
   ) async {
-    final handleArgs = serviceArgs.handleArgs;
-    logger
-        .info('getIncludedServicesAsync: $addressArgs.$handleArgs - $modeArgs');
-    final includedServicesArgs = await _api
-        .getIncludedServicesAsync(addressArgs, handleArgs, modeArgs)
+    logger.info('getServicesAsync: $addressArgs - $modeArgs');
+    final servicesArgs = await _api
+        .getServicesAsync(addressArgs, modeArgs)
         .then((args) => args.cast<MyGATTServiceArgs>());
-    for (var includedServiceArgs in includedServicesArgs) {
-      await _getIncludedServices(addressArgs, includedServiceArgs, modeArgs);
+    for (var serviceArgs in servicesArgs) {
+      final handleArgs = serviceArgs.handleArgs;
+      final includedServicesArgs = await _getIncludedServicesAsync(
+        addressArgs,
+        handleArgs,
+        modeArgs,
+      );
+      serviceArgs.includedServicesArgs = includedServicesArgs;
+      final characteristicsArgs = await _getCharacteristicsAsync(
+        addressArgs,
+        handleArgs,
+        modeArgs,
+      );
+      serviceArgs.characteristicsArgs = characteristicsArgs;
     }
-    serviceArgs.includedServicesArgs = includedServicesArgs;
-    await _getCharacteristicsArgs(addressArgs, serviceArgs, modeArgs);
+    return servicesArgs;
   }
 
-  Future<void> _getCharacteristicsArgs(
+  Future<List<MyGATTServiceArgs>> _getIncludedServicesAsync(
     int addressArgs,
-    MyGATTServiceArgs serviceArgs,
+    int handleArgs,
     MyCacheModeArgs modeArgs,
   ) async {
-    final handleArgs = serviceArgs.handleArgs;
+    logger
+        .info('getIncludedServicesAsync: $addressArgs.$handleArgs - $modeArgs');
+    final servicesArgs = await _api
+        .getIncludedServicesAsync(addressArgs, handleArgs, modeArgs)
+        .then((args) => args.cast<MyGATTServiceArgs>());
+    for (var serviceArgs in servicesArgs) {
+      final handleArgs = serviceArgs.handleArgs;
+      final includedServicesArgs = await _getIncludedServicesAsync(
+        addressArgs,
+        handleArgs,
+        modeArgs,
+      );
+      serviceArgs.includedServicesArgs = includedServicesArgs;
+      final characteristicsArgs = await _getCharacteristicsAsync(
+        addressArgs,
+        handleArgs,
+        modeArgs,
+      );
+      serviceArgs.characteristicsArgs = characteristicsArgs;
+    }
+    return servicesArgs;
+  }
+
+  Future<List<MyGATTCharacteristicArgs>> _getCharacteristicsAsync(
+    int addressArgs,
+    int handleArgs,
+    MyCacheModeArgs modeArgs,
+  ) async {
     logger
         .info('getCharacteristicsAsync: $addressArgs.$handleArgs - $modeArgs');
     final characteristicsArgs = await _api
         .getCharacteristicsAsync(addressArgs, handleArgs, modeArgs)
         .then((args) => args.cast<MyGATTCharacteristicArgs>());
     for (var characteristicArgs in characteristicsArgs) {
-      await _getDescriptorsArgs(addressArgs, characteristicArgs, modeArgs);
+      final handleArgs = characteristicArgs.handleArgs;
+      final descriptorsArgs = await _getDescriptorsAsync(
+        addressArgs,
+        handleArgs,
+        modeArgs,
+      );
+      characteristicArgs.descriptorsArgs = descriptorsArgs;
     }
-    serviceArgs.characteristicsArgs = characteristicsArgs;
+    return characteristicsArgs;
   }
 
-  Future<void> _getDescriptorsArgs(
+  Future<List<MyGATTDescriptorArgs>> _getDescriptorsAsync(
     int addressArgs,
-    MyGATTCharacteristicArgs characteristicArgs,
+    int handleArgs,
     MyCacheModeArgs modeArgs,
   ) async {
-    final handleArgs = characteristicArgs.handleArgs;
-    logger.info('getDescriptorsAsync: $addressArgs.$handleArgs - $modeArgs');
+    logger.info('getDescriptorsAsync: $addressArgs,$handleArgs - $modeArgs');
     final descriptorsArgs = await _api
         .getDescriptorsAsync(addressArgs, handleArgs, modeArgs)
         .then((args) => args.cast<MyGATTDescriptorArgs>());
-    characteristicArgs.descriptorsArgs = descriptorsArgs;
+    return descriptorsArgs;
   }
 }
