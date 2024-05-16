@@ -2,6 +2,12 @@ name: bluetooth_low_energy_darwin
 description: "iOS and macOS implementation of the bluetooth_low_energy plugin."
 version: 6.0.0-dev.0
 homepage: "https://github.com/yanshouwang/bluetooth_low_energy"
+repository: "https://github.com/yanshouwang/bluetooth_low_energy"
+issue_tracker: "https://github.com/yanshouwang/bluetooth_low_energy/issues"
+topics:
+  - bluetooth
+  - bluetooth-low-energy
+  - ble
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

@@ -1,8 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
 import 'package:bluetooth_low_energy_example/models.dart';
-import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:hybrid_logging/hybrid_logging.dart';
 import 'package:logging/logging.dart';
@@ -41,17 +42,19 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
         peripheralManager.stateChanged.listen((eventArgs) {
       state.value = eventArgs.state;
     });
-    connectionStateChangedSubscription =
-        peripheralManager.connectionStateChanged.listen((eventArgs) {
-      final central = eventArgs.central;
-      final state = eventArgs.state;
-      logger.info('connectionStateChanged: ${central.uuid} - $state');
-    });
-    mtuChangedSubscription = peripheralManager.mtuChanged.listen((eventArgs) {
-      final central = eventArgs.central;
-      final mtu = eventArgs.mtu;
-      logger.info('mtuChanged: ${central.uuid} - $mtu');
-    });
+    if (Platform.isAndroid) {
+      connectionStateChangedSubscription =
+          peripheralManager.connectionStateChanged.listen((eventArgs) {
+        final central = eventArgs.central;
+        final state = eventArgs.state;
+        logger.info('connectionStateChanged: ${central.uuid} - $state');
+      });
+      mtuChangedSubscription = peripheralManager.mtuChanged.listen((eventArgs) {
+        final central = eventArgs.central;
+        final mtu = eventArgs.mtu;
+        logger.info('mtuChanged: ${central.uuid} - $mtu');
+      });
+    }
     characteristicReadRequestedSubscription =
         peripheralManager.characteristicReadRequested.listen((eventArgs) async {
       final central = eventArgs.central;
@@ -230,8 +233,10 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
   void dispose() {
     super.dispose();
     stateChangedSubscription.cancel();
-    connectionStateChangedSubscription.cancel();
-    mtuChangedSubscription.cancel();
+    if (Platform.isAndroid) {
+      connectionStateChangedSubscription.cancel();
+      mtuChangedSubscription.cancel();
+    }
     characteristicReadRequestedSubscription.cancel();
     characteristicWriteRequestedSubscription.cancel();
     characteristicNotifyStateChangedSubscription.cancel();

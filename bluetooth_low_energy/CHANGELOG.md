@@ -1,3 +1,45 @@
+## 6.0.0-dev.0
+
+* [Add `CentralManager#retrieveConnectedPeripherals` method.](https://github.com/yanshouwang/bluetooth_low_energy/issues/61)
+* [Add optional `serviceUUIDs` argument to the `CentralManager#startDiscovery` method.](https://github.com/yanshouwang/bluetooth_low_energy/issues/53)
+* [Add `CentralManager#mtuChanged` event](https://github.com/yanshouwang/bluetooth_low_energy/issues/57).
+* [Add `PeripheralManager#mtuChanged` event](https://github.com/yanshouwang/bluetooth_low_energy/issues/57).
+* Add `BluetoothLowEnergyManager#authorize` method.
+* Add `BluetoothLowEnergyManager#showAppSettings` method.
+* [Add `CentralManager#requestMTU` method](https://github.com/yanshouwang/bluetooth_low_energy/issues/57).
+* [Add `CentralManager#getMaximumWriteLength` method](https://github.com/yanshouwang/bluetooth_low_energy/issues/57).
+* Add `PeripheralManager#connectionStateChanged` event.
+* [Add `PeripheralManager#characteristicReadRequested` event](https://github.com/yanshouwang/bluetooth_low_energy/issues/45).
+* [Add `PeripheralManager#characteristicWriteRequested` event](https://github.com/yanshouwang/bluetooth_low_energy/issues/45).
+* [Add `PeripheralManager#descriptorReadRequested` event](https://github.com/yanshouwang/bluetooth_low_energy/issues/45).
+* [Add `PeripheralManager#descriptorWriteRequested` event](https://github.com/yanshouwang/bluetooth_low_energy/issues/45).
+* [Add `PeripheralManager#getMaximumNotifyLength` method](https://github.com/yanshouwang/bluetooth_low_energy/issues/57).
+* [Add `PeripheralManager#respondCharacteristicReadRequestWithValue` method](https://github.com/yanshouwang/bluetooth_low_energy/issues/45).
+* [Add `PeripheralManager#respondCharacteristicReadRequestWithError` method](https://github.com/yanshouwang/bluetooth_low_energy/issues/45).
+* [Add `PeripheralManager#respondCharacteristicWriteRequest` method](https://github.com/yanshouwang/bluetooth_low_energy/issues/45).
+* [Add `PeripheralManager#respondCharacteristicWriteRequestWithError` method](https://github.com/yanshouwang/bluetooth_low_energy/issues/45).
+* [Add `PeripheralManager#respondDescriptorReadRequestWithValue` method](https://github.com/yanshouwang/bluetooth_low_energy/issues/45).
+* [Add `PeripheralManager#respondDescriptorReadRequestWithError` method](https://github.com/yanshouwang/bluetooth_low_energy/issues/45).
+* [Add `PeripheralManager#respondDescriptorWriteRequest` method](https://github.com/yanshouwang/bluetooth_low_energy/issues/45).
+* [Add `PeripheralManager#respondDescriptorWriteRequestWithError` method](https://github.com/yanshouwang/bluetooth_low_energy/issues/45).
+* Add `ConnectionState` enum.
+* Add `GATTService.isPrimary` field.
+* Add `GATTService#includedServices` field.
+* Add `MutableGATTCharacteristic#permissions` field.
+* Add `MutableGATTDescriptor#permissions` field.
+* Move `BluetoothLowEnergyManager#getState` to `BluetoothLowEnergyManager#state`.
+* Move `PeripheralManager#clearServices` to `PeripheralManager#removeAllServices`.
+* Move `CentralManger.instance` to factory constructor.
+* Move `PeripheralManager.instance` to factory constructor.
+* Remove `BluetoothLowEnergyManager#setUp` method.
+* Remove `GATTCharacteristicReadEventArgs` class.
+* Remove `GATTCharacteristicWrittenEventArgs` class.
+* Remove `PeripheralManager#characteristicRead` event.
+* Remove `PeripheralManager#characteristicWritten` event.
+* Remove `PeripheralManager#readCharacteristic` method.
+* Remove `PeripheralManager#writeCharacteristic` method.
+* Fix the issue that [`Cannot access value of empty optional`](https://github.com/yanshouwang/bluetooth_low_energy/issues/63).
+
 ## 5.0.7
 
 * `Android` Fix the issue that [Advertisement resolve failed with `NullPointerException`](https://github.com/yanshouwang/bluetooth_low_energy/issues/59)
