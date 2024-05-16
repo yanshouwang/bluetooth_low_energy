@@ -26,9 +26,9 @@ final class MyCentralManager extends PlatformCentralManager {
   final StreamController<BlueZDeviceServicesResolvedEventArgs>
       _blueZServicesResolvedController;
 
+  final Map<String, List<MyGATTService>> _services;
   final Map<int, StreamSubscription>
       _blueZCharacteristicPropertiesChangedSubscriptions;
-  final Map<String, List<MyGATTService>> _services;
 
   BluetoothLowEnergyState _state;
 
@@ -39,8 +39,8 @@ final class MyCentralManager extends PlatformCentralManager {
         _connectionStateChangedController = StreamController.broadcast(),
         _characteristicNotifiedController = StreamController.broadcast(),
         _blueZServicesResolvedController = StreamController.broadcast(),
-        _blueZCharacteristicPropertiesChangedSubscriptions = {},
         _services = {},
+        _blueZCharacteristicPropertiesChangedSubscriptions = {},
         _state = BluetoothLowEnergyState.unknown;
 
   BlueZAdapter get _blueZAdapter => _blueZClient.adapters.first;
@@ -66,21 +66,29 @@ final class MyCentralManager extends PlatformCentralManager {
 
   @override
   void initialize() async {
-    logger.info('initialize');
-    await _blueZClient.connect();
-    if (_blueZClient.adapters.isEmpty) {
-      _state = BluetoothLowEnergyState.unsupported;
-      return;
-    }
-    _state = _blueZAdapter.myState;
-    _blueZAdapter.propertiesChanged.listen(_onBlueZAdapterPropertiesChanged);
-    for (var blueZDevice in _blueZClient.devices) {
-      if (blueZDevice.adapter.address != _blueZAdapter.address) {
-        continue;
+    // Here we use `Future()` to make it possible to change the `logLevel` before `initialize()`.
+    await Future(() async {
+      try {
+        logger.info('initialize');
+        await _blueZClient.connect();
+        if (_blueZClient.adapters.isEmpty) {
+          _state = BluetoothLowEnergyState.unsupported;
+          return;
+        }
+        _state = _blueZAdapter.myState;
+        _blueZAdapter.propertiesChanged
+            .listen(_onBlueZAdapterPropertiesChanged);
+        for (var blueZDevice in _blueZClient.devices) {
+          if (blueZDevice.adapter.address != _blueZAdapter.address) {
+            continue;
+          }
+          _beginBlueZDevicePropertiesChangedListener(blueZDevice);
+        }
+        _blueZClient.deviceAdded.listen(_onBlueZClientDeviceAdded);
+      } catch (e) {
+        logger.severe('initialize failed.', e);
       }
-      _beginBlueZDevicePropertiesChangedListener(blueZDevice);
-    }
-    _blueZClient.deviceAdded.listen(_onBlueZClientDeviceAdded);
+    });
   }
 
   @override
@@ -98,6 +106,9 @@ final class MyCentralManager extends PlatformCentralManager {
     List<UUID>? serviceUUIDs,
   }) async {
     logger.info('startDiscovery');
+    await _blueZAdapter.setDiscoveryFilter(
+      uuids: serviceUUIDs?.map((uuid) => '$uuid').toList(),
+    );
     await _blueZAdapter.startDiscovery();
   }
 
@@ -109,8 +120,14 @@ final class MyCentralManager extends PlatformCentralManager {
 
   @override
   Future<List<Peripheral>> retrieveConnectedPeripherals() {
-    // TODO: implement retrieveConnectedPeripherals
-    throw UnimplementedError();
+    logger.info('retrieveConnectedPeripherals');
+    final peripherals = _blueZClient.devices
+        .where((blueZDevice) =>
+            blueZDevice.adapter.address == _blueZAdapter.address &&
+            blueZDevice.connected)
+        .map((blueZDevice) => MyPeripheral(blueZDevice))
+        .toList();
+    return Future.value(peripherals);
   }
 
   @override
@@ -148,8 +165,22 @@ final class MyCentralManager extends PlatformCentralManager {
     Peripheral peripheral, {
     required GATTCharacteristicWriteType type,
   }) {
-    // TODO: implement getMaximumWriteLength
-    throw UnimplementedError();
+    if (peripheral is! MyPeripheral) {
+      throw TypeError();
+    }
+    final blueZDevice = peripheral.blueZDevice;
+    final blueZAddress = blueZDevice.address;
+    logger.info('getMaximumWriteLength: $blueZAddress');
+    final blueZMTU = blueZDevice.gattServices
+        .firstWhere((service) => service.characteristics.isNotEmpty)
+        .characteristics
+        .first
+        .mtu;
+    if (blueZMTU == null) {
+      throw ArgumentError.notNull();
+    }
+    final maximumWriteLength = (blueZMTU - 3).clamp(20, 512);
+    return Future.value(maximumWriteLength);
   }
 
   @override
@@ -210,11 +241,10 @@ final class MyCentralManager extends PlatformCentralManager {
     }
     final blueZCharacteristic = characteristic.blueZCharacteristic;
     final blueZUUID = blueZCharacteristic.uuid;
-    final trimmedValue = value.trimGATT();
     final blueZType = type.toBlueZWriteType();
-    logger.info('writeCharacteristic: $blueZUUID - $trimmedValue, $blueZType');
+    logger.info('writeCharacteristic: $blueZUUID - $value, $blueZType');
     await blueZCharacteristic.writeValue(
-      trimmedValue,
+      value,
       type: blueZType,
     );
   }
@@ -320,16 +350,19 @@ final class MyCentralManager extends PlatformCentralManager {
             _onBlueZDiscovered(blueZDevice);
             break;
           case 'Connected':
+            final connected = blueZDevice.connected;
+            if (!connected) {
+              _endBlueZCharacteristicPropertiesChangedListener(blueZDevice);
+            }
             final peripheral = MyPeripheral(blueZDevice);
-            final state = blueZDevice.connected;
-            final eventArgs = ConnectionStateChangedEventArgs(
+            final state = blueZDevice.connected
+                ? ConnectionState.connected
+                : ConnectionState.disconnected;
+            final eventArgs = PeripheralConnectionStateChangedEventArgs(
               peripheral,
               state,
             );
             _connectionStateChangedController.add(eventArgs);
-            if (!state) {
-              _endBlueZCharacteristicPropertiesChangedListener(blueZDevice);
-            }
             break;
           case 'UUIDs':
             break;
@@ -357,6 +390,7 @@ final class MyCentralManager extends PlatformCentralManager {
     if (services == null) {
       return;
     }
+    final peripheral = MyPeripheral(blueZDevice);
     for (var service in services) {
       final characteristics = service.characteristics;
       for (var characteristic in characteristics) {
@@ -370,7 +404,8 @@ final class MyCentralManager extends PlatformCentralManager {
               switch (blueZCharacteristicPropety) {
                 case 'Value':
                   final value = Uint8List.fromList(blueZCharacteristic.value);
-                  final eventArgs = GattCharacteristicNotifiedEventArgs(
+                  final eventArgs = GATTCharacteristicNotifiedEventArgs(
+                    peripheral,
                     characteristic,
                     value,
                   );

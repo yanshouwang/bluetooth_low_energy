@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:bluetooth_low_energy_darwin/src/my_gatt.dart';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 
@@ -20,8 +21,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
       _characteristicNotifyStateChangedController;
   final StreamController<EventArgs> _isReadyController;
 
-  final Map<int, Map<int, MutableGATTCharacteristic>> _characteristics;
-  final Map<int, Map<String, Central>> _subscribedCentrals;
+  final Map<int, MutableGATTCharacteristic> _characteristics;
 
   BluetoothLowEnergyState _state;
 
@@ -33,7 +33,6 @@ final class MyPeripheralManager extends PlatformPeripheralManager
         _characteristicNotifyStateChangedController =
             StreamController.broadcast(),
         _isReadyController = StreamController.broadcast(),
-        _subscribedCentrals = {},
         _characteristics = {},
         _state = BluetoothLowEnergyState.unknown;
 
@@ -89,25 +88,10 @@ final class MyPeripheralManager extends PlatformPeripheralManager
 
   @override
   Future<void> addService(GATTService service) async {
-    if (service is! MutableGATTService) {
-      throw TypeError();
-    }
-    final characteristics = <int, MutableGATTCharacteristic>{};
-    final characteristicsArgs = <MyMutableGATTCharacteristicArgs>[];
-    for (var characteristic in service.characteristics) {
-      final descriptorsArgs = <MyMutableGATTDescriptorArgs>[];
-      for (var descriptor in characteristic.descriptors) {
-        final descriptorArgs = descriptor.toArgs();
-        descriptorsArgs.add(descriptorArgs);
-      }
-      final characteristicArgs = characteristic.toArgs(descriptorsArgs);
-      characteristicsArgs.add(characteristicArgs);
-      characteristics[characteristicArgs.hashCodeArgs] = characteristic;
-    }
-    final serviceArgs = service.toArgs(characteristicsArgs);
+    final serviceArgs = service.toArgs();
     logger.info('addService: $serviceArgs');
     await _api.addService(serviceArgs);
-    _characteristics[serviceArgs.hashCodeArgs] = characteristics;
+    _addService(service);
   }
 
   @override
@@ -115,13 +99,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     final hashCodeArgs = service.hashCode;
     logger.info('removeService: $hashCodeArgs');
     await _api.removeService(hashCodeArgs);
-    final characteristics = _characteristics.remove(hashCodeArgs);
-    if (characteristics == null) {
-      return;
-    }
-    for (var key in characteristics.keys) {
-      _subscribedCentrals.remove(key);
-    }
+    _removeService(service);
   }
 
   @override
@@ -129,7 +107,6 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     logger.info('removeAllServices');
     await _api.removeAllServices();
     _characteristics.clear();
-    _subscribedCentrals.clear();
   }
 
   @override
@@ -159,9 +136,19 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     GATTCharacteristic characteristic, {
     required GATTReadRequest request,
     required Uint8List value,
-  }) {
-    // TODO: implement respondCharacteristicReadRequestWithValue
-    throw UnimplementedError();
+  }) async {
+    if (request is! MyGATTReadRequest) {
+      throw TypeError();
+    }
+    final hashCodeArgs = request.hashCodeArgs;
+    final valueArgs = value;
+    const errorArgs = MyATTErrorArgs.success;
+    logger.info('respond: $hashCodeArgs - $valueArgs, $errorArgs');
+    await _api.respond(
+      hashCodeArgs,
+      valueArgs,
+      errorArgs,
+    );
   }
 
   @override
@@ -170,9 +157,19 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     GATTCharacteristic characteristic, {
     required GATTReadRequest request,
     required GATTError error,
-  }) {
-    // TODO: implement respondCharacteristicReadRequestWithError
-    throw UnimplementedError();
+  }) async {
+    if (request is! MyGATTReadRequest) {
+      throw TypeError();
+    }
+    final hashCodeArgs = request.hashCodeArgs;
+    const valueArgs = null;
+    final errorArgs = error.toArgs();
+    logger.info('respond: $hashCodeArgs - $valueArgs, $errorArgs');
+    await _api.respond(
+      hashCodeArgs,
+      valueArgs,
+      errorArgs,
+    );
   }
 
   @override
@@ -180,9 +177,19 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     Central central,
     GATTCharacteristic characteristic, {
     required GATTWriteRequest request,
-  }) {
-    // TODO: implement respondCharacteristicWriteRequest
-    throw UnimplementedError();
+  }) async {
+    if (request is! MyGATTWriteRequest) {
+      throw TypeError();
+    }
+    final hashCodeArgs = request.hashCodeArgs;
+    const valueArgs = null;
+    const errorArgs = MyATTErrorArgs.success;
+    logger.info('respond: $hashCodeArgs - $valueArgs, $errorArgs');
+    await _api.respond(
+      hashCodeArgs,
+      valueArgs,
+      errorArgs,
+    );
   }
 
   @override
@@ -191,9 +198,19 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     GATTCharacteristic characteristic, {
     required GATTWriteRequest request,
     required GATTError error,
-  }) {
-    // TODO: implement respondCharacteristicWriteRequestWithError
-    throw UnimplementedError();
+  }) async {
+    if (request is! MyGATTWriteRequest) {
+      throw TypeError();
+    }
+    final hashCodeArgs = request.hashCodeArgs;
+    const valueArgs = null;
+    final errorArgs = error.toArgs();
+    logger.info('respond: $hashCodeArgs - $valueArgs, $errorArgs');
+    await _api.respond(
+      hashCodeArgs,
+      valueArgs,
+      errorArgs,
+    );
   }
 
   @override
@@ -202,48 +219,21 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     GATTCharacteristic characteristic, {
     required Uint8List value,
   }) async {
-    if (characteristic is! MutableGATTCharacteristic) {
-      throw TypeError();
-    }
     final hashCodeArgs = characteristic.hashCode;
-    final subscribedCentrals = _subscribedCentrals[hashCodeArgs];
-    if (subscribedCentrals == null) {
-      return;
-    }
-    centrals ??= subscribedCentrals.values.toList();
-    for (var central in centrals) {
-      final uuidArgs = central.uuid.toArgs();
-      final subscribed = subscribedCentrals.containsKey(uuidArgs);
-      if (!subscribed) {
-        continue;
+    final valueArgs = value;
+    final uuidArgs = central.uuid.toArgs();
+    final uuidsArgs = [uuidArgs];
+    while (true) {
+      logger.info('updateValue: $hashCodeArgs - $valueArgs, $uuidsArgs');
+      final updated = await _api.updateValue(
+        hashCodeArgs,
+        valueArgs,
+        uuidsArgs,
+      );
+      if (updated) {
+        break;
       }
-      final uuidsArgs = [uuidArgs];
-      final trimmedValueArgs = characteristic.value;
-      if (trimmedValueArgs == null) {
-        throw ArgumentError.notNull();
-      }
-      final fragmentSize = await _api.maximumUpdateValueLength(uuidArgs);
-      var start = 0;
-      while (start < trimmedValueArgs.length) {
-        final end = start + fragmentSize;
-        final fragmentedValueArgs = end < trimmedValueArgs.length
-            ? trimmedValueArgs.sublist(start, end)
-            : trimmedValueArgs.sublist(start);
-        while (true) {
-          logger.info(
-              'updateValue: $hashCodeArgs - $fragmentedValueArgs, $uuidsArgs');
-          final updated = await _api.updateValue(
-            hashCodeArgs,
-            fragmentedValueArgs,
-            uuidsArgs,
-          );
-          if (updated) {
-            break;
-          }
-          await _isReady.first;
-        }
-        start = end;
-      }
+      await _isReady.first;
     }
   }
 
@@ -312,15 +302,19 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     logger.info(
         'didReceiveRead: ${centralArgs.uuidArgs} - $hashCodeArgs, $characteristicHashCodeArgs, $offsetArgs, $valueArgs');
     final central = centralArgs.toCentral();
-    final characteristic = _retrieveCharacteristic(hashCodeArgs);
+    final characteristic = _characteristics[characteristicHashCodeArgs];
     if (characteristic == null) {
-      const errorArgs = MyATTErrorArgs.attributeNotFound;
-      await _respond(hashCodeArgs, errorArgs, null);
+      await _respond(hashCodeArgs, null, MyATTErrorArgs.attributeNotFound);
     } else {
-      const errorArgs = MyATTErrorArgs.success;
-      final offset = offsetArgs;
-      final valueArgs = _onCharacteristicRead(central, characteristic, offset);
-      await _respond(hashCodeArgs, errorArgs, valueArgs);
+      final eventArgs = GATTCharacteristicReadRequestedEventArgs(
+        central,
+        characteristic,
+        MyGATTReadRequest(
+          hashCodeArgs: hashCodeArgs,
+          offset: offsetArgs,
+        ),
+      );
+      _characteristicReadRequestedController.add(eventArgs);
     }
   }
 
@@ -331,39 +325,43 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     // them from the peripheralManager(_:didReceiveWrite:) method. To respond properly,
     // pass in the first request of the requests array.
     // see: https://developer.apple.com/documentation/corebluetooth/cbperipheralmanagerdelegate/1393315-peripheralmanager#discussion
-    final requestArgs = requestsArgs.firstOrNull;
-    if (requestArgs == null) {
-      return;
-    }
+    final requestArgs = requestsArgs.cast<MyATTRequestArgs>().first;
     final centralArgs = requestArgs.centralArgs;
     final hashCodeArgs = requestArgs.hashCodeArgs;
     final characteristicHashCodeArgs = requestArgs.characteristicHashCodeArgs;
     final offsetArgs = requestArgs.offsetArgs;
-    final valueArgs = requestArgs.valueArgs;
-    logger.info(
-        'didReceiveWrite: ${centralArgs.uuidArgs} - $hashCodeArgs, $characteristicHashCodeArgs, $offsetArgs, $valueArgs');
-    if (requestsArgs.length > 1) {
-      // TODO: how to respond multi requests.
-      const errorArgs = MyATTErrorArgs.requestNotSupported;
-      await _respond(hashCodeArgs, errorArgs, null);
-    }
-    final central = centralArgs.toCentral();
-    final characteristic = _retrieveCharacteristic(hashCodeArgs);
-    if (characteristic == null) {
-      const errorArgs = MyATTErrorArgs.attributeNotFound;
-      await _respond(hashCodeArgs, errorArgs, null);
-    } else if (valueArgs == null) {
-      const errorArgs = MyATTErrorArgs.requestNotSupported;
-      await _respond(hashCodeArgs, errorArgs, null);
+    final unsupported = requestsArgs.cast<MyATTRequestArgs>().any((args) =>
+        args.centralArgs.uuidArgs != centralArgs.uuidArgs ||
+        args.characteristicHashCodeArgs != characteristicHashCodeArgs);
+    if (unsupported) {
+      await _respond(hashCodeArgs, null, MyATTErrorArgs.unsupportedGroupType);
     } else {
-      const errorArgs = MyATTErrorArgs.success;
-      final value = valueArgs;
-      _onCharacteristicWritten(central, characteristic, value);
-      await _respond(
-        hashCodeArgs,
-        errorArgs,
-        null,
-      );
+      final central = centralArgs.toCentral();
+      final characteristic = _characteristics[characteristicHashCodeArgs];
+      if (characteristic == null) {
+        await _respond(hashCodeArgs, null, MyATTErrorArgs.attributeNotFound);
+      } else {
+        final elements = requestsArgs.cast<MyATTRequestArgs>().fold(
+          <int>[],
+          (previousValue, args) {
+            final valueArgs = args.valueArgs;
+            if (valueArgs != null) {
+              previousValue.insertAll(args.offsetArgs, valueArgs);
+            }
+            return previousValue;
+          },
+        );
+        final eventArgs = GATTCharacteristicWriteRequestedEventArgs(
+          central,
+          characteristic,
+          MyGATTWriteRequest(
+            hashCodeArgs: hashCodeArgs,
+            offset: offsetArgs,
+            value: Uint8List.fromList(elements),
+          ),
+        );
+        _characteristicWriteRequestedController.add(eventArgs);
+      }
     }
   }
 
@@ -383,24 +381,39 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     logger.info(
         'onCharacteristicNotifyStateChanged: $uuidArgs - $hashCodeArgs, $stateArgs');
     final central = centralArgs.toCentral();
-    final characteristic = _retrieveCharacteristic(hashCodeArgs);
+    final characteristic = _characteristics[hashCodeArgs];
     if (characteristic == null) {
+      logger.warning('The characteristic[$hashCodeArgs] is null.');
       return;
-    }
-    final state = stateArgs;
-    final subscribedCentrals =
-        _subscribedCentrals.putIfAbsent(hashCodeArgs, () => {});
-    if (state) {
-      subscribedCentrals[uuidArgs] = central;
-    } else {
-      subscribedCentrals.remove(uuidArgs);
     }
     final eventArgs = GATTCharacteristicNotifyStateChangedEventArgs(
       central,
       characteristic,
-      state,
+      stateArgs,
     );
     _characteristicNotifyStateChangedController.add(eventArgs);
+  }
+
+  void _addService(GATTService service) {
+    for (var includedService in service.includedServices) {
+      _addService(includedService);
+    }
+    for (var characteristic in service.characteristics) {
+      if (characteristic is! MutableGATTCharacteristic) {
+        throw TypeError();
+      }
+      _characteristics[characteristic.hashCode] = characteristic;
+    }
+  }
+
+  void _removeService(GATTService service) {
+    for (var includedService in service.includedServices) {
+      _removeService(includedService);
+    }
+    for (var characteristic in service.characteristics) {
+      final hashCodeArgs = characteristic.hashCode;
+      _characteristics.remove(hashCodeArgs);
+    }
   }
 
   Future<void> _initialize() async {
@@ -417,16 +430,15 @@ final class MyPeripheralManager extends PlatformPeripheralManager
 
   Future<void> _respond(
     int hashCodeArgs,
-    MyATTErrorArgs errorArgs,
     Uint8List? valueArgs,
+    MyATTErrorArgs errorArgs,
   ) async {
-    final errorNumberArgs = errorArgs.index;
     try {
-      logger.info('respond: $hashCodeArgs - $valueArgs, $errorNumberArgs');
+      logger.info('respond: $hashCodeArgs - $valueArgs, $errorArgs');
       await _api.respond(
         hashCodeArgs,
         valueArgs,
-        errorNumberArgs,
+        errorArgs,
       );
     } catch (e) {
       logger.severe('respond failed.', e);

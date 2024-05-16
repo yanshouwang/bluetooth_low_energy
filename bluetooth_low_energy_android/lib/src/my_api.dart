@@ -262,10 +262,22 @@ extension MutableGATTCharacteristicX on MutableGATTCharacteristic {
       final propertyArgs = property.toArgs();
       return propertyArgs.index;
     }).toList();
+    // Add CCC descriptor.
+    final cccUUID = UUID.short(0x2902);
     final descriptorsArgs = descriptors
         .cast<MutableGATTDescriptor>()
+        .where((descriptor) => descriptor.uuid != cccUUID)
         .map((descriptor) => descriptor.toArgs())
         .toList();
+    final cccDescriptor = MutableGATTDescriptor(
+      uuid: cccUUID,
+      permissions: [
+        GATTCharacteristicPermission.read,
+        GATTCharacteristicPermission.write,
+      ],
+    );
+    final cccDescriptorArgs = cccDescriptor.toArgs();
+    descriptorsArgs.add(cccDescriptorArgs);
     return MyMutableGATTCharacteristicArgs(
       hashCodeArgs: hashCodeArgs,
       uuidArgs: uuidArgs,

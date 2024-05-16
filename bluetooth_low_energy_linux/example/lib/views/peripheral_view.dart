@@ -50,41 +50,48 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
     logs = ValueNotifier([]);
     writeController = TextEditingController();
     connectionStateChangedSubscription =
-        centralManager.connectionStateChanged.listen((eventArgs) {
-      if (eventArgs.peripheral != peripheral) {
-        return;
-      }
-      final state = eventArgs.state;
-      connectionState.value = state;
-      if (state == ConnectionState.disconnected) {
-        services.value = [];
-        characteristics.value = [];
-        service.value = null;
-        characteristic.value = null;
-        logs.value = [];
-      }
-    });
-    mtuChangedSubscription = centralManager.mtuChanged.listen((eventArgs) {
-      if (eventArgs.peripheral != peripheral) {
-        return;
-      }
-      final mtu = eventArgs.mtu;
-      logger.info('mtuChanged: $mtu');
-    });
+        centralManager.connectionStateChanged.listen(
+      (eventArgs) {
+        if (eventArgs.peripheral != this.eventArgs.peripheral) {
+          return;
+        }
+        final state = eventArgs.state;
+        if (state == ConnectionState.disconnected) {
+          services.value = [];
+          characteristics.value = [];
+          service.value = null;
+          characteristic.value = null;
+          logs.value = [];
+        }
+        connectionState.value = state;
+      },
+    );
+    mtuChangedSubscription = centralManager.mtuChanged.listen(
+      (eventArgs) {
+        if (eventArgs.peripheral != this.eventArgs.peripheral) {
+          return;
+        }
+        final mtu = eventArgs.mtu;
+        logger.info('mtuChanged: $mtu');
+      },
+    );
     characteristicNotifiedSubscription =
-        centralManager.characteristicNotified.listen((eventArgs) {
-      // final characteristic = this.characteristic.value;
-      // if (eventArgs.characteristic != characteristic) {
-      //   return;
-      // }
-      final characteristic = eventArgs.characteristic;
-      final value = eventArgs.value;
-      final log = Log('characteristicNotified\n${characteristic.uuid}, $value');
-      logs.value = [
-        ...logs.value,
-        log,
-      ];
-    });
+        centralManager.characteristicNotified.listen(
+      (eventArgs) {
+        // final characteristic = this.characteristic.value;
+        // if (eventArgs.characteristic != characteristic) {
+        //   return;
+        // }
+        final characteristic = eventArgs.characteristic;
+        final value = eventArgs.value;
+        final log =
+            Log('characteristicNotified\n${characteristic.uuid}, $value');
+        logs.value = [
+          ...logs.value,
+          log,
+        ];
+      },
+    );
   }
 
   @override
@@ -92,6 +99,7 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
     return PopScope(
       onPopInvoked: (didPop) async {
         if (connectionState.value == ConnectionState.connected) {
+          final peripheral = eventArgs.peripheral;
           await centralManager.disconnect(peripheral);
         }
       },
@@ -109,21 +117,17 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
       actions: [
         ValueListenableBuilder(
           valueListenable: connectionState,
-          builder: (context, state, child) {
-            final connected = state == ConnectionState.connected;
+          builder: (context, connectionState, child) {
+            final connected = connectionState == ConnectionState.connected;
             return TextButton(
               onPressed: () async {
+                final peripheral = eventArgs.peripheral;
                 if (connected) {
                   await centralManager.disconnect(peripheral);
                 } else {
                   await centralManager.connect(peripheral);
                   services.value =
                       await centralManager.discoverGATT(peripheral);
-                  final mtu = await centralManager.requestMTU(
-                    peripheral,
-                    mtu: 517,
-                  );
-                  logger.info('requestMTU: $mtu');
                 }
               },
               child: Text(connected ? 'DISCONNECT' : 'CONNECT'),
@@ -301,10 +305,7 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
                                   );
                                   final log = Log(
                                       'readCharacteristic\n${characteristic.uuid} - $value');
-                                  logs.value = [
-                                    ...logs.value,
-                                    log,
-                                  ];
+                                  logs.value = [...logs.value, log];
                                 }
                               : null,
                           child: const Text('READ'),

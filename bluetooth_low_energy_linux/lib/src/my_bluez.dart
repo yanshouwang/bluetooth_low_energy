@@ -3,8 +3,6 @@ import 'dart:typed_data';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:bluez/bluez.dart';
 
-import 'my_gatt_characteristic2.dart';
-import 'my_gatt_descriptor2.dart';
 import 'my_gatt.dart';
 
 extension BlueZGattCharacteristicFlagX on BlueZGattCharacteristicFlag {

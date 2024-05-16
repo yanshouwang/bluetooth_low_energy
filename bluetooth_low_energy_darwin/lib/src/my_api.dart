@@ -163,6 +163,47 @@ extension GATTCharacteristicWriteTypeX on GATTCharacteristicWriteType {
   }
 }
 
+extension GATTErrorX on GATTError {
+  MyATTErrorArgs toArgs() {
+    switch (this) {
+      case GATTError.invalidHandle:
+        return MyATTErrorArgs.invalidHandle;
+      case GATTError.readNotPermitted:
+        return MyATTErrorArgs.readNotPermitted;
+      case GATTError.writeNotPermitted:
+        return MyATTErrorArgs.writeNotPermitted;
+      case GATTError.invalidPDU:
+        return MyATTErrorArgs.invalidPDU;
+      case GATTError.insufficientAuthentication:
+        return MyATTErrorArgs.insufficientAuthentication;
+      case GATTError.requestNotSupported:
+        return MyATTErrorArgs.requestNotSupported;
+      case GATTError.invalidOffset:
+        return MyATTErrorArgs.invalidOffset;
+      case GATTError.insufficientAuthorization:
+        return MyATTErrorArgs.insufficientAuthorization;
+      case GATTError.prepareQueueFull:
+        return MyATTErrorArgs.prepareQueueFull;
+      case GATTError.attributeNotFound:
+        return MyATTErrorArgs.attributeNotFound;
+      case GATTError.attributeNotLong:
+        return MyATTErrorArgs.attributeNotLong;
+      case GATTError.insufficientEncryptionKeySize:
+        return MyATTErrorArgs.insufficientEncryptionKeySize;
+      case GATTError.invalidAttributeValueLength:
+        return MyATTErrorArgs.invalidAttributeValueLength;
+      case GATTError.unlikelyError:
+        return MyATTErrorArgs.unlikelyError;
+      case GATTError.insufficientEncryption:
+        return MyATTErrorArgs.insufficientEncryption;
+      case GATTError.unsupportedGroupType:
+        return MyATTErrorArgs.unsupportedGroupType;
+      case GATTError.insufficientResources:
+        return MyATTErrorArgs.insufficientResources;
+    }
+  }
+}
+
 extension ManufacturerSpecificDataX on ManufacturerSpecificData {
   MyManufacturerSpecificDataArgs toArgs() {
     final idArgs = id;

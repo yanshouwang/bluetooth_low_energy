@@ -72,3 +72,22 @@ final class MyGATTService extends GATTService {
     return other is MyGATTService && other.hashCodeArgs == hashCodeArgs;
   }
 }
+
+final class MyGATTReadRequest extends GATTReadRequest {
+  final int hashCodeArgs;
+
+  MyGATTReadRequest({
+    required this.hashCodeArgs,
+    required super.offset,
+  });
+}
+
+final class MyGATTWriteRequest extends GATTWriteRequest {
+  final int hashCodeArgs;
+
+  MyGATTWriteRequest({
+    required this.hashCodeArgs,
+    required super.offset,
+    required super.value,
+  });
+}

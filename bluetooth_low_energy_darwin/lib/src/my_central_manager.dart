@@ -137,7 +137,7 @@ final class MyCentralManager extends PlatformCentralManager
   Future<List<GATTService>> discoverGATT(Peripheral peripheral) async {
     // 发现 GATT 服务
     final uuidArgs = peripheral.uuid.toArgs();
-    final servicesArgs = await _discoverServicesArgs(uuidArgs);
+    final servicesArgs = await _discoverServices(uuidArgs);
     final services = servicesArgs.map((args) => args.toService()).toList();
     return services;
   }
@@ -302,19 +302,19 @@ final class MyCentralManager extends PlatformCentralManager
     });
   }
 
-  Future<List<MyGATTServiceArgs>> _discoverServicesArgs(String uuidArgs) async {
+  Future<List<MyGATTServiceArgs>> _discoverServices(String uuidArgs) async {
     logger.info('discoverServices: $uuidArgs');
     final servicesArgs = await _api
         .discoverServices(uuidArgs)
         .then((args) => args.cast<MyGATTServiceArgs>());
     for (var serviceArgs in servicesArgs) {
       final hashCodeArgs = serviceArgs.hashCodeArgs;
-      final includedServicesArgs = await _discoverIncludedServicesArgs(
+      final includedServicesArgs = await _discoverIncludedServices(
         uuidArgs,
         hashCodeArgs,
       );
       serviceArgs.includedServicesArgs = includedServicesArgs;
-      final characteristicsArgs = await _discoverCharacteristicsArgs(
+      final characteristicsArgs = await _discoverCharacteristics(
         uuidArgs,
         hashCodeArgs,
       );
@@ -323,7 +323,7 @@ final class MyCentralManager extends PlatformCentralManager
     return servicesArgs;
   }
 
-  Future<List<MyGATTServiceArgs>> _discoverIncludedServicesArgs(
+  Future<List<MyGATTServiceArgs>> _discoverIncludedServices(
     String uuidArgs,
     int hashCodeArgs,
   ) async {
@@ -333,12 +333,12 @@ final class MyCentralManager extends PlatformCentralManager
         .then((args) => args.cast<MyGATTServiceArgs>());
     for (var serviceArgs in servicesArgs) {
       final hashCodeArgs = serviceArgs.hashCodeArgs;
-      final includedServicesArgs = await _discoverIncludedServicesArgs(
+      final includedServicesArgs = await _discoverIncludedServices(
         uuidArgs,
         hashCodeArgs,
       );
       serviceArgs.includedServicesArgs = includedServicesArgs;
-      final characteristicsArgs = await _discoverCharacteristicsArgs(
+      final characteristicsArgs = await _discoverCharacteristics(
         uuidArgs,
         hashCodeArgs,
       );
@@ -347,7 +347,7 @@ final class MyCentralManager extends PlatformCentralManager
     return servicesArgs;
   }
 
-  Future<List<MyGATTCharacteristicArgs>> _discoverCharacteristicsArgs(
+  Future<List<MyGATTCharacteristicArgs>> _discoverCharacteristics(
     String uuidArgs,
     int hashCodeArgs,
   ) async {
@@ -357,7 +357,7 @@ final class MyCentralManager extends PlatformCentralManager
         .then((args) => args.cast<MyGATTCharacteristicArgs>());
     for (var characteristicArgs in characteristicsArgs) {
       final hashCodeArgs = characteristicArgs.hashCodeArgs;
-      final descriptorsArgs = await _discoverDescriptorsArgs(
+      final descriptorsArgs = await _discoverDescriptors(
         uuidArgs,
         hashCodeArgs,
       );
@@ -366,7 +366,7 @@ final class MyCentralManager extends PlatformCentralManager
     return characteristicsArgs;
   }
 
-  Future<List<MyGATTDescriptorArgs>> _discoverDescriptorsArgs(
+  Future<List<MyGATTDescriptorArgs>> _discoverDescriptors(
     String uuidArgs,
     int hashCodeArgs,
   ) async {

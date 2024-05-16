@@ -132,11 +132,11 @@ final class MyPeripheralManager extends PlatformPeripheralManager
 
   @override
   Future<void> addService(GATTService service) async {
-    _addService(service);
     final serviceArgs = service.toArgs();
-    _addServiceArgs(serviceArgs);
     logger.info('addService: $serviceArgs');
     await _api.addService(serviceArgs);
+    _addService(service);
+    _addServiceArgs(serviceArgs);
   }
 
   @override
@@ -1010,14 +1010,12 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     for (var includedService in service.includedServices) {
       _addService(includedService);
     }
-    for (var characteristic in service.characteristics) {
-      if (characteristic is! MutableGATTCharacteristic) {
-        throw TypeError();
-      }
-      for (var descriptor in characteristic.descriptors) {
-        if (descriptor is! MutableGATTDescriptor) {
-          throw TypeError();
-        }
+    final characteristics =
+        service.characteristics.cast<MutableGATTCharacteristic>();
+    for (var characteristic in characteristics) {
+      final descriptors =
+          characteristic.descriptors.cast<MutableGATTDescriptor>();
+      for (var descriptor in descriptors) {
         // Jump CCC descriptors.
         if (descriptor.uuid == cccUUID) {
           continue;
@@ -1029,7 +1027,6 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   void _addServiceArgs(MyMutableGATTServiceArgs serviceArgs) {
-    final cccUUIDArgs = cccUUID.toArgs();
     final includedServicesArgs =
         serviceArgs.includedServicesArgs.cast<MyMutableGATTServiceArgs>();
     for (var includedServiceArgs in includedServicesArgs) {
@@ -1037,26 +1034,15 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     }
     final characteristicsArgs =
         serviceArgs.characteristicsArgs.cast<MyMutableGATTCharacteristicArgs>();
+    final cccUUIDArgs = cccUUID.toArgs();
     for (var characteristicArgs in characteristicsArgs) {
       final characteristic = _characteristics[characteristicArgs.hashCodeArgs];
       if (characteristic == null) {
         throw ArgumentError.notNull();
       }
-      // Add CCC descriptor.
-      final descriptorsArgs = characteristicArgs.descriptorsArgs
+      final cccDescriptorArgs = characteristicArgs.descriptorsArgs
           .cast<MyMutableGATTDescriptorArgs>()
-          .where((args) => args.uuidArgs != cccUUIDArgs)
-          .toList();
-      final cccDescriptor = MutableGATTDescriptor(
-        uuid: cccUUID,
-        permissions: [
-          GATTCharacteristicPermission.read,
-          GATTCharacteristicPermission.write,
-        ],
-      );
-      final cccDescriptorArgs = cccDescriptor.toArgs();
-      descriptorsArgs.add(cccDescriptorArgs);
-      characteristicArgs.descriptorsArgs = descriptorsArgs;
+          .firstWhere((args) => args.uuidArgs == cccUUIDArgs);
       _cccdCharacteristics[cccDescriptorArgs.hashCodeArgs] = characteristic;
     }
   }
