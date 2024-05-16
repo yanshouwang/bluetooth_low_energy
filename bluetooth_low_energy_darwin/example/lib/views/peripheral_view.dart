@@ -31,7 +31,6 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
   late final ValueNotifier<List<Log>> logs;
   late final TextEditingController writeController;
   late final StreamSubscription connectionStateChangedSubscription;
-  late final StreamSubscription mtuChangedSubscription;
   late final StreamSubscription characteristicNotifiedSubscription;
 
   Peripheral get peripheral => eventArgs.peripheral;
@@ -63,13 +62,6 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
         characteristic.value = null;
         logs.value = [];
       }
-    });
-    mtuChangedSubscription = centralManager.mtuChanged.listen((eventArgs) {
-      if (eventArgs.peripheral != peripheral) {
-        return;
-      }
-      final mtu = eventArgs.mtu;
-      logger.info('mtuChanged: $mtu');
     });
     characteristicNotifiedSubscription =
         centralManager.characteristicNotified.listen((eventArgs) {
@@ -119,11 +111,6 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
                   await centralManager.connect(peripheral);
                   services.value =
                       await centralManager.discoverGATT(peripheral);
-                  final mtu = await centralManager.requestMTU(
-                    peripheral,
-                    mtu: 517,
-                  );
-                  logger.info('requestMTU: $mtu');
                 }
               },
               child: Text(connected ? 'DISCONNECT' : 'CONNECT'),
@@ -442,7 +429,6 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
   void dispose() {
     super.dispose();
     connectionStateChangedSubscription.cancel();
-    mtuChangedSubscription.cancel();
     characteristicNotifiedSubscription.cancel();
     connectionState.dispose();
     services.dispose();

@@ -78,39 +78,7 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
     }
     
     func addService(serviceArgs: MyMutableGATTServiceArgs, completion: @escaping (Result<Void, Error>) -> Void) {
-        let service = serviceArgs.toService()
-        var characteristics = [CBMutableCharacteristic]()
-        let characteristicsArgs = serviceArgs.characteristicsArgs
-        for args in characteristicsArgs {
-            guard let characteristicArgs = args else {
-                continue
-            }
-            let characteristic = characteristicArgs.toCharacteristic()
-            characteristics.append(characteristic)
-            var descriptors = [CBMutableDescriptor]()
-            let descriptorsArgs = characteristicArgs.descriptorsArgs
-            for args in descriptorsArgs {
-                guard let descriptorArgs = args else {
-                    continue
-                }
-                let descriptor = descriptorArgs.toDescriptor()
-                descriptors.append(descriptor)
-                let descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
-                let descriptorHashCode = descriptor.hash
-                _descriptorsArgs[descriptorHashCode] = descriptorArgs
-                _descriptors[descriptorHashCodeArgs] = descriptor
-            }
-            characteristic.descriptors = descriptors
-            let characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
-            let characteristicHashCode = characteristic.hash
-            _characteristicsArgs[characteristicHashCode] = characteristicArgs
-            _characteristics[characteristicHashCodeArgs] = characteristic
-        }
-        service.characteristics = characteristics
-        let serviceHashCodeArgs = serviceArgs.hashCodeArgs
-        let serviceHashCode = service.hash
-        _servicesArgs[serviceHashCode] = serviceArgs
-        _services[serviceHashCodeArgs] = service
+        let service = _addService(serviceArgs)
         _peripheralManager.add(service)
         _addServiceCompletion = completion
     }
@@ -124,31 +92,10 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
         guard let serviceArgs = _servicesArgs.removeValue(forKey: hashCode) else {
             throw MyError.illegalArgument
         }
-        for args in serviceArgs.characteristicsArgs {
-            guard let characteristicArgs = args else {
-                continue
-            }
-            let characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
-            guard let characteristic = _characteristics.removeValue(forKey: characteristicHashCodeArgs) else {
-                throw MyError.illegalArgument
-            }
-            let characteristicHashCode = characteristic.hash
-            _characteristicsArgs.removeValue(forKey: characteristicHashCode)
-            for args in characteristicArgs.descriptorsArgs {
-                guard let descriptorArgs = args else {
-                    continue
-                }
-                let descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
-                guard let descriptor = _descriptors.removeValue(forKey: descriptorHashCodeArgs) else {
-                    throw MyError.illegalArgument
-                }
-                let descriptorHashCode = descriptor.hash
-                _descriptorsArgs.removeValue(forKey: descriptorHashCode)
-            }
-        }
+        try _removeService(serviceArgs)
     }
     
-    func clearServices() throws {
+    func removeAllServices() throws {
         _peripheralManager.removeAllServices()
         
         _services.removeAll()
@@ -170,25 +117,21 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
         _peripheralManager.stopAdvertising()
     }
     
-    func maximumUpdateValueLength(uuidArgs: String) throws -> Int64 {
+    func getMaximumNotifyLength(uuidArgs: String) throws -> Int64 {
         guard let central = _centrals[uuidArgs] else {
             throw MyError.illegalArgument
         }
-        let maximumUpdateValueLength = central.maximumUpdateValueLength
-        let maximumUpdateValueLengthArgs = maximumUpdateValueLength.toInt64()
-        return maximumUpdateValueLengthArgs
+        let maximumNotifyLength = central.maximumUpdateValueLength
+        let maximumNotifyLengthArgs = maximumNotifyLength.toInt64()
+        return maximumNotifyLengthArgs
     }
     
-    func respond(hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData?, errorNumberArgs: Int64) throws {
+    func respond(hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData?, errorArgs: MyATTErrorArgs) throws {
         guard let request = _requests.removeValue(forKey: hashCodeArgs) else {
             throw MyError.illegalArgument
         }
         if valueArgs != nil {
-            request.value = valueArgs?.data
-        }
-        let errorArgsNumber = errorNumberArgs.toInt()
-        guard let errorArgs = MyATTErrorArgs(rawValue: errorArgsNumber) else {
-            throw MyError.illegalArgument
+            request.value = valueArgs!.data
         }
         let error = errorArgs.toError()
         _peripheralManager.respond(to: request, withResult: error)
@@ -212,8 +155,7 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
     func didUpdateState(peripheral: CBPeripheralManager) {
         let state = peripheral.state
         let stateArgs = state.toArgs()
-        let stateNumberArgs = stateArgs.rawValue.toInt64()
-        _api.onStateChanged(stateNumberArgs: stateNumberArgs) { _ in }
+        _api.onStateChanged(stateArgs: stateArgs) { _ in }
     }
     
     func didAdd(peripheral: CBPeripheralManager, service: CBService, error: Error?) {
@@ -254,7 +196,7 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
         let value = request.value
         let valueArgs = value == nil ? nil : FlutterStandardTypedData(bytes: value!)
         let offsetArgs = request.offset.toInt64()
-        let requestArgs = MyATTRequestArgs(hashCodeArgs: hashCodeArgs, centralArgs: centralArgs, characteristicHashCodeArgs: characteristicHashCodeArgs, offsetArgs: offsetArgs)
+        let requestArgs = MyATTRequestArgs(hashCodeArgs: hashCodeArgs, centralArgs: centralArgs, characteristicHashCodeArgs: characteristicHashCodeArgs, valueArgs: valueArgs, offsetArgs: offsetArgs)
         _requests[hashCodeArgs] = request
         _api.didReceiveRead(requestArgs: requestArgs) { _ in }
     }
@@ -275,7 +217,7 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
             let value = request.value
             let valueArgs = value == nil ? nil : FlutterStandardTypedData(bytes: value!)
             let offsetArgs = request.offset.toInt64()
-            let requestArgs = MyATTRequestArgs(hashCodeArgs: hashCodeArgs, centralArgs: centralArgs, characteristicHashCodeArgs: characteristicHashCodeArgs, offsetArgs: offsetArgs)
+            let requestArgs = MyATTRequestArgs(hashCodeArgs: hashCodeArgs, centralArgs: centralArgs, characteristicHashCodeArgs: characteristicHashCodeArgs, valueArgs: valueArgs, offsetArgs: offsetArgs)
             requestsArgs.append(requestArgs)
         }
         guard let request = requests.first else {
@@ -314,5 +256,87 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
     
     func isReadyToUpdateSubscribers(peripheral: CBPeripheralManager) {
         _api.isReady() { _ in }
+    }
+    
+    func _addService(_ serviceArgs: MyMutableGATTServiceArgs) -> CBMutableService {
+        let service = serviceArgs.toService()
+        var includedServices = [CBService]()
+        let includedServicesArgs = serviceArgs.includedServicesArgs
+        for args in includedServicesArgs {
+            guard let includedServiceArgs = args else {
+                continue
+            }
+            let includedService = _addService(includedServiceArgs)
+            includedServices.append(includedService)
+            let includedServiceHashCodeArgs = includedServiceArgs.hashCodeArgs
+            let includedServiceHashCode = includedService.hash
+            _servicesArgs[includedServiceHashCode] = includedServiceArgs
+            _services[includedServiceHashCodeArgs] = includedService
+        }
+        service.includedServices = includedServices
+        var characteristics = [CBMutableCharacteristic]()
+        let characteristicsArgs = serviceArgs.characteristicsArgs
+        for args in characteristicsArgs {
+            guard let characteristicArgs = args else {
+                continue
+            }
+            let characteristic = characteristicArgs.toCharacteristic()
+            characteristics.append(characteristic)
+            var descriptors = [CBMutableDescriptor]()
+            let descriptorsArgs = characteristicArgs.descriptorsArgs
+            for args in descriptorsArgs {
+                guard let descriptorArgs = args else {
+                    continue
+                }
+                let descriptor = descriptorArgs.toDescriptor()
+                descriptors.append(descriptor)
+                let descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
+                let descriptorHashCode = descriptor.hash
+                _descriptorsArgs[descriptorHashCode] = descriptorArgs
+                _descriptors[descriptorHashCodeArgs] = descriptor
+            }
+            characteristic.descriptors = descriptors
+            let characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
+            let characteristicHashCode = characteristic.hash
+            _characteristicsArgs[characteristicHashCode] = characteristicArgs
+            _characteristics[characteristicHashCodeArgs] = characteristic
+        }
+        service.characteristics = characteristics
+        let serviceHashCodeArgs = serviceArgs.hashCodeArgs
+        let serviceHashCode = service.hash
+        _servicesArgs[serviceHashCode] = serviceArgs
+        _services[serviceHashCodeArgs] = service
+        return service
+    }
+    
+    func _removeService(_ serviceArgs: MyMutableGATTServiceArgs) throws {
+        for args in serviceArgs.includedServicesArgs {
+            guard let includedServiceArgs = args else {
+                continue
+            }
+            try _removeService(includedServiceArgs)
+        }
+        for args in serviceArgs.characteristicsArgs {
+            guard let characteristicArgs = args else {
+                continue
+            }
+            let characteristicHashCodeArgs = characteristicArgs.hashCodeArgs
+            guard let characteristic = _characteristics.removeValue(forKey: characteristicHashCodeArgs) else {
+                throw MyError.illegalArgument
+            }
+            let characteristicHashCode = characteristic.hash
+            _characteristicsArgs.removeValue(forKey: characteristicHashCode)
+            for args in characteristicArgs.descriptorsArgs {
+                guard let descriptorArgs = args else {
+                    continue
+                }
+                let descriptorHashCodeArgs = descriptorArgs.hashCodeArgs
+                guard let descriptor = _descriptors.removeValue(forKey: descriptorHashCodeArgs) else {
+                    throw MyError.illegalArgument
+                }
+                let descriptorHashCode = descriptor.hash
+                _descriptorsArgs.removeValue(forKey: descriptorHashCode)
+            }
+        }
     }
 }

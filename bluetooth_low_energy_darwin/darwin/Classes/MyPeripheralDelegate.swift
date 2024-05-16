@@ -23,6 +23,10 @@ class MyPeripheralDelegate: NSObject, CBPeripheralDelegate {
         _centralManager.didDiscoverServices(peripheral: peripheral, error: error)
     }
     
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverIncludedServicesFor service: CBService, error: Error?) {
+        _centralManager.didDiscoverIncludedServices(peripheral: peripheral, service: service, error: error)
+    }
+    
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         _centralManager.didDiscoverCharacteristics(peripheral: peripheral, service: service, error: error)
     }

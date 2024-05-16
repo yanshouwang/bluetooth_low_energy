@@ -21,8 +21,6 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
   late final ValueNotifier<bool> advertising;
   late final ValueNotifier<List<Log>> logs;
   late final StreamSubscription stateChangedSubscription;
-  late final StreamSubscription connectionStateChangedSubscription;
-  late final StreamSubscription mtuChangedSubscription;
   late final StreamSubscription characteristicReadRequestedSubscription;
   late final StreamSubscription characteristicWriteRequestedSubscription;
   late final StreamSubscription characteristicNotifyStateChangedSubscription;
@@ -40,17 +38,6 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
     stateChangedSubscription =
         peripheralManager.stateChanged.listen((eventArgs) {
       state.value = eventArgs.state;
-    });
-    connectionStateChangedSubscription =
-        peripheralManager.connectionStateChanged.listen((eventArgs) {
-      final central = eventArgs.central;
-      final state = eventArgs.state;
-      logger.info('connectionStateChanged: ${central.uuid} - $state');
-    });
-    mtuChangedSubscription = peripheralManager.mtuChanged.listen((eventArgs) {
-      final central = eventArgs.central;
-      final mtu = eventArgs.mtu;
-      logger.info('mtuChanged: ${central.uuid} - $mtu');
     });
     characteristicReadRequestedSubscription =
         peripheralManager.characteristicReadRequested.listen((eventArgs) async {
@@ -227,8 +214,6 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
   void dispose() {
     super.dispose();
     stateChangedSubscription.cancel();
-    connectionStateChangedSubscription.cancel();
-    mtuChangedSubscription.cancel();
     characteristicReadRequestedSubscription.cancel();
     characteristicWriteRequestedSubscription.cancel();
     characteristicNotifyStateChangedSubscription.cancel();

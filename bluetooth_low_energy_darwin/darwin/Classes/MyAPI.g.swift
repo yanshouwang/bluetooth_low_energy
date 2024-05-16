@@ -350,7 +350,7 @@ struct MyMutableGATTServiceArgs {
   var hashCodeArgs: Int64
   var uuidArgs: String
   var isPrimaryArgs: Bool
-  var includedServices: [MyMutableGATTServiceArgs?]
+  var includedServicesArgs: [MyMutableGATTServiceArgs?]
   var characteristicsArgs: [MyMutableGATTCharacteristicArgs?]
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
@@ -358,14 +358,14 @@ struct MyMutableGATTServiceArgs {
     let hashCodeArgs = __pigeon_list[0] is Int64 ? __pigeon_list[0] as! Int64 : Int64(__pigeon_list[0] as! Int32)
     let uuidArgs = __pigeon_list[1] as! String
     let isPrimaryArgs = __pigeon_list[2] as! Bool
-    let includedServices = __pigeon_list[3] as! [MyMutableGATTServiceArgs?]
+    let includedServicesArgs = __pigeon_list[3] as! [MyMutableGATTServiceArgs?]
     let characteristicsArgs = __pigeon_list[4] as! [MyMutableGATTCharacteristicArgs?]
 
     return MyMutableGATTServiceArgs(
       hashCodeArgs: hashCodeArgs,
       uuidArgs: uuidArgs,
       isPrimaryArgs: isPrimaryArgs,
-      includedServices: includedServices,
+      includedServicesArgs: includedServicesArgs,
       characteristicsArgs: characteristicsArgs
     )
   }
@@ -374,7 +374,7 @@ struct MyMutableGATTServiceArgs {
       hashCodeArgs,
       uuidArgs,
       isPrimaryArgs,
-      includedServices,
+      includedServicesArgs,
       characteristicsArgs,
     ]
   }

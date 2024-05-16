@@ -369,7 +369,7 @@ class MyMutableGATTServiceArgs {
     required this.hashCodeArgs,
     required this.uuidArgs,
     required this.isPrimaryArgs,
-    required this.includedServices,
+    required this.includedServicesArgs,
     required this.characteristicsArgs,
   });
 
@@ -379,7 +379,7 @@ class MyMutableGATTServiceArgs {
 
   bool isPrimaryArgs;
 
-  List<MyMutableGATTServiceArgs?> includedServices;
+  List<MyMutableGATTServiceArgs?> includedServicesArgs;
 
   List<MyMutableGATTCharacteristicArgs?> characteristicsArgs;
 
@@ -388,7 +388,7 @@ class MyMutableGATTServiceArgs {
       hashCodeArgs,
       uuidArgs,
       isPrimaryArgs,
-      includedServices,
+      includedServicesArgs,
       characteristicsArgs,
     ];
   }
@@ -399,7 +399,7 @@ class MyMutableGATTServiceArgs {
       hashCodeArgs: result[0]! as int,
       uuidArgs: result[1]! as String,
       isPrimaryArgs: result[2]! as bool,
-      includedServices: (result[3] as List<Object?>?)!.cast<MyMutableGATTServiceArgs?>(),
+      includedServicesArgs: (result[3] as List<Object?>?)!.cast<MyMutableGATTServiceArgs?>(),
       characteristicsArgs: (result[4] as List<Object?>?)!.cast<MyMutableGATTCharacteristicArgs?>(),
     );
   }

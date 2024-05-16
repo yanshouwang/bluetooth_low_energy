@@ -32,6 +32,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
     private var _disconnectCompletions: [String: (Result<Void, Error>) -> Void]
     private var _readRssiCompletions: [String: (Result<Int64, Error>) -> Void]
     private var _discoverServicesCompletions: [String: (Result<[MyGATTServiceArgs], Error>) -> Void]
+    private var _discoverIncludedServicesCompletions: [String: [Int64: (Result<[MyGATTServiceArgs], Error>) -> Void]]
     private var _discoverCharacteristicsCompletions: [String: [Int64: (Result<[MyGATTCharacteristicArgs], Error>) -> Void]]
     private var _discoverDescriptorsCompletions: [String: [Int64: (Result<[MyGATTDescriptorArgs], Error>) -> Void]]
     private var _readCharacteristicCompletions: [String: [Int64: (Result<FlutterStandardTypedData, Error>) -> Void]]
@@ -53,6 +54,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         _disconnectCompletions = [:]
         _readRssiCompletions = [:]
         _discoverServicesCompletions = [:]
+        _discoverIncludedServicesCompletions = [:]
         _discoverCharacteristicsCompletions = [:]
         _discoverDescriptorsCompletions = [:]
         _readCharacteristicCompletions = [:]
@@ -82,6 +84,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         _disconnectCompletions.removeAll()
         _readRssiCompletions.removeAll()
         _discoverServicesCompletions.removeAll()
+        _discoverIncludedServicesCompletions.removeAll()
         _discoverCharacteristicsCompletions.removeAll()
         _discoverDescriptorsCompletions.removeAll()
         _readCharacteristicCompletions.removeAll()
@@ -144,12 +147,8 @@ class MyCentralManager: MyCentralManagerHostAPI {
         }
     }
     
-    func maximumWriteValueLength(uuidArgs: String, typeNumberArgs: Int64) throws -> Int64 {
+    func getMaximumWriteLength(uuidArgs: String, typeArgs: MyGATTCharacteristicWriteTypeArgs) throws -> Int64 {
         guard let peripheral = _peripherals[uuidArgs] else {
-            throw MyError.illegalArgument
-        }
-        let typeNumber = typeNumberArgs.toInt()
-        guard let typeArgs = MyGATTCharacteristicWriteTypeArgs(rawValue: typeNumber) else {
             throw MyError.illegalArgument
         }
         let type = typeArgs.toWriteType()
@@ -177,6 +176,21 @@ class MyCentralManager: MyCentralManagerHostAPI {
             }
             peripheral.discoverServices(nil)
             _discoverServicesCompletions[uuidArgs] = completion
+        } catch {
+            completion(.failure(error))
+        }
+    }
+    
+    func discoverIncludedServices(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<[MyGATTServiceArgs], Error>) -> Void) {
+        do {
+            guard let peripheral = _peripherals[uuidArgs] else {
+                throw MyError.illegalArgument
+            }
+            guard let service = _retrieveService(uuidArgs: uuidArgs, hashCodeArgs: hashCodeArgs) else {
+                throw MyError.illegalArgument
+            }
+            peripheral.discoverIncludedServices(nil, for: service)
+            _discoverIncludedServicesCompletions[uuidArgs, default: [:]][hashCodeArgs] = completion
         } catch {
             completion(.failure(error))
         }
@@ -227,7 +241,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         }
     }
     
-    func writeCharacteristic(uuidArgs: String, hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData, typeNumberArgs: Int64, completion: @escaping (Result<Void, Error>) -> Void) {
+    func writeCharacteristic(uuidArgs: String, hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData, typeArgs: MyGATTCharacteristicWriteTypeArgs, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             guard let peripheral = _peripherals[uuidArgs] else {
                 throw MyError.illegalArgument
@@ -236,10 +250,6 @@ class MyCentralManager: MyCentralManagerHostAPI {
                 throw MyError.illegalArgument
             }
             let data = valueArgs.data
-            let typeNumber = typeNumberArgs.toInt()
-            guard let typeArgs = MyGATTCharacteristicWriteTypeArgs(rawValue: typeNumber) else {
-                throw MyError.illegalArgument
-            }
             let type = typeArgs.toWriteType()
             peripheral.writeValue(data, for: characteristic, type: type)
             if type == .withResponse {
@@ -302,8 +312,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
     func didUpdateState(central: CBCentralManager) {
         let state = central.state
         let stateArgs = state.toArgs()
-        let stateNumberArgs = stateArgs.rawValue.toInt64()
-        _api.onStateChanged(stateNumberArgs: stateNumberArgs) { _ in }
+        _api.onStateChanged(stateArgs: stateArgs) { _ in }
     }
     
     func didDiscover(central: CBCentralManager, peripheral: CBPeripheral, advertisementData: [String : Any], rssi: NSNumber) {
@@ -319,9 +328,10 @@ class MyCentralManager: MyCentralManagerHostAPI {
     }
     
     func didConnect(central: CBCentralManager, peripheral: CBPeripheral) {
-        let uuidArgs = peripheral.identifier.toArgs()
-        let stateArgs = true
-        _api.onConnectionStateChanged(uuidArgs: uuidArgs, stateArgs: stateArgs) { _ in }
+        let peripheralArgs = peripheral.toArgs()
+        let uuidArgs = peripheralArgs.uuidArgs
+        let stateArgs = MyConnectionStateArgs.connected
+        _api.onConnectionStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) { _ in }
         guard let completion = _connectCompletions.removeValue(forKey: uuidArgs) else {
             return
         }
@@ -337,7 +347,8 @@ class MyCentralManager: MyCentralManagerHostAPI {
     }
     
     func didDisconnectPeripheral(central: CBCentralManager, peripheral: CBPeripheral, error: Error?) {
-        let uuidArgs = peripheral.identifier.toArgs()
+        let peripheralArgs = peripheral.toArgs()
+        let uuidArgs = peripheralArgs.uuidArgs
         _services.removeValue(forKey: uuidArgs)
         _characteristics.removeValue(forKey: uuidArgs)
         _descriptors.removeValue(forKey: uuidArgs)
@@ -346,6 +357,13 @@ class MyCentralManager: MyCentralManagerHostAPI {
         readRssiCompletion?(.failure(errorNotNil))
         let discoverServicesCompletion = _discoverServicesCompletions.removeValue(forKey: uuidArgs)
         discoverServicesCompletion?(.failure(errorNotNil))
+        let discoverIncludedServicesCompletions = _discoverIncludedServicesCompletions.removeValue(forKey: uuidArgs)
+        if discoverIncludedServicesCompletions != nil {
+            let completions = discoverIncludedServicesCompletions!.values
+            for completion in completions {
+                completion(.failure(errorNotNil))
+            }
+        }
         let discoverCharacteristicsCompletions = _discoverCharacteristicsCompletions.removeValue(forKey: uuidArgs)
         if discoverCharacteristicsCompletions != nil {
             let completions = discoverCharacteristicsCompletions!.values
@@ -395,8 +413,8 @@ class MyCentralManager: MyCentralManagerHostAPI {
                 completion(.failure(errorNotNil))
             }
         }
-        let stateArgs = false
-        _api.onConnectionStateChanged(uuidArgs: uuidArgs, stateArgs: stateArgs) { _ in }
+        let stateArgs = MyConnectionStateArgs.disconnected
+        _api.onConnectionStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) { _ in }
         guard let completion = _disconnectCompletions.removeValue(forKey: uuidArgs) else {
             return
         }
@@ -432,7 +450,27 @@ class MyCentralManager: MyCentralManagerHostAPI {
                 let hashCodeArgs = service.hash.toInt64()
                 return [hashCodeArgs: service]
             }
-            _services[uuidArgs] = Dictionary(uniqueKeysWithValues: values)
+            _services[uuidArgs, default: [:]].merge(values) { value1, value2 in value2 }
+            completion(.success(servicesArgs))
+        } else {
+            completion(.failure(error!))
+        }
+    }
+    
+    func didDiscoverIncludedServices(peripheral: CBPeripheral, service: CBService, error: Error?) {
+        let uuidArgs = peripheral.identifier.toArgs()
+        let hashCodeArgs = service.hash.toInt64()
+        guard let completion = _discoverIncludedServicesCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
+            return
+        }
+        if error == nil {
+            let services = service.includedServices ?? []
+            let servicesArgs = services.map { service in service.toArgs() }
+            let values = services.flatMap { service in
+                let hashCodeArgs = service.hash.toInt64()
+                return [hashCodeArgs: service]
+            }
+            _services[uuidArgs, default: [:]].merge(values) { value1, value2 in value2 }
             completion(.success(servicesArgs))
         } else {
             completion(.failure(error!))
@@ -480,12 +518,14 @@ class MyCentralManager: MyCentralManagerHostAPI {
     }
     
     func didUpdateCharacteristicValue(peripheral: CBPeripheral, characteristic: CBCharacteristic, error: Error?) {
-        let uuidArgs = peripheral.identifier.toArgs()
-        let hashCodeArgs = characteristic.hash.toInt64()
+        let peripheralArgs = peripheral.toArgs()
+        let uuidArgs = peripheralArgs.uuidArgs
+        let characteristicArgs = characteristic.toArgs()
+        let hashCodeArgs = characteristicArgs.hashCodeArgs
         let value = characteristic.value ?? Data()
         let valueArgs = FlutterStandardTypedData(bytes: value)
         guard let completion = _readCharacteristicCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
-            _api.onCharacteristicNotified(uuidArgs: uuidArgs, hashCodeArgs: hashCodeArgs, valueArgs: valueArgs) { _ in }
+            _api.onCharacteristicNotified(peripheralArgs: peripheralArgs, characteristicArgs: characteristicArgs, valueArgs: valueArgs) { _ in }
             return
         }
         if error == nil {

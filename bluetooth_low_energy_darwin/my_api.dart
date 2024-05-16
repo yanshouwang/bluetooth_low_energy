@@ -173,14 +173,14 @@ class MyMutableGATTServiceArgs {
   final int hashCodeArgs;
   final String uuidArgs;
   final bool isPrimaryArgs;
-  final List<MyMutableGATTServiceArgs?> includedServices;
+  final List<MyMutableGATTServiceArgs?> includedServicesArgs;
   final List<MyMutableGATTCharacteristicArgs?> characteristicsArgs;
 
   MyMutableGATTServiceArgs(
     this.hashCodeArgs,
     this.uuidArgs,
     this.isPrimaryArgs,
-    this.includedServices,
+    this.includedServicesArgs,
     this.characteristicsArgs,
   );
 }

@@ -36,17 +36,21 @@ extension [MyGATTCharacteristicPropertyArgs] {
         }
         return properties
     }
-    
+}
+
+extension [MyGATTCharacteristicPermissionArgs] {
     func toPermissions() -> CBAttributePermissions {
         var permissions: CBAttributePermissions = []
         for args in self {
             switch args {
             case .read:
                 permissions.insert(.readable)
-            case .write, .writeWithoutResponse:
+            case .readEncrypted:
+                permissions.insert(.readEncryptionRequired)
+            case .write:
                 permissions.insert(.writeable)
-            default:
-                continue
+            case .writeEncrypted:
+                permissions.insert(.writeEncryptionRequired)
             }
         }
         return permissions
@@ -140,15 +144,20 @@ extension MyMutableGATTCharacteristicArgs {
             return MyGATTCharacteristicPropertyArgs(rawValue: propertyNumber)!
         }
         let properties = propertiesArgs.toProperties()
-        let permissions = propertiesArgs.toPermissions()
-        return CBMutableCharacteristic(type: type, properties: properties, value: nil, permissions: permissions)
+        let value = valueArgs?.data
+        let permissionsArgs = permissionNumbersArgs.map { permissionNumberArgs in
+            let permissionNumber = permissionNumberArgs!.toInt()
+            return MyGATTCharacteristicPermissionArgs(rawValue: permissionNumber)!
+        }
+        let permissions = permissionsArgs.toPermissions()
+        return CBMutableCharacteristic(type: type, properties: properties, value: value, permissions: permissions)
     }
 }
 
 extension MyMutableGATTServiceArgs {
     func toService() -> CBMutableService {
         let type = uuidArgs.toCBUUID()
-        let primary = true
+        let primary = isPrimaryArgs
         return CBMutableService(type: type, primary: primary)
     }
 }
@@ -274,8 +283,10 @@ extension CBService {
     func toArgs() -> MyGATTServiceArgs {
         let hashCodeArgs = hash.toInt64()
         let uuidArgs = uuid.toArgs()
+        let isPrimaryArgs = isPrimary
+        let includedServicesArgs = includedServices?.map { includedService in includedService.toArgs() } ?? []
         let characteristicsArgs = characteristics?.map { characteristic in characteristic.toArgs() } ?? []
-        return MyGATTServiceArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, characteristicsArgs: characteristicsArgs)
+        return MyGATTServiceArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, isPrimaryArgs: isPrimaryArgs, includedServicesArgs: includedServicesArgs, characteristicsArgs: characteristicsArgs)
     }
 }
 

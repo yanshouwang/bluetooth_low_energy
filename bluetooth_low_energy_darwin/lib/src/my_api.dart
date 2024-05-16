@@ -288,7 +288,7 @@ extension GATTServiceX on GATTService {
       hashCodeArgs: hashCodeArgs,
       uuidArgs: uuidArgs,
       isPrimaryArgs: isPrimary,
-      includedServices: includedServicesArgs,
+      includedServicesArgs: includedServicesArgs,
       characteristicsArgs: characteristicsArgs,
     );
   }
