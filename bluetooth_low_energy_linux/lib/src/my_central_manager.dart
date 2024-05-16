@@ -31,6 +31,8 @@ final class MyCentralManager extends PlatformCentralManager {
       _blueZCharacteristicPropertiesChangedSubscriptions;
 
   BluetoothLowEnergyState _state;
+  bool _discovering;
+  int _readCount;
 
   MyCentralManager()
       : _blueZClient = BlueZClient(),
@@ -41,12 +43,24 @@ final class MyCentralManager extends PlatformCentralManager {
         _blueZServicesResolvedController = StreamController.broadcast(),
         _services = {},
         _blueZCharacteristicPropertiesChangedSubscriptions = {},
-        _state = BluetoothLowEnergyState.unknown;
+        _state = BluetoothLowEnergyState.unknown,
+        _discovering = false,
+        _readCount = 0;
 
   BlueZAdapter get _blueZAdapter => _blueZClient.adapters.first;
 
   @override
   BluetoothLowEnergyState get state => _state;
+  set state(BluetoothLowEnergyState value) {
+    if (_state == value) {
+      return;
+    }
+    logger.info('onStateChagned: $value');
+    _state = value;
+    final eventArgs = BluetoothLowEnergyStateChangedEventArgs(value);
+    _stateChangedController.add(eventArgs);
+  }
+
   @override
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
@@ -72,19 +86,19 @@ final class MyCentralManager extends PlatformCentralManager {
         logger.info('initialize');
         await _blueZClient.connect();
         if (_blueZClient.adapters.isEmpty) {
-          _state = BluetoothLowEnergyState.unsupported;
-          return;
-        }
-        _state = _blueZAdapter.myState;
-        _blueZAdapter.propertiesChanged
-            .listen(_onBlueZAdapterPropertiesChanged);
-        for (var blueZDevice in _blueZClient.devices) {
-          if (blueZDevice.adapter.address != _blueZAdapter.address) {
-            continue;
+          state = BluetoothLowEnergyState.unsupported;
+        } else {
+          state = _blueZAdapter.myState;
+          _blueZAdapter.propertiesChanged
+              .listen(_onBlueZAdapterPropertiesChanged);
+          for (var blueZDevice in _blueZClient.devices) {
+            if (blueZDevice.adapter.address != _blueZAdapter.address) {
+              continue;
+            }
+            _beginBlueZDevicePropertiesChangedListener(blueZDevice);
           }
-          _beginBlueZDevicePropertiesChangedListener(blueZDevice);
+          _blueZClient.deviceAdded.listen(_onBlueZClientDeviceAdded);
         }
-        _blueZClient.deviceAdded.listen(_onBlueZClientDeviceAdded);
       } catch (e) {
         logger.severe('initialize failed.', e);
       }
@@ -110,12 +124,14 @@ final class MyCentralManager extends PlatformCentralManager {
       uuids: serviceUUIDs?.map((uuid) => '$uuid').toList(),
     );
     await _blueZAdapter.startDiscovery();
+    _discovering = true;
   }
 
   @override
   Future<void> stopDiscovery() async {
     logger.info('stopDiscovery');
     await _blueZAdapter.stopDiscovery();
+    _discovering = false;
   }
 
   @override
@@ -226,6 +242,7 @@ final class MyCentralManager extends PlatformCentralManager {
     final blueZUUID = blueZCharacteristic.uuid;
     logger.info('readCharacteristic: $blueZUUID');
     final blueZValue = await blueZCharacteristic.readValue();
+    _readCount++;
     return Uint8List.fromList(blueZValue);
   }
 
@@ -305,13 +322,7 @@ final class MyCentralManager extends PlatformCentralManager {
     for (var blueZAdapterProperty in blueZAdapterProperties) {
       switch (blueZAdapterProperty) {
         case 'Powered':
-          final state = _blueZAdapter.myState;
-          if (_state == state) {
-            return;
-          }
-          _state = state;
-          final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
-          _stateChangedController.add(eventArgs);
+          state = _blueZAdapter.myState;
           break;
         default:
           break;
@@ -324,7 +335,9 @@ final class MyCentralManager extends PlatformCentralManager {
     if (blueZDevice.adapter.address != _blueZAdapter.address) {
       return;
     }
-    _onBlueZDiscovered(blueZDevice);
+    if (_discovering) {
+      _onBlueZDiscovered(blueZDevice);
+    }
     _beginBlueZDevicePropertiesChangedListener(blueZDevice);
   }
 
@@ -347,7 +360,9 @@ final class MyCentralManager extends PlatformCentralManager {
       for (var blueZDeviceProperty in blueZDeviceProperties) {
         switch (blueZDeviceProperty) {
           case 'RSSI':
-            _onBlueZDiscovered(blueZDevice);
+            if (_discovering) {
+              _onBlueZDiscovered(blueZDevice);
+            }
             break;
           case 'Connected':
             final connected = blueZDevice.connected;
@@ -403,6 +418,10 @@ final class MyCentralManager extends PlatformCentralManager {
                 in blueZCharacteristicProperties) {
               switch (blueZCharacteristicPropety) {
                 case 'Value':
+                  if (_readCount > 0) {
+                    _readCount--;
+                    return;
+                  }
                   final value = Uint8List.fromList(blueZCharacteristic.value);
                   final eventArgs = GATTCharacteristicNotifiedEventArgs(
                     peripheral,
