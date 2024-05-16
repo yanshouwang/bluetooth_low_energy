@@ -96,7 +96,10 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
       ];
       // Write someting to the central when notify started.
       if (state) {
-        final elements = List.generate(1000, (i) => i % 256);
+        final maximumNotifyLength =
+            await peripheralManager.getMaximumNotifyLength(central);
+        logger.info('maximumNotifyLength: $maximumNotifyLength');
+        final elements = List.generate(maximumNotifyLength, (i) => i % 256);
         final value = Uint8List.fromList(elements);
         await peripheralManager.notifyCharacteristic(
           central,
