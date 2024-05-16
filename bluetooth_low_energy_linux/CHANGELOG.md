@@ -1,3 +1,7 @@
+## 6.0.0-dev.0
+
+* Implement new APIs.
+
 ## 5.0.2
 
 * Change flutter minimum version to 3.0.0.
