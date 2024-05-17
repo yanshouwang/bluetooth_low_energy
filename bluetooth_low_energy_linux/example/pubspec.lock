@@ -23,15 +23,15 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "6.0.0-dev.0"
+    version: "6.0.0-dev.1"
   bluetooth_low_energy_platform_interface:
     dependency: "direct main"
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: "7972bcdece3e0fcc804b8bf0209709a103cb5ffcd7577c617fb23c7ff64b834d"
+      sha256: "27efd051129b0f52e06e66af5bd9626126012b8526aab4f1ae1b7639344597ed"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0-dev.16"
+    version: "6.0.0-dev.17"
   bluez:
     dependency: transitive
     description:

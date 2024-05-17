@@ -312,9 +312,8 @@ final class MyCentralManager extends PlatformCentralManager {
     }
     final blueZDescriptor = descriptor.blueZDescriptor;
     final blueZUUID = blueZDescriptor.uuid;
-    final trimmedValue = value.trimGATT();
-    logger.info('writeDescriptor: $blueZUUID - $trimmedValue');
-    await blueZDescriptor.writeValue(trimmedValue);
+    logger.info('writeDescriptor: $blueZUUID - $value');
+    await blueZDescriptor.writeValue(value);
   }
 
   void _onBlueZAdapterPropertiesChanged(List<String> blueZAdapterProperties) {

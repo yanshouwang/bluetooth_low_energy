@@ -1,3 +1,7 @@
+## 6.0.0-dev.3
+
+* Move organizaioin.
+
 ## 6.0.0-dev.2
 
 * Implement new APIs.
