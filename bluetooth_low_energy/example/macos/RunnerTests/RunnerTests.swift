@@ -1,5 +1,5 @@
-import FlutterMacOS
 import Cocoa
+import FlutterMacOS
 import XCTest
 
 @testable import bluetooth_low_energy

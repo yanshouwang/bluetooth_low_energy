@@ -10,7 +10,7 @@ topics:
   - ble
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: '>=3.0.0 <4.0.0'
   flutter: '>=3.0.0'
 
 dependencies:
@@ -30,6 +30,6 @@ flutter:
     implements: bluetooth_low_energy
     platforms:
       android:
-        package: dev.yanshouwang.bluetooth_low_energy_android
+        package: dev.hebei.bluetooth_low_energy_android
         pluginClass: BluetoothLowEnergyAndroidPlugin
         dartPluginClass: BluetoothLowEnergyAndroidPlugin

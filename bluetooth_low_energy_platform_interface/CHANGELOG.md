@@ -1,3 +1,7 @@
+## 6.0.0-dev.17
+
+* Remove `Uint8List#trimGATT` method.
+
 ## 6.0.0-dev.16
 
 * Add `GATTService.isPrimary` field.

@@ -9,29 +9,29 @@ import Foundation
 import CoreBluetooth
 
 class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate {
-    private let _centralManager: MyCentralManager
+    private let centralManager: MyCentralManager
     
     init(centralManager: MyCentralManager) {
-        _centralManager = centralManager
+        self.centralManager = centralManager
     }
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        _centralManager.didUpdateState(central: central)
+        centralManager.didUpdateState(central: central)
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-        _centralManager.didDiscover(central: central, peripheral: peripheral, advertisementData: advertisementData, rssi: RSSI)
+        centralManager.didDiscover(central: central, peripheral: peripheral, advertisementData: advertisementData, rssi: RSSI)
     }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        _centralManager.didConnect(central: central, peripheral: peripheral)
+        centralManager.didConnect(central: central, peripheral: peripheral)
     }
     
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-        _centralManager.didFailToConnect(central: central, peripheral: peripheral, error: error)
+        centralManager.didFailToConnect(central: central, peripheral: peripheral, error: error)
     }
     
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-        _centralManager.didDisconnectPeripheral(central: central, peripheral: peripheral, error: error)
+        centralManager.didDisconnectPeripheral(central: central, peripheral: peripheral, error: error)
     }
 }

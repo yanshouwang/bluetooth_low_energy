@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:bluetooth_low_energy_example/widgets.dart';
+import 'package:bluetooth_low_energy_android_example/widgets.dart';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:convert/convert.dart';
 import 'package:flutter/material.dart';
@@ -151,7 +151,7 @@ class _CentralManagerViewState extends State<CentralManagerView> {
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  RssiIndicator(rssi),
+                  RSSIIndicator(rssi),
                   Text('$rssi'),
                 ],
               ),

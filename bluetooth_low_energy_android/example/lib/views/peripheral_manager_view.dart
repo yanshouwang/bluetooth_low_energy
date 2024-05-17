@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:bluetooth_low_energy_example/models.dart';
+import 'package:bluetooth_low_energy_android_example/models.dart';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:hybrid_logging/hybrid_logging.dart';

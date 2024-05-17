@@ -9,41 +9,41 @@ import Foundation
 import CoreBluetooth
 
 class MyPeripheralManagerDelegate: NSObject, CBPeripheralManagerDelegate {
-    private let _peripheralManager: MyPeripheralManager
+    private let peripheralManager: MyPeripheralManager
     
     init(peripheralManager: MyPeripheralManager) {
-        _peripheralManager = peripheralManager
+        self.peripheralManager = peripheralManager
     }
     
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-        _peripheralManager.didUpdateState(peripheral: peripheral)
+        peripheralManager.didUpdateState(peripheral: peripheral)
     }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
-        _peripheralManager.didAdd(peripheral: peripheral, service: service, error: error)
+        peripheralManager.didAdd(peripheral: peripheral, service: service, error: error)
     }
     
     func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
-        _peripheralManager.didStartAdvertising(peripheral: peripheral, error: error)
+        peripheralManager.didStartAdvertising(peripheral: peripheral, error: error)
     }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
-        _peripheralManager.didReceiveRead(peripheral: peripheral, request: request)
+        peripheralManager.didReceiveRead(peripheral: peripheral, request: request)
     }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
-        _peripheralManager.didReceiveWrite(peripheral: peripheral, requests: requests)
+        peripheralManager.didReceiveWrite(peripheral: peripheral, requests: requests)
     }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
-        _peripheralManager.didSubscribeTo(peripheral: peripheral, central: central, characteristic: characteristic)
+        peripheralManager.didSubscribeTo(peripheral: peripheral, central: central, characteristic: characteristic)
     }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
-        _peripheralManager.didUnsubscribeFrom(peripheral: peripheral, central: central, characteristic: characteristic)
+        peripheralManager.didUnsubscribeFrom(peripheral: peripheral, central: central, characteristic: characteristic)
     }
     
     func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
-        _peripheralManager.isReadyToUpdateSubscribers(peripheral: peripheral)
+        peripheralManager.isReadyToUpdateSubscribers(peripheral: peripheral)
     }
 }

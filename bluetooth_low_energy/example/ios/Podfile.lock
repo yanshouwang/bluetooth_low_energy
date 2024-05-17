@@ -1,5 +1,5 @@
 PODS:
-  - bluetooth_low_energy_darwin (2.0.2):
+  - bluetooth_low_energy_darwin (0.0.1):
     - Flutter
     - FlutterMacOS
   - Flutter (1.0.0)
@@ -20,10 +20,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/integration_test/ios"
 
 SPEC CHECKSUMS:
-  bluetooth_low_energy_darwin: e37c1af3337ebc99a60807137dc5e47c6195eac7
-  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
-  integration_test: 13825b8a9334a850581300559b8839134b124670
+  bluetooth_low_energy_darwin: 30da11d012831c0dbe57487b5f23bf344b90ab11
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  integration_test: ce0a3ffa1de96d1a89ca0ac26fca7ea18a749ef4
 
-PODFILE CHECKSUM: 70d9d25280d0dd177a5f637cdb0f0b0b12c6a189
+PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.15.2

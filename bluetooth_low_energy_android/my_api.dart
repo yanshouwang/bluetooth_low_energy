@@ -10,7 +10,7 @@ import 'package:pigeon/pigeon.dart';
     kotlinOut:
         'android/src/main/kotlin/dev/yanshouwang/bluetooth_low_energy_android/MyAPI.g.kt',
     kotlinOptions: KotlinOptions(
-      package: 'dev.yanshouwang.bluetooth_low_energy_android',
+      package: 'dev.hebei.bluetooth_low_energy_android',
     ),
   ),
 )
