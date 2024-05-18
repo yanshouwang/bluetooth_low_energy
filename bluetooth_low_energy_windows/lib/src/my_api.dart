@@ -1,5 +1,3 @@
-// ignore_for_file: camel_case_extensions
-
 import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
