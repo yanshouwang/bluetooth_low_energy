@@ -49,14 +49,14 @@ list(APPEND PLUGIN_SOURCES
   "bluetooth_low_energy_windows_plugin.cpp"
   "my_api.g.h"
   "my_api.g.cpp"
-  "my_exception.h"
-  "my_exception.cpp"
-  "my_format.h"
-  "my_format.cpp"
   "my_central_manager.h"
   "my_central_manager.cpp"
   "my_peripheral_manager.h"
   "my_peripheral_manager.cpp"
+  "my_exception.h"
+  "my_exception.cpp"
+  "my_format.h"
+  "my_format.cpp"
 )
 
 # Define the plugin library target. Its name must not be changed (see comment
@@ -75,7 +75,8 @@ apply_standard_settings(${PLUGIN_NAME})
 # Symbols are hidden by default to reduce the chance of accidental conflicts
 # between plugins. This should not be removed; any symbols that should be
 # exported should be explicitly exported with the FLUTTER_PLUGIN_EXPORT macro.
-set_target_properties(${PLUGIN_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
+set_target_properties(${PLUGIN_NAME} PROPERTIES
+  CXX_VISIBILITY_PRESET hidden)
 target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 
 # Enable compiler support for coroutines
@@ -84,7 +85,8 @@ target_compile_options(${PLUGIN_NAME} PRIVATE /await)
 
 # Source include directories and library dependencies. Add any plugin-specific
 # dependencies here.
-target_include_directories(${PLUGIN_NAME} INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(${PLUGIN_NAME} INTERFACE
+  "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter flutter_wrapper_plugin)
 
 # List of absolute paths to libraries that should be bundled with the plugin.
@@ -124,6 +126,11 @@ add_executable(${TEST_RUNNER}
   ${PLUGIN_SOURCES}
 )
 apply_standard_settings(${TEST_RUNNER})
+
+# Enable compiler support for coroutines
+target_compile_features(${TEST_RUNNER} PRIVATE cxx_std_20)
+target_compile_options(${TEST_RUNNER} PRIVATE /await)
+
 target_include_directories(${TEST_RUNNER} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(${TEST_RUNNER} PRIVATE flutter_wrapper_plugin)
 target_link_libraries(${TEST_RUNNER} PRIVATE gtest_main gmock)

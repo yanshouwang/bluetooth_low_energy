@@ -53,11 +53,13 @@ extension MyManufacturerSpecificDataArgsX on MyManufacturerSpecificDataArgs {
 
 extension MyAdvertisementArgsX on MyAdvertisementArgs {
   Advertisement toAdvertisement() {
-    final serviceUUIDs =
-        serviceUUIDsArgs.cast<String>().map((args) => args.toUUID()).toList();
+    final serviceUUIDs = serviceUUIDsArgs
+        .cast<String>()
+        .map((args) => UUID.fromString(args))
+        .toList();
     final serviceData = serviceDataArgs.cast<String, Uint8List>().map(
       (uuidArgs, dataArgs) {
-        final uuid = uuidArgs.toUUID();
+        final uuid = UUID.fromString(uuidArgs);
         return MapEntry(uuid, dataArgs);
       },
     );
@@ -74,15 +76,19 @@ extension MyAdvertisementArgsX on MyAdvertisementArgs {
 
 extension MyPeripheralArgsX on MyPeripheralArgs {
   MyPeripheral toPeripheral() {
+    final node =
+        (addressArgs & 0xFFFFFFFFFFFF).toRadixString(16).padLeft(12, '0');
+    final uuid = UUID.fromString('00000000-0000-0000-0000-$node');
     return MyPeripheral(
       addressArgs: addressArgs,
+      uuid: uuid,
     );
   }
 }
 
 extension MyGATTDescriptorArgsX on MyGATTDescriptorArgs {
   MyGATTDescriptor toDescriptor() {
-    final uuid = uuidArgs.toUUID();
+    final uuid = UUID.fromString(uuidArgs);
     return MyGATTDescriptor(
       handleArgs: handleArgs,
       uuid: uuid,
@@ -92,7 +98,7 @@ extension MyGATTDescriptorArgsX on MyGATTDescriptorArgs {
 
 extension MyGATTCharacteristicArgsX on MyGATTCharacteristicArgs {
   MyGATTCharacteristic toCharacteristic() {
-    final uuid = uuidArgs.toUUID();
+    final uuid = UUID.fromString(uuidArgs);
     final properties = propertyNumbersArgs.cast<int>().map(
       (args) {
         final propertyArgs = MyGATTCharacteristicPropertyArgs.values[args];
@@ -114,7 +120,7 @@ extension MyGATTCharacteristicArgsX on MyGATTCharacteristicArgs {
 
 extension MyGATTServiceArgsX on MyGATTServiceArgs {
   MyGATTService toService() {
-    final uuid = uuidArgs.toUUID();
+    final uuid = UUID.fromString(uuidArgs);
     final includedServices = includedServicesArgs
         .cast<MyGATTServiceArgs>()
         .map((args) => args.toService())
@@ -130,19 +136,6 @@ extension MyGATTServiceArgsX on MyGATTServiceArgs {
       includedServices: includedServices,
       characteristics: characteristics,
     );
-  }
-}
-
-extension intX on int {
-  UUID toUUID() {
-    final node = (this & 0xFFFFFFFFFFFF).toRadixString(16).padLeft(12, '0');
-    return UUID.fromString('00000000-0000-0000-0000-$node');
-  }
-}
-
-extension StringX on String {
-  UUID toUUID() {
-    return UUID.fromString(this);
   }
 }
 

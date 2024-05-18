@@ -22,7 +22,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-  pigeon: ^18.0.0
+  pigeon: ^19.0.0
 
 flutter:
   plugin:

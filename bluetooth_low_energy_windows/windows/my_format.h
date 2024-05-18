@@ -9,7 +9,7 @@ struct std::formatter<winrt::guid> : std::formatter<std::string>
 	// NOTE: the format function should be a const member function.
 	// see: https://developercommunity.visualstudio.com/t/standrad-formatters-should-use-const-and/1662387?q=Angular+standalone+%28esproj%29
 	// see: https://developercommunity.visualstudio.com/t/Custom-std::formatter-breaks-after-upgra/10515914?space=8&ftype=problem&sort=newest&q=Suggestion&viewtype=solutions
-	auto format(const winrt::guid& guid, std::format_context& context) const
+	auto format(const winrt::guid &guid, std::format_context &context) const
 	{
 		auto formatted = context.out();
 		formatted = std::format_to(formatted, "{:08X}-", guid.Data1);

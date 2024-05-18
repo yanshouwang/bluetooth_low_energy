@@ -3,15 +3,19 @@
 
 #include <string>
 
-namespace bluetooth_low_energy_windows {
-	class MyException : public std::exception {
+namespace bluetooth_low_energy_windows
+{
+	class MyException : public std::exception
+	{
 	public:
-		MyException(const std::string& message) : m_message(message) {}
+		MyException(const std::string &message) : m_message(message) {}
 		~MyException() {}
 
-		const char* what() const noexcept override {
+		const char *what() const noexcept override
+		{
 			return m_message.c_str();
 		}
+
 	private:
 		std::string m_message;
 	};

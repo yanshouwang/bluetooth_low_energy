@@ -1,11 +1,10 @@
-// This must be included before many other Windows headers.
-#include <windows.h>
-
 #include "bluetooth_low_energy_windows_plugin.h"
 
-namespace bluetooth_low_energy_windows {
+namespace bluetooth_low_energy_windows
+{
 	// static
-	void BluetoothLowEnergyWindowsPlugin::RegisterWithRegistrar(flutter::PluginRegistrarWindows* registrar) {
+	void BluetoothLowEnergyWindowsPlugin::RegisterWithRegistrar(flutter::PluginRegistrarWindows *registrar)
+	{
 		auto messenger = registrar->messenger();
 		auto central_manager = std::make_unique<MyCentralManager>(messenger);
 		MyCentralManagerHostAPI::SetUp(messenger, central_manager.get());
@@ -20,5 +19,4 @@ namespace bluetooth_low_energy_windows {
 	}
 
 	BluetoothLowEnergyWindowsPlugin::~BluetoothLowEnergyWindowsPlugin() {}
-
-}  // namespace bluetooth_low_energy_windows
+} // namespace bluetooth_low_energy_windows
