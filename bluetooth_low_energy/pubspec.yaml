@@ -1,5 +1,5 @@
 name: bluetooth_low_energy
-description: "A Flutter plugin for controlling the bluetooth low energy, supports central and peripheral apis."
+description: "A Flutter plugin for controlling the bluetooth low energy, supports central and peripheral roles."
 version: 6.0.0-dev.0
 homepage: "https://github.com/yanshouwang/bluetooth_low_energy"
 repository: "https://github.com/yanshouwang/bluetooth_low_energy"
