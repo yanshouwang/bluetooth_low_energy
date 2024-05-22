@@ -1,6 +1,7 @@
 ## 6.0.0-dev.1
 
 * Move organization.
+* Fix errors.
 
 ## 6.0.0-dev.0
 
