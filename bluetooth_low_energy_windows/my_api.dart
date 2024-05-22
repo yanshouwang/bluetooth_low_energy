@@ -21,6 +21,15 @@ enum MyBluetoothLowEnergyStateArgs {
   on,
 }
 
+enum MyAdvertisementTypeArgs {
+  connectableUndirected,
+  connectableDirected,
+  scannableUndirected,
+  nonConnectableUndirected,
+  scanResponse,
+  extended,
+}
+
 enum MyConnectionStateArgs {
   disconnected,
   connected,
@@ -34,6 +43,13 @@ enum MyGATTCharacteristicPropertyArgs {
   indicate,
 }
 
+enum MyGATTCharacteristicPermissionArgs {
+  read,
+  readEncrypted,
+  write,
+  writeEncrypted,
+}
+
 enum MyGATTCharacteristicWriteTypeArgs {
   withResponse,
   withoutResponse,
@@ -43,6 +59,26 @@ enum MyGATTCharacteristicNotifyStateArgs {
   none,
   notify,
   indicate,
+}
+
+enum MyGATTProtocolErrorArgs {
+  invalidHandle,
+  readNotPermitted,
+  writeNotPermitted,
+  invalidPDU,
+  insufficientAuthentication,
+  requestNotSupported,
+  invalidOffset,
+  insufficientAuthorization,
+  prepareQueueFull,
+  attributeNotFound,
+  attributeNotLong,
+  insufficientEncryptionKeySize,
+  invalidAttributeValueLength,
+  unlikelyError,
+  insufficientEncryption,
+  unsupportedGroupType,
+  insufficientResources,
 }
 
 enum MyCacheModeArgs {
@@ -58,17 +94,25 @@ class MyManufacturerSpecificDataArgs {
 }
 
 class MyAdvertisementArgs {
+  final MyAdvertisementTypeArgs typeArgs;
   final String? nameArgs;
   final List<String?> serviceUUIDsArgs;
   final Map<String?, Uint8List?> serviceDataArgs;
   final MyManufacturerSpecificDataArgs? manufacturerSpecificDataArgs;
 
   MyAdvertisementArgs(
+    this.typeArgs,
     this.nameArgs,
     this.serviceUUIDsArgs,
     this.serviceDataArgs,
     this.manufacturerSpecificDataArgs,
   );
+}
+
+class MyCentralArgs {
+  final int addressArgs;
+
+  MyCentralArgs(this.addressArgs);
 }
 
 class MyPeripheralArgs {
@@ -117,6 +161,76 @@ class MyGATTServiceArgs {
   );
 }
 
+class MyMutableGATTDescriptorArgs {
+  final int hashCodeArgs;
+  final String uuidArgs;
+  final Uint8List? valueArgs;
+  final List<int?> permissionNumbersArgs;
+
+  MyMutableGATTDescriptorArgs(
+    this.hashCodeArgs,
+    this.uuidArgs,
+    this.valueArgs,
+    this.permissionNumbersArgs,
+  );
+}
+
+class MyMutableGATTCharacteristicArgs {
+  final int hashCodeArgs;
+  final String uuidArgs;
+  final Uint8List? valueArgs;
+  final List<int?> propertyNumbersArgs;
+  final List<int?> permissionNumbersArgs;
+  final List<MyMutableGATTDescriptorArgs?> descriptorsArgs;
+
+  MyMutableGATTCharacteristicArgs(
+    this.hashCodeArgs,
+    this.uuidArgs,
+    this.valueArgs,
+    this.propertyNumbersArgs,
+    this.permissionNumbersArgs,
+    this.descriptorsArgs,
+  );
+}
+
+class MyMutableGATTServiceArgs {
+  final int hashCodeArgs;
+  final String uuidArgs;
+  final bool isPrimaryArgs;
+  final List<MyMutableGATTServiceArgs?> includedServicesArgs;
+  final List<MyMutableGATTCharacteristicArgs?> characteristicsArgs;
+
+  MyMutableGATTServiceArgs(
+    this.hashCodeArgs,
+    this.uuidArgs,
+    this.isPrimaryArgs,
+    this.includedServicesArgs,
+    this.characteristicsArgs,
+  );
+}
+
+class MyGATTReadRequestArgs {
+  final int offsetArgs;
+  final int lengthArgs;
+
+  MyGATTReadRequestArgs(
+    this.offsetArgs,
+    this.lengthArgs,
+  );
+}
+
+class MyGATTWriteRequestArgs {
+  final int offsetArgs;
+  final Uint8List valueArgs;
+  final MyGATTCharacteristicWriteTypeArgs typeArgs;
+
+  MyGATTWriteRequestArgs(
+    this.offsetArgs,
+    this.valueArgs,
+    this.typeArgs,
+  );
+}
+
 @HostApi()
 abstract class MyCentralManagerHostAPI {
   @async
@@ -129,24 +243,24 @@ abstract class MyCentralManagerHostAPI {
   void disconnect(int addressArgs);
   int getMTU(int addressArgs);
   @async
-  List<MyGATTServiceArgs> getServicesAsync(
+  List<MyGATTServiceArgs> getServices(
     int addressArgs,
     MyCacheModeArgs modeArgs,
   );
   @async
-  List<MyGATTServiceArgs> getIncludedServicesAsync(
-    int addressArgs,
-    int handleArgs,
-    MyCacheModeArgs modeArgs,
-  );
-  @async
-  List<MyGATTCharacteristicArgs> getCharacteristicsAsync(
+  List<MyGATTServiceArgs> getIncludedServices(
     int addressArgs,
     int handleArgs,
     MyCacheModeArgs modeArgs,
   );
   @async
-  List<MyGATTDescriptorArgs> getDescriptorsAsync(
+  List<MyGATTCharacteristicArgs> getCharacteristics(
+    int addressArgs,
+    int handleArgs,
+    MyCacheModeArgs modeArgs,
+  );
+  @async
+  List<MyGATTDescriptorArgs> getDescriptors(
     int addressArgs,
     int handleArgs,
     MyCacheModeArgs modeArgs,
@@ -197,5 +311,73 @@ abstract class MyCentralManagerFlutterAPI {
     MyPeripheralArgs peripheralArgs,
     MyGATTCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
+  );
+}
+
+@HostApi()
+abstract class MyPeripheralManagerHostAPI {
+  @async
+  void initialize();
+  MyBluetoothLowEnergyStateArgs getState();
+  @async
+  void addService(MyMutableGATTServiceArgs serviceArgs);
+  void removeService(int hashCodeArgs);
+  void startAdvertising(MyAdvertisementArgs advertisementArgs);
+  void stopAdvertising();
+  int getMTU(int addressArgs);
+  void respondReadRequestWithValue(
+    int addressArgs,
+    int hashCodeArgs,
+    Uint8List valueArgs,
+  );
+  void respondReadRequestWithProtocolError(
+    int addressArgs,
+    int hashCodeArgs,
+    MyGATTProtocolErrorArgs errorArgs,
+  );
+  void respondWriteRequest(
+    int addressArgs,
+    int hashCodeArgs,
+  );
+  void respondWriteRequestWithProtocolError(
+    int addressArgs,
+    int hashCodeArgs,
+    MyGATTProtocolErrorArgs errorArgs,
+  );
+  @async
+  void notifyValue(
+    String addressArgs,
+    int hashCodeArgs,
+    Uint8List valueArgs,
+  );
+}
+
+@FlutterApi()
+abstract class MyPeripheralManagerFlutterAPI {
+  void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs);
+  void onMTUChanged(MyCentralArgs centralArgs, int mtuArgs);
+  void onCharacteristicReadRequest(
+    MyCentralArgs centralArgs,
+    int hashCodeArgs,
+    MyGATTReadRequestArgs requestArgs,
+  );
+  void onCharacteristicWriteRequest(
+    MyCentralArgs centralArgs,
+    int hashCodeArgs,
+    MyGATTWriteRequestArgs requestArgs,
+  );
+  void onCharacteristicSubscribedClientsChanged(
+    int hashCodeArgs,
+    List<MyCentralArgs> centralsArgs,
+  );
+  void onDescriptorReadRequest(
+    MyCentralArgs centralArgs,
+    int hashCodeArgs,
+    MyGATTReadRequestArgs requestArgs,
+  );
+  void onDescriptorWriteRequest(
+    MyCentralArgs centralArgs,
+    int hashCodeArgs,
+    MyGATTWriteRequestArgs requestArgs,
   );
 }

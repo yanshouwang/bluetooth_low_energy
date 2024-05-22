@@ -20,4 +20,5 @@ struct std::formatter<winrt::guid> : std::formatter<std::string>
 		return formatted;
 	}
 };
+
 #endif // !BLEW_MY_FORMAT_H_

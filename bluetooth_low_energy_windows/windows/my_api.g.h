@@ -50,6 +50,8 @@ template<class T> class ErrorOr {
  private:
   friend class MyCentralManagerHostAPI;
   friend class MyCentralManagerFlutterAPI;
+  friend class MyPeripheralManagerHostAPI;
+  friend class MyPeripheralManagerFlutterAPI;
   ErrorOr() = default;
   T TakeValue() && { return std::get<T>(std::move(v_)); }
 
@@ -62,6 +64,15 @@ enum class MyBluetoothLowEnergyStateArgs {
   disabled = 1,
   off = 2,
   on = 3
+};
+
+enum class MyAdvertisementTypeArgs {
+  connectableUndirected = 0,
+  connectableDirected = 1,
+  scannableUndirected = 2,
+  nonConnectableUndirected = 3,
+  scanResponse = 4,
+  extended = 5
 };
 
 enum class MyConnectionStateArgs {
@@ -77,6 +88,13 @@ enum class MyGATTCharacteristicPropertyArgs {
   indicate = 4
 };
 
+enum class MyGATTCharacteristicPermissionArgs {
+  read = 0,
+  readEncrypted = 1,
+  write = 2,
+  writeEncrypted = 3
+};
+
 enum class MyGATTCharacteristicWriteTypeArgs {
   withResponse = 0,
   withoutResponse = 1
@@ -86,6 +104,26 @@ enum class MyGATTCharacteristicNotifyStateArgs {
   none = 0,
   notify = 1,
   indicate = 2
+};
+
+enum class MyGATTProtocolErrorArgs {
+  invalidHandle = 0,
+  readNotPermitted = 1,
+  writeNotPermitted = 2,
+  invalidPDU = 3,
+  insufficientAuthentication = 4,
+  requestNotSupported = 5,
+  invalidOffset = 6,
+  insufficientAuthorization = 7,
+  prepareQueueFull = 8,
+  attributeNotFound = 9,
+  attributeNotLong = 10,
+  insufficientEncryptionKeySize = 11,
+  invalidAttributeValueLength = 12,
+  unlikelyError = 13,
+  insufficientEncryption = 14,
+  unsupportedGroupType = 15,
+  insufficientResources = 16
 };
 
 enum class MyCacheModeArgs {
@@ -116,6 +154,10 @@ class MyManufacturerSpecificDataArgs {
   friend class MyCentralManagerHostAPICodecSerializer;
   friend class MyCentralManagerFlutterAPI;
   friend class MyCentralManagerFlutterAPICodecSerializer;
+  friend class MyPeripheralManagerHostAPI;
+  friend class MyPeripheralManagerHostAPICodecSerializer;
+  friend class MyPeripheralManagerFlutterAPI;
+  friend class MyPeripheralManagerFlutterAPICodecSerializer;
   int64_t id_args_;
   std::vector<uint8_t> data_args_;
 
@@ -127,11 +169,13 @@ class MyAdvertisementArgs {
  public:
   // Constructs an object setting all non-nullable fields.
   explicit MyAdvertisementArgs(
+    const MyAdvertisementTypeArgs& type_args,
     const flutter::EncodableList& service_u_u_i_ds_args,
     const flutter::EncodableMap& service_data_args);
 
   // Constructs an object setting all fields.
   explicit MyAdvertisementArgs(
+    const MyAdvertisementTypeArgs& type_args,
     const std::string* name_args,
     const flutter::EncodableList& service_u_u_i_ds_args,
     const flutter::EncodableMap& service_data_args,
@@ -142,6 +186,9 @@ class MyAdvertisementArgs {
   MyAdvertisementArgs& operator=(const MyAdvertisementArgs& other);
   MyAdvertisementArgs(MyAdvertisementArgs&& other) = default;
   MyAdvertisementArgs& operator=(MyAdvertisementArgs&& other) noexcept = default;
+  const MyAdvertisementTypeArgs& type_args() const;
+  void set_type_args(const MyAdvertisementTypeArgs& value_arg);
+
   const std::string* name_args() const;
   void set_name_args(const std::string_view* value_arg);
   void set_name_args(std::string_view value_arg);
@@ -164,10 +211,41 @@ class MyAdvertisementArgs {
   friend class MyCentralManagerHostAPICodecSerializer;
   friend class MyCentralManagerFlutterAPI;
   friend class MyCentralManagerFlutterAPICodecSerializer;
+  friend class MyPeripheralManagerHostAPI;
+  friend class MyPeripheralManagerHostAPICodecSerializer;
+  friend class MyPeripheralManagerFlutterAPI;
+  friend class MyPeripheralManagerFlutterAPICodecSerializer;
+  MyAdvertisementTypeArgs type_args_;
   std::optional<std::string> name_args_;
   flutter::EncodableList service_u_u_i_ds_args_;
   flutter::EncodableMap service_data_args_;
   std::unique_ptr<MyManufacturerSpecificDataArgs> manufacturer_specific_data_args_;
+
+};
+
+
+// Generated class from Pigeon that represents data sent in messages.
+class MyCentralArgs {
+ public:
+  // Constructs an object setting all fields.
+  explicit MyCentralArgs(int64_t address_args);
+
+  int64_t address_args() const;
+  void set_address_args(int64_t value_arg);
+
+
+ private:
+  static MyCentralArgs FromEncodableList(const flutter::EncodableList& list);
+  flutter::EncodableList ToEncodableList() const;
+  friend class MyCentralManagerHostAPI;
+  friend class MyCentralManagerHostAPICodecSerializer;
+  friend class MyCentralManagerFlutterAPI;
+  friend class MyCentralManagerFlutterAPICodecSerializer;
+  friend class MyPeripheralManagerHostAPI;
+  friend class MyPeripheralManagerHostAPICodecSerializer;
+  friend class MyPeripheralManagerFlutterAPI;
+  friend class MyPeripheralManagerFlutterAPICodecSerializer;
+  int64_t address_args_;
 
 };
 
@@ -189,6 +267,10 @@ class MyPeripheralArgs {
   friend class MyCentralManagerHostAPICodecSerializer;
   friend class MyCentralManagerFlutterAPI;
   friend class MyCentralManagerFlutterAPICodecSerializer;
+  friend class MyPeripheralManagerHostAPI;
+  friend class MyPeripheralManagerHostAPICodecSerializer;
+  friend class MyPeripheralManagerFlutterAPI;
+  friend class MyPeripheralManagerFlutterAPICodecSerializer;
   int64_t address_args_;
 
 };
@@ -216,6 +298,10 @@ class MyGATTDescriptorArgs {
   friend class MyCentralManagerHostAPICodecSerializer;
   friend class MyCentralManagerFlutterAPI;
   friend class MyCentralManagerFlutterAPICodecSerializer;
+  friend class MyPeripheralManagerHostAPI;
+  friend class MyPeripheralManagerHostAPICodecSerializer;
+  friend class MyPeripheralManagerFlutterAPI;
+  friend class MyPeripheralManagerFlutterAPICodecSerializer;
   int64_t handle_args_;
   std::string uuid_args_;
 
@@ -252,6 +338,10 @@ class MyGATTCharacteristicArgs {
   friend class MyCentralManagerHostAPICodecSerializer;
   friend class MyCentralManagerFlutterAPI;
   friend class MyCentralManagerFlutterAPICodecSerializer;
+  friend class MyPeripheralManagerHostAPI;
+  friend class MyPeripheralManagerHostAPICodecSerializer;
+  friend class MyPeripheralManagerFlutterAPI;
+  friend class MyPeripheralManagerFlutterAPICodecSerializer;
   int64_t handle_args_;
   std::string uuid_args_;
   flutter::EncodableList property_numbers_args_;
@@ -294,11 +384,241 @@ class MyGATTServiceArgs {
   friend class MyCentralManagerHostAPICodecSerializer;
   friend class MyCentralManagerFlutterAPI;
   friend class MyCentralManagerFlutterAPICodecSerializer;
+  friend class MyPeripheralManagerHostAPI;
+  friend class MyPeripheralManagerHostAPICodecSerializer;
+  friend class MyPeripheralManagerFlutterAPI;
+  friend class MyPeripheralManagerFlutterAPICodecSerializer;
   int64_t handle_args_;
   std::string uuid_args_;
   bool is_primary_args_;
   flutter::EncodableList included_services_args_;
   flutter::EncodableList characteristics_args_;
+
+};
+
+
+// Generated class from Pigeon that represents data sent in messages.
+class MyMutableGATTDescriptorArgs {
+ public:
+  // Constructs an object setting all non-nullable fields.
+  explicit MyMutableGATTDescriptorArgs(
+    int64_t hash_code_args,
+    const std::string& uuid_args,
+    const flutter::EncodableList& permission_numbers_args);
+
+  // Constructs an object setting all fields.
+  explicit MyMutableGATTDescriptorArgs(
+    int64_t hash_code_args,
+    const std::string& uuid_args,
+    const std::vector<uint8_t>* value_args,
+    const flutter::EncodableList& permission_numbers_args);
+
+  int64_t hash_code_args() const;
+  void set_hash_code_args(int64_t value_arg);
+
+  const std::string& uuid_args() const;
+  void set_uuid_args(std::string_view value_arg);
+
+  const std::vector<uint8_t>* value_args() const;
+  void set_value_args(const std::vector<uint8_t>* value_arg);
+  void set_value_args(const std::vector<uint8_t>& value_arg);
+
+  const flutter::EncodableList& permission_numbers_args() const;
+  void set_permission_numbers_args(const flutter::EncodableList& value_arg);
+
+
+ private:
+  static MyMutableGATTDescriptorArgs FromEncodableList(const flutter::EncodableList& list);
+  flutter::EncodableList ToEncodableList() const;
+  friend class MyCentralManagerHostAPI;
+  friend class MyCentralManagerHostAPICodecSerializer;
+  friend class MyCentralManagerFlutterAPI;
+  friend class MyCentralManagerFlutterAPICodecSerializer;
+  friend class MyPeripheralManagerHostAPI;
+  friend class MyPeripheralManagerHostAPICodecSerializer;
+  friend class MyPeripheralManagerFlutterAPI;
+  friend class MyPeripheralManagerFlutterAPICodecSerializer;
+  int64_t hash_code_args_;
+  std::string uuid_args_;
+  std::optional<std::vector<uint8_t>> value_args_;
+  flutter::EncodableList permission_numbers_args_;
+
+};
+
+
+// Generated class from Pigeon that represents data sent in messages.
+class MyMutableGATTCharacteristicArgs {
+ public:
+  // Constructs an object setting all non-nullable fields.
+  explicit MyMutableGATTCharacteristicArgs(
+    int64_t hash_code_args,
+    const std::string& uuid_args,
+    const flutter::EncodableList& property_numbers_args,
+    const flutter::EncodableList& permission_numbers_args,
+    const flutter::EncodableList& descriptors_args);
+
+  // Constructs an object setting all fields.
+  explicit MyMutableGATTCharacteristicArgs(
+    int64_t hash_code_args,
+    const std::string& uuid_args,
+    const std::vector<uint8_t>* value_args,
+    const flutter::EncodableList& property_numbers_args,
+    const flutter::EncodableList& permission_numbers_args,
+    const flutter::EncodableList& descriptors_args);
+
+  int64_t hash_code_args() const;
+  void set_hash_code_args(int64_t value_arg);
+
+  const std::string& uuid_args() const;
+  void set_uuid_args(std::string_view value_arg);
+
+  const std::vector<uint8_t>* value_args() const;
+  void set_value_args(const std::vector<uint8_t>* value_arg);
+  void set_value_args(const std::vector<uint8_t>& value_arg);
+
+  const flutter::EncodableList& property_numbers_args() const;
+  void set_property_numbers_args(const flutter::EncodableList& value_arg);
+
+  const flutter::EncodableList& permission_numbers_args() const;
+  void set_permission_numbers_args(const flutter::EncodableList& value_arg);
+
+  const flutter::EncodableList& descriptors_args() const;
+  void set_descriptors_args(const flutter::EncodableList& value_arg);
+
+
+ private:
+  static MyMutableGATTCharacteristicArgs FromEncodableList(const flutter::EncodableList& list);
+  flutter::EncodableList ToEncodableList() const;
+  friend class MyCentralManagerHostAPI;
+  friend class MyCentralManagerHostAPICodecSerializer;
+  friend class MyCentralManagerFlutterAPI;
+  friend class MyCentralManagerFlutterAPICodecSerializer;
+  friend class MyPeripheralManagerHostAPI;
+  friend class MyPeripheralManagerHostAPICodecSerializer;
+  friend class MyPeripheralManagerFlutterAPI;
+  friend class MyPeripheralManagerFlutterAPICodecSerializer;
+  int64_t hash_code_args_;
+  std::string uuid_args_;
+  std::optional<std::vector<uint8_t>> value_args_;
+  flutter::EncodableList property_numbers_args_;
+  flutter::EncodableList permission_numbers_args_;
+  flutter::EncodableList descriptors_args_;
+
+};
+
+
+// Generated class from Pigeon that represents data sent in messages.
+class MyMutableGATTServiceArgs {
+ public:
+  // Constructs an object setting all fields.
+  explicit MyMutableGATTServiceArgs(
+    int64_t hash_code_args,
+    const std::string& uuid_args,
+    bool is_primary_args,
+    const flutter::EncodableList& included_services_args,
+    const flutter::EncodableList& characteristics_args);
+
+  int64_t hash_code_args() const;
+  void set_hash_code_args(int64_t value_arg);
+
+  const std::string& uuid_args() const;
+  void set_uuid_args(std::string_view value_arg);
+
+  bool is_primary_args() const;
+  void set_is_primary_args(bool value_arg);
+
+  const flutter::EncodableList& included_services_args() const;
+  void set_included_services_args(const flutter::EncodableList& value_arg);
+
+  const flutter::EncodableList& characteristics_args() const;
+  void set_characteristics_args(const flutter::EncodableList& value_arg);
+
+
+ private:
+  static MyMutableGATTServiceArgs FromEncodableList(const flutter::EncodableList& list);
+  flutter::EncodableList ToEncodableList() const;
+  friend class MyCentralManagerHostAPI;
+  friend class MyCentralManagerHostAPICodecSerializer;
+  friend class MyCentralManagerFlutterAPI;
+  friend class MyCentralManagerFlutterAPICodecSerializer;
+  friend class MyPeripheralManagerHostAPI;
+  friend class MyPeripheralManagerHostAPICodecSerializer;
+  friend class MyPeripheralManagerFlutterAPI;
+  friend class MyPeripheralManagerFlutterAPICodecSerializer;
+  int64_t hash_code_args_;
+  std::string uuid_args_;
+  bool is_primary_args_;
+  flutter::EncodableList included_services_args_;
+  flutter::EncodableList characteristics_args_;
+
+};
+
+
+// Generated class from Pigeon that represents data sent in messages.
+class MyGATTReadRequestArgs {
+ public:
+  // Constructs an object setting all fields.
+  explicit MyGATTReadRequestArgs(
+    int64_t offset_args,
+    int64_t length_args);
+
+  int64_t offset_args() const;
+  void set_offset_args(int64_t value_arg);
+
+  int64_t length_args() const;
+  void set_length_args(int64_t value_arg);
+
+
+ private:
+  static MyGATTReadRequestArgs FromEncodableList(const flutter::EncodableList& list);
+  flutter::EncodableList ToEncodableList() const;
+  friend class MyCentralManagerHostAPI;
+  friend class MyCentralManagerHostAPICodecSerializer;
+  friend class MyCentralManagerFlutterAPI;
+  friend class MyCentralManagerFlutterAPICodecSerializer;
+  friend class MyPeripheralManagerHostAPI;
+  friend class MyPeripheralManagerHostAPICodecSerializer;
+  friend class MyPeripheralManagerFlutterAPI;
+  friend class MyPeripheralManagerFlutterAPICodecSerializer;
+  int64_t offset_args_;
+  int64_t length_args_;
+
+};
+
+
+// Generated class from Pigeon that represents data sent in messages.
+class MyGATTWriteRequestArgs {
+ public:
+  // Constructs an object setting all fields.
+  explicit MyGATTWriteRequestArgs(
+    int64_t offset_args,
+    const std::vector<uint8_t>& value_args,
+    const MyGATTCharacteristicWriteTypeArgs& type_args);
+
+  int64_t offset_args() const;
+  void set_offset_args(int64_t value_arg);
+
+  const std::vector<uint8_t>& value_args() const;
+  void set_value_args(const std::vector<uint8_t>& value_arg);
+
+  const MyGATTCharacteristicWriteTypeArgs& type_args() const;
+  void set_type_args(const MyGATTCharacteristicWriteTypeArgs& value_arg);
+
+
+ private:
+  static MyGATTWriteRequestArgs FromEncodableList(const flutter::EncodableList& list);
+  flutter::EncodableList ToEncodableList() const;
+  friend class MyCentralManagerHostAPI;
+  friend class MyCentralManagerHostAPICodecSerializer;
+  friend class MyCentralManagerFlutterAPI;
+  friend class MyCentralManagerFlutterAPICodecSerializer;
+  friend class MyPeripheralManagerHostAPI;
+  friend class MyPeripheralManagerHostAPICodecSerializer;
+  friend class MyPeripheralManagerFlutterAPI;
+  friend class MyPeripheralManagerFlutterAPICodecSerializer;
+  int64_t offset_args_;
+  std::vector<uint8_t> value_args_;
+  MyGATTCharacteristicWriteTypeArgs type_args_;
 
 };
 
@@ -336,21 +656,21 @@ class MyCentralManagerHostAPI {
     std::function<void(std::optional<FlutterError> reply)> result) = 0;
   virtual std::optional<FlutterError> Disconnect(int64_t address_args) = 0;
   virtual ErrorOr<int64_t> GetMTU(int64_t address_args) = 0;
-  virtual void GetServicesAsync(
+  virtual void GetServices(
     int64_t address_args,
     const MyCacheModeArgs& mode_args,
     std::function<void(ErrorOr<flutter::EncodableList> reply)> result) = 0;
-  virtual void GetIncludedServicesAsync(
-    int64_t address_args,
-    int64_t handle_args,
-    const MyCacheModeArgs& mode_args,
-    std::function<void(ErrorOr<flutter::EncodableList> reply)> result) = 0;
-  virtual void GetCharacteristicsAsync(
+  virtual void GetIncludedServices(
     int64_t address_args,
     int64_t handle_args,
     const MyCacheModeArgs& mode_args,
     std::function<void(ErrorOr<flutter::EncodableList> reply)> result) = 0;
-  virtual void GetDescriptorsAsync(
+  virtual void GetCharacteristics(
+    int64_t address_args,
+    int64_t handle_args,
+    const MyCacheModeArgs& mode_args,
+    std::function<void(ErrorOr<flutter::EncodableList> reply)> result) = 0;
+  virtual void GetDescriptors(
     int64_t address_args,
     int64_t handle_args,
     const MyCacheModeArgs& mode_args,
@@ -450,6 +770,149 @@ class MyCentralManagerFlutterAPI {
     const MyPeripheralArgs& peripheral_args,
     const MyGATTCharacteristicArgs& characteristic_args,
     const std::vector<uint8_t>& value_args,
+    std::function<void(void)>&& on_success,
+    std::function<void(const FlutterError&)>&& on_error);
+
+ private:
+  flutter::BinaryMessenger* binary_messenger_;
+  std::string message_channel_suffix_;
+};
+
+class MyPeripheralManagerHostAPICodecSerializer : public flutter::StandardCodecSerializer {
+ public:
+  MyPeripheralManagerHostAPICodecSerializer();
+  inline static MyPeripheralManagerHostAPICodecSerializer& GetInstance() {
+    static MyPeripheralManagerHostAPICodecSerializer sInstance;
+    return sInstance;
+  }
+
+  void WriteValue(
+    const flutter::EncodableValue& value,
+    flutter::ByteStreamWriter* stream) const override;
+
+ protected:
+  flutter::EncodableValue ReadValueOfType(
+    uint8_t type,
+    flutter::ByteStreamReader* stream) const override;
+
+};
+
+// Generated interface from Pigeon that represents a handler of messages from Flutter.
+class MyPeripheralManagerHostAPI {
+ public:
+  MyPeripheralManagerHostAPI(const MyPeripheralManagerHostAPI&) = delete;
+  MyPeripheralManagerHostAPI& operator=(const MyPeripheralManagerHostAPI&) = delete;
+  virtual ~MyPeripheralManagerHostAPI() {}
+  virtual void Initialize(std::function<void(std::optional<FlutterError> reply)> result) = 0;
+  virtual ErrorOr<MyBluetoothLowEnergyStateArgs> GetState() = 0;
+  virtual void AddService(
+    const MyMutableGATTServiceArgs& service_args,
+    std::function<void(std::optional<FlutterError> reply)> result) = 0;
+  virtual std::optional<FlutterError> RemoveService(int64_t hash_code_args) = 0;
+  virtual std::optional<FlutterError> StartAdvertising(const MyAdvertisementArgs& advertisement_args) = 0;
+  virtual std::optional<FlutterError> StopAdvertising() = 0;
+  virtual ErrorOr<int64_t> GetMTU(int64_t address_args) = 0;
+  virtual std::optional<FlutterError> RespondReadRequestWithValue(
+    int64_t address_args,
+    int64_t hash_code_args,
+    const std::vector<uint8_t>& value_args) = 0;
+  virtual std::optional<FlutterError> RespondReadRequestWithProtocolError(
+    int64_t address_args,
+    int64_t hash_code_args,
+    const MyGATTProtocolErrorArgs& error_args) = 0;
+  virtual std::optional<FlutterError> RespondWriteRequest(
+    int64_t address_args,
+    int64_t hash_code_args) = 0;
+  virtual std::optional<FlutterError> RespondWriteRequestWithProtocolError(
+    int64_t address_args,
+    int64_t hash_code_args,
+    const MyGATTProtocolErrorArgs& error_args) = 0;
+  virtual void NotifyValue(
+    const std::string& address_args,
+    int64_t hash_code_args,
+    const std::vector<uint8_t>& value_args,
+    std::function<void(std::optional<FlutterError> reply)> result) = 0;
+
+  // The codec used by MyPeripheralManagerHostAPI.
+  static const flutter::StandardMessageCodec& GetCodec();
+  // Sets up an instance of `MyPeripheralManagerHostAPI` to handle messages through the `binary_messenger`.
+  static void SetUp(
+    flutter::BinaryMessenger* binary_messenger,
+    MyPeripheralManagerHostAPI* api);
+  static void SetUp(
+    flutter::BinaryMessenger* binary_messenger,
+    MyPeripheralManagerHostAPI* api,
+    const std::string& message_channel_suffix);
+  static flutter::EncodableValue WrapError(std::string_view error_message);
+  static flutter::EncodableValue WrapError(const FlutterError& error);
+
+ protected:
+  MyPeripheralManagerHostAPI() = default;
+
+};
+class MyPeripheralManagerFlutterAPICodecSerializer : public flutter::StandardCodecSerializer {
+ public:
+  MyPeripheralManagerFlutterAPICodecSerializer();
+  inline static MyPeripheralManagerFlutterAPICodecSerializer& GetInstance() {
+    static MyPeripheralManagerFlutterAPICodecSerializer sInstance;
+    return sInstance;
+  }
+
+  void WriteValue(
+    const flutter::EncodableValue& value,
+    flutter::ByteStreamWriter* stream) const override;
+
+ protected:
+  flutter::EncodableValue ReadValueOfType(
+    uint8_t type,
+    flutter::ByteStreamReader* stream) const override;
+
+};
+
+// Generated class from Pigeon that represents Flutter messages that can be called from C++.
+class MyPeripheralManagerFlutterAPI {
+ public:
+  MyPeripheralManagerFlutterAPI(flutter::BinaryMessenger* binary_messenger);
+  MyPeripheralManagerFlutterAPI(
+    flutter::BinaryMessenger* binary_messenger,
+    const std::string& message_channel_suffix);
+  static const flutter::StandardMessageCodec& GetCodec();
+  void OnStateChanged(
+    const MyBluetoothLowEnergyStateArgs& state_args,
+    std::function<void(void)>&& on_success,
+    std::function<void(const FlutterError&)>&& on_error);
+  void OnMTUChanged(
+    const MyCentralArgs& central_args,
+    int64_t mtu_args,
+    std::function<void(void)>&& on_success,
+    std::function<void(const FlutterError&)>&& on_error);
+  void OnCharacteristicReadRequest(
+    const MyCentralArgs& central_args,
+    int64_t hash_code_args,
+    const MyGATTReadRequestArgs& request_args,
+    std::function<void(void)>&& on_success,
+    std::function<void(const FlutterError&)>&& on_error);
+  void OnCharacteristicWriteRequest(
+    const MyCentralArgs& central_args,
+    int64_t hash_code_args,
+    const MyGATTWriteRequestArgs& request_args,
+    std::function<void(void)>&& on_success,
+    std::function<void(const FlutterError&)>&& on_error);
+  void OnCharacteristicSubscribedClientsChanged(
+    int64_t hash_code_args,
+    const flutter::EncodableList& centrals_args,
+    std::function<void(void)>&& on_success,
+    std::function<void(const FlutterError&)>&& on_error);
+  void OnDescriptorReadRequest(
+    const MyCentralArgs& central_args,
+    int64_t hash_code_args,
+    const MyGATTReadRequestArgs& request_args,
+    std::function<void(void)>&& on_success,
+    std::function<void(const FlutterError&)>&& on_error);
+  void OnDescriptorWriteRequest(
+    const MyCentralArgs& central_args,
+    int64_t hash_code_args,
+    const MyGATTWriteRequestArgs& request_args,
     std::function<void(void)>&& on_success,
     std::function<void(const FlutterError&)>&& on_error);
 
