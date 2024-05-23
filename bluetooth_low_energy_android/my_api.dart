@@ -313,15 +313,15 @@ abstract class MyPeripheralManagerFlutterAPI {
     int statusArgs,
     MyConnectionStateArgs stateArgs,
   );
-  void onMTUChanged(String addressArgs, int mtuArgs);
+  void onMTUChanged(MyCentralArgs centralArgs, int mtuArgs);
   void onCharacteristicReadRequest(
-    String addressArgs,
+    MyCentralArgs centralArgs,
     int idArgs,
     int offsetArgs,
     int hashCodeArgs,
   );
   void onCharacteristicWriteRequest(
-    String addressArgs,
+    MyCentralArgs centralArgs,
     int idArgs,
     int hashCodeArgs,
     bool preparedWriteArgs,
@@ -330,13 +330,13 @@ abstract class MyPeripheralManagerFlutterAPI {
     Uint8List valueArgs,
   );
   void onDescriptorReadRequest(
-    String addressArgs,
+    MyCentralArgs centralArgs,
     int idArgs,
     int offsetArgs,
     int hashCodeArgs,
   );
   void onDescriptorWriteRequest(
-    String addressArgs,
+    MyCentralArgs centralArgs,
     int idArgs,
     int hashCodeArgs,
     bool preparedWriteArgs,
@@ -345,7 +345,7 @@ abstract class MyPeripheralManagerFlutterAPI {
     Uint8List valueArgs,
   );
   void onExecuteWrite(
-    String addressArgs,
+    MyCentralArgs centralArgs,
     int idArgs,
     bool executeArgs,
   );

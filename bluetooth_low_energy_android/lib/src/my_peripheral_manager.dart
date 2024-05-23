@@ -31,7 +31,6 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   final StreamController<GATTDescriptorWriteRequestedEventArgs>
       _descriptorWriteRequestedController;
 
-  final Map<String, MyCentral> _centrals;
   final Map<int, MutableGATTCharacteristic> _characteristics;
   final Map<int, MutableGATTDescriptor> _descriptors;
   // CCC descriptor hashCodeArgs -> characteristic
@@ -58,7 +57,6 @@ final class MyPeripheralManager extends PlatformPeripheralManager
             StreamController.broadcast(),
         _descriptorReadRequestedController = StreamController.broadcast(),
         _descriptorWriteRequestedController = StreamController.broadcast(),
-        _centrals = {},
         _characteristics = {},
         _descriptors = {},
         _cccdCharacteristics = {},
@@ -484,10 +482,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     final central = centralArgs.toCentral();
     final state = stateArgs.toState();
     if (state == ConnectionState.connected) {
-      _centrals[addressArgs] = central;
       _cccdValues[addressArgs] = {};
     } else {
-      _centrals.remove(addressArgs);
       _mtus.remove(addressArgs);
       _cccdValues.remove(addressArgs);
       _preparedHashCodeArgs.remove(addressArgs);
@@ -498,12 +494,10 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
-  void onMTUChanged(String addressArgs, int mtuArgs) {
+  void onMTUChanged(MyCentralArgs centralArgs, int mtuArgs) {
+    final addressArgs = centralArgs.addressArgs;
     logger.info('onMTUChanged: $addressArgs - $mtuArgs');
-    final central = _centrals[addressArgs];
-    if (central == null) {
-      return;
-    }
+    final central = centralArgs.toCentral();
     final mtu = mtuArgs;
     _mtus[addressArgs] = mtu;
     final eventArgs = CentralMTUChangedEventArgs(central, mtu);
@@ -512,16 +506,17 @@ final class MyPeripheralManager extends PlatformPeripheralManager
 
   @override
   void onCharacteristicReadRequest(
-    String addressArgs,
+    MyCentralArgs centralArgs,
     int idArgs,
     int offsetArgs,
     int hashCodeArgs,
   ) async {
+    final addressArgs = centralArgs.addressArgs;
     logger.info(
         'onCharacteristicReadRequest: $addressArgs - $idArgs, $offsetArgs, $hashCodeArgs');
-    final central = _centrals[addressArgs];
+    final central = centralArgs.toCentral();
     final characteristic = _characteristics[hashCodeArgs];
-    if (central == null || characteristic == null) {
+    if (characteristic == null) {
       await _sendResponse(
         addressArgs,
         idArgs,
@@ -552,7 +547,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
 
   @override
   void onCharacteristicWriteRequest(
-    String addressArgs,
+    MyCentralArgs centralArgs,
     int idArgs,
     int hashCodeArgs,
     bool preparedWriteArgs,
@@ -560,11 +555,12 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     int offsetArgs,
     Uint8List valueArgs,
   ) async {
+    final addressArgs = centralArgs.addressArgs;
     logger.info(
         'onCharacteristicWriteRequest: $addressArgs - $idArgs, $hashCodeArgs, $preparedWriteArgs, $responseNeededArgs, $offsetArgs, $valueArgs');
-    final central = _centrals[addressArgs];
+    final central = centralArgs.toCentral();
     final characteristic = _characteristics[hashCodeArgs];
-    if (central == null || characteristic == null) {
+    if (characteristic == null) {
       if (!responseNeededArgs) {
         return;
       }
@@ -641,71 +637,62 @@ final class MyPeripheralManager extends PlatformPeripheralManager
 
   @override
   void onDescriptorReadRequest(
-    String addressArgs,
+    MyCentralArgs centralArgs,
     int idArgs,
     int offsetArgs,
     int hashCodeArgs,
   ) async {
+    final addressArgs = centralArgs.addressArgs;
     logger.info(
         'onDescriptorReadRequest: $addressArgs - $idArgs, $offsetArgs, $hashCodeArgs');
-    final central = _centrals[addressArgs];
-    if (central == null) {
-      await _sendResponse(
-        addressArgs,
-        idArgs,
-        MyGATTStatusArgs.failure,
-        offsetArgs,
-        null,
-      );
-    } else {
-      final characteristic = _cccdCharacteristics[hashCodeArgs];
-      if (characteristic == null) {
-        final descriptor = _descriptors[hashCodeArgs];
-        if (descriptor == null) {
-          await _sendResponse(
-            addressArgs,
-            idArgs,
-            MyGATTStatusArgs.failure,
-            offsetArgs,
-            null,
-          );
-        } else if (descriptor is ImmutableGATTDescriptor) {
-          await _sendResponse(
-            addressArgs,
-            idArgs,
-            MyGATTStatusArgs.success,
-            offsetArgs,
-            descriptor.value.sublist(offsetArgs),
-          );
-        } else {
-          final eventArgs = GATTDescriptorReadRequestedEventArgs(
-            central,
-            descriptor,
-            MyGATTReadRequest(
-              idArgs: idArgs,
-              offset: offsetArgs,
-            ),
-          );
-          _descriptorReadRequestedController.add(eventArgs);
-        }
-      } else {
-        final hashCodeArgs = characteristic.hashCode;
-        final cccValue = _retrieveCCCValue(addressArgs, hashCodeArgs);
-        final valueArgs = cccValue.sublist(offsetArgs);
+    final central = centralArgs.toCentral();
+    final characteristic = _cccdCharacteristics[hashCodeArgs];
+    if (characteristic == null) {
+      final descriptor = _descriptors[hashCodeArgs];
+      if (descriptor == null) {
+        await _sendResponse(
+          addressArgs,
+          idArgs,
+          MyGATTStatusArgs.failure,
+          offsetArgs,
+          null,
+        );
+      } else if (descriptor is ImmutableGATTDescriptor) {
         await _sendResponse(
           addressArgs,
           idArgs,
           MyGATTStatusArgs.success,
           offsetArgs,
-          valueArgs,
+          descriptor.value.sublist(offsetArgs),
         );
+      } else {
+        final eventArgs = GATTDescriptorReadRequestedEventArgs(
+          central,
+          descriptor,
+          MyGATTReadRequest(
+            idArgs: idArgs,
+            offset: offsetArgs,
+          ),
+        );
+        _descriptorReadRequestedController.add(eventArgs);
       }
+    } else {
+      final hashCodeArgs = characteristic.hashCode;
+      final cccValue = _retrieveCCCValue(addressArgs, hashCodeArgs);
+      final valueArgs = cccValue.sublist(offsetArgs);
+      await _sendResponse(
+        addressArgs,
+        idArgs,
+        MyGATTStatusArgs.success,
+        offsetArgs,
+        valueArgs,
+      );
     }
   }
 
   @override
   void onDescriptorWriteRequest(
-    String addressArgs,
+    MyCentralArgs centralArgs,
     int idArgs,
     int hashCodeArgs,
     bool preparedWriteArgs,
@@ -713,21 +700,11 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     int offsetArgs,
     Uint8List valueArgs,
   ) async {
+    final addressArgs = centralArgs.addressArgs;
     logger.info(
         'onDescriptorWriteRequest: $addressArgs - $idArgs, $hashCodeArgs, $preparedWriteArgs, $responseNeededArgs, $offsetArgs, $valueArgs');
-    final central = _centrals[addressArgs];
-    if (central == null) {
-      if (!responseNeededArgs) {
-        return;
-      }
-      await _sendResponse(
-        addressArgs,
-        idArgs,
-        MyGATTStatusArgs.failure,
-        offsetArgs,
-        null,
-      );
-    } else if (preparedWriteArgs) {
+    final central = centralArgs.toCentral();
+    if (preparedWriteArgs) {
       final preparedHashCodeArgs = _preparedHashCodeArgs[addressArgs];
       if (preparedHashCodeArgs != null &&
           preparedHashCodeArgs != hashCodeArgs) {
@@ -865,12 +842,17 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
-  void onExecuteWrite(String addressArgs, int idArgs, bool executeArgs) async {
+  void onExecuteWrite(
+    MyCentralArgs centralArgs,
+    int idArgs,
+    bool executeArgs,
+  ) async {
+    final addressArgs = centralArgs.addressArgs;
     logger.info('onExecuteWrite: $addressArgs - $idArgs, $executeArgs');
-    final central = _centrals[addressArgs];
+    final central = centralArgs.toCentral();
     final hashCodeArgs = _preparedHashCodeArgs.remove(addressArgs);
     final elements = _preparedValue.remove(addressArgs);
-    if (central == null || hashCodeArgs == null || elements == null) {
+    if (hashCodeArgs == null || elements == null) {
       await _sendResponse(
         addressArgs,
         idArgs,
