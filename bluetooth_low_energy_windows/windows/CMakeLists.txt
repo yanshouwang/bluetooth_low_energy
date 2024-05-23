@@ -19,6 +19,7 @@ set(PLUGIN_NAME "bluetooth_low_energy_windows_plugin")
 # NUGET: Microsoft.Windows.CppWinRT
 set(CPPWINRT_VERSION "2.0.230706.1")
 
+include(FetchContent)
 FetchContent_Declare(nuget
   URL "https://dist.nuget.org/win-x86-commandline/v6.10.0/nuget.exe"
   URL_HASH SHA256=bad75b985cef3b2e52fa6141b207db25bafa8724189a420400fcf2787248bf4e
@@ -118,7 +119,6 @@ set(TEST_RUNNER "${PROJECT_NAME}_test")
 enable_testing()
 
 # Add the Google Test dependency.
-include(FetchContent)
 FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/v1.14.0.zip
