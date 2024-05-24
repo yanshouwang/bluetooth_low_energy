@@ -20,29 +20,29 @@ namespace bluetooth_low_energy_windows
 	class MyCentralManager : public MyCentralManagerHostAPI
 	{
 	public:
-		MyCentralManager(flutter::BinaryMessenger* messenger);
+		MyCentralManager(flutter::BinaryMessenger *messenger);
 		virtual ~MyCentralManager();
 
 		// Disallow copy and assign.
-		MyCentralManager(const MyCentralManager&) = delete;
-		MyCentralManager& operator=(const MyCentralManager&) = delete;
+		MyCentralManager(const MyCentralManager &) = delete;
+		MyCentralManager &operator=(const MyCentralManager &) = delete;
 
 		void Initialize(std::function<void(std::optional<FlutterError> reply)> result) override;
 		ErrorOr<MyBluetoothLowEnergyStateArgs> GetState() override;
-		std::optional<FlutterError> StartDiscovery(const flutter::EncodableList& service_uuids_args) override;
+		std::optional<FlutterError> StartDiscovery(const flutter::EncodableList &service_uuids_args) override;
 		std::optional<FlutterError> StopDiscovery() override;
 		void Connect(int64_t address_args, std::function<void(std::optional<FlutterError> reply)> result) override;
 		std::optional<FlutterError> Disconnect(int64_t address_args) override;
 		ErrorOr<int64_t> GetMTU(int64_t address_args) override;
-		void GetServices(int64_t address_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result) override;
-		void GetIncludedServices(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result) override;
-		void GetCharacteristics(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result) override;
-		void GetDescriptors(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result) override;
-		void ReadCharacteristic(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result) override;
-		void WriteCharacteristic(int64_t address_args, int64_t handle_args, const std::vector<uint8_t>& value_args, const MyGATTCharacteristicWriteTypeArgs& type_args, std::function<void(std::optional<FlutterError> reply)> result) override;
-		void SetCharacteristicNotifyState(int64_t address_args, int64_t handle_args, const MyGATTCharacteristicNotifyStateArgs& state_args, std::function<void(std::optional<FlutterError> reply)> result) override;
-		void ReadDescriptor(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result) override;
-		void WriteDescriptor(int64_t address_args, int64_t handle_args, const std::vector<uint8_t>& value_args, std::function<void(std::optional<FlutterError> reply)> result) override;
+		void GetServices(int64_t address_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result) override;
+		void GetIncludedServices(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result) override;
+		void GetCharacteristics(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result) override;
+		void GetDescriptors(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result) override;
+		void ReadCharacteristic(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result) override;
+		void WriteCharacteristic(int64_t address_args, int64_t handle_args, const std::vector<uint8_t> &value_args, const MyGATTCharacteristicWriteTypeArgs &type_args, std::function<void(std::optional<FlutterError> reply)> result) override;
+		void SetCharacteristicNotifyState(int64_t address_args, int64_t handle_args, const MyGATTCharacteristicNotifyStateArgs &state_args, std::function<void(std::optional<FlutterError> reply)> result) override;
+		void ReadDescriptor(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result) override;
+		void WriteDescriptor(int64_t address_args, int64_t handle_args, const std::vector<uint8_t> &value_args, std::function<void(std::optional<FlutterError> reply)> result) override;
 
 	private:
 		std::optional<MyCentralManagerFlutterAPI> m_api;
@@ -62,36 +62,36 @@ namespace bluetooth_low_energy_windows
 
 		winrt::fire_and_forget InitializeAsync(std::function<void(std::optional<FlutterError> reply)> result);
 		winrt::fire_and_forget ConnectAsync(int64_t address_args, std::function<void(std::optional<FlutterError> reply)> result);
-		winrt::fire_and_forget GetServicesAsync(int64_t address_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
-		winrt::fire_and_forget GetIncludedServicesAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
-		winrt::fire_and_forget GetCharacteristicsAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
-		winrt::fire_and_forget GetDescriptorsAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
-		winrt::fire_and_forget ReadCharacteristicAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result);
-		winrt::fire_and_forget WriteCharacteristicAsync(int64_t address_args, int64_t handle_args, const std::vector<uint8_t>& value_args, const MyGATTCharacteristicWriteTypeArgs& type_args, std::function<void(std::optional<FlutterError> reply)> result);
-		winrt::fire_and_forget SetCharacteristicNotifyStateAsync(int64_t address_args, int64_t handle_args, const MyGATTCharacteristicNotifyStateArgs& state_args, std::function<void(std::optional<FlutterError> reply)> result);
-		winrt::fire_and_forget ReadDescriptorAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result);
-		winrt::fire_and_forget WriteDescriptorAsync(int64_t address_args, int64_t handle_args, const std::vector<uint8_t>& value_args, std::function<void(std::optional<FlutterError> reply)> result);
+		winrt::fire_and_forget GetServicesAsync(int64_t address_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
+		winrt::fire_and_forget GetIncludedServicesAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
+		winrt::fire_and_forget GetCharacteristicsAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
+		winrt::fire_and_forget GetDescriptorsAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
+		winrt::fire_and_forget ReadCharacteristicAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result);
+		winrt::fire_and_forget WriteCharacteristicAsync(int64_t address_args, int64_t handle_args, const std::vector<uint8_t> &value_args, const MyGATTCharacteristicWriteTypeArgs &type_args, std::function<void(std::optional<FlutterError> reply)> result);
+		winrt::fire_and_forget SetCharacteristicNotifyStateAsync(int64_t address_args, int64_t handle_args, const MyGATTCharacteristicNotifyStateArgs &state_args, std::function<void(std::optional<FlutterError> reply)> result);
+		winrt::fire_and_forget ReadDescriptorAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result);
+		winrt::fire_and_forget WriteDescriptorAsync(int64_t address_args, int64_t handle_args, const std::vector<uint8_t> &value_args, std::function<void(std::optional<FlutterError> reply)> result);
 
 		void OnDisconnected(int64_t address_args);
 
-		winrt::Windows::Devices::Bluetooth::BluetoothLEDevice& RetrieveDevice(int64_t address_args);
-		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService& RetrieveService(int64_t address_args, int64_t handle_args);
-		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic& RetrieveCharacteristic(int64_t address, int64_t handle_args);
-		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor& RetrieveDescriptor(int64_t address_args, int64_t handle_args);
+		winrt::Windows::Devices::Bluetooth::BluetoothLEDevice &RetrieveDevice(int64_t address_args);
+		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService &RetrieveService(int64_t address_args, int64_t handle_args);
+		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic &RetrieveCharacteristic(int64_t address, int64_t handle_args);
+		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor &RetrieveDescriptor(int64_t address_args, int64_t handle_args);
 
-		MyBluetoothLowEnergyStateArgs RadioStateToArgs(const winrt::Windows::Devices::Radios::RadioState& state);
-		MyAdvertisementTypeArgs AdvertisementTypeToArgs(const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType& type);
-		MyConnectionStateArgs ConnectionStatusToArgs(const winrt::Windows::Devices::Bluetooth::BluetoothConnectionStatus& status);
-		MyAdvertisementArgs AdvertisementToArgs(const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType& type, const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisement& advertisement);
-		MyGATTServiceArgs ServiceToArgs(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService& service);
-		MyGATTCharacteristicArgs CharacteristicToArgs(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic& characteristic);
+		MyBluetoothLowEnergyStateArgs RadioStateToArgs(const winrt::Windows::Devices::Radios::RadioState &state);
+		MyAdvertisementTypeArgs AdvertisementTypeToArgs(const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType &type);
+		MyConnectionStateArgs ConnectionStatusToArgs(const winrt::Windows::Devices::Bluetooth::BluetoothConnectionStatus &status);
+		MyAdvertisementArgs AdvertisementToArgs(const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType &type, const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisement &advertisement);
+		MyGATTServiceArgs ServiceToArgs(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService &service);
+		MyGATTCharacteristicArgs CharacteristicToArgs(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic &characteristic);
 		flutter::EncodableList CharacteristicPropertiesToArgs(winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristicProperties properties);
-		MyGATTDescriptorArgs DescriptorToArgs(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor& descriptor);
-		std::string GUIDToArgs(const winrt::guid& guid);
+		MyGATTDescriptorArgs DescriptorToArgs(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor &descriptor);
+		std::string GUIDToArgs(const winrt::guid &guid);
 
-		winrt::Windows::Devices::Bluetooth::BluetoothCacheMode ArgsToCacheMode(const MyCacheModeArgs& mode_args);
-		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteOption ArgsToWriteOption(const MyGATTCharacteristicWriteTypeArgs& type_args);
-		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattClientCharacteristicConfigurationDescriptorValue ArgsToCCCDescriptorValue(const MyGATTCharacteristicNotifyStateArgs& state_args);
+		winrt::Windows::Devices::Bluetooth::BluetoothCacheMode ArgsToCacheMode(const MyCacheModeArgs &mode_args);
+		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteOption ArgsToWriteOption(const MyGATTCharacteristicWriteTypeArgs &type_args);
+		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattClientCharacteristicConfigurationDescriptorValue ArgsToCCCDescriptorValue(const MyGATTCharacteristicNotifyStateArgs &state_args);
 	};
 }
 
