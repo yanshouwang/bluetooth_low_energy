@@ -23,47 +23,47 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "6.0.0-dev.0"
+    version: "6.0.0-dev.1"
   bluetooth_low_energy_android:
     dependency: transitive
     description:
       name: bluetooth_low_energy_android
-      sha256: fe0e92f2cad551e87677f6cd26bea3290a5de009683fd767a96a79d03b7b33c3
+      sha256: "649f7774b62a0d2371653b4eed654e4396d2c7c1aaf1b62638f1c95b7a85b014"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0-dev.3"
+    version: "6.0.0-dev.4"
   bluetooth_low_energy_darwin:
     dependency: transitive
     description:
       name: bluetooth_low_energy_darwin
-      sha256: "44ee06a7a9c5f9f84c7a2fe535275e62bcbc35944896d908d7465955c5ae7737"
+      sha256: "1bfd8f87e434c9a5c3958f98de26c7c40e9e17124230e45aeb777364fabc2536"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0-dev.1"
+    version: "6.0.0-dev.2"
   bluetooth_low_energy_linux:
     dependency: transitive
     description:
       name: bluetooth_low_energy_linux
-      sha256: ea4455a47faa42cec4a0b26d4352fbf18325a7e29afd95ee2cf283386d68f55d
+      sha256: "602dac1cbc2ea8950019955832153ad2ab27d46df65fda3a2cc4307f839efc3b"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0-dev.1"
+    version: "6.0.0-dev.2"
   bluetooth_low_energy_platform_interface:
     dependency: transitive
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: "27efd051129b0f52e06e66af5bd9626126012b8526aab4f1ae1b7639344597ed"
+      sha256: aaae881fbc3fb42cfbe81d4aa6f7984d79887db9c67b29b4a4ceca9320c01c83
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0-dev.17"
+    version: "6.0.0-dev.18"
   bluetooth_low_energy_windows:
     dependency: transitive
     description:
       name: bluetooth_low_energy_windows
-      sha256: a5ea3a3ce08146830d195ebf6ecee6bdb0d690bd16f49300c6c2d3e3c95ad64a
+      sha256: "6212d026a35938fa0e2b6906eebb126c6b9384b05b063f696df476879532b92b"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0-dev.6"
+    version: "6.0.0-dev.8"
   bluez:
     dependency: transitive
     description:
