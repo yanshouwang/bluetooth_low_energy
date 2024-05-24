@@ -131,10 +131,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
-  Future<void> respondCharacteristicReadRequestWithValue(
-    Central central,
-    GATTCharacteristic characteristic, {
-    required GATTReadRequest request,
+  Future<void> respondReadRequestWithValue(
+    GATTReadRequest request, {
     required Uint8List value,
   }) async {
     if (request is! MyGATTReadRequest) {
@@ -152,10 +150,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
-  Future<void> respondCharacteristicReadRequestWithError(
-    Central central,
-    GATTCharacteristic characteristic, {
-    required GATTReadRequest request,
+  Future<void> respondReadRequestWithError(
+    GATTReadRequest request, {
     required GATTError error,
   }) async {
     if (request is! MyGATTReadRequest) {
@@ -173,11 +169,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
-  Future<void> respondCharacteristicWriteRequest(
-    Central central,
-    GATTCharacteristic characteristic, {
-    required GATTWriteRequest request,
-  }) async {
+  Future<void> respondWriteRequest(GATTWriteRequest request) async {
     if (request is! MyGATTWriteRequest) {
       throw TypeError();
     }
@@ -193,10 +185,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
-  Future<void> respondCharacteristicWriteRequestWithError(
-    Central central,
-    GATTCharacteristic characteristic, {
-    required GATTWriteRequest request,
+  Future<void> respondWriteRequestWithError(
+    GATTWriteRequest request, {
     required GATTError error,
   }) async {
     if (request is! MyGATTWriteRequest) {
@@ -235,49 +225,6 @@ final class MyPeripheralManager extends PlatformPeripheralManager
       }
       await _isReady.first;
     }
-  }
-
-  @override
-  Future<void> respondDescriptorReadRequestWithValue(
-    Central central,
-    GATTDescriptor descriptor, {
-    required GATTReadRequest request,
-    required Uint8List value,
-  }) {
-    throw UnsupportedError(
-        'respondDescriptorReadRequestWithValue is not supported on Darwin.');
-  }
-
-  @override
-  Future<void> respondDescriptorReadRequestWithError(
-    Central central,
-    GATTDescriptor descriptor, {
-    required GATTReadRequest request,
-    required GATTError error,
-  }) {
-    throw UnsupportedError(
-        'respondDescriptorReadRequestWithError is not supported on Darwin.');
-  }
-
-  @override
-  Future<void> respondDescriptorWriteRequest(
-    Central central,
-    GATTDescriptor descriptor, {
-    required GATTWriteRequest request,
-  }) {
-    throw UnsupportedError(
-        'respondDescriptorWriteRequest is not supported on Darwin.');
-  }
-
-  @override
-  Future<void> respondDescriptorWriteRequestWithError(
-    Central central,
-    GATTDescriptor descriptor, {
-    required GATTWriteRequest request,
-    required GATTError error,
-  }) {
-    throw UnsupportedError(
-        'respondDescriptorWriteRequestWithError is not supported on Darwin.');
   }
 
   @override

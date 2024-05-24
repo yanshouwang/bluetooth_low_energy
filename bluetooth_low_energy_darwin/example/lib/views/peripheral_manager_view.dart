@@ -53,10 +53,8 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
         log,
       ];
       final trimmedValue = value.sublist(offset);
-      await peripheralManager.respondCharacteristicReadRequestWithValue(
-        central,
-        characteristic,
-        request: request,
+      await peripheralManager.respondReadRequestWithValue(
+        request,
         value: trimmedValue,
       );
     });
@@ -75,11 +73,7 @@ class _PeripheralManagerViewState extends State<PeripheralManagerView>
         ...logs.value,
         log,
       ];
-      await peripheralManager.respondCharacteristicWriteRequest(
-        central,
-        characteristic,
-        request: request,
-      );
+      await peripheralManager.respondWriteRequest(request);
     });
     characteristicNotifyStateChangedSubscription = peripheralManager
         .characteristicNotifyStateChanged
