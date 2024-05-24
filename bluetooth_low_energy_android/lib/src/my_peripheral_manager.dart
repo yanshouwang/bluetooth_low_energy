@@ -179,18 +179,14 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
-  Future<void> respondCharacteristicReadRequestWithValue(
-    Central central,
-    GATTCharacteristic characteristic, {
-    required GATTReadRequest request,
+  Future<void> respondReadRequestWithValue(
+    GATTReadRequest request, {
     required Uint8List value,
   }) async {
-    if (central is! MyCentral ||
-        characteristic is! MutableGATTCharacteristic ||
-        request is! MyGATTReadRequest) {
+    if (request is! MyGATTReadRequest) {
       throw TypeError();
     }
-    final addressArgs = central.address;
+    final addressArgs = request.addressArgs;
     final idArgs = request.idArgs;
     const statusArgs = MyGATTStatusArgs.success;
     final offsetArgs = request.offset;
@@ -207,18 +203,14 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
-  Future<void> respondCharacteristicReadRequestWithError(
-    Central central,
-    GATTCharacteristic characteristic, {
-    required GATTReadRequest request,
+  Future<void> respondReadRequestWithError(
+    GATTReadRequest request, {
     required GATTError error,
   }) async {
-    if (central is! MyCentral ||
-        characteristic is! MutableGATTCharacteristic ||
-        request is! MyGATTReadRequest) {
+    if (request is! MyGATTReadRequest) {
       throw TypeError();
     }
-    final addressArgs = central.address;
+    final addressArgs = request.addressArgs;
     final idArgs = request.idArgs;
     final statusArgs = error.toArgs();
     final offsetArgs = request.offset;
@@ -235,20 +227,14 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
-  Future<void> respondCharacteristicWriteRequest(
-    Central central,
-    GATTCharacteristic characteristic, {
-    required GATTWriteRequest request,
-  }) async {
-    if (central is! MyCentral ||
-        characteristic is! MutableGATTCharacteristic ||
-        request is! MyGATTWriteRequest) {
+  Future<void> respondWriteRequest(GATTWriteRequest request) async {
+    if (request is! MyGATTWriteRequest) {
       throw TypeError();
     }
     if (!request.responseNeededArgs) {
       return;
     }
-    final addressArgs = central.address;
+    final addressArgs = request.addressArgs;
     final idArgs = request.idArgs;
     const statusArgs = MyGATTStatusArgs.success;
     final offsetArgs = request.offset;
@@ -265,21 +251,17 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
-  Future<void> respondCharacteristicWriteRequestWithError(
-    Central central,
-    GATTCharacteristic characteristic, {
-    required GATTWriteRequest request,
+  Future<void> respondWriteRequestWithError(
+    GATTWriteRequest request, {
     required GATTError error,
   }) async {
-    if (central is! MyCentral ||
-        characteristic is! MutableGATTCharacteristic ||
-        request is! MyGATTWriteRequest) {
+    if (request is! MyGATTWriteRequest) {
       throw TypeError();
     }
     if (!request.responseNeededArgs) {
       return;
     }
-    final addressArgs = central.address;
+    final addressArgs = request.addressArgs;
     final idArgs = request.idArgs;
     final statusArgs = error.toArgs();
     final offsetArgs = request.offset;
@@ -326,123 +308,6 @@ final class MyPeripheralManager extends PlatformPeripheralManager
       addressArgs,
       hashCodeArgs,
       confirmArgs,
-      valueArgs,
-    );
-  }
-
-  @override
-  Future<void> respondDescriptorReadRequestWithValue(
-    Central central,
-    GATTDescriptor descriptor, {
-    required GATTReadRequest request,
-    required Uint8List value,
-  }) async {
-    if (central is! MyCentral ||
-        descriptor is! MutableGATTDescriptor ||
-        request is! MyGATTReadRequest) {
-      throw TypeError();
-    }
-    final addressArgs = central.address;
-    final idArgs = request.idArgs;
-    const statusArgs = MyGATTStatusArgs.success;
-    final offsetArgs = request.offset;
-    final valueArgs = value;
-    logger.info(
-        'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs');
-    await _api.sendResponse(
-      addressArgs,
-      idArgs,
-      statusArgs,
-      offsetArgs,
-      valueArgs,
-    );
-  }
-
-  @override
-  Future<void> respondDescriptorReadRequestWithError(
-    Central central,
-    GATTDescriptor descriptor, {
-    required GATTReadRequest request,
-    required GATTError error,
-  }) async {
-    if (central is! MyCentral ||
-        descriptor is! MutableGATTDescriptor ||
-        request is! MyGATTReadRequest) {
-      throw TypeError();
-    }
-    final addressArgs = central.address;
-    final idArgs = request.idArgs;
-    final statusArgs = error.toArgs();
-    final offsetArgs = request.offset;
-    const valueArgs = null;
-    logger.info(
-        'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs');
-    await _api.sendResponse(
-      addressArgs,
-      idArgs,
-      statusArgs,
-      offsetArgs,
-      valueArgs,
-    );
-  }
-
-  @override
-  Future<void> respondDescriptorWriteRequest(
-    Central central,
-    GATTDescriptor descriptor, {
-    required GATTWriteRequest request,
-  }) async {
-    if (central is! MyCentral ||
-        descriptor is! MutableGATTDescriptor ||
-        request is! MyGATTWriteRequest) {
-      throw TypeError();
-    }
-    if (!request.responseNeededArgs) {
-      return;
-    }
-    final addressArgs = central.address;
-    final idArgs = request.idArgs;
-    const statusArgs = MyGATTStatusArgs.success;
-    final offsetArgs = request.offset;
-    const valueArgs = null;
-    logger.info(
-        'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs');
-    await _api.sendResponse(
-      addressArgs,
-      idArgs,
-      statusArgs,
-      offsetArgs,
-      valueArgs,
-    );
-  }
-
-  @override
-  Future<void> respondDescriptorWriteRequestWithError(
-    Central central,
-    GATTDescriptor descriptor, {
-    required GATTWriteRequest request,
-    required GATTError error,
-  }) async {
-    if (central is! MyCentral ||
-        descriptor is! MutableGATTDescriptor ||
-        request is! MyGATTWriteRequest) {
-      throw TypeError();
-    }
-    if (!request.responseNeededArgs) {
-      return;
-    }
-    final addressArgs = central.address;
-    final idArgs = request.idArgs;
-    final statusArgs = error.toArgs();
-    final offsetArgs = request.offset;
-    const valueArgs = null;
-    logger.info(
-        'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs');
-    await _api.sendResponse(
-      addressArgs,
-      idArgs,
-      statusArgs,
-      offsetArgs,
       valueArgs,
     );
   }
@@ -537,6 +402,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
         central,
         characteristic,
         MyGATTReadRequest(
+          addressArgs: addressArgs,
           idArgs: idArgs,
           offset: offsetArgs,
         ),
@@ -625,6 +491,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
         central,
         characteristic,
         MyGATTWriteRequest(
+          addressArgs: addressArgs,
           idArgs: idArgs,
           responseNeededArgs: responseNeededArgs,
           offset: offsetArgs,
@@ -670,6 +537,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
           central,
           descriptor,
           MyGATTReadRequest(
+            addressArgs: addressArgs,
             idArgs: idArgs,
             offset: offsetArgs,
           ),
@@ -773,6 +641,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
             central,
             descriptor,
             MyGATTWriteRequest(
+              addressArgs: addressArgs,
               idArgs: idArgs,
               responseNeededArgs: responseNeededArgs,
               offset: offsetArgs,
@@ -882,6 +751,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
             central,
             characteristic,
             MyGATTWriteRequest(
+              addressArgs: addressArgs,
               idArgs: idArgs,
               responseNeededArgs: true,
               offset: 0,
@@ -907,6 +777,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
             central,
             descriptor,
             MyGATTWriteRequest(
+              addressArgs: addressArgs,
               idArgs: idArgs,
               responseNeededArgs: true,
               offset: 0,
