@@ -207,33 +207,23 @@ abstract interface class PeripheralManager
   Future<int> getMaximumNotifyLength(Central central);
 
   /// Responds to a read request from a connected central.
-  Future<void> respondCharacteristicReadRequestWithValue(
-    Central central,
-    GATTCharacteristic characteristic, {
-    required GATTReadRequest request,
+  Future<void> respondReadRequestWithValue(
+    GATTReadRequest request, {
     required Uint8List value,
   });
 
   /// Responds to a read request from a connected central.
-  Future<void> respondCharacteristicReadRequestWithError(
-    Central central,
-    GATTCharacteristic characteristic, {
-    required GATTReadRequest request,
+  Future<void> respondReadRequestWithError(
+    GATTReadRequest request, {
     required GATTError error,
   });
 
   /// Responds to a write request from a connected central.
-  Future<void> respondCharacteristicWriteRequest(
-    Central central,
-    GATTCharacteristic characteristic, {
-    required GATTWriteRequest request,
-  });
+  Future<void> respondWriteRequest(GATTWriteRequest request);
 
   /// Responds to a write request from a connected central.
-  Future<void> respondCharacteristicWriteRequestWithError(
-    Central central,
-    GATTCharacteristic characteristic, {
-    required GATTWriteRequest request,
+  Future<void> respondWriteRequestWithError(
+    GATTWriteRequest request, {
     required GATTError error,
   });
 
@@ -252,37 +242,6 @@ abstract interface class PeripheralManager
     Central central,
     GATTCharacteristic characteristic, {
     required Uint8List value,
-  });
-
-  /// Responds to a read request from a connected central.
-  Future<void> respondDescriptorReadRequestWithValue(
-    Central central,
-    GATTDescriptor descriptor, {
-    required GATTReadRequest request,
-    required Uint8List value,
-  });
-
-  /// Responds to a read request from a connected central.
-  Future<void> respondDescriptorReadRequestWithError(
-    Central central,
-    GATTDescriptor descriptor, {
-    required GATTReadRequest request,
-    required GATTError error,
-  });
-
-  /// Responds to a write request from a connected central.
-  Future<void> respondDescriptorWriteRequest(
-    Central central,
-    GATTDescriptor descriptor, {
-    required GATTWriteRequest request,
-  });
-
-  /// Responds to a write request from a connected central.
-  Future<void> respondDescriptorWriteRequestWithError(
-    Central central,
-    GATTDescriptor descriptor, {
-    required GATTWriteRequest request,
-    required GATTError error,
   });
 }
 
