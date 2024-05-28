@@ -1,190 +1,95 @@
-import 'dart:async';
-
-import 'package:bluetooth_low_energy_windows_example/widgets.dart';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
+import 'package:bluetooth_low_energy_windows_example/view_models.dart';
+import 'package:bluetooth_low_energy_windows_example/widgets.dart';
 import 'package:convert/convert.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:logging/logging.dart';
 
-class CentralManagerView extends StatefulWidget {
+class CentralManagerView extends StatelessWidget {
   const CentralManagerView({super.key});
 
   @override
-  State<CentralManagerView> createState() => _CentralManagerViewState();
-}
-
-class _CentralManagerViewState extends State<CentralManagerView> {
-  late final CentralManager centralManager;
-  late final ValueNotifier<BluetoothLowEnergyState> state;
-  late final ValueNotifier<bool> discovering;
-  late final ValueNotifier<List<DiscoveredEventArgs>> eventArgses;
-  late final StreamSubscription stateChangedSubscription;
-  late final StreamSubscription discoveredSubscription;
-
-  @override
-  void initState() {
-    super.initState();
-    centralManager = CentralManager();
-    centralManager.logLevel = Level.INFO;
-    state = ValueNotifier(centralManager.state);
-    discovering = ValueNotifier(false);
-    eventArgses = ValueNotifier([]);
-    stateChangedSubscription = centralManager.stateChanged.listen(
-      (eventArgs) {
-        state.value = eventArgs.state;
-      },
-    );
-    discoveredSubscription = centralManager.discovered.listen(
-      (eventArgs) {
-        final eventArgses = this.eventArgses.value;
-        final index = eventArgses.indexWhere(
-          (item) => item.peripheral == eventArgs.peripheral,
-        );
-        if (index < 0) {
-          this.eventArgses.value = [...eventArgses, eventArgs];
-        } else {
-          eventArgses[index] = eventArgs;
-          this.eventArgses.value = [...eventArgses];
-        }
-      },
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final viewModel = ViewModel.of<CentralManagerViewModel>(context);
+    final state = viewModel.state;
+    final discovering = viewModel.discovering;
+    final discoveries = viewModel.discoveries;
     return Scaffold(
-      appBar: buildAppBar(context),
-      body: buildBody(context),
+      appBar: AppBar(
+        title: const Text('Central Manager'),
+        actions: [
+          TextButton(
+            onPressed: state == BluetoothLowEnergyState.poweredOn
+                ? () async {
+                    if (discovering) {
+                      await viewModel.stopDiscovery();
+                    } else {
+                      await viewModel.startDiscovery();
+                    }
+                  }
+                : null,
+            child: Text(discovering ? 'END' : 'BEGIN'),
+          ),
+        ],
+      ),
+      body: ListView.separated(
+        itemBuilder: (context, index) {
+          final theme = Theme.of(context);
+          final discovery = discoveries[index];
+          final uuid = discovery.peripheral.uuid;
+          final name = discovery.advertisement.name;
+          final rssi = discovery.rssi;
+          return ListTile(
+            onTap: () {
+              onTapDissovery(context, discovery);
+            },
+            onLongPress: () {
+              onLongPressDiscovery(context, discovery);
+            },
+            title: Text(name ?? ''),
+            subtitle: Text(
+              '$uuid',
+              style: theme.textTheme.bodySmall,
+              softWrap: false,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                RSSIIndicator(rssi),
+                Text('$rssi'),
+              ],
+            ),
+          );
+        },
+        separatorBuilder: (context, i) {
+          return const Divider(
+            height: 0.0,
+          );
+        },
+        itemCount: discoveries.length,
+      ),
     );
   }
 
-  PreferredSizeWidget buildAppBar(BuildContext context) {
-    return AppBar(
-      title: const Text('Central Manager'),
-      actions: [
-        ValueListenableBuilder(
-          valueListenable: state,
-          builder: (context, state, child) {
-            return ValueListenableBuilder(
-              valueListenable: discovering,
-              builder: (context, discovering, child) {
-                return TextButton(
-                  onPressed: state == BluetoothLowEnergyState.poweredOn
-                      ? () async {
-                          if (discovering) {
-                            await stopDiscovery();
-                          } else {
-                            await startDiscovery();
-                          }
-                        }
-                      : null,
-                  child: Text(
-                    discovering ? 'END' : 'BEGIN',
-                  ),
-                );
-              },
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  Future<void> startDiscovery() async {
-    eventArgses.value = [];
-    // final serviceUUIDs = [
-    //   UUID.short(0x180f),
-    //   // UUID.short(0xfd92),
-    // ];
-    // await centralManager.startDiscovery(
-    //   serviceUUIDs: serviceUUIDs,
-    // );
-    await centralManager.startDiscovery();
-    discovering.value = true;
-  }
-
-  Future<void> stopDiscovery() async {
-    await centralManager.stopDiscovery();
-    discovering.value = false;
-  }
-
-  Widget buildBody(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: eventArgses,
-      builder: (context, eventArgses, child) {
-        return ListView.separated(
-          itemBuilder: (context, i) {
-            final theme = Theme.of(context);
-            final eventArgs = eventArgses[i];
-            final uuid = eventArgs.peripheral.uuid;
-            final rssi = eventArgs.rssi;
-            final advertisement = eventArgs.advertisement;
-            final name = advertisement.name;
-            return ListTile(
-              onTap: () {
-                onTapEventArgs(eventArgs);
-              },
-              onLongPress: () {
-                onLongPressEventArgs(eventArgs);
-              },
-              title: Text(name ?? ''),
-              subtitle: Text(
-                '$uuid',
-                style: theme.textTheme.bodySmall,
-                softWrap: false,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  RSSIIndicator(rssi),
-                  Text('$rssi'),
-                ],
-              ),
-            );
-          },
-          separatorBuilder: (context, i) {
-            return const Divider(
-              height: 0.0,
-            );
-          },
-          itemCount: eventArgses.length,
-        );
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    stateChangedSubscription.cancel();
-    discoveredSubscription.cancel();
-    state.dispose();
-    discovering.dispose();
-    eventArgses.dispose();
-  }
-
-  void onTapEventArgs(DiscoveredEventArgs eventArgs) async {
-    final discovering = this.discovering.value;
-    if (discovering) {
-      await stopDiscovery();
+  void onTapDissovery(
+      BuildContext context, DiscoveredEventArgs discovery) async {
+    final viewModel = ViewModel.of<CentralManagerViewModel>(context);
+    if (viewModel.discovering) {
+      await viewModel.stopDiscovery();
+      if (!context.mounted) {
+        return;
+      }
     }
-    if (!mounted) {
-      return;
-    }
-    await context.push(
-      '/central-manager/peripheral',
-      extra: eventArgs,
-    );
-    if (discovering) {
-      await startDiscovery();
-    }
+    final uuid = discovery.peripheral.uuid;
+    context.go('/devices/$uuid');
   }
 
-  void onLongPressEventArgs(DiscoveredEventArgs eventArgs) async {
-    final advertisement = eventArgs.advertisement;
+  void onLongPressDiscovery(
+      BuildContext context, DiscoveredEventArgs discovery) async {
+    final manufacturerSpecificData =
+        discovery.advertisement.manufacturerSpecificData;
     await showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -192,8 +97,6 @@ class _CentralManagerViewState extends State<CentralManagerView> {
           onClosing: () {},
           clipBehavior: Clip.antiAlias,
           builder: (context) {
-            final manufacturerSpecificData =
-                advertisement.manufacturerSpecificData;
             return ListView.separated(
               padding: const EdgeInsets.symmetric(
                 horizontal: 16.0,

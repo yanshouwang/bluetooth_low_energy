@@ -1,30 +1,63 @@
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
+import 'package:collection/collection.dart';
 import 'package:go_router/go_router.dart';
 
+import 'view_models.dart';
 import 'views.dart';
 
 final routerConfig = GoRouter(
-  initialLocation: '/central-manager',
+  redirect: (context, state) {
+    if (state.matchedLocation == '/') {
+      return '/devices';
+    }
+    return null;
+  },
   routes: [
-    StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) {
-        return HomeView(navigationShell: navigationShell);
+    StatefulShellRoute(
+      // builder: (context, state, navigationShell) {
+      //   return HomeView(navigationShell: navigationShell);
+      // },
+      builder: (context, state, navigationShell) => navigationShell,
+      navigatorContainerBuilder: (context, navigationShell, children) {
+        final navigators = children.mapIndexed(
+          (index, element) {
+            if (index == 0) {
+              return ViewModelBinding(
+                viewBuilder: (context) => element,
+                viewModelBuilder: (context) => CentralManagerViewModel(),
+              );
+            } else {
+              return element;
+            }
+          },
+        ).toList();
+        return HomeView(
+          navigationShell: navigationShell,
+          navigators: navigators,
+        );
       },
       branches: [
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/central-manager',
+              path: '/devices',
               builder: (context, state) {
                 return const CentralManagerView();
               },
               routes: [
                 GoRoute(
-                  path: 'peripheral',
+                  path: ':uuid',
                   builder: (context, state) {
-                    final eventArgs = state.extra as DiscoveredEventArgs;
-                    return PeripheralView(
-                      eventArgs: eventArgs,
+                    final uuidValue = state.pathParameters['uuid']!;
+                    final uuid = UUID.fromString(uuidValue);
+                    final viewModel =
+                        ViewModel.of<CentralManagerViewModel>(context);
+                    final eventArgs = viewModel.discoveries.firstWhere(
+                        (discovery) => discovery.peripheral.uuid == uuid);
+                    return ViewModelBinding(
+                      viewBuilder: (context) => const PeripheralView(),
+                      viewModelBuilder: (context) =>
+                          PeripheralViewModel(eventArgs),
                     );
                   },
                 ),
@@ -37,7 +70,10 @@ final routerConfig = GoRouter(
             GoRoute(
               path: '/peripheral-manager',
               builder: (context, state) {
-                return const PeripheralManagerView();
+                return ViewModelBinding(
+                  viewBuilder: (context) => const PeripheralManagerView(),
+                  viewModelBuilder: (context) => PeripheralManagerViewModel(),
+                );
               },
             ),
           ],
