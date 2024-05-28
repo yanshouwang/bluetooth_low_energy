@@ -183,11 +183,15 @@ namespace bluetooth_low_energy_windows
 						const auto peripheral_args = MyPeripheralArgs(address_args);
 						const auto rssi = event_args.RawSignalStrengthInDBm();
 						const auto rssi_args = static_cast<int64_t>(rssi);
+						const auto &file_timestamp = event_args.Timestamp();
+						const auto timestamp = std::chrono::clock_cast<std::chrono::system_clock>(file_timestamp).time_since_epoch();
+						const auto timestamp_args = std::chrono::duration_cast<std::chrono::milliseconds>(timestamp).count();
 						const auto type = event_args.AdvertisementType();
+						const auto type_args = AdvertisementTypeToArgs(type);
 						const auto advertisement = event_args.Advertisement();
-						const auto advertisement_args = AdvertisementToArgs(type, advertisement);
+						const auto advertisement_args = AdvertisementToArgs(advertisement);
 						// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
-						api.OnDiscovered(peripheral_args, rssi_args, advertisement_args, [] {}, [](auto error) {});
+						api.OnDiscovered(peripheral_args, rssi_args, timestamp_args, type_args, advertisement_args, [] {}, [](auto error) {});
 					});
 			}
 			result(std::nullopt);
@@ -728,9 +732,8 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	MyAdvertisementArgs MyCentralManager::AdvertisementToArgs(const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType &type, const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisement &advertisement)
+	MyAdvertisementArgs MyCentralManager::AdvertisementToArgs(const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisement &advertisement)
 	{
-		const auto type_args = AdvertisementTypeToArgs(type);
 		const auto name = advertisement.LocalName();
 		const auto name_args = winrt::to_string(name);
 		const auto service_uuids = advertisement.ServiceUuids();
@@ -797,11 +800,11 @@ namespace bluetooth_low_energy_windows
 			const auto end = begin + data.Length();
 			const auto data_args = std::vector<uint8_t>(begin, end);
 			const auto manufacturer_specific_data_args = MyManufacturerSpecificDataArgs(id_args, data_args);
-			return MyAdvertisementArgs(type_args, &name_args, service_uuids_args, service_data_args, &manufacturer_specific_data_args);
+			return MyAdvertisementArgs(&name_args, service_uuids_args, service_data_args, &manufacturer_specific_data_args);
 		}
 		else
 		{
-			return MyAdvertisementArgs(type_args, &name_args, service_uuids_args, service_data_args, nullptr);
+			return MyAdvertisementArgs(&name_args, service_uuids_args, service_data_args, nullptr);
 		}
 	}
 

@@ -169,13 +169,11 @@ class MyAdvertisementArgs {
  public:
   // Constructs an object setting all non-nullable fields.
   explicit MyAdvertisementArgs(
-    const MyAdvertisementTypeArgs& type_args,
     const flutter::EncodableList& service_u_u_i_ds_args,
     const flutter::EncodableMap& service_data_args);
 
   // Constructs an object setting all fields.
   explicit MyAdvertisementArgs(
-    const MyAdvertisementTypeArgs& type_args,
     const std::string* name_args,
     const flutter::EncodableList& service_u_u_i_ds_args,
     const flutter::EncodableMap& service_data_args,
@@ -186,9 +184,6 @@ class MyAdvertisementArgs {
   MyAdvertisementArgs& operator=(const MyAdvertisementArgs& other);
   MyAdvertisementArgs(MyAdvertisementArgs&& other) = default;
   MyAdvertisementArgs& operator=(MyAdvertisementArgs&& other) noexcept = default;
-  const MyAdvertisementTypeArgs& type_args() const;
-  void set_type_args(const MyAdvertisementTypeArgs& value_arg);
-
   const std::string* name_args() const;
   void set_name_args(const std::string_view* value_arg);
   void set_name_args(std::string_view value_arg);
@@ -215,7 +210,6 @@ class MyAdvertisementArgs {
   friend class MyPeripheralManagerHostAPICodecSerializer;
   friend class MyPeripheralManagerFlutterAPI;
   friend class MyPeripheralManagerFlutterAPICodecSerializer;
-  MyAdvertisementTypeArgs type_args_;
   std::optional<std::string> name_args_;
   flutter::EncodableList service_u_u_i_ds_args_;
   flutter::EncodableMap service_data_args_;
@@ -753,6 +747,8 @@ class MyCentralManagerFlutterAPI {
   void OnDiscovered(
     const MyPeripheralArgs& peripheral_args,
     int64_t rssi_args,
+    int64_t timestamp_args,
+    const MyAdvertisementTypeArgs& type_args,
     const MyAdvertisementArgs& advertisement_args,
     std::function<void(void)>&& on_success,
     std::function<void(const FlutterError&)>&& on_error);
