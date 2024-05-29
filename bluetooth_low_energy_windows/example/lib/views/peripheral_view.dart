@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
@@ -119,7 +120,10 @@ class _PeripheralViewState extends State<PeripheralView>
               }).toList(),
               content: Row(
                 children: [
-                  const Icon(Symbols.polymer),
+                  Transform.rotate(
+                    angle: math.pi / 2.0,
+                    child: const Icon(Symbols.polymer),
+                  ),
                   const SizedBox(width: 12.0),
                   Text('${service.uuid}'),
                 ],
