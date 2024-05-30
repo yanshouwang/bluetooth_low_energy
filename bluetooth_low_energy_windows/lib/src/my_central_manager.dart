@@ -19,6 +19,7 @@ final class MyCentralManager extends PlatformCentralManager
   final StreamController<PeripheralMTUChangedEventArgs> _mtuChangedController;
   final StreamController<GATTCharacteristicNotifiedEventArgs>
       _characteristicNotifiedController;
+  final Map<int, MyDiscoveryArgs> _discoveriesArgs;
 
   BluetoothLowEnergyState _state;
 
@@ -29,6 +30,7 @@ final class MyCentralManager extends PlatformCentralManager
         _connectionStateChangedController = StreamController.broadcast(),
         _mtuChangedController = StreamController.broadcast(),
         _characteristicNotifiedController = StreamController.broadcast(),
+        _discoveriesArgs = {},
         _state = BluetoothLowEnergyState.unknown;
 
   @override
@@ -68,6 +70,7 @@ final class MyCentralManager extends PlatformCentralManager
   Future<void> startDiscovery({
     List<UUID>? serviceUUIDs,
   }) async {
+    _discoveriesArgs.clear();
     final serviceUUIDsArgs =
         serviceUUIDs?.map((uuid) => uuid.toArgs()).toList() ?? [];
     logger.info('startDiscovery: $serviceUUIDsArgs');
@@ -267,20 +270,81 @@ final class MyCentralManager extends PlatformCentralManager
   void onDiscovered(
     MyPeripheralArgs peripheralArgs,
     int rssiArgs,
+    int timestampArgs,
+    MyAdvertisementTypeArgs typeArgs,
     MyAdvertisementArgs advertisementArgs,
   ) {
     final addressArgs = peripheralArgs.addressArgs;
     logger.info(
-        'onDiscovered: $addressArgs - $rssiArgs, ${advertisementArgs.typeArgs}');
-    final peripheral = peripheralArgs.toPeripheral();
-    final rssi = rssiArgs;
-    final advertisement = advertisementArgs.toAdvertisement();
-    final eventArgs = DiscoveredEventArgs(
-      peripheral,
-      rssi,
-      advertisement,
-    );
-    _discoveredController.add(eventArgs);
+        'onDiscovered: $addressArgs - $rssiArgs, $timestampArgs, $typeArgs, $advertisementArgs');
+    if (typeArgs == MyAdvertisementTypeArgs.connectableDirected ||
+        typeArgs == MyAdvertisementTypeArgs.nonConnectableUndirected ||
+        typeArgs == MyAdvertisementTypeArgs.extended) {
+      // No need to wait SCAN_REQ.
+      final peripheral = peripheralArgs.toPeripheral();
+      final rssi = rssiArgs;
+      final advertisement = advertisementArgs.toAdvertisement();
+      final eventArgs = DiscoveredEventArgs(
+        peripheral,
+        rssi,
+        advertisement,
+      );
+      _discoveredController.add(eventArgs);
+    } else {
+      final oldDiscoveryArgs = _discoveriesArgs.remove(addressArgs);
+      final newDiscoveryArgs = MyDiscoveryArgs(
+        peripheralArgs,
+        rssiArgs,
+        timestampArgs,
+        typeArgs,
+        advertisementArgs,
+      );
+      final ignored = oldDiscoveryArgs == null ||
+          _checkDiscoveryArgs(oldDiscoveryArgs, newDiscoveryArgs);
+      if (ignored) {
+        // Note that ADV_IND will be ignored if the advertiser never reply the
+        // SCAN_REQ.
+        // TODO: should we ignore this?
+        _discoveriesArgs[addressArgs] = newDiscoveryArgs;
+      } else {
+        final peripheral = oldDiscoveryArgs.peripheralArgs.toPeripheral();
+        final rssi = oldDiscoveryArgs.rssiArgs;
+        final oldAdvertisement =
+            typeArgs == MyAdvertisementTypeArgs.scanResponse
+                ? oldDiscoveryArgs.advertisementArgs.toAdvertisement()
+                : advertisementArgs.toAdvertisement();
+        final newAdvertisement =
+            typeArgs == MyAdvertisementTypeArgs.scanResponse
+                ? advertisementArgs.toAdvertisement()
+                : oldDiscoveryArgs.advertisementArgs.toAdvertisement();
+        final name = newAdvertisement.name?.isNotEmpty == true
+            ? newAdvertisement.name
+            : oldAdvertisement.name;
+        final serviceUUIDs = {
+          ...oldAdvertisement.serviceUUIDs,
+          ...newAdvertisement.serviceUUIDs,
+        }.toList();
+        final serviceData = {
+          ...oldAdvertisement.serviceData,
+          ...newAdvertisement.serviceData,
+        };
+        final manufacturerSpecificData =
+            newAdvertisement.manufacturerSpecificData ??
+                oldAdvertisement.manufacturerSpecificData;
+        final advertisement = Advertisement(
+          name: name,
+          serviceUUIDs: serviceUUIDs,
+          serviceData: serviceData,
+          manufacturerSpecificData: manufacturerSpecificData,
+        );
+        final eventArgs = DiscoveredEventArgs(
+          peripheral,
+          rssi,
+          advertisement,
+        );
+        _discoveredController.add(eventArgs);
+      }
+    }
   }
 
   @override
@@ -438,4 +502,56 @@ final class MyCentralManager extends PlatformCentralManager
         .then((args) => args.cast<MyGATTDescriptorArgs>());
     return descriptorsArgs;
   }
+
+  bool _checkDiscoveryArgs(
+    MyDiscoveryArgs oldDiscoveryArgs,
+    MyDiscoveryArgs newDiscoveryArgs,
+  ) {
+    final oldAddressArgs = oldDiscoveryArgs.peripheralArgs.addressArgs;
+    final newAddressArgs = newDiscoveryArgs.peripheralArgs.addressArgs;
+    if (oldAddressArgs != newAddressArgs) {
+      logger.fine(
+          'ignored by different addressArgs $oldAddressArgs, $newAddressArgs');
+      return true;
+    }
+    final address =
+        (newAddressArgs & 0xFFFFFFFFFFFF).toRadixString(16).padLeft(12, '0');
+    if (oldDiscoveryArgs.typeArgs == newDiscoveryArgs.typeArgs) {
+      logger.fine(
+          'ignored by same typeArgs $address: ${oldDiscoveryArgs.typeArgs}:${oldDiscoveryArgs.timestampArgs}, ${newDiscoveryArgs.typeArgs}:${newDiscoveryArgs.timestampArgs}');
+      return true;
+    }
+    if (oldDiscoveryArgs.typeArgs != MyAdvertisementTypeArgs.scanResponse &&
+        newDiscoveryArgs.typeArgs != MyAdvertisementTypeArgs.scanResponse) {
+      logger.fine(
+          'ignored by wrong typeArgs $address:  ${oldDiscoveryArgs.typeArgs}:${oldDiscoveryArgs.timestampArgs}, ${newDiscoveryArgs.typeArgs}:${newDiscoveryArgs.timestampArgs}');
+      return true;
+    }
+    final interval =
+        newDiscoveryArgs.typeArgs == MyAdvertisementTypeArgs.scanResponse
+            ? newDiscoveryArgs.timestampArgs - oldDiscoveryArgs.timestampArgs
+            : oldDiscoveryArgs.timestampArgs - newDiscoveryArgs.timestampArgs;
+    final ignored = interval < 0 || interval > 1000;
+    if (ignored) {
+      logger.fine(
+          'ignored by wrong timestampArgs $address: $interval, ${oldDiscoveryArgs.typeArgs}:${oldDiscoveryArgs.timestampArgs}, ${newDiscoveryArgs.typeArgs}:${newDiscoveryArgs.timestampArgs}');
+    }
+    return ignored;
+  }
+}
+
+final class MyDiscoveryArgs {
+  final MyPeripheralArgs peripheralArgs;
+  final int rssiArgs;
+  final int timestampArgs;
+  final MyAdvertisementTypeArgs typeArgs;
+  final MyAdvertisementArgs advertisementArgs;
+
+  MyDiscoveryArgs(
+    this.peripheralArgs,
+    this.rssiArgs,
+    this.timestampArgs,
+    this.typeArgs,
+    this.advertisementArgs,
+  );
 }

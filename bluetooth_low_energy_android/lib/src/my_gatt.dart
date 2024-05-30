@@ -70,19 +70,23 @@ final class MyGATTService extends GATTService {
 }
 
 final class MyGATTReadRequest extends GATTReadRequest {
+  final String addressArgs;
   final int idArgs;
 
   MyGATTReadRequest({
+    required this.addressArgs,
     required this.idArgs,
     required super.offset,
   });
 }
 
 final class MyGATTWriteRequest extends GATTWriteRequest {
+  final String addressArgs;
   final int idArgs;
   final bool responseNeededArgs;
 
   MyGATTWriteRequest({
+    required this.addressArgs,
     required this.idArgs,
     required this.responseNeededArgs,
     required super.offset,

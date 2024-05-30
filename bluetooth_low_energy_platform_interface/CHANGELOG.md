@@ -1,3 +1,18 @@
+## 6.0.0-dev.18
+
+* Add `PeripheralManager#respondReadRequestWithValue`.
+* Add `PeripheralManager#respondReadRequestWithError`.
+* Add `PeripheralManager#respondWriteRequest`.
+* Add `PeripheralManager#respondWriteRequestWithError`.
+* Remove `PeripheralManager#respondCharacteristicReadRequestWithValue`.
+* Remove `PeripheralManager#respondCharacteristicReadRequestWithError`.
+* Remove `PeripheralManager#respondCharacteristicWriteRequest`.
+* Remove `PeripheralManager#respondCharacteristicWriteRequestWithError`.
+* Remove `PeripheralManager#respondDescriptorReadRequestWithValue`.
+* Remove `PeripheralManager#respondDescriptorReadRequestWithError`.
+* Remove `PeripheralManager#respondDescriptorWriteRequest`.
+* Remove `PeripheralManager#respondDescriptorWriteRequestWithError`.
+
 ## 6.0.0-dev.17
 
 * Remove `Uint8List#trimGATT` method.

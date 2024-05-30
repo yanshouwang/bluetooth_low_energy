@@ -72,49 +72,34 @@ MyManufacturerSpecificDataArgs MyManufacturerSpecificDataArgs::FromEncodableList
 // MyAdvertisementArgs
 
 MyAdvertisementArgs::MyAdvertisementArgs(
-  const MyAdvertisementTypeArgs& type_args,
   const EncodableList& service_u_u_i_ds_args,
   const EncodableMap& service_data_args)
- : type_args_(type_args),
-    service_u_u_i_ds_args_(service_u_u_i_ds_args),
+ : service_u_u_i_ds_args_(service_u_u_i_ds_args),
     service_data_args_(service_data_args) {}
 
 MyAdvertisementArgs::MyAdvertisementArgs(
-  const MyAdvertisementTypeArgs& type_args,
   const std::string* name_args,
   const EncodableList& service_u_u_i_ds_args,
   const EncodableMap& service_data_args,
   const MyManufacturerSpecificDataArgs* manufacturer_specific_data_args)
- : type_args_(type_args),
-    name_args_(name_args ? std::optional<std::string>(*name_args) : std::nullopt),
+ : name_args_(name_args ? std::optional<std::string>(*name_args) : std::nullopt),
     service_u_u_i_ds_args_(service_u_u_i_ds_args),
     service_data_args_(service_data_args),
     manufacturer_specific_data_args_(manufacturer_specific_data_args ? std::make_unique<MyManufacturerSpecificDataArgs>(*manufacturer_specific_data_args) : nullptr) {}
 
 MyAdvertisementArgs::MyAdvertisementArgs(const MyAdvertisementArgs& other)
- : type_args_(other.type_args_),
-    name_args_(other.name_args_ ? std::optional<std::string>(*other.name_args_) : std::nullopt),
+ : name_args_(other.name_args_ ? std::optional<std::string>(*other.name_args_) : std::nullopt),
     service_u_u_i_ds_args_(other.service_u_u_i_ds_args_),
     service_data_args_(other.service_data_args_),
     manufacturer_specific_data_args_(other.manufacturer_specific_data_args_ ? std::make_unique<MyManufacturerSpecificDataArgs>(*other.manufacturer_specific_data_args_) : nullptr) {}
 
 MyAdvertisementArgs& MyAdvertisementArgs::operator=(const MyAdvertisementArgs& other) {
-  type_args_ = other.type_args_;
   name_args_ = other.name_args_;
   service_u_u_i_ds_args_ = other.service_u_u_i_ds_args_;
   service_data_args_ = other.service_data_args_;
   manufacturer_specific_data_args_ = other.manufacturer_specific_data_args_ ? std::make_unique<MyManufacturerSpecificDataArgs>(*other.manufacturer_specific_data_args_) : nullptr;
   return *this;
 }
-
-const MyAdvertisementTypeArgs& MyAdvertisementArgs::type_args() const {
-  return type_args_;
-}
-
-void MyAdvertisementArgs::set_type_args(const MyAdvertisementTypeArgs& value_arg) {
-  type_args_ = value_arg;
-}
-
 
 const std::string* MyAdvertisementArgs::name_args() const {
   return name_args_ ? &(*name_args_) : nullptr;
@@ -162,8 +147,7 @@ void MyAdvertisementArgs::set_manufacturer_specific_data_args(const MyManufactur
 
 EncodableList MyAdvertisementArgs::ToEncodableList() const {
   EncodableList list;
-  list.reserve(5);
-  list.push_back(EncodableValue((int)type_args_));
+  list.reserve(4);
   list.push_back(name_args_ ? EncodableValue(*name_args_) : EncodableValue());
   list.push_back(EncodableValue(service_u_u_i_ds_args_));
   list.push_back(EncodableValue(service_data_args_));
@@ -173,14 +157,13 @@ EncodableList MyAdvertisementArgs::ToEncodableList() const {
 
 MyAdvertisementArgs MyAdvertisementArgs::FromEncodableList(const EncodableList& list) {
   MyAdvertisementArgs decoded(
-    (MyAdvertisementTypeArgs)(std::get<int32_t>(list[0])),
-    std::get<EncodableList>(list[2]),
-    std::get<EncodableMap>(list[3]));
-  auto& encodable_name_args = list[1];
+    std::get<EncodableList>(list[1]),
+    std::get<EncodableMap>(list[2]));
+  auto& encodable_name_args = list[0];
   if (!encodable_name_args.IsNull()) {
     decoded.set_name_args(std::get<std::string>(encodable_name_args));
   }
-  auto& encodable_manufacturer_specific_data_args = list[4];
+  auto& encodable_manufacturer_specific_data_args = list[3];
   if (!encodable_manufacturer_specific_data_args.IsNull()) {
     decoded.set_manufacturer_specific_data_args(std::any_cast<const MyManufacturerSpecificDataArgs&>(std::get<CustomEncodableValue>(encodable_manufacturer_specific_data_args)));
   }
@@ -1518,6 +1501,8 @@ void MyCentralManagerFlutterAPI::OnStateChanged(
 void MyCentralManagerFlutterAPI::OnDiscovered(
   const MyPeripheralArgs& peripheral_args_arg,
   int64_t rssi_args_arg,
+  int64_t timestamp_args_arg,
+  const MyAdvertisementTypeArgs& type_args_arg,
   const MyAdvertisementArgs& advertisement_args_arg,
   std::function<void(void)>&& on_success,
   std::function<void(const FlutterError&)>&& on_error) {
@@ -1526,6 +1511,8 @@ void MyCentralManagerFlutterAPI::OnDiscovered(
   EncodableValue encoded_api_arguments = EncodableValue(EncodableList{
     CustomEncodableValue(peripheral_args_arg),
     EncodableValue(rssi_args_arg),
+    EncodableValue(timestamp_args_arg),
+    EncodableValue((int)type_args_arg),
     CustomEncodableValue(advertisement_args_arg),
   });
   channel.Send(encoded_api_arguments, [channel_name, on_success = std::move(on_success), on_error = std::move(on_error)](const uint8_t* reply, size_t reply_size) {

@@ -4,7 +4,7 @@
 
 namespace bluetooth_low_energy_windows
 {
-	MyCentralManager::MyCentralManager(flutter::BinaryMessenger* messenger)
+	MyCentralManager::MyCentralManager(flutter::BinaryMessenger *messenger)
 	{
 		const auto api = MyCentralManagerFlutterAPI(messenger);
 		const auto watcher = winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher();
@@ -24,24 +24,24 @@ namespace bluetooth_low_energy_windows
 
 	ErrorOr<MyBluetoothLowEnergyStateArgs> MyCentralManager::GetState()
 	{
-		const auto& radio = m_radio.value();
+		const auto &radio = m_radio.value();
 		const auto state = radio.State();
 		const auto state_args = RadioStateToArgs(state);
 		return state_args;
 	}
 
-	std::optional<FlutterError> MyCentralManager::StartDiscovery(const flutter::EncodableList& service_uuids_args)
+	std::optional<FlutterError> MyCentralManager::StartDiscovery(const flutter::EncodableList &service_uuids_args)
 	{
-		const auto& watcher = m_watcher.value();
+		const auto &watcher = m_watcher.value();
 		const auto service_uuids_args_not_empty = !service_uuids_args.empty();
 		if (service_uuids_args_not_empty)
 		{
 			const auto filter = winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementFilter::BluetoothLEAdvertisementFilter();
 			const auto advertisement = winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisement();
 			const auto service_uuids = advertisement.ServiceUuids();
-			for (const auto& service_uuid_args_value : service_uuids_args)
+			for (const auto &service_uuid_args_value : service_uuids_args)
 			{
-				const auto& service_uuid_args = std::get<std::string>(service_uuid_args_value);
+				const auto &service_uuid_args = std::get<std::string>(service_uuid_args_value);
 				const auto service_uuid = winrt::guid(service_uuid_args);
 				service_uuids.Append(service_uuid);
 			}
@@ -54,7 +54,7 @@ namespace bluetooth_low_energy_windows
 
 	std::optional<FlutterError> MyCentralManager::StopDiscovery()
 	{
-		const auto& watcher = m_watcher.value();
+		const auto &watcher = m_watcher.value();
 		watcher.Stop();
 		return std::nullopt;
 	}
@@ -67,7 +67,7 @@ namespace bluetooth_low_energy_windows
 	std::optional<FlutterError> MyCentralManager::Disconnect(int64_t address_args)
 	{
 		OnDisconnected(address_args);
-		auto& api = m_api.value();
+		auto &api = m_api.value();
 		const auto peripheral_args = MyPeripheralArgs(address_args);
 		const auto state_args = MyConnectionStateArgs::disconnected;
 		// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
@@ -77,53 +77,53 @@ namespace bluetooth_low_energy_windows
 
 	ErrorOr<int64_t> MyCentralManager::GetMTU(int64_t address_args)
 	{
-		const auto& session = m_sessions[address_args].value();
+		const auto &session = m_sessions[address_args].value();
 		const auto mtu = session.MaxPduSize();
 		const auto mtu_args = static_cast<int64_t>(mtu);
 		return mtu_args;
 	}
 
-	void MyCentralManager::GetServices(int64_t address_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
+	void MyCentralManager::GetServices(int64_t address_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
 	{
 		GetServicesAsync(address_args, mode_args, std::move(result));
 	}
 
-	void MyCentralManager::GetIncludedServices(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
+	void MyCentralManager::GetIncludedServices(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
 	{
 		GetIncludedServicesAsync(address_args, handle_args, mode_args, std::move(result));
 	}
 
-	void MyCentralManager::GetCharacteristics(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
+	void MyCentralManager::GetCharacteristics(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
 	{
 		GetCharacteristicsAsync(address_args, handle_args, mode_args, std::move(result));
 	}
 
-	void MyCentralManager::GetDescriptors(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
+	void MyCentralManager::GetDescriptors(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
 	{
 		GetDescriptorsAsync(address_args, handle_args, mode_args, std::move(result));
 	}
 
-	void MyCentralManager::ReadCharacteristic(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result)
+	void MyCentralManager::ReadCharacteristic(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result)
 	{
 		ReadCharacteristicAsync(address_args, handle_args, mode_args, std::move(result));
 	}
 
-	void MyCentralManager::WriteCharacteristic(int64_t address_args, int64_t handle_args, const std::vector<uint8_t>& value_args, const MyGATTCharacteristicWriteTypeArgs& type_args, std::function<void(std::optional<FlutterError> reply)> result)
+	void MyCentralManager::WriteCharacteristic(int64_t address_args, int64_t handle_args, const std::vector<uint8_t> &value_args, const MyGATTCharacteristicWriteTypeArgs &type_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
 		WriteCharacteristicAsync(address_args, handle_args, value_args, type_args, std::move(result));
 	}
 
-	void MyCentralManager::SetCharacteristicNotifyState(int64_t address_args, int64_t handle_args, const MyGATTCharacteristicNotifyStateArgs& state_args, std::function<void(std::optional<FlutterError> reply)> result)
+	void MyCentralManager::SetCharacteristicNotifyState(int64_t address_args, int64_t handle_args, const MyGATTCharacteristicNotifyStateArgs &state_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
 		SetCharacteristicNotifyStateAsync(address_args, handle_args, state_args, std::move(result));
 	}
 
-	void MyCentralManager::ReadDescriptor(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result)
+	void MyCentralManager::ReadDescriptor(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result)
 	{
 		ReadDescriptorAsync(address_args, handle_args, mode_args, std::move(result));
 	}
 
-	void MyCentralManager::WriteDescriptor(int64_t address_args, int64_t handle_args, const std::vector<uint8_t>& value_args, std::function<void(std::optional<FlutterError> reply)> result)
+	void MyCentralManager::WriteDescriptor(int64_t address_args, int64_t handle_args, const std::vector<uint8_t> &value_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
 		WriteDescriptorAsync(address_args, handle_args, value_args, std::move(result));
 	}
@@ -132,7 +132,7 @@ namespace bluetooth_low_energy_windows
 	{
 		try
 		{
-			const auto& watcher = m_watcher.value();
+			const auto &watcher = m_watcher.value();
 			const auto status = watcher.Status();
 			if (status == winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementWatcherStatus::Started)
 			{
@@ -156,11 +156,13 @@ namespace bluetooth_low_energy_windows
 
 			if (!m_radio_state_changed_revoker)
 			{
-				const auto& adapter = co_await winrt::Windows::Devices::Bluetooth::BluetoothAdapter::GetDefaultAsync();
-				const auto& radio = co_await adapter.GetRadioAsync();
-				m_radio_state_changed_revoker = radio.StateChanged(winrt::auto_revoke, [this](winrt::Windows::Devices::Radios::Radio radio, auto obj)
+				const auto &adapter = co_await winrt::Windows::Devices::Bluetooth::BluetoothAdapter::GetDefaultAsync();
+				const auto &radio = co_await adapter.GetRadioAsync();
+				m_radio_state_changed_revoker = radio.StateChanged(
+					winrt::auto_revoke,
+					[this](winrt::Windows::Devices::Radios::Radio radio, auto obj)
 					{
-						auto& api = m_api.value();
+						auto &api = m_api.value();
 						const auto state = radio.State();
 						const auto state_args = RadioStateToArgs(state);
 						// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
@@ -171,24 +173,30 @@ namespace bluetooth_low_energy_windows
 			}
 			if (!m_watcher_received_revoker)
 			{
-				m_watcher_received_revoker = watcher.Received(winrt::auto_revoke, [this](winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher watcher, winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementReceivedEventArgs event_args)
+				m_watcher_received_revoker = watcher.Received(
+					winrt::auto_revoke,
+					[this](winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher watcher, winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementReceivedEventArgs event_args)
 					{
-						auto& api = m_api.value();
+						auto &api = m_api.value();
 						const auto address = event_args.BluetoothAddress();
 						const auto address_args = static_cast<int64_t>(address);
 						const auto peripheral_args = MyPeripheralArgs(address_args);
 						const auto rssi = event_args.RawSignalStrengthInDBm();
 						const auto rssi_args = static_cast<int64_t>(rssi);
+						const auto &file_timestamp = event_args.Timestamp();
+						const auto timestamp = std::chrono::clock_cast<std::chrono::system_clock>(file_timestamp).time_since_epoch();
+						const auto timestamp_args = std::chrono::duration_cast<std::chrono::milliseconds>(timestamp).count();
 						const auto type = event_args.AdvertisementType();
+						const auto type_args = AdvertisementTypeToArgs(type);
 						const auto advertisement = event_args.Advertisement();
-						const auto advertisement_args = AdvertisementToArgs(type, advertisement);
+						const auto advertisement_args = AdvertisementToArgs(advertisement);
 						// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
-						api.OnDiscovered(peripheral_args, rssi_args, advertisement_args, [] {}, [](auto error) {});
+						api.OnDiscovered(peripheral_args, rssi_args, timestamp_args, type_args, advertisement_args, [] {}, [](auto error) {});
 					});
 			}
 			result(std::nullopt);
 		}
-		catch (const winrt::hresult_error& ex)
+		catch (const winrt::hresult_error &ex)
 		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
@@ -196,7 +204,7 @@ namespace bluetooth_low_energy_windows
 			const auto error = FlutterError(code, message);
 			result(error);
 		}
-		catch (const std::exception& ex)
+		catch (const std::exception &ex)
 		{
 			const auto code = "std::exception";
 			const auto message = ex.what();
@@ -210,15 +218,15 @@ namespace bluetooth_low_energy_windows
 		try
 		{
 			const auto address = static_cast<uint64_t>(address_args);
-			const auto& device = co_await winrt::Windows::Devices::Bluetooth::BluetoothLEDevice::FromBluetoothAddressAsync(address);
+			const auto &device = co_await winrt::Windows::Devices::Bluetooth::BluetoothLEDevice::FromBluetoothAddressAsync(address);
 			const auto id = device.BluetoothDeviceId();
-			const auto& session = co_await winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession::FromDeviceIdAsync(id);
+			const auto &session = co_await winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession::FromDeviceIdAsync(id);
 			// Creating a BluetoothLEDevice object by calling this method alone doesn't (necessarily) initiate a
 			// connection. To initiate a connection, set GattSession.MaintainConnection to true, or call an
 			// uncached service discovery method on BluetoothLEDevice, or perform a read/write operation against
 			// the device.
 			// See：https://learn.microsoft.com/en-us/windows/uwp/devices-sensors/gatt-client#connecting-to-the-device
-			const auto& r = co_await device.GetGattServicesAsync(winrt::Windows::Devices::Bluetooth::BluetoothCacheMode::Uncached);
+			const auto &r = co_await device.GetGattServicesAsync(winrt::Windows::Devices::Bluetooth::BluetoothCacheMode::Uncached);
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
@@ -226,29 +234,33 @@ namespace bluetooth_low_energy_windows
 				const auto message = "Connect failed with status: " + std::to_string(status_code);
 				throw MyException(message);
 			}
-			auto& api = m_api.value();
+			auto &api = m_api.value();
 			const auto peripheral_args = MyPeripheralArgs(address_args);
 			const auto state_args = MyConnectionStateArgs::connected;
 			const auto mtu = session.MaxPduSize();
 			const auto mtu_args = static_cast<int64_t>(mtu);
 			api.OnConnectionStateChanged(peripheral_args, state_args, [] {}, [](auto error) {});
 			api.OnMTUChanged(peripheral_args, mtu_args, [] {}, [](auto error) {});
-			m_device_connection_status_changed_revokers[address_args] = device.ConnectionStatusChanged(winrt::auto_revoke, [this, address_args](winrt::Windows::Devices::Bluetooth::BluetoothLEDevice device, auto obj)
+			m_device_connection_status_changed_revokers[address_args] = device.ConnectionStatusChanged(
+				winrt::auto_revoke,
+				[this, address_args](winrt::Windows::Devices::Bluetooth::BluetoothLEDevice device, auto obj)
 				{
 					const auto status = device.ConnectionStatus();
 					if (status == winrt::Windows::Devices::Bluetooth::BluetoothConnectionStatus::Disconnected)
 					{
 						OnDisconnected(address_args);
 					}
-					auto& api = this->m_api.value();
+					auto &api = this->m_api.value();
 					const auto peripheral_args = MyPeripheralArgs(address_args);
 					const auto state_args = ConnectionStatusToArgs(status);
 					// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
 					api.OnConnectionStateChanged(peripheral_args, state_args, [] {}, [](auto error) {});
 				});
-			m_session_max_pdu_size_changed_revokers[address_args] = session.MaxPduSizeChanged(winrt::auto_revoke, [this, address_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession session, auto obj)
+			m_session_max_pdu_size_changed_revokers[address_args] = session.MaxPduSizeChanged(
+				winrt::auto_revoke,
+				[this, address_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession session, auto obj)
 				{
-					auto& api = this->m_api.value();
+					auto &api = this->m_api.value();
 					const auto peripheral_args = MyPeripheralArgs(address_args);
 					const auto mtu = session.MaxPduSize();
 					const auto mtu_args = static_cast<int64_t>(mtu);
@@ -259,7 +271,7 @@ namespace bluetooth_low_energy_windows
 			m_sessions[address_args] = session;
 			result(std::nullopt);
 		}
-		catch (const winrt::hresult_error& ex)
+		catch (const winrt::hresult_error &ex)
 		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
@@ -267,7 +279,7 @@ namespace bluetooth_low_energy_windows
 			const auto error = FlutterError(code, message);
 			result(error);
 		}
-		catch (const std::exception& ex)
+		catch (const std::exception &ex)
 		{
 			const auto code = "std::exception";
 			const auto message = ex.what();
@@ -276,13 +288,13 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	winrt::fire_and_forget MyCentralManager::GetServicesAsync(int64_t address_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
+	winrt::fire_and_forget MyCentralManager::GetServicesAsync(int64_t address_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
 	{
 		try
 		{
-			const auto& device = RetrieveDevice(address_args);
+			const auto &device = RetrieveDevice(address_args);
 			const auto mode = ArgsToCacheMode(mode_args);
-			const auto& r = co_await device.GetGattServicesAsync(mode);
+			const auto &r = co_await device.GetGattServicesAsync(mode);
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
@@ -302,7 +314,7 @@ namespace bluetooth_low_energy_windows
 			}
 			result(services_args);
 		}
-		catch (const winrt::hresult_error& ex)
+		catch (const winrt::hresult_error &ex)
 		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
@@ -310,7 +322,7 @@ namespace bluetooth_low_energy_windows
 			const auto error = FlutterError(code, message);
 			result(error);
 		}
-		catch (const std::exception& ex)
+		catch (const std::exception &ex)
 		{
 			const auto code = "std::exception";
 			const auto message = ex.what();
@@ -319,13 +331,13 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	winrt::fire_and_forget MyCentralManager::GetIncludedServicesAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
+	winrt::fire_and_forget MyCentralManager::GetIncludedServicesAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
 	{
 		try
 		{
-			const auto& service = RetrieveService(address_args, handle_args);
+			const auto &service = RetrieveService(address_args, handle_args);
 			const auto mode = ArgsToCacheMode(mode_args);
-			const auto& r = co_await service.GetIncludedServicesAsync(mode);
+			const auto &r = co_await service.GetIncludedServicesAsync(mode);
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
@@ -345,7 +357,7 @@ namespace bluetooth_low_energy_windows
 			}
 			result(included_services_args);
 		}
-		catch (const winrt::hresult_error& ex)
+		catch (const winrt::hresult_error &ex)
 		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
@@ -353,7 +365,7 @@ namespace bluetooth_low_energy_windows
 			const auto error = FlutterError(code, message);
 			result(error);
 		}
-		catch (const std::exception& ex)
+		catch (const std::exception &ex)
 		{
 			const auto code = "std::exception";
 			const auto message = ex.what();
@@ -362,13 +374,13 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	winrt::fire_and_forget MyCentralManager::GetCharacteristicsAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
+	winrt::fire_and_forget MyCentralManager::GetCharacteristicsAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
 	{
 		try
 		{
-			const auto& service = RetrieveService(address_args, handle_args);
+			const auto &service = RetrieveService(address_args, handle_args);
 			const auto mode = ArgsToCacheMode(mode_args);
-			const auto& r = co_await service.GetCharacteristicsAsync(mode);
+			const auto &r = co_await service.GetCharacteristicsAsync(mode);
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
@@ -383,9 +395,11 @@ namespace bluetooth_low_energy_windows
 				const auto characteristic_args = CharacteristicToArgs(characteristic);
 				const auto characteristic_args_value = flutter::CustomEncodableValue(characteristic_args);
 				const auto characteristic_handle_args = characteristic_args.handle_args();
-				m_characteristic_value_changed_revokers[address_args][characteristic_handle_args] = characteristic.ValueChanged(winrt::auto_revoke, [this, address_args](const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic& characteristic, const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattValueChangedEventArgs& event_args)
+				m_characteristic_value_changed_revokers[address_args][characteristic_handle_args] = characteristic.ValueChanged(
+					winrt::auto_revoke,
+					[this, address_args](const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic &characteristic, const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattValueChangedEventArgs &event_args)
 					{
-						auto& api = this->m_api.value();
+						auto &api = this->m_api.value();
 						const auto peripheral_args = MyPeripheralArgs(address_args);
 						const auto characteristic_args = CharacteristicToArgs(characteristic);
 						const auto value = event_args.CharacteristicValue();
@@ -393,14 +407,14 @@ namespace bluetooth_low_energy_windows
 						const auto end = begin + value.Length();
 						const auto value_args = std::vector<uint8_t>(begin, end);
 						// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
-						api.OnCharacteristicNotified(peripheral_args, characteristic_args, value_args, []() {}, [](const auto& error) {});
+						api.OnCharacteristicNotified(peripheral_args, characteristic_args, value_args, []() {}, [](const auto &error) {});
 					});
 				m_characteristics[address_args][characteristic_handle_args] = characteristic;
 				characteristics_args.emplace_back(characteristic_args_value);
 			}
 			result(characteristics_args);
 		}
-		catch (const winrt::hresult_error& ex)
+		catch (const winrt::hresult_error &ex)
 		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
@@ -408,7 +422,7 @@ namespace bluetooth_low_energy_windows
 			const auto error = FlutterError(code, message);
 			result(error);
 		}
-		catch (const std::exception& ex)
+		catch (const std::exception &ex)
 		{
 			const auto code = "std::exception";
 			const auto message = ex.what();
@@ -417,13 +431,13 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	winrt::fire_and_forget MyCentralManager::GetDescriptorsAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
+	winrt::fire_and_forget MyCentralManager::GetDescriptorsAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
 	{
 		try
 		{
-			const auto& characteristic = RetrieveCharacteristic(address_args, handle_args);
+			const auto &characteristic = RetrieveCharacteristic(address_args, handle_args);
 			const auto mode = ArgsToCacheMode(mode_args);
-			const auto& r = co_await characteristic.GetDescriptorsAsync(mode);
+			const auto &r = co_await characteristic.GetDescriptorsAsync(mode);
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
@@ -443,7 +457,7 @@ namespace bluetooth_low_energy_windows
 			}
 			result(descriptors_args);
 		}
-		catch (const winrt::hresult_error& ex)
+		catch (const winrt::hresult_error &ex)
 		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
@@ -451,7 +465,7 @@ namespace bluetooth_low_energy_windows
 			const auto error = FlutterError(code, message);
 			result(error);
 		}
-		catch (const std::exception& ex)
+		catch (const std::exception &ex)
 		{
 			const auto code = "std::exception";
 			const auto message = ex.what();
@@ -460,13 +474,13 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	winrt::fire_and_forget MyCentralManager::ReadCharacteristicAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result)
+	winrt::fire_and_forget MyCentralManager::ReadCharacteristicAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result)
 	{
 		try
 		{
-			const auto& characteristic = RetrieveCharacteristic(address_args, handle_args);
+			const auto &characteristic = RetrieveCharacteristic(address_args, handle_args);
 			const auto mode = ArgsToCacheMode(mode_args);
-			const auto& r = co_await characteristic.ReadValueAsync(mode);
+			const auto &r = co_await characteristic.ReadValueAsync(mode);
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
@@ -480,7 +494,7 @@ namespace bluetooth_low_energy_windows
 			const auto value_args = std::vector<uint8_t>(begin, end);
 			result(value_args);
 		}
-		catch (const winrt::hresult_error& ex)
+		catch (const winrt::hresult_error &ex)
 		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
@@ -488,7 +502,7 @@ namespace bluetooth_low_energy_windows
 			const auto error = FlutterError(code, message);
 			result(error);
 		}
-		catch (const std::exception& ex)
+		catch (const std::exception &ex)
 		{
 			const auto code = "std::exception";
 			const auto message = ex.what();
@@ -497,11 +511,11 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	winrt::fire_and_forget MyCentralManager::WriteCharacteristicAsync(int64_t address_args, int64_t handle_args, const std::vector<uint8_t>& value_args, const MyGATTCharacteristicWriteTypeArgs& type_args, std::function<void(std::optional<FlutterError> reply)> result)
+	winrt::fire_and_forget MyCentralManager::WriteCharacteristicAsync(int64_t address_args, int64_t handle_args, const std::vector<uint8_t> &value_args, const MyGATTCharacteristicWriteTypeArgs &type_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
 		try
 		{
-			const auto& characteristic = RetrieveCharacteristic(address_args, handle_args);
+			const auto &characteristic = RetrieveCharacteristic(address_args, handle_args);
 			const auto writer = winrt::Windows::Storage::Streams::DataWriter();
 			writer.WriteBytes(value_args);
 			const auto value = writer.DetachBuffer();
@@ -515,7 +529,7 @@ namespace bluetooth_low_energy_windows
 			}
 			result(std::nullopt);
 		}
-		catch (const winrt::hresult_error& ex)
+		catch (const winrt::hresult_error &ex)
 		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
@@ -523,7 +537,7 @@ namespace bluetooth_low_energy_windows
 			const auto error = FlutterError(code, message);
 			result(error);
 		}
-		catch (const std::exception& ex)
+		catch (const std::exception &ex)
 		{
 			const auto code = "std::exception";
 			const auto message = ex.what();
@@ -532,11 +546,11 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	winrt::fire_and_forget MyCentralManager::SetCharacteristicNotifyStateAsync(int64_t address_args, int64_t handle_args, const MyGATTCharacteristicNotifyStateArgs& state_args, std::function<void(std::optional<FlutterError> reply)> result)
+	winrt::fire_and_forget MyCentralManager::SetCharacteristicNotifyStateAsync(int64_t address_args, int64_t handle_args, const MyGATTCharacteristicNotifyStateArgs &state_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
 		try
 		{
-			const auto& characteristic = RetrieveCharacteristic(address_args, handle_args);
+			const auto &characteristic = RetrieveCharacteristic(address_args, handle_args);
 			const auto value = ArgsToCCCDescriptorValue(state_args);
 			const auto status = co_await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(value);
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
@@ -547,7 +561,7 @@ namespace bluetooth_low_energy_windows
 			}
 			result(std::nullopt);
 		}
-		catch (const winrt::hresult_error& ex)
+		catch (const winrt::hresult_error &ex)
 		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
@@ -555,7 +569,7 @@ namespace bluetooth_low_energy_windows
 			const auto error = FlutterError(code, message);
 			result(error);
 		}
-		catch (const std::exception& ex)
+		catch (const std::exception &ex)
 		{
 			const auto code = "std::exception";
 			const auto message = ex.what();
@@ -564,13 +578,13 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	winrt::fire_and_forget MyCentralManager::ReadDescriptorAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs& mode_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result)
+	winrt::fire_and_forget MyCentralManager::ReadDescriptorAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<std::vector<uint8_t>> reply)> result)
 	{
 		try
 		{
-			const auto& descriptor = RetrieveDescriptor(address_args, handle_args);
+			const auto &descriptor = RetrieveDescriptor(address_args, handle_args);
 			const auto mode = ArgsToCacheMode(mode_args);
-			const auto& r = co_await descriptor.ReadValueAsync(mode);
+			const auto &r = co_await descriptor.ReadValueAsync(mode);
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
@@ -584,7 +598,7 @@ namespace bluetooth_low_energy_windows
 			const auto value_args = std::vector<uint8_t>(begin, end);
 			result(value_args);
 		}
-		catch (const winrt::hresult_error& ex)
+		catch (const winrt::hresult_error &ex)
 		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
@@ -592,7 +606,7 @@ namespace bluetooth_low_energy_windows
 			const auto error = FlutterError(code, message);
 			result(error);
 		}
-		catch (const std::exception& ex)
+		catch (const std::exception &ex)
 		{
 			const auto code = "std::exception";
 			const auto message = ex.what();
@@ -601,11 +615,11 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	winrt::fire_and_forget MyCentralManager::WriteDescriptorAsync(int64_t address_args, int64_t handle_args, const std::vector<uint8_t>& value_args, std::function<void(std::optional<FlutterError> reply)> result)
+	winrt::fire_and_forget MyCentralManager::WriteDescriptorAsync(int64_t address_args, int64_t handle_args, const std::vector<uint8_t> &value_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
 		try
 		{
-			const auto& descriptor = RetrieveDescriptor(address_args, handle_args);
+			const auto &descriptor = RetrieveDescriptor(address_args, handle_args);
 			const auto writer = winrt::Windows::Storage::Streams::DataWriter();
 			writer.WriteBytes(value_args);
 			const auto value = writer.DetachBuffer();
@@ -618,7 +632,7 @@ namespace bluetooth_low_energy_windows
 			}
 			result(std::nullopt);
 		}
-		catch (const winrt::hresult_error& ex)
+		catch (const winrt::hresult_error &ex)
 		{
 			const auto code = "winrt::hresult_error";
 			const auto winrt_message = ex.message();
@@ -626,7 +640,7 @@ namespace bluetooth_low_energy_windows
 			const auto error = FlutterError(code, message);
 			result(error);
 		}
-		catch (const std::exception& ex)
+		catch (const std::exception &ex)
 		{
 			const auto code = "std::exception";
 			const auto message = ex.what();
@@ -647,27 +661,27 @@ namespace bluetooth_low_energy_windows
 		m_descriptors.erase(address_args);
 	}
 
-	winrt::Windows::Devices::Bluetooth::BluetoothLEDevice& MyCentralManager::RetrieveDevice(int64_t address_args)
+	winrt::Windows::Devices::Bluetooth::BluetoothLEDevice &MyCentralManager::RetrieveDevice(int64_t address_args)
 	{
 		return m_devices[address_args].value();
 	}
 
-	winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService& MyCentralManager::RetrieveService(int64_t address_args, int64_t handle_args)
+	winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService &MyCentralManager::RetrieveService(int64_t address_args, int64_t handle_args)
 	{
 		return m_services[address_args][handle_args].value();
 	}
 
-	winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic& MyCentralManager::RetrieveCharacteristic(int64_t address_args, int64_t handle_args)
+	winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic &MyCentralManager::RetrieveCharacteristic(int64_t address_args, int64_t handle_args)
 	{
 		return m_characteristics[address_args][handle_args].value();
 	}
 
-	winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor& MyCentralManager::RetrieveDescriptor(int64_t address_args, int64_t handle_args)
+	winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor &MyCentralManager::RetrieveDescriptor(int64_t address_args, int64_t handle_args)
 	{
 		return m_descriptors[address_args][handle_args].value();
 	}
 
-	MyBluetoothLowEnergyStateArgs MyCentralManager::RadioStateToArgs(const winrt::Windows::Devices::Radios::RadioState& state)
+	MyBluetoothLowEnergyStateArgs MyCentralManager::RadioStateToArgs(const winrt::Windows::Devices::Radios::RadioState &state)
 	{
 		switch (state)
 		{
@@ -684,7 +698,7 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	MyAdvertisementTypeArgs MyCentralManager::AdvertisementTypeToArgs(const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType& type)
+	MyAdvertisementTypeArgs MyCentralManager::AdvertisementTypeToArgs(const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType &type)
 	{
 		switch (type)
 		{
@@ -705,7 +719,7 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	MyConnectionStateArgs MyCentralManager::ConnectionStatusToArgs(const winrt::Windows::Devices::Bluetooth::BluetoothConnectionStatus& status)
+	MyConnectionStateArgs MyCentralManager::ConnectionStatusToArgs(const winrt::Windows::Devices::Bluetooth::BluetoothConnectionStatus &status)
 	{
 		switch (status)
 		{
@@ -718,9 +732,8 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	MyAdvertisementArgs MyCentralManager::AdvertisementToArgs(const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType& type, const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisement& advertisement)
+	MyAdvertisementArgs MyCentralManager::AdvertisementToArgs(const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisement &advertisement)
 	{
-		const auto type_args = AdvertisementTypeToArgs(type);
 		const auto name = advertisement.LocalName();
 		const auto name_args = winrt::to_string(name);
 		const auto service_uuids = advertisement.ServiceUuids();
@@ -787,15 +800,15 @@ namespace bluetooth_low_energy_windows
 			const auto end = begin + data.Length();
 			const auto data_args = std::vector<uint8_t>(begin, end);
 			const auto manufacturer_specific_data_args = MyManufacturerSpecificDataArgs(id_args, data_args);
-			return MyAdvertisementArgs(type_args, &name_args, service_uuids_args, service_data_args, &manufacturer_specific_data_args);
+			return MyAdvertisementArgs(&name_args, service_uuids_args, service_data_args, &manufacturer_specific_data_args);
 		}
 		else
 		{
-			return MyAdvertisementArgs(type_args, &name_args, service_uuids_args, service_data_args, nullptr);
+			return MyAdvertisementArgs(&name_args, service_uuids_args, service_data_args, nullptr);
 		}
 	}
 
-	MyGATTServiceArgs MyCentralManager::ServiceToArgs(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService& service)
+	MyGATTServiceArgs MyCentralManager::ServiceToArgs(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService &service)
 	{
 		const auto handle = service.AttributeHandle();
 		const auto handle_args = static_cast<int64_t>(handle);
@@ -807,7 +820,7 @@ namespace bluetooth_low_energy_windows
 		return MyGATTServiceArgs(handle_args, uuid_args, is_primary_args, included_services_args, characteristics_args);
 	}
 
-	MyGATTCharacteristicArgs MyCentralManager::CharacteristicToArgs(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic& characteristic)
+	MyGATTCharacteristicArgs MyCentralManager::CharacteristicToArgs(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic &characteristic)
 	{
 		const auto handle = characteristic.AttributeHandle();
 		const auto handle_args = static_cast<int64_t>(handle);
@@ -855,7 +868,7 @@ namespace bluetooth_low_energy_windows
 		return property_numbers_args;
 	}
 
-	MyGATTDescriptorArgs MyCentralManager::DescriptorToArgs(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor& descriptor)
+	MyGATTDescriptorArgs MyCentralManager::DescriptorToArgs(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDescriptor &descriptor)
 	{
 		const auto handle = descriptor.AttributeHandle();
 		const auto handle_args = static_cast<int64_t>(handle);
@@ -864,14 +877,14 @@ namespace bluetooth_low_energy_windows
 		return MyGATTDescriptorArgs(handle_args, uuid_args);
 	}
 
-	std::string MyCentralManager::GUIDToArgs(const winrt::guid& guid)
+	std::string MyCentralManager::GUIDToArgs(const winrt::guid &guid)
 	{
 		// const auto uuid_value = winrt::to_hstring(uuid);
 		// return winrt::to_string(uuid_value);
 		return std::format("{}", guid);
 	}
 
-	winrt::Windows::Devices::Bluetooth::BluetoothCacheMode MyCentralManager::ArgsToCacheMode(const MyCacheModeArgs& mode_args)
+	winrt::Windows::Devices::Bluetooth::BluetoothCacheMode MyCentralManager::ArgsToCacheMode(const MyCacheModeArgs &mode_args)
 	{
 		switch (mode_args)
 		{
@@ -884,7 +897,7 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteOption MyCentralManager::ArgsToWriteOption(const MyGATTCharacteristicWriteTypeArgs& type_args)
+	winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteOption MyCentralManager::ArgsToWriteOption(const MyGATTCharacteristicWriteTypeArgs &type_args)
 	{
 		switch (type_args)
 		{
@@ -897,7 +910,7 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattClientCharacteristicConfigurationDescriptorValue MyCentralManager::ArgsToCCCDescriptorValue(const MyGATTCharacteristicNotifyStateArgs& state_args)
+	winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattClientCharacteristicConfigurationDescriptorValue MyCentralManager::ArgsToCCCDescriptorValue(const MyGATTCharacteristicNotifyStateArgs &state_args)
 	{
 		switch (state_args)
 		{

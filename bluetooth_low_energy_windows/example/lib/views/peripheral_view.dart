@@ -1,145 +1,150 @@
-import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 import 'dart:typed_data';
 
-import 'package:bluetooth_low_energy_windows_example/models.dart';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
+import 'package:bluetooth_low_energy_windows_example/view_models.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide ConnectionState;
+import 'package:flutter_simple_treeview/flutter_simple_treeview.dart';
 import 'package:hybrid_logging/hybrid_logging.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class PeripheralView extends StatefulWidget {
-  final DiscoveredEventArgs eventArgs;
-
-  const PeripheralView({
-    super.key,
-    required this.eventArgs,
-  });
+  const PeripheralView({super.key});
 
   @override
   State<PeripheralView> createState() => _PeripheralViewState();
 }
 
-class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
-  late final CentralManager centralManager;
-  late final ValueNotifier<ConnectionState> connectionState;
-  late final DiscoveredEventArgs eventArgs;
-  late final ValueNotifier<List<GATTService>> services;
-  late final ValueNotifier<List<GATTCharacteristic>> characteristics;
+class _PeripheralViewState extends State<PeripheralView>
+    with RouteAware, TypeLogger {
   late final ValueNotifier<GATTService?> service;
   late final ValueNotifier<GATTCharacteristic?> characteristic;
   late final ValueNotifier<GATTCharacteristicWriteType> writeType;
-  late final ValueNotifier<List<Log>> logs;
   late final TextEditingController writeController;
-  late final StreamSubscription connectionStateChangedSubscription;
-  late final StreamSubscription mtuChangedSubscription;
-  late final StreamSubscription characteristicNotifiedSubscription;
-
-  Peripheral get peripheral => eventArgs.peripheral;
 
   @override
   void initState() {
     super.initState();
-    eventArgs = widget.eventArgs;
-    centralManager = CentralManager();
-    connectionState = ValueNotifier(ConnectionState.disconnected);
-    services = ValueNotifier([]);
-    characteristics = ValueNotifier([]);
     service = ValueNotifier(null);
     characteristic = ValueNotifier(null);
     writeType = ValueNotifier(GATTCharacteristicWriteType.withResponse);
-    logs = ValueNotifier([]);
     writeController = TextEditingController();
-    connectionStateChangedSubscription =
-        centralManager.connectionStateChanged.listen(
-      (eventArgs) {
-        if (eventArgs.peripheral != this.eventArgs.peripheral) {
-          return;
-        }
-        final state = eventArgs.state;
-        if (state == ConnectionState.disconnected) {
-          services.value = [];
-          characteristics.value = [];
-          service.value = null;
-          characteristic.value = null;
-          logs.value = [];
-        }
-        connectionState.value = state;
-      },
-    );
-    mtuChangedSubscription = centralManager.mtuChanged.listen(
-      (eventArgs) {
-        if (eventArgs.peripheral != this.eventArgs.peripheral) {
-          return;
-        }
-        final mtu = eventArgs.mtu;
-        logger.info('mtuChanged: $mtu');
-      },
-    );
-    characteristicNotifiedSubscription =
-        centralManager.characteristicNotified.listen(
-      (eventArgs) {
-        // final characteristic = this.characteristic.value;
-        // if (eventArgs.characteristic != characteristic) {
-        //   return;
-        // }
-        final characteristic = eventArgs.characteristic;
-        final value = eventArgs.value;
-        final log =
-            Log('characteristicNotified\n${characteristic.uuid}, $value');
-        logs.value = [
-          ...logs.value,
-          log,
-        ];
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      onPopInvoked: (didPop) async {
-        if (connectionState.value == ConnectionState.connected) {
-          final peripheral = eventArgs.peripheral;
-          await centralManager.disconnect(peripheral);
-        }
-      },
-      child: Scaffold(
-        appBar: buildAppBar(context),
-        body: buildBody(context),
+    final viewModel = ViewModel.of<PeripheralViewModel>(context);
+    final connected = viewModel.connected;
+    final services = viewModel.services;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(viewModel.name ?? '${viewModel.uuid}'),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              if (connected) {
+                await viewModel.disconnect();
+              } else {
+                await viewModel.connect();
+                await viewModel.discoverGATT();
+              }
+            },
+            child: Text(connected ? 'DISCONNECT' : 'CONNECT'),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: TreeView(
+          indent: 0.0,
+          nodes: services.map((service) {
+            final characteristics = service.characteristics;
+            return TreeNode(
+              children: characteristics.map((characteristic) {
+                final descriptors = characteristic.descriptors;
+                return TreeNode(
+                  children: descriptors.map((descriptor) {
+                    return TreeNode(
+                      content: Row(
+                        children: [
+                          const Icon(Symbols.asterisk),
+                          const SizedBox(width: 12.0),
+                          Text('${descriptor.uuid}'),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  content: Row(
+                    children: [
+                      const Icon(Symbols.join_right),
+                      const SizedBox(width: 12.0),
+                      Text('${characteristic.uuid}'),
+                      Offstage(
+                        offstage: characteristic.properties.none((property) =>
+                            property == GATTCharacteristicProperty.read),
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Symbols.arrow_downward),
+                        ),
+                      ),
+                      Offstage(
+                        offstage: characteristic.properties.none((property) =>
+                            property ==
+                            GATTCharacteristicProperty.writeWithoutResponse),
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Symbols.arrow_upward),
+                        ),
+                      ),
+                      Offstage(
+                        offstage: characteristic.properties.none((property) =>
+                            property == GATTCharacteristicProperty.write),
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Symbols.swap_vert),
+                        ),
+                      ),
+                      Offstage(
+                        offstage: characteristic.properties.none((property) =>
+                            property == GATTCharacteristicProperty.notify ||
+                            property == GATTCharacteristicProperty.indicate),
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Symbols.notifications_off),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+              content: Row(
+                children: [
+                  Transform.rotate(
+                    angle: math.pi / 2.0,
+                    child: const Icon(Symbols.polymer),
+                  ),
+                  const SizedBox(width: 12.0),
+                  Text('${service.uuid}'),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
 
-  PreferredSizeWidget buildAppBar(BuildContext context) {
-    final title = eventArgs.advertisement.name ?? '';
-    return AppBar(
-      title: Text(title),
-      actions: [
-        ValueListenableBuilder(
-          valueListenable: connectionState,
-          builder: (context, connectionState, child) {
-            final connected = connectionState == ConnectionState.connected;
-            return TextButton(
-              onPressed: () async {
-                final peripheral = eventArgs.peripheral;
-                if (connected) {
-                  await centralManager.disconnect(peripheral);
-                } else {
-                  await centralManager.connect(peripheral);
-                  services.value =
-                      await centralManager.discoverGATT(peripheral);
-                }
-              },
-              child: Text(connected ? 'DISCONNECT' : 'CONNECT'),
-            );
-          },
-        ),
-      ],
-    );
+  Widget buildCharacteristicView(
+      BuildContext context, GATTCharacteristic characteristic) {
+    return Container();
   }
 
   Widget buildBody(BuildContext context) {
     final theme = Theme.of(context);
+    final viewModel = ViewModel.of<PeripheralViewModel>(context);
+    final services = viewModel.services;
+    final logs = viewModel.logs;
     return Container(
       margin: const EdgeInsets.symmetric(
         horizontal: 16.0,
@@ -148,56 +153,45 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ValueListenableBuilder(
-            valueListenable: services,
-            builder: (context, services, child) {
-              final items = services.map((service) {
-                return DropdownMenuItem(
-                  value: service,
-                  child: Text(
-                    '${service.uuid}',
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                );
-              }).toList();
-              return ValueListenableBuilder(
-                valueListenable: service,
-                builder: (context, service, child) {
-                  return DropdownButton(
-                    isExpanded: true,
-                    items: items,
-                    hint: const Text('CHOOSE A SERVICE'),
+            valueListenable: service,
+            builder: (context, service, child) {
+              return DropdownButton(
+                isExpanded: true,
+                items: services.map((service) {
+                  return DropdownMenuItem(
                     value: service,
-                    onChanged: (service) async {
-                      this.service.value = service;
-                      characteristic.value = null;
-                      if (service == null) {
-                        return;
-                      }
-                      characteristics.value = service.characteristics;
-                    },
+                    child: Text(
+                      '${service.uuid}',
+                      style: theme.textTheme.bodyMedium,
+                    ),
                   );
+                }).toList(),
+                hint: const Text('CHOOSE A SERVICE'),
+                value: service,
+                onChanged: (service) async {
+                  this.service.value = service;
+                  characteristic.value = null;
                 },
               );
             },
           ),
           ValueListenableBuilder(
-            valueListenable: characteristics,
-            builder: (context, characteristics, child) {
-              final items = characteristics.map((characteristic) {
-                return DropdownMenuItem(
-                  value: characteristic,
-                  child: Text(
-                    '${characteristic.uuid}',
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                );
-              }).toList();
+            valueListenable: service,
+            builder: (context, service, child) {
               return ValueListenableBuilder(
                 valueListenable: characteristic,
                 builder: (context, characteristic, child) {
                   return DropdownButton(
                     isExpanded: true,
-                    items: items,
+                    items: service?.characteristics.map((characteristic) {
+                      return DropdownMenuItem(
+                        value: characteristic,
+                        child: Text(
+                          '${characteristic.uuid}',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      );
+                    }).toList(),
                     hint: const Text('CHOOSE A CHARACTERISTIC'),
                     value: characteristic,
                     onChanged: (characteristic) {
@@ -234,17 +228,12 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
             },
           ),
           Expanded(
-            child: ValueListenableBuilder(
-              valueListenable: logs,
-              builder: (context, logs, child) {
-                return ListView.builder(
-                  itemBuilder: (context, i) {
-                    final log = logs[i];
-                    return Text('$log');
-                  },
-                  itemCount: logs.length,
-                );
+            child: ListView.builder(
+              itemBuilder: (context, i) {
+                final log = logs[i];
+                return Text('$log');
               },
+              itemCount: logs.length,
             ),
           ),
           ValueListenableBuilder(
@@ -276,42 +265,30 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        ElevatedButton(
-                          onPressed: characteristic != null && canNotify
-                              ? () async {
-                                  await centralManager
-                                      .setCharacteristicNotifyState(
-                                    peripheral,
-                                    characteristic,
-                                    state: true,
-                                  );
-                                }
-                              : null,
-                          child: const Text('NOTIFY'),
-                        ),
-                        const SizedBox(width: 8.0),
-                        ElevatedButton(
-                          onPressed: characteristic != null && canRead
-                              ? () async {
-                                  final value =
-                                      await centralManager.readCharacteristic(
-                                    peripheral,
-                                    characteristic,
-                                  );
-                                  final log = Log(
-                                      'readCharacteristic\n${characteristic.uuid} - $value');
-                                  logs.value = [...logs.value, log];
-                                }
-                              : null,
-                          child: const Text('READ'),
-                        )
-                      ],
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        onPressed: characteristic != null && canNotify
+                            ? () async {
+                                await viewModel.setCharacteristicNotifyState(
+                                  characteristic,
+                                  state: true,
+                                );
+                              }
+                            : null,
+                        child: const Text('NOTIFY'),
+                      ),
+                      ElevatedButton(
+                        onPressed: characteristic != null && canRead
+                            ? () async {
+                                await viewModel
+                                    .readCharacteristic(characteristic);
+                              }
+                            : null,
+                        child: const Text('READ'),
+                      )
+                    ],
                   ),
                   SizedBox(
                     height: 160.0,
@@ -396,40 +373,17 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
                                 final elements = utf8.encode(text);
                                 final value = Uint8List.fromList(elements);
                                 final type = writeType.value;
-                                // Fragments the value by maximumWriteLength.
-                                final fragmentSize =
-                                    await centralManager.getMaximumWriteLength(
-                                  peripheral,
+                                await viewModel.writeCharacteristic(
+                                  characteristic,
+                                  value: value,
                                   type: type,
                                 );
-                                logger.info('fragmentSize: $fragmentSize');
-                                var start = 0;
-                                while (start < value.length) {
-                                  final end = start + fragmentSize;
-                                  final fragmentedValue = end < value.length
-                                      ? value.sublist(start, end)
-                                      : value.sublist(start);
-                                  await centralManager.writeCharacteristic(
-                                    peripheral,
-                                    characteristic,
-                                    value: fragmentedValue,
-                                    type: type,
-                                  );
-                                  final log = Log(
-                                      'writeCharacteristic\n${characteristic.uuid} - $value');
-                                  logs.value = [
-                                    ...logs.value,
-                                    log,
-                                  ];
-                                  start = end;
-                                }
                               }
                             : null,
                         child: const Text('WRITE'),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16.0),
                 ],
               );
             },
@@ -442,16 +396,9 @@ class _PeripheralViewState extends State<PeripheralView> with TypeLogger {
   @override
   void dispose() {
     super.dispose();
-    connectionStateChangedSubscription.cancel();
-    mtuChangedSubscription.cancel();
-    characteristicNotifiedSubscription.cancel();
-    connectionState.dispose();
-    services.dispose();
-    characteristics.dispose();
     service.dispose();
     characteristic.dispose();
     writeType.dispose();
-    logs.dispose();
     writeController.dispose();
   }
 }

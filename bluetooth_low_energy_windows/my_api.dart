@@ -94,14 +94,12 @@ class MyManufacturerSpecificDataArgs {
 }
 
 class MyAdvertisementArgs {
-  final MyAdvertisementTypeArgs typeArgs;
   final String? nameArgs;
   final List<String?> serviceUUIDsArgs;
   final Map<String?, Uint8List?> serviceDataArgs;
   final MyManufacturerSpecificDataArgs? manufacturerSpecificDataArgs;
 
   MyAdvertisementArgs(
-    this.typeArgs,
     this.nameArgs,
     this.serviceUUIDsArgs,
     this.serviceDataArgs,
@@ -300,6 +298,8 @@ abstract class MyCentralManagerFlutterAPI {
   void onDiscovered(
     MyPeripheralArgs peripheralArgs,
     int rssiArgs,
+    int timestampArgs,
+    MyAdvertisementTypeArgs typeArgs,
     MyAdvertisementArgs advertisementArgs,
   );
   void onConnectionStateChanged(

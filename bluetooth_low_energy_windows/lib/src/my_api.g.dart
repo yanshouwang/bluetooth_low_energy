@@ -125,14 +125,11 @@ class MyManufacturerSpecificDataArgs {
 
 class MyAdvertisementArgs {
   MyAdvertisementArgs({
-    required this.typeArgs,
     this.nameArgs,
     required this.serviceUUIDsArgs,
     required this.serviceDataArgs,
     this.manufacturerSpecificDataArgs,
   });
-
-  MyAdvertisementTypeArgs typeArgs;
 
   String? nameArgs;
 
@@ -144,7 +141,6 @@ class MyAdvertisementArgs {
 
   Object encode() {
     return <Object?>[
-      typeArgs.index,
       nameArgs,
       serviceUUIDsArgs,
       serviceDataArgs,
@@ -155,11 +151,10 @@ class MyAdvertisementArgs {
   static MyAdvertisementArgs decode(Object result) {
     result as List<Object?>;
     return MyAdvertisementArgs(
-      typeArgs: MyAdvertisementTypeArgs.values[result[0]! as int],
-      nameArgs: result[1] as String?,
-      serviceUUIDsArgs: (result[2] as List<Object?>?)!.cast<String?>(),
-      serviceDataArgs: (result[3] as Map<Object?, Object?>?)!.cast<String?, Uint8List?>(),
-      manufacturerSpecificDataArgs: result[4] as MyManufacturerSpecificDataArgs?,
+      nameArgs: result[0] as String?,
+      serviceUUIDsArgs: (result[1] as List<Object?>?)!.cast<String?>(),
+      serviceDataArgs: (result[2] as Map<Object?, Object?>?)!.cast<String?, Uint8List?>(),
+      manufacturerSpecificDataArgs: result[3] as MyManufacturerSpecificDataArgs?,
     );
   }
 }
@@ -976,7 +971,7 @@ abstract class MyCentralManagerFlutterAPI {
 
   void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs);
 
-  void onDiscovered(MyPeripheralArgs peripheralArgs, int rssiArgs, MyAdvertisementArgs advertisementArgs);
+  void onDiscovered(MyPeripheralArgs peripheralArgs, int rssiArgs, int timestampArgs, MyAdvertisementTypeArgs typeArgs, MyAdvertisementArgs advertisementArgs);
 
   void onConnectionStateChanged(MyPeripheralArgs peripheralArgs, MyConnectionStateArgs stateArgs);
 
@@ -1028,11 +1023,17 @@ abstract class MyCentralManagerFlutterAPI {
           final int? arg_rssiArgs = (args[1] as int?);
           assert(arg_rssiArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterAPI.onDiscovered was null, expected non-null int.');
-          final MyAdvertisementArgs? arg_advertisementArgs = (args[2] as MyAdvertisementArgs?);
+          final int? arg_timestampArgs = (args[2] as int?);
+          assert(arg_timestampArgs != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterAPI.onDiscovered was null, expected non-null int.');
+          final MyAdvertisementTypeArgs? arg_typeArgs = args[3] == null ? null : MyAdvertisementTypeArgs.values[args[3]! as int];
+          assert(arg_typeArgs != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterAPI.onDiscovered was null, expected non-null MyAdvertisementTypeArgs.');
+          final MyAdvertisementArgs? arg_advertisementArgs = (args[4] as MyAdvertisementArgs?);
           assert(arg_advertisementArgs != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_windows.MyCentralManagerFlutterAPI.onDiscovered was null, expected non-null MyAdvertisementArgs.');
           try {
-            api.onDiscovered(arg_peripheralArgs!, arg_rssiArgs!, arg_advertisementArgs!);
+            api.onDiscovered(arg_peripheralArgs!, arg_rssiArgs!, arg_timestampArgs!, arg_typeArgs!, arg_advertisementArgs!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
