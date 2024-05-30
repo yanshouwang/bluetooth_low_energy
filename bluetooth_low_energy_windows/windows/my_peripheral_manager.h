@@ -62,6 +62,7 @@ namespace bluetooth_low_energy_windows
 		winrt::fire_and_forget AddServiceAsync(const MyMutableGATTServiceArgs &service_args, std::function<void(std::optional<FlutterError> reply)> result);
 		winrt::fire_and_forget NotifyValueAsync(int64_t address_args, int64_t hash_code_args, const std::vector<uint8_t> &value_args, std::function<void(std::optional<FlutterError> reply)> result);
 
+		winrt::Windows::Foundation::IAsyncAction CreateServiceAsync(const MyMutableGATTServiceArgs &service_args);
 		winrt::Windows::Foundation::IAsyncAction CreateCharacteristicAsync(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalService &service, const MyMutableGATTCharacteristicArgs &characteristic_args);
 		winrt::Windows::Foundation::IAsyncAction CreateDescriptorAsync(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalCharacteristic &characteristic, const MyMutableGATTDescriptorArgs &descriptor_args);
 
@@ -76,10 +77,10 @@ namespace bluetooth_low_energy_windows
 		winrt::fire_and_forget OnDescriptorWriteRequestedAsync(const int64_t hash_code_args, const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteRequestedEventArgs &event_args);
 
 		MyBluetoothLowEnergyStateArgs RadioStateToArgs(const winrt::Windows::Devices::Radios::RadioState &state);
-		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristicProperties CharacteristicPropertyNumberValuesToProperties(const flutter::EncodableList property_numbers_args_value);
-		winrt::Windows::Foundation::IAsyncOperation<MyCentralArgs> SessionToArgsAsync(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession &session);
 		MyGATTCharacteristicWriteTypeArgs WriteOptionToArgs(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteOption &option);
 
+		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristicProperties ArgsToCharacteristicProperties(const flutter::EncodableList property_numbers_args_value);
+		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel ArgsToProtectionLevel(const MyGATTProtectionLevelArgs &level_args);
 		uint8_t ArgsToProtocolError(const MyGATTProtocolErrorArgs &error_args);
 	};
 

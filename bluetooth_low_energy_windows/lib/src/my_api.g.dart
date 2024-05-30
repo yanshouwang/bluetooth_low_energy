@@ -54,13 +54,6 @@ enum MyGATTCharacteristicPropertyArgs {
   indicate,
 }
 
-enum MyGATTCharacteristicPermissionArgs {
-  read,
-  readEncrypted,
-  write,
-  writeEncrypted,
-}
-
 enum MyGATTCharacteristicWriteTypeArgs {
   withResponse,
   withoutResponse,
@@ -70,6 +63,13 @@ enum MyGATTCharacteristicNotifyStateArgs {
   none,
   notify,
   indicate,
+}
+
+enum MyGATTProtectionLevelArgs {
+  plain,
+  authenticationRequired,
+  entryptionRequired,
+  encryptionAndAuthenticationRequired,
 }
 
 enum MyGATTProtocolErrorArgs {
@@ -309,7 +309,8 @@ class MyMutableGATTDescriptorArgs {
     required this.hashCodeArgs,
     required this.uuidArgs,
     this.valueArgs,
-    required this.permissionNumbersArgs,
+    this.readProtectionLevelArgs,
+    this.writeProtectionLevelArgs,
   });
 
   int hashCodeArgs;
@@ -318,14 +319,17 @@ class MyMutableGATTDescriptorArgs {
 
   Uint8List? valueArgs;
 
-  List<int?> permissionNumbersArgs;
+  MyGATTProtectionLevelArgs? readProtectionLevelArgs;
+
+  MyGATTProtectionLevelArgs? writeProtectionLevelArgs;
 
   Object encode() {
     return <Object?>[
       hashCodeArgs,
       uuidArgs,
       valueArgs,
-      permissionNumbersArgs,
+      readProtectionLevelArgs?.index,
+      writeProtectionLevelArgs?.index,
     ];
   }
 
@@ -335,7 +339,12 @@ class MyMutableGATTDescriptorArgs {
       hashCodeArgs: result[0]! as int,
       uuidArgs: result[1]! as String,
       valueArgs: result[2] as Uint8List?,
-      permissionNumbersArgs: (result[3] as List<Object?>?)!.cast<int?>(),
+      readProtectionLevelArgs: result[3] != null
+          ? MyGATTProtectionLevelArgs.values[result[3]! as int]
+          : null,
+      writeProtectionLevelArgs: result[4] != null
+          ? MyGATTProtectionLevelArgs.values[result[4]! as int]
+          : null,
     );
   }
 }
@@ -346,7 +355,8 @@ class MyMutableGATTCharacteristicArgs {
     required this.uuidArgs,
     this.valueArgs,
     required this.propertyNumbersArgs,
-    required this.permissionNumbersArgs,
+    this.readProtectionLevelArgs,
+    this.writeProtectionLevelArgs,
     required this.descriptorsArgs,
   });
 
@@ -358,7 +368,9 @@ class MyMutableGATTCharacteristicArgs {
 
   List<int?> propertyNumbersArgs;
 
-  List<int?> permissionNumbersArgs;
+  MyGATTProtectionLevelArgs? readProtectionLevelArgs;
+
+  MyGATTProtectionLevelArgs? writeProtectionLevelArgs;
 
   List<MyMutableGATTDescriptorArgs?> descriptorsArgs;
 
@@ -368,7 +380,8 @@ class MyMutableGATTCharacteristicArgs {
       uuidArgs,
       valueArgs,
       propertyNumbersArgs,
-      permissionNumbersArgs,
+      readProtectionLevelArgs?.index,
+      writeProtectionLevelArgs?.index,
       descriptorsArgs,
     ];
   }
@@ -380,8 +393,13 @@ class MyMutableGATTCharacteristicArgs {
       uuidArgs: result[1]! as String,
       valueArgs: result[2] as Uint8List?,
       propertyNumbersArgs: (result[3] as List<Object?>?)!.cast<int?>(),
-      permissionNumbersArgs: (result[4] as List<Object?>?)!.cast<int?>(),
-      descriptorsArgs: (result[5] as List<Object?>?)!.cast<MyMutableGATTDescriptorArgs?>(),
+      readProtectionLevelArgs: result[4] != null
+          ? MyGATTProtectionLevelArgs.values[result[4]! as int]
+          : null,
+      writeProtectionLevelArgs: result[5] != null
+          ? MyGATTProtectionLevelArgs.values[result[5]! as int]
+          : null,
+      descriptorsArgs: (result[6] as List<Object?>?)!.cast<MyMutableGATTDescriptorArgs?>(),
     );
   }
 }

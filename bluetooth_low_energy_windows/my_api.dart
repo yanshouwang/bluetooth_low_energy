@@ -43,13 +43,6 @@ enum MyGATTCharacteristicPropertyArgs {
   indicate,
 }
 
-enum MyGATTCharacteristicPermissionArgs {
-  read,
-  readEncrypted,
-  write,
-  writeEncrypted,
-}
-
 enum MyGATTCharacteristicWriteTypeArgs {
   withResponse,
   withoutResponse,
@@ -59,6 +52,13 @@ enum MyGATTCharacteristicNotifyStateArgs {
   none,
   notify,
   indicate,
+}
+
+enum MyGATTProtectionLevelArgs {
+  plain,
+  authenticationRequired,
+  entryptionRequired,
+  encryptionAndAuthenticationRequired,
 }
 
 enum MyGATTProtocolErrorArgs {
@@ -163,13 +163,15 @@ class MyMutableGATTDescriptorArgs {
   final int hashCodeArgs;
   final String uuidArgs;
   final Uint8List? valueArgs;
-  final List<int?> permissionNumbersArgs;
+  final MyGATTProtectionLevelArgs? readProtectionLevelArgs;
+  final MyGATTProtectionLevelArgs? writeProtectionLevelArgs;
 
   MyMutableGATTDescriptorArgs(
     this.hashCodeArgs,
     this.uuidArgs,
     this.valueArgs,
-    this.permissionNumbersArgs,
+    this.readProtectionLevelArgs,
+    this.writeProtectionLevelArgs,
   );
 }
 
@@ -178,7 +180,8 @@ class MyMutableGATTCharacteristicArgs {
   final String uuidArgs;
   final Uint8List? valueArgs;
   final List<int?> propertyNumbersArgs;
-  final List<int?> permissionNumbersArgs;
+  final MyGATTProtectionLevelArgs? readProtectionLevelArgs;
+  final MyGATTProtectionLevelArgs? writeProtectionLevelArgs;
   final List<MyMutableGATTDescriptorArgs?> descriptorsArgs;
 
   MyMutableGATTCharacteristicArgs(
@@ -186,7 +189,8 @@ class MyMutableGATTCharacteristicArgs {
     this.uuidArgs,
     this.valueArgs,
     this.propertyNumbersArgs,
-    this.permissionNumbersArgs,
+    this.readProtectionLevelArgs,
+    this.writeProtectionLevelArgs,
     this.descriptorsArgs,
   );
 }

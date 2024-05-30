@@ -88,13 +88,6 @@ enum class MyGATTCharacteristicPropertyArgs {
   indicate = 4
 };
 
-enum class MyGATTCharacteristicPermissionArgs {
-  read = 0,
-  readEncrypted = 1,
-  write = 2,
-  writeEncrypted = 3
-};
-
 enum class MyGATTCharacteristicWriteTypeArgs {
   withResponse = 0,
   withoutResponse = 1
@@ -104,6 +97,13 @@ enum class MyGATTCharacteristicNotifyStateArgs {
   none = 0,
   notify = 1,
   indicate = 2
+};
+
+enum class MyGATTProtectionLevelArgs {
+  plain = 0,
+  authenticationRequired = 1,
+  entryptionRequired = 2,
+  encryptionAndAuthenticationRequired = 3
 };
 
 enum class MyGATTProtocolErrorArgs {
@@ -397,15 +397,15 @@ class MyMutableGATTDescriptorArgs {
   // Constructs an object setting all non-nullable fields.
   explicit MyMutableGATTDescriptorArgs(
     int64_t hash_code_args,
-    const std::string& uuid_args,
-    const flutter::EncodableList& permission_numbers_args);
+    const std::string& uuid_args);
 
   // Constructs an object setting all fields.
   explicit MyMutableGATTDescriptorArgs(
     int64_t hash_code_args,
     const std::string& uuid_args,
     const std::vector<uint8_t>* value_args,
-    const flutter::EncodableList& permission_numbers_args);
+    const MyGATTProtectionLevelArgs* read_protection_level_args,
+    const MyGATTProtectionLevelArgs* write_protection_level_args);
 
   int64_t hash_code_args() const;
   void set_hash_code_args(int64_t value_arg);
@@ -417,8 +417,13 @@ class MyMutableGATTDescriptorArgs {
   void set_value_args(const std::vector<uint8_t>* value_arg);
   void set_value_args(const std::vector<uint8_t>& value_arg);
 
-  const flutter::EncodableList& permission_numbers_args() const;
-  void set_permission_numbers_args(const flutter::EncodableList& value_arg);
+  const MyGATTProtectionLevelArgs* read_protection_level_args() const;
+  void set_read_protection_level_args(const MyGATTProtectionLevelArgs* value_arg);
+  void set_read_protection_level_args(const MyGATTProtectionLevelArgs& value_arg);
+
+  const MyGATTProtectionLevelArgs* write_protection_level_args() const;
+  void set_write_protection_level_args(const MyGATTProtectionLevelArgs* value_arg);
+  void set_write_protection_level_args(const MyGATTProtectionLevelArgs& value_arg);
 
 
  private:
@@ -435,7 +440,8 @@ class MyMutableGATTDescriptorArgs {
   int64_t hash_code_args_;
   std::string uuid_args_;
   std::optional<std::vector<uint8_t>> value_args_;
-  flutter::EncodableList permission_numbers_args_;
+  std::optional<MyGATTProtectionLevelArgs> read_protection_level_args_;
+  std::optional<MyGATTProtectionLevelArgs> write_protection_level_args_;
 
 };
 
@@ -448,7 +454,6 @@ class MyMutableGATTCharacteristicArgs {
     int64_t hash_code_args,
     const std::string& uuid_args,
     const flutter::EncodableList& property_numbers_args,
-    const flutter::EncodableList& permission_numbers_args,
     const flutter::EncodableList& descriptors_args);
 
   // Constructs an object setting all fields.
@@ -457,7 +462,8 @@ class MyMutableGATTCharacteristicArgs {
     const std::string& uuid_args,
     const std::vector<uint8_t>* value_args,
     const flutter::EncodableList& property_numbers_args,
-    const flutter::EncodableList& permission_numbers_args,
+    const MyGATTProtectionLevelArgs* read_protection_level_args,
+    const MyGATTProtectionLevelArgs* write_protection_level_args,
     const flutter::EncodableList& descriptors_args);
 
   int64_t hash_code_args() const;
@@ -473,8 +479,13 @@ class MyMutableGATTCharacteristicArgs {
   const flutter::EncodableList& property_numbers_args() const;
   void set_property_numbers_args(const flutter::EncodableList& value_arg);
 
-  const flutter::EncodableList& permission_numbers_args() const;
-  void set_permission_numbers_args(const flutter::EncodableList& value_arg);
+  const MyGATTProtectionLevelArgs* read_protection_level_args() const;
+  void set_read_protection_level_args(const MyGATTProtectionLevelArgs* value_arg);
+  void set_read_protection_level_args(const MyGATTProtectionLevelArgs& value_arg);
+
+  const MyGATTProtectionLevelArgs* write_protection_level_args() const;
+  void set_write_protection_level_args(const MyGATTProtectionLevelArgs* value_arg);
+  void set_write_protection_level_args(const MyGATTProtectionLevelArgs& value_arg);
 
   const flutter::EncodableList& descriptors_args() const;
   void set_descriptors_args(const flutter::EncodableList& value_arg);
@@ -495,7 +506,8 @@ class MyMutableGATTCharacteristicArgs {
   std::string uuid_args_;
   std::optional<std::vector<uint8_t>> value_args_;
   flutter::EncodableList property_numbers_args_;
-  flutter::EncodableList permission_numbers_args_;
+  std::optional<MyGATTProtectionLevelArgs> read_protection_level_args_;
+  std::optional<MyGATTProtectionLevelArgs> write_protection_level_args_;
   flutter::EncodableList descriptors_args_;
 
 };

@@ -1,3 +1,5 @@
+#undef _HAS_EXCEPTIONS
+
 #include "my_peripheral_manager.h"
 
 namespace bluetooth_low_energy_windows
@@ -34,9 +36,9 @@ namespace bluetooth_low_energy_windows
 
 	std::optional<FlutterError> MyPeripheralManager::RemoveService(int64_t hash_code_args)
 	{
-		const auto service_args = m_services_args[hash_code_args].value();
+		const auto &service_args = m_services_args[hash_code_args].value();
 		m_services_args.erase(hash_code_args);
-		const auto service_provider = m_service_providers[hash_code_args].value();
+		const auto &service_provider = m_service_providers[hash_code_args].value();
 		m_service_providers.erase(hash_code_args);
 		RemoveServiceArgs(service_args);
 		service_provider.StopAdvertising();
@@ -54,16 +56,16 @@ namespace bluetooth_low_energy_windows
 			advertisement.LocalName(name);
 		}
 		const auto &service_uuids = advertisement.ServiceUuids();
-		const auto &service_uuid_values = advertisement_args.service_u_u_i_ds_args();
-		for (const auto &service_uuid_value : service_uuid_values)
+		const auto &service_uuids_args_value = advertisement_args.service_u_u_i_ds_args();
+		for (const auto &service_uuid_args_value : service_uuids_args_value)
 		{
-			const auto &service_uuid_args = std::get<std::string>(service_uuid_value);
+			const auto &service_uuid_args = std::get<std::string>(service_uuid_args_value);
 			const auto &service_uuid = winrt::guid(service_uuid_args);
 			service_uuids.Append(service_uuid);
 		}
 		const auto data_sections = advertisement.DataSections();
-		const auto &service_data_values = advertisement_args.service_data_args();
-		for (const auto &service_data_value : service_data_values)
+		const auto &service_data_args_value = advertisement_args.service_data_args();
+		for (const auto &service_data_value : service_data_args_value)
 		{
 			const auto service_data = winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementDataSection();
 			const auto data_type = winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementDataTypes::ServiceData128BitUuids();
@@ -106,16 +108,16 @@ namespace bluetooth_low_energy_windows
 
 	ErrorOr<int64_t> MyPeripheralManager::GetMaxNotificationSize(int64_t address_args)
 	{
-		const auto client = m_clients[address_args].value();
+		const auto &client = m_clients[address_args].value();
 		const auto max_notification_size = client.MaxNotificationSize();
 		const auto max_notification_size_args = static_cast<int64_t>(max_notification_size);
-		return max_notification_size;
+		return max_notification_size_args;
 	}
 
 	std::optional<FlutterError> MyPeripheralManager::RespondReadRequestWithValue(int64_t hash_code_args, const std::vector<uint8_t> &value_args)
 	{
-		const auto deferal = m_deferrals[hash_code_args].value();
-		const auto request = m_read_requests[hash_code_args].value();
+		const auto &deferal = m_deferrals[hash_code_args].value();
+		const auto &request = m_read_requests[hash_code_args].value();
 		m_deferrals.erase(hash_code_args);
 		m_read_requests.erase(hash_code_args);
 		const auto writer = winrt::Windows::Storage::Streams::DataWriter();
@@ -123,38 +125,42 @@ namespace bluetooth_low_energy_windows
 		const auto value = writer.DetachBuffer();
 		request.RespondWithValue(value);
 		deferal.Complete();
+		return std::nullopt;
 	}
 
 	std::optional<FlutterError> MyPeripheralManager::RespondReadRequestWithProtocolError(int64_t hash_code_args, const MyGATTProtocolErrorArgs &error_args)
 	{
-		const auto deferal = m_deferrals[hash_code_args].value();
-		const auto request = m_read_requests[hash_code_args].value();
+		const auto &deferal = m_deferrals[hash_code_args].value();
+		const auto &request = m_read_requests[hash_code_args].value();
 		m_deferrals.erase(hash_code_args);
 		m_read_requests.erase(hash_code_args);
 		const auto error = ArgsToProtocolError(error_args);
 		request.RespondWithProtocolError(error);
 		deferal.Complete();
+		return std::nullopt;
 	}
 
 	std::optional<FlutterError> MyPeripheralManager::RespondWriteRequest(int64_t hash_code_args)
 	{
-		const auto deferal = m_deferrals[hash_code_args].value();
-		const auto request = m_write_requests[hash_code_args].value();
+		const auto &deferal = m_deferrals[hash_code_args].value();
+		const auto &request = m_write_requests[hash_code_args].value();
 		m_deferrals.erase(hash_code_args);
 		m_write_requests.erase(hash_code_args);
 		request.Respond();
 		deferal.Complete();
+		return std::nullopt;
 	}
 
 	std::optional<FlutterError> MyPeripheralManager::RespondWriteRequestWithProtocolError(int64_t hash_code_args, const MyGATTProtocolErrorArgs &error_args)
 	{
-		const auto deferal = m_deferrals[hash_code_args].value();
-		const auto request = m_write_requests[hash_code_args].value();
+		const auto &deferal = m_deferrals[hash_code_args].value();
+		const auto &request = m_write_requests[hash_code_args].value();
 		m_deferrals.erase(hash_code_args);
 		m_write_requests.erase(hash_code_args);
 		const auto error = ArgsToProtocolError(error_args);
 		request.RespondWithProtocolError(error);
 		deferal.Complete();
+		return std::nullopt;
 	}
 
 	void MyPeripheralManager::NotifyValue(int64_t address_args, int64_t hash_code_args, const std::vector<uint8_t> &value_args, std::function<void(std::optional<FlutterError> reply)> result)
@@ -188,6 +194,7 @@ namespace bluetooth_low_energy_windows
 						api.OnStateChanged(state_args, [] {}, [](auto error) {});
 					});
 			}
+			result(std::nullopt);
 		}
 		catch (const winrt::hresult_error &ex)
 		{
@@ -210,32 +217,8 @@ namespace bluetooth_low_energy_windows
 	{
 		try
 		{
-			const auto hash_code_args = service_args.hash_code_args();
-			const auto &uuid_args = service_args.uuid_args();
-			const auto uuid = winrt::guid(uuid_args);
-			const auto &r = co_await winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattServiceProvider::CreateAsync(uuid);
-			const auto error = r.Error();
-			if (error != winrt::Windows::Devices::Bluetooth::BluetoothError::Success)
-			{
-				const auto error_code = static_cast<int32_t>(error);
-				const auto message = "Create service failed with error: " + std::to_string(error_code);
-				throw MyException(message);
-			}
-			const auto service_provider = r.ServiceProvider();
-			const auto service = service_provider.Service();
-			const auto &characteristics_args_value = service_args.characteristics_args();
-			for (const auto &characteristic_args_value : characteristics_args_value)
-			{
-				const auto &custom_characteristic_args_value = std::get<flutter::CustomEncodableValue>(characteristic_args_value);
-				const auto &characteristic_args = std::any_cast<MyMutableGATTCharacteristicArgs>(custom_characteristic_args_value);
-				co_await CreateCharacteristicAsync(service, characteristic_args);
-			}
-			const auto parameters = winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattServiceProviderAdvertisingParameters();
-			parameters.IsDiscoverable(true);
-			parameters.IsConnectable(true);
-			service_provider.StartAdvertising(parameters);
-			m_service_providers[hash_code_args] = service_provider;
-			m_services_args[hash_code_args] = service_args;
+			co_await CreateServiceAsync(service_args);
+			result(std::nullopt);
 		}
 		catch (const winrt::hresult_error &ex)
 		{
@@ -258,12 +241,13 @@ namespace bluetooth_low_energy_windows
 	{
 		try
 		{
-			const auto client = m_clients[address_args].value();
-			const auto characteristic = m_characteristics[hash_code_args].value();
+			const auto &client = m_clients[address_args].value();
+			const auto &characteristic = m_characteristics[hash_code_args].value();
 			const auto writer = winrt::Windows::Storage::Streams::DataWriter();
 			writer.WriteBytes(value_args);
 			const auto value = writer.DetachBuffer();
-			co_await characteristic.NotifyValueAsync(value);
+			co_await characteristic.NotifyValueAsync(value, client);
+			result(std::nullopt);
 		}
 		catch (const winrt::hresult_error &ex)
 		{
@@ -282,6 +266,36 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
+	winrt::Windows::Foundation::IAsyncAction MyPeripheralManager::CreateServiceAsync(const MyMutableGATTServiceArgs &service_args)
+	{
+		const auto hash_code_args = service_args.hash_code_args();
+		m_services_args[hash_code_args] = service_args;
+		const auto &uuid_args = service_args.uuid_args();
+		const auto uuid = winrt::guid(uuid_args);
+		const auto &r = co_await winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattServiceProvider::CreateAsync(uuid);
+		const auto error = r.Error();
+		if (error != winrt::Windows::Devices::Bluetooth::BluetoothError::Success)
+		{
+			const auto error_code = static_cast<int32_t>(error);
+			const auto message = "Create service failed with error: " + std::to_string(error_code);
+			throw MyException(message);
+		}
+		const auto service_provider = r.ServiceProvider();
+		const auto service = service_provider.Service();
+		const auto &characteristics_args_value = service_args.characteristics_args();
+		for (const auto &characteristic_args_value : characteristics_args_value)
+		{
+			const auto &custom_characteristic_args_value = std::get<flutter::CustomEncodableValue>(characteristic_args_value);
+			const auto characteristic_args = std::any_cast<MyMutableGATTCharacteristicArgs>(custom_characteristic_args_value);
+			co_await CreateCharacteristicAsync(service, characteristic_args);
+		}
+		const auto parameters = winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattServiceProviderAdvertisingParameters();
+		parameters.IsDiscoverable(true);
+		parameters.IsConnectable(true);
+		service_provider.StartAdvertising(parameters);
+		m_service_providers[hash_code_args] = service_provider;
+	}
+
 	winrt::Windows::Foundation::IAsyncAction MyPeripheralManager::CreateCharacteristicAsync(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalService &service, const MyMutableGATTCharacteristicArgs &characteristic_args)
 	{
 		const auto hash_code_args = characteristic_args.hash_code_args();
@@ -296,34 +310,20 @@ namespace bluetooth_low_energy_windows
 			const auto value = writer.DetachBuffer();
 			parameters.StaticValue(value);
 		}
-		const auto &property_number_values = characteristic_args.property_numbers_args();
-		const auto properties = CharacteristicPropertyNumberValuesToProperties(property_number_values);
+		const auto &property_numbers_args_value = characteristic_args.property_numbers_args();
+		const auto properties = ArgsToCharacteristicProperties(property_numbers_args_value);
 		parameters.CharacteristicProperties(properties);
-		const auto &permission_number_values = characteristic_args.permission_numbers_args();
-		const auto &begin = permission_number_values.begin();
-		const auto &end = permission_number_values.end();
-		std::sort(begin, end);
-		for (const auto &permission_number_value : permission_number_values)
+		const auto read_protection_level_args = characteristic_args.read_protection_level_args();
+		if (read_protection_level_args != nullptr)
 		{
-			const auto permission_number = std::get<std::int64_t>(permission_number_value);
-			const auto permission_args = static_cast<MyGATTCharacteristicPermissionArgs>(permission_number);
-			switch (permission_args)
-			{
-			case MyGATTCharacteristicPermissionArgs::read:
-				parameters.ReadProtectionLevel(winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel::Plain);
-				break;
-			case MyGATTCharacteristicPermissionArgs::readEncrypted:
-				parameters.ReadProtectionLevel(winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel::EncryptionRequired);
-				break;
-			case MyGATTCharacteristicPermissionArgs::write:
-				parameters.WriteProtectionLevel(winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel::Plain);
-				break;
-			case MyGATTCharacteristicPermissionArgs::writeEncrypted:
-				parameters.WriteProtectionLevel(winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel::EncryptionRequired);
-				break;
-			default:
-				break;
-			}
+			const auto read_protection_level = ArgsToProtectionLevel(*read_protection_level_args);
+			parameters.ReadProtectionLevel(read_protection_level);
+		}
+		const auto write_protection_level_args = characteristic_args.write_protection_level_args();
+		if (write_protection_level_args != nullptr)
+		{
+			const auto write_protection_level = ArgsToProtectionLevel(*write_protection_level_args);
+			parameters.WriteProtectionLevel(write_protection_level);
 		}
 		const auto &r = co_await service.CreateCharacteristicAsync(uuid, parameters);
 		const auto error = r.Error();
@@ -336,19 +336,19 @@ namespace bluetooth_low_energy_windows
 		const auto characteristic = r.Characteristic();
 		m_characteristic_read_requested_revokers[hash_code_args] = characteristic.ReadRequested(
 			winrt::auto_revoke,
-			[this, hash_code_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalCharacteristic &characteristic, winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattReadRequestedEventArgs &event_args)
+			[this, hash_code_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalCharacteristic characteristic, winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattReadRequestedEventArgs event_args)
 			{
 				OnCharacteristicReadRequestedAsync(hash_code_args, event_args);
 			});
 		m_characteristic_write_requested_revokers[hash_code_args] = characteristic.WriteRequested(
 			winrt::auto_revoke,
-			[this, hash_code_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalCharacteristic &characteristic, winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteRequestedEventArgs &event_args)
+			[this, hash_code_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalCharacteristic characteristic, winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteRequestedEventArgs event_args)
 			{
 				OnCharacteristicWriteRequestedAsync(hash_code_args, event_args);
 			});
 		m_characteristic_subscribed_clients_changed_revokers[hash_code_args] = characteristic.SubscribedClientsChanged(
 			winrt::auto_revoke,
-			[this, hash_code_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalCharacteristic &characteristic, auto obj)
+			[this, hash_code_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalCharacteristic characteristic, auto obj)
 			{
 				OnCharacteristicSubscribedClientsChangedAsync(hash_code_args, characteristic);
 			});
@@ -364,6 +364,7 @@ namespace bluetooth_low_energy_windows
 
 	winrt::Windows::Foundation::IAsyncAction MyPeripheralManager::CreateDescriptorAsync(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalCharacteristic &characteristic, const MyMutableGATTDescriptorArgs &descriptor_args)
 	{
+		const auto hash_code_args = descriptor_args.hash_code_args();
 		const auto &uuid_args = descriptor_args.uuid_args();
 		const auto uuid = winrt::guid(uuid_args);
 		const auto parameters = winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalDescriptorParameters();
@@ -375,31 +376,17 @@ namespace bluetooth_low_energy_windows
 			const auto value = writer.DetachBuffer();
 			parameters.StaticValue(value);
 		}
-		const auto &permission_number_values = descriptor_args.permission_numbers_args();
-		const auto &begin = permission_number_values.begin();
-		const auto &end = permission_number_values.end();
-		std::sort(begin, end);
-		for (const auto &permission_number_value : permission_number_values)
+		const auto read_protection_level_args = descriptor_args.read_protection_level_args();
+		if (read_protection_level_args != nullptr)
 		{
-			const auto permission_number = std::get<std::int64_t>(permission_number_value);
-			const auto permission_args = static_cast<MyGATTCharacteristicPermissionArgs>(permission_number);
-			switch (permission_args)
-			{
-			case MyGATTCharacteristicPermissionArgs::read:
-				parameters.ReadProtectionLevel(winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel::Plain);
-				break;
-			case MyGATTCharacteristicPermissionArgs::readEncrypted:
-				parameters.ReadProtectionLevel(winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel::EncryptionRequired);
-				break;
-			case MyGATTCharacteristicPermissionArgs::write:
-				parameters.WriteProtectionLevel(winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel::Plain);
-				break;
-			case MyGATTCharacteristicPermissionArgs::writeEncrypted:
-				parameters.WriteProtectionLevel(winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel::EncryptionRequired);
-				break;
-			default:
-				break;
-			}
+			const auto read_protection_level = ArgsToProtectionLevel(*read_protection_level_args);
+			parameters.ReadProtectionLevel(read_protection_level);
+		}
+		const auto write_protection_level_args = descriptor_args.write_protection_level_args();
+		if (write_protection_level_args != nullptr)
+		{
+			const auto write_protection_level = ArgsToProtectionLevel(*write_protection_level_args);
+			parameters.WriteProtectionLevel(write_protection_level);
 		}
 		const auto &r = co_await characteristic.CreateDescriptorAsync(uuid, parameters);
 		const auto error = r.Error();
@@ -410,18 +397,17 @@ namespace bluetooth_low_energy_windows
 			throw MyException(message);
 		}
 		const auto descriptor = r.Descriptor();
-		const auto descriptor_hash_code_args = descriptor_args.hash_code_args();
-		m_descriptor_read_requested_revokers[descriptor_hash_code_args] = descriptor.ReadRequested(
+		m_descriptor_read_requested_revokers[hash_code_args] = descriptor.ReadRequested(
 			winrt::auto_revoke,
-			[this, descriptor_hash_code_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalDescriptor &descriptor, winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattReadRequestedEventArgs &event_args)
+			[this, hash_code_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalDescriptor descriptor, winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattReadRequestedEventArgs event_args)
 			{
-				OnDescriptorReadRequestedAsync(descriptor_hash_code_args, event_args);
+				OnDescriptorReadRequestedAsync(hash_code_args, event_args);
 			});
-		m_descriptor_write_requested_revokers[descriptor_hash_code_args] = descriptor.WriteRequested(
+		m_descriptor_write_requested_revokers[hash_code_args] = descriptor.WriteRequested(
 			winrt::auto_revoke,
-			[this, descriptor_hash_code_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalDescriptor &descriptor, winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteRequestedEventArgs &event_args)
+			[this, hash_code_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalDescriptor descriptor, winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteRequestedEventArgs event_args)
 			{
-				OnDescriptorWriteRequestedAsync(descriptor_hash_code_args, event_args);
+				OnDescriptorWriteRequestedAsync(hash_code_args, event_args);
 			});
 	}
 
@@ -461,9 +447,23 @@ namespace bluetooth_low_energy_windows
 
 	winrt::fire_and_forget MyPeripheralManager::OnCharacteristicReadRequestedAsync(const int64_t hash_code_args, const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattReadRequestedEventArgs &event_args)
 	{
-		auto api = m_api.value();
+		auto &api = m_api.value();
 		const auto session = event_args.Session();
-		const auto central_args = co_await SessionToArgsAsync(session);
+		const auto device_id = session.DeviceId().Id();
+		const auto &device = co_await winrt::Windows::Devices::Bluetooth::BluetoothLEDevice::FromIdAsync(device_id);
+		const auto address = device.BluetoothAddress();
+		const auto address_args = static_cast<int64_t>(address);
+		const auto central_args = MyCentralArgs(address_args);
+		m_session_max_pdu_size_changed_revokers[address_args] = session.MaxPduSizeChanged(
+			winrt::auto_revoke,
+			[this, central_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession session, auto obj)
+			{
+				auto &api = m_api.value();
+				const auto mtu = session.MaxPduSize();
+				const auto mtu_args = static_cast<int64_t>(mtu);
+				// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
+				api.OnMTUChanged(central_args, mtu_args, [] {}, [](auto error) {});
+			});
 		const auto &deferral = event_args.GetDeferral();
 		const auto &request = co_await event_args.GetRequestAsync();
 		const auto id = std::addressof(request);
@@ -480,9 +480,23 @@ namespace bluetooth_low_energy_windows
 
 	winrt::fire_and_forget MyPeripheralManager::OnCharacteristicWriteRequestedAsync(const int64_t hash_code_args, const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteRequestedEventArgs &event_args)
 	{
-		auto api = m_api.value();
+		auto &api = m_api.value();
 		const auto session = event_args.Session();
-		const auto central_args = co_await SessionToArgsAsync(session);
+		const auto device_id = session.DeviceId().Id();
+		const auto &device = co_await winrt::Windows::Devices::Bluetooth::BluetoothLEDevice::FromIdAsync(device_id);
+		const auto address = device.BluetoothAddress();
+		const auto address_args = static_cast<int64_t>(address);
+		const auto central_args = MyCentralArgs(address_args);
+		m_session_max_pdu_size_changed_revokers[address_args] = session.MaxPduSizeChanged(
+			winrt::auto_revoke,
+			[this, central_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession session, auto obj)
+			{
+				auto &api = m_api.value();
+				const auto mtu = session.MaxPduSize();
+				const auto mtu_args = static_cast<int64_t>(mtu);
+				// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
+				api.OnMTUChanged(central_args, mtu_args, [] {}, [](auto error) {});
+			});
 		const auto &deferral = event_args.GetDeferral();
 		const auto &request = co_await event_args.GetRequestAsync();
 		const auto id = std::addressof(request);
@@ -491,7 +505,7 @@ namespace bluetooth_low_energy_windows
 		const auto offset_args = static_cast<int64_t>(offset);
 		const auto value = request.Value();
 		const auto value_length = value.Length();
-		const auto value_args = std::vector<uint8_t>(value_length);
+		auto value_args = std::vector<uint8_t>(value_length);
 		const auto reader = winrt::Windows::Storage::Streams::DataReader::FromBuffer(value);
 		reader.ReadBytes(value_args);
 		const auto option = request.Option();
@@ -510,8 +524,21 @@ namespace bluetooth_low_energy_windows
 		for (const auto client : clients)
 		{
 			const auto session = client.Session();
-			const auto central_args = co_await SessionToArgsAsync(session);
-			const auto address_args = central_args.address_args();
+			const auto device_id = session.DeviceId().Id();
+			const auto &device = co_await winrt::Windows::Devices::Bluetooth::BluetoothLEDevice::FromIdAsync(device_id);
+			const auto address = device.BluetoothAddress();
+			const auto address_args = static_cast<int64_t>(address);
+			const auto central_args = MyCentralArgs(address_args);
+			m_session_max_pdu_size_changed_revokers[address_args] = session.MaxPduSizeChanged(
+				winrt::auto_revoke,
+				[this, central_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession session, auto obj)
+				{
+					auto &api = m_api.value();
+					const auto mtu = session.MaxPduSize();
+					const auto mtu_args = static_cast<int64_t>(mtu);
+					// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
+					api.OnMTUChanged(central_args, mtu_args, [] {}, [](auto error) {});
+				});
 			m_clients[address_args] = client;
 			const auto central_args_value = flutter::CustomEncodableValue(central_args);
 			centrals_args.emplace_back(central_args_value);
@@ -521,9 +548,23 @@ namespace bluetooth_low_energy_windows
 
 	winrt::fire_and_forget MyPeripheralManager::OnDescriptorReadRequestedAsync(const int64_t hash_code_args, const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattReadRequestedEventArgs &event_args)
 	{
-		auto api = m_api.value();
+		auto &api = m_api.value();
 		const auto session = event_args.Session();
-		const auto central_args = co_await SessionToArgsAsync(session);
+		const auto device_id = session.DeviceId().Id();
+		const auto &device = co_await winrt::Windows::Devices::Bluetooth::BluetoothLEDevice::FromIdAsync(device_id);
+		const auto address = device.BluetoothAddress();
+		const auto address_args = static_cast<int64_t>(address);
+		const auto central_args = MyCentralArgs(address_args);
+		m_session_max_pdu_size_changed_revokers[address_args] = session.MaxPduSizeChanged(
+			winrt::auto_revoke,
+			[this, central_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession session, auto obj)
+			{
+				auto &api = m_api.value();
+				const auto mtu = session.MaxPduSize();
+				const auto mtu_args = static_cast<int64_t>(mtu);
+				// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
+				api.OnMTUChanged(central_args, mtu_args, [] {}, [](auto error) {});
+			});
 		const auto &deferral = event_args.GetDeferral();
 		const auto &request = co_await event_args.GetRequestAsync();
 		const auto id = std::addressof(request);
@@ -540,9 +581,23 @@ namespace bluetooth_low_energy_windows
 
 	winrt::fire_and_forget MyPeripheralManager::OnDescriptorWriteRequestedAsync(const int64_t hash_code_args, const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteRequestedEventArgs &event_args)
 	{
-		auto api = m_api.value();
+		auto &api = m_api.value();
 		const auto session = event_args.Session();
-		const auto central_args = co_await SessionToArgsAsync(session);
+		const auto device_id = session.DeviceId().Id();
+		const auto &device = co_await winrt::Windows::Devices::Bluetooth::BluetoothLEDevice::FromIdAsync(device_id);
+		const auto address = device.BluetoothAddress();
+		const auto address_args = static_cast<int64_t>(address);
+		const auto central_args = MyCentralArgs(address_args);
+		m_session_max_pdu_size_changed_revokers[address_args] = session.MaxPduSizeChanged(
+			winrt::auto_revoke,
+			[this, central_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession session, auto obj)
+			{
+				auto &api = m_api.value();
+				const auto mtu = session.MaxPduSize();
+				const auto mtu_args = static_cast<int64_t>(mtu);
+				// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
+				api.OnMTUChanged(central_args, mtu_args, [] {}, [](auto error) {});
+			});
 		const auto &deferral = event_args.GetDeferral();
 		const auto &request = co_await event_args.GetRequestAsync();
 		const auto id = std::addressof(request);
@@ -551,7 +606,7 @@ namespace bluetooth_low_energy_windows
 		const auto offset_args = static_cast<int64_t>(offset);
 		const auto value = request.Value();
 		const auto value_length = value.Length();
-		const auto value_args = std::vector<uint8_t>(value_length);
+		auto value_args = std::vector<uint8_t>(value_length);
 		const auto reader = winrt::Windows::Storage::Streams::DataReader::FromBuffer(value);
 		reader.ReadBytes(value_args);
 		const auto option = request.Option();
@@ -579,10 +634,10 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristicProperties MyPeripheralManager::CharacteristicPropertyNumberValuesToProperties(const flutter::EncodableList property_numbers_args_value)
+	winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristicProperties MyPeripheralManager::ArgsToCharacteristicProperties(const flutter::EncodableList property_numbers_args_value)
 	{
 		auto properties = winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristicProperties::None;
-		for (const auto property_number_args_value : property_numbers_args_value)
+		for (const auto &property_number_args_value : property_numbers_args_value)
 		{
 			const auto property_number_args = std::get<int64_t>(property_number_args_value);
 			const auto property_args = static_cast<MyGATTCharacteristicPropertyArgs>(property_number_args);
@@ -610,26 +665,6 @@ namespace bluetooth_low_energy_windows
 		return properties;
 	}
 
-	winrt::Windows::Foundation::IAsyncOperation<MyCentralArgs> MyPeripheralManager::SessionToArgsAsync(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession &session)
-	{
-		const auto id = session.DeviceId().Id();
-		const auto device = co_await winrt::Windows::Devices::Bluetooth::BluetoothLEDevice::FromIdAsync(id);
-		const auto address = device.BluetoothAddress();
-		const auto address_args = static_cast<int64_t>(address);
-		const auto central_args = MyCentralArgs(address_args);
-		m_session_max_pdu_size_changed_revokers[address_args] = session.MaxPduSizeChanged(
-			winrt::auto_revoke,
-			[this, central_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession &session, auto obj)
-			{
-				auto &api = m_api.value();
-				const auto mtu = session.MaxPduSize();
-				const auto mtu_args = static_cast<int64_t>(mtu);
-				// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
-				api.OnMTUChanged(central_args, mtu_args, [] {}, [](auto error) {});
-			});
-		co_return central_args;
-	}
-
 	MyGATTCharacteristicWriteTypeArgs MyPeripheralManager::WriteOptionToArgs(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteOption &option)
 	{
 		switch (option)
@@ -638,6 +673,23 @@ namespace bluetooth_low_energy_windows
 			return MyGATTCharacteristicWriteTypeArgs::withResponse;
 		case winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteOption::WriteWithoutResponse:
 			return MyGATTCharacteristicWriteTypeArgs::withoutResponse;
+		default:
+			throw std::bad_cast();
+		}
+	}
+
+	winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel MyPeripheralManager::ArgsToProtectionLevel(const MyGATTProtectionLevelArgs &level_args)
+	{
+		switch (level_args)
+		{
+		case MyGATTProtectionLevelArgs::plain:
+			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel::Plain;
+		case MyGATTProtectionLevelArgs::authenticationRequired:
+			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel::AuthenticationRequired;
+		case MyGATTProtectionLevelArgs::entryptionRequired:
+			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel::EncryptionRequired;
+		case MyGATTProtectionLevelArgs::encryptionAndAuthenticationRequired:
+			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel::EncryptionAndAuthenticationRequired;
 		default:
 			throw std::bad_cast();
 		}

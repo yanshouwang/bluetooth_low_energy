@@ -57,7 +57,6 @@ class _PeripheralViewState extends State<PeripheralView>
       ),
       body: SingleChildScrollView(
         child: TreeView(
-          indent: 0.0,
           nodes: services.map((service) {
             final characteristics = service.characteristics;
             return TreeNode(
@@ -68,18 +67,40 @@ class _PeripheralViewState extends State<PeripheralView>
                     return TreeNode(
                       content: Row(
                         children: [
-                          const Icon(Symbols.asterisk),
+                          Icon(
+                            Symbols.asterisk,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
                           const SizedBox(width: 12.0),
-                          Text('${descriptor.uuid}'),
+                          Text(
+                            '${descriptor.uuid}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                ),
+                          ),
                         ],
                       ),
                     );
                   }).toList(),
                   content: Row(
                     children: [
-                      const Icon(Symbols.join_right),
+                      Icon(
+                        Symbols.join_right,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                       const SizedBox(width: 12.0),
-                      Text('${characteristic.uuid}'),
+                      Text(
+                        '${characteristic.uuid}',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                      ),
                       Offstage(
                         offstage: characteristic.properties.none((property) =>
                             property == GATTCharacteristicProperty.read),
@@ -122,10 +143,18 @@ class _PeripheralViewState extends State<PeripheralView>
                 children: [
                   Transform.rotate(
                     angle: math.pi / 2.0,
-                    child: const Icon(Symbols.polymer),
+                    child: Icon(
+                      Symbols.polymer,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
                   const SizedBox(width: 12.0),
-                  Text('${service.uuid}'),
+                  Text(
+                    '${service.uuid}',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                  ),
                 ],
               ),
             );

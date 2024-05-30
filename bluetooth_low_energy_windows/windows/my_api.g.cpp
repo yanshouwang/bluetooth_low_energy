@@ -416,21 +416,21 @@ MyGATTServiceArgs MyGATTServiceArgs::FromEncodableList(const EncodableList& list
 
 MyMutableGATTDescriptorArgs::MyMutableGATTDescriptorArgs(
   int64_t hash_code_args,
-  const std::string& uuid_args,
-  const EncodableList& permission_numbers_args)
+  const std::string& uuid_args)
  : hash_code_args_(hash_code_args),
-    uuid_args_(uuid_args),
-    permission_numbers_args_(permission_numbers_args) {}
+    uuid_args_(uuid_args) {}
 
 MyMutableGATTDescriptorArgs::MyMutableGATTDescriptorArgs(
   int64_t hash_code_args,
   const std::string& uuid_args,
   const std::vector<uint8_t>* value_args,
-  const EncodableList& permission_numbers_args)
+  const MyGATTProtectionLevelArgs* read_protection_level_args,
+  const MyGATTProtectionLevelArgs* write_protection_level_args)
  : hash_code_args_(hash_code_args),
     uuid_args_(uuid_args),
     value_args_(value_args ? std::optional<std::vector<uint8_t>>(*value_args) : std::nullopt),
-    permission_numbers_args_(permission_numbers_args) {}
+    read_protection_level_args_(read_protection_level_args ? std::optional<MyGATTProtectionLevelArgs>(*read_protection_level_args) : std::nullopt),
+    write_protection_level_args_(write_protection_level_args ? std::optional<MyGATTProtectionLevelArgs>(*write_protection_level_args) : std::nullopt) {}
 
 int64_t MyMutableGATTDescriptorArgs::hash_code_args() const {
   return hash_code_args_;
@@ -463,33 +463,58 @@ void MyMutableGATTDescriptorArgs::set_value_args(const std::vector<uint8_t>& val
 }
 
 
-const EncodableList& MyMutableGATTDescriptorArgs::permission_numbers_args() const {
-  return permission_numbers_args_;
+const MyGATTProtectionLevelArgs* MyMutableGATTDescriptorArgs::read_protection_level_args() const {
+  return read_protection_level_args_ ? &(*read_protection_level_args_) : nullptr;
 }
 
-void MyMutableGATTDescriptorArgs::set_permission_numbers_args(const EncodableList& value_arg) {
-  permission_numbers_args_ = value_arg;
+void MyMutableGATTDescriptorArgs::set_read_protection_level_args(const MyGATTProtectionLevelArgs* value_arg) {
+  read_protection_level_args_ = value_arg ? std::optional<MyGATTProtectionLevelArgs>(*value_arg) : std::nullopt;
+}
+
+void MyMutableGATTDescriptorArgs::set_read_protection_level_args(const MyGATTProtectionLevelArgs& value_arg) {
+  read_protection_level_args_ = value_arg;
+}
+
+
+const MyGATTProtectionLevelArgs* MyMutableGATTDescriptorArgs::write_protection_level_args() const {
+  return write_protection_level_args_ ? &(*write_protection_level_args_) : nullptr;
+}
+
+void MyMutableGATTDescriptorArgs::set_write_protection_level_args(const MyGATTProtectionLevelArgs* value_arg) {
+  write_protection_level_args_ = value_arg ? std::optional<MyGATTProtectionLevelArgs>(*value_arg) : std::nullopt;
+}
+
+void MyMutableGATTDescriptorArgs::set_write_protection_level_args(const MyGATTProtectionLevelArgs& value_arg) {
+  write_protection_level_args_ = value_arg;
 }
 
 
 EncodableList MyMutableGATTDescriptorArgs::ToEncodableList() const {
   EncodableList list;
-  list.reserve(4);
+  list.reserve(5);
   list.push_back(EncodableValue(hash_code_args_));
   list.push_back(EncodableValue(uuid_args_));
   list.push_back(value_args_ ? EncodableValue(*value_args_) : EncodableValue());
-  list.push_back(EncodableValue(permission_numbers_args_));
+  list.push_back(read_protection_level_args_ ? EncodableValue((int)(*read_protection_level_args_)) : EncodableValue());
+  list.push_back(write_protection_level_args_ ? EncodableValue((int)(*write_protection_level_args_)) : EncodableValue());
   return list;
 }
 
 MyMutableGATTDescriptorArgs MyMutableGATTDescriptorArgs::FromEncodableList(const EncodableList& list) {
   MyMutableGATTDescriptorArgs decoded(
     list[0].LongValue(),
-    std::get<std::string>(list[1]),
-    std::get<EncodableList>(list[3]));
+    std::get<std::string>(list[1]));
   auto& encodable_value_args = list[2];
   if (!encodable_value_args.IsNull()) {
     decoded.set_value_args(std::get<std::vector<uint8_t>>(encodable_value_args));
+  }
+  auto& encodable_read_protection_level_args = list[3];
+  if (!encodable_read_protection_level_args.IsNull()) {
+    decoded.set_read_protection_level_args((MyGATTProtectionLevelArgs)(std::get<int32_t>(encodable_read_protection_level_args)));
+  }
+  auto& encodable_write_protection_level_args = list[4];
+  if (!encodable_write_protection_level_args.IsNull()) {
+    decoded.set_write_protection_level_args((MyGATTProtectionLevelArgs)(std::get<int32_t>(encodable_write_protection_level_args)));
   }
   return decoded;
 }
@@ -500,12 +525,10 @@ MyMutableGATTCharacteristicArgs::MyMutableGATTCharacteristicArgs(
   int64_t hash_code_args,
   const std::string& uuid_args,
   const EncodableList& property_numbers_args,
-  const EncodableList& permission_numbers_args,
   const EncodableList& descriptors_args)
  : hash_code_args_(hash_code_args),
     uuid_args_(uuid_args),
     property_numbers_args_(property_numbers_args),
-    permission_numbers_args_(permission_numbers_args),
     descriptors_args_(descriptors_args) {}
 
 MyMutableGATTCharacteristicArgs::MyMutableGATTCharacteristicArgs(
@@ -513,13 +536,15 @@ MyMutableGATTCharacteristicArgs::MyMutableGATTCharacteristicArgs(
   const std::string& uuid_args,
   const std::vector<uint8_t>* value_args,
   const EncodableList& property_numbers_args,
-  const EncodableList& permission_numbers_args,
+  const MyGATTProtectionLevelArgs* read_protection_level_args,
+  const MyGATTProtectionLevelArgs* write_protection_level_args,
   const EncodableList& descriptors_args)
  : hash_code_args_(hash_code_args),
     uuid_args_(uuid_args),
     value_args_(value_args ? std::optional<std::vector<uint8_t>>(*value_args) : std::nullopt),
     property_numbers_args_(property_numbers_args),
-    permission_numbers_args_(permission_numbers_args),
+    read_protection_level_args_(read_protection_level_args ? std::optional<MyGATTProtectionLevelArgs>(*read_protection_level_args) : std::nullopt),
+    write_protection_level_args_(write_protection_level_args ? std::optional<MyGATTProtectionLevelArgs>(*write_protection_level_args) : std::nullopt),
     descriptors_args_(descriptors_args) {}
 
 int64_t MyMutableGATTCharacteristicArgs::hash_code_args() const {
@@ -562,12 +587,29 @@ void MyMutableGATTCharacteristicArgs::set_property_numbers_args(const EncodableL
 }
 
 
-const EncodableList& MyMutableGATTCharacteristicArgs::permission_numbers_args() const {
-  return permission_numbers_args_;
+const MyGATTProtectionLevelArgs* MyMutableGATTCharacteristicArgs::read_protection_level_args() const {
+  return read_protection_level_args_ ? &(*read_protection_level_args_) : nullptr;
 }
 
-void MyMutableGATTCharacteristicArgs::set_permission_numbers_args(const EncodableList& value_arg) {
-  permission_numbers_args_ = value_arg;
+void MyMutableGATTCharacteristicArgs::set_read_protection_level_args(const MyGATTProtectionLevelArgs* value_arg) {
+  read_protection_level_args_ = value_arg ? std::optional<MyGATTProtectionLevelArgs>(*value_arg) : std::nullopt;
+}
+
+void MyMutableGATTCharacteristicArgs::set_read_protection_level_args(const MyGATTProtectionLevelArgs& value_arg) {
+  read_protection_level_args_ = value_arg;
+}
+
+
+const MyGATTProtectionLevelArgs* MyMutableGATTCharacteristicArgs::write_protection_level_args() const {
+  return write_protection_level_args_ ? &(*write_protection_level_args_) : nullptr;
+}
+
+void MyMutableGATTCharacteristicArgs::set_write_protection_level_args(const MyGATTProtectionLevelArgs* value_arg) {
+  write_protection_level_args_ = value_arg ? std::optional<MyGATTProtectionLevelArgs>(*value_arg) : std::nullopt;
+}
+
+void MyMutableGATTCharacteristicArgs::set_write_protection_level_args(const MyGATTProtectionLevelArgs& value_arg) {
+  write_protection_level_args_ = value_arg;
 }
 
 
@@ -582,12 +624,13 @@ void MyMutableGATTCharacteristicArgs::set_descriptors_args(const EncodableList& 
 
 EncodableList MyMutableGATTCharacteristicArgs::ToEncodableList() const {
   EncodableList list;
-  list.reserve(6);
+  list.reserve(7);
   list.push_back(EncodableValue(hash_code_args_));
   list.push_back(EncodableValue(uuid_args_));
   list.push_back(value_args_ ? EncodableValue(*value_args_) : EncodableValue());
   list.push_back(EncodableValue(property_numbers_args_));
-  list.push_back(EncodableValue(permission_numbers_args_));
+  list.push_back(read_protection_level_args_ ? EncodableValue((int)(*read_protection_level_args_)) : EncodableValue());
+  list.push_back(write_protection_level_args_ ? EncodableValue((int)(*write_protection_level_args_)) : EncodableValue());
   list.push_back(EncodableValue(descriptors_args_));
   return list;
 }
@@ -597,11 +640,18 @@ MyMutableGATTCharacteristicArgs MyMutableGATTCharacteristicArgs::FromEncodableLi
     list[0].LongValue(),
     std::get<std::string>(list[1]),
     std::get<EncodableList>(list[3]),
-    std::get<EncodableList>(list[4]),
-    std::get<EncodableList>(list[5]));
+    std::get<EncodableList>(list[6]));
   auto& encodable_value_args = list[2];
   if (!encodable_value_args.IsNull()) {
     decoded.set_value_args(std::get<std::vector<uint8_t>>(encodable_value_args));
+  }
+  auto& encodable_read_protection_level_args = list[4];
+  if (!encodable_read_protection_level_args.IsNull()) {
+    decoded.set_read_protection_level_args((MyGATTProtectionLevelArgs)(std::get<int32_t>(encodable_read_protection_level_args)));
+  }
+  auto& encodable_write_protection_level_args = list[5];
+  if (!encodable_write_protection_level_args.IsNull()) {
+    decoded.set_write_protection_level_args((MyGATTProtectionLevelArgs)(std::get<int32_t>(encodable_write_protection_level_args)));
   }
   return decoded;
 }

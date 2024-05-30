@@ -4,6 +4,7 @@
 #include <flutter/plugin_registrar_windows.h>
 
 #include "my_central_manager.h"
+#include "my_peripheral_manager.h"
 
 namespace bluetooth_low_energy_windows
 {
@@ -12,7 +13,7 @@ namespace bluetooth_low_energy_windows
 	public:
 		static void RegisterWithRegistrar(flutter::PluginRegistrarWindows *registrar);
 
-		BluetoothLowEnergyWindowsPlugin(std::unique_ptr<MyCentralManager> central_manager);
+		BluetoothLowEnergyWindowsPlugin(std::unique_ptr<MyCentralManager> central_manager, std::unique_ptr<MyPeripheralManager> peripheral_manager);
 
 		virtual ~BluetoothLowEnergyWindowsPlugin();
 
@@ -22,6 +23,7 @@ namespace bluetooth_low_energy_windows
 
 	private:
 		std::unique_ptr<MyCentralManager> m_central_manager;
+		std::unique_ptr<MyPeripheralManager> m_peripheral_manager;
 	};
 } // namespace bluetooth_low_energy_windows
 
