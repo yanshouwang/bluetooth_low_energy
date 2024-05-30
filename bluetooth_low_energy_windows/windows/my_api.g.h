@@ -553,8 +553,12 @@ class MyGATTReadRequestArgs {
  public:
   // Constructs an object setting all fields.
   explicit MyGATTReadRequestArgs(
+    int64_t id_args,
     int64_t offset_args,
     int64_t length_args);
+
+  int64_t id_args() const;
+  void set_id_args(int64_t value_arg);
 
   int64_t offset_args() const;
   void set_offset_args(int64_t value_arg);
@@ -574,6 +578,7 @@ class MyGATTReadRequestArgs {
   friend class MyPeripheralManagerHostAPICodecSerializer;
   friend class MyPeripheralManagerFlutterAPI;
   friend class MyPeripheralManagerFlutterAPICodecSerializer;
+  int64_t id_args_;
   int64_t offset_args_;
   int64_t length_args_;
 
@@ -585,9 +590,13 @@ class MyGATTWriteRequestArgs {
  public:
   // Constructs an object setting all fields.
   explicit MyGATTWriteRequestArgs(
+    int64_t id_args,
     int64_t offset_args,
     const std::vector<uint8_t>& value_args,
     const MyGATTCharacteristicWriteTypeArgs& type_args);
+
+  int64_t id_args() const;
+  void set_id_args(int64_t value_arg);
 
   int64_t offset_args() const;
   void set_offset_args(int64_t value_arg);
@@ -610,6 +619,7 @@ class MyGATTWriteRequestArgs {
   friend class MyPeripheralManagerHostAPICodecSerializer;
   friend class MyPeripheralManagerFlutterAPI;
   friend class MyPeripheralManagerFlutterAPICodecSerializer;
+  int64_t id_args_;
   int64_t offset_args_;
   std::vector<uint8_t> value_args_;
   MyGATTCharacteristicWriteTypeArgs type_args_;
@@ -807,24 +817,19 @@ class MyPeripheralManagerHostAPI {
   virtual std::optional<FlutterError> RemoveService(int64_t hash_code_args) = 0;
   virtual std::optional<FlutterError> StartAdvertising(const MyAdvertisementArgs& advertisement_args) = 0;
   virtual std::optional<FlutterError> StopAdvertising() = 0;
-  virtual ErrorOr<int64_t> GetMTU(int64_t address_args) = 0;
+  virtual ErrorOr<int64_t> GetMaxNotificationSize(int64_t address_args) = 0;
   virtual std::optional<FlutterError> RespondReadRequestWithValue(
-    int64_t address_args,
     int64_t hash_code_args,
     const std::vector<uint8_t>& value_args) = 0;
   virtual std::optional<FlutterError> RespondReadRequestWithProtocolError(
-    int64_t address_args,
     int64_t hash_code_args,
     const MyGATTProtocolErrorArgs& error_args) = 0;
-  virtual std::optional<FlutterError> RespondWriteRequest(
-    int64_t address_args,
-    int64_t hash_code_args) = 0;
+  virtual std::optional<FlutterError> RespondWriteRequest(int64_t hash_code_args) = 0;
   virtual std::optional<FlutterError> RespondWriteRequestWithProtocolError(
-    int64_t address_args,
     int64_t hash_code_args,
     const MyGATTProtocolErrorArgs& error_args) = 0;
   virtual void NotifyValue(
-    const std::string& address_args,
+    int64_t address_args,
     int64_t hash_code_args,
     const std::vector<uint8_t>& value_args,
     std::function<void(std::optional<FlutterError> reply)> result) = 0;

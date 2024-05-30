@@ -208,21 +208,25 @@ class MyMutableGATTServiceArgs {
 }
 
 class MyGATTReadRequestArgs {
+  final int idArgs;
   final int offsetArgs;
   final int lengthArgs;
 
   MyGATTReadRequestArgs(
+    this.idArgs,
     this.offsetArgs,
     this.lengthArgs,
   );
 }
 
 class MyGATTWriteRequestArgs {
+  final int idArgs;
   final int offsetArgs;
   final Uint8List valueArgs;
   final MyGATTCharacteristicWriteTypeArgs typeArgs;
 
   MyGATTWriteRequestArgs(
+    this.idArgs,
     this.offsetArgs,
     this.valueArgs,
     this.typeArgs,
@@ -324,29 +328,20 @@ abstract class MyPeripheralManagerHostAPI {
   void removeService(int hashCodeArgs);
   void startAdvertising(MyAdvertisementArgs advertisementArgs);
   void stopAdvertising();
-  int getMTU(int addressArgs);
-  void respondReadRequestWithValue(
-    int addressArgs,
-    int hashCodeArgs,
-    Uint8List valueArgs,
-  );
+  int getMaxNotificationSize(int addressArgs);
+  void respondReadRequestWithValue(int hashCodeArgs, Uint8List valueArgs);
   void respondReadRequestWithProtocolError(
-    int addressArgs,
     int hashCodeArgs,
     MyGATTProtocolErrorArgs errorArgs,
   );
-  void respondWriteRequest(
-    int addressArgs,
-    int hashCodeArgs,
-  );
+  void respondWriteRequest(int hashCodeArgs);
   void respondWriteRequestWithProtocolError(
-    int addressArgs,
     int hashCodeArgs,
     MyGATTProtocolErrorArgs errorArgs,
   );
   @async
   void notifyValue(
-    String addressArgs,
+    int addressArgs,
     int hashCodeArgs,
     Uint8List valueArgs,
   );

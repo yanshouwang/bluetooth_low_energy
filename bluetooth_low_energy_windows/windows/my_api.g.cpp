@@ -689,10 +689,21 @@ MyMutableGATTServiceArgs MyMutableGATTServiceArgs::FromEncodableList(const Encod
 // MyGATTReadRequestArgs
 
 MyGATTReadRequestArgs::MyGATTReadRequestArgs(
+  int64_t id_args,
   int64_t offset_args,
   int64_t length_args)
- : offset_args_(offset_args),
+ : id_args_(id_args),
+    offset_args_(offset_args),
     length_args_(length_args) {}
+
+int64_t MyGATTReadRequestArgs::id_args() const {
+  return id_args_;
+}
+
+void MyGATTReadRequestArgs::set_id_args(int64_t value_arg) {
+  id_args_ = value_arg;
+}
+
 
 int64_t MyGATTReadRequestArgs::offset_args() const {
   return offset_args_;
@@ -714,7 +725,8 @@ void MyGATTReadRequestArgs::set_length_args(int64_t value_arg) {
 
 EncodableList MyGATTReadRequestArgs::ToEncodableList() const {
   EncodableList list;
-  list.reserve(2);
+  list.reserve(3);
+  list.push_back(EncodableValue(id_args_));
   list.push_back(EncodableValue(offset_args_));
   list.push_back(EncodableValue(length_args_));
   return list;
@@ -723,19 +735,31 @@ EncodableList MyGATTReadRequestArgs::ToEncodableList() const {
 MyGATTReadRequestArgs MyGATTReadRequestArgs::FromEncodableList(const EncodableList& list) {
   MyGATTReadRequestArgs decoded(
     list[0].LongValue(),
-    list[1].LongValue());
+    list[1].LongValue(),
+    list[2].LongValue());
   return decoded;
 }
 
 // MyGATTWriteRequestArgs
 
 MyGATTWriteRequestArgs::MyGATTWriteRequestArgs(
+  int64_t id_args,
   int64_t offset_args,
   const std::vector<uint8_t>& value_args,
   const MyGATTCharacteristicWriteTypeArgs& type_args)
- : offset_args_(offset_args),
+ : id_args_(id_args),
+    offset_args_(offset_args),
     value_args_(value_args),
     type_args_(type_args) {}
+
+int64_t MyGATTWriteRequestArgs::id_args() const {
+  return id_args_;
+}
+
+void MyGATTWriteRequestArgs::set_id_args(int64_t value_arg) {
+  id_args_ = value_arg;
+}
+
 
 int64_t MyGATTWriteRequestArgs::offset_args() const {
   return offset_args_;
@@ -766,7 +790,8 @@ void MyGATTWriteRequestArgs::set_type_args(const MyGATTCharacteristicWriteTypeAr
 
 EncodableList MyGATTWriteRequestArgs::ToEncodableList() const {
   EncodableList list;
-  list.reserve(3);
+  list.reserve(4);
+  list.push_back(EncodableValue(id_args_));
   list.push_back(EncodableValue(offset_args_));
   list.push_back(EncodableValue(value_args_));
   list.push_back(EncodableValue((int)type_args_));
@@ -776,8 +801,9 @@ EncodableList MyGATTWriteRequestArgs::ToEncodableList() const {
 MyGATTWriteRequestArgs MyGATTWriteRequestArgs::FromEncodableList(const EncodableList& list) {
   MyGATTWriteRequestArgs decoded(
     list[0].LongValue(),
-    std::get<std::vector<uint8_t>>(list[1]),
-    (MyGATTCharacteristicWriteTypeArgs)(std::get<int32_t>(list[2])));
+    list[1].LongValue(),
+    std::get<std::vector<uint8_t>>(list[2]),
+    (MyGATTCharacteristicWriteTypeArgs)(std::get<int32_t>(list[3])));
   return decoded;
 }
 
@@ -1836,7 +1862,7 @@ void MyPeripheralManagerHostAPI::SetUp(
     }
   }
   {
-    BasicMessageChannel<> channel(binary_messenger, "dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.getMTU" + prepended_suffix, &GetCodec());
+    BasicMessageChannel<> channel(binary_messenger, "dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.getMaxNotificationSize" + prepended_suffix, &GetCodec());
     if (api != nullptr) {
       channel.SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
         try {
@@ -1847,7 +1873,7 @@ void MyPeripheralManagerHostAPI::SetUp(
             return;
           }
           const int64_t address_args_arg = encodable_address_args_arg.LongValue();
-          ErrorOr<int64_t> output = api->GetMTU(address_args_arg);
+          ErrorOr<int64_t> output = api->GetMaxNotificationSize(address_args_arg);
           if (output.has_error()) {
             reply(WrapError(output.error()));
             return;
@@ -1869,25 +1895,19 @@ void MyPeripheralManagerHostAPI::SetUp(
       channel.SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
         try {
           const auto& args = std::get<EncodableList>(message);
-          const auto& encodable_address_args_arg = args.at(0);
-          if (encodable_address_args_arg.IsNull()) {
-            reply(WrapError("address_args_arg unexpectedly null."));
-            return;
-          }
-          const int64_t address_args_arg = encodable_address_args_arg.LongValue();
-          const auto& encodable_hash_code_args_arg = args.at(1);
+          const auto& encodable_hash_code_args_arg = args.at(0);
           if (encodable_hash_code_args_arg.IsNull()) {
             reply(WrapError("hash_code_args_arg unexpectedly null."));
             return;
           }
           const int64_t hash_code_args_arg = encodable_hash_code_args_arg.LongValue();
-          const auto& encodable_value_args_arg = args.at(2);
+          const auto& encodable_value_args_arg = args.at(1);
           if (encodable_value_args_arg.IsNull()) {
             reply(WrapError("value_args_arg unexpectedly null."));
             return;
           }
           const auto& value_args_arg = std::get<std::vector<uint8_t>>(encodable_value_args_arg);
-          std::optional<FlutterError> output = api->RespondReadRequestWithValue(address_args_arg, hash_code_args_arg, value_args_arg);
+          std::optional<FlutterError> output = api->RespondReadRequestWithValue(hash_code_args_arg, value_args_arg);
           if (output.has_value()) {
             reply(WrapError(output.value()));
             return;
@@ -1909,25 +1929,19 @@ void MyPeripheralManagerHostAPI::SetUp(
       channel.SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
         try {
           const auto& args = std::get<EncodableList>(message);
-          const auto& encodable_address_args_arg = args.at(0);
-          if (encodable_address_args_arg.IsNull()) {
-            reply(WrapError("address_args_arg unexpectedly null."));
-            return;
-          }
-          const int64_t address_args_arg = encodable_address_args_arg.LongValue();
-          const auto& encodable_hash_code_args_arg = args.at(1);
+          const auto& encodable_hash_code_args_arg = args.at(0);
           if (encodable_hash_code_args_arg.IsNull()) {
             reply(WrapError("hash_code_args_arg unexpectedly null."));
             return;
           }
           const int64_t hash_code_args_arg = encodable_hash_code_args_arg.LongValue();
-          const auto& encodable_error_args_arg = args.at(2);
+          const auto& encodable_error_args_arg = args.at(1);
           if (encodable_error_args_arg.IsNull()) {
             reply(WrapError("error_args_arg unexpectedly null."));
             return;
           }
           const MyGATTProtocolErrorArgs& error_args_arg = (MyGATTProtocolErrorArgs)encodable_error_args_arg.LongValue();
-          std::optional<FlutterError> output = api->RespondReadRequestWithProtocolError(address_args_arg, hash_code_args_arg, error_args_arg);
+          std::optional<FlutterError> output = api->RespondReadRequestWithProtocolError(hash_code_args_arg, error_args_arg);
           if (output.has_value()) {
             reply(WrapError(output.value()));
             return;
@@ -1949,19 +1963,13 @@ void MyPeripheralManagerHostAPI::SetUp(
       channel.SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
         try {
           const auto& args = std::get<EncodableList>(message);
-          const auto& encodable_address_args_arg = args.at(0);
-          if (encodable_address_args_arg.IsNull()) {
-            reply(WrapError("address_args_arg unexpectedly null."));
-            return;
-          }
-          const int64_t address_args_arg = encodable_address_args_arg.LongValue();
-          const auto& encodable_hash_code_args_arg = args.at(1);
+          const auto& encodable_hash_code_args_arg = args.at(0);
           if (encodable_hash_code_args_arg.IsNull()) {
             reply(WrapError("hash_code_args_arg unexpectedly null."));
             return;
           }
           const int64_t hash_code_args_arg = encodable_hash_code_args_arg.LongValue();
-          std::optional<FlutterError> output = api->RespondWriteRequest(address_args_arg, hash_code_args_arg);
+          std::optional<FlutterError> output = api->RespondWriteRequest(hash_code_args_arg);
           if (output.has_value()) {
             reply(WrapError(output.value()));
             return;
@@ -1983,25 +1991,19 @@ void MyPeripheralManagerHostAPI::SetUp(
       channel.SetMessageHandler([api](const EncodableValue& message, const flutter::MessageReply<EncodableValue>& reply) {
         try {
           const auto& args = std::get<EncodableList>(message);
-          const auto& encodable_address_args_arg = args.at(0);
-          if (encodable_address_args_arg.IsNull()) {
-            reply(WrapError("address_args_arg unexpectedly null."));
-            return;
-          }
-          const int64_t address_args_arg = encodable_address_args_arg.LongValue();
-          const auto& encodable_hash_code_args_arg = args.at(1);
+          const auto& encodable_hash_code_args_arg = args.at(0);
           if (encodable_hash_code_args_arg.IsNull()) {
             reply(WrapError("hash_code_args_arg unexpectedly null."));
             return;
           }
           const int64_t hash_code_args_arg = encodable_hash_code_args_arg.LongValue();
-          const auto& encodable_error_args_arg = args.at(2);
+          const auto& encodable_error_args_arg = args.at(1);
           if (encodable_error_args_arg.IsNull()) {
             reply(WrapError("error_args_arg unexpectedly null."));
             return;
           }
           const MyGATTProtocolErrorArgs& error_args_arg = (MyGATTProtocolErrorArgs)encodable_error_args_arg.LongValue();
-          std::optional<FlutterError> output = api->RespondWriteRequestWithProtocolError(address_args_arg, hash_code_args_arg, error_args_arg);
+          std::optional<FlutterError> output = api->RespondWriteRequestWithProtocolError(hash_code_args_arg, error_args_arg);
           if (output.has_value()) {
             reply(WrapError(output.value()));
             return;
@@ -2028,7 +2030,7 @@ void MyPeripheralManagerHostAPI::SetUp(
             reply(WrapError("address_args_arg unexpectedly null."));
             return;
           }
-          const auto& address_args_arg = std::get<std::string>(encodable_address_args_arg);
+          const int64_t address_args_arg = encodable_address_args_arg.LongValue();
           const auto& encodable_hash_code_args_arg = args.at(1);
           if (encodable_hash_code_args_arg.IsNull()) {
             reply(WrapError("hash_code_args_arg unexpectedly null."));

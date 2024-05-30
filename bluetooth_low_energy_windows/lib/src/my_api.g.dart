@@ -429,9 +429,12 @@ class MyMutableGATTServiceArgs {
 
 class MyGATTReadRequestArgs {
   MyGATTReadRequestArgs({
+    required this.idArgs,
     required this.offsetArgs,
     required this.lengthArgs,
   });
+
+  int idArgs;
 
   int offsetArgs;
 
@@ -439,6 +442,7 @@ class MyGATTReadRequestArgs {
 
   Object encode() {
     return <Object?>[
+      idArgs,
       offsetArgs,
       lengthArgs,
     ];
@@ -447,18 +451,22 @@ class MyGATTReadRequestArgs {
   static MyGATTReadRequestArgs decode(Object result) {
     result as List<Object?>;
     return MyGATTReadRequestArgs(
-      offsetArgs: result[0]! as int,
-      lengthArgs: result[1]! as int,
+      idArgs: result[0]! as int,
+      offsetArgs: result[1]! as int,
+      lengthArgs: result[2]! as int,
     );
   }
 }
 
 class MyGATTWriteRequestArgs {
   MyGATTWriteRequestArgs({
+    required this.idArgs,
     required this.offsetArgs,
     required this.valueArgs,
     required this.typeArgs,
   });
+
+  int idArgs;
 
   int offsetArgs;
 
@@ -468,6 +476,7 @@ class MyGATTWriteRequestArgs {
 
   Object encode() {
     return <Object?>[
+      idArgs,
       offsetArgs,
       valueArgs,
       typeArgs.index,
@@ -477,9 +486,10 @@ class MyGATTWriteRequestArgs {
   static MyGATTWriteRequestArgs decode(Object result) {
     result as List<Object?>;
     return MyGATTWriteRequestArgs(
-      offsetArgs: result[0]! as int,
-      valueArgs: result[1]! as Uint8List,
-      typeArgs: MyGATTCharacteristicWriteTypeArgs.values[result[2]! as int],
+      idArgs: result[0]! as int,
+      offsetArgs: result[1]! as int,
+      valueArgs: result[2]! as Uint8List,
+      typeArgs: MyGATTCharacteristicWriteTypeArgs.values[result[3]! as int],
     );
   }
 }
@@ -1326,8 +1336,8 @@ class MyPeripheralManagerHostAPI {
     }
   }
 
-  Future<int> getMTU(int addressArgs) async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.getMTU$__pigeon_messageChannelSuffix';
+  Future<int> getMaxNotificationSize(int addressArgs) async {
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.getMaxNotificationSize$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
@@ -1353,7 +1363,7 @@ class MyPeripheralManagerHostAPI {
     }
   }
 
-  Future<void> respondReadRequestWithValue(int addressArgs, int hashCodeArgs, Uint8List valueArgs) async {
+  Future<void> respondReadRequestWithValue(int hashCodeArgs, Uint8List valueArgs) async {
     final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.respondReadRequestWithValue$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
@@ -1361,7 +1371,7 @@ class MyPeripheralManagerHostAPI {
       binaryMessenger: __pigeon_binaryMessenger,
     );
     final List<Object?>? __pigeon_replyList =
-        await __pigeon_channel.send(<Object?>[addressArgs, hashCodeArgs, valueArgs]) as List<Object?>?;
+        await __pigeon_channel.send(<Object?>[hashCodeArgs, valueArgs]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {
@@ -1375,7 +1385,7 @@ class MyPeripheralManagerHostAPI {
     }
   }
 
-  Future<void> respondReadRequestWithProtocolError(int addressArgs, int hashCodeArgs, MyGATTProtocolErrorArgs errorArgs) async {
+  Future<void> respondReadRequestWithProtocolError(int hashCodeArgs, MyGATTProtocolErrorArgs errorArgs) async {
     final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.respondReadRequestWithProtocolError$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
@@ -1383,7 +1393,7 @@ class MyPeripheralManagerHostAPI {
       binaryMessenger: __pigeon_binaryMessenger,
     );
     final List<Object?>? __pigeon_replyList =
-        await __pigeon_channel.send(<Object?>[addressArgs, hashCodeArgs, errorArgs.index]) as List<Object?>?;
+        await __pigeon_channel.send(<Object?>[hashCodeArgs, errorArgs.index]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {
@@ -1397,7 +1407,7 @@ class MyPeripheralManagerHostAPI {
     }
   }
 
-  Future<void> respondWriteRequest(int addressArgs, int hashCodeArgs) async {
+  Future<void> respondWriteRequest(int hashCodeArgs) async {
     final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.respondWriteRequest$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
@@ -1405,7 +1415,7 @@ class MyPeripheralManagerHostAPI {
       binaryMessenger: __pigeon_binaryMessenger,
     );
     final List<Object?>? __pigeon_replyList =
-        await __pigeon_channel.send(<Object?>[addressArgs, hashCodeArgs]) as List<Object?>?;
+        await __pigeon_channel.send(<Object?>[hashCodeArgs]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {
@@ -1419,7 +1429,7 @@ class MyPeripheralManagerHostAPI {
     }
   }
 
-  Future<void> respondWriteRequestWithProtocolError(int addressArgs, int hashCodeArgs, MyGATTProtocolErrorArgs errorArgs) async {
+  Future<void> respondWriteRequestWithProtocolError(int hashCodeArgs, MyGATTProtocolErrorArgs errorArgs) async {
     final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.respondWriteRequestWithProtocolError$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
@@ -1427,7 +1437,7 @@ class MyPeripheralManagerHostAPI {
       binaryMessenger: __pigeon_binaryMessenger,
     );
     final List<Object?>? __pigeon_replyList =
-        await __pigeon_channel.send(<Object?>[addressArgs, hashCodeArgs, errorArgs.index]) as List<Object?>?;
+        await __pigeon_channel.send(<Object?>[hashCodeArgs, errorArgs.index]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {
@@ -1441,7 +1451,7 @@ class MyPeripheralManagerHostAPI {
     }
   }
 
-  Future<void> notifyValue(String addressArgs, int hashCodeArgs, Uint8List valueArgs) async {
+  Future<void> notifyValue(int addressArgs, int hashCodeArgs, Uint8List valueArgs) async {
     final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.notifyValue$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,

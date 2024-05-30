@@ -250,7 +250,7 @@ namespace bluetooth_low_energy_windows
 					{
 						OnDisconnected(address_args);
 					}
-					auto &api = this->m_api.value();
+					auto &api = m_api.value();
 					const auto peripheral_args = MyPeripheralArgs(address_args);
 					const auto state_args = ConnectionStatusToArgs(status);
 					// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
@@ -258,10 +258,9 @@ namespace bluetooth_low_energy_windows
 				});
 			m_session_max_pdu_size_changed_revokers[address_args] = session.MaxPduSizeChanged(
 				winrt::auto_revoke,
-				[this, address_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession session, auto obj)
+				[this, peripheral_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession session, auto obj)
 				{
-					auto &api = this->m_api.value();
-					const auto peripheral_args = MyPeripheralArgs(address_args);
+					auto &api = m_api.value();
 					const auto mtu = session.MaxPduSize();
 					const auto mtu_args = static_cast<int64_t>(mtu);
 					// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
@@ -399,7 +398,7 @@ namespace bluetooth_low_energy_windows
 					winrt::auto_revoke,
 					[this, address_args](const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic &characteristic, const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattValueChangedEventArgs &event_args)
 					{
-						auto &api = this->m_api.value();
+						auto &api = m_api.value();
 						const auto peripheral_args = MyPeripheralArgs(address_args);
 						const auto characteristic_args = CharacteristicToArgs(characteristic);
 						const auto value = event_args.CharacteristicValue();
