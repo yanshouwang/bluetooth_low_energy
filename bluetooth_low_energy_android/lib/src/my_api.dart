@@ -7,15 +7,10 @@ import 'my_central.dart';
 import 'my_gatt.dart';
 import 'my_peripheral.dart';
 
+// ToObj
 extension StringX on String {
   UUID toUUID() {
     return UUID.fromString(this);
-  }
-}
-
-extension UUIDX on UUID {
-  String toArgs() {
-    return toString();
   }
 }
 
@@ -92,14 +87,6 @@ extension MyAdvertisementArgsX on MyAdvertisementArgs {
   }
 }
 
-extension MyCentralArgsX on MyCentralArgs {
-  MyCentral toCentral() {
-    return MyCentral(
-      address: addressArgs,
-    );
-  }
-}
-
 extension MyPeripheralArgsX on MyPeripheralArgs {
   MyPeripheral toPeripheral() {
     return MyPeripheral(
@@ -161,6 +148,28 @@ extension MyGATTServiceArgsX on MyGATTServiceArgs {
   }
 }
 
+extension MyCentralArgsX on MyCentralArgs {
+  MyCentral toCentral() {
+    return MyCentral(
+      address: addressArgs,
+    );
+  }
+}
+
+// ToArgs
+
+extension UUIDX on UUID {
+  String toArgs() {
+    return toString();
+  }
+}
+
+extension GATTCharacteristicWriteTypeX on GATTCharacteristicWriteType {
+  MyGATTCharacteristicWriteTypeArgs toArgs() {
+    return MyGATTCharacteristicWriteTypeArgs.values[index];
+  }
+}
+
 extension GATTCharacteristicPropertyX on GATTCharacteristicProperty {
   MyGATTCharacteristicPropertyArgs toArgs() {
     return MyGATTCharacteristicPropertyArgs.values[index];
@@ -170,12 +179,6 @@ extension GATTCharacteristicPropertyX on GATTCharacteristicProperty {
 extension GATTCharacteristicPermissionX on GATTCharacteristicPermission {
   MyGATTCharacteristicPermissionArgs toArgs() {
     return MyGATTCharacteristicPermissionArgs.values[index];
-  }
-}
-
-extension GATTCharacteristicWriteTypeX on GATTCharacteristicWriteType {
-  MyGATTCharacteristicWriteTypeArgs toArgs() {
-    return MyGATTCharacteristicWriteTypeArgs.values[index];
   }
 }
 

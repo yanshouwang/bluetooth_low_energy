@@ -6,6 +6,12 @@ import 'my_api.g.dart';
 import 'my_gatt.dart';
 
 // ToObject
+extension StringX on String {
+  UUID toUUID() {
+    return UUID.fromString(this);
+  }
+}
+
 extension MyBluetoothLowEnergyStateArgsX on MyBluetoothLowEnergyStateArgs {
   BluetoothLowEnergyState toState() {
     switch (this) {
@@ -63,15 +69,6 @@ extension MyAdvertisementArgsX on MyAdvertisementArgs {
       serviceUUIDs: serviceUUIDs,
       serviceData: serviceData,
       manufacturerSpecificData: manufacturerSpecificData,
-    );
-  }
-}
-
-extension MyCentralArgsX on MyCentralArgs {
-  Central toCentral() {
-    final uuid = uuidArgs.toUUID();
-    return Central(
-      uuid: uuid,
     );
   }
 }
@@ -138,13 +135,22 @@ extension MyGATTServiceArgsX on MyGATTServiceArgs {
   }
 }
 
-extension StringX on String {
-  UUID toUUID() {
-    return UUID.fromString(this);
+extension MyCentralArgsX on MyCentralArgs {
+  Central toCentral() {
+    final uuid = uuidArgs.toUUID();
+    return Central(
+      uuid: uuid,
+    );
   }
 }
 
 // ToArgs
+extension GATTCharacteristicWriteTypeX on GATTCharacteristicWriteType {
+  MyGATTCharacteristicWriteTypeArgs toArgs() {
+    return MyGATTCharacteristicWriteTypeArgs.values[index];
+  }
+}
+
 extension GATTCharacteristicPropertyX on GATTCharacteristicProperty {
   MyGATTCharacteristicPropertyArgs toArgs() {
     return MyGATTCharacteristicPropertyArgs.values[index];
@@ -154,12 +160,6 @@ extension GATTCharacteristicPropertyX on GATTCharacteristicProperty {
 extension GATTCharacteristicPermissionX on GATTCharacteristicPermission {
   MyGATTCharacteristicPermissionArgs toArgs() {
     return MyGATTCharacteristicPermissionArgs.values[index];
-  }
-}
-
-extension GATTCharacteristicWriteTypeX on GATTCharacteristicWriteType {
-  MyGATTCharacteristicWriteTypeArgs toArgs() {
-    return MyGATTCharacteristicWriteTypeArgs.values[index];
   }
 }
 
