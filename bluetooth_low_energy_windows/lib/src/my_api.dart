@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
 import 'my_api.g.dart';
+import 'my_central.dart';
 import 'my_gatt.dart';
 import 'my_peripheral.dart';
 
@@ -140,11 +141,12 @@ extension MyGATTServiceArgsX on MyGATTServiceArgs {
 }
 
 extension MyCentralArgsX on MyCentralArgs {
-  Central toCentral() {
+  MyCentral toCentral() {
     final node =
         (addressArgs & 0xFFFFFFFFFFFF).toRadixString(16).padLeft(12, '0');
     final uuid = UUID.fromString('00000000-0000-0000-0000-$node');
-    return Central(
+    return MyCentral(
+      addressArgs: addressArgs,
       uuid: uuid,
     );
   }

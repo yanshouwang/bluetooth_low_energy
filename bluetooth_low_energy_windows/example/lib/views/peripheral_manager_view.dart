@@ -31,6 +31,7 @@ class PeripheralManagerView extends StatelessWidget {
       ),
       body: state == BluetoothLowEnergyState.poweredOn
           ? ListView.builder(
+              padding: const EdgeInsets.all(16.0),
               itemBuilder: (context, i) {
                 final log = logs[i];
                 return Text('$log');

@@ -116,8 +116,13 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   Future<void> removeAllServices() async {
     final services = _services.values;
     for (var service in services) {
-      await removeService(service);
+      final hashCodeArgs = service.hashCode;
+      logger.info('removeService: $hashCodeArgs');
+      await _api.removeService(hashCodeArgs);
     }
+    _services.clear();
+    _characteristics.clear();
+    _descriptors.clear();
   }
 
   @override

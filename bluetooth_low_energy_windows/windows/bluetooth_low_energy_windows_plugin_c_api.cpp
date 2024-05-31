@@ -4,9 +4,9 @@
 
 #include "bluetooth_low_energy_windows_plugin.h"
 
-void BluetoothLowEnergyWindowsPluginCApiRegisterWithRegistrar(
-    FlutterDesktopPluginRegistrarRef registrar) {
-  bluetooth_low_energy_windows::BluetoothLowEnergyWindowsPlugin::RegisterWithRegistrar(
-      flutter::PluginRegistrarManager::GetInstance()
-          ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar));
+void BluetoothLowEnergyWindowsPluginCApiRegisterWithRegistrar(FlutterDesktopPluginRegistrarRef registrar)
+{
+    bluetooth_low_energy_windows::BluetoothLowEnergyWindowsPlugin::RegisterWithRegistrar(
+        flutter::PluginRegistrarManager::GetInstance()
+            ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar));
 }

@@ -24,28 +24,37 @@ namespace bluetooth_low_energy_windows
 
 	ErrorOr<MyBluetoothLowEnergyStateArgs> MyCentralManager::GetState()
 	{
-		const auto has_adapter = m_adapter.has_value();
-		if (has_adapter)
+		try
 		{
-			const auto &adapter = m_adapter.value();
-			const auto supported = adapter.IsCentralRoleSupported();
-			if (supported)
+			const auto has_adapter = m_adapter.has_value();
+			if (has_adapter)
 			{
-				const auto &radio = m_radio.value();
-				const auto state = radio.State();
-				const auto state_args = RadioStateToArgs(state);
-				return state_args;
+				const auto &adapter = m_adapter.value();
+				const auto supported = adapter.IsCentralRoleSupported();
+				if (supported)
+				{
+					const auto &radio = m_radio.value();
+					const auto state = radio.State();
+					const auto state_args = RadioStateToArgs(state);
+					return state_args;
+				}
 			}
+			return MyBluetoothLowEnergyStateArgs::unsupported;
 		}
-		return MyBluetoothLowEnergyStateArgs::unsupported;
+		catch (const winrt::hresult_error &ex)
+		{
+			const auto code = "winrt::hresult_error";
+			const auto winrt_message = ex.message();
+			const auto message = winrt::to_string(winrt_message);
+			return FlutterError(code, message);
+		}
 	}
 
 	std::optional<FlutterError> MyCentralManager::StartDiscovery(const flutter::EncodableList &service_uuids_args)
 	{
-		const auto &watcher = m_watcher.value();
-		const auto service_uuids_args_not_empty = !service_uuids_args.empty();
-		if (service_uuids_args_not_empty)
+		try
 		{
+			const auto &watcher = m_watcher.value();
 			const auto filter = winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementFilter::BluetoothLEAdvertisementFilter();
 			const auto advertisement = winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisement();
 			const auto service_uuids = advertisement.ServiceUuids();
@@ -57,16 +66,33 @@ namespace bluetooth_low_energy_windows
 			}
 			filter.Advertisement(advertisement);
 			watcher.AdvertisementFilter(filter);
+			watcher.Start();
+			return std::nullopt;
 		}
-		watcher.Start();
-		return std::nullopt;
+		catch (const winrt::hresult_error &ex)
+		{
+			const auto code = "winrt::hresult_error";
+			const auto winrt_message = ex.message();
+			const auto message = winrt::to_string(winrt_message);
+			return FlutterError(code, message);
+		}
 	}
 
 	std::optional<FlutterError> MyCentralManager::StopDiscovery()
 	{
-		const auto &watcher = m_watcher.value();
-		watcher.Stop();
-		return std::nullopt;
+		try
+		{
+			const auto &watcher = m_watcher.value();
+			watcher.Stop();
+			return std::nullopt;
+		}
+		catch (const winrt::hresult_error &ex)
+		{
+			const auto code = "winrt::hresult_error";
+			const auto winrt_message = ex.message();
+			const auto message = winrt::to_string(winrt_message);
+			return FlutterError(code, message);
+		}
 	}
 
 	void MyCentralManager::Connect(int64_t address_args, std::function<void(std::optional<FlutterError> reply)> result)
@@ -76,21 +102,41 @@ namespace bluetooth_low_energy_windows
 
 	std::optional<FlutterError> MyCentralManager::Disconnect(int64_t address_args)
 	{
-		OnDisconnected(address_args);
-		auto &api = m_api.value();
-		const auto peripheral_args = MyPeripheralArgs(address_args);
-		const auto state_args = MyConnectionStateArgs::disconnected;
-		// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
-		api.OnConnectionStateChanged(peripheral_args, state_args, [] {}, [](auto error) {});
-		return std::nullopt;
+		try
+		{
+			OnDisconnected(address_args);
+			auto &api = m_api.value();
+			const auto peripheral_args = MyPeripheralArgs(address_args);
+			const auto state_args = MyConnectionStateArgs::disconnected;
+			// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
+			api.OnConnectionStateChanged(peripheral_args, state_args, [] {}, [](auto error) {});
+			return std::nullopt;
+		}
+		catch (const winrt::hresult_error &ex)
+		{
+			const auto code = "winrt::hresult_error";
+			const auto winrt_message = ex.message();
+			const auto message = winrt::to_string(winrt_message);
+			return FlutterError(code, message);
+		}
 	}
 
 	ErrorOr<int64_t> MyCentralManager::GetMTU(int64_t address_args)
 	{
-		const auto &session = m_sessions[address_args].value();
-		const auto mtu = session.MaxPduSize();
-		const auto mtu_args = static_cast<int64_t>(mtu);
-		return mtu_args;
+		try
+		{
+			const auto &session = m_sessions[address_args].value();
+			const auto mtu = session.MaxPduSize();
+			const auto mtu_args = static_cast<int64_t>(mtu);
+			return mtu_args;
+		}
+		catch (const winrt::hresult_error &ex)
+		{
+			const auto code = "winrt::hresult_error";
+			const auto winrt_message = ex.message();
+			const auto message = winrt::to_string(winrt_message);
+			return FlutterError(code, message);
+		}
 	}
 
 	void MyCentralManager::GetServices(int64_t address_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
