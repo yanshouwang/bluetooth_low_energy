@@ -27,6 +27,7 @@ List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty
 
 enum MyBluetoothLowEnergyStateArgs {
   unknown,
+  unsupported,
   disabled,
   off,
   on,
@@ -1381,7 +1382,7 @@ class MyPeripheralManagerHostAPI {
     }
   }
 
-  Future<void> respondReadRequestWithValue(int hashCodeArgs, Uint8List valueArgs) async {
+  Future<void> respondReadRequestWithValue(int idArgs, Uint8List valueArgs) async {
     final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.respondReadRequestWithValue$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
@@ -1389,7 +1390,7 @@ class MyPeripheralManagerHostAPI {
       binaryMessenger: __pigeon_binaryMessenger,
     );
     final List<Object?>? __pigeon_replyList =
-        await __pigeon_channel.send(<Object?>[hashCodeArgs, valueArgs]) as List<Object?>?;
+        await __pigeon_channel.send(<Object?>[idArgs, valueArgs]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {
@@ -1403,7 +1404,7 @@ class MyPeripheralManagerHostAPI {
     }
   }
 
-  Future<void> respondReadRequestWithProtocolError(int hashCodeArgs, MyGATTProtocolErrorArgs errorArgs) async {
+  Future<void> respondReadRequestWithProtocolError(int idArgs, MyGATTProtocolErrorArgs errorArgs) async {
     final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.respondReadRequestWithProtocolError$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
@@ -1411,7 +1412,7 @@ class MyPeripheralManagerHostAPI {
       binaryMessenger: __pigeon_binaryMessenger,
     );
     final List<Object?>? __pigeon_replyList =
-        await __pigeon_channel.send(<Object?>[hashCodeArgs, errorArgs.index]) as List<Object?>?;
+        await __pigeon_channel.send(<Object?>[idArgs, errorArgs.index]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {
@@ -1425,7 +1426,7 @@ class MyPeripheralManagerHostAPI {
     }
   }
 
-  Future<void> respondWriteRequest(int hashCodeArgs) async {
+  Future<void> respondWriteRequest(int idArgs) async {
     final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.respondWriteRequest$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
@@ -1433,7 +1434,7 @@ class MyPeripheralManagerHostAPI {
       binaryMessenger: __pigeon_binaryMessenger,
     );
     final List<Object?>? __pigeon_replyList =
-        await __pigeon_channel.send(<Object?>[hashCodeArgs]) as List<Object?>?;
+        await __pigeon_channel.send(<Object?>[idArgs]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {
@@ -1447,7 +1448,7 @@ class MyPeripheralManagerHostAPI {
     }
   }
 
-  Future<void> respondWriteRequestWithProtocolError(int hashCodeArgs, MyGATTProtocolErrorArgs errorArgs) async {
+  Future<void> respondWriteRequestWithProtocolError(int idArgs, MyGATTProtocolErrorArgs errorArgs) async {
     final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_windows.MyPeripheralManagerHostAPI.respondWriteRequestWithProtocolError$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
@@ -1455,7 +1456,7 @@ class MyPeripheralManagerHostAPI {
       binaryMessenger: __pigeon_binaryMessenger,
     );
     final List<Object?>? __pigeon_replyList =
-        await __pigeon_channel.send(<Object?>[hashCodeArgs, errorArgs.index]) as List<Object?>?;
+        await __pigeon_channel.send(<Object?>[idArgs, errorArgs.index]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {

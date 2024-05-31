@@ -61,9 +61,10 @@ template<class T> class ErrorOr {
 
 enum class MyBluetoothLowEnergyStateArgs {
   unknown = 0,
-  disabled = 1,
-  off = 2,
-  on = 3
+  unsupported = 1,
+  disabled = 2,
+  off = 3,
+  on = 4
 };
 
 enum class MyAdvertisementTypeArgs {
@@ -831,14 +832,14 @@ class MyPeripheralManagerHostAPI {
   virtual std::optional<FlutterError> StopAdvertising() = 0;
   virtual ErrorOr<int64_t> GetMaxNotificationSize(int64_t address_args) = 0;
   virtual std::optional<FlutterError> RespondReadRequestWithValue(
-    int64_t hash_code_args,
+    int64_t id_args,
     const std::vector<uint8_t>& value_args) = 0;
   virtual std::optional<FlutterError> RespondReadRequestWithProtocolError(
-    int64_t hash_code_args,
+    int64_t id_args,
     const MyGATTProtocolErrorArgs& error_args) = 0;
-  virtual std::optional<FlutterError> RespondWriteRequest(int64_t hash_code_args) = 0;
+  virtual std::optional<FlutterError> RespondWriteRequest(int64_t id_args) = 0;
   virtual std::optional<FlutterError> RespondWriteRequestWithProtocolError(
-    int64_t hash_code_args,
+    int64_t id_args,
     const MyGATTProtocolErrorArgs& error_args) = 0;
   virtual void NotifyValue(
     int64_t address_args,

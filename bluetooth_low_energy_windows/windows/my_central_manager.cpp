@@ -24,10 +24,20 @@ namespace bluetooth_low_energy_windows
 
 	ErrorOr<MyBluetoothLowEnergyStateArgs> MyCentralManager::GetState()
 	{
-		const auto &radio = m_radio.value();
-		const auto state = radio.State();
-		const auto state_args = RadioStateToArgs(state);
-		return state_args;
+		const auto has_adapter = m_adapter.has_value();
+		if (has_adapter)
+		{
+			const auto &adapter = m_adapter.value();
+			const auto supported = adapter.IsCentralRoleSupported();
+			if (supported)
+			{
+				const auto &radio = m_radio.value();
+				const auto state = radio.State();
+				const auto state_args = RadioStateToArgs(state);
+				return state_args;
+			}
+		}
+		return MyBluetoothLowEnergyStateArgs::unsupported;
 	}
 
 	std::optional<FlutterError> MyCentralManager::StartDiscovery(const flutter::EncodableList &service_uuids_args)
@@ -154,46 +164,56 @@ namespace bluetooth_low_energy_windows
 				OnDisconnected(address_args);
 			}
 
-			if (!m_radio_state_changed_revoker)
+			const auto &adapter = co_await winrt::Windows::Devices::Bluetooth::BluetoothAdapter::GetDefaultAsync();
+			if (adapter != NULL)
 			{
-				const auto &adapter = co_await winrt::Windows::Devices::Bluetooth::BluetoothAdapter::GetDefaultAsync();
-				const auto &radio = co_await adapter.GetRadioAsync();
-				m_radio_state_changed_revoker = radio.StateChanged(
-					winrt::auto_revoke,
-					[this](winrt::Windows::Devices::Radios::Radio radio, auto obj)
-					{
-						auto &api = m_api.value();
-						const auto state = radio.State();
-						const auto state_args = RadioStateToArgs(state);
-						// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
-						api.OnStateChanged(state_args, [] {}, [](auto error) {});
-					});
+				const auto supported = adapter.IsCentralRoleSupported();
+				if (supported)
+				{
+					const auto &radio = co_await adapter.GetRadioAsync();
+					m_radio_state_changed_revoker = radio.StateChanged(
+						winrt::auto_revoke,
+						[this](winrt::Windows::Devices::Radios::Radio radio, auto obj)
+						{
+							auto &api = m_api.value();
+							const auto state = radio.State();
+							const auto state_args = RadioStateToArgs(state);
+							// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
+							api.OnStateChanged(state_args, [] {}, [](auto error) {});
+						});
+					m_radio = radio;
+				}
+				else
+				{
+					m_radio.reset();
+				}
 				m_adapter = adapter;
-				m_radio = radio;
 			}
-			if (!m_watcher_received_revoker)
+			else
 			{
-				m_watcher_received_revoker = watcher.Received(
-					winrt::auto_revoke,
-					[this](winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher watcher, winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementReceivedEventArgs event_args)
-					{
-						auto &api = m_api.value();
-						const auto address = event_args.BluetoothAddress();
-						const auto address_args = static_cast<int64_t>(address);
-						const auto peripheral_args = MyPeripheralArgs(address_args);
-						const auto rssi = event_args.RawSignalStrengthInDBm();
-						const auto rssi_args = static_cast<int64_t>(rssi);
-						const auto &file_timestamp = event_args.Timestamp();
-						const auto timestamp = std::chrono::clock_cast<std::chrono::system_clock>(file_timestamp).time_since_epoch();
-						const auto timestamp_args = std::chrono::duration_cast<std::chrono::milliseconds>(timestamp).count();
-						const auto type = event_args.AdvertisementType();
-						const auto type_args = AdvertisementTypeToArgs(type);
-						const auto advertisement = event_args.Advertisement();
-						const auto advertisement_args = AdvertisementToArgs(advertisement);
-						// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
-						api.OnDiscovered(peripheral_args, rssi_args, timestamp_args, type_args, advertisement_args, [] {}, [](auto error) {});
-					});
+				m_adapter.reset();
 			}
+
+			m_watcher_received_revoker = watcher.Received(
+				winrt::auto_revoke,
+				[this](winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher watcher, winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementReceivedEventArgs event_args)
+				{
+					auto &api = m_api.value();
+					const auto address = event_args.BluetoothAddress();
+					const auto address_args = static_cast<int64_t>(address);
+					const auto peripheral_args = MyPeripheralArgs(address_args);
+					const auto rssi = event_args.RawSignalStrengthInDBm();
+					const auto rssi_args = static_cast<int64_t>(rssi);
+					const auto &file_timestamp = event_args.Timestamp();
+					const auto timestamp = std::chrono::clock_cast<std::chrono::system_clock>(file_timestamp).time_since_epoch();
+					const auto timestamp_args = std::chrono::duration_cast<std::chrono::milliseconds>(timestamp).count();
+					const auto type = event_args.AdvertisementType();
+					const auto type_args = AdvertisementTypeToArgs(type);
+					const auto advertisement = event_args.Advertisement();
+					const auto advertisement_args = AdvertisementToArgs(advertisement);
+					// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
+					api.OnDiscovered(peripheral_args, rssi_args, timestamp_args, type_args, advertisement_args, [] {}, [](auto error) {});
+				});
 			result(std::nullopt);
 		}
 		catch (const winrt::hresult_error &ex)

@@ -16,6 +16,7 @@ import 'package:pigeon/pigeon.dart';
 )
 enum MyBluetoothLowEnergyStateArgs {
   unknown,
+  unsupported,
   disabled,
   off,
   on,
@@ -333,14 +334,14 @@ abstract class MyPeripheralManagerHostAPI {
   void startAdvertising(MyAdvertisementArgs advertisementArgs);
   void stopAdvertising();
   int getMaxNotificationSize(int addressArgs);
-  void respondReadRequestWithValue(int hashCodeArgs, Uint8List valueArgs);
+  void respondReadRequestWithValue(int idArgs, Uint8List valueArgs);
   void respondReadRequestWithProtocolError(
-    int hashCodeArgs,
+    int idArgs,
     MyGATTProtocolErrorArgs errorArgs,
   );
-  void respondWriteRequest(int hashCodeArgs);
+  void respondWriteRequest(int idArgs);
   void respondWriteRequestWithProtocolError(
-    int hashCodeArgs,
+    int idArgs,
     MyGATTProtocolErrorArgs errorArgs,
   );
   @async

@@ -23,10 +23,20 @@ namespace bluetooth_low_energy_windows
 
 	ErrorOr<MyBluetoothLowEnergyStateArgs> MyPeripheralManager::GetState()
 	{
-		const auto &radio = m_radio.value();
-		const auto state = radio.State();
-		const auto state_args = RadioStateToArgs(state);
-		return state_args;
+		const auto has_adapter = m_adapter.has_value();
+		if (has_adapter)
+		{
+			const auto &adapter = m_adapter.value();
+			const auto supported = adapter.IsPeripheralRoleSupported();
+			if (supported)
+			{
+				const auto &radio = m_radio.value();
+				const auto state = radio.State();
+				const auto state_args = RadioStateToArgs(state);
+				return state_args;
+			}
+		}
+		return MyBluetoothLowEnergyStateArgs::unsupported;
 	}
 
 	void MyPeripheralManager::AddService(const MyMutableGATTServiceArgs &service_args, std::function<void(std::optional<FlutterError> reply)> result)
@@ -114,12 +124,12 @@ namespace bluetooth_low_energy_windows
 		return max_notification_size_args;
 	}
 
-	std::optional<FlutterError> MyPeripheralManager::RespondReadRequestWithValue(int64_t hash_code_args, const std::vector<uint8_t> &value_args)
+	std::optional<FlutterError> MyPeripheralManager::RespondReadRequestWithValue(int64_t id_args, const std::vector<uint8_t> &value_args)
 	{
-		const auto &deferal = m_deferrals[hash_code_args].value();
-		const auto &request = m_read_requests[hash_code_args].value();
-		m_deferrals.erase(hash_code_args);
-		m_read_requests.erase(hash_code_args);
+		const auto &deferal = m_deferrals[id_args].value();
+		const auto &request = m_read_requests[id_args].value();
+		m_deferrals.erase(id_args);
+		m_read_requests.erase(id_args);
 		const auto writer = winrt::Windows::Storage::Streams::DataWriter();
 		writer.WriteBytes(value_args);
 		const auto value = writer.DetachBuffer();
@@ -128,35 +138,35 @@ namespace bluetooth_low_energy_windows
 		return std::nullopt;
 	}
 
-	std::optional<FlutterError> MyPeripheralManager::RespondReadRequestWithProtocolError(int64_t hash_code_args, const MyGATTProtocolErrorArgs &error_args)
+	std::optional<FlutterError> MyPeripheralManager::RespondReadRequestWithProtocolError(int64_t id_args, const MyGATTProtocolErrorArgs &error_args)
 	{
-		const auto &deferal = m_deferrals[hash_code_args].value();
-		const auto &request = m_read_requests[hash_code_args].value();
-		m_deferrals.erase(hash_code_args);
-		m_read_requests.erase(hash_code_args);
+		const auto &deferal = m_deferrals[id_args].value();
+		const auto &request = m_read_requests[id_args].value();
+		m_deferrals.erase(id_args);
+		m_read_requests.erase(id_args);
 		const auto error = ArgsToProtocolError(error_args);
 		request.RespondWithProtocolError(error);
 		deferal.Complete();
 		return std::nullopt;
 	}
 
-	std::optional<FlutterError> MyPeripheralManager::RespondWriteRequest(int64_t hash_code_args)
+	std::optional<FlutterError> MyPeripheralManager::RespondWriteRequest(int64_t id_args)
 	{
-		const auto &deferal = m_deferrals[hash_code_args].value();
-		const auto &request = m_write_requests[hash_code_args].value();
-		m_deferrals.erase(hash_code_args);
-		m_write_requests.erase(hash_code_args);
+		const auto &deferal = m_deferrals[id_args].value();
+		const auto &request = m_write_requests[id_args].value();
+		m_deferrals.erase(id_args);
+		m_write_requests.erase(id_args);
 		request.Respond();
 		deferal.Complete();
 		return std::nullopt;
 	}
 
-	std::optional<FlutterError> MyPeripheralManager::RespondWriteRequestWithProtocolError(int64_t hash_code_args, const MyGATTProtocolErrorArgs &error_args)
+	std::optional<FlutterError> MyPeripheralManager::RespondWriteRequestWithProtocolError(int64_t id_args, const MyGATTProtocolErrorArgs &error_args)
 	{
-		const auto &deferal = m_deferrals[hash_code_args].value();
-		const auto &request = m_write_requests[hash_code_args].value();
-		m_deferrals.erase(hash_code_args);
-		m_write_requests.erase(hash_code_args);
+		const auto &deferal = m_deferrals[id_args].value();
+		const auto &request = m_write_requests[id_args].value();
+		m_deferrals.erase(id_args);
+		m_write_requests.erase(id_args);
 		const auto error = ArgsToProtocolError(error_args);
 		request.RespondWithProtocolError(error);
 		deferal.Complete();
@@ -179,20 +189,34 @@ namespace bluetooth_low_energy_windows
 				publisher.Stop();
 			}
 
-			if (!m_radio_state_changed_revoker)
+			const auto &adapter = co_await winrt::Windows::Devices::Bluetooth::BluetoothAdapter::GetDefaultAsync();
+			if (adapter != NULL)
 			{
-				const auto &adapter = co_await winrt::Windows::Devices::Bluetooth::BluetoothAdapter::GetDefaultAsync();
-				const auto &radio = co_await adapter.GetRadioAsync();
-				m_radio_state_changed_revoker = radio.StateChanged(
-					winrt::auto_revoke,
-					[this](winrt::Windows::Devices::Radios::Radio radio, auto obj)
-					{
-						auto &api = m_api.value();
-						const auto state = radio.State();
-						const auto state_args = RadioStateToArgs(state);
-						// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
-						api.OnStateChanged(state_args, [] {}, [](auto error) {});
-					});
+				const auto supported = adapter.IsPeripheralRoleSupported();
+				if (supported)
+				{
+					const auto &radio = co_await adapter.GetRadioAsync();
+					m_radio_state_changed_revoker = radio.StateChanged(
+						winrt::auto_revoke,
+						[this](winrt::Windows::Devices::Radios::Radio radio, auto obj)
+						{
+							auto &api = m_api.value();
+							const auto state = radio.State();
+							const auto state_args = RadioStateToArgs(state);
+							// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
+							api.OnStateChanged(state_args, [] {}, [](auto error) {});
+						});
+					m_radio = radio;
+				}
+				else
+				{
+					m_radio.reset();
+				}
+				m_adapter = adapter;
+			}
+			else
+			{
+				m_adapter.reset();
 			}
 			result(std::nullopt);
 		}
@@ -266,10 +290,9 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	winrt::Windows::Foundation::IAsyncAction MyPeripheralManager::CreateServiceAsync(const MyMutableGATTServiceArgs &service_args)
+	winrt::Windows::Foundation::IAsyncAction MyPeripheralManager::CreateServiceAsync(const MyMutableGATTServiceArgs service_args)
 	{
 		const auto hash_code_args = service_args.hash_code_args();
-		m_services_args[hash_code_args] = service_args;
 		const auto &uuid_args = service_args.uuid_args();
 		const auto uuid = winrt::guid(uuid_args);
 		const auto &r = co_await winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattServiceProvider::CreateAsync(uuid);
@@ -293,10 +316,11 @@ namespace bluetooth_low_energy_windows
 		parameters.IsDiscoverable(true);
 		parameters.IsConnectable(true);
 		service_provider.StartAdvertising(parameters);
+		m_services_args[hash_code_args] = service_args;
 		m_service_providers[hash_code_args] = service_provider;
 	}
 
-	winrt::Windows::Foundation::IAsyncAction MyPeripheralManager::CreateCharacteristicAsync(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalService &service, const MyMutableGATTCharacteristicArgs &characteristic_args)
+	winrt::Windows::Foundation::IAsyncAction MyPeripheralManager::CreateCharacteristicAsync(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalService &service, const MyMutableGATTCharacteristicArgs characteristic_args)
 	{
 		const auto hash_code_args = characteristic_args.hash_code_args();
 		const auto &uuid_args = characteristic_args.uuid_args();
@@ -362,7 +386,7 @@ namespace bluetooth_low_energy_windows
 		m_characteristics[hash_code_args] = characteristic;
 	}
 
-	winrt::Windows::Foundation::IAsyncAction MyPeripheralManager::CreateDescriptorAsync(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalCharacteristic &characteristic, const MyMutableGATTDescriptorArgs &descriptor_args)
+	winrt::Windows::Foundation::IAsyncAction MyPeripheralManager::CreateDescriptorAsync(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalCharacteristic &characteristic, const MyMutableGATTDescriptorArgs descriptor_args)
 	{
 		const auto hash_code_args = descriptor_args.hash_code_args();
 		const auto &uuid_args = descriptor_args.uuid_args();
@@ -639,7 +663,7 @@ namespace bluetooth_low_energy_windows
 		auto properties = winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristicProperties::None;
 		for (const auto &property_number_args_value : property_numbers_args_value)
 		{
-			const auto property_number_args = std::get<int64_t>(property_number_args_value);
+			const auto property_number_args = std::get<int32_t>(property_number_args_value);
 			const auto property_args = static_cast<MyGATTCharacteristicPropertyArgs>(property_number_args);
 			switch (property_args)
 			{

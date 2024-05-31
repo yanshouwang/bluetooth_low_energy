@@ -12,6 +12,8 @@ extension MyBluetoothLowEnergyStateArgsX on MyBluetoothLowEnergyStateArgs {
     switch (this) {
       case MyBluetoothLowEnergyStateArgs.unknown:
         return BluetoothLowEnergyState.unknown;
+      case MyBluetoothLowEnergyStateArgs.unsupported:
+        return BluetoothLowEnergyState.unsupported;
       case MyBluetoothLowEnergyStateArgs.disabled:
         return BluetoothLowEnergyState.unsupported;
       case MyBluetoothLowEnergyStateArgs.off:
@@ -137,12 +139,21 @@ extension MyGATTServiceArgsX on MyGATTServiceArgs {
   }
 }
 
-// ToArgs
-extension MyPeripheralX on MyPeripheral {
-  MyPeripheralArgs toArgs() {
-    return MyPeripheralArgs(
-      addressArgs: addressArgs,
+extension MyCentralArgsX on MyCentralArgs {
+  Central toCentral() {
+    final node =
+        (addressArgs & 0xFFFFFFFFFFFF).toRadixString(16).padLeft(12, '0');
+    final uuid = UUID.fromString('00000000-0000-0000-0000-$node');
+    return Central(
+      uuid: uuid,
     );
+  }
+}
+
+// ToArgs
+extension UUIDX on UUID {
+  String toArgs() {
+    return toString();
   }
 }
 
@@ -152,8 +163,156 @@ extension GATTCharacteristicWriteTypeX on GATTCharacteristicWriteType {
   }
 }
 
-extension UUIDX on UUID {
-  String toArgs() {
-    return toString();
+extension GATTCharacteristicPropertyX on GATTCharacteristicProperty {
+  MyGATTCharacteristicPropertyArgs toArgs() {
+    return MyGATTCharacteristicPropertyArgs.values[index];
+  }
+}
+
+extension GATTCharacteristicPermissionsX on List<GATTCharacteristicPermission> {
+  MyGATTProtectionLevelArgs? toReadArgs() {
+    return contains(GATTCharacteristicPermission.readEncrypted)
+        ? MyGATTProtectionLevelArgs.entryptionRequired
+        : contains(GATTCharacteristicPermission.read)
+            ? MyGATTProtectionLevelArgs.plain
+            : null;
+  }
+
+  MyGATTProtectionLevelArgs? toWriteArgs() {
+    return contains(GATTCharacteristicPermission.writeEncrypted)
+        ? MyGATTProtectionLevelArgs.entryptionRequired
+        : contains(GATTCharacteristicPermission.write)
+            ? MyGATTProtectionLevelArgs.plain
+            : null;
+  }
+}
+
+extension GATTErrorX on GATTError {
+  MyGATTProtocolErrorArgs toArgs() {
+    switch (this) {
+      case GATTError.invalidHandle:
+        return MyGATTProtocolErrorArgs.invalidHandle;
+      case GATTError.readNotPermitted:
+        return MyGATTProtocolErrorArgs.readNotPermitted;
+      case GATTError.writeNotPermitted:
+        return MyGATTProtocolErrorArgs.writeNotPermitted;
+      case GATTError.invalidPDU:
+        return MyGATTProtocolErrorArgs.invalidPDU;
+      case GATTError.insufficientAuthentication:
+        return MyGATTProtocolErrorArgs.insufficientAuthentication;
+      case GATTError.requestNotSupported:
+        return MyGATTProtocolErrorArgs.requestNotSupported;
+      case GATTError.invalidOffset:
+        return MyGATTProtocolErrorArgs.invalidOffset;
+      case GATTError.insufficientAuthorization:
+        return MyGATTProtocolErrorArgs.insufficientAuthorization;
+      case GATTError.prepareQueueFull:
+        return MyGATTProtocolErrorArgs.prepareQueueFull;
+      case GATTError.attributeNotFound:
+        return MyGATTProtocolErrorArgs.attributeNotFound;
+      case GATTError.attributeNotLong:
+        return MyGATTProtocolErrorArgs.attributeNotLong;
+      case GATTError.insufficientEncryptionKeySize:
+        return MyGATTProtocolErrorArgs.insufficientEncryptionKeySize;
+      case GATTError.invalidAttributeValueLength:
+        return MyGATTProtocolErrorArgs.invalidAttributeValueLength;
+      case GATTError.unlikelyError:
+        return MyGATTProtocolErrorArgs.unlikelyError;
+      case GATTError.insufficientEncryption:
+        return MyGATTProtocolErrorArgs.insufficientEncryption;
+      case GATTError.unsupportedGroupType:
+        return MyGATTProtocolErrorArgs.unsupportedGroupType;
+      case GATTError.insufficientResources:
+        return MyGATTProtocolErrorArgs.insufficientResources;
+    }
+  }
+}
+
+extension ManufacturerSpecificDataX on ManufacturerSpecificData {
+  MyManufacturerSpecificDataArgs toArgs() {
+    final idArgs = id;
+    final dataArgs = data;
+    return MyManufacturerSpecificDataArgs(
+      idArgs: idArgs,
+      dataArgs: dataArgs,
+    );
+  }
+}
+
+extension AdvertisementX on Advertisement {
+  MyAdvertisementArgs toArgs() {
+    final serviceUUIDsArgs = serviceUUIDs.map((uuid) => uuid.toArgs()).toList();
+    final serviceDataArgs = serviceData.map((uuid, data) {
+      final uuidArgs = uuid.toArgs();
+      return MapEntry(uuidArgs, data);
+    });
+    final manufacturerSpecificDataArgs = manufacturerSpecificData?.toArgs();
+    return MyAdvertisementArgs(
+      nameArgs: name,
+      serviceUUIDsArgs: serviceUUIDsArgs,
+      serviceDataArgs: serviceDataArgs,
+      manufacturerSpecificDataArgs: manufacturerSpecificDataArgs,
+    );
+  }
+}
+
+extension MutableGATTDescriptorX on MutableGATTDescriptor {
+  MyMutableGATTDescriptorArgs toArgs() {
+    final uuidArgs = uuid.toArgs();
+    return MyMutableGATTDescriptorArgs(
+      hashCodeArgs: hashCode,
+      uuidArgs: uuidArgs,
+      valueArgs: this is ImmutableGATTDescriptor
+          ? (this as ImmutableGATTDescriptor).value
+          : null,
+      readProtectionLevelArgs: permissions.toReadArgs(),
+      writeProtectionLevelArgs: permissions.toWriteArgs(),
+    );
+  }
+}
+
+extension MutableGATTCharacteristicX on MutableGATTCharacteristic {
+  MyMutableGATTCharacteristicArgs toArgs() {
+    final hashCodeArgs = hashCode;
+    final uuidArgs = uuid.toArgs();
+    final propertyNumbersArgs = properties.map((property) {
+      final propertyArgs = property.toArgs();
+      return propertyArgs.index;
+    }).toList();
+    final descriptorsArgs = descriptors
+        .cast<MutableGATTDescriptor>()
+        .map((descriptor) => descriptor.toArgs())
+        .toList();
+    return MyMutableGATTCharacteristicArgs(
+      hashCodeArgs: hashCodeArgs,
+      uuidArgs: uuidArgs,
+      valueArgs: this is ImmutableGATTCharacteristic
+          ? (this as ImmutableGATTCharacteristic).value
+          : null,
+      propertyNumbersArgs: propertyNumbersArgs,
+      readProtectionLevelArgs: permissions.toReadArgs(),
+      writeProtectionLevelArgs: permissions.toWriteArgs(),
+      descriptorsArgs: descriptorsArgs,
+    );
+  }
+}
+
+extension GATTServiceX on GATTService {
+  MyMutableGATTServiceArgs toArgs() {
+    final hashCodeArgs = hashCode;
+    final uuidArgs = uuid.toArgs();
+    final includedServicesArgs =
+        includedServices.map((service) => service.toArgs()).toList();
+    final characteristicsArgs = characteristics
+        .cast<MutableGATTCharacteristic>()
+        .map((characteristic) => characteristic.toArgs())
+        .toList();
+    return MyMutableGATTServiceArgs(
+      hashCodeArgs: hashCodeArgs,
+      uuidArgs: uuidArgs,
+      isPrimaryArgs: isPrimary,
+      includedServicesArgs: includedServicesArgs,
+      characteristicsArgs: characteristicsArgs,
+    );
   }
 }

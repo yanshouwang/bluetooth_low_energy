@@ -38,9 +38,9 @@ class _ViewModelBindingState<TView extends Widget, TViewModel extends ViewModel>
 
   @override
   Widget build(BuildContext context) {
-    return _InheritedViewModel<TViewModel>(
+    return InheritedViewModel<TViewModel>(
+      view: widget.viewBuilder(context),
       viewModel: _viewModel,
-      child: widget.viewBuilder(context),
     );
   }
 
@@ -48,6 +48,25 @@ class _ViewModelBindingState<TView extends Widget, TViewModel extends ViewModel>
   void dispose() {
     _viewModel.dispose();
     super.dispose();
+  }
+}
+
+class InheritedViewModel<T extends ViewModel> extends StatelessWidget {
+  final Widget view;
+  final T viewModel;
+
+  const InheritedViewModel({
+    super.key,
+    required this.view,
+    required this.viewModel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _InheritedViewModel<T>(
+      viewModel: viewModel,
+      child: view,
+    );
   }
 }
 

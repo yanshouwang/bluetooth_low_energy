@@ -1,5 +1,7 @@
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
+import 'my_api.g.dart';
+
 final class MyGATTDescriptor extends GATTDescriptor {
   final int handleArgs;
 
@@ -69,4 +71,27 @@ final class MyGATTService extends GATTService {
   bool operator ==(Object other) {
     return other is MyGATTService && other.handleArgs == handleArgs;
   }
+}
+
+final class MyGATTReadRequest extends GATTReadRequest {
+  final int idArgs;
+  final int lengthArgs;
+
+  MyGATTReadRequest({
+    required this.idArgs,
+    required super.offset,
+    required this.lengthArgs,
+  });
+}
+
+final class MyGATTWriteRequest extends GATTWriteRequest {
+  final int idArgs;
+  final MyGATTCharacteristicWriteTypeArgs typeArgs;
+
+  MyGATTWriteRequest({
+    required this.idArgs,
+    required super.offset,
+    required super.value,
+    required this.typeArgs,
+  });
 }

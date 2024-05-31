@@ -31,10 +31,10 @@ namespace bluetooth_low_energy_windows
 		std::optional<FlutterError> StartAdvertising(const MyAdvertisementArgs &advertisement_args) override;
 		std::optional<FlutterError> StopAdvertising() override;
 		ErrorOr<int64_t> GetMaxNotificationSize(int64_t address_args) override;
-		std::optional<FlutterError> RespondReadRequestWithValue(int64_t hash_code_args, const std::vector<uint8_t> &value_args) override;
-		std::optional<FlutterError> RespondReadRequestWithProtocolError(int64_t hash_code_args, const MyGATTProtocolErrorArgs &error_args) override;
-		std::optional<FlutterError> RespondWriteRequest(int64_t hash_code_args) override;
-		std::optional<FlutterError> RespondWriteRequestWithProtocolError(int64_t hash_code_args, const MyGATTProtocolErrorArgs &error_args) override;
+		std::optional<FlutterError> RespondReadRequestWithValue(int64_t id_args, const std::vector<uint8_t> &value_args) override;
+		std::optional<FlutterError> RespondReadRequestWithProtocolError(int64_t id_args, const MyGATTProtocolErrorArgs &error_args) override;
+		std::optional<FlutterError> RespondWriteRequest(int64_t id_args) override;
+		std::optional<FlutterError> RespondWriteRequestWithProtocolError(int64_t id_args, const MyGATTProtocolErrorArgs &error_args) override;
 		void NotifyValue(int64_t address_args, int64_t hash_code_args, const std::vector<uint8_t> &value_args, std::function<void(std::optional<FlutterError> reply)> result) override;
 
 	private:
@@ -62,9 +62,9 @@ namespace bluetooth_low_energy_windows
 		winrt::fire_and_forget AddServiceAsync(const MyMutableGATTServiceArgs &service_args, std::function<void(std::optional<FlutterError> reply)> result);
 		winrt::fire_and_forget NotifyValueAsync(int64_t address_args, int64_t hash_code_args, const std::vector<uint8_t> &value_args, std::function<void(std::optional<FlutterError> reply)> result);
 
-		winrt::Windows::Foundation::IAsyncAction CreateServiceAsync(const MyMutableGATTServiceArgs &service_args);
-		winrt::Windows::Foundation::IAsyncAction CreateCharacteristicAsync(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalService &service, const MyMutableGATTCharacteristicArgs &characteristic_args);
-		winrt::Windows::Foundation::IAsyncAction CreateDescriptorAsync(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalCharacteristic &characteristic, const MyMutableGATTDescriptorArgs &descriptor_args);
+		winrt::Windows::Foundation::IAsyncAction CreateServiceAsync(const MyMutableGATTServiceArgs service_args);
+		winrt::Windows::Foundation::IAsyncAction CreateCharacteristicAsync(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalService &service, const MyMutableGATTCharacteristicArgs characteristic_args);
+		winrt::Windows::Foundation::IAsyncAction CreateDescriptorAsync(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalCharacteristic &characteristic, const MyMutableGATTDescriptorArgs descriptor_args);
 
 		void RemoveServiceArgs(const MyMutableGATTServiceArgs &service_args);
 		void RemoveCharacteristicArgs(const MyMutableGATTCharacteristicArgs &characteristic_args);

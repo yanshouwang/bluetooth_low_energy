@@ -32,44 +32,51 @@ class CentralManagerView extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.separated(
-        itemBuilder: (context, index) {
-          final theme = Theme.of(context);
-          final discovery = discoveries[index];
-          final uuid = discovery.peripheral.uuid;
-          final name = discovery.advertisement.name;
-          final rssi = discovery.rssi;
-          return ListTile(
-            onTap: () {
-              onTapDissovery(context, discovery);
-            },
-            onLongPress: () {
-              onLongPressDiscovery(context, discovery);
-            },
-            title: Text(name ?? ''),
-            subtitle: Text(
-              '$uuid',
-              style: theme.textTheme.bodySmall,
-              softWrap: false,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+      body: state == BluetoothLowEnergyState.poweredOn
+          ? ListView.separated(
+              itemBuilder: (context, index) {
+                final theme = Theme.of(context);
+                final discovery = discoveries[index];
+                final uuid = discovery.peripheral.uuid;
+                final name = discovery.advertisement.name;
+                final rssi = discovery.rssi;
+                return ListTile(
+                  onTap: () {
+                    onTapDissovery(context, discovery);
+                  },
+                  onLongPress: () {
+                    onLongPressDiscovery(context, discovery);
+                  },
+                  title: Text(name ?? ''),
+                  subtitle: Text(
+                    '$uuid',
+                    style: theme.textTheme.bodySmall,
+                    softWrap: false,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      RSSIIndicator(rssi),
+                      Text('$rssi'),
+                    ],
+                  ),
+                );
+              },
+              separatorBuilder: (context, i) {
+                return const Divider(
+                  height: 0.0,
+                );
+              },
+              itemCount: discoveries.length,
+            )
+          : Center(
+              child: Text(
+                '$state',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
             ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                RSSIIndicator(rssi),
-                Text('$rssi'),
-              ],
-            ),
-          );
-        },
-        separatorBuilder: (context, i) {
-          return const Divider(
-            height: 0.0,
-          );
-        },
-        itemCount: discoveries.length,
-      ),
     );
   }
 
