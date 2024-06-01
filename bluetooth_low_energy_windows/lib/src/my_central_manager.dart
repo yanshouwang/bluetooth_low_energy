@@ -328,9 +328,10 @@ final class MyCentralManager extends PlatformCentralManager
           ...oldAdvertisement.serviceData,
           ...newAdvertisement.serviceData,
         };
-        final manufacturerSpecificData =
-            newAdvertisement.manufacturerSpecificData ??
-                oldAdvertisement.manufacturerSpecificData;
+        final manufacturerSpecificData = [
+          ...oldAdvertisement.manufacturerSpecificData,
+          ...newAdvertisement.manufacturerSpecificData,
+        ];
         final advertisement = Advertisement(
           name: name,
           serviceUUIDs: serviceUUIDs,

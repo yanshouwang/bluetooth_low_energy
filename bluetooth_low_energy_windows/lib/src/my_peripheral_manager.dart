@@ -127,6 +127,9 @@ final class MyPeripheralManager extends PlatformPeripheralManager
 
   @override
   Future<void> startAdvertising(Advertisement advertisement) async {
+    if (advertisement.name != null) {
+      throw UnsupportedError('name is not supported on Windows.');
+    }
     final advertisementArgs = advertisement.toArgs();
     logger.info('startAdvertising: $advertisementArgs');
     await _api.startAdvertising(advertisementArgs);

@@ -124,11 +124,12 @@ class PeripheralManagerViewModel extends ViewModel {
     );
     await _manager.addService(service);
     final advertisement = Advertisement(
-      name: 'BLE 12138',
-      manufacturerSpecificData: ManufacturerSpecificData(
-        id: 0x2e19,
-        data: Uint8List.fromList([0x01, 0x02, 0x03]),
-      ),
+      manufacturerSpecificData: [
+        ManufacturerSpecificData(
+          id: 0x2e19,
+          data: Uint8List.fromList([0x01, 0x02, 0x03]),
+        )
+      ],
     );
     await _manager.startAdvertising(advertisement);
     _advertising = true;

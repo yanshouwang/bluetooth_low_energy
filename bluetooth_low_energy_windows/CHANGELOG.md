@@ -1,3 +1,9 @@
+## 6.0.0-dev.9
+
+* Implement `PeripheralManager` API.
+* Rewrite example with MVVM.
+* Fix known issues.
+
 ## 6.0.0-dev.8
 
 * Fix example errors.

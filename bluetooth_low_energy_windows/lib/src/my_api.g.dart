@@ -129,7 +129,7 @@ class MyAdvertisementArgs {
     this.nameArgs,
     required this.serviceUUIDsArgs,
     required this.serviceDataArgs,
-    this.manufacturerSpecificDataArgs,
+    required this.manufacturerSpecificDataArgs,
   });
 
   String? nameArgs;
@@ -138,7 +138,7 @@ class MyAdvertisementArgs {
 
   Map<String?, Uint8List?> serviceDataArgs;
 
-  MyManufacturerSpecificDataArgs? manufacturerSpecificDataArgs;
+  List<MyManufacturerSpecificDataArgs?> manufacturerSpecificDataArgs;
 
   Object encode() {
     return <Object?>[
@@ -155,7 +155,7 @@ class MyAdvertisementArgs {
       nameArgs: result[0] as String?,
       serviceUUIDsArgs: (result[1] as List<Object?>?)!.cast<String?>(),
       serviceDataArgs: (result[2] as Map<Object?, Object?>?)!.cast<String?, Uint8List?>(),
-      manufacturerSpecificDataArgs: result[3] as MyManufacturerSpecificDataArgs?,
+      manufacturerSpecificDataArgs: (result[3] as List<Object?>?)!.cast<MyManufacturerSpecificDataArgs?>(),
     );
   }
 }

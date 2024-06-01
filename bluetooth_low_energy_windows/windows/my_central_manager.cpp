@@ -195,18 +195,9 @@ namespace bluetooth_low_energy_windows
 				watcher.Stop();
 			}
 
-			auto addresses = std::list<uint64_t>();
-			std::transform(
-				m_devices.begin(),
-				m_devices.end(),
-				std::back_inserter(addresses),
-				[](const auto device)
-				{
-					return device.first;
-				});
-			for (const auto address : addresses)
+			for (const auto &item : m_devices)
 			{
-				const auto address_args = static_cast<int64_t>(address);
+				const auto address_args = item.first;
 				OnDisconnected(address_args);
 			}
 
@@ -296,7 +287,7 @@ namespace bluetooth_low_energy_windows
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
-				const auto status_code = static_cast<int32_t>(status);
+				const auto status_code = static_cast<int>(status);
 				const auto message = "Connect failed with status: " + std::to_string(status_code);
 				throw MyException(message);
 			}
@@ -363,7 +354,7 @@ namespace bluetooth_low_energy_windows
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
-				const auto status_code = static_cast<int32_t>(status);
+				const auto status_code = static_cast<int>(status);
 				const auto message = "Get services failed with status: " + std::to_string(status_code);
 				throw MyException(message);
 			}
@@ -406,7 +397,7 @@ namespace bluetooth_low_energy_windows
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
-				const auto status_code = static_cast<int32_t>(status);
+				const auto status_code = static_cast<int>(status);
 				const auto message = "Get included services failed with status: " + std::to_string(status_code);
 				throw MyException(message);
 			}
@@ -449,7 +440,7 @@ namespace bluetooth_low_energy_windows
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
-				const auto status_code = static_cast<int32_t>(status);
+				const auto status_code = static_cast<int>(status);
 				const auto message = "Get characteristics failed with status: " + std::to_string(status_code);
 				throw MyException(message);
 			}
@@ -468,9 +459,10 @@ namespace bluetooth_low_energy_windows
 						const auto peripheral_args = MyPeripheralArgs(address_args);
 						const auto characteristic_args = CharacteristicToArgs(characteristic);
 						const auto value = event_args.CharacteristicValue();
-						const auto begin = value.data();
-						const auto end = begin + value.Length();
-						const auto value_args = std::vector<uint8_t>(begin, end);
+						const auto value_length = value.Length();
+						auto value_args = std::vector<uint8_t>(value_length);
+						const auto value_reader = winrt::Windows::Storage::Streams::DataReader::FromBuffer(value);
+						value_reader.ReadBytes(value_args);
 						// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
 						api.OnCharacteristicNotified(peripheral_args, characteristic_args, value_args, []() {}, [](const auto &error) {});
 					});
@@ -506,7 +498,7 @@ namespace bluetooth_low_energy_windows
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
-				const auto status_code = static_cast<int32_t>(status);
+				const auto status_code = static_cast<int>(status);
 				const auto message = "Get descriptors failed with status: " + std::to_string(status_code);
 				throw MyException(message);
 			}
@@ -549,14 +541,15 @@ namespace bluetooth_low_energy_windows
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
-				const auto status_code = static_cast<int32_t>(status);
+				const auto status_code = static_cast<int>(status);
 				const auto message = "Read characteristic failed with status: " + std::to_string(status_code);
 				throw MyException(message);
 			}
 			const auto value = r.Value();
-			const auto begin = value.data();
-			const auto end = begin + value.Length();
-			const auto value_args = std::vector<uint8_t>(begin, end);
+			const auto value_length = value.Length();
+			auto value_args = std::vector<uint8_t>(value_length);
+			const auto value_reader = winrt::Windows::Storage::Streams::DataReader::FromBuffer(value);
+			value_reader.ReadBytes(value_args);
 			result(value_args);
 		}
 		catch (const winrt::hresult_error &ex)
@@ -581,14 +574,14 @@ namespace bluetooth_low_energy_windows
 		try
 		{
 			const auto &characteristic = RetrieveCharacteristic(address_args, handle_args);
-			const auto writer = winrt::Windows::Storage::Streams::DataWriter();
-			writer.WriteBytes(value_args);
-			const auto value = writer.DetachBuffer();
+			const auto value_writer = winrt::Windows::Storage::Streams::DataWriter();
+			value_writer.WriteBytes(value_args);
+			const auto value = value_writer.DetachBuffer();
 			const auto option = ArgsToWriteOption(type_args);
 			const auto status = co_await characteristic.WriteValueAsync(value, option);
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
-				const auto status_code = static_cast<int32_t>(status);
+				const auto status_code = static_cast<int>(status);
 				const auto message = "Write characteristic failed with status: " + std::to_string(status_code);
 				throw MyException(message);
 			}
@@ -620,7 +613,7 @@ namespace bluetooth_low_energy_windows
 			const auto status = co_await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(value);
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
-				const auto status_code = static_cast<int32_t>(status);
+				const auto status_code = static_cast<int>(status);
 				const auto message = "Notify characteristic failed with status: " + std::to_string(status_code);
 				throw MyException(message);
 			}
@@ -653,14 +646,15 @@ namespace bluetooth_low_energy_windows
 			const auto status = r.Status();
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
-				const auto status_code = static_cast<int32_t>(status);
+				const auto status_code = static_cast<int>(status);
 				const auto message = "Read descriptor failed with status: " + std::to_string(status_code);
 				throw MyException(message);
 			}
 			const auto value = r.Value();
-			const auto begin = value.data();
-			const auto end = begin + value.Length();
-			const auto value_args = std::vector<uint8_t>(begin, end);
+			const auto value_length = value.Length();
+			auto value_args = std::vector<uint8_t>(value_length);
+			const auto value_reader = winrt::Windows::Storage::Streams::DataReader::FromBuffer(value);
+			value_reader.ReadBytes(value_args);
 			result(value_args);
 		}
 		catch (const winrt::hresult_error &ex)
@@ -685,13 +679,13 @@ namespace bluetooth_low_energy_windows
 		try
 		{
 			const auto &descriptor = RetrieveDescriptor(address_args, handle_args);
-			const auto writer = winrt::Windows::Storage::Streams::DataWriter();
-			writer.WriteBytes(value_args);
-			const auto value = writer.DetachBuffer();
+			const auto value_writer = winrt::Windows::Storage::Streams::DataWriter();
+			value_writer.WriteBytes(value_args);
+			const auto value = value_writer.DetachBuffer();
 			const auto status = co_await descriptor.WriteValueAsync(value);
 			if (status != winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCommunicationStatus::Success)
 			{
-				const auto status_code = static_cast<int32_t>(status);
+				const auto status_code = static_cast<int>(status);
 				const auto message = "Write characteristic failed with status: " + std::to_string(status_code);
 				throw MyException(message);
 			}
@@ -797,16 +791,28 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
+	MyManufacturerSpecificDataArgs MyCentralManager::ManufacturerDataToArgs(const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEManufacturerData &manufacturer_data)
+	{
+		const auto id = manufacturer_data.CompanyId();
+		const auto id_args = static_cast<int64_t>(id);
+		const auto data = manufacturer_data.Data();
+		const auto data_length = data.Length();
+		auto data_args = std::vector<uint8_t>(data_length);
+		const auto data_reader = winrt::Windows::Storage::Streams::DataReader::FromBuffer(data);
+		data_reader.ReadBytes(data_args);
+		return MyManufacturerSpecificDataArgs(id_args, data_args);
+	}
+
 	MyAdvertisementArgs MyCentralManager::AdvertisementToArgs(const winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisement &advertisement)
 	{
 		const auto name = advertisement.LocalName();
 		const auto name_args = winrt::to_string(name);
 		const auto service_uuids = advertisement.ServiceUuids();
 		auto service_uuids_args = flutter::EncodableList();
-		for (const auto uuid : service_uuids)
+		for (const auto &service_uuid : service_uuids)
 		{
-			const auto uuid_args = GUIDToArgs(uuid);
-			service_uuids_args.emplace_back(uuid_args);
+			const auto service_uuid_args = GUIDToArgs(service_uuid);
+			service_uuids_args.emplace_back(service_uuid_args);
 		}
 		const auto data_sections = advertisement.DataSections();
 		auto service_data_args = flutter::EncodableMap();
@@ -854,23 +860,14 @@ namespace bluetooth_low_energy_windows
 			}
 		}
 		const auto manufacturer_data = advertisement.ManufacturerData();
-		const auto manufacturer_data_size = manufacturer_data.Size();
-		if (manufacturer_data_size > 0)
+		auto manufacturer_specific_data_args = flutter::EncodableList();
+		for (const auto &data : manufacturer_data)
 		{
-			const auto last_manufacturer_data = manufacturer_data.GetAt(manufacturer_data_size - 1);
-			const auto id = last_manufacturer_data.CompanyId();
-			const auto id_args = static_cast<int64_t>(id);
-			const auto data = last_manufacturer_data.Data();
-			const auto begin = data.data();
-			const auto end = begin + data.Length();
-			const auto data_args = std::vector<uint8_t>(begin, end);
-			const auto manufacturer_specific_data_args = MyManufacturerSpecificDataArgs(id_args, data_args);
-			return MyAdvertisementArgs(&name_args, service_uuids_args, service_data_args, &manufacturer_specific_data_args);
+			const auto data_args = ManufacturerDataToArgs(data);
+			const auto data_args_value = flutter::CustomEncodableValue(data_args);
+			manufacturer_specific_data_args.emplace_back(data_args_value);
 		}
-		else
-		{
-			return MyAdvertisementArgs(&name_args, service_uuids_args, service_data_args, nullptr);
-		}
+		return MyAdvertisementArgs(&name_args, service_uuids_args, service_data_args, manufacturer_specific_data_args);
 	}
 
 	MyGATTServiceArgs MyCentralManager::ServiceToArgs(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceService &service)

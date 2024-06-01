@@ -150,7 +150,6 @@ class MyManufacturerSpecificDataArgs {
  private:
   static MyManufacturerSpecificDataArgs FromEncodableList(const flutter::EncodableList& list);
   flutter::EncodableList ToEncodableList() const;
-  friend class MyAdvertisementArgs;
   friend class MyCentralManagerHostAPI;
   friend class MyCentralManagerHostAPICodecSerializer;
   friend class MyCentralManagerFlutterAPI;
@@ -171,20 +170,16 @@ class MyAdvertisementArgs {
   // Constructs an object setting all non-nullable fields.
   explicit MyAdvertisementArgs(
     const flutter::EncodableList& service_u_u_i_ds_args,
-    const flutter::EncodableMap& service_data_args);
+    const flutter::EncodableMap& service_data_args,
+    const flutter::EncodableList& manufacturer_specific_data_args);
 
   // Constructs an object setting all fields.
   explicit MyAdvertisementArgs(
     const std::string* name_args,
     const flutter::EncodableList& service_u_u_i_ds_args,
     const flutter::EncodableMap& service_data_args,
-    const MyManufacturerSpecificDataArgs* manufacturer_specific_data_args);
+    const flutter::EncodableList& manufacturer_specific_data_args);
 
-  ~MyAdvertisementArgs() = default;
-  MyAdvertisementArgs(const MyAdvertisementArgs& other);
-  MyAdvertisementArgs& operator=(const MyAdvertisementArgs& other);
-  MyAdvertisementArgs(MyAdvertisementArgs&& other) = default;
-  MyAdvertisementArgs& operator=(MyAdvertisementArgs&& other) noexcept = default;
   const std::string* name_args() const;
   void set_name_args(const std::string_view* value_arg);
   void set_name_args(std::string_view value_arg);
@@ -195,9 +190,8 @@ class MyAdvertisementArgs {
   const flutter::EncodableMap& service_data_args() const;
   void set_service_data_args(const flutter::EncodableMap& value_arg);
 
-  const MyManufacturerSpecificDataArgs* manufacturer_specific_data_args() const;
-  void set_manufacturer_specific_data_args(const MyManufacturerSpecificDataArgs* value_arg);
-  void set_manufacturer_specific_data_args(const MyManufacturerSpecificDataArgs& value_arg);
+  const flutter::EncodableList& manufacturer_specific_data_args() const;
+  void set_manufacturer_specific_data_args(const flutter::EncodableList& value_arg);
 
 
  private:
@@ -214,7 +208,7 @@ class MyAdvertisementArgs {
   std::optional<std::string> name_args_;
   flutter::EncodableList service_u_u_i_ds_args_;
   flutter::EncodableMap service_data_args_;
-  std::unique_ptr<MyManufacturerSpecificDataArgs> manufacturer_specific_data_args_;
+  flutter::EncodableList manufacturer_specific_data_args_;
 
 };
 

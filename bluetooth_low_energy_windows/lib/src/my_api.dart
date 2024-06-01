@@ -64,8 +64,10 @@ extension MyAdvertisementArgsX on MyAdvertisementArgs {
         return MapEntry(uuid, dataArgs);
       },
     );
-    final manufacturerSpecificData =
-        manufacturerSpecificDataArgs?.toManufacturerSpecificData();
+    final manufacturerSpecificData = manufacturerSpecificDataArgs
+        .cast<MyManufacturerSpecificDataArgs>()
+        .map((args) => args.toManufacturerSpecificData())
+        .toList();
     return Advertisement(
       name: nameArgs,
       serviceUUIDs: serviceUUIDs,
@@ -77,9 +79,7 @@ extension MyAdvertisementArgsX on MyAdvertisementArgs {
 
 extension MyPeripheralArgsX on MyPeripheralArgs {
   MyPeripheral toPeripheral() {
-    final node =
-        (addressArgs & 0xFFFFFFFFFFFF).toRadixString(16).padLeft(12, '0');
-    final uuid = UUID.fromString('00000000-0000-0000-0000-$node');
+    final uuid = UUID.fromAddress(addressArgs);
     return MyPeripheral(
       addressArgs: addressArgs,
       uuid: uuid,
@@ -142,9 +142,7 @@ extension MyGATTServiceArgsX on MyGATTServiceArgs {
 
 extension MyCentralArgsX on MyCentralArgs {
   MyCentral toCentral() {
-    final node =
-        (addressArgs & 0xFFFFFFFFFFFF).toRadixString(16).padLeft(12, '0');
-    final uuid = UUID.fromString('00000000-0000-0000-0000-$node');
+    final uuid = UUID.fromAddress(addressArgs);
     return MyCentral(
       addressArgs: addressArgs,
       uuid: uuid,
@@ -248,7 +246,8 @@ extension AdvertisementX on Advertisement {
       final uuidArgs = uuid.toArgs();
       return MapEntry(uuidArgs, data);
     });
-    final manufacturerSpecificDataArgs = manufacturerSpecificData?.toArgs();
+    final manufacturerSpecificDataArgs =
+        manufacturerSpecificData.map((data) => data.toArgs()).toList();
     return MyAdvertisementArgs(
       nameArgs: name,
       serviceUUIDsArgs: serviceUUIDsArgs,

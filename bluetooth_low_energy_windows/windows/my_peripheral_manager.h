@@ -79,7 +79,8 @@ namespace bluetooth_low_energy_windows
 		MyBluetoothLowEnergyStateArgs RadioStateToArgs(const winrt::Windows::Devices::Radios::RadioState &state);
 		MyGATTCharacteristicWriteTypeArgs WriteOptionToArgs(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteOption &option);
 
-		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristicProperties ArgsToCharacteristicProperties(const flutter::EncodableList property_numbers_args_value);
+		winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEManufacturerData ArgsToManufacturerData(const MyManufacturerSpecificDataArgs &manufacturer_specific_data_args);
+		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristicProperties ArgsToCharacteristicProperties(const flutter::EncodableList property_numbers_args);
 		winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel ArgsToProtectionLevel(const MyGATTProtectionLevelArgs &level_args);
 		uint8_t ArgsToProtocolError(const MyGATTProtocolErrorArgs &error_args);
 	};

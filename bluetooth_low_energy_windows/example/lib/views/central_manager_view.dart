@@ -1,7 +1,7 @@
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:bluetooth_low_energy_windows_example/view_models.dart';
+import 'package:bluetooth_low_energy_windows_example/views/advertisement_view.dart';
 import 'package:bluetooth_low_energy_windows_example/widgets.dart';
-import 'package:convert/convert.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -90,13 +90,11 @@ class CentralManagerView extends StatelessWidget {
       }
     }
     final uuid = discovery.peripheral.uuid;
-    context.go('/devices/$uuid');
+    context.go('/central/$uuid');
   }
 
   void onLongPressDiscovery(
       BuildContext context, DiscoveredEventArgs discovery) async {
-    final manufacturerSpecificData =
-        discovery.advertisement.manufacturerSpecificData;
     await showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -104,46 +102,8 @@ class CentralManagerView extends StatelessWidget {
           onClosing: () {},
           clipBehavior: Clip.antiAlias,
           builder: (context) {
-            return ListView.separated(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 40.0,
-              ),
-              itemBuilder: (context, i) {
-                const idWidth = 80.0;
-                if (i == 0) {
-                  return const Row(
-                    children: [
-                      SizedBox(
-                        width: idWidth,
-                        child: Text('ID'),
-                      ),
-                      Expanded(
-                        child: Text('DATA'),
-                      ),
-                    ],
-                  );
-                } else {
-                  final id =
-                      '0x${manufacturerSpecificData!.id.toRadixString(16).padLeft(4, '0')}';
-                  final value = hex.encode(manufacturerSpecificData.data);
-                  return Row(
-                    children: [
-                      SizedBox(
-                        width: idWidth,
-                        child: Text(id),
-                      ),
-                      Expanded(
-                        child: Text(value),
-                      ),
-                    ],
-                  );
-                }
-              },
-              separatorBuilder: (context, i) {
-                return const Divider();
-              },
-              itemCount: manufacturerSpecificData == null ? 1 : 2,
+            return AdvertisementView(
+              advertisement: discovery.advertisement,
             );
           },
         );

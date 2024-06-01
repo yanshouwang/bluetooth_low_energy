@@ -8,7 +8,7 @@ import 'views.dart';
 final routerConfig = GoRouter(
   redirect: (context, state) {
     if (state.matchedLocation == '/') {
-      return '/devices';
+      return '/central';
     }
     return null;
   },
@@ -40,7 +40,7 @@ final routerConfig = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/devices',
+              path: '/central',
               builder: (context, state) {
                 return const CentralManagerView();
               },
@@ -55,7 +55,7 @@ final routerConfig = GoRouter(
                     final eventArgs = viewModel.discoveries.firstWhere(
                         (discovery) => discovery.peripheral.uuid == uuid);
                     return ViewModelBinding(
-                      viewBuilder: (context) => const PeripheralView(),
+                      viewBuilder: (context) => PeripheralView(),
                       viewModelBuilder: (context) =>
                           PeripheralViewModel(eventArgs),
                     );
@@ -68,7 +68,7 @@ final routerConfig = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/peripheral-manager',
+              path: '/peripheral',
               builder: (context, state) {
                 return ViewModelBinding(
                   viewBuilder: (context) => const PeripheralManagerView(),

@@ -73,33 +73,21 @@ MyManufacturerSpecificDataArgs MyManufacturerSpecificDataArgs::FromEncodableList
 
 MyAdvertisementArgs::MyAdvertisementArgs(
   const EncodableList& service_u_u_i_ds_args,
-  const EncodableMap& service_data_args)
+  const EncodableMap& service_data_args,
+  const EncodableList& manufacturer_specific_data_args)
  : service_u_u_i_ds_args_(service_u_u_i_ds_args),
-    service_data_args_(service_data_args) {}
+    service_data_args_(service_data_args),
+    manufacturer_specific_data_args_(manufacturer_specific_data_args) {}
 
 MyAdvertisementArgs::MyAdvertisementArgs(
   const std::string* name_args,
   const EncodableList& service_u_u_i_ds_args,
   const EncodableMap& service_data_args,
-  const MyManufacturerSpecificDataArgs* manufacturer_specific_data_args)
+  const EncodableList& manufacturer_specific_data_args)
  : name_args_(name_args ? std::optional<std::string>(*name_args) : std::nullopt),
     service_u_u_i_ds_args_(service_u_u_i_ds_args),
     service_data_args_(service_data_args),
-    manufacturer_specific_data_args_(manufacturer_specific_data_args ? std::make_unique<MyManufacturerSpecificDataArgs>(*manufacturer_specific_data_args) : nullptr) {}
-
-MyAdvertisementArgs::MyAdvertisementArgs(const MyAdvertisementArgs& other)
- : name_args_(other.name_args_ ? std::optional<std::string>(*other.name_args_) : std::nullopt),
-    service_u_u_i_ds_args_(other.service_u_u_i_ds_args_),
-    service_data_args_(other.service_data_args_),
-    manufacturer_specific_data_args_(other.manufacturer_specific_data_args_ ? std::make_unique<MyManufacturerSpecificDataArgs>(*other.manufacturer_specific_data_args_) : nullptr) {}
-
-MyAdvertisementArgs& MyAdvertisementArgs::operator=(const MyAdvertisementArgs& other) {
-  name_args_ = other.name_args_;
-  service_u_u_i_ds_args_ = other.service_u_u_i_ds_args_;
-  service_data_args_ = other.service_data_args_;
-  manufacturer_specific_data_args_ = other.manufacturer_specific_data_args_ ? std::make_unique<MyManufacturerSpecificDataArgs>(*other.manufacturer_specific_data_args_) : nullptr;
-  return *this;
-}
+    manufacturer_specific_data_args_(manufacturer_specific_data_args) {}
 
 const std::string* MyAdvertisementArgs::name_args() const {
   return name_args_ ? &(*name_args_) : nullptr;
@@ -132,16 +120,12 @@ void MyAdvertisementArgs::set_service_data_args(const EncodableMap& value_arg) {
 }
 
 
-const MyManufacturerSpecificDataArgs* MyAdvertisementArgs::manufacturer_specific_data_args() const {
-  return manufacturer_specific_data_args_.get();
+const EncodableList& MyAdvertisementArgs::manufacturer_specific_data_args() const {
+  return manufacturer_specific_data_args_;
 }
 
-void MyAdvertisementArgs::set_manufacturer_specific_data_args(const MyManufacturerSpecificDataArgs* value_arg) {
-  manufacturer_specific_data_args_ = value_arg ? std::make_unique<MyManufacturerSpecificDataArgs>(*value_arg) : nullptr;
-}
-
-void MyAdvertisementArgs::set_manufacturer_specific_data_args(const MyManufacturerSpecificDataArgs& value_arg) {
-  manufacturer_specific_data_args_ = std::make_unique<MyManufacturerSpecificDataArgs>(value_arg);
+void MyAdvertisementArgs::set_manufacturer_specific_data_args(const EncodableList& value_arg) {
+  manufacturer_specific_data_args_ = value_arg;
 }
 
 
@@ -151,21 +135,18 @@ EncodableList MyAdvertisementArgs::ToEncodableList() const {
   list.push_back(name_args_ ? EncodableValue(*name_args_) : EncodableValue());
   list.push_back(EncodableValue(service_u_u_i_ds_args_));
   list.push_back(EncodableValue(service_data_args_));
-  list.push_back(manufacturer_specific_data_args_ ? CustomEncodableValue(*manufacturer_specific_data_args_) : EncodableValue());
+  list.push_back(EncodableValue(manufacturer_specific_data_args_));
   return list;
 }
 
 MyAdvertisementArgs MyAdvertisementArgs::FromEncodableList(const EncodableList& list) {
   MyAdvertisementArgs decoded(
     std::get<EncodableList>(list[1]),
-    std::get<EncodableMap>(list[2]));
+    std::get<EncodableMap>(list[2]),
+    std::get<EncodableList>(list[3]));
   auto& encodable_name_args = list[0];
   if (!encodable_name_args.IsNull()) {
     decoded.set_name_args(std::get<std::string>(encodable_name_args));
-  }
-  auto& encodable_manufacturer_specific_data_args = list[3];
-  if (!encodable_manufacturer_specific_data_args.IsNull()) {
-    decoded.set_manufacturer_specific_data_args(std::any_cast<const MyManufacturerSpecificDataArgs&>(std::get<CustomEncodableValue>(encodable_manufacturer_specific_data_args)));
   }
   return decoded;
 }
