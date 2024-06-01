@@ -1,3 +1,8 @@
+## 6.0.0-dev.19
+
+* Add `int` type to `UUID#fromAddress`.
+* Move the type of `Advertisement#manufacturerSpecificData` to `List<ManufacturerSpecificData>`.
+
 ## 6.0.0-dev.18
 
 * Add `PeripheralManager#respondReadRequestWithValue`.

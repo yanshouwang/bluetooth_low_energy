@@ -160,8 +160,8 @@ abstract interface class PeripheralManager
   /// This callback will be invoked if a remote client has requested to change
   /// the MTU for a given connection.
   ///
-  /// This event is available on Android, throws [UnsupportedError] on other
-  /// platforms.
+  /// This event is available on Android and Windows, throws [UnsupportedError]
+  /// on other platforms.
   Stream<CentralMTUChangedEventArgs> get mtuChanged;
 
   /// Tells that the local peripheral device received an Attribute Protocol (ATT)
@@ -180,10 +180,16 @@ abstract interface class PeripheralManager
 
   /// Tells that the local peripheral device received an Attribute Protocol (ATT)
   /// read request for a descriptor with a dynamic value.
+  ///
+  /// This event is available on Android and Windows, throws [UnsupportedError]
+  /// on other platforms.
   Stream<GATTDescriptorReadRequestedEventArgs> get descriptorReadRequested;
 
   /// Tells that the local peripheral device received an Attribute Protocol (ATT)
   /// write request for a descriptor with a dynamic value.
+  ///
+  /// This event is available on Android and Windows, throws [UnsupportedError]
+  /// on other platforms.
   Stream<GATTDescriptorWriteRequestedEventArgs> get descriptorWriteRequested;
 
   /// Publishes a service and any of its associated characteristics and characteristic

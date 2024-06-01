@@ -124,8 +124,8 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
 
   /// Returns a list of the peripherals connected to the system.
   ///
-  /// This method is available on Android and iOS, throws [UnsupportedError] on
-  /// other platforms.
+  /// This method is available on Android, iOS, macOS and Linux, throws
+  /// [UnsupportedError] on other platforms.
   Future<List<Peripheral>> retrieveConnectedPeripherals();
 
   /// Establishes a local connection to a peripheral.

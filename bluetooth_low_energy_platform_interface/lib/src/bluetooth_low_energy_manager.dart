@@ -26,12 +26,14 @@ abstract interface class BluetoothLowEnergyManager implements LogController {
   /// and they should have protection level dangerous, regardless whether they
   /// are declared by the platform or a third-party app.
   ///
-  /// This method is available on Android, throws [UnsupportedError] on other platforms.
+  /// This method is available on Android, throws [UnsupportedError] on other
+  /// platforms.
   Future<bool> authorize();
 
   /// Show screen of details about a particular application.
   ///
-  /// This method is available on Android, throws [UnsupportedError] on other platforms.
+  /// This method is available on Android and iOS, throws [UnsupportedError] on
+  /// other platforms.
   Future<void> showAppSettings();
 }
 

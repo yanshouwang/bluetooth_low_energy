@@ -1,13 +1,16 @@
 name: bluetooth_low_energy_platform_interface
 description: "A common platform interface for the bluetooth_low_energy plugin."
-version: 6.0.0-dev.18
-homepage: "https://github.com/yanshouwang/bluetooth_low_energy"
-repository: "https://github.com/yanshouwang/bluetooth_low_energy"
-issue_tracker: "https://github.com/yanshouwang/bluetooth_low_energy/issues"
+version: 6.0.0-dev.19
+homepage: https://github.com/yanshouwang/bluetooth_low_energy
+repository: https://github.com/yanshouwang/bluetooth_low_energy
+issue_tracker: https://github.com/yanshouwang/bluetooth_low_energy/issues
 topics:
   - bluetooth
   - bluetooth-low-energy
   - ble
+funding:
+  - https://paypal.me/yanshouwang5112
+  - https://afdian.net/a/yanshouwang
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
