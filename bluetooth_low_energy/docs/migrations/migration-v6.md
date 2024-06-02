@@ -45,7 +45,16 @@ final stateChangedSubscription = centralManager.stateChanged.listen((eventArgs) 
 });
 ```
 
-4. Request MTU manually on Android.
+4. The type of `manufacturerSpecificData` in `Advertisement` changed from `ManufacturerSpecificData` to `List<ManufacturerSpecificData>`.
+
+``` Dart
+// 5.x
+final manufacturerSpecificData = advertisement.manufacturerSpecificData; // ManufacturerSpecificData
+// 6.0
+final manufacturerSpecificData = advertisement.manufacturerSpecificData; // List<ManufacturerSpecificData>
+```
+
+5. Request MTU manually on Android.
 
 ``` Dart
 // The mtu is no longer requested automatically on Android
@@ -60,7 +69,7 @@ if (Platform.isAndroid) {
 }
 ```
 
-5. Fragment the value manually when write characteristics.
+6. Fragment the value manually when write characteristics.
 
 ``` Dart
 // The value is no longer fragmented automatically after
@@ -187,7 +196,28 @@ final service = GATTService(
 );
 ```
 
-5. Respond read and write requests manually.
+5. The type of `manufacturerSpecificData` in `Advertisement` changed from `ManufacturerSpecificData` to `List<ManufacturerSpecificData>`.
+
+``` Dart
+// 5.x
+final advertisement = Advertisement(
+    manufacturerSpecificData: ManufacturerSpecificData(
+        id: 0x2e19,
+        data: Uint8List.fromList([0x01, 0x02, 0x03]),
+    ),
+);
+// 6.x
+final advertisement = Advertisement(
+    manufacturerSpecificData: [
+        ManufacturerSpecificData(
+            id: 0x2e19,
+            data: Uint8List.fromList([0x01, 0x02, 0x03]),
+        ),
+    ],
+);
+```
+
+6. Respond read and write requests manually.
 
 ``` Dart
 // The read and write requests are no longer responded automatically 
@@ -224,7 +254,7 @@ final characteristicWriteRequestedSubscription = peripheralManager.characteristi
 });
 ```
 
-6. Fragment the value manually when notify characteristics.
+7. Fragment the value manually when notify characteristics.
 
 ``` Dart
 // The value is no longer fragmented automatically after

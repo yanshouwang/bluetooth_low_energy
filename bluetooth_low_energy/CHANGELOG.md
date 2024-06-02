@@ -1,3 +1,10 @@
+## 6.0.0-dev.2
+
+* Add `int` type to `UUID#fromAddress`.
+* Move the type of `Advertisement#manufacturerSpecificData` to `List<ManufacturerSpecificData>`.
+* Rewrite example with MVVM.
+* Fix known issues.
+
 ## 6.0.0-dev.1
 
 * Add `PeripheralManager#respondReadRequestWithValue`.

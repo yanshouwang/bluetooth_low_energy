@@ -1,3 +1,8 @@
+## 6.0.0-dev.3
+
+* Rewrite example with MVVM.
+* Fix known issues.
+
 ## 6.0.0-dev.2
 
 * Implement new APIs.
