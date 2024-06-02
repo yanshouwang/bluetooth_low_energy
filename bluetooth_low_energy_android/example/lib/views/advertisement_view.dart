@@ -13,54 +13,57 @@ class AdvertisementView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final manufacturerSpecificData = advertisement.manufacturerSpecificData;
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16.0,
-        vertical: 40.0,
-      ),
-      itemBuilder: (context, i) {
-        const idWidth = 80.0;
-        if (i == 0) {
-          return const Row(
-            children: [
-              SizedBox(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const idWidth = 100.0;
+        final valueWidth = constraints.maxWidth - idWidth - 16.0 * 2.0;
+        return DataTable(
+          columnSpacing: 0.0,
+          horizontalMargin: 16.0,
+          columns: [
+            DataColumn(
+              label: Container(
                 width: idWidth,
-                child: Center(
-                  child: Text('Id'),
-                ),
+                alignment: Alignment.center,
+                child: const Text('Id'),
               ),
-              Expanded(
-                child: Center(
-                  child: Text('Data'),
-                ),
+            ),
+            DataColumn(
+              label: Container(
+                width: valueWidth,
+                alignment: Alignment.center,
+                child: const Text('Value'),
               ),
-            ],
-          );
-        } else {
-          final item = manufacturerSpecificData[i - 1];
-          final id = '0x${item.id.toRadixString(16).padLeft(4, '0')}';
-          final value = hex.encode(item.data);
-          return Row(
-            children: [
-              SizedBox(
-                width: idWidth,
-                child: Center(
-                  child: Text(id),
+            ),
+          ],
+          rows: manufacturerSpecificData.map((item) {
+            final id = '0x${item.id.toRadixString(16).padLeft(4, '0')}';
+            final value = hex.encode(item.data);
+            return DataRow(
+              cells: [
+                DataCell(
+                  Container(
+                    width: idWidth,
+                    alignment: Alignment.center,
+                    child: Text(id),
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Center(
-                  child: Text(value),
+                DataCell(
+                  Container(
+                    width: valueWidth,
+                    alignment: Alignment.center,
+                    child: Text(
+                      value,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          );
-        }
+              ],
+            );
+          }).toList(),
+        );
       },
-      separatorBuilder: (context, i) {
-        return const Divider();
-      },
-      itemCount: manufacturerSpecificData.length + 1,
     );
   }
 }

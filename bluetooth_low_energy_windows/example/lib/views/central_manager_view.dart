@@ -99,14 +99,8 @@ class CentralManagerView extends StatelessWidget {
     await showModalBottomSheet(
       context: context,
       builder: (context) {
-        return BottomSheet(
-          onClosing: () {},
-          clipBehavior: Clip.antiAlias,
-          builder: (context) {
-            return AdvertisementView(
-              advertisement: discovery.advertisement,
-            );
-          },
+        return AdvertisementView(
+          advertisement: discovery.advertisement,
         );
       },
     );
