@@ -31,9 +31,11 @@ class PeripheralManagerViewModel extends ViewModel {
       final request = eventArgs.request;
       final offset = request.offset;
       final log = Log(
-        'characteristicReadRequested\n${central.uuid} - ${characteristic.uuid}, $offset',
+        type: 'Characteristic read requested',
+        message: '${central.uuid}, ${characteristic.uuid}, $offset',
       );
-      _addLog(log);
+      _logs.add(log);
+      notifyListeners();
       final elements = List.generate(100, (i) => i % 256);
       final value = Uint8List.fromList(elements);
       final trimmedValue = value.sublist(offset);
@@ -50,9 +52,12 @@ class PeripheralManagerViewModel extends ViewModel {
       final offset = request.offset;
       final value = request.value;
       final log = Log(
-        'characteristicWriteRequested\n${central.uuid} - ${characteristic.uuid}, $offset, $value',
+        type: 'Characteristic write requested',
+        message:
+            '[${value.length}] ${central.uuid}, ${characteristic.uuid}, $offset, $value',
       );
-      _addLog(log);
+      _logs.add(log);
+      notifyListeners();
       await _manager.respondWriteRequest(request);
     });
     _characteristicNotifyStateChangedSubscription =
@@ -61,9 +66,11 @@ class PeripheralManagerViewModel extends ViewModel {
       final characteristic = eventArgs.characteristic;
       final state = eventArgs.state;
       final log = Log(
-        'characteristicNotifyStateChanged\n${central.uuid} - ${characteristic.uuid}, $state',
+        type: 'Characteristic notify state changed',
+        message: '${central.uuid}, ${characteristic.uuid}, $state',
       );
-      _addLog(log);
+      _logs.add(log);
+      notifyListeners();
       // Write someting to the central when notify started.
       if (state) {
         final maximumNotifyLength =
@@ -82,11 +89,6 @@ class PeripheralManagerViewModel extends ViewModel {
   BluetoothLowEnergyState get state => _manager.state;
   bool get advertising => _advertising;
   List<Log> get logs => _logs;
-
-  void _addLog(Log log) {
-    _logs.add(log);
-    notifyListeners();
-  }
 
   Future<void> startAdvertising() async {
     if (_advertising) {
@@ -142,6 +144,11 @@ class PeripheralManagerViewModel extends ViewModel {
     }
     await _manager.stopAdvertising();
     _advertising = false;
+    notifyListeners();
+  }
+
+  void clearLogs() {
+    _logs.clear();
     notifyListeners();
   }
 

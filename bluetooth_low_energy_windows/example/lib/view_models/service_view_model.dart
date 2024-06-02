@@ -35,4 +35,12 @@ class ServiceViewModel extends ViewModel {
       _includedServiceViewModels;
   List<CharacteristicViewModel> get characteristicViewModels =>
       _characteristicViewModels;
+
+  @override
+  void dispose() {
+    for (var characteristicViewModel in characteristicViewModels) {
+      characteristicViewModel.dispose();
+    }
+    super.dispose();
+  }
 }

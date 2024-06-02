@@ -2,6 +2,8 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 import 'package:bluetooth_low_energy_windows_example/view_models.dart';
 import 'package:flutter/material.dart';
 
+import 'log_view.dart';
+
 class PeripheralManagerView extends StatelessWidget {
   const PeripheralManagerView({super.key});
 
@@ -34,7 +36,9 @@ class PeripheralManagerView extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               itemBuilder: (context, i) {
                 final log = logs[i];
-                return Text('$log');
+                return LogView(
+                  log: log,
+                );
               },
               itemCount: logs.length,
             )

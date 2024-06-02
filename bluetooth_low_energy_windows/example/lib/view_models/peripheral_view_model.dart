@@ -75,6 +75,9 @@ class PeripheralViewModel extends ViewModel with TypeLogger {
     }
     _connectionStateChangedSubscription.cancel();
     _mtuChangedChangedSubscription.cancel();
+    for (var serviceViewModel in serviceViewModels) {
+      serviceViewModel.dispose();
+    }
     super.dispose();
   }
 }

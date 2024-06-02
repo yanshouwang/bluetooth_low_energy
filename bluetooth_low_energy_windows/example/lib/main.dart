@@ -40,8 +40,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       routerConfig: routerConfig,
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
+      theme: ThemeData.light().copyWith(
+        materialTapTargetSize: MaterialTapTargetSize.padded,
+      ),
+      darkTheme: ThemeData.dark().copyWith(
+        materialTapTargetSize: MaterialTapTargetSize.padded,
+      ),
     );
   }
 }

@@ -17,7 +17,7 @@ class CharacteristicViewModel extends ViewModel {
   GATTCharacteristicWriteType _writeType;
   bool _notifyState;
 
-  late final StreamSubscription _characteristicNotifiedChangedSubscription;
+  late final StreamSubscription _characteristicNotifiedSubscription;
 
   CharacteristicViewModel({
     required CentralManager manager,
@@ -35,12 +35,15 @@ class CharacteristicViewModel extends ViewModel {
     if (!canWrite && canWriteWithoutResponse) {
       _writeType = GATTCharacteristicWriteType.withoutResponse;
     }
-    _characteristicNotifiedChangedSubscription =
+    _characteristicNotifiedSubscription =
         _manager.characteristicNotified.listen((eventArgs) {
       if (eventArgs.characteristic != _characteristic) {
         return;
       }
-      final log = Log('Notified: ${eventArgs.value}');
+      final log = Log(
+        type: 'Notified',
+        message: '[${eventArgs.value.length}] ${eventArgs.value}',
+      );
       _logs.add(log);
       notifyListeners();
     });
@@ -66,7 +69,10 @@ class CharacteristicViewModel extends ViewModel {
       _peripheral,
       _characteristic,
     );
-    final log = Log('read: $value');
+    final log = Log(
+      type: 'Read',
+      message: '[${value.length}] $value',
+    );
     _logs.add(log);
     notifyListeners();
   }
@@ -94,13 +100,19 @@ class CharacteristicViewModel extends ViewModel {
       final end = start + fragmentSize;
       final fragmentedValue =
           end < value.length ? value.sublist(start, end) : value.sublist(start);
+      final type = writeType;
       await _manager.writeCharacteristic(
         _peripheral,
         _characteristic,
         value: fragmentedValue,
-        type: writeType,
+        type: type,
       );
-      final log = Log('write: $value');
+      final log = Log(
+        type: type == GATTCharacteristicWriteType.withResponse
+            ? 'Write'
+            : 'Write without response',
+        message: '[${value.length}] $value',
+      );
       _logs.add(log);
       notifyListeners();
       start = end;
@@ -117,9 +129,17 @@ class CharacteristicViewModel extends ViewModel {
     notifyListeners();
   }
 
+  void clearLogs() {
+    _logs.clear();
+    notifyListeners();
+  }
+
   @override
   void dispose() {
-    _characteristicNotifiedChangedSubscription.cancel();
+    _characteristicNotifiedSubscription.cancel();
+    for (var descriptorViewModel in descriptorViewModels) {
+      descriptorViewModel.dispose();
+    }
     super.dispose();
   }
 }

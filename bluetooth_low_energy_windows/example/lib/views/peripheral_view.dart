@@ -74,7 +74,7 @@ class PeripheralView extends StatelessWidget {
             content: Expanded(
               child: Container(
                 margin: const EdgeInsets.only(right: 40.0),
-                height: 200.0,
+                height: 360.0,
                 child: InheritedViewModel(
                   view: const CharacteristicView(),
                   viewModel: viewModel,
