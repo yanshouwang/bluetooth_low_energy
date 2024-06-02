@@ -14,13 +14,7 @@ class ServiceViewModel extends ViewModel {
     required Peripheral peripheral,
     required GATTService service,
   })  : _service = service,
-        _includedServiceViewModels = service.includedServices
-            .map((service) => ServiceViewModel(
-                  manager: manager,
-                  peripheral: peripheral,
-                  service: service,
-                ))
-            .toList(),
+        _includedServiceViewModels = [],
         _characteristicViewModels = service.characteristics
             .map((characteristic) => CharacteristicViewModel(
                   manager: manager,

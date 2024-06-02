@@ -14,7 +14,6 @@ class PeripheralViewModel extends ViewModel with TypeLogger {
   List<ServiceViewModel> _serviceViewModels;
 
   late final StreamSubscription _connectionStateChangedSubscription;
-  late final StreamSubscription _mtuChangedChangedSubscription;
 
   PeripheralViewModel(DiscoveredEventArgs eventArgs)
       : _manager = CentralManager(),
@@ -34,12 +33,6 @@ class PeripheralViewModel extends ViewModel with TypeLogger {
         _serviceViewModels = [];
       }
       notifyListeners();
-    });
-    _mtuChangedChangedSubscription = _manager.mtuChanged.listen((eventArgs) {
-      if (eventArgs.peripheral != _peripheral) {
-        return;
-      }
-      logger.info('MTU chanaged: ${eventArgs.mtu}');
     });
   }
 
@@ -74,7 +67,6 @@ class PeripheralViewModel extends ViewModel with TypeLogger {
       disconnect();
     }
     _connectionStateChangedSubscription.cancel();
-    _mtuChangedChangedSubscription.cancel();
     for (var serviceViewModel in serviceViewModels) {
       serviceViewModel.dispose();
     }
