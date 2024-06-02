@@ -39,15 +39,8 @@ fun MyGATTStatusArgs.toStatus(): Int {
     }
 }
 
-fun MyAdvertisementArgs.toAdvertiseData(adapter: BluetoothAdapter): AdvertiseData {
+fun MyAdvertisementArgs.toAdvertiseData(): AdvertiseData {
     val advertiseDataBuilder = AdvertiseData.Builder()
-    if (nameArgs == null) {
-        advertiseDataBuilder.setIncludeDeviceName(false)
-    } else { // TODO: There is an issue that Android will use the cached name before setName takes effect.
-        // see https://stackoverflow.com/questions/8377558/change-the-android-bluetooth-device-name
-        adapter.name = nameArgs
-        advertiseDataBuilder.setIncludeDeviceName(true)
-    }
     for (serviceUuidArgs in serviceUUIDsArgs) {
         val serviceUUID = ParcelUuid.fromString(serviceUuidArgs)
         advertiseDataBuilder.addServiceUuid(serviceUUID)
@@ -57,11 +50,19 @@ fun MyAdvertisementArgs.toAdvertiseData(adapter: BluetoothAdapter): AdvertiseDat
         val serviceData = entry.value as ByteArray
         advertiseDataBuilder.addServiceData(serviceDataUUID, serviceData)
     }
-    if (manufacturerSpecificDataArgs != null) {
-        val manufacturerId = manufacturerSpecificDataArgs.idArgs.toInt()
-        val manufacturerSpecificData = manufacturerSpecificDataArgs.dataArgs
+    for (args in manufacturerSpecificDataArgs) {
+        val itemArgs = args as MyManufacturerSpecificDataArgs
+        val manufacturerId = itemArgs.idArgs.toInt()
+        val manufacturerSpecificData = itemArgs.dataArgs
         advertiseDataBuilder.addManufacturerData(manufacturerId, manufacturerSpecificData)
     }
+    return advertiseDataBuilder.build()
+}
+
+fun MyAdvertisementArgs.toScanResponse(): AdvertiseData {
+    val advertiseDataBuilder = AdvertiseData.Builder()
+    val includeDeviceName = nameArgs != null
+    advertiseDataBuilder.setIncludeDeviceName(includeDeviceName)
     return advertiseDataBuilder.build()
 }
 
@@ -116,8 +117,7 @@ fun MyMutableGATTServiceArgs.toService(): BluetoothGattService {
     val serviceType = if (isPrimaryArgs) BluetoothGattService.SERVICE_TYPE_PRIMARY
     else BluetoothGattService.SERVICE_TYPE_SECONDARY
     return BluetoothGattService(uuid, serviceType)
-}
-//endregion
+} //endregion
 
 //region ToArgs
 fun Int.toBluetoothLowEnergyStateArgs(): MyBluetoothLowEnergyStateArgs {
@@ -140,7 +140,7 @@ fun Int.toConnectionStateArgs(): MyConnectionStateArgs {
     }
 }
 
-fun SparseArray<ByteArray>.toManufacturerSpecificDataArgs(): MyManufacturerSpecificDataArgs? {
+fun SparseArray<ByteArray>.toManufacturerSpecificDataArgs(): List<MyManufacturerSpecificDataArgs> {
     var index = 0
     val size = size()
     val itemsArgs = mutableListOf<MyManufacturerSpecificDataArgs>()
@@ -151,7 +151,7 @@ fun SparseArray<ByteArray>.toManufacturerSpecificDataArgs(): MyManufacturerSpeci
         itemsArgs.add(itemArgs)
         index++
     }
-    return itemsArgs.lastOrNull()
+    return itemsArgs
 }
 
 fun ScanResult.toAdvertisementArgs(): MyAdvertisementArgs {
@@ -160,7 +160,7 @@ fun ScanResult.toAdvertisementArgs(): MyAdvertisementArgs {
         val nameArgs = null
         val serviceUUIDsArgs = emptyList<String?>()
         val serviceDataArgs = emptyMap<String?, ByteArray>()
-        val manufacturerSpecificDataArgs = null
+        val manufacturerSpecificDataArgs = emptyList<MyManufacturerSpecificDataArgs>()
         MyAdvertisementArgs(nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs)
     } else {
         val nameArgs = record.deviceName
@@ -170,7 +170,7 @@ fun ScanResult.toAdvertisementArgs(): MyAdvertisementArgs {
             return@map Pair(key, value)
         }?.toTypedArray() ?: emptyArray()
         val serviceDataArgs = mapOf<String?, ByteArray?>(*pairs)
-        val manufacturerSpecificDataArgs = record.manufacturerSpecificData?.toManufacturerSpecificDataArgs()
+        val manufacturerSpecificDataArgs = record.manufacturerSpecificData?.toManufacturerSpecificDataArgs() ?: emptyList()
         MyAdvertisementArgs(nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs)
     }
 }
@@ -231,8 +231,7 @@ fun BluetoothGattService.toArgs(): MyGATTServiceArgs {
     val includedServicesArgs = includedServices.map { it.toArgs() }
     val characteristicsArgs = characteristics.map { it.toArgs() }
     return MyGATTServiceArgs(hashCodeArgs, uuidArgs, isPrimaryArgs, includedServicesArgs, characteristicsArgs)
-}
-//endregion
+} //endregion
 
 val Any.hashCode get() = this.hashCode()
 val Int.args get() = this.toLong()

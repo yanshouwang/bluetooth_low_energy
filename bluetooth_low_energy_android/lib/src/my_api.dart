@@ -76,8 +76,10 @@ extension MyAdvertisementArgsX on MyAdvertisementArgs {
         return MapEntry(uuid, data);
       },
     );
-    final manufacturerSpecificData =
-        manufacturerSpecificDataArgs?.toManufacturerSpecificData();
+    final manufacturerSpecificData = manufacturerSpecificDataArgs
+        .cast<MyManufacturerSpecificDataArgs>()
+        .map((args) => args.toManufacturerSpecificData())
+        .toList();
     return Advertisement(
       name: name,
       serviceUUIDs: serviceUUIDs,
@@ -227,7 +229,8 @@ extension AdvertisementX on Advertisement {
       final dataArgs = data;
       return MapEntry(uuidArgs, dataArgs);
     });
-    final manufacturerSpecificDataArgs = manufacturerSpecificData?.toArgs();
+    final manufacturerSpecificDataArgs =
+        manufacturerSpecificData.map((data) => data.toArgs()).toList();
     return MyAdvertisementArgs(
       nameArgs: nameArgs,
       serviceUUIDsArgs: serviceUUIDsArgs,

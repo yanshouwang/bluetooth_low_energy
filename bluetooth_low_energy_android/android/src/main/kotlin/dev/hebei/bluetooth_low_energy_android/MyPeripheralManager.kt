@@ -186,8 +186,15 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
     override fun startAdvertising(advertisementArgs: MyAdvertisementArgs, callback: (Result<Unit>) -> Unit) {
         try {
             val settings = AdvertiseSettings.Builder().setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED).setConnectable(true).build()
-            val advertiseData = advertisementArgs.toAdvertiseData(adapter)
-            advertiser.startAdvertising(settings, advertiseData, mAdvertiseCallback)
+            // TODO: There is an issue that Android will use the cached name before setName takes effect.
+            // see https://stackoverflow.com/questions/8377558/change-the-android-bluetooth-device-name
+            val nameArgs = advertisementArgs.nameArgs
+            if (nameArgs != null) {
+                adapter.name = nameArgs
+            }
+            val advertiseData = advertisementArgs.toAdvertiseData()
+            val scanResponse = advertisementArgs.toScanResponse()
+            advertiser.startAdvertising(settings, advertiseData, scanResponse, mAdvertiseCallback)
             mStartAdvertisingCallback = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))

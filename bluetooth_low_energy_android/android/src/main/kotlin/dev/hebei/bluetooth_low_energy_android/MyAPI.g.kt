@@ -211,7 +211,7 @@ data class MyAdvertisementArgs (
   val nameArgs: String? = null,
   val serviceUUIDsArgs: List<String?>,
   val serviceDataArgs: Map<String?, ByteArray?>,
-  val manufacturerSpecificDataArgs: MyManufacturerSpecificDataArgs? = null
+  val manufacturerSpecificDataArgs: List<MyManufacturerSpecificDataArgs?>
 
 ) {
   companion object {
@@ -220,7 +220,7 @@ data class MyAdvertisementArgs (
       val nameArgs = __pigeon_list[0] as String?
       val serviceUUIDsArgs = __pigeon_list[1] as List<String?>
       val serviceDataArgs = __pigeon_list[2] as Map<String?, ByteArray?>
-      val manufacturerSpecificDataArgs = __pigeon_list[3] as MyManufacturerSpecificDataArgs?
+      val manufacturerSpecificDataArgs = __pigeon_list[3] as List<MyManufacturerSpecificDataArgs?>
       return MyAdvertisementArgs(nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs)
     }
   }

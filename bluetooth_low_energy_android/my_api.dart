@@ -100,7 +100,7 @@ class MyAdvertisementArgs {
   final String? nameArgs;
   final List<String?> serviceUUIDsArgs;
   final Map<String?, Uint8List?> serviceDataArgs;
-  final MyManufacturerSpecificDataArgs? manufacturerSpecificDataArgs;
+  final List<MyManufacturerSpecificDataArgs?> manufacturerSpecificDataArgs;
 
   MyAdvertisementArgs(
     this.nameArgs,
