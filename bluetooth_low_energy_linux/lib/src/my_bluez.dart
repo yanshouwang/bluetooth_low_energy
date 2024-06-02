@@ -57,24 +57,19 @@ extension BlueZDeviceX on BlueZDevice {
       final myData = Uint8List.fromList(data);
       return MapEntry(myUUID, myData);
     });
+    final myManufacturerSpecificData = manufacturerData.entries.map((entry) {
+      final myId = entry.key.id;
+      final myData = Uint8List.fromList(entry.value);
+      return ManufacturerSpecificData(
+        id: myId,
+        data: myData,
+      );
+    }).toList();
     return Advertisement(
       name: myName,
       serviceUUIDs: myServiceUUIDs,
       serviceData: myServiceData,
       manufacturerSpecificData: myManufacturerSpecificData,
-    );
-  }
-
-  ManufacturerSpecificData? get myManufacturerSpecificData {
-    final entry = manufacturerData.entries.lastOrNull;
-    if (entry == null) {
-      return null;
-    }
-    final myId = entry.key.id;
-    final myData = Uint8List.fromList(entry.value);
-    return ManufacturerSpecificData(
-      id: myId,
-      data: myData,
     );
   }
 }
