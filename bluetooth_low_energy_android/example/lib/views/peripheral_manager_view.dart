@@ -1,5 +1,6 @@
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:bluetooth_low_energy_android_example/view_models.dart';
+import 'package:clover/clover.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
@@ -32,10 +33,12 @@ class PeripheralManagerView extends StatelessWidget {
         ],
       ),
       body: buildBody(context),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => viewModel.clearLogs(),
-        child: const Icon(Symbols.delete),
-      ),
+      floatingActionButton: state == BluetoothLowEnergyState.poweredOn
+          ? FloatingActionButton(
+              onPressed: () => viewModel.clearLogs(),
+              child: const Icon(Symbols.delete),
+            )
+          : null,
     );
   }
 

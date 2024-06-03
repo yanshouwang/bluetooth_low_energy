@@ -3,9 +3,9 @@ import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:bluetooth_low_energy_android_example/models.dart';
+import 'package:clover/clover.dart';
 
 import 'descriptor_view_model.dart';
-import 'view_model.dart';
 
 class CharacteristicViewModel extends ViewModel {
   final CentralManager _manager;

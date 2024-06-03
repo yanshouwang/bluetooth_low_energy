@@ -1,6 +1,22 @@
+## 6.0.0
+
+* Add `serviceUUIDs` argument to `CentralManager#startDiscovery` method.
+* Add `CentralManager#requestMTU` method.
+* Add `CentralManager#retrieveConnectedPeripherals` method.
+* Move `BluetoothLowEnergyManager#getState` to `BluetoothLowEnergyManager#state`.
+* Move `CentralManger.instance` to factory constructor.
+* Move `PeripheralManager.instance` to factory constructor.
+* Remove `BluetoothLowEnergyManager#setUp` method.
+* Add `CentralManager#mtuChanged` event.
+* Add `PeripheralManager#mtuChanged` event.
+* Add `BluetoothLowEnergyManager.authorize()` method.
+* Add `BluetoothLowEnergyManager.showAppSettings()` method.
+* Rewrite example with MVVM.
+* Fix known issues.
+
 ## 6.0.0-dev.6
 
-Fix known issues.
+* Fix known issues.
 
 ## 6.0.0-dev.5
 
