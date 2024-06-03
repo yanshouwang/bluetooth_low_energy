@@ -1,4 +1,4 @@
-# Migrate form 5.0.0 to 6.0.0
+# Migrate form 5.x to 6.x
 
 
 ## Capitalization Rules

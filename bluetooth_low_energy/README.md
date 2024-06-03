@@ -59,7 +59,7 @@ A Flutter plugin for controlling the bluetooth low energy, supports central and 
 
 ## Getting Started
 
-Add `bluetooth_low_energy` as a [dependency][2] in your pubspec.yaml file.
+Add `bluetooth_low_energy` as a [dependency][1] in your pubspec.yaml file.
 
 ``` YAML
 dependencies:
@@ -74,30 +74,30 @@ Make sure you have a `minSdk` with 21 or higher in your `android/app/build.gradl
 
 ### iOS and macOS
 
-According to the [Apple's documents][3], you must include the [`NSBluetoothAlwaysUsageDescription`][4] on or after iOS 13, and include the [`NSBluetoothPeripheralUsageDescription`][5] key before iOS 13.
+According to the [Apple's documents][2], you must include the [`NSBluetoothAlwaysUsageDescription`][3] on or after iOS 13, and include the [`NSBluetoothPeripheralUsageDescription`][4] key before iOS 13.
 
-When use bluetooth or other hardwares on macOS, developers need to [configure the app sandbox][6].
+When use bluetooth or other hardwares on macOS, developers need to [configure the app sandbox][5].
 
-*Note:* The `PeripheralManager#startAdvertising` only support `name` and `serviceUUIDs`, see the [Apple's document][7].
+*Note:* The `PeripheralManager#startAdvertising` only support `name` and `serviceUUIDs`, see the [Apple's document][6].
 
 ### Winodows
 
-*Note:* The `PeripheralManager#startAdvertising` not support `name`, see the [Microsoft's document][8].
+*Note:* The `PeripheralManager#startAdvertising` not support `name`, see the [Microsoft's document][7].
 
 ### Linux
 
-The `PeripheralManager` API is not implemented since the [`bluez`][9] didn't support this feature yet.
+The `PeripheralManager` API is not implemented since the [`bluez`][8] didn't support this feature yet.
 
 ## Migrations
 
-* [Migrate from 5.0.0 to 6.0.0][1]
+* [Migrate from 5.x to 6.x][9]
 
-[1]: docs/migrations/migration-v6.md
-[2]: https://docs.flutter.dev/packages-and-plugins/using-packages
-[3]: https://developer.apple.com/documentation/corebluetooth
-[4]: https://developer.apple.com/documentation/bundleresources/information_property_list/nsbluetoothalwaysusagedescription
-[5]: https://developer.apple.com/documentation/bundleresources/information_property_list/nsbluetoothperipheralusagedescription
-[6]: https://developer.apple.com/documentation/xcode/configuring-the-macos-app-sandbox#Enable-access-to-restricted-resources
-[7]: https://developer.apple.com/documentation/corebluetooth/cbperipheralmanager/1393252-startadvertising
-[8]: https://learn.microsoft.com/en-us/uwp/api/windows.devices.bluetooth.advertisement.bluetoothleadvertisementpublisher.advertisement?view=winrt-22621
-[9]: https://github.com/canonical/bluez.dart
+[1]: https://docs.flutter.dev/packages-and-plugins/using-packages
+[2]: https://developer.apple.com/documentation/corebluetooth
+[3]: https://developer.apple.com/documentation/bundleresources/information_property_list/nsbluetoothalwaysusagedescription
+[4]: https://developer.apple.com/documentation/bundleresources/information_property_list/nsbluetoothperipheralusagedescription
+[5]: https://developer.apple.com/documentation/xcode/configuring-the-macos-app-sandbox#Enable-access-to-restricted-resources
+[6]: https://developer.apple.com/documentation/corebluetooth/cbperipheralmanager/1393252-startadvertising
+[7]: https://learn.microsoft.com/en-us/uwp/api/windows.devices.bluetooth.advertisement.bluetoothleadvertisementpublisher.advertisement?view=winrt-22621
+[8]: https://github.com/canonical/bluez.dart
+[9]: doc/migrations/migration-v6.md
