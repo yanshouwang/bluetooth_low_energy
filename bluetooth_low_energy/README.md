@@ -59,7 +59,7 @@ A Flutter plugin for controlling the bluetooth low energy, supports central and 
 
 ## Getting Started
 
-Add `bluetooth_low_energy` as a [dependency in your pubspec.yaml file][2].
+Add `bluetooth_low_energy` as a [dependency][2] in your pubspec.yaml file.
 
 ``` YAML
 dependencies:
