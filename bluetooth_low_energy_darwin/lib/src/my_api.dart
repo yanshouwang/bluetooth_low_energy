@@ -3,13 +3,28 @@ import 'dart:typed_data';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
 import 'my_api.g.dart';
-import 'my_gatt_characteristic2.dart';
-import 'my_gatt_descriptor2.dart';
-import 'my_gatt_service2.dart';
-
-export 'my_api.g.dart';
+import 'my_gatt.dart';
 
 // ToObject
+extension Uint8ListX on Uint8List {
+  List<ManufacturerSpecificData> toManufacturerSpecificData() {
+    if (length > 2) {
+      return [
+        ManufacturerSpecificData(
+          id: ByteData.view(
+            buffer,
+            offsetInBytes,
+            length,
+          ).getUint16(0, Endian.host),
+          data: sublist(2),
+        ),
+      ];
+    } else {
+      return [];
+    }
+  }
+}
+
 extension MyBluetoothLowEnergyStateArgsX on MyBluetoothLowEnergyStateArgs {
   BluetoothLowEnergyState toState() {
     switch (this) {
@@ -28,211 +43,230 @@ extension MyBluetoothLowEnergyStateArgsX on MyBluetoothLowEnergyStateArgs {
   }
 }
 
-extension MyGattCharacteristicPropertyArgsX
-    on MyGattCharacteristicPropertyArgs {
-  GattCharacteristicProperty toProperty() {
-    return GattCharacteristicProperty.values[index];
+extension MyConnectionStateArgsX on MyConnectionStateArgs {
+  ConnectionState toState() {
+    return ConnectionState.values[index];
   }
 }
 
-extension MyManufacturerSpecificDataArgsX on MyManufacturerSpecificDataArgs {
-  ManufacturerSpecificData toManufacturerSpecificData() {
-    final id = idArgs;
-    final data = dataArgs;
-    return ManufacturerSpecificData(
-      id: id,
-      data: data,
-    );
+extension MyGATTCharacteristicPropertyArgsX
+    on MyGATTCharacteristicPropertyArgs {
+  GATTCharacteristicProperty toProperty() {
+    return GATTCharacteristicProperty.values[index];
   }
 }
 
 extension MyAdvertisementArgsX on MyAdvertisementArgs {
   Advertisement toAdvertisement() {
-    final name = nameArgs;
-    final serviceUUIDs =
-        serviceUUIDsArgs.cast<String>().map((args) => args.toUUID()).toList();
-    final serviceData = serviceDataArgs.cast<String, Uint8List>().map(
-      (uuidArgs, dataArgs) {
-        final uuid = uuidArgs.toUUID();
-        final data = dataArgs;
-        return MapEntry(uuid, data);
-      },
-    );
-    final manufacturerSpecificData =
-        manufacturerSpecificDataArgs?.toManufacturerSpecificData();
     return Advertisement(
-      name: name,
-      serviceUUIDs: serviceUUIDs,
-      serviceData: serviceData,
-      manufacturerSpecificData: manufacturerSpecificData,
-    );
-  }
-}
-
-extension MyCentralArgsX on MyCentralArgs {
-  MyCentral toCentral() {
-    final uuid = uuidArgs.toUUID();
-    return MyCentral(
-      uuid: uuid,
+      name: nameArgs,
+      serviceUUIDs: serviceUUIDsArgs
+          .cast<String>()
+          .map((args) => UUID.fromString(args))
+          .toList(),
+      serviceData: serviceDataArgs.cast<String, Uint8List>().map(
+        (uuidArgs, dataArgs) {
+          final uuid = UUID.fromString(uuidArgs);
+          return MapEntry(uuid, dataArgs);
+        },
+      ),
+      manufacturerSpecificData:
+          manufacturerSpecificDataArgs?.toManufacturerSpecificData() ?? [],
     );
   }
 }
 
 extension MyPeripheralArgsX on MyPeripheralArgs {
-  MyPeripheral toPeripheral() {
-    final uuid = uuidArgs.toUUID();
-    return MyPeripheral(
-      uuid: uuid,
+  Peripheral toPeripheral() {
+    return Peripheral(
+      uuid: UUID.fromString(uuidArgs),
     );
   }
 }
 
-extension MyGattDescriptorArgsX on MyGattDescriptorArgs {
-  MyGattDescriptor2 toDescriptor2(MyPeripheral peripheral) {
-    final hashCode = hashCodeArgs;
-    final uuid = uuidArgs.toUUID();
-    return MyGattDescriptor2(
-      peripheral: peripheral,
-      hashCode: hashCode,
-      uuid: uuid,
+extension MyGATTDescriptorArgsX on MyGATTDescriptorArgs {
+  MyGATTDescriptor toDescriptor() {
+    return MyGATTDescriptor(
+      hashCodeArgs: hashCodeArgs,
+      uuid: UUID.fromString(uuidArgs),
     );
   }
 }
 
-extension MyGattCharacteristicArgsX on MyGattCharacteristicArgs {
-  MyGattCharacteristic2 toCharacteristic2(MyPeripheral peripheral) {
-    final hashCode = hashCodeArgs;
-    final uuid = uuidArgs.toUUID();
-    final properties = propertyNumbersArgs.cast<int>().map(
-      (args) {
-        final propertyArgs = MyGattCharacteristicPropertyArgs.values[args];
+extension MyGATTCharacteristicArgsX on MyGATTCharacteristicArgs {
+  MyGATTCharacteristic toCharacteristic() {
+    return MyGATTCharacteristic(
+      hashCodeArgs: hashCodeArgs,
+      uuid: UUID.fromString(uuidArgs),
+      properties: propertyNumbersArgs.cast<int>().map((args) {
+        final propertyArgs = MyGATTCharacteristicPropertyArgs.values[args];
         return propertyArgs.toProperty();
-      },
-    ).toList();
-    final descriptors = descriptorsArgs
-        .cast<MyGattDescriptorArgs>()
-        .map((args) => args.toDescriptor2(peripheral))
-        .toList();
-    return MyGattCharacteristic2(
-      peripheral: peripheral,
-      hashCode: hashCode,
-      uuid: uuid,
-      properties: properties,
-      descriptors: descriptors,
+      }).toList(),
+      descriptors: descriptorsArgs
+          .cast<MyGATTDescriptorArgs>()
+          .map((args) => args.toDescriptor())
+          .toList(),
     );
   }
 }
 
-extension MyGattServiceArgsX on MyGattServiceArgs {
-  MyGattService2 toService2(MyPeripheral peripheral) {
-    final hashCode = hashCodeArgs;
-    final uuid = uuidArgs.toUUID();
-    final characteristics = characteristicsArgs
-        .cast<MyGattCharacteristicArgs>()
-        .map((args) => args.toCharacteristic2(peripheral))
-        .toList();
-    return MyGattService2(
-      peripheral: peripheral,
-      hashCode: hashCode,
-      uuid: uuid,
-      characteristics: characteristics,
+extension MyGATTServiceArgsX on MyGATTServiceArgs {
+  MyGATTService toService() {
+    return MyGATTService(
+      hashCodeArgs: hashCodeArgs,
+      uuid: UUID.fromString(uuidArgs),
+      isPrimary: isPrimaryArgs,
+      includedServices: includedServicesArgs
+          .cast<MyGATTServiceArgs>()
+          .map((args) => args.toService())
+          .toList(),
+      characteristics: characteristicsArgs
+          .cast<MyGATTCharacteristicArgs>()
+          .map((args) => args.toCharacteristic())
+          .toList(),
     );
   }
 }
 
-extension MyUuidArgsX on String {
-  UUID toUUID() {
-    return UUID.fromString(this);
+extension MyCentralArgsX on MyCentralArgs {
+  Central toCentral() {
+    return Central(
+      uuid: UUID.fromString(uuidArgs),
+    );
   }
 }
 
 // ToArgs
-extension GattCharacteristicPropertyX on GattCharacteristicProperty {
-  MyGattCharacteristicPropertyArgs toArgs() {
-    return MyGattCharacteristicPropertyArgs.values[index];
+extension UUIDX on UUID {
+  String toArgs() {
+    return toString();
   }
 }
 
-extension GattCharacteristicWriteTypeX on GattCharacteristicWriteType {
-  MyGattCharacteristicWriteTypeArgs toArgs() {
-    return MyGattCharacteristicWriteTypeArgs.values[index];
+extension GATTCharacteristicWriteTypeX on GATTCharacteristicWriteType {
+  MyGATTCharacteristicWriteTypeArgs toArgs() {
+    return MyGATTCharacteristicWriteTypeArgs.values[index];
   }
 }
 
-extension ManufacturerSpecificDataX on ManufacturerSpecificData {
-  MyManufacturerSpecificDataArgs toArgs() {
-    final idArgs = id;
-    final dataArgs = data;
-    return MyManufacturerSpecificDataArgs(
-      idArgs: idArgs,
-      dataArgs: dataArgs,
-    );
+extension GATTCharacteristicPropertyX on GATTCharacteristicProperty {
+  MyGATTCharacteristicPropertyArgs toArgs() {
+    return MyGATTCharacteristicPropertyArgs.values[index];
+  }
+}
+
+extension GATTCharacteristicPermissionX on GATTCharacteristicPermission {
+  MyGATTCharacteristicPermissionArgs toArgs() {
+    return MyGATTCharacteristicPermissionArgs.values[index];
+  }
+}
+
+extension GATTErrorX on GATTError {
+  MyATTErrorArgs toArgs() {
+    switch (this) {
+      case GATTError.invalidHandle:
+        return MyATTErrorArgs.invalidHandle;
+      case GATTError.readNotPermitted:
+        return MyATTErrorArgs.readNotPermitted;
+      case GATTError.writeNotPermitted:
+        return MyATTErrorArgs.writeNotPermitted;
+      case GATTError.invalidPDU:
+        return MyATTErrorArgs.invalidPDU;
+      case GATTError.insufficientAuthentication:
+        return MyATTErrorArgs.insufficientAuthentication;
+      case GATTError.requestNotSupported:
+        return MyATTErrorArgs.requestNotSupported;
+      case GATTError.invalidOffset:
+        return MyATTErrorArgs.invalidOffset;
+      case GATTError.insufficientAuthorization:
+        return MyATTErrorArgs.insufficientAuthorization;
+      case GATTError.prepareQueueFull:
+        return MyATTErrorArgs.prepareQueueFull;
+      case GATTError.attributeNotFound:
+        return MyATTErrorArgs.attributeNotFound;
+      case GATTError.attributeNotLong:
+        return MyATTErrorArgs.attributeNotLong;
+      case GATTError.insufficientEncryptionKeySize:
+        return MyATTErrorArgs.insufficientEncryptionKeySize;
+      case GATTError.invalidAttributeValueLength:
+        return MyATTErrorArgs.invalidAttributeValueLength;
+      case GATTError.unlikelyError:
+        return MyATTErrorArgs.unlikelyError;
+      case GATTError.insufficientEncryption:
+        return MyATTErrorArgs.insufficientEncryption;
+      case GATTError.unsupportedGroupType:
+        return MyATTErrorArgs.unsupportedGroupType;
+      case GATTError.insufficientResources:
+        return MyATTErrorArgs.insufficientResources;
+    }
   }
 }
 
 extension AdvertisementX on Advertisement {
   MyAdvertisementArgs toArgs() {
-    final nameArgs = name;
-    final serviceUUIDsArgs = serviceUUIDs.map((uuid) => uuid.toArgs()).toList();
-    final serviceDataArgs = serviceData.map((uuid, data) {
-      final uuidArgs = uuid.toArgs();
-      final dataArgs = data;
-      return MapEntry(uuidArgs, dataArgs);
-    });
-    final manufacturerSpecificDataArgs = manufacturerSpecificData?.toArgs();
+    // CoreBluetooth only support `CBAdvertisementDataLocalNameKey` and `CBAdvertisementDataServiceUUIDsKey`
+    // see https://developer.apple.com/documentation/corebluetooth/cbperipheralmanager/1393252-startadvertising
+    if (serviceData.isNotEmpty || manufacturerSpecificData.isNotEmpty) {
+      throw UnsupportedError(
+          'serviceData and manufacturerSpecificData is not supported on Darwin.');
+    }
     return MyAdvertisementArgs(
-      nameArgs: nameArgs,
-      serviceUUIDsArgs: serviceUUIDsArgs,
-      serviceDataArgs: serviceDataArgs,
-      manufacturerSpecificDataArgs: manufacturerSpecificDataArgs,
+      nameArgs: name,
+      serviceUUIDsArgs: serviceUUIDs.map((uuid) => uuid.toArgs()).toList(),
+      serviceDataArgs: {},
+      manufacturerSpecificDataArgs: null,
     );
   }
 }
 
-extension MyGattDescriptorX on MyGattDescriptor {
-  MyGattDescriptorArgs toArgs() {
-    final hashCodeArgs = hashCode;
-    final uuidArgs = uuid.toArgs();
-    final valueArgs = value;
-    return MyGattDescriptorArgs(
-      hashCodeArgs: hashCodeArgs,
-      uuidArgs: uuidArgs,
-      valueArgs: valueArgs,
+extension MutableGATTDescriptorX on MutableGATTDescriptor {
+  MyMutableGATTDescriptorArgs toArgs() {
+    return MyMutableGATTDescriptorArgs(
+      hashCodeArgs: hashCode,
+      uuidArgs: uuid.toArgs(),
+      valueArgs: this is ImmutableGATTDescriptor
+          ? (this as ImmutableGATTDescriptor).value
+          : null,
     );
   }
 }
 
-extension MyGattCharacteristicX on MyGattCharacteristic {
-  MyGattCharacteristicArgs toArgs(List<MyGattDescriptorArgs> descriptorsArgs) {
-    final hashCodeArgs = hashCode;
-    final uuidArgs = uuid.toArgs();
-    final propertyNumbersArgs = properties.map((property) {
-      final propertyArgs = property.toArgs();
-      return propertyArgs.index;
-    }).toList();
-    return MyGattCharacteristicArgs(
-      hashCodeArgs: hashCodeArgs,
-      uuidArgs: uuidArgs,
-      propertyNumbersArgs: propertyNumbersArgs,
-      descriptorsArgs: descriptorsArgs,
+extension MutableGATTCharacteristicX on MutableGATTCharacteristic {
+  MyMutableGATTCharacteristicArgs toArgs() {
+    return MyMutableGATTCharacteristicArgs(
+      hashCodeArgs: hashCode,
+      uuidArgs: uuid.toArgs(),
+      propertyNumbersArgs: properties.map((property) {
+        final propertyArgs = property.toArgs();
+        return propertyArgs.index;
+      }).toList(),
+      permissionNumbersArgs: permissions.map((permission) {
+        final permissionArgs = permission.toArgs();
+        return permissionArgs.index;
+      }).toList(),
+      valueArgs: this is ImmutableGATTCharacteristic
+          ? (this as ImmutableGATTCharacteristic).value
+          : null,
+      descriptorsArgs: descriptors
+          .cast<MutableGATTDescriptor>()
+          .map((descriptor) => descriptor.toArgs())
+          .toList(),
     );
   }
 }
 
-extension MyGattServiceX on MyGattService {
-  MyGattServiceArgs toArgs(List<MyGattCharacteristicArgs> characteristicsArgs) {
-    final hashCodeArgs = hashCode;
-    final uuidArgs = uuid.toArgs();
-    return MyGattServiceArgs(
-      hashCodeArgs: hashCodeArgs,
-      uuidArgs: uuidArgs,
-      characteristicsArgs: characteristicsArgs,
+extension GATTServiceX on GATTService {
+  MyMutableGATTServiceArgs toArgs() {
+    return MyMutableGATTServiceArgs(
+      hashCodeArgs: hashCode,
+      uuidArgs: uuid.toArgs(),
+      isPrimaryArgs: isPrimary,
+      includedServicesArgs:
+          includedServices.map((service) => service.toArgs()).toList(),
+      characteristicsArgs: characteristics
+          .cast<MutableGATTCharacteristic>()
+          .map((characteristic) => characteristic.toArgs())
+          .toList(),
     );
-  }
-}
-
-extension UuidX on UUID {
-  String toArgs() {
-    return toString().toLowerCase();
   }
 }

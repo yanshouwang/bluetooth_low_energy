@@ -1,3 +1,27 @@
+## 6.0.0
+
+* Implement new APIs.
+* Rewrite example with MVVM.
+* Fix known issues.
+
+## 6.0.0-dev.3
+
+* Rewrite example with MVVM.
+* Fix known issues.
+
+## 6.0.0-dev.2
+
+* Fix example errors.
+
+## 6.0.0-dev.1
+
+* Move organization.
+* Fix errors.
+
+## 6.0.0-dev.0
+
+* Implement new APIs.
+
 ## 5.0.2
 
 * Change flutter minimum version to 3.0.0.

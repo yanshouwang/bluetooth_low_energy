@@ -1,5 +1,5 @@
 /// 128 bit universally unique identifier used in Bluetooth.
-class UUID {
+final class UUID {
   /// The value of the UUID in 16 bytes.
   final List<int> value;
 
@@ -46,7 +46,8 @@ class UUID {
           0xfb
         ];
 
-  /// Creates a new UUID from the string format encoding (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx where xx is a hexadecimal number).
+  /// Creates a new UUID from the string format encoding (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  /// where xx is a hexadecimal number).
   factory UUID.fromString(String value) {
     // 16 or 32 bits UUID.
     if (value.length == 4 || value.length == 8) {
@@ -96,11 +97,17 @@ class UUID {
   }
 
   /// Creates a new UUID form MAC address.
-  factory UUID.fromAddress(String address) {
-    final node = address.splitMapJoin(
-      ':',
-      onMatch: (m) => '',
-    );
+  ///
+  /// The address type must be String or int.
+  factory UUID.fromAddress(Object address) {
+    final node = address is String
+        ? address.splitMapJoin(
+            ':',
+            onMatch: (m) => '',
+          )
+        : address is int
+            ? (address & 0xFFFFFFFFFFFF).toRadixString(16).padLeft(12, '0')
+            : throw TypeError();
     // We don't know the timestamp of the bluetooth device, use nil UUID as prefix.
     return UUID.fromString("00000000-0000-0000-0000-$node");
   }

@@ -1,8 +1,8 @@
-import FlutterMacOS
 import Cocoa
+import FlutterMacOS
 import XCTest
 
-@testable import bluetooth_low_energy
+@testable import bluetooth_low_energy_darwin
 
 // This demonstrates a simple unit test of the Swift portion of this plugin's implementation.
 //
@@ -11,7 +11,7 @@ import XCTest
 class RunnerTests: XCTestCase {
 
   func testGetPlatformVersion() {
-    let plugin = BluetoothLowEnergyPlugin()
+    let plugin = BluetoothLowEnergyDarwinPlugin()
 
     let call = FlutterMethodCall(methodName: "getPlatformVersion", arguments: [])
 

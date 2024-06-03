@@ -7,8 +7,8 @@
 
 import Foundation
 
-// TODO: 优化错误内容
 enum MyError: Error {
-    case illegalArgument
     case unknown
+    case unsupported
+    case illegalArgument
 }

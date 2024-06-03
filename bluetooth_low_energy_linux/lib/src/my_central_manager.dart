@@ -5,29 +5,34 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 import 'package:bluez/bluez.dart';
 
 import 'my_bluez.dart';
-import 'my_event_args.dart';
-import 'my_gatt_characteristic2.dart';
-import 'my_gatt_descriptor2.dart';
-import 'my_gatt_service2.dart';
-import 'my_peripheral2.dart';
+import 'my_gatt.dart';
+import 'my_peripheral.dart';
 
-class MyCentralManager extends CentralManager {
+final class BlueZDeviceServicesResolvedEventArgs extends EventArgs {
+  final BlueZDevice device;
+
+  BlueZDeviceServicesResolvedEventArgs(this.device);
+}
+
+final class MyCentralManager extends PlatformCentralManager {
   final BlueZClient _blueZClient;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
   final StreamController<DiscoveredEventArgs> _discoveredController;
-  final StreamController<ConnectionStateChangedEventArgs>
+  final StreamController<PeripheralConnectionStateChangedEventArgs>
       _connectionStateChangedController;
-  final StreamController<GattCharacteristicNotifiedEventArgs>
+  final StreamController<GATTCharacteristicNotifiedEventArgs>
       _characteristicNotifiedController;
   final StreamController<BlueZDeviceServicesResolvedEventArgs>
       _blueZServicesResolvedController;
 
+  final Map<String, List<MyGATTService>> _services;
   final Map<int, StreamSubscription>
       _blueZCharacteristicPropertiesChangedSubscriptions;
-  final Map<String, List<MyGattService2>> _services;
 
   BluetoothLowEnergyState _state;
+  bool _discovering;
+  int _readCount;
 
   MyCentralManager()
       : _blueZClient = BlueZClient(),
@@ -36,11 +41,25 @@ class MyCentralManager extends CentralManager {
         _connectionStateChangedController = StreamController.broadcast(),
         _characteristicNotifiedController = StreamController.broadcast(),
         _blueZServicesResolvedController = StreamController.broadcast(),
-        _blueZCharacteristicPropertiesChangedSubscriptions = {},
         _services = {},
-        _state = BluetoothLowEnergyState.unknown;
+        _blueZCharacteristicPropertiesChangedSubscriptions = {},
+        _state = BluetoothLowEnergyState.unknown,
+        _discovering = false,
+        _readCount = 0;
 
   BlueZAdapter get _blueZAdapter => _blueZClient.adapters.first;
+
+  @override
+  BluetoothLowEnergyState get state => _state;
+  set state(BluetoothLowEnergyState value) {
+    if (_state == value) {
+      return;
+    }
+    logger.info('onStateChagned: $value');
+    _state = value;
+    final eventArgs = BluetoothLowEnergyStateChangedEventArgs(value);
+    _stateChangedController.add(eventArgs);
+  }
 
   @override
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
@@ -48,54 +67,66 @@ class MyCentralManager extends CentralManager {
   @override
   Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
   @override
-  Stream<ConnectionStateChangedEventArgs> get connectionStateChanged =>
-      _connectionStateChangedController.stream;
+  Stream<PeripheralConnectionStateChangedEventArgs>
+      get connectionStateChanged => _connectionStateChangedController.stream;
   @override
-  Stream<GattCharacteristicNotifiedEventArgs> get characteristicNotified =>
+  Stream<PeripheralMTUChangedEventArgs> get mtuChanged =>
+      throw UnsupportedError('mtuChanged is not supported on Linux.');
+  @override
+  Stream<GATTCharacteristicNotifiedEventArgs> get characteristicNotified =>
       _characteristicNotifiedController.stream;
   Stream<BlueZDeviceServicesResolvedEventArgs> get _blueZServicesResolved =>
       _blueZServicesResolvedController.stream;
 
   @override
-  Future<void> setUp() async {
-    logger.info('setUp');
-    await _blueZClient.connect();
-    if (_blueZClient.adapters.isEmpty) {
-      _state = BluetoothLowEnergyState.unsupported;
-      return;
-    }
-    _state = _blueZAdapter.myState;
-    _blueZAdapter.propertiesChanged.listen(_onBlueZAdapterPropertiesChanged);
-    for (var blueZDevice in _blueZClient.devices) {
-      if (blueZDevice.adapter.address != _blueZAdapter.address) {
-        continue;
-      }
-      _beginBlueZDevicePropertiesChangedListener(blueZDevice);
-    }
-    _blueZClient.deviceAdded.listen(_onBlueZClientDeviceAdded);
+  void initialize() {
+    _initialize();
   }
 
   @override
-  Future<BluetoothLowEnergyState> getState() {
-    logger.info('getState');
-    return Future.value(_state);
+  Future<bool> authorize() {
+    throw UnsupportedError('authorize is not supported on Linux.');
   }
 
   @override
-  Future<void> startDiscovery() async {
+  Future<void> showAppSettings() {
+    throw UnsupportedError('showAppSettings is not supported on Linux.');
+  }
+
+  @override
+  Future<void> startDiscovery({
+    List<UUID>? serviceUUIDs,
+  }) async {
     logger.info('startDiscovery');
+    await _blueZAdapter.setDiscoveryFilter(
+      uuids: serviceUUIDs?.map((uuid) => '$uuid').toList(),
+    );
     await _blueZAdapter.startDiscovery();
+    _discovering = true;
   }
 
   @override
   Future<void> stopDiscovery() async {
     logger.info('stopDiscovery');
     await _blueZAdapter.stopDiscovery();
+    _discovering = false;
+  }
+
+  @override
+  Future<List<Peripheral>> retrieveConnectedPeripherals() {
+    logger.info('retrieveConnectedPeripherals');
+    final peripherals = _blueZClient.devices
+        .where((blueZDevice) =>
+            blueZDevice.adapter.address == _blueZAdapter.address &&
+            blueZDevice.connected)
+        .map((blueZDevice) => MyPeripheral(blueZDevice))
+        .toList();
+    return Future.value(peripherals);
   }
 
   @override
   Future<void> connect(Peripheral peripheral) async {
-    if (peripheral is! MyPeripheral2) {
+    if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
     final blueZDevice = peripheral.blueZDevice;
@@ -106,7 +137,7 @@ class MyCentralManager extends CentralManager {
 
   @override
   Future<void> disconnect(Peripheral peripheral) async {
-    if (peripheral is! MyPeripheral2) {
+    if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
     final blueZDevice = peripheral.blueZDevice;
@@ -116,8 +147,39 @@ class MyCentralManager extends CentralManager {
   }
 
   @override
+  Future<int> requestMTU(
+    Peripheral peripheral, {
+    required int mtu,
+  }) {
+    throw UnsupportedError('requestMTU is not supported on Linux.');
+  }
+
+  @override
+  Future<int> getMaximumWriteLength(
+    Peripheral peripheral, {
+    required GATTCharacteristicWriteType type,
+  }) {
+    if (peripheral is! MyPeripheral) {
+      throw TypeError();
+    }
+    final blueZDevice = peripheral.blueZDevice;
+    final blueZAddress = blueZDevice.address;
+    logger.info('getMaximumWriteLength: $blueZAddress');
+    final blueZMTU = blueZDevice.gattServices
+        .firstWhere((service) => service.characteristics.isNotEmpty)
+        .characteristics
+        .first
+        .mtu;
+    if (blueZMTU == null) {
+      throw ArgumentError.notNull();
+    }
+    final maximumWriteLength = (blueZMTU - 3).clamp(20, 512);
+    return Future.value(maximumWriteLength);
+  }
+
+  @override
   Future<int> readRSSI(Peripheral peripheral) async {
-    if (peripheral is! MyPeripheral2) {
+    if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
     final blueZDevice = peripheral.blueZDevice;
@@ -127,8 +189,8 @@ class MyCentralManager extends CentralManager {
   }
 
   @override
-  Future<List<GattService>> discoverGATT(Peripheral peripheral) async {
-    if (peripheral is! MyPeripheral2) {
+  Future<List<GATTService>> discoverGATT(Peripheral peripheral) async {
+    if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
     final blueZDevice = peripheral.blueZDevice;
@@ -148,44 +210,47 @@ class MyCentralManager extends CentralManager {
 
   @override
   Future<Uint8List> readCharacteristic(
-    GattCharacteristic characteristic,
+    Peripheral peripheral,
+    GATTCharacteristic characteristic,
   ) async {
-    if (characteristic is! MyGattCharacteristic2) {
+    if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
     final blueZCharacteristic = characteristic.blueZCharacteristic;
     final blueZUUID = blueZCharacteristic.uuid;
     logger.info('readCharacteristic: $blueZUUID');
     final blueZValue = await blueZCharacteristic.readValue();
+    _readCount++;
     return Uint8List.fromList(blueZValue);
   }
 
   @override
   Future<void> writeCharacteristic(
-    GattCharacteristic characteristic, {
+    Peripheral peripheral,
+    GATTCharacteristic characteristic, {
     required Uint8List value,
-    required GattCharacteristicWriteType type,
+    required GATTCharacteristicWriteType type,
   }) async {
-    if (characteristic is! MyGattCharacteristic2) {
+    if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
     final blueZCharacteristic = characteristic.blueZCharacteristic;
     final blueZUUID = blueZCharacteristic.uuid;
-    final trimmedValue = value.trimGATT();
     final blueZType = type.toBlueZWriteType();
-    logger.info('writeCharacteristic: $blueZUUID - $trimmedValue, $blueZType');
+    logger.info('writeCharacteristic: $blueZUUID - $value, $blueZType');
     await blueZCharacteristic.writeValue(
-      trimmedValue,
+      value,
       type: blueZType,
     );
   }
 
   @override
   Future<void> setCharacteristicNotifyState(
-    GattCharacteristic characteristic, {
+    Peripheral peripheral,
+    GATTCharacteristic characteristic, {
     required bool state,
   }) async {
-    if (characteristic is! MyGattCharacteristic2) {
+    if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
     final blueZCharacteristic = characteristic.blueZCharacteristic;
@@ -200,8 +265,11 @@ class MyCentralManager extends CentralManager {
   }
 
   @override
-  Future<Uint8List> readDescriptor(GattDescriptor descriptor) async {
-    if (descriptor is! MyGattDescriptor2) {
+  Future<Uint8List> readDescriptor(
+    Peripheral peripheral,
+    GATTDescriptor descriptor,
+  ) async {
+    if (descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
     final blueZDescriptor = descriptor.blueZDescriptor;
@@ -213,17 +281,17 @@ class MyCentralManager extends CentralManager {
 
   @override
   Future<void> writeDescriptor(
-    GattDescriptor descriptor, {
+    Peripheral peripheral,
+    GATTDescriptor descriptor, {
     required Uint8List value,
   }) async {
-    if (descriptor is! MyGattDescriptor2) {
+    if (descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
     final blueZDescriptor = descriptor.blueZDescriptor;
     final blueZUUID = blueZDescriptor.uuid;
-    final trimmedValue = value.trimGATT();
-    logger.info('writeDescriptor: $blueZUUID - $trimmedValue');
-    await blueZDescriptor.writeValue(trimmedValue);
+    logger.info('writeDescriptor: $blueZUUID - $value');
+    await blueZDescriptor.writeValue(value);
   }
 
   void _onBlueZAdapterPropertiesChanged(List<String> blueZAdapterProperties) {
@@ -231,13 +299,7 @@ class MyCentralManager extends CentralManager {
     for (var blueZAdapterProperty in blueZAdapterProperties) {
       switch (blueZAdapterProperty) {
         case 'Powered':
-          final state = _blueZAdapter.myState;
-          if (_state == state) {
-            return;
-          }
-          _state = state;
-          final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
-          _stateChangedController.add(eventArgs);
+          state = _blueZAdapter.myState;
           break;
         default:
           break;
@@ -250,12 +312,14 @@ class MyCentralManager extends CentralManager {
     if (blueZDevice.adapter.address != _blueZAdapter.address) {
       return;
     }
-    _onBlueZDiscovered(blueZDevice);
+    if (_discovering) {
+      _onBlueZDiscovered(blueZDevice);
+    }
     _beginBlueZDevicePropertiesChangedListener(blueZDevice);
   }
 
   void _onBlueZDiscovered(BlueZDevice blueZDevice) {
-    final peripheral = MyPeripheral2(blueZDevice);
+    final peripheral = MyPeripheral(blueZDevice);
     final rssi = blueZDevice.rssi;
     final advertisement = blueZDevice.myAdvertisement;
     final eventArgs = DiscoveredEventArgs(
@@ -273,19 +337,24 @@ class MyCentralManager extends CentralManager {
       for (var blueZDeviceProperty in blueZDeviceProperties) {
         switch (blueZDeviceProperty) {
           case 'RSSI':
-            _onBlueZDiscovered(blueZDevice);
+            if (_discovering) {
+              _onBlueZDiscovered(blueZDevice);
+            }
             break;
           case 'Connected':
-            final peripheral = MyPeripheral2(blueZDevice);
-            final state = blueZDevice.connected;
-            final eventArgs = ConnectionStateChangedEventArgs(
+            final connected = blueZDevice.connected;
+            if (!connected) {
+              _endBlueZCharacteristicPropertiesChangedListener(blueZDevice);
+            }
+            final peripheral = MyPeripheral(blueZDevice);
+            final state = blueZDevice.connected
+                ? ConnectionState.connected
+                : ConnectionState.disconnected;
+            final eventArgs = PeripheralConnectionStateChangedEventArgs(
               peripheral,
               state,
             );
             _connectionStateChangedController.add(eventArgs);
-            if (!state) {
-              _endBlueZCharacteristicPropertiesChangedListener(blueZDevice);
-            }
             break;
           case 'UUIDs':
             break;
@@ -313,6 +382,7 @@ class MyCentralManager extends CentralManager {
     if (services == null) {
       return;
     }
+    final peripheral = MyPeripheral(blueZDevice);
     for (var service in services) {
       final characteristics = service.characteristics;
       for (var characteristic in characteristics) {
@@ -325,8 +395,13 @@ class MyCentralManager extends CentralManager {
                 in blueZCharacteristicProperties) {
               switch (blueZCharacteristicPropety) {
                 case 'Value':
+                  if (_readCount > 0) {
+                    _readCount--;
+                    return;
+                  }
                   final value = Uint8List.fromList(blueZCharacteristic.value);
-                  final eventArgs = GattCharacteristicNotifiedEventArgs(
+                  final eventArgs = GATTCharacteristicNotifiedEventArgs(
+                    peripheral,
                     characteristic,
                     value,
                   );
@@ -360,5 +435,31 @@ class MyCentralManager extends CentralManager {
         subscription?.cancel();
       }
     }
+  }
+
+  Future<void> _initialize() async {
+    // Here we use `Future()` to make it possible to change the `logLevel` before `initialize()`.
+    await Future(() async {
+      try {
+        logger.info('initialize');
+        await _blueZClient.connect();
+        if (_blueZClient.adapters.isEmpty) {
+          state = BluetoothLowEnergyState.unsupported;
+        } else {
+          state = _blueZAdapter.myState;
+          _blueZAdapter.propertiesChanged
+              .listen(_onBlueZAdapterPropertiesChanged);
+          for (var blueZDevice in _blueZClient.devices) {
+            if (blueZDevice.adapter.address != _blueZAdapter.address) {
+              continue;
+            }
+            _beginBlueZDevicePropertiesChangedListener(blueZDevice);
+          }
+          _blueZClient.deviceAdded.listen(_onBlueZClientDeviceAdded);
+        }
+      } catch (e) {
+        logger.severe('initialize failed.', e);
+      }
+    });
   }
 }

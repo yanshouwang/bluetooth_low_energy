@@ -1,3 +1,191 @@
+## 6.0.0
+
+* Add `BluetoothLowEnergyManager#authorize` method.
+* Add `BluetoothLowEnergyManager#showAppSettings` method.
+* Add `CentralManager#mtuChanged` event.
+* [Add optional `serviceUUIDs` argument to the `CentralManager#startDiscovery` method.](https://github.com/yanshouwang/bluetooth_low_energy/issues/53)
+* [Add `CentralManager#retrieveConnectedPeripherals` method.](https://github.com/yanshouwang/bluetooth_low_energy/issues/61)
+* Add `CentralManager#getMaximumWriteLength` method.
+* Add `PeripheralManager#connectionStateChanged` event.
+* Add `PeripheralManager#mtuChanged` event.
+* Add `PeripheralManager#characteristicReadRequested` event.
+* Add `PeripheralManager#characteristicWriteRequested` event.
+* Add `PeripheralManager#descriptorReadRequested` event.
+* Add `PeripheralManager#descriptorWriteRequested` event.
+* Add `PeripheralManager#getMaximumNotifyLength` method.
+* Add `PeripheralManager#respondReadRequestWithValue` method.
+* Add `PeripheralManager#respondReadRequestWithError` method.
+* Add `PeripheralManager#respondWriteRequest` method.
+* Add `PeripheralManager#respondWriteRequestWithError` method.
+* Move the type of `Advertisement#manufacturerSpecificData` to `List<ManufacturerSpecificData>`.
+* Move `BluetoothLowEnergyManager#getState` to `BluetoothLowEnergyManager#state`.
+* Move `PeripheralManager#clearServices` to `PeripheralManager#removeAllServices`.
+* Remove `PeripheralManager#characteristicRead` event.
+* Remove `PeripheralManager#characteristicWritten` event.
+
+
+## 6.0.0-dev.19
+
+* Add `int` type to `UUID#fromAddress`.
+* Move the type of `Advertisement#manufacturerSpecificData` to `List<ManufacturerSpecificData>`.
+
+## 6.0.0-dev.18
+
+* Add `PeripheralManager#respondReadRequestWithValue`.
+* Add `PeripheralManager#respondReadRequestWithError`.
+* Add `PeripheralManager#respondWriteRequest`.
+* Add `PeripheralManager#respondWriteRequestWithError`.
+* Remove `PeripheralManager#respondCharacteristicReadRequestWithValue`.
+* Remove `PeripheralManager#respondCharacteristicReadRequestWithError`.
+* Remove `PeripheralManager#respondCharacteristicWriteRequest`.
+* Remove `PeripheralManager#respondCharacteristicWriteRequestWithError`.
+* Remove `PeripheralManager#respondDescriptorReadRequestWithValue`.
+* Remove `PeripheralManager#respondDescriptorReadRequestWithError`.
+* Remove `PeripheralManager#respondDescriptorWriteRequest`.
+* Remove `PeripheralManager#respondDescriptorWriteRequestWithError`.
+
+## 6.0.0-dev.17
+
+* Remove `Uint8List#trimGATT` method.
+
+## 6.0.0-dev.16
+
+* Add `GATTService.isPrimary` field.
+* Add `peripheral` argument to all methods.
+
+## 6.0.0-dev.15
+
+* Add `GATTReadRequest` class.
+* Add `GATTWriteRequest` class.
+* Remove `ConnectionStateChangedEventArgs` class.
+* Remove `MTUChangedEventArgs` class.
+* Remove `GATTRequest` class.
+* Remove `GATTDescriptorRequest` class.
+* Remove `GATTDescriptorReadRequest` class.
+* Remove `GATTDescriptorWriteRequest` class.
+* Remove `GATTCharacteristicRequest` class.
+* Remove `GATTCharacteristicReadRequest` class.
+* Remove `GATTCharacteristicWriteRequest` class.
+
+## 6.0.0-dev.14
+
+* Fix errors.
+
+## 6.0.0-dev.13
+
+* Add `MutableGATTDescriptor#permissions` field.
+* Fix errors.
+
+## 6.0.0-dev.12
+
+* Add `GATTDescriptorReadRequestedEventArgs` class.
+* Add `GATTDescriptorWriteRequestedEventArgs` class.
+* Add `GATTRequest` class.
+* Add `GATTDescriptorRequest` class.
+* Add `GATTDescriptorReadRequest` class.
+* Add `GATTDescriptorWriteRequest` class.
+* Add `PeripheralManager#descriptorReadRequested` event.
+* Add `PeripheralManager#descriptorWriteRequested` event.
+* Add `PeripheralManager#respondDescriptorReadRequestWithValue` method.
+* Add `PeripheralManager#respondDescriptorReadRequestWithError` method.
+* Add `PeripheralManager#respondDescriptorWriteRequest` method.
+* Add `PeripheralManager#respondDescriptorWriteRequestWithError` method.
+* Fix errors.
+
+## 6.0.0-dev.11
+
+* Add `ConnectionStateChangedEventArgs` class.
+* Add `MTUChangedEventArgs` class.
+* Add `CentralConnectionStateChangedEventArgs` class.
+* Add `GATTCharacteristicReadRequestedEventArgs` class.
+* Add `GATTCharacteristicWriteRequestedEventArgs` class.
+* Add `CentralManager#getMaximumWriteLength` method.
+* Add `PeripheralManager#connectionStateChanged` event.
+* Add `PeripheralManager#characteristicReadRequested` event.
+* Add `PeripheralManager#characteristicWriteRequested` event.
+* Add `PeripheralManager#getMaximumNotifyLength` method.
+* Add `PeripheralManager#respondCharacteristicReadRequestWithValue` method.
+* Add `PeripheralManager#respondCharacteristicReadRequestWithError` method.
+* Add `PeripheralManager#respondCharacteristicWriteRequest` method.
+* Add `PeripheralManager#respondCharacteristicWriteRequestWithError` method.
+* Add `ImmutableGATTCharacteristic` class.
+* Add `GATTCharacteristicRequest` class.
+* Add `GATTCharacteristicReadRequest` class.
+* Add `GATTCharacteristicWriteRequest` class.
+* Add `GATTCharacteristicPermission` enum.
+* Add `GATTError` enum.
+* Move `PeripheralManager#clearServices` to `PeripheralManager#removeAllServices`.
+* Move `BaseBluetoothLowEnergyManager` to `PlatformBluetoothLowEnergyManager`.
+* Move `BaseCentralManager` to `PlatformCentralManager`.
+* Move `BasePeripheralManager` to `PlatformPeripheralManager`.
+* Move `BaseGATTAttribute` to `GATTAttribute`.
+* Move `BaseGATTDescriptor` to `GATTDescriptor`.
+* Move `BaseGATTCharacteristic` to `GATTCharacteristic`.
+* Move `BaseGATTService` to `GATTService`.
+* Move `MutableGATTDescriptor` to `ImmutableGATTCharacteristic`.
+* Remove `GATTCharacteristicReadEventArgs` class.
+* Remove `GATTCharacteristicWrittenEventArgs` class.
+* Remove `PeripheralManager#characteristicRead` event.
+* Remove `PeripheralManager#characteristicWritten` event.
+* Remove `MutableGATTService`.
+
+## 6.0.0-dev.10
+
+* Fix bugs.
+
+## 6.0.0-dev.9
+
+* Add `BluetoothLowEnergyManager#authorize` method.
+* Add `BluetoothLowEnergyManager#showAppSettings` method.
+
+## 6.0.0-dev.8
+
+* Remove `logLevel` argument from the `CentralManager` construstor.
+* Remove `logLevel` argument from the `PeripheralManager` construstor.
+
+## 6.0.0-dev.7
+
+* Add `logLevel` argument to the `CentralManager` construstor.
+* Add `logLevel` argument to the `PeripheralManager` construstor.
+
+## 6.0.0-dev.6
+
+* Move `ConnectionStateChangedEventArgs` to `PeripheralConnectionStateChangedEventArgs`.
+* Move `MTUChangedEventArgs` to `PeripheralMTUChangedEventArgs`.
+* Add `ConnectionState` enum.
+* Add `CentralMTUChangedEventArgs` class.
+* Add `PeripheralManager#mtuChanged` event.
+
+## 6.0.0-dev.5
+
+* Use new capitalization rules.
+
+## 6.0.0-dev.4
+
+* Add `CentralManager#mtuChanged` event.
+* Add modifiers to all classes.
+* Use new capitalization rules.
+
+## 6.0.0-dev.3
+
+* Remove `abstract` keyword from `Central` class.
+* Remove `abstract` keyword from `Peripheral` class.
+
+## 6.0.0-dev.2
+
+* Remove `BluetoothLowEnergyManager#authorize` method.
+* Move `BluetoothLowEnergyManager#getState` to `BluetoothLowEnergyManager#state`.
+
+## 6.0.0-dev.1
+
+* Migrate `hybrid_core` to `hybrid_logging`.
+
+## 6.0.0-dev.0
+
+* [Add `CentralManager#retrieveConnectedPeripherals` method.](https://github.com/yanshouwang/bluetooth_low_energy/issues/61)
+* [Add optional `serviceUUIDs` argument to the `CentralManager#startDiscovery` method.](https://github.com/yanshouwang/bluetooth_low_energy/issues/53)
+* Optimize project structure.
+
 ## 5.0.2
 
 * Revert GATT characteristic's `descriptors` arguments to required.

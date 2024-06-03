@@ -2,8 +2,8 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 
 import 'src/my_central_manager.dart';
 
-abstract class BluetoothLowEnergyLinux {
+abstract class BluetoothLowEnergyLinuxPlugin {
   static void registerWith() {
-    CentralManager.instance = MyCentralManager();
+    PlatformCentralManager.instance = MyCentralManager();
   }
 }

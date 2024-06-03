@@ -1,70 +1,100 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' hide ConnectionState;
 
 import 'my_api.dart';
-import 'my_gatt_characteristic2.dart';
-import 'my_gatt_descriptor2.dart';
-import 'my_peripheral2.dart';
+import 'my_api.g.dart';
+import 'my_gatt.dart';
+import 'my_peripheral.dart';
 
-class MyCentralManager extends CentralManager
-    implements MyCentralManagerFlutterApi {
-  final MyCentralManagerHostApi _api;
+final class MyCentralManager extends PlatformCentralManager
+    with WidgetsBindingObserver
+    implements MyCentralManagerFlutterAPI {
+  final MyCentralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
   final StreamController<DiscoveredEventArgs> _discoveredController;
-  final StreamController<ConnectionStateChangedEventArgs>
+  final StreamController<PeripheralConnectionStateChangedEventArgs>
       _connectionStateChangedController;
-  final StreamController<GattCharacteristicNotifiedEventArgs>
+  final StreamController<PeripheralMTUChangedEventArgs> _mtuChangedController;
+  final StreamController<GATTCharacteristicNotifiedEventArgs>
       _characteristicNotifiedController;
 
-  final Map<String, MyPeripheral2> _peripherals;
-  final Map<String, Map<int, MyGattCharacteristic2>> _characteristics;
   final Map<String, int> _mtus;
+
+  late final MyCentralManagerArgs _args;
 
   BluetoothLowEnergyState _state;
 
   MyCentralManager()
-      : _api = MyCentralManagerHostApi(),
+      : _api = MyCentralManagerHostAPI(),
         _stateChangedController = StreamController.broadcast(),
         _discoveredController = StreamController.broadcast(),
         _connectionStateChangedController = StreamController.broadcast(),
+        _mtuChangedController = StreamController.broadcast(),
         _characteristicNotifiedController = StreamController.broadcast(),
-        _peripherals = {},
-        _characteristics = {},
         _mtus = {},
         _state = BluetoothLowEnergyState.unknown;
 
+  UUID get cccUUID => UUID.short(0x2902);
+  @override
+  BluetoothLowEnergyState get state => _state;
   @override
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
   Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
   @override
-  Stream<ConnectionStateChangedEventArgs> get connectionStateChanged =>
-      _connectionStateChangedController.stream;
+  Stream<PeripheralConnectionStateChangedEventArgs>
+      get connectionStateChanged => _connectionStateChangedController.stream;
   @override
-  Stream<GattCharacteristicNotifiedEventArgs> get characteristicNotified =>
+  Stream<PeripheralMTUChangedEventArgs> get mtuChanged =>
+      _mtuChangedController.stream;
+  @override
+  Stream<GATTCharacteristicNotifiedEventArgs> get characteristicNotified =>
       _characteristicNotifiedController.stream;
 
   @override
-  Future<void> setUp() async {
-    logger.info('setUp');
-    await _api.setUp();
-    MyCentralManagerFlutterApi.setup(this);
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    logger.info('didChangeAppLifecycleState: $state');
+    if (state != AppLifecycleState.resumed) {
+      return;
+    }
+    _getState();
   }
 
   @override
-  Future<BluetoothLowEnergyState> getState() {
-    logger.info('getState');
-    return Future.value(_state);
+  void initialize() {
+    MyCentralManagerFlutterAPI.setUp(this);
+    final binding = WidgetsFlutterBinding.ensureInitialized();
+    binding.addObserver(this);
+    _initialize();
   }
 
   @override
-  Future<void> startDiscovery() async {
-    logger.info('startDiscovery');
-    await _api.startDiscovery();
+  Future<bool> authorize() async {
+    logger.info('authorize');
+    final authorized = await _api.authorize();
+    return authorized;
+  }
+
+  @override
+  Future<void> showAppSettings() async {
+    logger.info('showAppSettings');
+    await _api.showAppSettings();
+  }
+
+  @override
+  Future<void> startDiscovery({
+    List<UUID>? serviceUUIDs,
+  }) async {
+    final serviceUUIDsArgs =
+        serviceUUIDs?.map((uuid) => uuid.toArgs()).toList() ?? [];
+    logger.info('startDiscovery: $serviceUUIDsArgs');
+    await _api.startDiscovery(serviceUUIDsArgs);
   }
 
   @override
@@ -74,73 +104,102 @@ class MyCentralManager extends CentralManager
   }
 
   @override
+  Future<List<Peripheral>> retrieveConnectedPeripherals() async {
+    logger.info('retrieveConnectedPeripherals');
+    final peripheralsArgs = await _api.retrieveConnectedPeripherals();
+    final peripherals = peripheralsArgs
+        .cast<MyPeripheralArgs>()
+        .map((args) => args.toPeripheral())
+        .toList();
+    return peripherals;
+  }
+
+  @override
   Future<void> connect(Peripheral peripheral) async {
-    if (peripheral is! MyPeripheral2) {
+    if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final addressArgs = peripheral.address;
+    final addressArgs = peripheral.addressArgs;
     logger.info('connect: $addressArgs');
     await _api.connect(addressArgs);
-    try {
-      await _api.requestMTU(addressArgs, 517);
-    } catch (error, stackTrace) {
-      // 忽略协商 MTU 错误
-      logger.warning('requstMTU failed.', error, stackTrace);
-    }
   }
 
   @override
   Future<void> disconnect(Peripheral peripheral) async {
-    if (peripheral is! MyPeripheral2) {
+    if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final addressArgs = peripheral.address;
+    final addressArgs = peripheral.addressArgs;
     logger.info('disconnect: $addressArgs');
     await _api.disconnect(addressArgs);
   }
 
   @override
-  Future<int> readRSSI(Peripheral peripheral) async {
-    if (peripheral is! MyPeripheral2) {
+  Future<int> requestMTU(
+    Peripheral peripheral, {
+    required int mtu,
+  }) async {
+    if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final addressArgs = peripheral.address;
+    final addressArgs = peripheral.addressArgs;
+    final mtuArgs = mtu;
+    logger.info('requestMTU: $addressArgs - $mtuArgs');
+    final size = await _api.requestMTU(addressArgs, mtuArgs);
+    return size;
+  }
+
+  @override
+  Future<int> getMaximumWriteLength(
+    Peripheral peripheral, {
+    required GATTCharacteristicWriteType type,
+  }) {
+    if (peripheral is! MyPeripheral) {
+      throw TypeError();
+    }
+    final addressArgs = peripheral.addressArgs;
+    final mtu = _mtus[addressArgs] ?? 23;
+    final maximumWriteLength = (mtu - 3).clamp(20, 512);
+    return Future.value(maximumWriteLength);
+  }
+
+  @override
+  Future<int> readRSSI(Peripheral peripheral) async {
+    if (peripheral is! MyPeripheral) {
+      throw TypeError();
+    }
+    final addressArgs = peripheral.addressArgs;
     logger.info('readRSSI: $addressArgs');
     final rssi = await _api.readRSSI(addressArgs);
     return rssi;
   }
 
   @override
-  Future<List<GattService>> discoverGATT(Peripheral peripheral) async {
-    if (peripheral is! MyPeripheral2) {
+  Future<List<GATTService>> discoverGATT(Peripheral peripheral) async {
+    if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
-    final addressArgs = peripheral.address;
-    logger.info('discoverServices: $addressArgs');
-    final servicesArgs = await _api.discoverServices(addressArgs);
+    final addressArgs = peripheral.addressArgs;
+    logger.info('discoverGATT: $addressArgs');
+    final servicesArgs = await _api.discoverGATT(addressArgs);
     final services = servicesArgs
-        .cast<MyGattServiceArgs>()
-        .map((args) => args.toService2(peripheral))
+        .cast<MyGATTServiceArgs>()
+        .map((args) => args.toService())
         .toList();
-    final characteristics =
-        services.expand((service) => service.characteristics).toList();
-    _characteristics[addressArgs] = {
-      for (var characteristic in characteristics)
-        characteristic.hashCode: characteristic
-    };
     return services;
   }
 
   @override
   Future<Uint8List> readCharacteristic(
-    GattCharacteristic characteristic,
+    Peripheral peripheral,
+    GATTCharacteristic characteristic,
   ) async {
-    if (characteristic is! MyGattCharacteristic2) {
+    if (peripheral is! MyPeripheral ||
+        characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final peripheral = characteristic.peripheral;
-    final addressArgs = peripheral.address;
-    final hashCodeArgs = characteristic.hashCode;
+    final addressArgs = peripheral.addressArgs;
+    final hashCodeArgs = characteristic.hashCodeArgs;
     logger.info('readCharacteristic: $addressArgs.$hashCodeArgs');
     final value = await _api.readCharacteristic(addressArgs, hashCodeArgs);
     return value;
@@ -148,86 +207,75 @@ class MyCentralManager extends CentralManager
 
   @override
   Future<void> writeCharacteristic(
-    GattCharacteristic characteristic, {
+    Peripheral peripheral,
+    GATTCharacteristic characteristic, {
     required Uint8List value,
-    required GattCharacteristicWriteType type,
+    required GATTCharacteristicWriteType type,
   }) async {
-    if (characteristic is! MyGattCharacteristic2) {
+    if (peripheral is! MyPeripheral ||
+        characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final peripheral = characteristic.peripheral;
-    final addressArgs = peripheral.address;
-    final hashCodeArgs = characteristic.hashCode;
-    final trimmedValueArgs = value.trimGATT();
+    final addressArgs = peripheral.addressArgs;
+    final hashCodeArgs = characteristic.hashCodeArgs;
+    final valueArgs = value;
     final typeArgs = type.toArgs();
-    final typeNumberArgs = typeArgs.index;
-    // When write without response, fragments the value by MTU - 3 size.
-    // If mtu is null, use 23 as default MTU size.
-    if (type == GattCharacteristicWriteType.withResponse) {
-      logger.info(
-          'writeCharacteristic: $addressArgs.$hashCodeArgs - $trimmedValueArgs, $typeArgs');
-      await _api.writeCharacteristic(
-        addressArgs,
-        hashCodeArgs,
-        trimmedValueArgs,
-        typeNumberArgs,
-      );
-    } else {
-      final mtu = _mtus[addressArgs] ?? 23;
-      final fragmentSize = (mtu - 3).clamp(20, 512);
-      var start = 0;
-      while (start < trimmedValueArgs.length) {
-        final end = start + fragmentSize;
-        final fragmentedValueArgs = end < trimmedValueArgs.length
-            ? trimmedValueArgs.sublist(start, end)
-            : trimmedValueArgs.sublist(start);
-        logger.info(
-            'writeCharacteristic: $addressArgs.$hashCodeArgs - $fragmentedValueArgs, $typeArgs');
-        await _api.writeCharacteristic(
-          addressArgs,
-          hashCodeArgs,
-          fragmentedValueArgs,
-          typeNumberArgs,
-        );
-        start = end;
-      }
-    }
-  }
-
-  @override
-  Future<void> setCharacteristicNotifyState(
-    GattCharacteristic characteristic, {
-    required bool state,
-  }) async {
-    if (characteristic is! MyGattCharacteristic2) {
-      throw TypeError();
-    }
-    final peripheral = characteristic.peripheral;
-    final addressArgs = peripheral.address;
-    final hashCodeArgs = characteristic.hashCode;
-    final stateArgs = state
-        ? characteristic.properties.contains(GattCharacteristicProperty.notify)
-            ? MyGattCharacteristicNotifyStateArgs.notify
-            : MyGattCharacteristicNotifyStateArgs.indicate
-        : MyGattCharacteristicNotifyStateArgs.none;
-    final stateNumberArgs = stateArgs.index;
     logger.info(
-        'setCharacteristicNotifyState: $addressArgs.$hashCodeArgs - $stateArgs');
-    await _api.setCharacteristicNotifyState(
+        'writeCharacteristic: $addressArgs.$hashCodeArgs - $valueArgs, $typeArgs');
+    await _api.writeCharacteristic(
       addressArgs,
       hashCodeArgs,
-      stateNumberArgs,
+      valueArgs,
+      typeArgs,
     );
   }
 
   @override
-  Future<Uint8List> readDescriptor(GattDescriptor descriptor) async {
-    if (descriptor is! MyGattDescriptor2) {
+  Future<void> setCharacteristicNotifyState(
+    Peripheral peripheral,
+    GATTCharacteristic characteristic, {
+    required bool state,
+  }) async {
+    if (peripheral is! MyPeripheral ||
+        characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final peripheral = descriptor.peripheral;
-    final addressArgs = peripheral.address;
-    final hashCodeArgs = descriptor.hashCode;
+    final addressArgs = peripheral.addressArgs;
+    final hashCodeArgs = characteristic.hashCodeArgs;
+    final enableArgs = state;
+    logger.info(
+        'setCharacteristicNotification: $addressArgs.$hashCodeArgs - $enableArgs');
+    await _api.setCharacteristicNotification(
+      addressArgs,
+      hashCodeArgs,
+      enableArgs,
+    );
+    // Seems the docs is not correct, this operation is necessary for all characteristics.
+    // https://developer.android.com/guide/topics/connectivity/bluetooth/transfer-ble-data#notification
+    final descriptor = characteristic.descriptors
+        .firstWhere((descriptor) => descriptor.uuid == cccUUID);
+    final value = state
+        ? characteristic.properties.contains(GATTCharacteristicProperty.notify)
+            ? _args.enableNotificationValue
+            : _args.enableIndicationValue
+        : _args.disableNotificationValue;
+    await writeDescriptor(
+      peripheral,
+      descriptor,
+      value: value,
+    );
+  }
+
+  @override
+  Future<Uint8List> readDescriptor(
+    Peripheral peripheral,
+    GATTDescriptor descriptor,
+  ) async {
+    if (peripheral is! MyPeripheral || descriptor is! MyGATTDescriptor) {
+      throw TypeError();
+    }
+    final addressArgs = peripheral.addressArgs;
+    final hashCodeArgs = descriptor.hashCodeArgs;
     logger.info('readDescriptor: $addressArgs.$hashCodeArgs');
     final value = await _api.readDescriptor(addressArgs, hashCodeArgs);
     return value;
@@ -235,24 +283,22 @@ class MyCentralManager extends CentralManager
 
   @override
   Future<void> writeDescriptor(
-    GattDescriptor descriptor, {
+    Peripheral peripheral,
+    GATTDescriptor descriptor, {
     required Uint8List value,
   }) async {
-    if (descriptor is! MyGattDescriptor2) {
+    if (peripheral is! MyPeripheral || descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
-    final peripheral = descriptor.peripheral;
-    final addressArgs = peripheral.address;
-    final hashCodeArgs = descriptor.hashCode;
-    final trimmedValueArgs = value.trimGATT();
-    logger.info(
-        'writeDescriptor: $addressArgs.$hashCodeArgs - $trimmedValueArgs');
-    await _api.writeDescriptor(addressArgs, hashCodeArgs, trimmedValueArgs);
+    final addressArgs = peripheral.addressArgs;
+    final hashCodeArgs = descriptor.hashCodeArgs;
+    final valueArgs = value;
+    logger.info('writeDescriptor: $addressArgs.$hashCodeArgs - $valueArgs');
+    await _api.writeDescriptor(addressArgs, hashCodeArgs, valueArgs);
   }
 
   @override
-  void onStateChanged(int stateNumberArgs) {
-    final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
+  void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs) {
     logger.info('onStateChanged: $stateArgs');
     final state = stateArgs.toState();
     if (_state == state) {
@@ -271,10 +317,7 @@ class MyCentralManager extends CentralManager
   ) {
     final addressArgs = peripheralArgs.addressArgs;
     logger.info('onDiscovered: $addressArgs - $rssiArgs, $advertisementArgs');
-    final peripheral = _peripherals.putIfAbsent(
-      peripheralArgs.addressArgs,
-      () => peripheralArgs.toPeripheral(),
-    );
+    final peripheral = peripheralArgs.toPeripheral();
     final rssi = rssiArgs;
     final advertisement = advertisementArgs.toAdvertisement();
     final eventArgs = DiscoveredEventArgs(
@@ -286,56 +329,76 @@ class MyCentralManager extends CentralManager
   }
 
   @override
-  void onConnectionStateChanged(String addressArgs, bool stateArgs) {
+  void onConnectionStateChanged(
+    MyPeripheralArgs peripheralArgs,
+    MyConnectionStateArgs stateArgs,
+  ) {
+    final addressArgs = peripheralArgs.addressArgs;
     logger.info('onConnectionStateChanged: $addressArgs - $stateArgs');
-    final peripheral = _peripherals[addressArgs];
-    if (peripheral == null) {
-      return;
-    }
-    final state = stateArgs;
-    final eventArgs = ConnectionStateChangedEventArgs(peripheral, state);
-    _connectionStateChangedController.add(eventArgs);
-    if (!state) {
-      _characteristics.remove(addressArgs);
+    final peripheral = peripheralArgs.toPeripheral();
+    final state = stateArgs.toState();
+    if (state == ConnectionState.disconnected) {
       _mtus.remove(addressArgs);
     }
+    final eventArgs = PeripheralConnectionStateChangedEventArgs(
+      peripheral,
+      state,
+    );
+    _connectionStateChangedController.add(eventArgs);
   }
 
   @override
-  void onMtuChanged(String addressArgs, int mtuArgs) {
-    logger.info('onMtuChanged: $addressArgs - $mtuArgs');
+  void onMTUChanged(MyPeripheralArgs peripheralArgs, int mtuArgs) {
+    final addressArgs = peripheralArgs.addressArgs;
+    logger.info('onMTUChanged: $addressArgs - $mtuArgs');
+    final peripheral = peripheralArgs.toPeripheral();
     final mtu = mtuArgs;
     _mtus[addressArgs] = mtu;
+    final eventArgs = PeripheralMTUChangedEventArgs(peripheral, mtu);
+    _mtuChangedController.add(eventArgs);
   }
 
   @override
   void onCharacteristicNotified(
-    String addressArgs,
-    int hashCodeArgs,
+    MyPeripheralArgs peripheralArgs,
+    MyGATTCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
   ) {
+    final addressArgs = peripheralArgs.addressArgs;
+    final hashCodeArgs = characteristicArgs.hashCodeArgs;
     logger.info(
         'onCharacteristicNotified: $addressArgs.$hashCodeArgs - $valueArgs');
-    final characteristic = _retrieveCharacteristic(addressArgs, hashCodeArgs);
-    if (characteristic == null) {
-      return;
-    }
+    final peripheral = peripheralArgs.toPeripheral();
+    final characteristic = characteristicArgs.toCharacteristic();
     final value = valueArgs;
-    final eventArgs = GattCharacteristicNotifiedEventArgs(
+    final eventArgs = GATTCharacteristicNotifiedEventArgs(
+      peripheral,
       characteristic,
       value,
     );
     _characteristicNotifiedController.add(eventArgs);
   }
 
-  MyGattCharacteristic2? _retrieveCharacteristic(
-    String addressArgs,
-    int hashCodeArgs,
-  ) {
-    final characteristics = _characteristics[addressArgs];
-    if (characteristics == null) {
-      return null;
+  Future<void> _initialize() async {
+    // Here we use `Future()` to make it possible to change the `logLevel` before `initialize()`.
+    await Future(() async {
+      try {
+        logger.info('initialize');
+        _args = await _api.initialize();
+        _getState();
+      } catch (e) {
+        logger.severe('initialize failed.', e);
+      }
+    });
+  }
+
+  Future<void> _getState() async {
+    try {
+      logger.info('getState');
+      final stateArgs = await _api.getState();
+      onStateChanged(stateArgs);
+    } catch (e) {
+      logger.severe('getState failed.', e);
     }
-    return characteristics[hashCodeArgs];
   }
 }

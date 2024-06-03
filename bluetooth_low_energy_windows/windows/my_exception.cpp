@@ -1,9 +1,3 @@
-#include "my_exception.h"
+#undef _HAS_EXCEPTIONS
 
-namespace bluetooth_low_energy_windows
-{
-	const char* MyException::what() const noexcept
-	{
-		return message.c_str();
-	}
-}
+#include "my_exception.h"

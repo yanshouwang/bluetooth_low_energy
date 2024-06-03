@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 /// The manufacturer specific data of the peripheral
-class ManufacturerSpecificData {
+final class ManufacturerSpecificData {
   /// The manufacturer id.
   final int id;
 

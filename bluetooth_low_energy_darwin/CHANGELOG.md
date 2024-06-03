@@ -1,3 +1,38 @@
+## 6.0.0
+
+* Add `serviceUUIDs` argument to `CentralManager#startDiscovery` method.
+* Add `CentralManager#retrieveConnectedPeripherals` method.
+* Move `BluetoothLowEnergyManager#getState` to `BluetoothLowEnergyManager#state`.
+* Move `CentralManger.instance` to factory constructor.
+* Move `PeripheralManager.instance` to factory constructor.
+* Remove `BluetoothLowEnergyManager#setUp` method.
+* Implement `CentralMananger#showAppSettings` on iOS.
+* Implement `PeripheralManager#showAppSettings` on iOS.
+* Rewrite example with MVVM.
+* Fix known issues.
+
+## 6.0.0-dev.4
+
+* Implement `CentralMananger#showAppSettings` on iOS.
+* Implement `PeripheralManager#showAppSettings` on iOS.
+
+## 6.0.0-dev.3
+
+* Rewrite example with MVVM.
+* Fix known issues.
+
+## 6.0.0-dev.2
+
+* Implement new APIs.
+
+## 6.0.0-dev.1
+
+* Move organization.
+
+## 6.0.0-dev.0
+
+* Implement new APIs.
+
 ## 5.0.5
 
 * Change flutter minimum version to 3.0.0.

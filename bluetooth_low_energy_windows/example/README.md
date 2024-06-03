@@ -1,6 +1,6 @@
-# bluetooth_low_energy_example
+# bluetooth_low_energy_windows_example
 
-Demonstrates how to use the bluetooth_low_energy plugin.
+Demonstrates how to use the bluetooth_low_energy_windows plugin.
 
 ## Getting Started
 

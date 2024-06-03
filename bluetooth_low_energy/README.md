@@ -1,61 +1,103 @@
 # bluetooth_low_energy
 
-A Flutter plugin for controlling the bluetooth low energy.
+A Flutter plugin for controlling the bluetooth low energy, supports central and peripheral roles.
 
-## Features
+## CentralManager
 
-### CentralManager
+|API|Android|iOS|macOS|Windows|Linux|
+|:-|:-:|:-:|:-:|:-:|:-:|
+|logLevel|✅|✅|✅|✅|✅|
+|state|✅|✅|✅|✅|✅|
+|stateChanged|✅|✅|✅|✅|✅|
+|authorize|✅|||||
+|showAppSettings|✅|✅||||
+|discovered|✅|✅|✅|✅|✅|
+|connectionStateChanged|✅|✅|✅|✅|✅|
+|mtuChanged|✅|||✅||
+|characteristicNotified|✅|✅|✅|✅|✅|
+|startDiscovery|✅|✅|✅|✅|✅|
+|stopDiscovery|✅|✅|✅|✅|✅|
+|retrieveConnectedPeripherals|✅|✅|✅||✅|
+|connect|✅|✅|✅|✅|✅|
+|disconnect|✅|✅|✅|✅|✅|
+|requestMTU|✅|||||
+|getMaximumWriteLength|✅|✅|✅|✅|✅|
+|readRSSI|✅|✅|✅||✅|
+|readCharacteristic|✅|✅|✅|✅|✅|
+|writeCharacteristic|✅|✅|✅|✅|✅|
+|setCharacteristicNotifyState|✅|✅|✅|✅|✅|
+|readDescriptor|✅|✅|✅|✅|✅|
+|writeDescriptor|✅|✅|✅|✅|✅|
 
-- [x] Get/Listen the state of the central manager.
-- [x] Listen connection state cahgned.
-- [x] Listen GATT characteristic notified.
-- [x] Start/Stop discovery.
-- [x] Connect/Disconnect peripherals.
-- [x] Read RSSI of peripherals.
-- [x] Discover GATT.
-- [x] Read/Write GATT characteristics.
-- [x] Set GATT characteristics notify state.
-- [x] Read/Write GATT descriptors.
+## PeripheralManager
 
-### PeripheralManager
-
-- [x] Get/Listen the state of the peripheral manager.
-- [x] Listen GATT characteristic read/written/notifyStateChanged.
-- [x] Add/Remove/Clear service(s).
-- [x] Start/Stop advertising.
-- [x] Read/Write(Notify) GATT characteristics.
+|API|Android|iOS|macOS|Windows|Linux|
+|:-|:-:|:-:|:-:|:-:|:-:|
+|logLevel|✅|✅|✅|✅||
+|state|✅|✅|✅|✅||
+|stateChanged|✅|✅|✅|✅||
+|authorize|✅|||||
+|showAppSettings|✅|✅||||
+|connectionStateChanged|✅|||||
+|mtuChanged|✅|||✅||
+|characteristicReadRequested|✅|✅|✅|✅||
+|characteristicWriteRequested|✅|✅|✅|✅||
+|characteristicNotifyStateChanged|✅|✅|✅|✅||
+|descriptorReadRequested|✅|||✅||
+|descriptorWriteRequested|✅|||✅||
+|addService|✅|✅|✅|✅||
+|removeService|✅|✅|✅|✅||
+|removeAllServices|✅|✅|✅|✅||
+|startAdvertising|✅|✅|✅|✅||
+|stopAdvertising|✅|✅|✅|✅||
+|getMaximumNotifyLength|✅|✅|✅|✅||
+|respondReadRequestWithValue|✅|✅|✅|✅||
+|respondReadRequestWithError|✅|✅|✅|✅||
+|respondWriteRequest|✅|✅|✅|✅||
+|respondWriteRequestWithError|✅|✅|✅|✅||
+|notifyCharacteristic|✅|✅|✅|✅||
 
 ## Getting Started
 
-Add `bluetooth_low_energy` as a [dependency in your pubspec.yaml file](https://flutter.dev/using-packages/).
+Add `bluetooth_low_energy` as a [dependency][1] in your pubspec.yaml file.
 
-``` Yaml
+``` YAML
 dependencies:
   bluetooth_low_energy: ^<latest-version>
 ```
-
-Remember to call `await CentralManager.setUp()` and `await PeripheralManager.setUp()` before use any apis of this plugin.
 
 *Note:* Bluetooth Low Energy doesn't work on emulators, so use physical devices which has bluetooth features for development.
 
 ### Android
 
-Make sure you have a `miniSdkVersion` with 21 or higher in your `android/app/build.gradle` file.
+Make sure you have a `minSdk` with 21 or higher in your `android/app/build.gradle` file.
 
 ### iOS and macOS
 
-According to Apple's [documents](https://developer.apple.com/documentation/corebluetooth/), you must include the [`NSBluetoothAlwaysUsageDescription`](https://developer.apple.com/documentation/bundleresources/information_property_list/nsbluetoothalwaysusagedescription) on or after iOS 13, and include the [`NSBluetoothPeripheralUsageDescription`](https://developer.apple.com/documentation/bundleresources/information_property_list/nsbluetoothperipheralusagedescription) key before iOS 13.
+According to the [Apple's documents][2], you must include the [`NSBluetoothAlwaysUsageDescription`][3] on or after iOS 13, and include the [`NSBluetoothPeripheralUsageDescription`][4] key before iOS 13.
 
-*Note:* The `PeripheralManager#startAdvertising` only support `name` and `serviceUUIDs`, see [the startAdvertising document](https://developer.apple.com/documentation/corebluetooth/cbperipheralmanager/1393252-startadvertising).
+When use bluetooth or other hardwares on macOS, developers need to [configure the app sandbox][5].
 
-*Note:* When use bluetooth or other hardwares on macOS, developers need to [configure the app sandbox](https://developer.apple.com/documentation/xcode/configuring-the-macos-app-sandbox#Enable-access-to-restricted-resources).
+*Note:* The `PeripheralManager#startAdvertising` only support `name` and `serviceUUIDs`, see the [Apple's document][6].
+
+### Winodows
+
+*Note:* The `PeripheralManager#startAdvertising` not support `name`, see the [Microsoft's document][7].
 
 ### Linux
 
-PeripheralManager is not implemented because the `bluez` plugin doesn't support this yet, see [How to use bluez to act as bluetooth peripheral](https://github.com/canonical/bluez.dart/issues/85).
+The `PeripheralManager` API is not implemented since the [`bluez`][8] didn't support this feature yet.
 
-### Windows
+## Migrations
 
-PeripheralManager is not implemented, it will be implemented in the future.
+* [Migrate from 5.x to 6.x][9]
 
-*Note:* The `CentralManager#readRSSI` method is not implemented on windows(windows doesn't support read RSSI after connected), avoid call this when running on windows devices.
+[1]: https://docs.flutter.dev/packages-and-plugins/using-packages
+[2]: https://developer.apple.com/documentation/corebluetooth
+[3]: https://developer.apple.com/documentation/bundleresources/information_property_list/nsbluetoothalwaysusagedescription
+[4]: https://developer.apple.com/documentation/bundleresources/information_property_list/nsbluetoothperipheralusagedescription
+[5]: https://developer.apple.com/documentation/xcode/configuring-the-macos-app-sandbox#Enable-access-to-restricted-resources
+[6]: https://developer.apple.com/documentation/corebluetooth/cbperipheralmanager/1393252-startadvertising
+[7]: https://learn.microsoft.com/en-us/uwp/api/windows.devices.bluetooth.advertisement.bluetoothleadvertisementpublisher.advertisement?view=winrt-22621
+[8]: https://github.com/canonical/bluez.dart
+[9]: doc/migrations/migration-v6.md

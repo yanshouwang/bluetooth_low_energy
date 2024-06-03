@@ -4,11 +4,10 @@ library bluetooth_low_energy;
 
 export 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart'
     hide
-        MyBluetoothLowEnergyPeer,
-        MyCentral,
-        MyPeripheral,
-        MyGattAttribute,
-        MyGattAttributeUint8List,
-        MyGattDescriptor,
-        MyGattCharacteristic,
-        MyGattService;
+        PlatformBluetoothLowEnergyManager,
+        PlatformCentralManager,
+        PlatformPeripheralManager,
+        MutableGATTCharacteristic,
+        ImmutableGATTCharacteristic,
+        MutableGATTDescriptor,
+        ImmutableGATTDescriptor;

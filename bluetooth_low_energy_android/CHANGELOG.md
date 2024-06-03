@@ -1,3 +1,60 @@
+## 6.0.0
+
+* Add `serviceUUIDs` argument to `CentralManager#startDiscovery` method.
+* Add `CentralManager#requestMTU` method.
+* Add `CentralManager#retrieveConnectedPeripherals` method.
+* Move `BluetoothLowEnergyManager#getState` to `BluetoothLowEnergyManager#state`.
+* Move `CentralManger.instance` to factory constructor.
+* Move `PeripheralManager.instance` to factory constructor.
+* Remove `BluetoothLowEnergyManager#setUp` method.
+* Add `CentralManager#mtuChanged` event.
+* Add `PeripheralManager#mtuChanged` event.
+* Add `BluetoothLowEnergyManager.authorize()` method.
+* Add `BluetoothLowEnergyManager.showAppSettings()` method.
+* Rewrite example with MVVM.
+* Fix known issues.
+
+## 6.0.0-dev.6
+
+* Fix known issues.
+
+## 6.0.0-dev.5
+
+* Rewrite example with MVVM.
+* Fix known issues.
+
+## 6.0.0-dev.4
+
+* Implement new APIs.
+
+## 6.0.0-dev.3
+
+* Move organizaioin.
+
+## 6.0.0-dev.2
+
+* Implement new APIs.
+
+## 6.0.0-dev.1
+
+* Add `CentralManager#mtuChanged` event.
+* Add `PeripheralManager#mtuChanged` event.
+* Add `BluetoothLowEnergyManager.authorize()` method.
+* Add `BluetoothLowEnergyManager.showAppSettings()` method.
+* Add modifiers to all classes.
+* Use new capitalization rules.
+* Make it possible to change the `logLevel` before `initialize()`.
+
+## 6.0.0-dev.0
+
+* Add `serviceUUIDs` argument to `CentralManager#startDiscovery` method.
+* Add `CentralManager#requestMTU` method.
+* Add `CentralManager#retrieveConnectedPeripherals` method.
+* Move `BluetoothLowEnergyManager#getState` to `BluetoothLowEnergyManager#state`.
+* Move `CentralManger.instance` to factory constructor.
+* Move `PeripheralManager.instance` to factory constructor.
+* Remove `BluetoothLowEnergyManager#setUp` method.
+
 ## 5.0.5
 
 * Fix the issue that [Advertisement resolve failed with `NullPointerException`](https://github.com/yanshouwang/bluetooth_low_energy/issues/59)

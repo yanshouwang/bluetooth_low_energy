@@ -1,3 +1,64 @@
+## 6.0.0
+
+* Implement `PeripheralManager` API.
+* Add `CentralManager#mtuChanged` event.
+* Add `serviceUUIDs` argument to `CentralManager#startDiscovery` method.
+* Add `CentralManager#getMaximumWriteLength` method.
+* Move `BluetoothLowEnergyManager#getState` to `BluetoothLowEnergyManager#state`.
+* Move `CentralManger.instance` to factory constructor.
+* Remove `BluetoothLowEnergyManager#setUp` method.
+* Rewrite example with MVVM.
+* Fix the issue that [`Cannot access value of empty optional`](https://github.com/yanshouwang/bluetooth_low_energy/issues/63)
+* Fix known issues.
+
+## 6.0.0-dev.9
+
+* Implement `PeripheralManager` API.
+* Rewrite example with MVVM.
+* Fix known issues.
+
+## 6.0.0-dev.8
+
+* Fix example errors.
+
+## 6.0.0-dev.7
+
+* Move organizatioin.
+
+## 6.0.0-dev.6
+
+* Fix the issue that [`Cannot access value of empty optional`](https://github.com/yanshouwang/bluetooth_low_energy/issues/63)
+
+## 6.0.0-dev.5
+
+* Implement new APIs.
+
+## 6.0.0-dev.4
+
+* Add `CentralManager#getMaximumWriteLength` method.
+* Add `GATTService#includedServices` field.
+
+## 6.0.0-dev.3
+
+* Fix errors.
+
+## 6.0.0-dev.2
+
+* Make it possible to change the `logLevel` before `initialize()`.
+
+## 6.0.0-dev.1
+
+* Add `CentralManager#mtuChanged` event.
+* Add modifiers to all classes.
+* Use new capitalization rules.
+
+## 6.0.0-dev.0
+
+* Add `serviceUUIDs` argument to `CentralManager#startDiscovery` method.
+* Move `BluetoothLowEnergyManager#getState` to `BluetoothLowEnergyManager#state`.
+* Move `CentralManger.instance` to factory constructor.
+* Remove `BluetoothLowEnergyManager#setUp` method.
+
 ## 5.0.3
 
 * Change flutter minimum version to 3.0.0.

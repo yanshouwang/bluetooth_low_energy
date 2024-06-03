@@ -2,133 +2,156 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
-import 'package:flutter/foundation.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/widgets.dart' hide ConnectionState;
 
 import 'my_api.dart';
-import 'my_central2.dart';
+import 'my_api.g.dart';
+import 'my_central.dart';
+import 'my_gatt.dart';
 
-class MyPeripheralManager extends PeripheralManager
-    implements MyPeripheralManagerFlutterApi {
-  final MyPeripheralManagerHostApi _api;
+final class MyPeripheralManager extends PlatformPeripheralManager
+    with WidgetsBindingObserver
+    implements MyPeripheralManagerFlutterAPI {
+  final MyPeripheralManagerHostAPI _api;
+  final ListEquality<int> _valueEquality;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
-  final StreamController<GattCharacteristicReadEventArgs>
-      _characteristicReadController;
-  final StreamController<GattCharacteristicWrittenEventArgs>
-      _characteristicWrittenController;
-  final StreamController<GattCharacteristicNotifyStateChangedEventArgs>
+  final StreamController<CentralConnectionStateChangedEventArgs>
+      _connnectionStateChangedController;
+  final StreamController<CentralMTUChangedEventArgs> _mtuChangedController;
+  final StreamController<GATTCharacteristicReadRequestedEventArgs>
+      _characteristicReadRequestedController;
+  final StreamController<GATTCharacteristicWriteRequestedEventArgs>
+      _characteristicWriteRequestedController;
+  final StreamController<GATTCharacteristicNotifyStateChangedEventArgs>
       _characteristicNotifyStateChangedController;
+  final StreamController<GATTDescriptorReadRequestedEventArgs>
+      _descriptorReadRequestedController;
+  final StreamController<GATTDescriptorWriteRequestedEventArgs>
+      _descriptorWriteRequestedController;
 
-  final Map<String, MyCentral2> _centrals;
-  final Map<int, Map<int, MyGattCharacteristic>> _characteristics;
-  final Map<int, Map<int, MyGattDescriptor>> _descriptors;
+  final Map<int, MutableGATTCharacteristic> _characteristics;
+  final Map<int, MutableGATTDescriptor> _descriptors;
+  // CCC descriptor hashCodeArgs -> characteristic
+  final Map<int, MutableGATTCharacteristic> _cccdCharacteristics;
+  // central addressArgs -> characteristic hashCodeArgs -> CCC descriptor Value
+  final Map<String, Map<int, Uint8List>> _cccdValues;
   final Map<String, int> _mtus;
-  final Map<String, Map<int, bool>> _confirms;
-  final Map<String, MyGattCharacteristic> _preparedCharacteristics;
-  final Map<String, MyGattDescriptor> _preparedDescriptors;
+  final Map<String, int> _preparedHashCodeArgs;
   final Map<String, List<int>> _preparedValue;
+
+  late final MyPeripheralManagerArgs _args;
 
   BluetoothLowEnergyState _state;
 
   MyPeripheralManager()
-      : _api = MyPeripheralManagerHostApi(),
+      : _api = MyPeripheralManagerHostAPI(),
+        _valueEquality = const ListEquality(),
         _stateChangedController = StreamController.broadcast(),
-        _characteristicReadController = StreamController.broadcast(),
-        _characteristicWrittenController = StreamController.broadcast(),
+        _connnectionStateChangedController = StreamController.broadcast(),
+        _mtuChangedController = StreamController.broadcast(),
+        _characteristicReadRequestedController = StreamController.broadcast(),
+        _characteristicWriteRequestedController = StreamController.broadcast(),
         _characteristicNotifyStateChangedController =
             StreamController.broadcast(),
-        _centrals = {},
+        _descriptorReadRequestedController = StreamController.broadcast(),
+        _descriptorWriteRequestedController = StreamController.broadcast(),
         _characteristics = {},
         _descriptors = {},
+        _cccdCharacteristics = {},
+        _cccdValues = {},
         _mtus = {},
-        _confirms = {},
-        _preparedCharacteristics = {},
-        _preparedDescriptors = {},
+        _preparedHashCodeArgs = {},
         _preparedValue = {},
         _state = BluetoothLowEnergyState.unknown;
 
+  UUID get cccUUID => UUID.short(0x2902);
+  @override
+  BluetoothLowEnergyState get state => _state;
   @override
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
-  Stream<GattCharacteristicReadEventArgs> get characteristicRead =>
-      _characteristicReadController.stream;
+  Stream<CentralConnectionStateChangedEventArgs> get connectionStateChanged =>
+      _connnectionStateChangedController.stream;
   @override
-  Stream<GattCharacteristicWrittenEventArgs> get characteristicWritten =>
-      _characteristicWrittenController.stream;
+  Stream<CentralMTUChangedEventArgs> get mtuChanged =>
+      _mtuChangedController.stream;
   @override
-  Stream<GattCharacteristicNotifyStateChangedEventArgs>
+  Stream<GATTCharacteristicReadRequestedEventArgs>
+      get characteristicReadRequested =>
+          _characteristicReadRequestedController.stream;
+  @override
+  Stream<GATTCharacteristicWriteRequestedEventArgs>
+      get characteristicWriteRequested =>
+          _characteristicWriteRequestedController.stream;
+  @override
+  Stream<GATTCharacteristicNotifyStateChangedEventArgs>
       get characteristicNotifyStateChanged =>
           _characteristicNotifyStateChangedController.stream;
+  @override
+  Stream<GATTDescriptorReadRequestedEventArgs> get descriptorReadRequested =>
+      _descriptorReadRequestedController.stream;
+  @override
+  Stream<GATTDescriptorWriteRequestedEventArgs> get descriptorWriteRequested =>
+      _descriptorWriteRequestedController.stream;
 
   @override
-  Future<void> setUp() async {
-    logger.info('setUp');
-    await _api.setUp();
-    MyPeripheralManagerFlutterApi.setup(this);
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    logger.info('didChangeAppLifecycleState: $state');
+    if (state != AppLifecycleState.resumed) {
+      return;
+    }
+    _getState();
   }
 
   @override
-  Future<BluetoothLowEnergyState> getState() {
-    logger.info('getState');
-    return Future.value(_state);
+  void initialize() {
+    MyPeripheralManagerFlutterAPI.setUp(this);
+    final binding = WidgetsFlutterBinding.ensureInitialized();
+    binding.addObserver(this);
+    _initialize();
   }
 
   @override
-  Future<void> addService(GattService service) async {
-    if (service is! MyGattService) {
-      throw TypeError();
-    }
-    final characteristics = <int, MyGattCharacteristic>{};
-    final descriptors = <int, MyGattDescriptor>{};
-    final characteristicsArgs = <MyGattCharacteristicArgs>[];
-    for (var characteristic in service.characteristics) {
-      final descriptorsArgs = <MyGattDescriptorArgs>[];
-      final properties = characteristic.properties;
-      final canNotify =
-          properties.contains(GattCharacteristicProperty.notify) ||
-              properties.contains(GattCharacteristicProperty.indicate);
-      if (canNotify) {
-        // CLIENT_CHARACTERISTIC_CONFIG
-        final cccDescriptor = MyGattDescriptor(
-          uuid: UUID.short(0x2902),
-          value: Uint8List.fromList([0x00, 0x00]),
-        );
-        final cccDescriptorArgs = cccDescriptor.toArgs();
-        descriptorsArgs.add(cccDescriptorArgs);
-        descriptors[cccDescriptorArgs.hashCodeArgs] = cccDescriptor;
-      }
-      for (var descriptor in characteristic.descriptors) {
-        final descriptorArgs = descriptor.toArgs();
-        descriptorsArgs.add(descriptorArgs);
-        descriptors[descriptorArgs.hashCodeArgs] = descriptor;
-      }
-      final characteristicArgs = characteristic.toArgs(descriptorsArgs);
-      characteristicsArgs.add(characteristicArgs);
-      characteristics[characteristicArgs.hashCodeArgs] = characteristic;
-    }
-    final serviceArgs = service.toArgs(characteristicsArgs);
+  Future<bool> authorize() async {
+    logger.info('authorize');
+    final authorized = await _api.authorize();
+    return authorized;
+  }
+
+  @override
+  Future<void> showAppSettings() async {
+    logger.info('showAppSettings');
+    await _api.showAppSettings();
+  }
+
+  @override
+  Future<void> addService(GATTService service) async {
+    final serviceArgs = service.toArgs();
     logger.info('addService: $serviceArgs');
     await _api.addService(serviceArgs);
-    _characteristics[serviceArgs.hashCodeArgs] = characteristics;
-    _descriptors[serviceArgs.hashCodeArgs] = descriptors;
+    _addService(service);
+    _addServiceArgs(serviceArgs);
   }
 
   @override
-  Future<void> removeService(GattService service) async {
+  Future<void> removeService(GATTService service) async {
     final hashCodeArgs = service.hashCode;
     logger.info('removeService: $hashCodeArgs');
     await _api.removeService(hashCodeArgs);
-    _characteristics.remove(hashCodeArgs);
-    _descriptors.remove(hashCodeArgs);
+    _removeService(service);
   }
 
   @override
-  Future<void> clearServices() async {
-    logger.info('clearServices');
-    await _api.clearServices();
+  Future<void> removeAllServices() async {
+    logger.info('removeAllServices');
+    await _api.removeAllServices();
     _characteristics.clear();
     _descriptors.clear();
+    _cccdCharacteristics.clear();
   }
 
   @override
@@ -145,69 +168,167 @@ class MyPeripheralManager extends PeripheralManager
   }
 
   @override
-  Future<Uint8List> readCharacteristic(GattCharacteristic characteristic) {
-    if (characteristic is! MyGattCharacteristic) {
+  Future<int> getMaximumNotifyLength(Central central) {
+    if (central is! MyCentral) {
       throw TypeError();
     }
-    final hashCodeArgs = characteristic.hashCode;
-    logger.info('readCharacteristic: $hashCodeArgs');
-    final value = characteristic.value;
-    return Future.value(value);
+    final addressArgs = central.address;
+    final mtu = _mtus[addressArgs] ?? 23;
+    final maximumNotifyLength = (mtu - 3).clamp(20, 512);
+    return Future.value(maximumNotifyLength);
   }
 
   @override
-  Future<void> writeCharacteristic(
-    GattCharacteristic characteristic, {
+  Future<void> respondReadRequestWithValue(
+    GATTReadRequest request, {
     required Uint8List value,
-    Central? central,
   }) async {
-    if (characteristic is! MyGattCharacteristic) {
+    if (request is! MyGATTReadRequest) {
       throw TypeError();
     }
-    characteristic.value = value;
-    if (central == null) {
+    final addressArgs = request.addressArgs;
+    final idArgs = request.idArgs;
+    const statusArgs = MyGATTStatusArgs.success;
+    final offsetArgs = request.offset;
+    final valueArgs = value;
+    logger.info(
+        'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs');
+    await _api.sendResponse(
+      addressArgs,
+      idArgs,
+      statusArgs,
+      offsetArgs,
+      valueArgs,
+    );
+  }
+
+  @override
+  Future<void> respondReadRequestWithError(
+    GATTReadRequest request, {
+    required GATTError error,
+  }) async {
+    if (request is! MyGATTReadRequest) {
+      throw TypeError();
+    }
+    final addressArgs = request.addressArgs;
+    final idArgs = request.idArgs;
+    final statusArgs = error.toArgs();
+    final offsetArgs = request.offset;
+    const valueArgs = null;
+    logger.info(
+        'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs');
+    await _api.sendResponse(
+      addressArgs,
+      idArgs,
+      statusArgs,
+      offsetArgs,
+      valueArgs,
+    );
+  }
+
+  @override
+  Future<void> respondWriteRequest(GATTWriteRequest request) async {
+    if (request is! MyGATTWriteRequest) {
+      throw TypeError();
+    }
+    if (!request.responseNeededArgs) {
       return;
     }
-    if (central is! MyCentral2) {
+    final addressArgs = request.addressArgs;
+    final idArgs = request.idArgs;
+    const statusArgs = MyGATTStatusArgs.success;
+    final offsetArgs = request.offset;
+    const valueArgs = null;
+    logger.info(
+        'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs');
+    await _api.sendResponse(
+      addressArgs,
+      idArgs,
+      statusArgs,
+      offsetArgs,
+      valueArgs,
+    );
+  }
+
+  @override
+  Future<void> respondWriteRequestWithError(
+    GATTWriteRequest request, {
+    required GATTError error,
+  }) async {
+    if (request is! MyGATTWriteRequest) {
+      throw TypeError();
+    }
+    if (!request.responseNeededArgs) {
+      return;
+    }
+    final addressArgs = request.addressArgs;
+    final idArgs = request.idArgs;
+    final statusArgs = error.toArgs();
+    final offsetArgs = request.offset;
+    const valueArgs = null;
+    logger.info(
+        'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs');
+    await _api.sendResponse(
+      addressArgs,
+      idArgs,
+      statusArgs,
+      offsetArgs,
+      valueArgs,
+    );
+  }
+
+  @override
+  Future<void> notifyCharacteristic(
+    Central central,
+    GATTCharacteristic characteristic, {
+    required Uint8List value,
+  }) async {
+    if (central is! MyCentral || characteristic is! MutableGATTCharacteristic) {
       throw TypeError();
     }
     final addressArgs = central.address;
     final hashCodeArgs = characteristic.hashCode;
-    final confirm = _retrieveConfirm(addressArgs, hashCodeArgs);
-    if (confirm == null) {
-      logger.warning('The central is not listening.');
+    final cccValue = _retrieveCCCValue(addressArgs, hashCodeArgs);
+    final notificationDisabled = _valueEquality.equals(
+      cccValue,
+      _args.disableNotificationValue,
+    );
+    if (notificationDisabled) {
+      logger.warning('Notification of this characteristic is disabled.');
       return;
     }
-    final trimmedValueArgs = characteristic.value;
-    // Fragments the value by MTU - 3 size.
-    // If mtu is null, use 23 as default MTU size.
-    final mtu = _mtus[addressArgs] ?? 23;
-    final fragmentSize = (mtu - 3).clamp(20, 512);
-    var start = 0;
-    while (start < trimmedValueArgs.length) {
-      final end = start + fragmentSize;
-      final fragmentedValueArgs = end < trimmedValueArgs.length
-          ? trimmedValueArgs.sublist(start, end)
-          : trimmedValueArgs.sublist(start);
-      logger.info(
-          'notifyCharacteristicChanged: $hashCodeArgs - $fragmentedValueArgs, $confirm, $addressArgs');
-      await _api.notifyCharacteristicChanged(
-        hashCodeArgs,
-        fragmentedValueArgs,
-        confirm,
-        addressArgs,
-      );
-      start = end;
-    }
+    final confirmArgs = _valueEquality.equals(
+      cccValue,
+      _args.enableIndicationValue,
+    );
+    final valueArgs = value;
+    logger.info(
+        'notifyCharacteristicChanged: $addressArgs - $hashCodeArgs, $confirmArgs, $valueArgs');
+    await _api.notifyCharacteristicChanged(
+      addressArgs,
+      hashCodeArgs,
+      confirmArgs,
+      valueArgs,
+    );
   }
 
   @override
-  void onStateChanged(int stateNumberArgs) {
-    final stateArgs = MyBluetoothLowEnergyStateArgs.values[stateNumberArgs];
+  void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs) async {
     logger.info('onStateChanged: $stateArgs');
     final state = stateArgs.toState();
     if (_state == state) {
       return;
+    }
+    // Renew GATT server when bluetooth adapter state changed.
+    switch (state) {
+      case BluetoothLowEnergyState.poweredOn:
+        await _openGATTServer();
+        break;
+      case BluetoothLowEnergyState.poweredOff:
+        await _closeGATTServer();
+        break;
+      default:
+        break;
     }
     _state = state;
     final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
@@ -215,326 +336,654 @@ class MyPeripheralManager extends PeripheralManager
   }
 
   @override
-  void onConnectionStateChanged(MyCentralArgs centralArgs, bool stateArgs) {
+  void onConnectionStateChanged(
+    MyCentralArgs centralArgs,
+    int statusArgs,
+    MyConnectionStateArgs stateArgs,
+  ) {
     final addressArgs = centralArgs.addressArgs;
-    logger.info('onConnectionStateChanged: $addressArgs - $stateArgs');
+    logger.info(
+        'onConnectionStateChanged: $addressArgs - $statusArgs, $stateArgs');
     final central = centralArgs.toCentral();
-    final state = stateArgs;
-    if (state) {
-      _centrals[addressArgs] = central;
+    final state = stateArgs.toState();
+    if (state == ConnectionState.connected) {
+      _cccdValues[addressArgs] = {};
     } else {
-      _centrals.remove(addressArgs);
       _mtus.remove(addressArgs);
-      _confirms.remove(addressArgs);
+      _cccdValues.remove(addressArgs);
+      _preparedHashCodeArgs.remove(addressArgs);
+      _preparedValue.remove(addressArgs);
     }
+    final eventArgs = CentralConnectionStateChangedEventArgs(central, state);
+    _connnectionStateChangedController.add(eventArgs);
   }
 
   @override
-  void onMtuChanged(String addressArgs, int mtuArgs) {
-    logger.info('onMtuChanged: $addressArgs - $mtuArgs');
+  void onMTUChanged(MyCentralArgs centralArgs, int mtuArgs) {
+    final addressArgs = centralArgs.addressArgs;
+    logger.info('onMTUChanged: $addressArgs - $mtuArgs');
+    final central = centralArgs.toCentral();
     final mtu = mtuArgs;
     _mtus[addressArgs] = mtu;
+    final eventArgs = CentralMTUChangedEventArgs(central, mtu);
+    _mtuChangedController.add(eventArgs);
   }
 
   @override
   void onCharacteristicReadRequest(
-    String addressArgs,
-    int hashCodeArgs,
+    MyCentralArgs centralArgs,
     int idArgs,
     int offsetArgs,
+    int hashCodeArgs,
   ) async {
+    final addressArgs = centralArgs.addressArgs;
     logger.info(
-        'onCharacteristicReadRequest: $addressArgs.$hashCodeArgs - $idArgs, $offsetArgs');
-    final central = _centrals[addressArgs];
-    if (central == null) {
-      return;
-    }
-    final characteristic = _retrieveCharacteristic(hashCodeArgs);
+        'onCharacteristicReadRequest: $addressArgs - $idArgs, $offsetArgs, $hashCodeArgs');
+    final central = centralArgs.toCentral();
+    final characteristic = _characteristics[hashCodeArgs];
     if (characteristic == null) {
-      return;
+      await _sendResponse(
+        addressArgs,
+        idArgs,
+        MyGATTStatusArgs.failure,
+        offsetArgs,
+        null,
+      );
+    } else if (characteristic is ImmutableGATTCharacteristic) {
+      await _sendResponse(
+        addressArgs,
+        idArgs,
+        MyGATTStatusArgs.success,
+        offsetArgs,
+        characteristic.value.sublist(offsetArgs),
+      );
+    } else {
+      final eventArgs = GATTCharacteristicReadRequestedEventArgs(
+        central,
+        characteristic,
+        MyGATTReadRequest(
+          addressArgs: addressArgs,
+          idArgs: idArgs,
+          offset: offsetArgs,
+        ),
+      );
+      _characteristicReadRequestedController.add(eventArgs);
     }
-    const statusArgs = MyGattStatusArgs.success;
-    final offset = offsetArgs;
-    final valueArgs = _onCharacteristicRead(central, characteristic, offset);
-    await _trySendResponse(
-      addressArgs,
-      idArgs,
-      statusArgs,
-      offsetArgs,
-      valueArgs,
-    );
   }
 
   @override
   void onCharacteristicWriteRequest(
-    String addressArgs,
-    int hashCodeArgs,
+    MyCentralArgs centralArgs,
     int idArgs,
-    int offsetArgs,
-    Uint8List valueArgs,
+    int hashCodeArgs,
     bool preparedWriteArgs,
     bool responseNeededArgs,
+    int offsetArgs,
+    Uint8List valueArgs,
   ) async {
+    final addressArgs = centralArgs.addressArgs;
     logger.info(
-        'onCharacteristicWriteRequest: $addressArgs.$hashCodeArgs - $idArgs, $offsetArgs, $valueArgs, $preparedWriteArgs, $responseNeededArgs');
-    final central = _centrals[addressArgs];
-    if (central == null) {
-      return;
-    }
-    final characteristic = _retrieveCharacteristic(hashCodeArgs);
+        'onCharacteristicWriteRequest: $addressArgs - $idArgs, $hashCodeArgs, $preparedWriteArgs, $responseNeededArgs, $offsetArgs, $valueArgs');
+    final central = centralArgs.toCentral();
+    final characteristic = _characteristics[hashCodeArgs];
     if (characteristic == null) {
-      return;
-    }
-    final MyGattStatusArgs statusArgs;
-    if (preparedWriteArgs) {
-      final preparedCharacteristic = _preparedCharacteristics[addressArgs];
-      if (preparedCharacteristic != null &&
-          preparedCharacteristic != characteristic) {
-        statusArgs = MyGattStatusArgs.connectionCongested;
-      } else {
-        final preparedValueArgs = _preparedValue[addressArgs];
-        if (preparedValueArgs == null) {
-          _preparedCharacteristics[addressArgs] = characteristic;
-          // Change the immutable Uint8List to mutable.
-          _preparedValue[addressArgs] = [...valueArgs];
-        } else {
-          preparedValueArgs.insertAll(offsetArgs, valueArgs);
-        }
-        statusArgs = MyGattStatusArgs.success;
+      if (!responseNeededArgs) {
+        return;
       }
-    } else {
-      final value = valueArgs;
-      _onCharacteristicWritten(central, characteristic, value);
-      statusArgs = MyGattStatusArgs.success;
-    }
-    if (responseNeededArgs) {
-      await _trySendResponse(
+      await _sendResponse(
         addressArgs,
         idArgs,
-        statusArgs,
+        MyGATTStatusArgs.failure,
         offsetArgs,
         null,
       );
-    }
-  }
-
-  @override
-  void onCharacteristicNotifyStateChanged(
-    String addressArgs,
-    int hashCodeArgs,
-    int stateNumberArgs,
-  ) {
-    final stateArgs =
-        MyGattCharacteristicNotifyStateArgs.values[stateNumberArgs];
-    logger.info(
-        'onCharacteristicNotifyStateChanged: $addressArgs.$hashCodeArgs - $stateArgs');
-    final central = _centrals[addressArgs];
-    if (central == null) {
-      return;
-    }
-    final characteristic = _retrieveCharacteristic(hashCodeArgs);
-    if (characteristic == null) {
-      return;
-    }
-    final state = stateArgs != MyGattCharacteristicNotifyStateArgs.none;
-    final confirms = _confirms.putIfAbsent(addressArgs, () => {});
-    if (state) {
-      confirms[hashCodeArgs] =
-          stateArgs == MyGattCharacteristicNotifyStateArgs.indicate;
+    } else if (preparedWriteArgs) {
+      final preparedHashCodeArgs = _preparedHashCodeArgs[addressArgs];
+      if (preparedHashCodeArgs != null &&
+          preparedHashCodeArgs != hashCodeArgs) {
+        if (!responseNeededArgs) {
+          return;
+        }
+        await _sendResponse(
+          addressArgs,
+          idArgs,
+          MyGATTStatusArgs.connectionCongested,
+          offsetArgs,
+          null,
+        );
+      } else {
+        if (preparedHashCodeArgs == null) {
+          _preparedHashCodeArgs[addressArgs] = hashCodeArgs;
+          // Change the immutable Uint8List to mutable.
+          _preparedValue[addressArgs] = [...valueArgs];
+        } else {
+          final preparedValue = _preparedValue[addressArgs];
+          // Here the prepared value must not be null.
+          if (preparedValue == null) {
+            throw ArgumentError.notNull();
+          }
+          preparedValue.insertAll(offsetArgs, valueArgs);
+        }
+        if (!responseNeededArgs) {
+          return;
+        }
+        await _sendResponse(
+          addressArgs,
+          idArgs,
+          MyGATTStatusArgs.success,
+          offsetArgs,
+          null,
+        );
+      }
+    } else if (characteristic is ImmutableGATTCharacteristic) {
+      if (!responseNeededArgs) {
+        return;
+      }
+      await _sendResponse(
+        addressArgs,
+        idArgs,
+        MyGATTStatusArgs.writeNotPermitted,
+        offsetArgs,
+        null,
+      );
     } else {
-      confirms.remove(hashCodeArgs);
+      final eventArgs = GATTCharacteristicWriteRequestedEventArgs(
+        central,
+        characteristic,
+        MyGATTWriteRequest(
+          addressArgs: addressArgs,
+          idArgs: idArgs,
+          responseNeededArgs: responseNeededArgs,
+          offset: offsetArgs,
+          value: valueArgs,
+        ),
+      );
+      _characteristicWriteRequestedController.add(eventArgs);
     }
-    final eventArgs = GattCharacteristicNotifyStateChangedEventArgs(
-      central,
-      characteristic,
-      state,
-    );
-    _characteristicNotifyStateChangedController.add(eventArgs);
   }
 
   @override
   void onDescriptorReadRequest(
-    String addressArgs,
-    int hashCodeArgs,
+    MyCentralArgs centralArgs,
     int idArgs,
     int offsetArgs,
+    int hashCodeArgs,
   ) async {
+    final addressArgs = centralArgs.addressArgs;
     logger.info(
-        'onDescriptorReadRequest: $addressArgs.$hashCodeArgs - $idArgs, $offsetArgs');
-    final central = _centrals[addressArgs];
-    if (central == null) {
-      return;
+        'onDescriptorReadRequest: $addressArgs - $idArgs, $offsetArgs, $hashCodeArgs');
+    final central = centralArgs.toCentral();
+    final characteristic = _cccdCharacteristics[hashCodeArgs];
+    if (characteristic == null) {
+      final descriptor = _descriptors[hashCodeArgs];
+      if (descriptor == null) {
+        await _sendResponse(
+          addressArgs,
+          idArgs,
+          MyGATTStatusArgs.failure,
+          offsetArgs,
+          null,
+        );
+      } else if (descriptor is ImmutableGATTDescriptor) {
+        await _sendResponse(
+          addressArgs,
+          idArgs,
+          MyGATTStatusArgs.success,
+          offsetArgs,
+          descriptor.value.sublist(offsetArgs),
+        );
+      } else {
+        final eventArgs = GATTDescriptorReadRequestedEventArgs(
+          central,
+          descriptor,
+          MyGATTReadRequest(
+            addressArgs: addressArgs,
+            idArgs: idArgs,
+            offset: offsetArgs,
+          ),
+        );
+        _descriptorReadRequestedController.add(eventArgs);
+      }
+    } else {
+      final hashCodeArgs = characteristic.hashCode;
+      final cccValue = _retrieveCCCValue(addressArgs, hashCodeArgs);
+      final valueArgs = cccValue.sublist(offsetArgs);
+      await _sendResponse(
+        addressArgs,
+        idArgs,
+        MyGATTStatusArgs.success,
+        offsetArgs,
+        valueArgs,
+      );
     }
-    final descriptor = _retrieveDescriptor(hashCodeArgs);
-    if (descriptor == null) {
-      return;
-    }
-    const statusArgs = MyGattStatusArgs.success;
-    final offset = offsetArgs;
-    final valueArgs = descriptor.value.sublist(offset);
-    await _trySendResponse(
-      addressArgs,
-      idArgs,
-      statusArgs,
-      offsetArgs,
-      valueArgs,
-    );
   }
 
   @override
   void onDescriptorWriteRequest(
-    String addressArgs,
-    int hashCodeArgs,
+    MyCentralArgs centralArgs,
     int idArgs,
-    int offsetArgs,
-    Uint8List valueArgs,
+    int hashCodeArgs,
     bool preparedWriteArgs,
     bool responseNeededArgs,
+    int offsetArgs,
+    Uint8List valueArgs,
   ) async {
+    final addressArgs = centralArgs.addressArgs;
     logger.info(
-        'onDescriptorWriteRequest: $addressArgs.$hashCodeArgs - $idArgs, $offsetArgs, $valueArgs, $preparedWriteArgs, $responseNeededArgs');
-    final central = _centrals[addressArgs];
-    if (central == null) {
-      return;
-    }
-    final descriptor = _retrieveDescriptor(hashCodeArgs);
-    if (descriptor == null) {
-      return;
-    }
-    final MyGattStatusArgs statusArgs;
+        'onDescriptorWriteRequest: $addressArgs - $idArgs, $hashCodeArgs, $preparedWriteArgs, $responseNeededArgs, $offsetArgs, $valueArgs');
+    final central = centralArgs.toCentral();
     if (preparedWriteArgs) {
-      final preparedDescriptor = _preparedCharacteristics[addressArgs];
-      if (preparedDescriptor != null && preparedDescriptor != descriptor) {
-        statusArgs = MyGattStatusArgs.connectionCongested;
+      final preparedHashCodeArgs = _preparedHashCodeArgs[addressArgs];
+      if (preparedHashCodeArgs != null &&
+          preparedHashCodeArgs != hashCodeArgs) {
+        if (!responseNeededArgs) {
+          return;
+        }
+        await _sendResponse(
+          addressArgs,
+          idArgs,
+          MyGATTStatusArgs.connectionCongested,
+          offsetArgs,
+          null,
+        );
       } else {
-        final preparedValueArgs = _preparedValue[addressArgs];
-        if (preparedValueArgs == null) {
-          _preparedDescriptors[addressArgs] = descriptor;
+        if (preparedHashCodeArgs == null) {
+          _preparedHashCodeArgs[addressArgs] = hashCodeArgs;
           // Change the immutable Uint8List to mutable.
           _preparedValue[addressArgs] = [...valueArgs];
         } else {
-          preparedValueArgs.insertAll(offsetArgs, valueArgs);
+          final preparedValue = _preparedValue[addressArgs];
+          // Here the prepared value must not be null.
+          if (preparedValue == null) {
+            throw ArgumentError.notNull();
+          }
+          preparedValue.insertAll(offsetArgs, valueArgs);
         }
-        statusArgs = MyGattStatusArgs.success;
+        if (!responseNeededArgs) {
+          return;
+        }
+        await _sendResponse(
+          addressArgs,
+          idArgs,
+          MyGATTStatusArgs.success,
+          offsetArgs,
+          null,
+        );
       }
     } else {
-      descriptor.value = valueArgs;
-      statusArgs = MyGattStatusArgs.success;
+      final characteristic = _cccdCharacteristics[hashCodeArgs];
+      if (characteristic == null) {
+        final descriptor = _descriptors[hashCodeArgs];
+        if (descriptor == null) {
+          if (!responseNeededArgs) {
+            return;
+          }
+          await _sendResponse(
+            addressArgs,
+            idArgs,
+            MyGATTStatusArgs.failure,
+            offsetArgs,
+            null,
+          );
+        } else if (descriptor is ImmutableGATTDescriptor) {
+          if (!responseNeededArgs) {
+            return;
+          }
+          await _sendResponse(
+            addressArgs,
+            idArgs,
+            MyGATTStatusArgs.writeNotPermitted,
+            offsetArgs,
+            null,
+          );
+        } else {
+          final eventArgs = GATTDescriptorWriteRequestedEventArgs(
+            central,
+            descriptor,
+            MyGATTWriteRequest(
+              addressArgs: addressArgs,
+              idArgs: idArgs,
+              responseNeededArgs: responseNeededArgs,
+              offset: offsetArgs,
+              value: valueArgs,
+            ),
+          );
+          _descriptorWriteRequestedController.add(eventArgs);
+        }
+      } else {
+        final notificationDisabled = _valueEquality.equals(
+          valueArgs,
+          _args.disableNotificationValue,
+        );
+        final notificationEnabled = _valueEquality.equals(
+          valueArgs,
+          _args.enableNotificationValue,
+        );
+        final indicationEnabled = _valueEquality.equals(
+          valueArgs,
+          _args.enableIndicationValue,
+        );
+        if (!notificationDisabled &&
+            !notificationEnabled &&
+            !indicationEnabled) {
+          if (!responseNeededArgs) {
+            return;
+          }
+          await _sendResponse(
+            addressArgs,
+            idArgs,
+            MyGATTStatusArgs.requestNotSupported,
+            offsetArgs,
+            null,
+          );
+        } else {
+          final values = _cccdValues[addressArgs];
+          // Here the CCC values must not be null.
+          if (values == null) {
+            throw ArgumentError.notNull();
+          }
+          final hashCodeArgs = characteristic.hashCode;
+          final state = notificationEnabled || indicationEnabled;
+          if (state) {
+            values[hashCodeArgs] = valueArgs;
+          } else {
+            values.remove(hashCodeArgs);
+          }
+          final eventArgs = GATTCharacteristicNotifyStateChangedEventArgs(
+            central,
+            characteristic,
+            state,
+          );
+          _characteristicNotifyStateChangedController.add(eventArgs);
+          if (!responseNeededArgs) {
+            return;
+          }
+          await _sendResponse(
+            addressArgs,
+            idArgs,
+            MyGATTStatusArgs.success,
+            offsetArgs,
+            null,
+          );
+        }
+      }
     }
-    if (responseNeededArgs) {
-      await _trySendResponse(
+  }
+
+  @override
+  void onExecuteWrite(
+    MyCentralArgs centralArgs,
+    int idArgs,
+    bool executeArgs,
+  ) async {
+    final addressArgs = centralArgs.addressArgs;
+    logger.info('onExecuteWrite: $addressArgs - $idArgs, $executeArgs');
+    final central = centralArgs.toCentral();
+    final hashCodeArgs = _preparedHashCodeArgs.remove(addressArgs);
+    final elements = _preparedValue.remove(addressArgs);
+    if (hashCodeArgs == null || elements == null) {
+      await _sendResponse(
         addressArgs,
         idArgs,
-        statusArgs,
-        offsetArgs,
+        MyGATTStatusArgs.failure,
+        0,
+        null,
+      );
+    } else if (executeArgs) {
+      final characteristic = _characteristics[hashCodeArgs];
+      final descriptor = _descriptors[hashCodeArgs];
+      final cccCharacteristic = _cccdCharacteristics[hashCodeArgs];
+      final value = Uint8List.fromList(elements);
+      if (characteristic != null &&
+          descriptor == null &&
+          cccCharacteristic == null) {
+        // Characteristic write request.
+        if (characteristic is ImmutableGATTCharacteristic) {
+          await _sendResponse(
+            addressArgs,
+            idArgs,
+            MyGATTStatusArgs.writeNotPermitted,
+            0,
+            null,
+          );
+        } else {
+          final eventArgs = GATTCharacteristicWriteRequestedEventArgs(
+            central,
+            characteristic,
+            MyGATTWriteRequest(
+              addressArgs: addressArgs,
+              idArgs: idArgs,
+              responseNeededArgs: true,
+              offset: 0,
+              value: value,
+            ),
+          );
+          _characteristicWriteRequestedController.add(eventArgs);
+        }
+      } else if (descriptor != null &&
+          characteristic == null &&
+          cccCharacteristic == null) {
+        // Descriptor write request.
+        if (descriptor is ImmutableGATTDescriptor) {
+          await _sendResponse(
+            addressArgs,
+            idArgs,
+            MyGATTStatusArgs.writeNotPermitted,
+            0,
+            null,
+          );
+        } else {
+          final eventArgs = GATTDescriptorWriteRequestedEventArgs(
+            central,
+            descriptor,
+            MyGATTWriteRequest(
+              addressArgs: addressArgs,
+              idArgs: idArgs,
+              responseNeededArgs: true,
+              offset: 0,
+              value: value,
+            ),
+          );
+          _descriptorWriteRequestedController.add(eventArgs);
+        }
+      } else if (cccCharacteristic != null &&
+          characteristic == null &&
+          descriptor == null) {
+        // CCC descriptor write request.
+        final notificationDisabled = _valueEquality.equals(
+          value,
+          _args.disableNotificationValue,
+        );
+        final notificationEnabled = _valueEquality.equals(
+          value,
+          _args.enableNotificationValue,
+        );
+        final indicationEnabled = _valueEquality.equals(
+          value,
+          _args.enableIndicationValue,
+        );
+        if (!notificationDisabled &&
+            !notificationEnabled &&
+            !indicationEnabled) {
+          await _sendResponse(
+            addressArgs,
+            idArgs,
+            MyGATTStatusArgs.requestNotSupported,
+            0,
+            null,
+          );
+        } else {
+          final values = _cccdValues[addressArgs];
+          // Here the CCC values must not be null.
+          if (values == null) {
+            throw ArgumentError.notNull();
+          }
+          final hashCodeArgs = cccCharacteristic.hashCode;
+          final state = notificationEnabled || indicationEnabled;
+          if (state) {
+            values[hashCodeArgs] = value;
+          } else {
+            values.remove(hashCodeArgs);
+          }
+          final eventArgs = GATTCharacteristicNotifyStateChangedEventArgs(
+            central,
+            cccCharacteristic,
+            state,
+          );
+          _characteristicNotifyStateChangedController.add(eventArgs);
+          await _sendResponse(
+            addressArgs,
+            idArgs,
+            MyGATTStatusArgs.success,
+            0,
+            null,
+          );
+        }
+      } else {
+        await _sendResponse(
+          addressArgs,
+          idArgs,
+          MyGATTStatusArgs.failure,
+          0,
+          null,
+        );
+      }
+    } else {
+      await _sendResponse(
+        addressArgs,
+        idArgs,
+        MyGATTStatusArgs.success,
+        0,
         null,
       );
     }
   }
 
-  @override
-  void onExecuteWrite(String addressArgs, int idArgs, bool executeArgs) async {
-    logger.info('onExecuteWrite: $addressArgs - $idArgs, $executeArgs');
-    final central = _centrals[addressArgs];
-    final characteristic = _preparedCharacteristics.remove(addressArgs);
-    final descriptor = _preparedDescriptors.remove(addressArgs);
-    final elements = _preparedValue.remove(addressArgs);
-    if (central == null || elements == null) {
-      return;
+  void _addService(GATTService service) {
+    for (var includedService in service.includedServices) {
+      _addService(includedService);
     }
-    final value = Uint8List.fromList(elements);
-    final execute = executeArgs;
-    if (execute) {
-      if (characteristic == null && descriptor == null) {
-        return;
+    final characteristics =
+        service.characteristics.cast<MutableGATTCharacteristic>();
+    for (var characteristic in characteristics) {
+      final descriptors =
+          characteristic.descriptors.cast<MutableGATTDescriptor>();
+      for (var descriptor in descriptors) {
+        // Jump CCC descriptors.
+        if (descriptor.uuid == cccUUID) {
+          continue;
+        }
+        _descriptors[descriptor.hashCode] = descriptor;
       }
-      if (characteristic != null) {
-        _onCharacteristicWritten(central, characteristic, value);
-      }
-      if (descriptor != null) {
-        descriptor.value = value;
-      }
+      _characteristics[characteristic.hashCode] = characteristic;
     }
-    await _trySendResponse(
-      addressArgs,
-      idArgs,
-      MyGattStatusArgs.success,
-      0,
-      null,
-    );
   }
 
-  MyGattCharacteristic? _retrieveCharacteristic(int hashCodeArgs) {
-    final characteristics = _characteristics.values
-        .reduce((value, element) => value..addAll(element));
-    return characteristics[hashCodeArgs];
-  }
-
-  MyGattDescriptor? _retrieveDescriptor(int hashCodeArgs) {
-    final descriptors =
-        _descriptors.values.reduce((value, element) => value..addAll(element));
-    return descriptors[hashCodeArgs];
-  }
-
-  bool? _retrieveConfirm(String addressArgs, int hashCodeArgs) {
-    final confirms = _confirms[addressArgs];
-    if (confirms == null) {
-      return null;
+  void _addServiceArgs(MyMutableGATTServiceArgs serviceArgs) {
+    final includedServicesArgs =
+        serviceArgs.includedServicesArgs.cast<MyMutableGATTServiceArgs>();
+    for (var includedServiceArgs in includedServicesArgs) {
+      _addServiceArgs(includedServiceArgs);
     }
-    return confirms[hashCodeArgs];
+    final characteristicsArgs =
+        serviceArgs.characteristicsArgs.cast<MyMutableGATTCharacteristicArgs>();
+    final cccUUIDArgs = cccUUID.toArgs();
+    for (var characteristicArgs in characteristicsArgs) {
+      final characteristic = _characteristics[characteristicArgs.hashCodeArgs];
+      if (characteristic == null) {
+        throw ArgumentError.notNull();
+      }
+      final cccDescriptorArgs = characteristicArgs.descriptorsArgs
+          .cast<MyMutableGATTDescriptorArgs>()
+          .firstWhere((args) => args.uuidArgs == cccUUIDArgs);
+      _cccdCharacteristics[cccDescriptorArgs.hashCodeArgs] = characteristic;
+    }
   }
 
-  Future<void> _trySendResponse(
+  void _removeService(GATTService service) {
+    for (var includedService in service.includedServices) {
+      _removeService(includedService);
+    }
+    for (var characteristic in service.characteristics) {
+      for (var descriptor in characteristic.descriptors) {
+        final hashCodeArgs = descriptor.hashCode;
+        _descriptors.remove(hashCodeArgs);
+        _cccdCharacteristics.remove(hashCodeArgs);
+      }
+      final hashCodeArgs = characteristic.hashCode;
+      _characteristics.remove(hashCodeArgs);
+    }
+  }
+
+  Uint8List _retrieveCCCValue(String addressArgs, int hashCodeArgs) {
+    final values = _cccdValues[addressArgs];
+    if (values == null) {
+      throw ArgumentError.notNull();
+    }
+    final value = values[hashCodeArgs];
+    return value ?? _args.disableNotificationValue;
+  }
+
+  Future<void> _initialize() async {
+    // Here we use `Future()` to make it possible to change the `logLevel` before `initialize()`.
+    await Future(() async {
+      try {
+        logger.info('initialize');
+        _args = await _api.initialize();
+        _getState();
+      } catch (e) {
+        logger.severe('initialize failed.', e);
+      }
+    });
+  }
+
+  Future<void> _getState() async {
+    try {
+      logger.info('getState');
+      final stateArgs = await _api.getState();
+      onStateChanged(stateArgs);
+    } catch (e) {
+      logger.severe('getState failed.', e);
+    }
+  }
+
+  Future<void> _openGATTServer() async {
+    try {
+      logger.info('openGATTServer');
+      await _api.openGATTServer();
+    } catch (e) {
+      logger.severe('openGATTServer failed.', e);
+    }
+  }
+
+  Future<void> _closeGATTServer() async {
+    try {
+      logger.info('closeGATTServer');
+      await _api.closeGATTServer();
+    } catch (e) {
+      logger.severe('closeGATTServer failed.', e);
+    }
+  }
+
+  Future<void> _sendResponse(
     String addressArgs,
     int idArgs,
-    MyGattStatusArgs statusArgs,
+    MyGATTStatusArgs statusArgs,
     int offsetArgs,
     Uint8List? valueArgs,
   ) async {
-    final statusNumberArgs = statusArgs.index;
     try {
-      _api.sendResponse(
+      logger.info(
+          'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs');
+      await _api.sendResponse(
         addressArgs,
         idArgs,
-        statusNumberArgs,
+        statusArgs,
         offsetArgs,
         valueArgs,
       );
-    } catch (e, stack) {
-      logger.shout('Send response failed.', e, stack);
+    } catch (e) {
+      logger.severe('sendResponse failed.', e);
     }
-  }
-
-  Uint8List _onCharacteristicRead(
-    MyCentral central,
-    MyGattCharacteristic characteristic,
-    int offset,
-  ) {
-    final value = characteristic.value;
-    final trimmedValue = value.sublist(offset);
-    if (offset == 0) {
-      final eventArgs = GattCharacteristicReadEventArgs(
-        central,
-        characteristic,
-        value,
-      );
-      _characteristicReadController.add(eventArgs);
-    }
-    return trimmedValue;
-  }
-
-  void _onCharacteristicWritten(
-    MyCentral central,
-    MyGattCharacteristic characteristic,
-    Uint8List value,
-  ) async {
-    characteristic.value = value;
-    final trimmedValue = characteristic.value;
-    final eventArgs = GattCharacteristicWrittenEventArgs(
-      central,
-      characteristic,
-      trimmedValue,
-    );
-    _characteristicWrittenController.add(eventArgs);
   }
 }
