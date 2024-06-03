@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
 import 'package:bluetooth_low_energy_example/view_models.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 import 'log_view.dart';
 
@@ -12,7 +15,6 @@ class PeripheralManagerView extends StatelessWidget {
     final viewModel = ViewModel.of<PeripheralManagerViewModel>(context);
     final state = viewModel.state;
     final advertising = viewModel.advertising;
-    final logs = viewModel.logs;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Peripheral Manager'),
@@ -31,23 +33,44 @@ class PeripheralManagerView extends StatelessWidget {
           ),
         ],
       ),
-      body: state == BluetoothLowEnergyState.poweredOn
-          ? ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemBuilder: (context, i) {
-                final log = logs[i];
-                return LogView(
-                  log: log,
-                );
-              },
-              itemCount: logs.length,
-            )
-          : Center(
-              child: Text(
-                '$state',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
+      body: buildBody(context),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => viewModel.clearLogs(),
+        child: const Icon(Symbols.delete),
+      ),
     );
+  }
+
+  Widget buildBody(BuildContext context) {
+    final viewModel = ViewModel.of<PeripheralManagerViewModel>(context);
+    final state = viewModel.state;
+    final isMobile = Platform.isAndroid || Platform.isIOS;
+    if (state == BluetoothLowEnergyState.unauthorized && isMobile) {
+      return Center(
+        child: TextButton(
+          onPressed: () => viewModel.showAppSettings(),
+          child: const Text('Go to settings'),
+        ),
+      );
+    } else if (state == BluetoothLowEnergyState.poweredOn) {
+      final logs = viewModel.logs;
+      return ListView.builder(
+        padding: const EdgeInsets.all(16.0),
+        itemBuilder: (context, i) {
+          final log = logs[i];
+          return LogView(
+            log: log,
+          );
+        },
+        itemCount: logs.length,
+      );
+    } else {
+      return Center(
+        child: Text(
+          '$state',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+      );
+    }
   }
 }

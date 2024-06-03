@@ -71,10 +71,34 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
         mAddServiceCompletion = nil
         mStartAdvertisingCompletion = nil
         
-        if mPeripheralManager.delegate == nil {
-            mPeripheralManager.delegate = mPeripheralManagerDelegate
+        mPeripheralManager.delegate = mPeripheralManagerDelegate
+    }
+
+    func getState() throws -> MyBluetoothLowEnergyStateArgs {
+        let state = mPeripheralManager.state
+        let stateArgs = state.toArgs()
+        return stateArgs
+    }
+    
+    func showAppSettings(completion: @escaping (Result<Void, any Error>) -> Void) {
+#if os(iOS)
+        do {
+            guard let url = URL(string: UIApplication.openSettingsURLString) else {
+                throw MyError.illegalArgument
+            }
+            UIApplication.shared.open(url) { success in
+                if (success) {
+                    completion(.success(()))
+                } else {
+                    completion(.failure(MyError.unknown))
+                }
+            }
+        } catch {
+            completion(.failure(error))
         }
-        didUpdateState(peripheral: mPeripheralManager)
+#else
+        completion(.failure(MyError.unsupported))
+#endif
     }
     
     func addService(serviceArgs: MyMutableGATTServiceArgs, completion: @escaping (Result<Void, Error>) -> Void) {

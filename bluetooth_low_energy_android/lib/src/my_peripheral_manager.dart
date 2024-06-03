@@ -125,7 +125,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   @override
   Future<void> showAppSettings() async {
     logger.info('showAppSettings');
-    await _api.authorize();
+    await _api.showAppSettings();
   }
 
   @override

@@ -36,6 +36,10 @@ class CentralManagerViewModel extends ViewModel {
   bool get discovering => _discovering;
   List<DiscoveredEventArgs> get discoveries => _discoveries;
 
+  Future<void> showAppSettings() async {
+    await _manager.showAppSettings();
+  }
+
   Future<void> startDiscovery({
     List<UUID>? serviceUUIDs,
   }) async {

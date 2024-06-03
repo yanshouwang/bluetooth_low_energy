@@ -295,9 +295,6 @@ extension CBUUID {
     }
 }
 
-// This extension of Error is required to do use FlutterError in any Swift code.
-extension FlutterError: Error {}
-
 extension UInt16 {
     var data: Data {
         var bytes = self

@@ -1,7 +1,7 @@
 // Run with `dart run pigeon --input my_api.dart`.
 import 'package:pigeon/pigeon.dart';
 
-// TODO: use `@ProxyApi` to manage instancs when this feature released:
+// TODO: Use `@ProxyApi` to manage instancs when this feature released:
 // https://github.com/flutter/flutter/issues/147486
 @ConfigurePigeon(
   PigeonOptions(
@@ -204,6 +204,9 @@ class MyATTRequestArgs {
 @HostApi()
 abstract class MyCentralManagerHostAPI {
   void initialize();
+  MyBluetoothLowEnergyStateArgs getState();
+  @async
+  void showAppSettings();
   void startDiscovery(List<String> serviceUUIDsArgs);
   void stopDiscovery();
   List<MyPeripheralArgs> retrieveConnectedPeripherals();
@@ -277,6 +280,9 @@ abstract class MyCentralManagerFlutterAPI {
 @HostApi()
 abstract class MyPeripheralManagerHostAPI {
   void initialize();
+  MyBluetoothLowEnergyStateArgs getState();
+  @async
+  void showAppSettings();
   @async
   void addService(MyMutableGATTServiceArgs serviceArgs);
   void removeService(int hashCodeArgs);

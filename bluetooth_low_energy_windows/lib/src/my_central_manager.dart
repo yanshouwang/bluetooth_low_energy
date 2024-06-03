@@ -299,12 +299,12 @@ final class MyCentralManager extends PlatformCentralManager
         typeArgs,
         advertisementArgs,
       );
+      // TODO: Should we ignore this?
       final ignored = oldDiscoveryArgs == null ||
           _checkDiscoveryArgs(oldDiscoveryArgs, newDiscoveryArgs);
       if (ignored) {
         // Note that ADV_IND will be ignored if the advertiser never reply the
         // SCAN_REQ.
-        // TODO: should we ignore this?
         _discoveriesArgs[addressArgs] = newDiscoveryArgs;
       } else {
         final peripheral = oldDiscoveryArgs.peripheralArgs.toPeripheral();

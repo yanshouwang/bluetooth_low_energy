@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:bluetooth_low_energy_darwin_example/view_models.dart';
 import 'package:bluetooth_low_energy_darwin_example/widgets.dart';
@@ -14,7 +16,6 @@ class CentralManagerView extends StatelessWidget {
     final viewModel = ViewModel.of<CentralManagerViewModel>(context);
     final state = viewModel.state;
     final discovering = viewModel.discovering;
-    final discoveries = viewModel.discoveries;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Central Manager'),
@@ -33,52 +34,68 @@ class CentralManagerView extends StatelessWidget {
           ),
         ],
       ),
-      body: state == BluetoothLowEnergyState.poweredOn
-          ? ListView.separated(
-              itemBuilder: (context, index) {
-                final theme = Theme.of(context);
-                final discovery = discoveries[index];
-                final uuid = discovery.peripheral.uuid;
-                final name = discovery.advertisement.name;
-                final rssi = discovery.rssi;
-                return ListTile(
-                  onTap: () {
-                    onTapDissovery(context, discovery);
-                  },
-                  onLongPress: () {
-                    onLongPressDiscovery(context, discovery);
-                  },
-                  title: Text(name ?? ''),
-                  subtitle: Text(
-                    '$uuid',
-                    style: theme.textTheme.bodySmall,
-                    softWrap: false,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      RSSIIndicator(rssi),
-                      Text('$rssi'),
-                    ],
-                  ),
-                );
-              },
-              separatorBuilder: (context, i) {
-                return const Divider(
-                  height: 0.0,
-                );
-              },
-              itemCount: discoveries.length,
-            )
-          : Center(
-              child: Text(
-                '$state',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
+      body: buildBody(context),
     );
+  }
+
+  Widget buildBody(BuildContext context) {
+    final viewModel = ViewModel.of<CentralManagerViewModel>(context);
+    final state = viewModel.state;
+    if (state == BluetoothLowEnergyState.unauthorized && Platform.isIOS) {
+      return Center(
+        child: TextButton(
+          onPressed: () => viewModel.showAppSettings(),
+          child: const Text('Go to settings'),
+        ),
+      );
+    } else if (state == BluetoothLowEnergyState.poweredOn) {
+      final discoveries = viewModel.discoveries;
+      return ListView.separated(
+        itemBuilder: (context, index) {
+          final theme = Theme.of(context);
+          final discovery = discoveries[index];
+          final uuid = discovery.peripheral.uuid;
+          final name = discovery.advertisement.name;
+          final rssi = discovery.rssi;
+          return ListTile(
+            onTap: () {
+              onTapDissovery(context, discovery);
+            },
+            onLongPress: () {
+              onLongPressDiscovery(context, discovery);
+            },
+            title: Text(name ?? ''),
+            subtitle: Text(
+              '$uuid',
+              style: theme.textTheme.bodySmall,
+              softWrap: false,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                RSSIIndicator(rssi),
+                Text('$rssi'),
+              ],
+            ),
+          );
+        },
+        separatorBuilder: (context, i) {
+          return const Divider(
+            height: 0.0,
+          );
+        },
+        itemCount: discoveries.length,
+      );
+    } else {
+      return Center(
+        child: Text(
+          '$state',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+      );
+    }
   }
 
   void onTapDissovery(

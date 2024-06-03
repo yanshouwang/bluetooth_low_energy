@@ -471,6 +471,8 @@ class MyCentralManagerHostAPICodec: FlutterStandardMessageCodec {
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol MyCentralManagerHostAPI {
   func initialize() throws
+  func getState() throws -> MyBluetoothLowEnergyStateArgs
+  func showAppSettings(completion: @escaping (Result<Void, Error>) -> Void)
   func startDiscovery(serviceUUIDsArgs: [String]) throws
   func stopDiscovery() throws
   func retrieveConnectedPeripherals() throws -> [MyPeripheralArgs]
@@ -508,6 +510,34 @@ class MyCentralManagerHostAPISetup {
       }
     } else {
       initializeChannel.setMessageHandler(nil)
+    }
+    let getStateChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerHostAPI.getState\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      getStateChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.getState()
+          reply(wrapResult(result.rawValue))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      getStateChannel.setMessageHandler(nil)
+    }
+    let showAppSettingsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerHostAPI.showAppSettings\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      showAppSettingsChannel.setMessageHandler { _, reply in
+        api.showAppSettings { result in
+          switch result {
+          case .success:
+            reply(wrapResult(nil))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      showAppSettingsChannel.setMessageHandler(nil)
     }
     let startDiscoveryChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerHostAPI.startDiscovery\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
@@ -979,6 +1009,8 @@ class MyPeripheralManagerHostAPICodec: FlutterStandardMessageCodec {
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol MyPeripheralManagerHostAPI {
   func initialize() throws
+  func getState() throws -> MyBluetoothLowEnergyStateArgs
+  func showAppSettings(completion: @escaping (Result<Void, Error>) -> Void)
   func addService(serviceArgs: MyMutableGATTServiceArgs, completion: @escaping (Result<Void, Error>) -> Void)
   func removeService(hashCodeArgs: Int64) throws
   func removeAllServices() throws
@@ -1008,6 +1040,34 @@ class MyPeripheralManagerHostAPISetup {
       }
     } else {
       initializeChannel.setMessageHandler(nil)
+    }
+    let getStateChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerHostAPI.getState\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      getStateChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.getState()
+          reply(wrapResult(result.rawValue))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      getStateChannel.setMessageHandler(nil)
+    }
+    let showAppSettingsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerHostAPI.showAppSettings\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      showAppSettingsChannel.setMessageHandler { _, reply in
+        api.showAppSettings { result in
+          switch result {
+          case .success:
+            reply(wrapResult(nil))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      showAppSettingsChannel.setMessageHandler(nil)
     }
     let addServiceChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerHostAPI.addService\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {

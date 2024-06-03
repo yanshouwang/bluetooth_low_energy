@@ -93,10 +93,34 @@ class MyCentralManager: MyCentralManagerHostAPI {
         mReadDescriptorCompletions.removeAll()
         mWriteDescriptorCompletions.removeAll()
         
-        if mCentralManager.delegate == nil {
-            mCentralManager.delegate = mCentralManagerDelegate
+        mCentralManager.delegate = mCentralManagerDelegate
+    }
+    
+    func getState() throws -> MyBluetoothLowEnergyStateArgs {
+        let state = mCentralManager.state
+        let stateArgs = state.toArgs()
+        return stateArgs
+    }
+    
+    func showAppSettings(completion: @escaping (Result<Void, any Error>) -> Void) {
+#if os(iOS)
+        do {
+            guard let url = URL(string: UIApplication.openSettingsURLString) else {
+                throw MyError.illegalArgument
+            }
+            UIApplication.shared.open(url) { success in
+                if (success) {
+                    completion(.success(()))
+                } else {
+                    completion(.failure(MyError.unknown))
+                }
+            }
+        } catch {
+            completion(.failure(error))
         }
-        didUpdateState(central: mCentralManager)
+#else
+        completion(.failure(MyError.unsupported))
+#endif
     }
     
     func startDiscovery(serviceUUIDsArgs: [String]) throws {

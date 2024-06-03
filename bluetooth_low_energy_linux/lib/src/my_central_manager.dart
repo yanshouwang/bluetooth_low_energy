@@ -79,30 +79,8 @@ final class MyCentralManager extends PlatformCentralManager {
       _blueZServicesResolvedController.stream;
 
   @override
-  void initialize() async {
-    // Here we use `Future()` to make it possible to change the `logLevel` before `initialize()`.
-    await Future(() async {
-      try {
-        logger.info('initialize');
-        await _blueZClient.connect();
-        if (_blueZClient.adapters.isEmpty) {
-          state = BluetoothLowEnergyState.unsupported;
-        } else {
-          state = _blueZAdapter.myState;
-          _blueZAdapter.propertiesChanged
-              .listen(_onBlueZAdapterPropertiesChanged);
-          for (var blueZDevice in _blueZClient.devices) {
-            if (blueZDevice.adapter.address != _blueZAdapter.address) {
-              continue;
-            }
-            _beginBlueZDevicePropertiesChangedListener(blueZDevice);
-          }
-          _blueZClient.deviceAdded.listen(_onBlueZClientDeviceAdded);
-        }
-      } catch (e) {
-        logger.severe('initialize failed.', e);
-      }
-    });
+  void initialize() {
+    _initialize();
   }
 
   @override
@@ -457,5 +435,31 @@ final class MyCentralManager extends PlatformCentralManager {
         subscription?.cancel();
       }
     }
+  }
+
+  Future<void> _initialize() async {
+    // Here we use `Future()` to make it possible to change the `logLevel` before `initialize()`.
+    await Future(() async {
+      try {
+        logger.info('initialize');
+        await _blueZClient.connect();
+        if (_blueZClient.adapters.isEmpty) {
+          state = BluetoothLowEnergyState.unsupported;
+        } else {
+          state = _blueZAdapter.myState;
+          _blueZAdapter.propertiesChanged
+              .listen(_onBlueZAdapterPropertiesChanged);
+          for (var blueZDevice in _blueZClient.devices) {
+            if (blueZDevice.adapter.address != _blueZAdapter.address) {
+              continue;
+            }
+            _beginBlueZDevicePropertiesChangedListener(blueZDevice);
+          }
+          _blueZClient.deviceAdded.listen(_onBlueZClientDeviceAdded);
+        }
+      } catch (e) {
+        logger.severe('initialize failed.', e);
+      }
+    });
   }
 }

@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_darwin/src/my_gatt.dart';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
-import 'package:flutter/foundation.dart';
 
 import 'my_api.dart';
 import 'my_api.g.dart';
@@ -82,8 +82,14 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
-  Future<void> showAppSettings() {
-    throw UnsupportedError('showAppSettings is not supported on Darwin.');
+  Future<void> showAppSettings() async {
+    if (Platform.isIOS) {
+      logger.info('showAppSettings');
+      await _api.showAppSettings();
+    } else {
+      throw UnsupportedError(
+          'showAppSettings is not supported on ${Platform.operatingSystem}.');
+    }
   }
 
   @override
@@ -369,10 +375,21 @@ final class MyPeripheralManager extends PlatformPeripheralManager
       try {
         logger.info('initialize');
         await _api.initialize();
+        _getState();
       } catch (e) {
         logger.severe('initialize failed.', e);
       }
     });
+  }
+
+  Future<void> _getState() async {
+    try {
+      logger.info('getState');
+      final stateArgs = await _api.getState();
+      onStateChanged(stateArgs);
+    } catch (e) {
+      logger.severe('getState failed.', e);
+    }
   }
 
   Future<void> _respond(

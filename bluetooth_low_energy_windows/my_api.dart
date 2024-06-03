@@ -1,7 +1,7 @@
 // Run with `dart run pigeon --input my_api.dart`.
 import 'package:pigeon/pigeon.dart';
 
-// TODO: use `@ProxyApi` to manage instancs when this feature released:
+// TODO: Use `@ProxyApi` to manage instancs when this feature released:
 // https://github.com/flutter/flutter/issues/147486
 @ConfigurePigeon(
   PigeonOptions(

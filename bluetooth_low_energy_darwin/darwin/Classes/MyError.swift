@@ -8,6 +8,7 @@
 import Foundation
 
 enum MyError: Error {
-    case illegalArgument
     case unknown
+    case unsupported
+    case illegalArgument
 }

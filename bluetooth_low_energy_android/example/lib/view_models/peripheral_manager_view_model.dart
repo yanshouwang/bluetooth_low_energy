@@ -93,6 +93,10 @@ class PeripheralManagerViewModel extends ViewModel {
   bool get advertising => _advertising;
   List<Log> get logs => _logs;
 
+  Future<void> showAppSettings() async {
+    await _manager.showAppSettings();
+  }
+
   Future<void> startAdvertising() async {
     if (_advertising) {
       return;

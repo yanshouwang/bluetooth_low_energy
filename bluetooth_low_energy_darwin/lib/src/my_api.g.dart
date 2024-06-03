@@ -493,6 +493,55 @@ class MyCentralManagerHostAPI {
     }
   }
 
+  Future<MyBluetoothLowEnergyStateArgs> getState() async {
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerHostAPI.getState$__pigeon_messageChannelSuffix';
+    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+      __pigeon_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: __pigeon_binaryMessenger,
+    );
+    final List<Object?>? __pigeon_replyList =
+        await __pigeon_channel.send(null) as List<Object?>?;
+    if (__pigeon_replyList == null) {
+      throw _createConnectionError(__pigeon_channelName);
+    } else if (__pigeon_replyList.length > 1) {
+      throw PlatformException(
+        code: __pigeon_replyList[0]! as String,
+        message: __pigeon_replyList[1] as String?,
+        details: __pigeon_replyList[2],
+      );
+    } else if (__pigeon_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return MyBluetoothLowEnergyStateArgs.values[__pigeon_replyList[0]! as int];
+    }
+  }
+
+  Future<void> showAppSettings() async {
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerHostAPI.showAppSettings$__pigeon_messageChannelSuffix';
+    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+      __pigeon_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: __pigeon_binaryMessenger,
+    );
+    final List<Object?>? __pigeon_replyList =
+        await __pigeon_channel.send(null) as List<Object?>?;
+    if (__pigeon_replyList == null) {
+      throw _createConnectionError(__pigeon_channelName);
+    } else if (__pigeon_replyList.length > 1) {
+      throw PlatformException(
+        code: __pigeon_replyList[0]! as String,
+        message: __pigeon_replyList[1] as String?,
+        details: __pigeon_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
   Future<void> startDiscovery(List<String?> serviceUUIDsArgs) async {
     final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_darwin.MyCentralManagerHostAPI.startDiscovery$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
@@ -1113,6 +1162,55 @@ class MyPeripheralManagerHostAPI {
 
   Future<void> initialize() async {
     final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerHostAPI.initialize$__pigeon_messageChannelSuffix';
+    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+      __pigeon_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: __pigeon_binaryMessenger,
+    );
+    final List<Object?>? __pigeon_replyList =
+        await __pigeon_channel.send(null) as List<Object?>?;
+    if (__pigeon_replyList == null) {
+      throw _createConnectionError(__pigeon_channelName);
+    } else if (__pigeon_replyList.length > 1) {
+      throw PlatformException(
+        code: __pigeon_replyList[0]! as String,
+        message: __pigeon_replyList[1] as String?,
+        details: __pigeon_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<MyBluetoothLowEnergyStateArgs> getState() async {
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerHostAPI.getState$__pigeon_messageChannelSuffix';
+    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+      __pigeon_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: __pigeon_binaryMessenger,
+    );
+    final List<Object?>? __pigeon_replyList =
+        await __pigeon_channel.send(null) as List<Object?>?;
+    if (__pigeon_replyList == null) {
+      throw _createConnectionError(__pigeon_channelName);
+    } else if (__pigeon_replyList.length > 1) {
+      throw PlatformException(
+        code: __pigeon_replyList[0]! as String,
+        message: __pigeon_replyList[1] as String?,
+        details: __pigeon_replyList[2],
+      );
+    } else if (__pigeon_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return MyBluetoothLowEnergyStateArgs.values[__pigeon_replyList[0]! as int];
+    }
+  }
+
+  Future<void> showAppSettings() async {
+    final String __pigeon_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_darwin.MyPeripheralManagerHostAPI.showAppSettings$__pigeon_messageChannelSuffix';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
