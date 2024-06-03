@@ -17,107 +17,107 @@ import FlutterMacOS
 #endif
 
 class MyCentralManager: MyCentralManagerHostAPI {
-    private let api: MyCentralManagerFlutterAPI
-    private let centralManager: CBCentralManager
+    private let mAPI: MyCentralManagerFlutterAPI
+    private let mCentralManager: CBCentralManager
     
-    private lazy var centralManagerDelegate = MyCentralManagerDelegate(centralManager: self)
+    private lazy var mCentralManagerDelegate = MyCentralManagerDelegate(centralManager: self)
     private lazy var peripheralDelegate = MyPeripheralDelegate(centralManager: self)
     
-    private var peripherals: [String: CBPeripheral]
-    private var services: [String: [Int64: CBService]]
-    private var characteristics: [String: [Int64: CBCharacteristic]]
-    private var descriptors: [String: [Int64: CBDescriptor]]
+    private var mPeripherals: [String: CBPeripheral]
+    private var mServices: [String: [Int64: CBService]]
+    private var mCharacteristics: [String: [Int64: CBCharacteristic]]
+    private var mDescriptors: [String: [Int64: CBDescriptor]]
     
-    private var connectCompletions: [String: (Result<Void, Error>) -> Void]
-    private var disconnectCompletions: [String: (Result<Void, Error>) -> Void]
-    private var readRSSICompletions: [String: (Result<Int64, Error>) -> Void]
-    private var discoverServicesCompletions: [String: (Result<[MyGATTServiceArgs], Error>) -> Void]
-    private var discoverIncludedServicesCompletions: [String: [Int64: (Result<[MyGATTServiceArgs], Error>) -> Void]]
-    private var discoverCharacteristicsCompletions: [String: [Int64: (Result<[MyGATTCharacteristicArgs], Error>) -> Void]]
-    private var discoverDescriptorsCompletions: [String: [Int64: (Result<[MyGATTDescriptorArgs], Error>) -> Void]]
-    private var readCharacteristicCompletions: [String: [Int64: (Result<FlutterStandardTypedData, Error>) -> Void]]
-    private var writeCharacteristicCompletions: [String: [Int64: (Result<Void, Error>) -> Void]]
-    private var setCharacteristicNotifyStateCompletions: [String: [Int64: (Result<Void, Error>) -> Void]]
-    private var readDescriptorCompletions: [String: [Int64: (Result<FlutterStandardTypedData, Error>) -> Void]]
-    private var writeDescriptorCompletions: [String: [Int64: (Result<Void, Error>) -> Void]]
+    private var mConnectCompletions: [String: (Result<Void, Error>) -> Void]
+    private var mDisconnectCompletions: [String: (Result<Void, Error>) -> Void]
+    private var mReadRSSICompletions: [String: (Result<Int64, Error>) -> Void]
+    private var mDiscoverServicesCompletions: [String: (Result<[MyGATTServiceArgs], Error>) -> Void]
+    private var mDiscoverIncludedServicesCompletions: [String: [Int64: (Result<[MyGATTServiceArgs], Error>) -> Void]]
+    private var mDiscoverCharacteristicsCompletions: [String: [Int64: (Result<[MyGATTCharacteristicArgs], Error>) -> Void]]
+    private var mDiscoverDescriptorsCompletions: [String: [Int64: (Result<[MyGATTDescriptorArgs], Error>) -> Void]]
+    private var mReadCharacteristicCompletions: [String: [Int64: (Result<FlutterStandardTypedData, Error>) -> Void]]
+    private var mWriteCharacteristicCompletions: [String: [Int64: (Result<Void, Error>) -> Void]]
+    private var mSetCharacteristicNotifyStateCompletions: [String: [Int64: (Result<Void, Error>) -> Void]]
+    private var mReadDescriptorCompletions: [String: [Int64: (Result<FlutterStandardTypedData, Error>) -> Void]]
+    private var mWriteDescriptorCompletions: [String: [Int64: (Result<Void, Error>) -> Void]]
     
     init(messenger: FlutterBinaryMessenger) {
-        api = MyCentralManagerFlutterAPI(binaryMessenger: messenger)
-        centralManager = CBCentralManager()
+        mAPI = MyCentralManagerFlutterAPI(binaryMessenger: messenger)
+        mCentralManager = CBCentralManager()
         
-        peripherals = [:]
-        services = [:]
-        characteristics = [:]
-        descriptors = [:]
+        mPeripherals = [:]
+        mServices = [:]
+        mCharacteristics = [:]
+        mDescriptors = [:]
         
-        connectCompletions = [:]
-        disconnectCompletions = [:]
-        readRSSICompletions = [:]
-        discoverServicesCompletions = [:]
-        discoverIncludedServicesCompletions = [:]
-        discoverCharacteristicsCompletions = [:]
-        discoverDescriptorsCompletions = [:]
-        readCharacteristicCompletions = [:]
-        writeCharacteristicCompletions = [:]
-        setCharacteristicNotifyStateCompletions = [:]
-        readDescriptorCompletions = [:]
-        writeDescriptorCompletions = [:]
+        mConnectCompletions = [:]
+        mDisconnectCompletions = [:]
+        mReadRSSICompletions = [:]
+        mDiscoverServicesCompletions = [:]
+        mDiscoverIncludedServicesCompletions = [:]
+        mDiscoverCharacteristicsCompletions = [:]
+        mDiscoverDescriptorsCompletions = [:]
+        mReadCharacteristicCompletions = [:]
+        mWriteCharacteristicCompletions = [:]
+        mSetCharacteristicNotifyStateCompletions = [:]
+        mReadDescriptorCompletions = [:]
+        mWriteDescriptorCompletions = [:]
     }
     
     func initialize() throws {
-        if(centralManager.isScanning) {
-            centralManager.stopScan()
+        if(mCentralManager.isScanning) {
+            mCentralManager.stopScan()
         }
         
-        for peripheral in peripherals.values {
+        for peripheral in mPeripherals.values {
             if peripheral.state != .disconnected {
-                centralManager.cancelPeripheralConnection(peripheral)
+                mCentralManager.cancelPeripheralConnection(peripheral)
             }
         }
         
-        peripherals.removeAll()
-        services.removeAll()
-        characteristics.removeAll()
-        descriptors.removeAll()
+        mPeripherals.removeAll()
+        mServices.removeAll()
+        mCharacteristics.removeAll()
+        mDescriptors.removeAll()
         
-        connectCompletions.removeAll()
-        disconnectCompletions.removeAll()
-        readRSSICompletions.removeAll()
-        discoverServicesCompletions.removeAll()
-        discoverIncludedServicesCompletions.removeAll()
-        discoverCharacteristicsCompletions.removeAll()
-        discoverDescriptorsCompletions.removeAll()
-        readCharacteristicCompletions.removeAll()
-        writeCharacteristicCompletions.removeAll()
-        setCharacteristicNotifyStateCompletions.removeAll()
-        readDescriptorCompletions.removeAll()
-        writeDescriptorCompletions.removeAll()
+        mConnectCompletions.removeAll()
+        mDisconnectCompletions.removeAll()
+        mReadRSSICompletions.removeAll()
+        mDiscoverServicesCompletions.removeAll()
+        mDiscoverIncludedServicesCompletions.removeAll()
+        mDiscoverCharacteristicsCompletions.removeAll()
+        mDiscoverDescriptorsCompletions.removeAll()
+        mReadCharacteristicCompletions.removeAll()
+        mWriteCharacteristicCompletions.removeAll()
+        mSetCharacteristicNotifyStateCompletions.removeAll()
+        mReadDescriptorCompletions.removeAll()
+        mWriteDescriptorCompletions.removeAll()
         
-        if centralManager.delegate == nil {
-            centralManager.delegate = centralManagerDelegate
+        if mCentralManager.delegate == nil {
+            mCentralManager.delegate = mCentralManagerDelegate
         }
-        didUpdateState(central: centralManager)
+        didUpdateState(central: mCentralManager)
     }
     
     func startDiscovery(serviceUUIDsArgs: [String]) throws {
         let serviceUUIDs = serviceUUIDsArgs.isEmpty ? nil : serviceUUIDsArgs.map { serviceUUIDArgs in serviceUUIDArgs.toCBUUID() }
         let options = [CBCentralManagerScanOptionAllowDuplicatesKey: true]
-        centralManager.scanForPeripherals(withServices: serviceUUIDs, options: options)
+        mCentralManager.scanForPeripherals(withServices: serviceUUIDs, options: options)
     }
     
     func stopDiscovery() throws {
-        centralManager.stopScan()
+        mCentralManager.stopScan()
     }
     
     func retrieveConnectedPeripherals() throws -> [MyPeripheralArgs] {
-        let peripherals = centralManager.retrieveConnectedPeripherals(withServices: [])
+        let peripherals = mCentralManager.retrieveConnectedPeripherals(withServices: [])
         let peripheralsArgs = peripherals.map { peripheral in
             let peripheralArgs = peripheral.toArgs()
             let uuidArgs = peripheralArgs.uuidArgs
             if peripheral.delegate == nil {
                 peripheral.delegate = peripheralDelegate
             }
-            self.peripherals[uuidArgs] = peripheral
+            self.mPeripherals[uuidArgs] = peripheral
             return peripheralArgs
         }
         return peripheralsArgs
@@ -126,8 +126,8 @@ class MyCentralManager: MyCentralManagerHostAPI {
     func connect(uuidArgs: String, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             let peripheral = try retrievePeripheral(uuidArgs: uuidArgs)
-            centralManager.connect(peripheral)
-            connectCompletions[uuidArgs] = completion
+            mCentralManager.connect(peripheral)
+            mConnectCompletions[uuidArgs] = completion
         } catch {
             completion(.failure(error))
         }
@@ -136,8 +136,8 @@ class MyCentralManager: MyCentralManagerHostAPI {
     func disconnect(uuidArgs: String, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             let peripheral = try retrievePeripheral(uuidArgs: uuidArgs)
-            centralManager.cancelPeripheralConnection(peripheral)
-            disconnectCompletions[uuidArgs] = completion
+            mCentralManager.cancelPeripheralConnection(peripheral)
+            mDisconnectCompletions[uuidArgs] = completion
         } catch {
             completion(.failure(error))
         }
@@ -155,7 +155,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         do {
             let peripheral = try retrievePeripheral(uuidArgs: uuidArgs)
             peripheral.readRSSI()
-            readRSSICompletions[uuidArgs] = completion
+            mReadRSSICompletions[uuidArgs] = completion
         } catch {
             completion(.failure(error))
         }
@@ -165,7 +165,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         do {
             let peripheral = try retrievePeripheral(uuidArgs: uuidArgs)
             peripheral.discoverServices(nil)
-            discoverServicesCompletions[uuidArgs] = completion
+            mDiscoverServicesCompletions[uuidArgs] = completion
         } catch {
             completion(.failure(error))
         }
@@ -176,7 +176,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
             let peripheral = try retrievePeripheral(uuidArgs: uuidArgs)
             let service = try retrieveService(uuidArgs: uuidArgs, hashCodeArgs: hashCodeArgs)
             peripheral.discoverIncludedServices(nil, for: service)
-            discoverIncludedServicesCompletions[uuidArgs, default: [:]][hashCodeArgs] = completion
+            mDiscoverIncludedServicesCompletions[uuidArgs, default: [:]][hashCodeArgs] = completion
         } catch {
             completion(.failure(error))
         }
@@ -187,7 +187,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
             let peripheral = try retrievePeripheral(uuidArgs: uuidArgs)
             let service = try retrieveService(uuidArgs: uuidArgs, hashCodeArgs: hashCodeArgs)
             peripheral.discoverCharacteristics(nil, for: service)
-            discoverCharacteristicsCompletions[uuidArgs, default: [:]][hashCodeArgs] = completion
+            mDiscoverCharacteristicsCompletions[uuidArgs, default: [:]][hashCodeArgs] = completion
         } catch {
             completion(.failure(error))
         }
@@ -198,7 +198,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
             let peripheral = try retrievePeripheral(uuidArgs: uuidArgs)
             let characteristic = try retrieveCharacteristic(uuidArgs: uuidArgs, hashCodeArgs: hashCodeArgs)
             peripheral.discoverDescriptors(for: characteristic)
-            discoverDescriptorsCompletions[uuidArgs, default: [:]][hashCodeArgs] = completion
+            mDiscoverDescriptorsCompletions[uuidArgs, default: [:]][hashCodeArgs] = completion
         } catch {
             completion(.failure(error))
         }
@@ -209,7 +209,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
             let peripheral = try retrievePeripheral(uuidArgs: uuidArgs)
             let characteristic = try retrieveCharacteristic(uuidArgs: uuidArgs, hashCodeArgs: hashCodeArgs)
             peripheral.readValue(for: characteristic)
-            readCharacteristicCompletions[uuidArgs, default: [:]][hashCodeArgs] = completion
+            mReadCharacteristicCompletions[uuidArgs, default: [:]][hashCodeArgs] = completion
         } catch {
             completion(.failure(error))
         }
@@ -223,7 +223,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
             let type = typeArgs.toWriteType()
             peripheral.writeValue(data, for: characteristic, type: type)
             if type == .withResponse {
-                writeCharacteristicCompletions[uuidArgs, default: [:]][hashCodeArgs] = completion
+                mWriteCharacteristicCompletions[uuidArgs, default: [:]][hashCodeArgs] = completion
             } else {
                 completion(.success(()))
             }
@@ -238,7 +238,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
             let characteristic = try retrieveCharacteristic(uuidArgs: uuidArgs, hashCodeArgs: hashCodeArgs)
             let enabled = stateArgs
             peripheral.setNotifyValue(enabled, for: characteristic)
-            setCharacteristicNotifyStateCompletions[uuidArgs, default: [:]][hashCodeArgs] = completion
+            mSetCharacteristicNotifyStateCompletions[uuidArgs, default: [:]][hashCodeArgs] = completion
         } catch {
             completion(.failure(error))
         }
@@ -249,7 +249,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
             let peripheral = try retrievePeripheral(uuidArgs: uuidArgs)
             let descriptor = try retrieveDescriptor(uuidArgs: uuidArgs, hashCodeArgs: hashCodeArgs)
             peripheral.readValue(for: descriptor)
-            readDescriptorCompletions[uuidArgs, default: [:]][hashCodeArgs] = completion
+            mReadDescriptorCompletions[uuidArgs, default: [:]][hashCodeArgs] = completion
         } catch {
             completion(.failure(error))
         }
@@ -261,7 +261,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
             let descriptor = try retrieveDescriptor(uuidArgs: uuidArgs, hashCodeArgs: hashCodeArgs)
             let data = valueArgs.data
             peripheral.writeValue(data, for: descriptor)
-            writeDescriptorCompletions[uuidArgs, default: [:]][hashCodeArgs] = completion
+            mWriteDescriptorCompletions[uuidArgs, default: [:]][hashCodeArgs] = completion
         } catch {
             completion(.failure(error))
         }
@@ -270,7 +270,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
     func didUpdateState(central: CBCentralManager) {
         let state = central.state
         let stateArgs = state.toArgs()
-        api.onStateChanged(stateArgs: stateArgs) { _ in }
+        mAPI.onStateChanged(stateArgs: stateArgs) { _ in }
     }
     
     func didDiscover(central: CBCentralManager, peripheral: CBPeripheral, advertisementData: [String : Any], rssi: NSNumber) {
@@ -281,16 +281,16 @@ class MyCentralManager: MyCentralManagerHostAPI {
         if peripheral.delegate == nil {
             peripheral.delegate = peripheralDelegate
         }
-        peripherals[uuidArgs] = peripheral
-        api.onDiscovered(peripheralArgs: peripheralArgs, rssiArgs: rssiArgs, advertisementArgs: advertisementArgs) {_ in }
+        mPeripherals[uuidArgs] = peripheral
+        mAPI.onDiscovered(peripheralArgs: peripheralArgs, rssiArgs: rssiArgs, advertisementArgs: advertisementArgs) {_ in }
     }
     
     func didConnect(central: CBCentralManager, peripheral: CBPeripheral) {
         let peripheralArgs = peripheral.toArgs()
         let uuidArgs = peripheralArgs.uuidArgs
         let stateArgs = MyConnectionStateArgs.connected
-        api.onConnectionStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) { _ in }
-        guard let completion = connectCompletions.removeValue(forKey: uuidArgs) else {
+        mAPI.onConnectionStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) { _ in }
+        guard let completion = mConnectCompletions.removeValue(forKey: uuidArgs) else {
             return
         }
         completion(.success(()))
@@ -298,7 +298,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
     
     func didFailToConnect(central: CBCentralManager, peripheral: CBPeripheral, error: Error?) {
         let uuidArgs = peripheral.identifier.toArgs()
-        guard let completion = connectCompletions.removeValue(forKey: uuidArgs) else {
+        guard let completion = mConnectCompletions.removeValue(forKey: uuidArgs) else {
             return
         }
         completion(.failure(error ?? MyError.unknown))
@@ -307,64 +307,64 @@ class MyCentralManager: MyCentralManagerHostAPI {
     func didDisconnectPeripheral(central: CBCentralManager, peripheral: CBPeripheral, error: Error?) {
         let peripheralArgs = peripheral.toArgs()
         let uuidArgs = peripheralArgs.uuidArgs
-        services.removeValue(forKey: uuidArgs)
-        characteristics.removeValue(forKey: uuidArgs)
-        descriptors.removeValue(forKey: uuidArgs)
+        mServices.removeValue(forKey: uuidArgs)
+        mCharacteristics.removeValue(forKey: uuidArgs)
+        mDescriptors.removeValue(forKey: uuidArgs)
         let errorNotNil = error ?? MyError.unknown
-        let readRssiCompletion = readRSSICompletions.removeValue(forKey: uuidArgs)
+        let readRssiCompletion = mReadRSSICompletions.removeValue(forKey: uuidArgs)
         readRssiCompletion?(.failure(errorNotNil))
-        let discoverServicesCompletion = discoverServicesCompletions.removeValue(forKey: uuidArgs)
+        let discoverServicesCompletion = mDiscoverServicesCompletions.removeValue(forKey: uuidArgs)
         discoverServicesCompletion?(.failure(errorNotNil))
-        let discoverIncludedServicesCompletions = self.discoverIncludedServicesCompletions.removeValue(forKey: uuidArgs)
+        let discoverIncludedServicesCompletions = self.mDiscoverIncludedServicesCompletions.removeValue(forKey: uuidArgs)
         if discoverIncludedServicesCompletions != nil {
             let completions = discoverIncludedServicesCompletions!.values
             for completion in completions {
                 completion(.failure(errorNotNil))
             }
         }
-        let discoverCharacteristicsCompletions = self.discoverCharacteristicsCompletions.removeValue(forKey: uuidArgs)
+        let discoverCharacteristicsCompletions = self.mDiscoverCharacteristicsCompletions.removeValue(forKey: uuidArgs)
         if discoverCharacteristicsCompletions != nil {
             let completions = discoverCharacteristicsCompletions!.values
             for completion in completions {
                 completion(.failure(errorNotNil))
             }
         }
-        let discoverDescriptorsCompletions = self.discoverDescriptorsCompletions.removeValue(forKey: uuidArgs)
+        let discoverDescriptorsCompletions = self.mDiscoverDescriptorsCompletions.removeValue(forKey: uuidArgs)
         if discoverDescriptorsCompletions != nil {
             let completions = discoverDescriptorsCompletions!.values
             for completion in completions {
                 completion(.failure(errorNotNil))
             }
         }
-        let readCharacteristicCompletions = self.readCharacteristicCompletions.removeValue(forKey: uuidArgs)
+        let readCharacteristicCompletions = self.mReadCharacteristicCompletions.removeValue(forKey: uuidArgs)
         if readCharacteristicCompletions != nil {
             let completions = readCharacteristicCompletions!.values
             for completion in completions {
                 completion(.failure(errorNotNil))
             }
         }
-        let writeCharacteristicCompletions = self.writeCharacteristicCompletions.removeValue(forKey: uuidArgs)
+        let writeCharacteristicCompletions = self.mWriteCharacteristicCompletions.removeValue(forKey: uuidArgs)
         if writeCharacteristicCompletions != nil {
             let completions = writeCharacteristicCompletions!.values
             for completion in completions {
                 completion(.failure(errorNotNil))
             }
         }
-        let notifyCharacteristicCompletions = self.setCharacteristicNotifyStateCompletions.removeValue(forKey: uuidArgs)
+        let notifyCharacteristicCompletions = self.mSetCharacteristicNotifyStateCompletions.removeValue(forKey: uuidArgs)
         if notifyCharacteristicCompletions != nil {
             let completions = notifyCharacteristicCompletions!.values
             for completioin in completions {
                 completioin(.failure(errorNotNil))
             }
         }
-        let readDescriptorCompletions = self.readDescriptorCompletions.removeValue(forKey: uuidArgs)
+        let readDescriptorCompletions = self.mReadDescriptorCompletions.removeValue(forKey: uuidArgs)
         if readDescriptorCompletions != nil {
             let completions = readDescriptorCompletions!.values
             for completioin in completions {
                 completioin(.failure(errorNotNil))
             }
         }
-        let writeDescriptorCompletions = self.writeDescriptorCompletions.removeValue(forKey: uuidArgs)
+        let writeDescriptorCompletions = self.mWriteDescriptorCompletions.removeValue(forKey: uuidArgs)
         if writeDescriptorCompletions != nil {
             let completions = writeDescriptorCompletions!.values
             for completion in completions {
@@ -372,8 +372,8 @@ class MyCentralManager: MyCentralManagerHostAPI {
             }
         }
         let stateArgs = MyConnectionStateArgs.disconnected
-        api.onConnectionStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) { _ in }
-        guard let completion = disconnectCompletions.removeValue(forKey: uuidArgs) else {
+        mAPI.onConnectionStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) { _ in }
+        guard let completion = mDisconnectCompletions.removeValue(forKey: uuidArgs) else {
             return
         }
         if error == nil {
@@ -385,7 +385,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
     
     func didReadRSSI(peripheral: CBPeripheral, rssi: NSNumber, error: Error?) {
         let uuidArgs = peripheral.identifier.toArgs()
-        guard let completion = readRSSICompletions.removeValue(forKey: uuidArgs) else {
+        guard let completion = mReadRSSICompletions.removeValue(forKey: uuidArgs) else {
             return
         }
         if error == nil {
@@ -398,7 +398,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
     
     func didDiscoverServices(peripheral: CBPeripheral, error: Error?) {
         let uuidArgs = peripheral.identifier.toArgs()
-        guard let completion = discoverServicesCompletions.removeValue(forKey: uuidArgs) else {
+        guard let completion = mDiscoverServicesCompletions.removeValue(forKey: uuidArgs) else {
             return
         }
         if error == nil {
@@ -406,7 +406,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
             var servicesArgs = [MyGATTServiceArgs]()
             for service in services {
                 let serviceArgs = service.toArgs()
-                self.services[uuidArgs, default: [:]][serviceArgs.hashCodeArgs] = service
+                self.mServices[uuidArgs, default: [:]][serviceArgs.hashCodeArgs] = service
                 servicesArgs.append(serviceArgs)
             }
             completion(.success(servicesArgs))
@@ -418,7 +418,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
     func didDiscoverIncludedServices(peripheral: CBPeripheral, service: CBService, error: Error?) {
         let uuidArgs = peripheral.identifier.toArgs()
         let hashCodeArgs = service.hash.toInt64()
-        guard let completion = discoverIncludedServicesCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
+        guard let completion = mDiscoverIncludedServicesCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
             return
         }
         if error == nil {
@@ -426,7 +426,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
             var includedServicesArgs = [MyGATTServiceArgs]()
             for includedService in includedServices {
                 let includedServiceArgs = includedService.toArgs()
-                self.services[uuidArgs, default: [:]][includedServiceArgs.hashCodeArgs] = includedService
+                self.mServices[uuidArgs, default: [:]][includedServiceArgs.hashCodeArgs] = includedService
                 includedServicesArgs.append(includedServiceArgs)
             }
             completion(.success(includedServicesArgs))
@@ -438,7 +438,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
     func didDiscoverCharacteristics(peripheral: CBPeripheral, service: CBService, error: Error?) {
         let uuidArgs = peripheral.identifier.toArgs()
         let hashCodeArgs = service.hash.toInt64()
-        guard let completion = discoverCharacteristicsCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
+        guard let completion = mDiscoverCharacteristicsCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
             return
         }
         if error == nil {
@@ -446,7 +446,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
             var characteristicsArgs = [MyGATTCharacteristicArgs]()
             for characteristic in characteristics {
                 let characteristicArgs = characteristic.toArgs()
-                self.characteristics[uuidArgs, default: [:]][characteristicArgs.hashCodeArgs] = characteristic
+                self.mCharacteristics[uuidArgs, default: [:]][characteristicArgs.hashCodeArgs] = characteristic
                 characteristicsArgs.append(characteristicArgs)
             }
             completion(.success(characteristicsArgs))
@@ -458,7 +458,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
     func didDiscoverDescriptors(peripheral: CBPeripheral, characteristic: CBCharacteristic, error: Error?) {
         let uuidArgs = peripheral.identifier.toArgs()
         let hashCodeArgs = characteristic.hash.toInt64()
-        guard let completion = discoverDescriptorsCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
+        guard let completion = mDiscoverDescriptorsCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
             return
         }
         if error == nil {
@@ -466,7 +466,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
             var descriptorsArgs = [MyGATTDescriptorArgs]()
             for descriptor in descriptors {
                 let descriptorArgs = descriptor.toArgs()
-                self.descriptors[uuidArgs, default: [:]][descriptorArgs.hashCodeArgs] = descriptor
+                self.mDescriptors[uuidArgs, default: [:]][descriptorArgs.hashCodeArgs] = descriptor
                 descriptorsArgs.append(descriptorArgs)
             }
             completion(.success(descriptorsArgs))
@@ -482,8 +482,8 @@ class MyCentralManager: MyCentralManagerHostAPI {
         let hashCodeArgs = characteristicArgs.hashCodeArgs
         let value = characteristic.value ?? Data()
         let valueArgs = FlutterStandardTypedData(bytes: value)
-        guard let completion = readCharacteristicCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
-            api.onCharacteristicNotified(peripheralArgs: peripheralArgs, characteristicArgs: characteristicArgs, valueArgs: valueArgs) { _ in }
+        guard let completion = mReadCharacteristicCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
+            mAPI.onCharacteristicNotified(peripheralArgs: peripheralArgs, characteristicArgs: characteristicArgs, valueArgs: valueArgs) { _ in }
             return
         }
         if error == nil {
@@ -496,7 +496,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
     func didWriteCharacteristicValue(peripheral: CBPeripheral, characteristic: CBCharacteristic, error: Error?) {
         let uuidArgs = peripheral.identifier.toArgs()
         let hashCodeArgs = characteristic.hash.toInt64()
-        guard let completion = writeCharacteristicCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
+        guard let completion = mWriteCharacteristicCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
             return
         }
         if error == nil {
@@ -509,7 +509,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
     func didUpdateCharacteristicNotificationState(peripheral: CBPeripheral, characteristic: CBCharacteristic, error: Error?) {
         let uuidArgs = peripheral.identifier.toArgs()
         let hashCodeArgs = characteristic.hash.toInt64()
-        guard let completion = setCharacteristicNotifyStateCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
+        guard let completion = mSetCharacteristicNotifyStateCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
             return
         }
         if error == nil {
@@ -522,7 +522,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
     func didUpdateDescriptorValue(peripheral: CBPeripheral, descriptor: CBDescriptor, error: Error?) {
         let uuidArgs = peripheral.identifier.toArgs()
         let hashCodeArgs = descriptor.hash.toInt64()
-        guard let completion = readDescriptorCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
+        guard let completion = mReadDescriptorCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
             return
         }
         if error == nil {
@@ -551,7 +551,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
     func didWriteDescriptorValue(peripheral: CBPeripheral, descriptor: CBDescriptor, error: Error?) {
         let uuidArgs = peripheral.identifier.toArgs()
         let hashCodeArgs = descriptor.hash.toInt64()
-        guard let completion = writeDescriptorCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
+        guard let completion = mWriteDescriptorCompletions[uuidArgs]?.removeValue(forKey: hashCodeArgs) else {
             return
         }
         if error == nil {
@@ -562,14 +562,14 @@ class MyCentralManager: MyCentralManagerHostAPI {
     }
     
     private func retrievePeripheral(uuidArgs: String) throws -> CBPeripheral {
-        guard let peripheral = peripherals[uuidArgs] else {
+        guard let peripheral = mPeripherals[uuidArgs] else {
             throw MyError.illegalArgument
         }
         return peripheral
     }
     
     private func retrieveService(uuidArgs: String, hashCodeArgs: Int64) throws -> CBService {
-        guard let services = self.services[uuidArgs] else {
+        guard let services = self.mServices[uuidArgs] else {
             throw MyError.illegalArgument
         }
         guard let service = services[hashCodeArgs] else {
@@ -579,7 +579,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
     }
     
     private func retrieveCharacteristic(uuidArgs: String, hashCodeArgs: Int64) throws -> CBCharacteristic {
-        guard let characteristics = self.characteristics[uuidArgs] else {
+        guard let characteristics = self.mCharacteristics[uuidArgs] else {
             throw MyError.illegalArgument
         }
         guard let characteristic = characteristics[hashCodeArgs] else {
@@ -589,7 +589,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
     }
     
     private func retrieveDescriptor(uuidArgs: String, hashCodeArgs: Int64) throws -> CBDescriptor {
-        guard let descriptors = self.descriptors[uuidArgs] else {
+        guard let descriptors = self.mDescriptors[uuidArgs] else {
             throw MyError.illegalArgument
         }
         guard let descriptor = descriptors[hashCodeArgs] else {

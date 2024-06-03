@@ -194,19 +194,6 @@ extension CBManagerState {
     }
 }
 
-extension Data {
-    func toManufacturerSpecificDataArgs() -> MyManufacturerSpecificDataArgs? {
-        if count > 2 {
-            let idArgs = Int64(self[0]) | (Int64(self[1]) << 8)
-            let data = self[2...count - 1]
-            let dataArgs = FlutterStandardTypedData(bytes: data)
-            return MyManufacturerSpecificDataArgs(idArgs: idArgs, dataArgs: dataArgs)
-        } else {
-            return nil
-        }
-    }
-}
-
 extension [String: Any] {
     func toAdvertisementArgs() -> MyAdvertisementArgs {
         let nameArgs = self[CBAdvertisementDataLocalNameKey] as? String
@@ -219,8 +206,8 @@ extension [String: Any] {
             return (uuidArgs, dataArgs)
         }
         let serviceDataArgs = [String?: FlutterStandardTypedData?](uniqueKeysWithValues: serviceDataArgsKeyWithValues)
-        let manufacturerSpecificData = self[CBAdvertisementDataManufacturerDataKey] as? Data
-        let manufacturerSpecificDataArgs = manufacturerSpecificData?.toManufacturerSpecificDataArgs()
+        let manufacturerData = self[CBAdvertisementDataManufacturerDataKey] as? Data
+        let manufacturerSpecificDataArgs = manufacturerData == nil ? nil : FlutterStandardTypedData(bytes: manufacturerData!)
         return MyAdvertisementArgs(nameArgs: nameArgs, serviceUUIDsArgs: serviceUUIDsArgs, serviceDataArgs: serviceDataArgs, manufacturerSpecificDataArgs: manufacturerSpecificDataArgs)
     }
 }
