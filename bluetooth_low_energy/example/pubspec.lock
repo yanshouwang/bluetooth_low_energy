@@ -23,47 +23,47 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "6.0.0-dev.1"
+    version: "6.0.0-dev.2"
   bluetooth_low_energy_android:
     dependency: transitive
     description:
       name: bluetooth_low_energy_android
-      sha256: "649f7774b62a0d2371653b4eed654e4396d2c7c1aaf1b62638f1c95b7a85b014"
+      sha256: d381691ba85a8662b7b02495e5684d06be15557023bb66e01dd7ac7fa2398b16
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0-dev.4"
+    version: "6.0.0-dev.5"
   bluetooth_low_energy_darwin:
     dependency: transitive
     description:
       name: bluetooth_low_energy_darwin
-      sha256: "1bfd8f87e434c9a5c3958f98de26c7c40e9e17124230e45aeb777364fabc2536"
+      sha256: "58e6d5b51ef6a740c9b491f6ebb34942ccf6fdec69916963c8268454f6dfb6e2"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0-dev.2"
+    version: "6.0.0-dev.3"
   bluetooth_low_energy_linux:
     dependency: transitive
     description:
       name: bluetooth_low_energy_linux
-      sha256: "602dac1cbc2ea8950019955832153ad2ab27d46df65fda3a2cc4307f839efc3b"
+      sha256: "4cb508676d49fd1a48a68c32233ebff8740dc086d411bd66ca79ddeda901dfda"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0-dev.2"
+    version: "6.0.0-dev.3"
   bluetooth_low_energy_platform_interface:
     dependency: transitive
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: aaae881fbc3fb42cfbe81d4aa6f7984d79887db9c67b29b4a4ceca9320c01c83
+      sha256: "279472e2b532aa13d6627b9e9fa869786797673419ddcb9bdb4a4a8d68c482c7"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0-dev.18"
+    version: "6.0.0-dev.19"
   bluetooth_low_energy_windows:
     dependency: transitive
     description:
       name: bluetooth_low_energy_windows
-      sha256: "6212d026a35938fa0e2b6906eebb126c6b9384b05b063f696df476879532b92b"
+      sha256: "361190f3e1f91611668e42681e63cbe51c85eed954f88386c1bf9250798c7097"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0-dev.8"
+    version: "6.0.0-dev.9"
   bluez:
     dependency: transitive
     description:
@@ -97,7 +97,7 @@ packages:
     source: hosted
     version: "1.1.1"
   collection:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: collection
       sha256: ee67cb0715911d28db6bf4af1026078bd6f0128b07a5f66fb2ed94ec6783c09a
@@ -170,6 +170,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  flutter_simple_treeview:
+    dependency: "direct main"
+    description:
+      name: flutter_simple_treeview
+      sha256: ad4978d2668dd078d3a09966832da111bef9102dd636e572c50c80133b7ff4d9
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -270,6 +278,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.8.0"
+  material_symbols_icons:
+    dependency: "direct main"
+    description:
+      name: material_symbols_icons
+      sha256: b2d3cbc3c42b8a217715b0d97ff03aebb14b2b4592875736e5599c603fb2db7e
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2758.0"
   meta:
     dependency: transitive
     description:
