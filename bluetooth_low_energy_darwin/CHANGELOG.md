@@ -1,3 +1,8 @@
+## 6.0.0-dev.4
+
+* Implement `CentralMananger#showAppSettings` on iOS.
+* Implement `PeripheralManager#showAppSettings` on iOS.
+
 ## 6.0.0-dev.3
 
 * Rewrite example with MVVM.
