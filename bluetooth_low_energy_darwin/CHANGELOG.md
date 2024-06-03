@@ -1,3 +1,16 @@
+## 6.0.0
+
+* Add `serviceUUIDs` argument to `CentralManager#startDiscovery` method.
+* Add `CentralManager#retrieveConnectedPeripherals` method.
+* Move `BluetoothLowEnergyManager#getState` to `BluetoothLowEnergyManager#state`.
+* Move `CentralManger.instance` to factory constructor.
+* Move `PeripheralManager.instance` to factory constructor.
+* Remove `BluetoothLowEnergyManager#setUp` method.
+* Implement `CentralMananger#showAppSettings` on iOS.
+* Implement `PeripheralManager#showAppSettings` on iOS.
+* Rewrite example with MVVM.
+* Fix known issues.
+
 ## 6.0.0-dev.4
 
 * Implement `CentralMananger#showAppSettings` on iOS.
