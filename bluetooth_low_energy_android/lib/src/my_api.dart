@@ -8,12 +8,6 @@ import 'my_gatt.dart';
 import 'my_peripheral.dart';
 
 // ToObj
-extension StringX on String {
-  UUID toUUID() {
-    return UUID.fromString(this);
-  }
-}
-
 extension MyBluetoothLowEnergyStateArgsX on MyBluetoothLowEnergyStateArgs {
   BluetoothLowEnergyState toState() {
     switch (this) {
@@ -55,36 +49,31 @@ extension MyGATTCharacteristicPropertyArgsX
 
 extension MyManufacturerSpecificDataArgsX on MyManufacturerSpecificDataArgs {
   ManufacturerSpecificData toManufacturerSpecificData() {
-    final id = idArgs;
-    final data = dataArgs;
     return ManufacturerSpecificData(
-      id: id,
-      data: data,
+      id: idArgs,
+      data: dataArgs,
     );
   }
 }
 
 extension MyAdvertisementArgsX on MyAdvertisementArgs {
   Advertisement toAdvertisement() {
-    final name = nameArgs;
-    final serviceUUIDs =
-        serviceUUIDsArgs.cast<String>().map((args) => args.toUUID()).toList();
-    final serviceData = serviceDataArgs.cast<String, Uint8List>().map(
-      (uuidArgs, dataArgs) {
-        final uuid = uuidArgs.toUUID();
-        final data = dataArgs;
-        return MapEntry(uuid, data);
-      },
-    );
-    final manufacturerSpecificData = manufacturerSpecificDataArgs
-        .cast<MyManufacturerSpecificDataArgs>()
-        .map((args) => args.toManufacturerSpecificData())
-        .toList();
     return Advertisement(
-      name: name,
-      serviceUUIDs: serviceUUIDs,
-      serviceData: serviceData,
-      manufacturerSpecificData: manufacturerSpecificData,
+      name: nameArgs,
+      serviceUUIDs: serviceUUIDsArgs
+          .cast<String>()
+          .map((args) => UUID.fromString(args))
+          .toList(),
+      serviceData: serviceDataArgs.cast<String, Uint8List>().map(
+        (uuidArgs, dataArgs) {
+          final uuid = UUID.fromString(uuidArgs);
+          return MapEntry(uuid, dataArgs);
+        },
+      ),
+      manufacturerSpecificData: manufacturerSpecificDataArgs
+          .cast<MyManufacturerSpecificDataArgs>()
+          .map((args) => args.toManufacturerSpecificData())
+          .toList(),
     );
   }
 }
@@ -99,53 +88,44 @@ extension MyPeripheralArgsX on MyPeripheralArgs {
 
 extension MyGATTDescriptorArgsX on MyGATTDescriptorArgs {
   MyGATTDescriptor toDescriptor() {
-    final uuid = uuidArgs.toUUID();
     return MyGATTDescriptor(
       hashCodeArgs: hashCodeArgs,
-      uuid: uuid,
+      uuid: UUID.fromString(uuidArgs),
     );
   }
 }
 
 extension MyGATTCharacteristicArgsX on MyGATTCharacteristicArgs {
   MyGATTCharacteristic toCharacteristic() {
-    final uuid = uuidArgs.toUUID();
-    final properties = propertyNumbersArgs.cast<int>().map(
-      (args) {
-        final propertyArgs = MyGATTCharacteristicPropertyArgs.values[args];
-        return propertyArgs.toProperty();
-      },
-    ).toList();
-    final descriptors = descriptorsArgs
-        .cast<MyGATTDescriptorArgs>()
-        .map((args) => args.toDescriptor())
-        .toList();
     return MyGATTCharacteristic(
       hashCodeArgs: hashCodeArgs,
-      uuid: uuid,
-      properties: properties,
-      descriptors: descriptors,
+      uuid: UUID.fromString(uuidArgs),
+      properties: propertyNumbersArgs.cast<int>().map((args) {
+        final propertyArgs = MyGATTCharacteristicPropertyArgs.values[args];
+        return propertyArgs.toProperty();
+      }).toList(),
+      descriptors: descriptorsArgs
+          .cast<MyGATTDescriptorArgs>()
+          .map((args) => args.toDescriptor())
+          .toList(),
     );
   }
 }
 
 extension MyGATTServiceArgsX on MyGATTServiceArgs {
   MyGATTService toService() {
-    final uuid = uuidArgs.toUUID();
-    final includedServices = includedServicesArgs
-        .cast<MyGATTServiceArgs>()
-        .map((args) => args.toService())
-        .toList();
-    final characteristics = characteristicsArgs
-        .cast<MyGATTCharacteristicArgs>()
-        .map((args) => args.toCharacteristic())
-        .toList();
     return MyGATTService(
       hashCodeArgs: hashCodeArgs,
-      uuid: uuid,
+      uuid: UUID.fromString(uuidArgs),
       isPrimary: isPrimaryArgs,
-      includedServices: includedServices,
-      characteristics: characteristics,
+      includedServices: includedServicesArgs
+          .cast<MyGATTServiceArgs>()
+          .map((args) => args.toService())
+          .toList(),
+      characteristics: characteristicsArgs
+          .cast<MyGATTCharacteristicArgs>()
+          .map((args) => args.toCharacteristic())
+          .toList(),
     );
   }
 }
@@ -159,7 +139,6 @@ extension MyCentralArgsX on MyCentralArgs {
 }
 
 // ToArgs
-
 extension UUIDX on UUID {
   String toArgs() {
     return toString();
@@ -211,63 +190,44 @@ extension GATTErrorX on GATTError {
 
 extension ManufacturerSpecificDataX on ManufacturerSpecificData {
   MyManufacturerSpecificDataArgs toArgs() {
-    final idArgs = id;
-    final dataArgs = data;
     return MyManufacturerSpecificDataArgs(
-      idArgs: idArgs,
-      dataArgs: dataArgs,
+      idArgs: id,
+      dataArgs: data,
     );
   }
 }
 
 extension AdvertisementX on Advertisement {
   MyAdvertisementArgs toArgs() {
-    final nameArgs = name;
-    final serviceUUIDsArgs = serviceUUIDs.map((uuid) => uuid.toArgs()).toList();
-    final serviceDataArgs = serviceData.map((uuid, data) {
-      final uuidArgs = uuid.toArgs();
-      final dataArgs = data;
-      return MapEntry(uuidArgs, dataArgs);
-    });
-    final manufacturerSpecificDataArgs =
-        manufacturerSpecificData.map((data) => data.toArgs()).toList();
     return MyAdvertisementArgs(
-      nameArgs: nameArgs,
-      serviceUUIDsArgs: serviceUUIDsArgs,
-      serviceDataArgs: serviceDataArgs,
-      manufacturerSpecificDataArgs: manufacturerSpecificDataArgs,
+      nameArgs: name,
+      serviceUUIDsArgs: serviceUUIDs.map((uuid) => uuid.toArgs()).toList(),
+      serviceDataArgs: serviceData.map((uuid, data) {
+        final uuidArgs = uuid.toArgs();
+        final dataArgs = data;
+        return MapEntry(uuidArgs, dataArgs);
+      }),
+      manufacturerSpecificDataArgs:
+          manufacturerSpecificData.map((data) => data.toArgs()).toList(),
     );
   }
 }
 
 extension MutableGATTDescriptorX on MutableGATTDescriptor {
   MyMutableGATTDescriptorArgs toArgs() {
-    final hashCodeArgs = hashCode;
-    final uuidArgs = uuid.toArgs();
-    final permissionNumbersArgs = permissions.map((permission) {
-      final permissionArgs = permission.toArgs();
-      return permissionArgs.index;
-    }).toList();
     return MyMutableGATTDescriptorArgs(
-      hashCodeArgs: hashCodeArgs,
-      uuidArgs: uuidArgs,
-      permissionNumbersArgs: permissionNumbersArgs,
+      hashCodeArgs: hashCode,
+      uuidArgs: uuid.toArgs(),
+      permissionNumbersArgs: permissions.map((permission) {
+        final permissionArgs = permission.toArgs();
+        return permissionArgs.index;
+      }).toList(),
     );
   }
 }
 
 extension MutableGATTCharacteristicX on MutableGATTCharacteristic {
   MyMutableGATTCharacteristicArgs toArgs() {
-    final hashCodeArgs = hashCode;
-    final uuidArgs = uuid.toArgs();
-    final permissionNumbersArgs = permissions.map((permission) {
-      final permissionArgs = permission.toArgs();
-      return permissionArgs.index;
-    }).toList();
-    final propertyNumbersArgs = properties.map((property) {
-      final propertyArgs = property.toArgs();
-      return propertyArgs.index;
-    }).toList();
     // Add CCC descriptor.
     final cccUUID = UUID.short(0x2902);
     final descriptorsArgs = descriptors
@@ -285,10 +245,16 @@ extension MutableGATTCharacteristicX on MutableGATTCharacteristic {
     final cccDescriptorArgs = cccDescriptor.toArgs();
     descriptorsArgs.add(cccDescriptorArgs);
     return MyMutableGATTCharacteristicArgs(
-      hashCodeArgs: hashCodeArgs,
-      uuidArgs: uuidArgs,
-      permissionNumbersArgs: permissionNumbersArgs,
-      propertyNumbersArgs: propertyNumbersArgs,
+      hashCodeArgs: hashCode,
+      uuidArgs: uuid.toArgs(),
+      permissionNumbersArgs: permissions.map((permission) {
+        final permissionArgs = permission.toArgs();
+        return permissionArgs.index;
+      }).toList(),
+      propertyNumbersArgs: properties.map((property) {
+        final propertyArgs = property.toArgs();
+        return propertyArgs.index;
+      }).toList(),
       descriptorsArgs: descriptorsArgs,
     );
   }
@@ -296,19 +262,16 @@ extension MutableGATTCharacteristicX on MutableGATTCharacteristic {
 
 extension GATTServiceX on GATTService {
   MyMutableGATTServiceArgs toArgs() {
-    final uuidArgs = uuid.toArgs();
-    final includedServicesArgs =
-        includedServices.map((service) => service.toArgs()).toList();
-    final characteristicsArgs = characteristics
-        .cast<MutableGATTCharacteristic>()
-        .map((characteristic) => characteristic.toArgs())
-        .toList();
     return MyMutableGATTServiceArgs(
       hashCodeArgs: hashCode,
-      uuidArgs: uuidArgs,
+      uuidArgs: uuid.toArgs(),
       isPrimaryArgs: isPrimary,
-      includedServicesArgs: includedServicesArgs,
-      characteristicsArgs: characteristicsArgs,
+      includedServicesArgs:
+          includedServices.map((service) => service.toArgs()).toList(),
+      characteristicsArgs: characteristics
+          .cast<MutableGATTCharacteristic>()
+          .map((characteristic) => characteristic.toArgs())
+          .toList(),
     );
   }
 }

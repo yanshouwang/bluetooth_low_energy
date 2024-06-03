@@ -5,6 +5,10 @@ import 'package:bluez/bluez.dart';
 
 import 'my_gatt.dart';
 
+extension BlueZUUIDX on BlueZUUID {
+  UUID toMyUUID() => UUID(value);
+}
+
 extension BlueZGattCharacteristicFlagX on BlueZGattCharacteristicFlag {
   GATTCharacteristicProperty? toMyProperty() {
     switch (this) {
@@ -50,26 +54,22 @@ extension BlueZDeviceX on BlueZDevice {
       gattServices.map((service) => MyGATTService(service)).toList();
 
   Advertisement get myAdvertisement {
-    final myName = name.isNotEmpty ? name : null;
-    final myServiceUUIDs = uuids.map((uuid) => uuid.toMyUUID()).toList();
-    final myServiceData = serviceData.map((uuid, data) {
-      final myUUID = uuid.toMyUUID();
-      final myData = Uint8List.fromList(data);
-      return MapEntry(myUUID, myData);
-    });
-    final myManufacturerSpecificData = manufacturerData.entries.map((entry) {
-      final myId = entry.key.id;
-      final myData = Uint8List.fromList(entry.value);
-      return ManufacturerSpecificData(
-        id: myId,
-        data: myData,
-      );
-    }).toList();
     return Advertisement(
-      name: myName,
-      serviceUUIDs: myServiceUUIDs,
-      serviceData: myServiceData,
-      manufacturerSpecificData: myManufacturerSpecificData,
+      name: name.isEmpty ? null : name,
+      serviceUUIDs: uuids.map((uuid) => uuid.toMyUUID()).toList(),
+      serviceData: serviceData.map((uuid, data) {
+        final myUUID = uuid.toMyUUID();
+        final myData = Uint8List.fromList(data);
+        return MapEntry(myUUID, myData);
+      }),
+      manufacturerSpecificData: manufacturerData.entries.map((entry) {
+        final myId = entry.key.id;
+        final myData = Uint8List.fromList(entry.value);
+        return ManufacturerSpecificData(
+          id: myId,
+          data: myData,
+        );
+      }).toList(),
     );
   }
 }
@@ -96,8 +96,4 @@ extension BlueZGattServiceX on BlueZGattService {
   List<MyGATTCharacteristic> get myCharacteristics => characteristics
       .map((characteristic) => MyGATTCharacteristic(characteristic))
       .toList();
-}
-
-extension BlueZUUIDX on BlueZUUID {
-  UUID toMyUUID() => UUID(value);
 }
