@@ -1,3 +1,29 @@
+## 6.0.0
+
+* Add `BluetoothLowEnergyManager#authorize` method.
+* Add `BluetoothLowEnergyManager#showAppSettings` method.
+* Add `CentralManager#mtuChanged` event.
+* [Add optional `serviceUUIDs` argument to the `CentralManager#startDiscovery` method.](https://github.com/yanshouwang/bluetooth_low_energy/issues/53)
+* [Add `CentralManager#retrieveConnectedPeripherals` method.](https://github.com/yanshouwang/bluetooth_low_energy/issues/61)
+* Add `CentralManager#getMaximumWriteLength` method.
+* Add `PeripheralManager#connectionStateChanged` event.
+* Add `PeripheralManager#mtuChanged` event.
+* Add `PeripheralManager#characteristicReadRequested` event.
+* Add `PeripheralManager#characteristicWriteRequested` event.
+* Add `PeripheralManager#descriptorReadRequested` event.
+* Add `PeripheralManager#descriptorWriteRequested` event.
+* Add `PeripheralManager#getMaximumNotifyLength` method.
+* Add `PeripheralManager#respondReadRequestWithValue` method.
+* Add `PeripheralManager#respondReadRequestWithError` method.
+* Add `PeripheralManager#respondWriteRequest` method.
+* Add `PeripheralManager#respondWriteRequestWithError` method.
+* Move the type of `Advertisement#manufacturerSpecificData` to `List<ManufacturerSpecificData>`.
+* Move `BluetoothLowEnergyManager#getState` to `BluetoothLowEnergyManager#state`.
+* Move `PeripheralManager#clearServices` to `PeripheralManager#removeAllServices`.
+* Remove `PeripheralManager#characteristicRead` event.
+* Remove `PeripheralManager#characteristicWritten` event.
+
+
 ## 6.0.0-dev.19
 
 * Add `int` type to `UUID#fromAddress`.
