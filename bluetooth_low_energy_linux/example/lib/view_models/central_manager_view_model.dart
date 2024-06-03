@@ -1,9 +1,8 @@
 import 'dart:async';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
+import 'package:clover/clover.dart';
 import 'package:logging/logging.dart';
-
-import 'view_model.dart';
 
 class CentralManagerViewModel extends ViewModel {
   final CentralManager _manager;

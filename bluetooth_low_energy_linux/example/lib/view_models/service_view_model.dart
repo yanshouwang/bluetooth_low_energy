@@ -1,7 +1,7 @@
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
+import 'package:clover/clover.dart';
 
 import 'characteristic_view_model.dart';
-import 'view_model.dart';
 
 class ServiceViewModel extends ViewModel {
   final GATTService _service;
