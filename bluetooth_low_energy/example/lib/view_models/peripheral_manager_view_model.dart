@@ -4,9 +4,8 @@ import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
 import 'package:bluetooth_low_energy_example/models.dart';
+import 'package:clover/clover.dart';
 import 'package:logging/logging.dart';
-
-import 'view_model.dart';
 
 class PeripheralManagerViewModel extends ViewModel {
   final PeripheralManager _manager;

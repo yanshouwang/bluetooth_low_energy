@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
+import 'package:clover/clover.dart';
 import 'package:hybrid_logging/hybrid_logging.dart';
 
 import 'service_view_model.dart';
-import 'view_model.dart';
 
 class PeripheralViewModel extends ViewModel with TypeLogger {
   final CentralManager _manager;
