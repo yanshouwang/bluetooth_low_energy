@@ -1,3 +1,9 @@
+## 6.0.0-dev.3
+
+* Implement `CentralMananger#showAppSettings` on iOS.
+* Implement `PeripheralManager#showAppSettings` on iOS.
+* Fix known issues.
+
 ## 6.0.0-dev.2
 
 * Add `int` type to `UUID#fromAddress`.
