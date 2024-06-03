@@ -13,17 +13,17 @@ packages:
     dependency: "direct main"
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: "279472e2b532aa13d6627b9e9fa869786797673419ddcb9bdb4a4a8d68c482c7"
+      sha256: bc2e8d97c141653e5747bcb3cdc9fe956541b6ecc6e5f158b99a2f3abc2d946a
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0-dev.19"
+    version: "6.0.0"
   bluetooth_low_energy_windows:
     dependency: "direct main"
     description:
       path: ".."
       relative: true
     source: path
-    version: "6.0.0-dev.9"
+    version: "6.0.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -48,6 +48,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.1"
+  clover:
+    dependency: "direct main"
+    description:
+      name: clover
+      sha256: eba28e69b32f174a51c093eef098cf5ae646470322727081d5d3d8f66c786487
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   collection:
     dependency: "direct main"
     description:

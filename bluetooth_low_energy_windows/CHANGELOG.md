@@ -1,3 +1,16 @@
+## 6.0.0
+
+* Implement `PeripheralManager` API.
+* Add `CentralManager#mtuChanged` event.
+* Add `serviceUUIDs` argument to `CentralManager#startDiscovery` method.
+* Add `CentralManager#getMaximumWriteLength` method.
+* Move `BluetoothLowEnergyManager#getState` to `BluetoothLowEnergyManager#state`.
+* Move `CentralManger.instance` to factory constructor.
+* Remove `BluetoothLowEnergyManager#setUp` method.
+* Rewrite example with MVVM.
+* Fix the issue that [`Cannot access value of empty optional`](https://github.com/yanshouwang/bluetooth_low_energy/issues/63)
+* Fix known issues.
+
 ## 6.0.0-dev.9
 
 * Implement `PeripheralManager` API.
