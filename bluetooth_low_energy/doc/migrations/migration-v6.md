@@ -1,6 +1,5 @@
 # Migrate form 5.x to 6.x
 
-
 ## Capitalization Rules
 
 * `GattCharacteristicNotifiedEventArgs` -> `GATTCharacteristicNotifiedEventArgs`
@@ -45,16 +44,25 @@ final stateChangedSubscription = centralManager.stateChanged.listen((eventArgs) 
 });
 ```
 
-4. The type of `manufacturerSpecificData` in `Advertisement` changed from `ManufacturerSpecificData` to `List<ManufacturerSpecificData>`.
+4. Get state of the `CentralManager`.
 
 ``` Dart
 // 5.x
-final manufacturerSpecificData = advertisement.manufacturerSpecificData; // ManufacturerSpecificData
+// final state = await CentralManager.instance.getState();
+// 6.x
+final state = centralManager.state;
+```
+
+5. The type of `manufacturerSpecificData` in `Advertisement` changed from `ManufacturerSpecificData` to `List<ManufacturerSpecificData>`.
+
+``` Dart
+// 5.x
+// final manufacturerSpecificData = advertisement.manufacturerSpecificData; // ManufacturerSpecificData
 // 6.0
 final manufacturerSpecificData = advertisement.manufacturerSpecificData; // List<ManufacturerSpecificData>
 ```
 
-5. Request MTU manually on Android.
+6. Request MTU manually on Android.
 
 ``` Dart
 // The mtu is no longer requested automatically on Android
@@ -69,7 +77,7 @@ if (Platform.isAndroid) {
 }
 ```
 
-6. Fragment the value manually when write characteristics.
+7. Fragment the value manually when write characteristics.
 
 ``` Dart
 // The value is no longer fragmented automatically after
@@ -128,7 +136,16 @@ final stateChangedSubscription = peripheralManager.stateChanged.listen((eventArg
 });
 ```
 
-4. Use the factory methods to create GATTService and GATTDescriptor.
+4. Get state of the `PeripheralManager`.
+
+``` Dart
+// 5.x
+// final state = await PeripheralManager.instance.getState();
+// 6.x
+final state = peripheralManager.state;
+```
+
+5. Use the factory methods to create GATTService and GATTDescriptor.
 
 ``` Dart
 // 5.x
@@ -196,16 +213,16 @@ final service = GATTService(
 );
 ```
 
-5. The type of `manufacturerSpecificData` in `Advertisement` changed from `ManufacturerSpecificData` to `List<ManufacturerSpecificData>`.
+6. The type of `manufacturerSpecificData` in `Advertisement` changed from `ManufacturerSpecificData` to `List<ManufacturerSpecificData>`.
 
 ``` Dart
 // 5.x
-final advertisement = Advertisement(
-    manufacturerSpecificData: ManufacturerSpecificData(
-        id: 0x2e19,
-        data: Uint8List.fromList([0x01, 0x02, 0x03]),
-    ),
-);
+// final advertisement = Advertisement(
+//     manufacturerSpecificData: ManufacturerSpecificData(
+//         id: 0x2e19,
+//         data: Uint8List.fromList([0x01, 0x02, 0x03]),
+//     ),
+// );
 // 6.x
 final advertisement = Advertisement(
     manufacturerSpecificData: [
@@ -217,7 +234,7 @@ final advertisement = Advertisement(
 );
 ```
 
-6. Respond read and write requests manually.
+7. Respond read and write requests manually.
 
 ``` Dart
 // The read and write requests are no longer responded automatically 
@@ -254,7 +271,7 @@ final characteristicWriteRequestedSubscription = peripheralManager.characteristi
 });
 ```
 
-7. Fragment the value manually when notify characteristics.
+8. Fragment the value manually when notify characteristics.
 
 ``` Dart
 // The value is no longer fragmented automatically after
