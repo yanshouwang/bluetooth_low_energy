@@ -355,12 +355,6 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
-  void onNameChanged(String nameArgs) {
-    logger.info('onNameChanged: $nameArgs');
-    // TODO: Update name in the advertiseData.
-  }
-
-  @override
   void onConnectionStateChanged(
     MyCentralArgs centralArgs,
     int statusArgs,

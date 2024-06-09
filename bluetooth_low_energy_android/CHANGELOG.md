@@ -1,3 +1,7 @@
+## 6.0.2
+
+* Fix the warning issue.
+
 ## 6.0.1
 
 * Fix the issue that [advertisement name is wrong when advertising](https://github.com/yanshouwang/bluetooth_low_energy/issues/62).
