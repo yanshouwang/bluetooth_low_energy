@@ -198,9 +198,8 @@ extension ManufacturerSpecificDataX on ManufacturerSpecificData {
 }
 
 extension AdvertisementX on Advertisement {
-  MyAdvertisementArgs toArgs() {
-    return MyAdvertisementArgs(
-      nameArgs: name,
+  MyAdvertiseDataArgs toAdvertiseDataArgs() {
+    return MyAdvertiseDataArgs(
       serviceUUIDsArgs: serviceUUIDs.map((uuid) => uuid.toArgs()).toList(),
       serviceDataArgs: serviceData.map((uuid, data) {
         final uuidArgs = uuid.toArgs();
@@ -209,6 +208,15 @@ extension AdvertisementX on Advertisement {
       }),
       manufacturerSpecificDataArgs:
           manufacturerSpecificData.map((data) => data.toArgs()).toList(),
+    );
+  }
+
+  MyAdvertiseDataArgs toScanResponseArgs() {
+    return MyAdvertiseDataArgs(
+      includeDeviceNameArgs: name != null,
+      serviceUUIDsArgs: [],
+      serviceDataArgs: {},
+      manufacturerSpecificDataArgs: [],
     );
   }
 }

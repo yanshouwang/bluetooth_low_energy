@@ -42,7 +42,6 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
     private val mDescriptors: MutableMap<String, MutableMap<Long, BluetoothGattDescriptor>>
 
     private var mAuthorizeCallback: ((Result<Boolean>) -> Unit)?
-    private var mShowAppSettingsCallback: ((Result<Unit>) -> Unit)?
     private var mStartDiscoveryCallback: ((Result<Unit>) -> Unit)?
     private val mConnectCallbacks: MutableMap<String, (Result<Unit>) -> Unit>
     private val mDisconnectCallbacks: MutableMap<String, (Result<Unit>) -> Unit>
@@ -65,7 +64,6 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
         mDescriptors = mutableMapOf()
 
         mAuthorizeCallback = null
-        mShowAppSettingsCallback = null
         mStartDiscoveryCallback = null
         mConnectCallbacks = mutableMapOf()
         mDisconnectCallbacks = mutableMapOf()
@@ -104,7 +102,6 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
         mDescriptors.clear()
 
         mAuthorizeCallback = null
-        mShowAppSettingsCallback = null
         mStartDiscoveryCallback = null
         mConnectCallbacks.clear()
         mDisconnectCallbacks.clear()
@@ -140,16 +137,11 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
         }
     }
 
-    override fun showAppSettings(callback: (Result<Unit>) -> Unit) {
-        try {
-            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-            intent.data = Uri.fromParts("package", activity.packageName, null)
-            val options = ActivityOptionsCompat.makeBasic().toBundle()
-            ActivityCompat.startActivityForResult(activity, intent, SHOW_APP_SETTINGS_CODE, options)
-            mShowAppSettingsCallback = callback
-        } catch (e: Throwable) {
-            callback(Result.failure(e))
-        }
+    override fun showAppSettings() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        intent.data = Uri.fromParts("package", activity.packageName, null)
+        val options = ActivityOptionsCompat.makeBasic().toBundle()
+        ActivityCompat.startActivity(activity, intent, options)
     }
 
     override fun startDiscovery(serviceUUIDsArgs: List<String>, callback: (Result<Unit>) -> Unit) {
@@ -352,16 +344,6 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
         mAuthorizeCallback = null
         val authorized = permissions.contentEquals(this.permissions) && results.all { r -> r == PackageManager.PERMISSION_GRANTED }
         callback(Result.success(authorized))
-        return true
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-        if (requestCode != SHOW_APP_SETTINGS_CODE) {
-            return false
-        }
-        val callback = mShowAppSettingsCallback ?: return false
-        mShowAppSettingsCallback = null
-        callback(Result.success(Unit))
         return true
     }
 

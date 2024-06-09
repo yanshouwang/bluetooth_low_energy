@@ -15,7 +15,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "6.0.0"
+    version: "6.0.2"
   bluetooth_low_energy_platform_interface:
     dependency: "direct main"
     description:

@@ -23,15 +23,15 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "6.0.0"
+    version: "6.0.1"
   bluetooth_low_energy_android:
     dependency: transitive
     description:
       name: bluetooth_low_energy_android
-      sha256: "39284bb33a10cc3bc126e18968865f47fc0155495a7473afc705eb4be8b07728"
+      sha256: "97cac5169a392f3872cbb416cc11cf0b2287567c0ceca4d975f2fc5bdd2b1e6f"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0"
+    version: "6.0.2"
   bluetooth_low_energy_darwin:
     dependency: transitive
     description:

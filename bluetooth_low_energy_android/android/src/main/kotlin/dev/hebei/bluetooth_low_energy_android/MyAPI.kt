@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.AdvertiseData
+import android.bluetooth.le.AdvertiseSettings
 import android.bluetooth.le.ScanResult
 import android.os.Build
 import android.os.ParcelUuid
@@ -15,6 +16,23 @@ import android.util.SparseArray
 import java.util.UUID
 
 //region ToObject
+fun MyAdvertiseModeArgs.toAdvertiseMode(): Int {
+    return when (this) {
+        MyAdvertiseModeArgs.LOW_POWER -> AdvertiseSettings.ADVERTISE_MODE_LOW_POWER
+        MyAdvertiseModeArgs.BALANCED -> AdvertiseSettings.ADVERTISE_MODE_BALANCED
+        MyAdvertiseModeArgs.LOW_LATENCY -> AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY
+    }
+}
+
+fun MyTXPowerLevelArgs.toTXPowerLevel(): Int {
+    return when (this) {
+        MyTXPowerLevelArgs.ULTRA_LOW -> AdvertiseSettings.ADVERTISE_TX_POWER_ULTRA_LOW
+        MyTXPowerLevelArgs.LOW -> AdvertiseSettings.ADVERTISE_TX_POWER_LOW
+        MyTXPowerLevelArgs.MEDIUM -> AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM
+        MyTXPowerLevelArgs.HIGH -> AdvertiseSettings.ADVERTISE_TX_POWER_HIGH
+    }
+}
+
 fun MyGATTCharacteristicWriteTypeArgs.toType(): Int {
     return when (this) {
         MyGATTCharacteristicWriteTypeArgs.WITH_RESPONSE -> BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
@@ -39,31 +57,56 @@ fun MyGATTStatusArgs.toStatus(): Int {
     }
 }
 
-fun MyAdvertisementArgs.toAdvertiseData(): AdvertiseData {
-    val advertiseDataBuilder = AdvertiseData.Builder()
+fun MyAdvertiseSettingsArgs.toAdvertiseSettings(): AdvertiseSettings {
+    val builder = AdvertiseSettings.Builder()
+    val modeArgs = this.modeArgs
+    if (modeArgs != null) {
+        val mode = modeArgs.toAdvertiseMode()
+        builder.setAdvertiseMode(mode)
+    }
+    val connectableArgs = this.connectableArgs
+    if (connectableArgs != null) {
+        builder.setConnectable(connectableArgs)
+    }
+    val timeoutArgs = this.timeoutArgs
+    if (timeoutArgs != null) {
+        val timeout = timeoutArgs.toInt()
+        builder.setTimeout(timeout)
+    }
+    val txPowerLevelArgs = this.txPowerLevelArgs
+    if (txPowerLevelArgs != null) {
+        val txPowerLevel = txPowerLevelArgs.toTXPowerLevel()
+        builder.setTxPowerLevel(txPowerLevel)
+    }
+    return builder.build()
+}
+
+fun MyAdvertiseDataArgs.toAdvertiseData(): AdvertiseData {
+    val builder = AdvertiseData.Builder()
+    val includeDeviceNameArgs = this.includeDeviceNameArgs
+    if (includeDeviceNameArgs != null) {
+        builder.setIncludeDeviceName(includeDeviceNameArgs)
+    }
+    val includeTXPowerLevelArgs = this.includeTXPowerLevelArgs
+    if (includeTXPowerLevelArgs != null) {
+        builder.setIncludeTxPowerLevel(includeTXPowerLevelArgs)
+    }
     for (serviceUuidArgs in serviceUUIDsArgs) {
         val serviceUUID = ParcelUuid.fromString(serviceUuidArgs)
-        advertiseDataBuilder.addServiceUuid(serviceUUID)
+        builder.addServiceUuid(serviceUUID)
     }
     for (entry in serviceDataArgs) {
         val serviceDataUUID = ParcelUuid.fromString(entry.key as String)
         val serviceData = entry.value as ByteArray
-        advertiseDataBuilder.addServiceData(serviceDataUUID, serviceData)
+        builder.addServiceData(serviceDataUUID, serviceData)
     }
     for (args in manufacturerSpecificDataArgs) {
         val itemArgs = args as MyManufacturerSpecificDataArgs
         val manufacturerId = itemArgs.idArgs.toInt()
         val manufacturerSpecificData = itemArgs.dataArgs
-        advertiseDataBuilder.addManufacturerData(manufacturerId, manufacturerSpecificData)
+        builder.addManufacturerData(manufacturerId, manufacturerSpecificData)
     }
-    return advertiseDataBuilder.build()
-}
-
-fun MyAdvertisementArgs.toScanResponse(): AdvertiseData {
-    val advertiseDataBuilder = AdvertiseData.Builder()
-    val includeDeviceName = nameArgs != null
-    advertiseDataBuilder.setIncludeDeviceName(includeDeviceName)
-    return advertiseDataBuilder.build()
+    return builder.build()
 }
 
 fun MyMutableGATTDescriptorArgs.toDescriptor(): BluetoothGattDescriptor {
