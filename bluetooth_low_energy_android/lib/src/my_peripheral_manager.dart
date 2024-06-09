@@ -156,9 +156,28 @@ final class MyPeripheralManager extends PlatformPeripheralManager
 
   @override
   Future<void> startAdvertising(Advertisement advertisement) async {
-    final advertisementArgs = advertisement.toArgs();
-    logger.info('startAdvertising: $advertisementArgs');
-    await _api.startAdvertising(advertisementArgs);
+    final nameArgs = advertisement.name;
+    if (nameArgs != null) {
+      logger.info('setName: $nameArgs');
+      final newNameArgs = await _api.setName(nameArgs);
+      if (newNameArgs != nameArgs) {
+        throw ArgumentError(
+            'Name changed, but $newNameArgs is different from $nameArgs');
+      }
+    }
+    final settingsArgs = MyAdvertiseSettingsArgs(
+      modeArgs: MyAdvertiseModeArgs.balanced,
+      connectableArgs: true,
+    );
+    final advertiseDataArgs = advertisement.toAdvertiseDataArgs();
+    final scanResponseArgs = advertisement.toScanResponseArgs();
+    logger.info(
+        'startAdvertising: $settingsArgs, $advertiseDataArgs, $scanResponseArgs');
+    await _api.startAdvertising(
+      settingsArgs,
+      advertiseDataArgs,
+      scanResponseArgs,
+    );
   }
 
   @override
@@ -333,6 +352,12 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     _state = state;
     final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
     _stateChangedController.add(eventArgs);
+  }
+
+  @override
+  void onNameChanged(String nameArgs) {
+    logger.info('onNameChanged: $nameArgs');
+    // TODO: Update name in the advertiseData.
   }
 
   @override

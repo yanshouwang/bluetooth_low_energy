@@ -24,6 +24,19 @@ enum MyBluetoothLowEnergyStateArgs {
   turningOff,
 }
 
+enum MyAdvertiseModeArgs {
+  lowPower,
+  balanced,
+  lowLatency,
+}
+
+enum MyTXPowerLevelArgs {
+  ultraLow,
+  low,
+  medium,
+  high,
+}
+
 enum MyConnectionStateArgs {
   disconnected,
   connecting,
@@ -104,6 +117,36 @@ class MyAdvertisementArgs {
 
   MyAdvertisementArgs(
     this.nameArgs,
+    this.serviceUUIDsArgs,
+    this.serviceDataArgs,
+    this.manufacturerSpecificDataArgs,
+  );
+}
+
+class MyAdvertiseSettingsArgs {
+  final MyAdvertiseModeArgs? modeArgs;
+  final bool? connectableArgs;
+  final int? timeoutArgs;
+  final MyTXPowerLevelArgs? txPowerLevelArgs;
+
+  MyAdvertiseSettingsArgs(
+    this.modeArgs,
+    this.connectableArgs,
+    this.timeoutArgs,
+    this.txPowerLevelArgs,
+  );
+}
+
+class MyAdvertiseDataArgs {
+  final bool? includeDeviceNameArgs;
+  final bool? includeTXPowerLevelArgs;
+  final List<String?> serviceUUIDsArgs;
+  final Map<String?, Uint8List?> serviceDataArgs;
+  final List<MyManufacturerSpecificDataArgs?> manufacturerSpecificDataArgs;
+
+  MyAdvertiseDataArgs(
+    this.includeDeviceNameArgs,
+    this.includeTXPowerLevelArgs,
     this.serviceUUIDsArgs,
     this.serviceDataArgs,
     this.manufacturerSpecificDataArgs,
@@ -212,7 +255,6 @@ abstract class MyCentralManagerHostAPI {
   MyBluetoothLowEnergyStateArgs getState();
   @async
   bool authorize();
-  @async
   void showAppSettings();
   @async
   void startDiscovery(List<String> serviceUUIDsArgs);
@@ -278,8 +320,9 @@ abstract class MyPeripheralManagerHostAPI {
   MyBluetoothLowEnergyStateArgs getState();
   @async
   bool authorize();
-  @async
   void showAppSettings();
+  @async
+  String? setName(String nameArgs);
   void openGATTServer();
   void closeGATTServer();
   @async
@@ -287,7 +330,11 @@ abstract class MyPeripheralManagerHostAPI {
   void removeService(int hashCodeArgs);
   void removeAllServices();
   @async
-  void startAdvertising(MyAdvertisementArgs advertisementArgs);
+  void startAdvertising(
+    MyAdvertiseSettingsArgs settingsArgs,
+    MyAdvertiseDataArgs advertiseDataArgs,
+    MyAdvertiseDataArgs scanResponseArgs,
+  );
   void stopAdvertising();
   void sendResponse(
     String addressArgs,

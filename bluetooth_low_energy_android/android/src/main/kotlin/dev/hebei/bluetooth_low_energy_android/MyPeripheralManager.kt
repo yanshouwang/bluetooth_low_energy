@@ -43,7 +43,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
     private val mDescriptors: MutableMap<Long, BluetoothGattDescriptor>
 
     private var mAuthorizeCallback: ((Result<Boolean>) -> Unit)?
-    private var mShowAppSettingsCallback: ((Result<Unit>) -> Unit)?
+    private var mSetNameCallback: ((Result<String?>) -> Unit)?
     private var mAddServiceCallback: ((Result<Unit>) -> Unit)?
     private var mStartAdvertisingCallback: ((Result<Unit>) -> Unit)?
     private val mNotifyCharacteristicValueChangedCallbacks: MutableMap<String, (Result<Unit>) -> Unit>
@@ -64,7 +64,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         mDescriptors = mutableMapOf()
 
         mAuthorizeCallback = null
-        mShowAppSettingsCallback = null
+        mSetNameCallback = null
         mAddServiceCallback = null
         mStartAdvertisingCallback = null
         mNotifyCharacteristicValueChangedCallbacks = mutableMapOf()
@@ -99,7 +99,7 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         mDescriptors.clear()
 
         mAuthorizeCallback = null
-        mShowAppSettingsCallback = null
+        mSetNameCallback = null
         mAddServiceCallback = null
         mStartAdvertisingCallback = null
         mNotifyCharacteristicValueChangedCallbacks.clear()
@@ -128,13 +128,20 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         }
     }
 
-    override fun showAppSettings(callback: (Result<Unit>) -> Unit) {
+    override fun showAppSettings() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        intent.data = Uri.fromParts("package", activity.packageName, null)
+        val options = ActivityOptionsCompat.makeBasic().toBundle()
+        ActivityCompat.startActivity(activity, intent, options)
+    }
+
+    override fun setName(nameArgs: String, callback: (Result<String?>) -> Unit) {
         try {
-            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-            intent.data = Uri.fromParts("package", activity.packageName, null)
-            val options = ActivityOptionsCompat.makeBasic().toBundle()
-            ActivityCompat.startActivityForResult(activity, intent, SHOW_APP_SETTINGS_CODE, options)
-            mShowAppSettingsCallback = callback
+            val setting = adapter.setName(nameArgs)
+            if (!setting) {
+                throw IllegalStateException()
+            }
+            mSetNameCallback = callback
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
@@ -183,17 +190,11 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         mDescriptorsArgs.clear()
     }
 
-    override fun startAdvertising(advertisementArgs: MyAdvertisementArgs, callback: (Result<Unit>) -> Unit) {
+    override fun startAdvertising(settingsArgs: MyAdvertiseSettingsArgs, advertiseDataArgs: MyAdvertiseDataArgs, scanResponseArgs: MyAdvertiseDataArgs, callback: (Result<Unit>) -> Unit) {
         try {
-            val settings = AdvertiseSettings.Builder().setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED).setConnectable(true).build()
-            // TODO: There is an issue that Android will use the cached name before setName takes effect.
-            // see https://stackoverflow.com/questions/8377558/change-the-android-bluetooth-device-name
-            val nameArgs = advertisementArgs.nameArgs
-            if (nameArgs != null) {
-                adapter.name = nameArgs
-            }
-            val advertiseData = advertisementArgs.toAdvertiseData()
-            val scanResponse = advertisementArgs.toScanResponse()
+            val settings = settingsArgs.toAdvertiseSettings()
+            val advertiseData = advertiseDataArgs.toAdvertiseData()
+            val scanResponse = scanResponseArgs.toAdvertiseData()
             advertiser.startAdvertising(settings, advertiseData, scanResponse, mAdvertiseCallback)
             mStartAdvertisingCallback = callback
         } catch (e: Throwable) {
@@ -238,12 +239,20 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action != BluetoothAdapter.ACTION_STATE_CHANGED) {
-            return
+        when (intent.action) {
+            BluetoothAdapter.ACTION_STATE_CHANGED -> {
+                val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF)
+                val stateArgs = state.toBluetoothLowEnergyStateArgs()
+                mAPI.onStateChanged(stateArgs) {}
+            }
+            BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED -> {
+                val callback = mSetNameCallback ?: return
+                mSetNameCallback = null
+                val nameArgs = intent.getStringExtra(BluetoothAdapter.EXTRA_LOCAL_NAME)
+                callback(Result.success(nameArgs))
+            }
+            else -> {}
         }
-        val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF)
-        val stateArgs = state.toBluetoothLowEnergyStateArgs()
-        mAPI.onStateChanged(stateArgs) {}
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, results: IntArray): Boolean {
@@ -254,16 +263,6 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         mAuthorizeCallback = null
         val authorized = permissions.contentEquals(this.permissions) && results.all { r -> r == PackageManager.PERMISSION_GRANTED }
         callback(Result.success(authorized))
-        return true
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-        if (requestCode != SHOW_APP_SETTINGS_CODE) {
-            return false
-        }
-        val callback = mShowAppSettingsCallback ?: return false
-        mShowAppSettingsCallback = null
-        callback(Result.success(Unit))
         return true
     }
 
