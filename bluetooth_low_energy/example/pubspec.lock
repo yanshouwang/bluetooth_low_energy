@@ -23,47 +23,47 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "6.0.1"
+    version: "7.0.0-dev.0"
   bluetooth_low_energy_android:
     dependency: transitive
     description:
       name: bluetooth_low_energy_android
-      sha256: "97cac5169a392f3872cbb416cc11cf0b2287567c0ceca4d975f2fc5bdd2b1e6f"
+      sha256: "5de97e5222cc05a1d8805171dfb3efdee7966288b6ab0cea99283734a87c8c18"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.2"
+    version: "7.0.0-dev.0"
   bluetooth_low_energy_darwin:
     dependency: transitive
     description:
       name: bluetooth_low_energy_darwin
-      sha256: "849ba53f7d34845ad7491cd9cdb3784301aa54fe682c91cab804ed55cfd259d5"
+      sha256: "9dc77b41ed581f47697d172a17bb0006e1575f91b337d884af8c796cad48330f"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0"
+    version: "7.0.0-dev.0"
   bluetooth_low_energy_linux:
     dependency: transitive
     description:
       name: bluetooth_low_energy_linux
-      sha256: "4d1aaaede517f95320dcf9ad271091ab42c4ad8ba5bfa0e822744d850dcf0048"
+      sha256: "9ee15cb7dc76ed00825f33b9595a198a05e173a73a4344cf8289f8937305105c"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0"
+    version: "7.0.0-dev.0"
   bluetooth_low_energy_platform_interface:
     dependency: transitive
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: bc2e8d97c141653e5747bcb3cdc9fe956541b6ecc6e5f158b99a2f3abc2d946a
+      sha256: "1a162449857e6d5649e171a5f101b53cc917bf905bc40b4586b879108829c8a4"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0"
+    version: "7.0.0-dev.0"
   bluetooth_low_energy_windows:
     dependency: transitive
     description:
       name: bluetooth_low_energy_windows
-      sha256: "4904530cb3e7e1dd7a66919b4c926f8a03ed9924c3c2ce068aef7e0e10ced555"
+      sha256: ef11bc05c09199ffff6c9360b176ed1346b5ab946271900883f913c66cb3b926
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0"
+    version: "7.0.0-dev.0"
   bluez:
     dependency: transitive
     description:
@@ -178,6 +178,11 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  flutter_localizations:
+    dependency: "direct main"
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_simple_treeview:
     dependency: "direct main"
     description:

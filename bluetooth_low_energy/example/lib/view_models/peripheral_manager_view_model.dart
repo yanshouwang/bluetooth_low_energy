@@ -82,9 +82,9 @@ class PeripheralManagerViewModel extends ViewModel {
         final elements = List.generate(maximumNotifyLength, (i) => i % 256);
         final value = Uint8List.fromList(elements);
         await _manager.notifyCharacteristic(
-          central,
           characteristic,
           value: value,
+          central: central,
         );
       }
     });
@@ -134,7 +134,7 @@ class PeripheralManagerViewModel extends ViewModel {
     );
     await _manager.addService(service);
     final advertisement = Advertisement(
-      name: Platform.isWindows ? null : 'BLE-12138',
+      name: Platform.isAndroid || Platform.isWindows ? null : 'BLE-12138',
       manufacturerSpecificData: Platform.isIOS || Platform.isMacOS
           ? []
           : [
@@ -144,7 +144,13 @@ class PeripheralManagerViewModel extends ViewModel {
               )
             ],
     );
-    await _manager.startAdvertising(advertisement);
+    // if (Platform.isAndroid) {
+    //   await _manager.setName('BLE-12138');
+    // }
+    await _manager.startAdvertising(
+      advertisement,
+      includeDeviceName: Platform.isAndroid ? true : null,
+    );
     _advertising = true;
     notifyListeners();
   }
