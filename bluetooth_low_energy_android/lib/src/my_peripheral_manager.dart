@@ -210,7 +210,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     if (central is! MyCentral) {
       throw TypeError();
     }
-    final addressArgs = central.address;
+    final addressArgs = central.addressArgs;
     final mtu = _mtus[addressArgs] ?? 23;
     final maximumNotifyLength = (mtu - 3).clamp(20, 512);
     return Future.value(maximumNotifyLength);
@@ -324,7 +324,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     if (characteristic is! MutableGATTCharacteristic || central is! MyCentral) {
       throw TypeError();
     }
-    final addressArgs = central.address;
+    final addressArgs = central.addressArgs;
     final hashCodeArgs = characteristic.hashCode;
     final cccValue = _retrieveCCCValue(addressArgs, hashCodeArgs);
     final notificationDisabled = _valueEquality.equals(
