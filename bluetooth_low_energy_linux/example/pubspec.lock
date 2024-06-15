@@ -23,15 +23,15 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "6.0.0"
+    version: "7.0.0-dev.0"
   bluetooth_low_energy_platform_interface:
     dependency: "direct main"
     description:
       name: bluetooth_low_energy_platform_interface
-      sha256: bc2e8d97c141653e5747bcb3cdc9fe956541b6ecc6e5f158b99a2f3abc2d946a
+      sha256: "1a162449857e6d5649e171a5f101b53cc917bf905bc40b4586b879108829c8a4"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0"
+    version: "7.0.0-dev.0"
   bluez:
     dependency: transitive
     description:
@@ -146,6 +146,11 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  flutter_localizations:
+    dependency: "direct main"
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_simple_treeview:
     dependency: "direct main"
     description:

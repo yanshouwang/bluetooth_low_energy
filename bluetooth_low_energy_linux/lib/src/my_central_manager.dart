@@ -65,6 +65,9 @@ final class MyCentralManager extends PlatformCentralManager {
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
+  Stream<NameChangedEventArgs> get nameChanged =>
+      throw UnsupportedError('nameChanged is not supported on Linux.');
+  @override
   Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
   @override
   Stream<PeripheralConnectionStateChangedEventArgs>
@@ -91,6 +94,16 @@ final class MyCentralManager extends PlatformCentralManager {
   @override
   Future<void> showAppSettings() {
     throw UnsupportedError('showAppSettings is not supported on Linux.');
+  }
+
+  @override
+  Future<String> getName() {
+    throw UnsupportedError('getName is not supported on Linux.');
+  }
+
+  @override
+  Future<void> setName(String name) {
+    throw UnsupportedError('setName is not supported on Linux.');
   }
 
   @override
@@ -210,7 +223,6 @@ final class MyCentralManager extends PlatformCentralManager {
 
   @override
   Future<Uint8List> readCharacteristic(
-    Peripheral peripheral,
     GATTCharacteristic characteristic,
   ) async {
     if (characteristic is! MyGATTCharacteristic) {
@@ -226,7 +238,6 @@ final class MyCentralManager extends PlatformCentralManager {
 
   @override
   Future<void> writeCharacteristic(
-    Peripheral peripheral,
     GATTCharacteristic characteristic, {
     required Uint8List value,
     required GATTCharacteristicWriteType type,
@@ -246,7 +257,6 @@ final class MyCentralManager extends PlatformCentralManager {
 
   @override
   Future<void> setCharacteristicNotifyState(
-    Peripheral peripheral,
     GATTCharacteristic characteristic, {
     required bool state,
   }) async {
@@ -266,7 +276,6 @@ final class MyCentralManager extends PlatformCentralManager {
 
   @override
   Future<Uint8List> readDescriptor(
-    Peripheral peripheral,
     GATTDescriptor descriptor,
   ) async {
     if (descriptor is! MyGATTDescriptor) {
@@ -281,7 +290,6 @@ final class MyCentralManager extends PlatformCentralManager {
 
   @override
   Future<void> writeDescriptor(
-    Peripheral peripheral,
     GATTDescriptor descriptor, {
     required Uint8List value,
   }) async {
