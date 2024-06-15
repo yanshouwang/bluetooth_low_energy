@@ -256,6 +256,8 @@ abstract class MyCentralManagerHostAPI {
   @async
   bool authorize();
   void showAppSettings();
+  String getName();
+  void setName(String nameArgs);
   @async
   void startDiscovery(List<String> serviceUUIDsArgs);
   void stopDiscovery();
@@ -297,6 +299,7 @@ abstract class MyCentralManagerHostAPI {
 @FlutterApi()
 abstract class MyCentralManagerFlutterAPI {
   void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs);
+  void onNameChanged(String? nameArgs);
   void onDiscovered(
     MyPeripheralArgs peripheralArgs,
     int rssiArgs,
@@ -321,8 +324,8 @@ abstract class MyPeripheralManagerHostAPI {
   @async
   bool authorize();
   void showAppSettings();
-  @async
-  String? setName(String nameArgs);
+  String getName();
+  void setName(String nameArgs);
   void openGATTServer();
   void closeGATTServer();
   @async
@@ -355,6 +358,7 @@ abstract class MyPeripheralManagerHostAPI {
 @FlutterApi()
 abstract class MyPeripheralManagerFlutterAPI {
   void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs);
+  void onNameChanged(String? nameArgs);
   void onConnectionStateChanged(
     MyCentralArgs centralArgs,
     int statusArgs,

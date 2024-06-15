@@ -144,6 +144,18 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
         ActivityCompat.startActivity(activity, intent, options)
     }
 
+    override fun getName(): String {
+        val name = adapter.name ?: throw IllegalArgumentException()
+        return name
+    }
+
+    override fun setName(nameArgs: String) {
+        val setting = adapter.setName(nameArgs)
+        if (!setting) {
+            throw IllegalStateException()
+        }
+    }
+
     override fun startDiscovery(serviceUUIDsArgs: List<String>, callback: (Result<Unit>) -> Unit) {
         try {
             val filters = mutableListOf<ScanFilter>()
@@ -328,12 +340,18 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action != BluetoothAdapter.ACTION_STATE_CHANGED) {
-            return
+        when (intent.action) {
+            BluetoothAdapter.ACTION_STATE_CHANGED -> {
+                val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF)
+                val stateArgs = state.toBluetoothLowEnergyStateArgs()
+                mAPI.onStateChanged(stateArgs) {}
+            }
+            BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED -> {
+                val nameArgs = intent.getStringExtra(BluetoothAdapter.EXTRA_LOCAL_NAME)
+                mAPI.onNameChanged(nameArgs) {}
+            }
+            else -> {}
         }
-        val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF)
-        val stateArgs = state.toBluetoothLowEnergyStateArgs()
-        mAPI.onStateChanged(stateArgs) {}
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, results: IntArray): Boolean {

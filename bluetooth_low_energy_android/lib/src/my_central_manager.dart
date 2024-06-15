@@ -15,6 +15,7 @@ final class MyCentralManager extends PlatformCentralManager
   final MyCentralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
+  final StreamController<NameChangedEventArgs> _nameChangedController;
   final StreamController<DiscoveredEventArgs> _discoveredController;
   final StreamController<PeripheralConnectionStateChangedEventArgs>
       _connectionStateChangedController;
@@ -31,6 +32,7 @@ final class MyCentralManager extends PlatformCentralManager
   MyCentralManager()
       : _api = MyCentralManagerHostAPI(),
         _stateChangedController = StreamController.broadcast(),
+        _nameChangedController = StreamController.broadcast(),
         _discoveredController = StreamController.broadcast(),
         _connectionStateChangedController = StreamController.broadcast(),
         _mtuChangedController = StreamController.broadcast(),
@@ -44,6 +46,8 @@ final class MyCentralManager extends PlatformCentralManager
   @override
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
+  @override
+  Stream<NameChangedEventArgs> get nameChanged => _nameChangedController.stream;
   @override
   Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
   @override
@@ -88,6 +92,20 @@ final class MyCentralManager extends PlatformCentralManager
   }
 
   @override
+  Future<String> getName() async {
+    logger.info('getName');
+    final name = await _api.getName();
+    return name;
+  }
+
+  @override
+  Future<void> setName(String name) async {
+    logger.info('setName: $name');
+    await _api.setName(name);
+    await nameChanged.first;
+  }
+
+  @override
   Future<void> startDiscovery({
     List<UUID>? serviceUUIDs,
   }) async {
@@ -109,7 +127,7 @@ final class MyCentralManager extends PlatformCentralManager
     final peripheralsArgs = await _api.retrieveConnectedPeripherals();
     final peripherals = peripheralsArgs
         .cast<MyPeripheralArgs>()
-        .map((args) => args.toPeripheral())
+        .map((peripheralArgs) => MyPeripheral.fromArgs(peripheralArgs))
         .toList();
     return peripherals;
   }
@@ -184,21 +202,21 @@ final class MyCentralManager extends PlatformCentralManager
     final servicesArgs = await _api.discoverGATT(addressArgs);
     final services = servicesArgs
         .cast<MyGATTServiceArgs>()
-        .map((args) => args.toService())
+        .map((serviceArgs) => MyGATTService.fromArgs(
+              addressArgs: addressArgs,
+              serviceArgs: serviceArgs,
+            ))
         .toList();
     return services;
   }
 
   @override
   Future<Uint8List> readCharacteristic(
-    Peripheral peripheral,
-    GATTCharacteristic characteristic,
-  ) async {
-    if (peripheral is! MyPeripheral ||
-        characteristic is! MyGATTCharacteristic) {
+      GATTCharacteristic characteristic) async {
+    if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final addressArgs = peripheral.addressArgs;
+    final addressArgs = characteristic.addressArgs;
     final hashCodeArgs = characteristic.hashCodeArgs;
     logger.info('readCharacteristic: $addressArgs.$hashCodeArgs');
     final value = await _api.readCharacteristic(addressArgs, hashCodeArgs);
@@ -207,16 +225,14 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<void> writeCharacteristic(
-    Peripheral peripheral,
     GATTCharacteristic characteristic, {
     required Uint8List value,
     required GATTCharacteristicWriteType type,
   }) async {
-    if (peripheral is! MyPeripheral ||
-        characteristic is! MyGATTCharacteristic) {
+    if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final addressArgs = peripheral.addressArgs;
+    final addressArgs = characteristic.addressArgs;
     final hashCodeArgs = characteristic.hashCodeArgs;
     final valueArgs = value;
     final typeArgs = type.toArgs();
@@ -232,15 +248,13 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<void> setCharacteristicNotifyState(
-    Peripheral peripheral,
     GATTCharacteristic characteristic, {
     required bool state,
   }) async {
-    if (peripheral is! MyPeripheral ||
-        characteristic is! MyGATTCharacteristic) {
+    if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final addressArgs = peripheral.addressArgs;
+    final addressArgs = characteristic.addressArgs;
     final hashCodeArgs = characteristic.hashCodeArgs;
     final enableArgs = state;
     logger.info(
@@ -260,21 +274,17 @@ final class MyCentralManager extends PlatformCentralManager
             : _args.enableIndicationValue
         : _args.disableNotificationValue;
     await writeDescriptor(
-      peripheral,
       descriptor,
       value: value,
     );
   }
 
   @override
-  Future<Uint8List> readDescriptor(
-    Peripheral peripheral,
-    GATTDescriptor descriptor,
-  ) async {
-    if (peripheral is! MyPeripheral || descriptor is! MyGATTDescriptor) {
+  Future<Uint8List> readDescriptor(GATTDescriptor descriptor) async {
+    if (descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
-    final addressArgs = peripheral.addressArgs;
+    final addressArgs = descriptor.addressArgs;
     final hashCodeArgs = descriptor.hashCodeArgs;
     logger.info('readDescriptor: $addressArgs.$hashCodeArgs');
     final value = await _api.readDescriptor(addressArgs, hashCodeArgs);
@@ -283,14 +293,13 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<void> writeDescriptor(
-    Peripheral peripheral,
     GATTDescriptor descriptor, {
     required Uint8List value,
   }) async {
-    if (peripheral is! MyPeripheral || descriptor is! MyGATTDescriptor) {
+    if (descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
-    final addressArgs = peripheral.addressArgs;
+    final addressArgs = descriptor.addressArgs;
     final hashCodeArgs = descriptor.hashCodeArgs;
     final valueArgs = value;
     logger.info('writeDescriptor: $addressArgs.$hashCodeArgs - $valueArgs');
@@ -310,6 +319,16 @@ final class MyCentralManager extends PlatformCentralManager
   }
 
   @override
+  void onNameChanged(String? nameArgs) {
+    logger.info('onNameChanged: $nameArgs');
+    if (nameArgs == null) {
+      return;
+    }
+    final eventArgs = NameChangedEventArgs(nameArgs);
+    _nameChangedController.add(eventArgs);
+  }
+
+  @override
   void onDiscovered(
     MyPeripheralArgs peripheralArgs,
     int rssiArgs,
@@ -317,7 +336,7 @@ final class MyCentralManager extends PlatformCentralManager
   ) {
     final addressArgs = peripheralArgs.addressArgs;
     logger.info('onDiscovered: $addressArgs - $rssiArgs, $advertisementArgs');
-    final peripheral = peripheralArgs.toPeripheral();
+    final peripheral = MyPeripheral.fromArgs(peripheralArgs);
     final rssi = rssiArgs;
     final advertisement = advertisementArgs.toAdvertisement();
     final eventArgs = DiscoveredEventArgs(
@@ -335,7 +354,7 @@ final class MyCentralManager extends PlatformCentralManager
   ) {
     final addressArgs = peripheralArgs.addressArgs;
     logger.info('onConnectionStateChanged: $addressArgs - $stateArgs');
-    final peripheral = peripheralArgs.toPeripheral();
+    final peripheral = MyPeripheral.fromArgs(peripheralArgs);
     final state = stateArgs.toState();
     if (state == ConnectionState.disconnected) {
       _mtus.remove(addressArgs);
@@ -351,7 +370,7 @@ final class MyCentralManager extends PlatformCentralManager
   void onMTUChanged(MyPeripheralArgs peripheralArgs, int mtuArgs) {
     final addressArgs = peripheralArgs.addressArgs;
     logger.info('onMTUChanged: $addressArgs - $mtuArgs');
-    final peripheral = peripheralArgs.toPeripheral();
+    final peripheral = MyPeripheral.fromArgs(peripheralArgs);
     final mtu = mtuArgs;
     _mtus[addressArgs] = mtu;
     final eventArgs = PeripheralMTUChangedEventArgs(peripheral, mtu);
@@ -368,8 +387,11 @@ final class MyCentralManager extends PlatformCentralManager
     final hashCodeArgs = characteristicArgs.hashCodeArgs;
     logger.info(
         'onCharacteristicNotified: $addressArgs.$hashCodeArgs - $valueArgs');
-    final peripheral = peripheralArgs.toPeripheral();
-    final characteristic = characteristicArgs.toCharacteristic();
+    final peripheral = MyPeripheral.fromArgs(peripheralArgs);
+    final characteristic = MyGATTCharacteristic.fromArgs(
+      addressArgs: addressArgs,
+      characteristicArgs: characteristicArgs,
+    );
     final value = valueArgs;
     final eventArgs = GATTCharacteristicNotifiedEventArgs(
       peripheral,

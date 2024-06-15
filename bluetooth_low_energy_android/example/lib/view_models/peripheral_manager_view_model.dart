@@ -80,9 +80,9 @@ class PeripheralManagerViewModel extends ViewModel {
         final elements = List.generate(maximumNotifyLength, (i) => i % 256);
         final value = Uint8List.fromList(elements);
         await _manager.notifyCharacteristic(
-          central,
           characteristic,
           value: value,
+          central: central,
         );
       }
     });
@@ -132,7 +132,6 @@ class PeripheralManagerViewModel extends ViewModel {
     );
     await _manager.addService(service);
     final advertisement = Advertisement(
-      name: 'BLE-12138',
       manufacturerSpecificData: [
         ManufacturerSpecificData(
           id: 0x2e19,
@@ -140,7 +139,11 @@ class PeripheralManagerViewModel extends ViewModel {
         )
       ],
     );
-    await _manager.startAdvertising(advertisement);
+    // await _manager.setName('BLE-12138');
+    await _manager.startAdvertising(
+      advertisement,
+      includeDeviceName: true,
+    );
     _advertising = true;
     notifyListeners();
   }

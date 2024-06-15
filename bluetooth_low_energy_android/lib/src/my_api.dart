@@ -3,9 +3,6 @@ import 'dart:typed_data';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
 import 'my_api.g.dart';
-import 'my_central.dart';
-import 'my_gatt.dart';
-import 'my_peripheral.dart';
 
 // ToObj
 extension MyBluetoothLowEnergyStateArgsX on MyBluetoothLowEnergyStateArgs {
@@ -78,66 +75,6 @@ extension MyAdvertisementArgsX on MyAdvertisementArgs {
   }
 }
 
-extension MyPeripheralArgsX on MyPeripheralArgs {
-  MyPeripheral toPeripheral() {
-    return MyPeripheral(
-      addressArgs: addressArgs,
-    );
-  }
-}
-
-extension MyGATTDescriptorArgsX on MyGATTDescriptorArgs {
-  MyGATTDescriptor toDescriptor() {
-    return MyGATTDescriptor(
-      hashCodeArgs: hashCodeArgs,
-      uuid: UUID.fromString(uuidArgs),
-    );
-  }
-}
-
-extension MyGATTCharacteristicArgsX on MyGATTCharacteristicArgs {
-  MyGATTCharacteristic toCharacteristic() {
-    return MyGATTCharacteristic(
-      hashCodeArgs: hashCodeArgs,
-      uuid: UUID.fromString(uuidArgs),
-      properties: propertyNumbersArgs.cast<int>().map((args) {
-        final propertyArgs = MyGATTCharacteristicPropertyArgs.values[args];
-        return propertyArgs.toProperty();
-      }).toList(),
-      descriptors: descriptorsArgs
-          .cast<MyGATTDescriptorArgs>()
-          .map((args) => args.toDescriptor())
-          .toList(),
-    );
-  }
-}
-
-extension MyGATTServiceArgsX on MyGATTServiceArgs {
-  MyGATTService toService() {
-    return MyGATTService(
-      hashCodeArgs: hashCodeArgs,
-      uuid: UUID.fromString(uuidArgs),
-      isPrimary: isPrimaryArgs,
-      includedServices: includedServicesArgs
-          .cast<MyGATTServiceArgs>()
-          .map((args) => args.toService())
-          .toList(),
-      characteristics: characteristicsArgs
-          .cast<MyGATTCharacteristicArgs>()
-          .map((args) => args.toCharacteristic())
-          .toList(),
-    );
-  }
-}
-
-extension MyCentralArgsX on MyCentralArgs {
-  MyCentral toCentral() {
-    return MyCentral(
-      address: addressArgs,
-    );
-  }
-}
-
 // ToArgs
 extension UUIDX on UUID {
   String toArgs() {
@@ -199,6 +136,9 @@ extension ManufacturerSpecificDataX on ManufacturerSpecificData {
 
 extension AdvertisementX on Advertisement {
   MyAdvertiseDataArgs toAdvertiseDataArgs() {
+    if (name != null) {
+      throw UnsupportedError('name is not supported on Android.');
+    }
     return MyAdvertiseDataArgs(
       serviceUUIDsArgs: serviceUUIDs.map((uuid) => uuid.toArgs()).toList(),
       serviceDataArgs: serviceData.map((uuid, data) {
@@ -208,15 +148,6 @@ extension AdvertisementX on Advertisement {
       }),
       manufacturerSpecificDataArgs:
           manufacturerSpecificData.map((data) => data.toArgs()).toList(),
-    );
-  }
-
-  MyAdvertiseDataArgs toScanResponseArgs() {
-    return MyAdvertiseDataArgs(
-      includeDeviceNameArgs: name != null,
-      serviceUUIDsArgs: [],
-      serviceDataArgs: {},
-      manufacturerSpecificDataArgs: [],
     );
   }
 }

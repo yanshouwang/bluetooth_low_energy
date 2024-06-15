@@ -65,10 +65,7 @@ class CharacteristicViewModel extends ViewModel {
   bool get notifyState => _notifyState;
 
   Future<void> read() async {
-    final value = await _manager.readCharacteristic(
-      _peripheral,
-      _characteristic,
-    );
+    final value = await _manager.readCharacteristic(_characteristic);
     final log = Log(
       type: 'Read',
       message: '[${value.length}] $value',
@@ -102,7 +99,6 @@ class CharacteristicViewModel extends ViewModel {
           end < value.length ? value.sublist(start, end) : value.sublist(start);
       final type = writeType;
       await _manager.writeCharacteristic(
-        _peripheral,
         _characteristic,
         value: fragmentedValue,
         type: type,
@@ -121,7 +117,6 @@ class CharacteristicViewModel extends ViewModel {
 
   Future<void> setNotifyState(bool state) async {
     await _manager.setCharacteristicNotifyState(
-      _peripheral,
       _characteristic,
       state: state,
     );

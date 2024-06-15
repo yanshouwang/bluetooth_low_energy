@@ -43,7 +43,6 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
     private val mDescriptors: MutableMap<Long, BluetoothGattDescriptor>
 
     private var mAuthorizeCallback: ((Result<Boolean>) -> Unit)?
-    private var mSetNameCallback: ((Result<String?>) -> Unit)?
     private var mAddServiceCallback: ((Result<Unit>) -> Unit)?
     private var mStartAdvertisingCallback: ((Result<Unit>) -> Unit)?
     private val mNotifyCharacteristicValueChangedCallbacks: MutableMap<String, (Result<Unit>) -> Unit>
@@ -64,7 +63,6 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         mDescriptors = mutableMapOf()
 
         mAuthorizeCallback = null
-        mSetNameCallback = null
         mAddServiceCallback = null
         mStartAdvertisingCallback = null
         mNotifyCharacteristicValueChangedCallbacks = mutableMapOf()
@@ -99,7 +97,6 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         mDescriptors.clear()
 
         mAuthorizeCallback = null
-        mSetNameCallback = null
         mAddServiceCallback = null
         mStartAdvertisingCallback = null
         mNotifyCharacteristicValueChangedCallbacks.clear()
@@ -135,15 +132,15 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         ActivityCompat.startActivity(activity, intent, options)
     }
 
-    override fun setName(nameArgs: String, callback: (Result<String?>) -> Unit) {
-        try {
-            val setting = adapter.setName(nameArgs)
-            if (!setting) {
-                throw IllegalStateException()
-            }
-            mSetNameCallback = callback
-        } catch (e: Throwable) {
-            callback(Result.failure(e))
+    override fun getName(): String {
+        val name = adapter.name ?: throw IllegalArgumentException()
+        return name
+    }
+
+    override fun setName(nameArgs: String) {
+        val setting = adapter.setName(nameArgs)
+        if (!setting) {
+            throw IllegalStateException()
         }
     }
 
@@ -246,10 +243,8 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
                 mAPI.onStateChanged(stateArgs) {}
             }
             BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED -> {
-                val callback = mSetNameCallback ?: return
-                mSetNameCallback = null
                 val nameArgs = intent.getStringExtra(BluetoothAdapter.EXTRA_LOCAL_NAME)
-                callback(Result.success(nameArgs))
+                mAPI.onNameChanged(nameArgs) {}
             }
             else -> {}
         }
