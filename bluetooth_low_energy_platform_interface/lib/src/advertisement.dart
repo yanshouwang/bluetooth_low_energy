@@ -7,8 +7,8 @@ import 'uuid.dart';
 final class Advertisement {
   /// The name of the peripheral.
   ///
-  /// This field is available on Android, iOS and macOS, throws [UnsupportedError]
-  /// on other platforms.
+  /// This field is available on iOS and macOS, throws [UnsupportedError] on other
+  /// platforms.
   final String? name;
 
   /// The GATT service uuids of the peripheral.

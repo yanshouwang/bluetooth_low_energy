@@ -13,6 +13,15 @@ final class BluetoothLowEnergyStateChangedEventArgs extends EventArgs {
   BluetoothLowEnergyStateChangedEventArgs(this.state);
 }
 
+/// The name changed event arguments.
+final class NameChangedEventArgs extends EventArgs {
+  /// The name.
+  final String name;
+
+  /// Constructs a [NameChangedEventArgs].
+  NameChangedEventArgs(this.name);
+}
+
 /// The abstract base class that manages central and peripheral objects.
 abstract interface class BluetoothLowEnergyManager implements LogController {
   /// Gets the manager's state.
@@ -20,6 +29,12 @@ abstract interface class BluetoothLowEnergyManager implements LogController {
 
   /// Tells the manager's state updated.
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged;
+
+  /// Tells the manager's name updated.
+  ///
+  /// This field is available on Android, throws [UnsupportedError] on other
+  /// platforms.
+  Stream<NameChangedEventArgs> get nameChanged;
 
   /// Requests permissions to be granted to this application. These permissions
   /// must be requested in your manifest, they should not be granted to your app,
@@ -35,6 +50,18 @@ abstract interface class BluetoothLowEnergyManager implements LogController {
   /// This method is available on Android and iOS, throws [UnsupportedError] on
   /// other platforms.
   Future<void> showAppSettings();
+
+  /// Gets the manager's name.
+  ///
+  /// This method is available on Android, throws [UnsupportedError] on other
+  /// platforms.
+  Future<String> getName();
+
+  /// Sets the manager's name.
+  ///
+  /// This method is available on Android, throws [UnsupportedError] on other
+  /// platforms.
+  Future<void> setName(String name);
 }
 
 /// The abstract base channel class that manages central and peripheral objects.

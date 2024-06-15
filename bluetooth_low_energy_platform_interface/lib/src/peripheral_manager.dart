@@ -203,7 +203,20 @@ abstract interface class PeripheralManager
   Future<void> removeAllServices();
 
   /// Advertises peripheral manager data.
-  Future<void> startAdvertising(Advertisement advertisement);
+  ///
+  /// [includeDeviceName] Set whether the device name should be included in advertise
+  /// packet. this argument is available on Android, throws [UnsupportedError] on
+  /// other platforms.
+  ///
+  /// [includeTXPowerLevel] Whether the transmission power level should be included
+  /// in the advertise packet. TX power level field takes 3 bytes in advertise
+  /// packet. This argument is available on Android and Windows, throws [UnsupportedError]
+  /// on other platforms.
+  Future<void> startAdvertising(
+    Advertisement advertisement, {
+    bool? includeDeviceName,
+    bool? includeTXPowerLevel,
+  });
 
   /// Stops advertising peripheral manager data.
   Future<void> stopAdvertising();
