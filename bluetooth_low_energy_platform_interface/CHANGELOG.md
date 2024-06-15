@@ -1,3 +1,16 @@
+## 7.0.0-dev.0
+
+* Add `BluetoothLowEnergyManager#nameChanged` event.
+* Add `BluetoothLowEnergyManager#getName` method.
+* Add `BluetoothLowEnergyManager#setName` method.
+* Remove the unnecessary `peripheral` argument from `CentralManger#readCharacteristic` method.
+* Remove the unnecessary `peripheral` argument from `CentralManger#writeCharacteristic` method.
+* Remove the unnecessary `peripheral` argument from `CentralManger#setCharacteristicNotifyState` method.
+* Remove the unnecessary `peripheral` argument from `CentralManger#readDescriptor` method.
+* Remove the unnecessary `peripheral` argument from `CentralManger#writeDescriptor` method.
+* Add `includeDeviceName` and `includeTXPowerLevel` arguments to `PeripheralManager#startAdvertising` method.
+* Move the `central` argument in `PeripheralManger#notifyCharacteristic` method to name argument.
+
 ## 6.0.0
 
 * Add `BluetoothLowEnergyManager#authorize` method.
