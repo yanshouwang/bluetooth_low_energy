@@ -42,6 +42,9 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
+  Stream<NameChangedEventArgs> get nameChanged =>
+      throw UnsupportedError('nameChanged is not supported on Darwin.');
+  @override
   Stream<CentralConnectionStateChangedEventArgs> get connectionStateChanged =>
       throw UnsupportedError(
           'connectionStateChanged is not supported on Darwin.');
@@ -93,6 +96,16 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
+  Future<String> getName() {
+    throw UnsupportedError('getName is not supported on Darwin.');
+  }
+
+  @override
+  Future<void> setName(String name) {
+    throw UnsupportedError('setName is not supported on Darwin.');
+  }
+
+  @override
   Future<void> addService(GATTService service) async {
     final serviceArgs = service.toArgs();
     logger.info('addService: $serviceArgs');
@@ -116,7 +129,15 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
-  Future<void> startAdvertising(Advertisement advertisement) async {
+  Future<void> startAdvertising(
+    Advertisement advertisement, {
+    bool? includeDeviceName,
+    bool? includeTXPowerLevel,
+  }) async {
+    if (includeDeviceName != null || includeTXPowerLevel != null) {
+      throw UnsupportedError(
+          'includeDeviceName and includeTXPowerLevel is not supported on Darwin.');
+    }
     final advertisementArgs = advertisement.toArgs();
     logger.info('startAdvertising: $advertisementArgs');
     await _api.startAdvertising(advertisementArgs);
@@ -211,9 +232,9 @@ final class MyPeripheralManager extends PlatformPeripheralManager
 
   @override
   Future<void> notifyCharacteristic(
-    Central central,
     GATTCharacteristic characteristic, {
     required Uint8List value,
+    required Central central,
   }) async {
     final hashCodeArgs = characteristic.hashCode;
     final valueArgs = value;

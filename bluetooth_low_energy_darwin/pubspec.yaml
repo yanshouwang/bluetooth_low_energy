@@ -1,6 +1,6 @@
 name: bluetooth_low_energy_darwin
 description: "iOS and macOS implementation of the bluetooth_low_energy plugin."
-version: 6.0.0
+version: 7.0.0-dev.0
 homepage: https://github.com/yanshouwang/bluetooth_low_energy
 repository: https://github.com/yanshouwang/bluetooth_low_energy
 issue_tracker: https://github.com/yanshouwang/bluetooth_low_energy/issues
@@ -21,13 +21,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  bluetooth_low_energy_platform_interface: ^6.0.0
+  bluetooth_low_energy_platform_interface: ^7.0.0-dev.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-  pigeon: ^19.0.0
+  pigeon: ^20.0.1
 
 flutter:
   plugin:

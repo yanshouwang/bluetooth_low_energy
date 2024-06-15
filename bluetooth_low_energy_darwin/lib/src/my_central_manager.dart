@@ -35,6 +35,9 @@ final class MyCentralManager extends PlatformCentralManager
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
+  Stream<NameChangedEventArgs> get nameChanged =>
+      throw UnsupportedError('nameChanged is not supported on Darwin.');
+  @override
   Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
   @override
   Stream<PeripheralConnectionStateChangedEventArgs>
@@ -66,6 +69,16 @@ final class MyCentralManager extends PlatformCentralManager
       throw UnsupportedError(
           'showAppSettings is not supported on ${Platform.operatingSystem}.');
     }
+  }
+
+  @override
+  Future<String> getName() {
+    throw UnsupportedError('getName is not supported on Darwin.');
+  }
+
+  @override
+  Future<void> setName(String name) {
+    throw UnsupportedError('setName is not supported on Darwin.');
   }
 
   @override
@@ -145,20 +158,23 @@ final class MyCentralManager extends PlatformCentralManager
     // 发现 GATT 服务
     final uuidArgs = peripheral.uuid.toArgs();
     final servicesArgs = await _discoverServices(uuidArgs);
-    final services = servicesArgs.map((args) => args.toService()).toList();
+    final services = servicesArgs
+        .map((serviceArgs) => MyGATTService.fromArgs(
+              uuidArgs: uuidArgs,
+              serviceArgs: serviceArgs,
+            ))
+        .toList();
     return services;
   }
 
   @override
   Future<Uint8List> readCharacteristic(
-    Peripheral peripheral,
-    GATTCharacteristic characteristic,
-  ) async {
+      GATTCharacteristic characteristic) async {
     if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final uuidArgs = peripheral.uuid.toArgs();
-    final hashCodeArgs = characteristic.hashCode;
+    final uuidArgs = characteristic.uuidArgs;
+    final hashCodeArgs = characteristic.hashCodeArgs;
     logger.info('readCharacteristic: $uuidArgs.$hashCodeArgs');
     final value = await _api.readCharacteristic(uuidArgs, hashCodeArgs);
     return value;
@@ -166,7 +182,6 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<void> writeCharacteristic(
-    Peripheral peripheral,
     GATTCharacteristic characteristic, {
     required Uint8List value,
     required GATTCharacteristicWriteType type,
@@ -174,8 +189,8 @@ final class MyCentralManager extends PlatformCentralManager
     if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final uuidArgs = peripheral.uuid.toArgs();
-    final hashCodeArgs = characteristic.hashCode;
+    final uuidArgs = characteristic.uuidArgs;
+    final hashCodeArgs = characteristic.hashCodeArgs;
     final valueArgs = value;
     final typeArgs = type.toArgs();
     logger.info(
@@ -185,15 +200,14 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<void> setCharacteristicNotifyState(
-    Peripheral peripheral,
     GATTCharacteristic characteristic, {
     required bool state,
   }) async {
     if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final uuidArgs = peripheral.uuid.toArgs();
-    final hashCodeArgs = characteristic.hashCode;
+    final uuidArgs = characteristic.uuidArgs;
+    final hashCodeArgs = characteristic.hashCodeArgs;
     final stateArgs = state;
     logger.info(
         'setCharacteristicNotifyState: $uuidArgs.$hashCodeArgs - $stateArgs');
@@ -201,15 +215,12 @@ final class MyCentralManager extends PlatformCentralManager
   }
 
   @override
-  Future<Uint8List> readDescriptor(
-    Peripheral peripheral,
-    GATTDescriptor descriptor,
-  ) async {
+  Future<Uint8List> readDescriptor(GATTDescriptor descriptor) async {
     if (descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
-    final uuidArgs = peripheral.uuid.toArgs();
-    final hashCodeArgs = descriptor.hashCode;
+    final uuidArgs = descriptor.uuidArgs;
+    final hashCodeArgs = descriptor.hashCodeArgs;
     logger.info('readDescriptor: $uuidArgs.$hashCodeArgs');
     final value = await _api.readDescriptor(uuidArgs, hashCodeArgs);
     return value;
@@ -217,15 +228,14 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<void> writeDescriptor(
-    Peripheral peripheral,
     GATTDescriptor descriptor, {
     required Uint8List value,
   }) async {
     if (descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
-    final uuidArgs = peripheral.uuid.toArgs();
-    final hashCodeArgs = descriptor.hashCode;
+    final uuidArgs = descriptor.uuidArgs;
+    final hashCodeArgs = descriptor.hashCodeArgs;
     final valueArgs = value;
     logger.info('writeDescriptor: $uuidArgs.$hashCodeArgs - $valueArgs');
     await _api.writeDescriptor(uuidArgs, hashCodeArgs, valueArgs);
@@ -288,7 +298,10 @@ final class MyCentralManager extends PlatformCentralManager
     logger
         .info('onCharacteristicNotified: $uuidArgs.$hashCodeArgs - $valueArgs');
     final peripheral = peripheralArgs.toPeripheral();
-    final characteristic = characteristicArgs.toCharacteristic();
+    final characteristic = MyGATTCharacteristic.fromArgs(
+      uuidArgs: uuidArgs,
+      characteristicArgs: characteristicArgs,
+    );
     final eventArgs = GATTCharacteristicNotifiedEventArgs(
       peripheral,
       characteristic,

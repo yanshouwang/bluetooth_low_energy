@@ -84,50 +84,6 @@ extension MyPeripheralArgsX on MyPeripheralArgs {
   }
 }
 
-extension MyGATTDescriptorArgsX on MyGATTDescriptorArgs {
-  MyGATTDescriptor toDescriptor() {
-    return MyGATTDescriptor(
-      hashCodeArgs: hashCodeArgs,
-      uuid: UUID.fromString(uuidArgs),
-    );
-  }
-}
-
-extension MyGATTCharacteristicArgsX on MyGATTCharacteristicArgs {
-  MyGATTCharacteristic toCharacteristic() {
-    return MyGATTCharacteristic(
-      hashCodeArgs: hashCodeArgs,
-      uuid: UUID.fromString(uuidArgs),
-      properties: propertyNumbersArgs.cast<int>().map((args) {
-        final propertyArgs = MyGATTCharacteristicPropertyArgs.values[args];
-        return propertyArgs.toProperty();
-      }).toList(),
-      descriptors: descriptorsArgs
-          .cast<MyGATTDescriptorArgs>()
-          .map((args) => args.toDescriptor())
-          .toList(),
-    );
-  }
-}
-
-extension MyGATTServiceArgsX on MyGATTServiceArgs {
-  MyGATTService toService() {
-    return MyGATTService(
-      hashCodeArgs: hashCodeArgs,
-      uuid: UUID.fromString(uuidArgs),
-      isPrimary: isPrimaryArgs,
-      includedServices: includedServicesArgs
-          .cast<MyGATTServiceArgs>()
-          .map((args) => args.toService())
-          .toList(),
-      characteristics: characteristicsArgs
-          .cast<MyGATTCharacteristicArgs>()
-          .map((args) => args.toCharacteristic())
-          .toList(),
-    );
-  }
-}
-
 extension MyCentralArgsX on MyCentralArgs {
   Central toCentral() {
     return Central(
