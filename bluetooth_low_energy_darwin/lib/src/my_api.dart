@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
 import 'my_api.g.dart';
-import 'my_gatt.dart';
 
 // ToObject
 extension Uint8ListX on Uint8List {
