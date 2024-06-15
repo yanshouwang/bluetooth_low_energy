@@ -1,3 +1,12 @@
+## 7.0.0-dev.0
+
+* Remove the unnecessary `peripheral` argument from `CentralManger#readCharacteristic` method.
+* Remove the unnecessary `peripheral` argument from `CentralManger#writeCharacteristic` method.
+* Remove the unnecessary `peripheral` argument from `CentralManger#setCharacteristicNotifyState` method.
+* Remove the unnecessary `peripheral` argument from `CentralManger#readDescriptor` method.
+* Remove the unnecessary `peripheral` argument from `CentralManger#writeDescriptor` method.
+* Move the `central` argument in `PeripheralManger#notifyCharacteristic` method to name argument.
+
 ## 6.0.0
 
 * Implement `PeripheralManager` API.

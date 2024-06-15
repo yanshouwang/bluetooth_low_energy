@@ -80,6 +80,7 @@ namespace bluetooth_low_energy_windows
 		try
 		{
 			const auto &publisher = m_publisher.value();
+			// TODO: This doesn't work now.
 			const auto advertisement = publisher.Advertisement();
 			// When configuring the publisher object, you can't add restricted section types
 			// (BluetoothLEAdvertisementPublisher.Advertisement.Flags and
@@ -263,9 +264,9 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	void MyPeripheralManager::NotifyValue(int64_t address_args, int64_t hash_code_args, const std::vector<uint8_t> &value_args, std::function<void(std::optional<FlutterError> reply)> result)
+	void MyPeripheralManager::NotifyValue(int64_t hash_code_args, const std::vector<uint8_t> &value_args, int64_t address_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
-		NotifyValueAsync(address_args, hash_code_args, value_args, std::move(result));
+		NotifyValueAsync(hash_code_args, value_args, address_args, std::move(result));
 	}
 
 	winrt::fire_and_forget MyPeripheralManager::InitializeAsync(std::function<void(std::optional<FlutterError> reply)> result)
@@ -369,15 +370,15 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
-	winrt::fire_and_forget MyPeripheralManager::NotifyValueAsync(int64_t address_args, int64_t hash_code_args, const std::vector<uint8_t> &value_args, std::function<void(std::optional<FlutterError> reply)> result)
+	winrt::fire_and_forget MyPeripheralManager::NotifyValueAsync(int64_t hash_code_args, const std::vector<uint8_t> &value_args, int64_t address_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
 		try
 		{
-			const auto &client = m_clients[address_args].value();
 			const auto &characteristic = m_characteristics[hash_code_args].value();
 			const auto value_writer = winrt::Windows::Storage::Streams::DataWriter();
 			value_writer.WriteBytes(value_args);
 			const auto value = value_writer.DetachBuffer();
+			const auto &client = m_clients[address_args].value();
 			co_await characteristic.NotifyValueAsync(value, client);
 			result(std::nullopt);
 		}

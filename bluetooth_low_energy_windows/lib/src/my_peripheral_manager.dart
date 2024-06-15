@@ -55,6 +55,9 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
+  Stream<NameChangedEventArgs> get nameChanged =>
+      throw UnsupportedError('nameChanged is not supported on Windows.');
+  @override
   Stream<CentralConnectionStateChangedEventArgs> get connectionStateChanged =>
       throw UnsupportedError(
           'connectionStateChanged is not supported on Windows.');
@@ -97,6 +100,16 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
+  Future<String> getName() {
+    throw UnsupportedError('getName is not supported on Windows.');
+  }
+
+  @override
+  Future<void> setName(String name) {
+    throw UnsupportedError('setName is not supported on Windows.');
+  }
+
+  @override
   Future<void> addService(GATTService service) async {
     final serviceArgs = service.toArgs();
     logger.info('addService: $serviceArgs');
@@ -126,7 +139,15 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
-  Future<void> startAdvertising(Advertisement advertisement) async {
+  Future<void> startAdvertising(
+    Advertisement advertisement, {
+    bool? includeDeviceName,
+    bool? includeTXPowerLevel,
+  }) async {
+    if (includeDeviceName != null || includeTXPowerLevel != null) {
+      throw UnsupportedError(
+          'includeDeviceName and includeTXPowerLevel is not supported on Windows.');
+    }
     final advertisementArgs = advertisement.toArgs();
     logger.info('startAdvertising: $advertisementArgs');
     await _api.startAdvertising(advertisementArgs);
@@ -208,21 +229,21 @@ final class MyPeripheralManager extends PlatformPeripheralManager
 
   @override
   Future<void> notifyCharacteristic(
-    Central central,
     GATTCharacteristic characteristic, {
     required Uint8List value,
+    required Central central,
   }) async {
     if (central is! MyCentral || characteristic is! MutableGATTCharacteristic) {
       throw TypeError();
     }
-    final addressArgs = central.addressArgs;
     final hashCodeArgs = characteristic.hashCode;
     final valueArgs = value;
-    logger.info('notifyValue: $addressArgs - $hashCodeArgs, $valueArgs');
+    final addressArgs = central.addressArgs;
+    logger.info('notifyValue: $hashCodeArgs, $valueArgs, $addressArgs');
     await _api.notifyValue(
-      addressArgs,
       hashCodeArgs,
       valueArgs,
+      addressArgs,
     );
   }
 
@@ -242,7 +263,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   void onMTUChanged(MyCentralArgs centralArgs, int mtuArgs) {
     final addressArgs = centralArgs.addressArgs;
     logger.info('onMTUChanged: $addressArgs - $mtuArgs');
-    final central = centralArgs.toCentral();
+    final central = MyCentral.fromArgs(centralArgs);
     final mtu = mtuArgs;
     final eventArgs = CentralMTUChangedEventArgs(central, mtu);
     _mtuChangedController.add(eventArgs);
@@ -257,7 +278,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     final addressArgs = centralArgs.addressArgs;
     logger.info(
         'onCharacteristicReadRequest: $addressArgs - $hashCodeArgs, $requestArgs');
-    final central = centralArgs.toCentral();
+    final central = MyCentral.fromArgs(centralArgs);
     final characteristic = _characteristics[hashCodeArgs];
     if (characteristic == null) {
       await _respondReadRequestWithProtocolError(
@@ -287,7 +308,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     final addressArgs = centralArgs.addressArgs;
     logger.info(
         'onCharacteristicWriteRequest: $addressArgs - $hashCodeArgs, $requestArgs');
-    final central = centralArgs.toCentral();
+    final central = MyCentral.fromArgs(centralArgs);
     final characteristic = _characteristics[hashCodeArgs];
     if (characteristic == null) {
       if (requestArgs.typeArgs ==
@@ -334,7 +355,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     final addedCentralsArgs =
         newSubscribedCentralsArgs.difference(oldSubscribedCentralsArgs);
     for (var centralArgs in removedCentralsArgs) {
-      final central = centralArgs.toCentral();
+      final central = MyCentral.fromArgs(centralArgs);
       final eventArgs = GATTCharacteristicNotifyStateChangedEventArgs(
         central,
         characteristic,
@@ -343,7 +364,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
       _characteristicNotifyStateChangedController.add(eventArgs);
     }
     for (var centralArgs in addedCentralsArgs) {
-      final central = centralArgs.toCentral();
+      final central = MyCentral.fromArgs(centralArgs);
       final eventArgs = GATTCharacteristicNotifyStateChangedEventArgs(
         central,
         characteristic,
@@ -363,7 +384,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     final addressArgs = centralArgs.addressArgs;
     logger.info(
         'onDescriptorReadRequest: $addressArgs - $hashCodeArgs, $requestArgs');
-    final central = centralArgs.toCentral();
+    final central = MyCentral.fromArgs(centralArgs);
     final descriptor = _descriptors[hashCodeArgs];
     if (descriptor == null) {
       await _respondReadRequestWithProtocolError(
@@ -393,7 +414,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     final addressArgs = centralArgs.addressArgs;
     logger.info(
         'onDescriptorWriteRequest: $addressArgs - $hashCodeArgs, $requestArgs');
-    final central = centralArgs.toCentral();
+    final central = MyCentral.fromArgs(centralArgs);
     final descriptor = _descriptors[hashCodeArgs];
     if (descriptor == null) {
       if (requestArgs.typeArgs ==

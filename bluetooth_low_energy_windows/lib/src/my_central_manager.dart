@@ -39,6 +39,9 @@ final class MyCentralManager extends PlatformCentralManager
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
       _stateChangedController.stream;
   @override
+  Stream<NameChangedEventArgs> get nameChanged =>
+      throw UnsupportedError('nameChanged is not supported on Windows.');
+  @override
   Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
   @override
   Stream<PeripheralConnectionStateChangedEventArgs>
@@ -64,6 +67,16 @@ final class MyCentralManager extends PlatformCentralManager
   @override
   Future<void> showAppSettings() {
     throw UnsupportedError('showAppSettings is not supported on Windows.');
+  }
+
+  @override
+  Future<String> getName() {
+    throw UnsupportedError('getName is not supported on Windows.');
+  }
+
+  @override
+  Future<void> setName(String name) {
+    throw UnsupportedError('setName is not supported on Windows.');
   }
 
   @override
@@ -142,24 +155,27 @@ final class MyCentralManager extends PlatformCentralManager
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
+    final addressArgs = peripheral.addressArgs;
     final servicesArgs = await _getServices(
-      peripheral.addressArgs,
+      addressArgs,
       MyCacheModeArgs.uncached,
     );
-    final services = servicesArgs.map((args) => args.toService()).toList();
+    final services = servicesArgs
+        .map((serviceArgs) => MyGATTService.fromArgs(
+              addressArgs: addressArgs,
+              serviceArgs: serviceArgs,
+            ))
+        .toList();
     return services;
   }
 
   @override
   Future<Uint8List> readCharacteristic(
-    Peripheral peripheral,
-    GATTCharacteristic characteristic,
-  ) async {
-    if (peripheral is! MyPeripheral ||
-        characteristic is! MyGATTCharacteristic) {
+      GATTCharacteristic characteristic) async {
+    if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final addressArgs = peripheral.addressArgs;
+    final addressArgs = characteristic.addressArgs;
     final handleArgs = characteristic.handleArgs;
     const modeArgs = MyCacheModeArgs.uncached;
     logger.info('readCharacteristic: $addressArgs.$handleArgs - $modeArgs');
@@ -173,16 +189,14 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<void> writeCharacteristic(
-    Peripheral peripheral,
     GATTCharacteristic characteristic, {
     required Uint8List value,
     required GATTCharacteristicWriteType type,
   }) async {
-    if (peripheral is! MyPeripheral ||
-        characteristic is! MyGATTCharacteristic) {
+    if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final addressArgs = peripheral.addressArgs;
+    final addressArgs = characteristic.addressArgs;
     final handleArgs = characteristic.handleArgs;
     final valueArgs = value;
     final typeArgs = type.toArgs();
@@ -198,15 +212,13 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<void> setCharacteristicNotifyState(
-    Peripheral peripheral,
     GATTCharacteristic characteristic, {
     required bool state,
   }) async {
-    if (peripheral is! MyPeripheral ||
-        characteristic is! MyGATTCharacteristic) {
+    if (characteristic is! MyGATTCharacteristic) {
       throw TypeError();
     }
-    final addressArgs = peripheral.addressArgs;
+    final addressArgs = characteristic.addressArgs;
     final handleArgs = characteristic.handleArgs;
     final stateArgs = state
         ? characteristic.properties.contains(GATTCharacteristicProperty.notify)
@@ -223,14 +235,11 @@ final class MyCentralManager extends PlatformCentralManager
   }
 
   @override
-  Future<Uint8List> readDescriptor(
-    Peripheral peripheral,
-    GATTDescriptor descriptor,
-  ) async {
-    if (peripheral is! MyPeripheral || descriptor is! MyGATTDescriptor) {
+  Future<Uint8List> readDescriptor(GATTDescriptor descriptor) async {
+    if (descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
-    final addressArgs = peripheral.addressArgs;
+    final addressArgs = descriptor.addressArgs;
     final handleArgs = descriptor.handleArgs;
     const modeArgs = MyCacheModeArgs.uncached;
     logger.info('readDescriptor: $addressArgs.$handleArgs - $modeArgs');
@@ -240,14 +249,13 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<void> writeDescriptor(
-    Peripheral peripheral,
     GATTDescriptor descriptor, {
     required Uint8List value,
   }) async {
-    if (peripheral is! MyPeripheral || descriptor is! MyGATTDescriptor) {
+    if (descriptor is! MyGATTDescriptor) {
       throw TypeError();
     }
-    final addressArgs = peripheral.addressArgs;
+    final addressArgs = descriptor.addressArgs;
     final handleArgs = descriptor.handleArgs;
     final valueArgs = value;
     logger.info('writeDescriptor: $addressArgs.$handleArgs - $valueArgs');
@@ -281,7 +289,7 @@ final class MyCentralManager extends PlatformCentralManager
         typeArgs == MyAdvertisementTypeArgs.nonConnectableUndirected ||
         typeArgs == MyAdvertisementTypeArgs.extended) {
       // No need to wait SCAN_REQ.
-      final peripheral = peripheralArgs.toPeripheral();
+      final peripheral = MyPeripheral.fromArgs(peripheralArgs);
       final rssi = rssiArgs;
       final advertisement = advertisementArgs.toAdvertisement();
       final eventArgs = DiscoveredEventArgs(
@@ -307,7 +315,8 @@ final class MyCentralManager extends PlatformCentralManager
         // SCAN_REQ.
         _discoveriesArgs[addressArgs] = newDiscoveryArgs;
       } else {
-        final peripheral = oldDiscoveryArgs.peripheralArgs.toPeripheral();
+        final peripheral =
+            MyPeripheral.fromArgs(oldDiscoveryArgs.peripheralArgs);
         final rssi = oldDiscoveryArgs.rssiArgs;
         final oldAdvertisement =
             typeArgs == MyAdvertisementTypeArgs.scanResponse
@@ -355,7 +364,7 @@ final class MyCentralManager extends PlatformCentralManager
   ) {
     final addressArgs = peripheralArgs.addressArgs;
     logger.info('onConnectionStateChanged: $addressArgs - $stateArgs');
-    final peripheral = peripheralArgs.toPeripheral();
+    final peripheral = MyPeripheral.fromArgs(peripheralArgs);
     final state = stateArgs.toState();
     final eventArgs = PeripheralConnectionStateChangedEventArgs(
       peripheral,
@@ -368,7 +377,7 @@ final class MyCentralManager extends PlatformCentralManager
   void onMTUChanged(MyPeripheralArgs peripheralArgs, int mtuArgs) {
     final addressArgs = peripheralArgs.addressArgs;
     logger.info('onMTUChanged: $addressArgs - $mtuArgs');
-    final peripheral = peripheralArgs.toPeripheral();
+    final peripheral = MyPeripheral.fromArgs(peripheralArgs);
     final mtu = mtuArgs;
     final eventArgs = PeripheralMTUChangedEventArgs(peripheral, mtu);
     _mtuChangedController.add(eventArgs);
@@ -384,8 +393,11 @@ final class MyCentralManager extends PlatformCentralManager
     final handleArgs = characteristicArgs.handleArgs;
     logger.info(
         'onCharacteristicNotified: $addressArgs.$handleArgs - $valueArgs');
-    final peripheral = peripheralArgs.toPeripheral();
-    final characteristic = characteristicArgs.toCharacteristic();
+    final peripheral = MyPeripheral.fromArgs(peripheralArgs);
+    final characteristic = MyGATTCharacteristic.fromArgs(
+      addressArgs: addressArgs,
+      characteristicArgs: characteristicArgs,
+    );
     final value = valueArgs;
     final eventArgs = GATTCharacteristicNotifiedEventArgs(
       peripheral,

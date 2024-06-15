@@ -77,9 +77,9 @@ class PeripheralManagerViewModel extends ViewModel {
         final elements = List.generate(maximumNotifyLength, (i) => i % 256);
         final value = Uint8List.fromList(elements);
         await _manager.notifyCharacteristic(
-          central,
           characteristic,
           value: value,
+          central: central,
         );
       }
     });

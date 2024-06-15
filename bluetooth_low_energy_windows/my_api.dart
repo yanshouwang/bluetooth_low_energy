@@ -346,9 +346,9 @@ abstract class MyPeripheralManagerHostAPI {
   );
   @async
   void notifyValue(
-    int addressArgs,
     int hashCodeArgs,
     Uint8List valueArgs,
+    int addressArgs,
   );
 }
 

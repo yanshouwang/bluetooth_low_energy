@@ -3,9 +3,6 @@ import 'dart:typed_data';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
 import 'my_api.g.dart';
-import 'my_central.dart';
-import 'my_gatt.dart';
-import 'my_peripheral.dart';
 
 // ToObject
 extension MyBluetoothLowEnergyStateArgsX on MyBluetoothLowEnergyStateArgs {
@@ -70,68 +67,6 @@ extension MyAdvertisementArgsX on MyAdvertisementArgs {
           .cast<MyManufacturerSpecificDataArgs>()
           .map((args) => args.toManufacturerSpecificData())
           .toList(),
-    );
-  }
-}
-
-extension MyPeripheralArgsX on MyPeripheralArgs {
-  MyPeripheral toPeripheral() {
-    return MyPeripheral(
-      addressArgs: addressArgs,
-      uuid: UUID.fromAddress(addressArgs),
-    );
-  }
-}
-
-extension MyGATTDescriptorArgsX on MyGATTDescriptorArgs {
-  MyGATTDescriptor toDescriptor() {
-    return MyGATTDescriptor(
-      handleArgs: handleArgs,
-      uuid: UUID.fromString(uuidArgs),
-    );
-  }
-}
-
-extension MyGATTCharacteristicArgsX on MyGATTCharacteristicArgs {
-  MyGATTCharacteristic toCharacteristic() {
-    return MyGATTCharacteristic(
-      handleArgs: handleArgs,
-      uuid: UUID.fromString(uuidArgs),
-      properties: propertyNumbersArgs.cast<int>().map((args) {
-        final propertyArgs = MyGATTCharacteristicPropertyArgs.values[args];
-        return propertyArgs.toProperty();
-      }).toList(),
-      descriptors: descriptorsArgs
-          .cast<MyGATTDescriptorArgs>()
-          .map((args) => args.toDescriptor())
-          .toList(),
-    );
-  }
-}
-
-extension MyGATTServiceArgsX on MyGATTServiceArgs {
-  MyGATTService toService() {
-    return MyGATTService(
-      handleArgs: handleArgs,
-      uuid: UUID.fromString(uuidArgs),
-      isPrimary: isPrimaryArgs,
-      includedServices: includedServicesArgs
-          .cast<MyGATTServiceArgs>()
-          .map((args) => args.toService())
-          .toList(),
-      characteristics: characteristicsArgs
-          .cast<MyGATTCharacteristicArgs>()
-          .map((args) => args.toCharacteristic())
-          .toList(),
-    );
-  }
-}
-
-extension MyCentralArgsX on MyCentralArgs {
-  MyCentral toCentral() {
-    return MyCentral(
-      addressArgs: addressArgs,
-      uuid: UUID.fromAddress(addressArgs),
     );
   }
 }

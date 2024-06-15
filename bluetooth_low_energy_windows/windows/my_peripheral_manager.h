@@ -35,7 +35,7 @@ namespace bluetooth_low_energy_windows
 		std::optional<FlutterError> RespondReadRequestWithProtocolError(int64_t id_args, const MyGATTProtocolErrorArgs &error_args) override;
 		std::optional<FlutterError> RespondWriteRequest(int64_t id_args) override;
 		std::optional<FlutterError> RespondWriteRequestWithProtocolError(int64_t id_args, const MyGATTProtocolErrorArgs &error_args) override;
-		void NotifyValue(int64_t address_args, int64_t hash_code_args, const std::vector<uint8_t> &value_args, std::function<void(std::optional<FlutterError> reply)> result) override;
+		void NotifyValue(int64_t hash_code_args, const std::vector<uint8_t> &value_args, int64_t address_args, std::function<void(std::optional<FlutterError> reply)> result) override;
 
 	private:
 		std::optional<MyPeripheralManagerFlutterAPI> m_api;
@@ -60,7 +60,7 @@ namespace bluetooth_low_energy_windows
 
 		winrt::fire_and_forget InitializeAsync(std::function<void(std::optional<FlutterError> reply)> result);
 		winrt::fire_and_forget AddServiceAsync(const MyMutableGATTServiceArgs &service_args, std::function<void(std::optional<FlutterError> reply)> result);
-		winrt::fire_and_forget NotifyValueAsync(int64_t address_args, int64_t hash_code_args, const std::vector<uint8_t> &value_args, std::function<void(std::optional<FlutterError> reply)> result);
+		winrt::fire_and_forget NotifyValueAsync(int64_t hash_code_args, const std::vector<uint8_t> &value_args, int64_t address_args, std::function<void(std::optional<FlutterError> reply)> result);
 
 		winrt::Windows::Foundation::IAsyncAction CreateServiceAsync(const MyMutableGATTServiceArgs service_args);
 		winrt::Windows::Foundation::IAsyncAction CreateCharacteristicAsync(const winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattLocalService &service, const MyMutableGATTCharacteristicArgs characteristic_args);
