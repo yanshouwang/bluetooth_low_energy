@@ -236,18 +236,18 @@ abstract interface class PeripheralManager
   /// Send an updated characteristic value to one or more subscribed centrals,
   /// using a notification or indication.
   ///
-  /// [central] A central (represented by CBCentral objects) that have subscribed
-  /// to receive updates of the characteristic’s value. The manager ignores any
-  /// centrals that haven’t subscribed to the characteristic’s value.
-  ///
   /// [characteristic] The characteristic whose value has changed.
   ///
   /// [value] The characteristic value you want to send via a notification or
   /// indication.
+  ///
+  /// [centrals] A central (represented by CBCentral objects) that have subscribed
+  /// to receive updates of the characteristic’s value. The manager ignores any
+  /// centrals that haven’t subscribed to the characteristic’s value.
   Future<void> notifyCharacteristic(
-    Central central,
     GATTCharacteristic characteristic, {
     required Uint8List value,
+    required Central central,
   });
 }
 
