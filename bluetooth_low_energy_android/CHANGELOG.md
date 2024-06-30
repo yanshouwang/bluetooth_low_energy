@@ -1,3 +1,7 @@
+## 6.0.3
+
+* [Use `isMultipleAdvertisementSupported` to check whether `PeripheralManager` is supported on this device.](https://github.com/yanshouwang/bluetooth_low_energy/issues/83).
+
 ## 6.0.2
 
 * Fix the warning issue.
