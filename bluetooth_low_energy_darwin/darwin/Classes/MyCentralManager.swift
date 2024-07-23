@@ -584,14 +584,25 @@ class MyCentralManager: MyCentralManagerHostAPI {
             completion(.failure(error!))
         }
     }
-    
+
     private func retrievePeripheral(uuidArgs: String) throws -> CBPeripheral {
         guard let peripheral = mPeripherals[uuidArgs] else {
-            throw MyError.illegalArgument
+            // Fallback to retrieve a peripheral from the system, this allows to connect to a saved peripheral without needing to re-run discovery
+            let peripherals = mCentralManager.retrievePeripherals(withIdentifiers: [UUID(uuidString: uuidArgs)!]);
+            guard let newPeripheral = peripherals.first else {
+                throw MyError.invalidPeripheral
+            }
+            let peripheralArgs = newPeripheral.toArgs()
+            if newPeripheral.delegate == nil {
+                newPeripheral.delegate = peripheralDelegate
+            }
+            self.mPeripherals[peripheralArgs.uuidArgs] = newPeripheral
+            return newPeripheral
         }
+
         return peripheral
     }
-    
+
     private func retrieveService(uuidArgs: String, hashCodeArgs: Int64) throws -> CBService {
         guard let services = self.mServices[uuidArgs] else {
             throw MyError.illegalArgument
