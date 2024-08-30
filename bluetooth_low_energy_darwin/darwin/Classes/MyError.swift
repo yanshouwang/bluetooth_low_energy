@@ -11,4 +11,5 @@ enum MyError: Error {
     case unknown
     case unsupported
     case illegalArgument
+    case invalidPeripheral
 }
