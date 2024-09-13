@@ -246,6 +246,8 @@ abstract class MyCentralManagerHostAPI {
   void startDiscovery(List<String> serviceUUIDsArgs);
   void stopDiscovery();
   @async
+  List<MyPeripheralArgs> retrieveConnectedPeripherals();
+  @async
   void connect(int addressArgs);
   void disconnect(int addressArgs);
   int getMTU(int addressArgs);

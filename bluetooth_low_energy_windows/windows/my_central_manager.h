@@ -7,6 +7,7 @@
 #include "winrt/Windows.Devices.Bluetooth.h"
 #include "winrt/Windows.Devices.Bluetooth.Advertisement.h"
 #include "winrt/Windows.Devices.Bluetooth.GenericAttributeProfile.h"
+#include "winrt/Windows.Devices.Enumeration.h"
 #include "winrt/Windows.Devices.Radios.h"
 #include "winrt/Windows.Foundation.h"
 #include "winrt/Windows.Foundation.Collections.h"
@@ -32,6 +33,7 @@ namespace bluetooth_low_energy_windows
 		ErrorOr<MyBluetoothLowEnergyStateArgs> GetState() override;
 		std::optional<FlutterError> StartDiscovery(const flutter::EncodableList &service_uuids_args) override;
 		std::optional<FlutterError> StopDiscovery() override;
+		void RetrieveConnectedPeripherals(std::function<void(ErrorOr<flutter::EncodableList> reply)> result) override;
 		void Connect(int64_t address_args, std::function<void(std::optional<FlutterError> reply)> result) override;
 		std::optional<FlutterError> Disconnect(int64_t address_args) override;
 		ErrorOr<int64_t> GetMTU(int64_t address_args) override;
@@ -62,6 +64,7 @@ namespace bluetooth_low_energy_windows
 		std::map<int64_t, std::map<int64_t, std::optional<winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic::ValueChanged_revoker>>> m_characteristic_value_changed_revokers;
 
 		winrt::fire_and_forget InitializeAsync(std::function<void(std::optional<FlutterError> reply)> result);
+		winrt::fire_and_forget RetrieveConnectedPeripheralsAsync(std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
 		winrt::fire_and_forget ConnectAsync(int64_t address_args, std::function<void(std::optional<FlutterError> reply)> result);
 		winrt::fire_and_forget GetServicesAsync(int64_t address_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);
 		winrt::fire_and_forget GetIncludedServicesAsync(int64_t address_args, int64_t handle_args, const MyCacheModeArgs &mode_args, std::function<void(ErrorOr<flutter::EncodableList> reply)> result);

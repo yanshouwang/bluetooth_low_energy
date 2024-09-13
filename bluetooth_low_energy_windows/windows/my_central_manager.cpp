@@ -95,6 +95,11 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
+	void MyCentralManager::RetrieveConnectedPeripherals(std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
+	{
+		RetrieveConnectedPeripheralsAsync(std::move(result));
+	}
+
 	void MyCentralManager::Connect(int64_t address_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
 		ConnectAsync(address_args, std::move(result));
@@ -270,6 +275,84 @@ namespace bluetooth_low_energy_windows
 		}
 	}
 
+	winrt::fire_and_forget MyCentralManager::RetrieveConnectedPeripheralsAsync(std::function<void(ErrorOr<flutter::EncodableList> reply)> result)
+	{
+		try
+		{
+			// BT_Code: Example showing paired and non-paired in a single query.
+			// https://learn.microsoft.com/zh-cn/windows/uwp/devices-sensors/aep-service-class-ids
+			const auto aqs_filter = winrt::hstring(L"(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")");
+			// Additional properties we would like about the device.
+			// Property strings are documented here https://msdn.microsoft.com/en-us/library/windows/desktop/ff521659(v=vs.85).aspx
+			const auto additional_properties = winrt::single_threaded_vector<winrt::hstring>({L"System.Devices.Aep.DeviceAddress", L"System.Devices.Aep.IsConnected", L"System.Devices.Aep.Bluetooth.Le.IsConnectable"});
+			const auto kind = winrt::Windows::Devices::Enumeration::DeviceInformationKind::AssociationEndpoint;
+			const auto &informations = co_await winrt::Windows::Devices::Enumeration::DeviceInformation::FindAllAsync(aqs_filter, additional_properties, kind);
+			auto peripherals_args = flutter::EncodableList();
+			for (const auto information : informations)
+			{
+				const auto properties = information.Properties();
+				const auto is_connected = properties.Lookup(L"System.Devices.Aep.IsConnected").as<bool>();
+				if (!is_connected)
+				{
+					continue;
+				}
+				const auto information_id = information.Id();
+				const auto &device = co_await winrt::Windows::Devices::Bluetooth::BluetoothLEDevice::FromIdAsync(information_id);
+				const auto address = device.BluetoothAddress();
+				const auto address_args = static_cast<int64_t>(address);
+				const auto id = device.BluetoothDeviceId();
+				const auto &session = co_await winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession::FromDeviceIdAsync(id);
+				m_device_connection_status_changed_revokers[address_args] = device.ConnectionStatusChanged(
+					winrt::auto_revoke,
+					[this, address_args](winrt::Windows::Devices::Bluetooth::BluetoothLEDevice device, auto obj)
+					{
+						const auto status = device.ConnectionStatus();
+						if (status == winrt::Windows::Devices::Bluetooth::BluetoothConnectionStatus::Disconnected)
+						{
+							OnDisconnected(address_args);
+						}
+						auto &api = m_api.value();
+						const auto peripheral_args = MyPeripheralArgs(address_args);
+						const auto state_args = ConnectionStatusToArgs(status);
+						// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
+						api.OnConnectionStateChanged(peripheral_args, state_args, [] {}, [](auto error) {});
+					});
+				m_session_max_pdu_size_changed_revokers[address_args] = session.MaxPduSizeChanged(
+					winrt::auto_revoke,
+					[this, address_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession session, auto obj)
+					{
+						auto &api = m_api.value();
+						const auto peripheral_args = MyPeripheralArgs(address_args);
+						const auto mtu = session.MaxPduSize();
+						const auto mtu_args = static_cast<int64_t>(mtu);
+						// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
+						api.OnMTUChanged(peripheral_args, mtu_args, [] {}, [](auto error) {});
+					});
+				m_devices[address_args] = device;
+				m_sessions[address_args] = session;
+				const auto peripheral_args = MyPeripheralArgs(address_args);
+				const auto peripheral_args_value = flutter::CustomEncodableValue(peripheral_args);
+				peripherals_args.emplace_back(peripheral_args_value);
+			}
+			result(peripherals_args);
+		}
+		catch (const winrt::hresult_error &ex)
+		{
+			const auto code = "winrt::hresult_error";
+			const auto winrt_message = ex.message();
+			const auto message = winrt::to_string(winrt_message);
+			const auto error = FlutterError(code, message);
+			result(error);
+		}
+		catch (const std::exception &ex)
+		{
+			const auto code = "std::exception";
+			const auto message = ex.what();
+			const auto error = FlutterError(code, message);
+			result(error);
+		}
+	}
+
 	winrt::fire_and_forget MyCentralManager::ConnectAsync(int64_t address_args, std::function<void(std::optional<FlutterError> reply)> result)
 	{
 		try
@@ -315,9 +398,10 @@ namespace bluetooth_low_energy_windows
 				});
 			m_session_max_pdu_size_changed_revokers[address_args] = session.MaxPduSizeChanged(
 				winrt::auto_revoke,
-				[this, peripheral_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession session, auto obj)
+				[this, address_args](winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattSession session, auto obj)
 				{
 					auto &api = m_api.value();
+					const auto peripheral_args = MyPeripheralArgs(address_args);
 					const auto mtu = session.MaxPduSize();
 					const auto mtu_args = static_cast<int64_t>(mtu);
 					// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.

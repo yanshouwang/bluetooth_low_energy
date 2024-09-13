@@ -97,9 +97,14 @@ final class MyCentralManager extends PlatformCentralManager
   }
 
   @override
-  Future<List<Peripheral>> retrieveConnectedPeripherals() {
-    throw UnsupportedError(
-        'retrieveConnectedPeripherals is not supported on Windows.');
+  Future<List<Peripheral>> retrieveConnectedPeripherals() async {
+    logger.info('retrieveConnectedPeripherals');
+    final peripheralsArgs = await _api.retrieveConnectedPeripherals();
+    final peripherals = peripheralsArgs
+        .cast<MyPeripheralArgs>()
+        .map((args) => MyPeripheral.fromArgs(args))
+        .toList();
+    return peripherals;
   }
 
   @override
