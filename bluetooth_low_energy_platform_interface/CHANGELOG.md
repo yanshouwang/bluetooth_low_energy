@@ -1,3 +1,12 @@
+## 7.0.0-dev.2
+
+* Add `central` argument to `GATTCharacteristicReadRequestedEventArgs`.
+* Add `central` argument to `GATTCharacteristicWriteRequestedEventArgs`.
+* Add `central` argument to `GATTCharacteristicNotifyStateChangedEventArgs`.
+* Add `central` argument to `GATTDescriptorReadRequestedEventArgs`.
+* Add `central` argument to `GATTDescriptorWriteRequestedEventArgs`.
+* Remove `abstract` modifier from `GATTService` class.
+
 ## 7.0.0-dev.1
 
 * Add `BluetoothLowEnergyPlugin` class.
