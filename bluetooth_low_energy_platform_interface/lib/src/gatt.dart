@@ -112,7 +112,7 @@ abstract base class GATTCharacteristic extends GATTAttribute {
 
 /// A collection of data and associated behaviors that accomplish a function or
 /// feature of a device.
-base class GATTService extends GATTAttribute {
+abstract base class GATTService extends GATTAttribute {
   /// A Boolean value that indicates whether the type of service is primary or
   /// secondary.
   final bool isPrimary;

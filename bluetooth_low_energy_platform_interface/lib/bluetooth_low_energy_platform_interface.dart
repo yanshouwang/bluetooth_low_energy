@@ -7,18 +7,18 @@
 /// [1]: https://pub.dev/packages/bluetooth_low_energy
 library;
 
-export 'src/event_args.dart';
-export 'src/uuid.dart';
-export 'src/bluetooth_low_energy_state.dart';
-export 'src/manufacturer_specific_data.dart';
 export 'src/advertisement.dart';
-export 'src/connection_state.dart';
-export 'src/gatt.dart';
-
 export 'src/bluetooth_low_energy_manager.dart';
-export 'src/central_manager.dart';
-export 'src/peripheral_manager.dart';
-
 export 'src/bluetooth_low_energy_peer.dart';
+export 'src/bluetooth_low_energy_plugin.dart';
+export 'src/bluetooth_low_energy_state.dart';
+export 'src/central_manager.dart';
 export 'src/central.dart';
+export 'src/connection_priority.dart';
+export 'src/connection_state.dart';
+export 'src/event_args.dart';
+export 'src/gatt.dart';
+export 'src/manufacturer_specific_data.dart';
+export 'src/peripheral_manager.dart';
 export 'src/peripheral.dart';
+export 'src/uuid.dart';

@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
 import 'advertisement.dart';
 import 'bluetooth_low_energy_manager.dart';
+import 'bluetooth_low_energy_plugin.dart';
+import 'connection_priority.dart';
 import 'connection_state.dart';
 import 'event_args.dart';
 import 'gatt.dart';
@@ -22,11 +22,7 @@ final class DiscoveredEventArgs extends EventArgs {
   final Advertisement advertisement;
 
   /// Constructs a [DiscoveredEventArgs].
-  DiscoveredEventArgs(
-    this.peripheral,
-    this.rssi,
-    this.advertisement,
-  );
+  DiscoveredEventArgs(this.peripheral, this.rssi, this.advertisement);
 }
 
 /// The peripheral connection state cahnged event arguments.
@@ -38,10 +34,7 @@ final class PeripheralConnectionStateChangedEventArgs extends EventArgs {
   final ConnectionState state;
 
   /// Constructs a [PeripheralConnectionStateChangedEventArgs].
-  PeripheralConnectionStateChangedEventArgs(
-    this.peripheral,
-    this.state,
-  );
+  PeripheralConnectionStateChangedEventArgs(this.peripheral, this.state);
 }
 
 /// The peripheral MTU changed event arguments.
@@ -53,17 +46,11 @@ final class PeripheralMTUChangedEventArgs extends EventArgs {
   final int mtu;
 
   /// Constructs a [PeripheralMTUChangedEventArgs].
-  PeripheralMTUChangedEventArgs(
-    this.peripheral,
-    this.mtu,
-  );
+  PeripheralMTUChangedEventArgs(this.peripheral, this.mtu);
 }
 
 /// The GATT characteristic notified event arguments.
 final class GATTCharacteristicNotifiedEventArgs extends EventArgs {
-  /// The peripheral which notified.
-  final Peripheral peripheral;
-
   /// The GATT characteristic which notified.
   final GATTCharacteristic characteristic;
 
@@ -71,25 +58,14 @@ final class GATTCharacteristicNotifiedEventArgs extends EventArgs {
   final Uint8List value;
 
   /// Constructs a [GATTCharacteristicNotifiedEventArgs].
-  GATTCharacteristicNotifiedEventArgs(
-    this.peripheral,
-    this.characteristic,
-    this.value,
-  );
+  GATTCharacteristicNotifiedEventArgs(this.characteristic, this.value);
 }
 
 /// An object that scans for, discovers, connects to, and manages peripherals.
 abstract interface class CentralManager implements BluetoothLowEnergyManager {
-  static CentralManager? _instance;
-
   /// Gets the instance of [CentralManager] to use.
   factory CentralManager() {
-    final instance = PlatformCentralManager.instance;
-    if (instance != _instance) {
-      instance.initialize();
-      _instance = instance;
-    }
-    return instance;
+    return BluetoothLowEnergyPlugin.instance.createCentralManager();
   }
 
   /// Tells the central manager discovered a peripheral while scanning for devices.
@@ -148,6 +124,24 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
     required int mtu,
   });
 
+  /// Request a connection parameter update.
+  ///
+  /// This function will send a connection parameter update request to the remote
+  /// device.
+  ///
+  /// For apps targeting Build.VERSION_CODES#S or or higher, this requires the
+  /// Manifest.permission#BLUETOOTH_CONNECT permission which can be gained with
+  /// Activity.requestPermissions(String[], int).
+  ///
+  /// Requires Manifest.permission.BLUETOOTH_CONNECT
+  ///
+  /// This method is available on Android, throws [UnsupportedError] on other
+  /// platforms.
+  Future<void> requestConnectionPriority(
+    Peripheral peripheral, {
+    required ConnectionPriority priority,
+  });
+
   /// The maximum amount of data, in bytes, you can send to a characteristic in
   /// a single write type.
   Future<int> getMaximumWriteLength(
@@ -163,7 +157,7 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   Future<int> readRSSI(Peripheral peripheral);
 
   /// Discovers the GATT services, characteristics and descriptors of the peripheral.
-  Future<List<GATTService>> discoverGATT(Peripheral peripheral);
+  Future<List<GATTService>> discoverServices(Peripheral peripheral);
 
   /// Retrieves the value of a specified characteristic.
   Future<Uint8List> readCharacteristic(GATTCharacteristic characteristic);
@@ -189,34 +183,4 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
     GATTDescriptor descriptor, {
     required Uint8List value,
   });
-}
-
-/// Platform-specific implementations should implement this class to support
-/// [PlatformCentralManager].
-abstract base class PlatformCentralManager
-    extends PlatformBluetoothLowEnergyManager implements CentralManager {
-  static final Object _token = Object();
-
-  static PlatformCentralManager? _instance;
-
-  /// The default instance of [PlatformCentralManager] to use.
-  static PlatformCentralManager get instance {
-    final instance = _instance;
-    if (instance == null) {
-      throw UnimplementedError(
-          'CentralManager is not implemented on this platform.');
-    }
-    return instance;
-  }
-
-  /// Platform-specific implementations should set this with their own
-  /// platform-specific class that extends [PlatformCentralManager] when
-  /// they register themselves.
-  static set instance(PlatformCentralManager instance) {
-    PlatformInterface.verifyToken(instance, _token);
-    _instance = instance;
-  }
-
-  /// Constructs a [PlatformCentralManager].
-  PlatformCentralManager() : super(token: _token);
 }

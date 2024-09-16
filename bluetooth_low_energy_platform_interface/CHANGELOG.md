@@ -1,3 +1,26 @@
+## 7.0.0-dev.1
+
+* Add `BluetoothLowEnergyPlugin` class.
+* Add `BluetoothLowEnergyPlugin#createCentralManager` method.
+* Add `BluetoothLowEnergyPlugin#createPeripheralManager` method.
+* Add `CentralManager#requestConnectionPriority` method.
+* Add `ConnectionPriority` enum.
+* Add `abstract` modifier to `Central` class.
+* Add `abstract` modifier to `Peripheral` class.
+* Add `abstract` modifier to `GATTService` class.
+* Add `abstract` modifier to `EventArgs` class.
+* Move `CentralManager#discoverGATT` to `CentralManager#discoverServices`.
+* Move `central` argument of `PeripheralManager#notifyCharacteristic` to optional `centrals` argument.
+* Remove `PlatformBluetoothLowEnergyManager` class.
+* Remove `PlatformCentralManager` class.
+* Remove `peripheral` argument from `GATTCharacteristicNotifiedEventArgs`.
+* Remove `PlatformPeripheralManager` class.
+* Remove `central` argument from `GATTCharacteristicReadRequestedEventArgs`.
+* Remove `central` argument from `GATTCharacteristicWriteRequestedEventArgs`.
+* Remove `central` argument from `GATTCharacteristicNotifyStateChangedEventArgs`.
+* Remove `central` argument from `GATTDescriptorReadRequestedEventArgs`.
+* Remove `central` argument from `GATTDescriptorWriteRequestedEventArgs`.
+
 ## 7.0.0-dev.0
 
 * Add `BluetoothLowEnergyManager#nameChanged` event.
