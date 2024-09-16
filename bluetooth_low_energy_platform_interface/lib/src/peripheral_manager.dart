@@ -37,11 +37,15 @@ final class GATTCharacteristicReadRequestedEventArgs extends EventArgs {
   /// The characteristic to read the value of.
   final GATTCharacteristic characteristic;
 
+  /// The remote central device that originated the request.
+  final Central central;
+
   /// The read request.
   final GATTReadRequest request;
 
   /// Constructs a [GATTCharacteristicReadRequestedEventArgs].
-  GATTCharacteristicReadRequestedEventArgs(this.characteristic, this.request);
+  GATTCharacteristicReadRequestedEventArgs(
+      this.characteristic, this.central, this.request);
 }
 
 /// The GATT characteristic write requested event arguments.
@@ -49,11 +53,15 @@ final class GATTCharacteristicWriteRequestedEventArgs extends EventArgs {
   /// The characteristic to write the value of.
   final GATTCharacteristic characteristic;
 
+  /// The remote central device that originated the request.
+  final Central central;
+
   /// The write request.
   final GATTWriteRequest request;
 
   /// Constructs a [GATTCharacteristicWriteRequestedEventArgs].
-  GATTCharacteristicWriteRequestedEventArgs(this.characteristic, this.request);
+  GATTCharacteristicWriteRequestedEventArgs(
+      this.characteristic, this.central, this.request);
 }
 
 /// The GATT characteristic notify state changed event arguments.
@@ -61,12 +69,15 @@ final class GATTCharacteristicNotifyStateChangedEventArgs extends EventArgs {
   /// The GATT characteristic which notify state changed.
   final GATTCharacteristic characteristic;
 
+  /// The remote central device that subscribed to the characteristic’s value.
+  final Central central;
+
   /// The notify state.
   final bool state;
 
   /// Constructs a [GATTCharacteristicNotifyStateChangedEventArgs].
   GATTCharacteristicNotifyStateChangedEventArgs(
-      this.characteristic, this.state);
+      this.characteristic, this.central, this.state);
 }
 
 /// The GATT descriptor read requested event arguments.
@@ -74,11 +85,15 @@ final class GATTDescriptorReadRequestedEventArgs extends EventArgs {
   /// The descriptor to read the value of.
   final GATTDescriptor descriptor;
 
+  /// The remote central device that originated the request.
+  final Central central;
+
   /// The read request.
   final GATTReadRequest request;
 
   /// Constructs a [GATTDescriptorReadRequestedEventArgs].
-  GATTDescriptorReadRequestedEventArgs(this.descriptor, this.request);
+  GATTDescriptorReadRequestedEventArgs(
+      this.descriptor, this.central, this.request);
 }
 
 /// The GATT descriptor write requested event arguments.
@@ -86,11 +101,15 @@ final class GATTDescriptorWriteRequestedEventArgs extends EventArgs {
   /// The descriptor to write the value of.
   final GATTDescriptor descriptor;
 
+  /// The remote central device that originated the request.
+  final Central central;
+
   /// The write request.
   final GATTWriteRequest request;
 
   /// Constructs a [GATTDescriptorWriteRequestedEventArgs].
-  GATTDescriptorWriteRequestedEventArgs(this.descriptor, this.request);
+  GATTDescriptorWriteRequestedEventArgs(
+      this.descriptor, this.central, this.request);
 }
 
 /// An object that manages and advertises peripheral services exposed by this app.
