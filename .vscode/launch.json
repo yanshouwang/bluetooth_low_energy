@@ -1,0 +1,108 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "bluetooth_low_energy",
+            "cwd": "bluetooth_low_energy/example",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "bluetooth_low_energy (profile mode)",
+            "cwd": "bluetooth_low_energy/example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "bluetooth_low_energy (release mode)",
+            "cwd": "bluetooth_low_energy/example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "bluetooth_low_energy_android",
+            "cwd": "bluetooth_low_energy_android/example",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "bluetooth_low_energy_android (profile mode)",
+            "cwd": "bluetooth_low_energy_android/example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "bluetooth_low_energy_android (release mode)",
+            "cwd": "bluetooth_low_energy_android/example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "bluetooth_low_energy_darwin",
+            "cwd": "bluetooth_low_energy_darwin/example",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "bluetooth_low_energy_darwin (profile mode)",
+            "cwd": "bluetooth_low_energy_darwin/example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "bluetooth_low_energy_darwin (release mode)",
+            "cwd": "bluetooth_low_energy_darwin/example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "bluetooth_low_energy_linux",
+            "cwd": "bluetooth_low_energy_linux/example",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "bluetooth_low_energy_linux (profile mode)",
+            "cwd": "bluetooth_low_energy_linux/example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "bluetooth_low_energy_linux (release mode)",
+            "cwd": "bluetooth_low_energy_linux/example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "bluetooth_low_energy_windows",
+            "cwd": "bluetooth_low_energy_windows/example",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "bluetooth_low_energy_windows (profile mode)",
+            "cwd": "bluetooth_low_energy_windows/example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "bluetooth_low_energy_windows (release mode)",
+            "cwd": "bluetooth_low_energy_windows/example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
