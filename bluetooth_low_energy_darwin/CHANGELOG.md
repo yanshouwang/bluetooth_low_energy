@@ -1,3 +1,7 @@
+## 7.0.0-dev.1
+
+* Implement `BluetoothLowEnergyDarwinPlugin` class.
+
 ## 7.0.0-dev.0
 
 * Remove the unnecessary `peripheral` argument from `CentralManger#readCharacteristic` method.

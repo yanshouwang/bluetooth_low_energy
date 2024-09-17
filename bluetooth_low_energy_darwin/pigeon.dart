@@ -1,17 +1,17 @@
-// Run with `dart run pigeon --input my_api.dart`.
+// Run with `dart run pigeon --input pigeon.dart`.
 import 'package:pigeon/pigeon.dart';
 
 // TODO: Use `@ProxyApi` to manage instancs when this feature released:
 // https://github.com/flutter/flutter/issues/147486
 @ConfigurePigeon(
   PigeonOptions(
-    dartOut: 'lib/src/my_api.g.dart',
+    dartOut: 'lib/src/pigeon.g.dart',
     dartOptions: DartOptions(),
-    swiftOut: 'darwin/Classes/MyAPI.g.swift',
+    swiftOut: 'darwin/Classes/Pigeon.G.swift',
     swiftOptions: SwiftOptions(),
   ),
 )
-enum MyBluetoothLowEnergyStateArgs {
+enum BluetoothLowEnergyStateArgs {
   unknown,
   resetting,
   unsupported,
@@ -20,12 +20,12 @@ enum MyBluetoothLowEnergyStateArgs {
   poweredOn,
 }
 
-enum MyConnectionStateArgs {
+enum ConnectionStateArgs {
   disconnected,
   connected,
 }
 
-enum MyGATTCharacteristicPropertyArgs {
+enum GATTCharacteristicPropertyArgs {
   read,
   write,
   writeWithoutResponse,
@@ -33,19 +33,19 @@ enum MyGATTCharacteristicPropertyArgs {
   indicate,
 }
 
-enum MyGATTCharacteristicPermissionArgs {
+enum GATTCharacteristicPermissionArgs {
   read,
   readEncrypted,
   write,
   writeEncrypted,
 }
 
-enum MyGATTCharacteristicWriteTypeArgs {
+enum GATTCharacteristicWriteTypeArgs {
   withResponse,
   withoutResponse,
 }
 
-enum MyATTErrorArgs {
+enum ATTErrorArgs {
   success,
   invalidHandle,
   readNotPermitted,
@@ -66,20 +66,20 @@ enum MyATTErrorArgs {
   insufficientResources,
 }
 
-class MyManufacturerSpecificDataArgs {
+class ManufacturerSpecificDataArgs {
   final int idArgs;
   final Uint8List dataArgs;
 
-  MyManufacturerSpecificDataArgs(this.idArgs, this.dataArgs);
+  ManufacturerSpecificDataArgs(this.idArgs, this.dataArgs);
 }
 
-class MyAdvertisementArgs {
+class AdvertisementArgs {
   final String? nameArgs;
   final List<String?> serviceUUIDsArgs;
   final Map<String?, Uint8List?> serviceDataArgs;
   final Uint8List? manufacturerSpecificDataArgs;
 
-  MyAdvertisementArgs(
+  AdvertisementArgs(
     this.nameArgs,
     this.serviceUUIDsArgs,
     this.serviceDataArgs,
@@ -87,35 +87,35 @@ class MyAdvertisementArgs {
   );
 }
 
-class MyCentralArgs {
+class CentralArgs {
   final String uuidArgs;
 
-  MyCentralArgs(this.uuidArgs);
+  CentralArgs(this.uuidArgs);
 }
 
-class MyPeripheralArgs {
+class PeripheralArgs {
   final String uuidArgs;
 
-  MyPeripheralArgs(this.uuidArgs);
+  PeripheralArgs(this.uuidArgs);
 }
 
-class MyGATTDescriptorArgs {
+class GATTDescriptorArgs {
   final int hashCodeArgs;
   final String uuidArgs;
 
-  MyGATTDescriptorArgs(
+  GATTDescriptorArgs(
     this.hashCodeArgs,
     this.uuidArgs,
   );
 }
 
-class MyGATTCharacteristicArgs {
+class GATTCharacteristicArgs {
   final int hashCodeArgs;
   final String uuidArgs;
   final List<int?> propertyNumbersArgs;
-  final List<MyGATTDescriptorArgs?> descriptorsArgs;
+  final List<GATTDescriptorArgs?> descriptorsArgs;
 
-  MyGATTCharacteristicArgs(
+  GATTCharacteristicArgs(
     this.hashCodeArgs,
     this.uuidArgs,
     this.propertyNumbersArgs,
@@ -123,14 +123,14 @@ class MyGATTCharacteristicArgs {
   );
 }
 
-class MyGATTServiceArgs {
+class GATTServiceArgs {
   final int hashCodeArgs;
   final String uuidArgs;
   final bool isPrimaryArgs;
-  final List<MyGATTServiceArgs?> includedServicesArgs;
-  final List<MyGATTCharacteristicArgs?> characteristicsArgs;
+  final List<GATTServiceArgs?> includedServicesArgs;
+  final List<GATTCharacteristicArgs?> characteristicsArgs;
 
-  MyGATTServiceArgs(
+  GATTServiceArgs(
     this.hashCodeArgs,
     this.uuidArgs,
     this.isPrimaryArgs,
@@ -139,27 +139,27 @@ class MyGATTServiceArgs {
   );
 }
 
-class MyMutableGATTDescriptorArgs {
+class MutableGATTDescriptorArgs {
   final int hashCodeArgs;
   final String uuidArgs;
   final Uint8List? valueArgs;
 
-  MyMutableGATTDescriptorArgs(
+  MutableGATTDescriptorArgs(
     this.hashCodeArgs,
     this.uuidArgs,
     this.valueArgs,
   );
 }
 
-class MyMutableGATTCharacteristicArgs {
+class MutableGATTCharacteristicArgs {
   final int hashCodeArgs;
   final String uuidArgs;
   final List<int?> propertyNumbersArgs;
   final List<int?> permissionNumbersArgs;
   final Uint8List? valueArgs;
-  final List<MyMutableGATTDescriptorArgs?> descriptorsArgs;
+  final List<MutableGATTDescriptorArgs?> descriptorsArgs;
 
-  MyMutableGATTCharacteristicArgs(
+  MutableGATTCharacteristicArgs(
     this.hashCodeArgs,
     this.uuidArgs,
     this.propertyNumbersArgs,
@@ -169,14 +169,14 @@ class MyMutableGATTCharacteristicArgs {
   );
 }
 
-class MyMutableGATTServiceArgs {
+class MutableGATTServiceArgs {
   final int hashCodeArgs;
   final String uuidArgs;
   final bool isPrimaryArgs;
-  final List<MyMutableGATTServiceArgs?> includedServicesArgs;
-  final List<MyMutableGATTCharacteristicArgs?> characteristicsArgs;
+  final List<MutableGATTServiceArgs?> includedServicesArgs;
+  final List<MutableGATTCharacteristicArgs?> characteristicsArgs;
 
-  MyMutableGATTServiceArgs(
+  MutableGATTServiceArgs(
     this.hashCodeArgs,
     this.uuidArgs,
     this.isPrimaryArgs,
@@ -185,55 +185,55 @@ class MyMutableGATTServiceArgs {
   );
 }
 
-class MyATTRequestArgs {
+class ATTRequestArgs {
   final int hashCodeArgs;
-  final MyCentralArgs centralArgs;
   final int characteristicHashCodeArgs;
-  final Uint8List? valueArgs;
+  final CentralArgs centralArgs;
   final int offsetArgs;
+  final Uint8List? valueArgs;
 
-  MyATTRequestArgs(
+  ATTRequestArgs(
     this.hashCodeArgs,
-    this.centralArgs,
     this.characteristicHashCodeArgs,
-    this.valueArgs,
+    this.centralArgs,
     this.offsetArgs,
+    this.valueArgs,
   );
 }
 
 @HostApi()
-abstract class MyCentralManagerHostAPI {
+abstract class CentralManagerHostAPI {
   void initialize();
-  MyBluetoothLowEnergyStateArgs getState();
+  BluetoothLowEnergyStateArgs getState();
   @async
   void showAppSettings();
   void startDiscovery(List<String> serviceUUIDsArgs);
   void stopDiscovery();
-  List<MyPeripheralArgs> retrieveConnectedPeripherals();
+  List<PeripheralArgs> retrieveConnectedPeripherals();
   @async
   void connect(String uuidArgs);
   @async
   void disconnect(String uuidArgs);
   int getMaximumWriteLength(
     String uuidArgs,
-    MyGATTCharacteristicWriteTypeArgs typeArgs,
+    GATTCharacteristicWriteTypeArgs typeArgs,
   );
   @async
   int readRSSI(String uuidArgs);
   @async
-  List<MyGATTServiceArgs> discoverServices(String uuidArgs);
+  List<GATTServiceArgs> discoverServices(String uuidArgs);
   @async
-  List<MyGATTServiceArgs> discoverIncludedServices(
+  List<GATTServiceArgs> discoverIncludedServices(
     String uuidArgs,
     int hashCodeArgs,
   );
   @async
-  List<MyGATTCharacteristicArgs> discoverCharacteristics(
+  List<GATTCharacteristicArgs> discoverCharacteristics(
     String uuidArgs,
     int hashCodeArgs,
   );
   @async
-  List<MyGATTDescriptorArgs> discoverDescriptors(
+  List<GATTDescriptorArgs> discoverDescriptors(
     String uuidArgs,
     int hashCodeArgs,
   );
@@ -244,7 +244,7 @@ abstract class MyCentralManagerHostAPI {
     String uuidArgs,
     int hashCodeArgs,
     Uint8List valueArgs,
-    MyGATTCharacteristicWriteTypeArgs typeArgs,
+    GATTCharacteristicWriteTypeArgs typeArgs,
   );
   @async
   void setCharacteristicNotifyState(
@@ -259,42 +259,42 @@ abstract class MyCentralManagerHostAPI {
 }
 
 @FlutterApi()
-abstract class MyCentralManagerFlutterAPI {
-  void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs);
+abstract class CentralManagerFlutterAPI {
+  void onStateChanged(BluetoothLowEnergyStateArgs stateArgs);
   void onDiscovered(
-    MyPeripheralArgs peripheralArgs,
+    PeripheralArgs peripheralArgs,
     int rssiArgs,
-    MyAdvertisementArgs advertisementArgs,
+    AdvertisementArgs advertisementArgs,
   );
   void onConnectionStateChanged(
-    MyPeripheralArgs peripheralArgs,
-    MyConnectionStateArgs stateArgs,
+    PeripheralArgs peripheralArgs,
+    ConnectionStateArgs stateArgs,
   );
   void onCharacteristicNotified(
-    MyPeripheralArgs peripheralArgs,
-    MyGATTCharacteristicArgs characteristicArgs,
+    PeripheralArgs peripheralArgs,
+    GATTCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
   );
 }
 
 @HostApi()
-abstract class MyPeripheralManagerHostAPI {
+abstract class PeripheralManagerHostAPI {
   void initialize();
-  MyBluetoothLowEnergyStateArgs getState();
+  BluetoothLowEnergyStateArgs getState();
   @async
   void showAppSettings();
   @async
-  void addService(MyMutableGATTServiceArgs serviceArgs);
+  void addService(MutableGATTServiceArgs serviceArgs);
   void removeService(int hashCodeArgs);
   void removeAllServices();
   @async
-  void startAdvertising(MyAdvertisementArgs advertisementArgs);
+  void startAdvertising(AdvertisementArgs advertisementArgs);
   void stopAdvertising();
   int getMaximumNotifyLength(String uuidArgs);
   void respond(
     int hashCodeArgs,
     Uint8List? valueArgs,
-    MyATTErrorArgs errorArgs,
+    ATTErrorArgs errorArgs,
   );
   bool updateValue(
     int hashCodeArgs,
@@ -304,14 +304,14 @@ abstract class MyPeripheralManagerHostAPI {
 }
 
 @FlutterApi()
-abstract class MyPeripheralManagerFlutterAPI {
-  void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs);
-  void didReceiveRead(MyATTRequestArgs requestArgs);
-  void didReceiveWrite(List<MyATTRequestArgs> requestsArgs);
+abstract class PeripheralManagerFlutterAPI {
+  void onStateChanged(BluetoothLowEnergyStateArgs stateArgs);
+  void didReceiveRead(ATTRequestArgs requestArgs);
+  void didReceiveWrite(List<ATTRequestArgs> requestsArgs);
   void isReady();
   void onCharacteristicNotifyStateChanged(
-    MyCentralArgs centralArgs,
     int hashCodeArgs,
+    CentralArgs centralArgs,
     bool stateArgs,
   );
 }

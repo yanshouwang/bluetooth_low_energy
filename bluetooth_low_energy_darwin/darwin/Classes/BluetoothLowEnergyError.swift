@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum MyError: Error {
+enum BluetoothLowEnergyError: Error {
     case unknown
     case unsupported
     case illegalArgument

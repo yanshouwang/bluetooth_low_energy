@@ -16,12 +16,12 @@ import FlutterMacOS
 #error("Unsupported platform.")
 #endif
 
-class MyCentralManager: MyCentralManagerHostAPI {
-    private let mAPI: MyCentralManagerFlutterAPI
+class MyCentralManager: CentralManagerHostAPI {
+    private let mAPI: CentralManagerFlutterAPI
     private let mCentralManager: CBCentralManager
     
-    private lazy var mCentralManagerDelegate = MyCentralManagerDelegate(centralManager: self)
-    private lazy var peripheralDelegate = MyPeripheralDelegate(centralManager: self)
+    private lazy var mCentralManagerDelegateImpl = CentralManagerDelegateImpl(centralManager: self)
+    private lazy var mPeripheralDelegateImpl = PeripheralDelegateImpl(centralManager: self)
     
     private var mPeripherals: [String: CBPeripheral]
     private var mServices: [String: [Int64: CBService]]
@@ -31,10 +31,10 @@ class MyCentralManager: MyCentralManagerHostAPI {
     private var mConnectCompletions: [String: (Result<Void, Error>) -> Void]
     private var mDisconnectCompletions: [String: (Result<Void, Error>) -> Void]
     private var mReadRSSICompletions: [String: (Result<Int64, Error>) -> Void]
-    private var mDiscoverServicesCompletions: [String: (Result<[MyGATTServiceArgs], Error>) -> Void]
-    private var mDiscoverIncludedServicesCompletions: [String: [Int64: (Result<[MyGATTServiceArgs], Error>) -> Void]]
-    private var mDiscoverCharacteristicsCompletions: [String: [Int64: (Result<[MyGATTCharacteristicArgs], Error>) -> Void]]
-    private var mDiscoverDescriptorsCompletions: [String: [Int64: (Result<[MyGATTDescriptorArgs], Error>) -> Void]]
+    private var mDiscoverServicesCompletions: [String: (Result<[GATTServiceArgs], Error>) -> Void]
+    private var mDiscoverIncludedServicesCompletions: [String: [Int64: (Result<[GATTServiceArgs], Error>) -> Void]]
+    private var mDiscoverCharacteristicsCompletions: [String: [Int64: (Result<[GATTCharacteristicArgs], Error>) -> Void]]
+    private var mDiscoverDescriptorsCompletions: [String: [Int64: (Result<[GATTDescriptorArgs], Error>) -> Void]]
     private var mReadCharacteristicCompletions: [String: [Int64: (Result<FlutterStandardTypedData, Error>) -> Void]]
     private var mWriteCharacteristicCompletions: [String: [Int64: (Result<Void, Error>) -> Void]]
     private var mSetCharacteristicNotifyStateCompletions: [String: [Int64: (Result<Void, Error>) -> Void]]
@@ -42,7 +42,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
     private var mWriteDescriptorCompletions: [String: [Int64: (Result<Void, Error>) -> Void]]
     
     init(messenger: FlutterBinaryMessenger) {
-        mAPI = MyCentralManagerFlutterAPI(binaryMessenger: messenger)
+        mAPI = CentralManagerFlutterAPI(binaryMessenger: messenger)
         mCentralManager = CBCentralManager()
         
         mPeripherals = [:]
@@ -93,10 +93,10 @@ class MyCentralManager: MyCentralManagerHostAPI {
         mReadDescriptorCompletions.removeAll()
         mWriteDescriptorCompletions.removeAll()
         
-        mCentralManager.delegate = mCentralManagerDelegate
+        mCentralManager.delegate = mCentralManagerDelegateImpl
     }
     
-    func getState() throws -> MyBluetoothLowEnergyStateArgs {
+    func getState() throws -> BluetoothLowEnergyStateArgs {
         let state = mCentralManager.state
         let stateArgs = state.toArgs()
         return stateArgs
@@ -106,20 +106,20 @@ class MyCentralManager: MyCentralManagerHostAPI {
 #if os(iOS)
         do {
             guard let url = URL(string: UIApplication.openSettingsURLString) else {
-                throw MyError.illegalArgument
+                throw BluetoothLowEnergyError.illegalArgument
             }
             UIApplication.shared.open(url) { success in
                 if (success) {
                     completion(.success(()))
                 } else {
-                    completion(.failure(MyError.unknown))
+                    completion(.failure(BluetoothLowEnergyError.unknown))
                 }
             }
         } catch {
             completion(.failure(error))
         }
 #else
-        completion(.failure(MyError.unsupported))
+        completion(.failure(BluetoothLowEnergyError.unsupported))
 #endif
     }
     
@@ -133,13 +133,13 @@ class MyCentralManager: MyCentralManagerHostAPI {
         mCentralManager.stopScan()
     }
     
-    func retrieveConnectedPeripherals() throws -> [MyPeripheralArgs] {
+    func retrieveConnectedPeripherals() throws -> [PeripheralArgs] {
         let peripherals = mCentralManager.retrieveConnectedPeripherals(withServices: [])
         let peripheralsArgs = peripherals.map { peripheral in
             let peripheralArgs = peripheral.toArgs()
             let uuidArgs = peripheralArgs.uuidArgs
             if peripheral.delegate == nil {
-                peripheral.delegate = peripheralDelegate
+                peripheral.delegate = mPeripheralDelegateImpl
             }
             self.mPeripherals[uuidArgs] = peripheral
             return peripheralArgs
@@ -167,7 +167,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         }
     }
     
-    func getMaximumWriteLength(uuidArgs: String, typeArgs: MyGATTCharacteristicWriteTypeArgs) throws -> Int64 {
+    func getMaximumWriteLength(uuidArgs: String, typeArgs: GATTCharacteristicWriteTypeArgs) throws -> Int64 {
         let peripheral = try retrievePeripheral(uuidArgs: uuidArgs)
         let type = typeArgs.toWriteType()
         let maximumWriteLength = peripheral.maximumWriteValueLength(for: type)
@@ -185,7 +185,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         }
     }
     
-    func discoverServices(uuidArgs: String, completion: @escaping (Result<[MyGATTServiceArgs], Error>) -> Void) {
+    func discoverServices(uuidArgs: String, completion: @escaping (Result<[GATTServiceArgs], Error>) -> Void) {
         do {
             let peripheral = try retrievePeripheral(uuidArgs: uuidArgs)
             peripheral.discoverServices(nil)
@@ -195,7 +195,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         }
     }
     
-    func discoverIncludedServices(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<[MyGATTServiceArgs], Error>) -> Void) {
+    func discoverIncludedServices(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<[GATTServiceArgs], Error>) -> Void) {
         do {
             let peripheral = try retrievePeripheral(uuidArgs: uuidArgs)
             let service = try retrieveService(uuidArgs: uuidArgs, hashCodeArgs: hashCodeArgs)
@@ -206,7 +206,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         }
     }
     
-    func discoverCharacteristics(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<[MyGATTCharacteristicArgs], Error>) -> Void) {
+    func discoverCharacteristics(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<[GATTCharacteristicArgs], Error>) -> Void) {
         do {
             let peripheral = try retrievePeripheral(uuidArgs: uuidArgs)
             let service = try retrieveService(uuidArgs: uuidArgs, hashCodeArgs: hashCodeArgs)
@@ -217,7 +217,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         }
     }
     
-    func discoverDescriptors(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<[MyGATTDescriptorArgs], Error>) -> Void){
+    func discoverDescriptors(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<[GATTDescriptorArgs], Error>) -> Void){
         do {
             let peripheral = try retrievePeripheral(uuidArgs: uuidArgs)
             let characteristic = try retrieveCharacteristic(uuidArgs: uuidArgs, hashCodeArgs: hashCodeArgs)
@@ -239,7 +239,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         }
     }
     
-    func writeCharacteristic(uuidArgs: String, hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData, typeArgs: MyGATTCharacteristicWriteTypeArgs, completion: @escaping (Result<Void, Error>) -> Void) {
+    func writeCharacteristic(uuidArgs: String, hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData, typeArgs: GATTCharacteristicWriteTypeArgs, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             let peripheral = try retrievePeripheral(uuidArgs: uuidArgs)
             let characteristic = try retrieveCharacteristic(uuidArgs: uuidArgs, hashCodeArgs: hashCodeArgs)
@@ -303,7 +303,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         let rssiArgs = rssi.int64Value
         let advertisementArgs = advertisementData.toAdvertisementArgs()
         if peripheral.delegate == nil {
-            peripheral.delegate = peripheralDelegate
+            peripheral.delegate = mPeripheralDelegateImpl
         }
         mPeripherals[uuidArgs] = peripheral
         mAPI.onDiscovered(peripheralArgs: peripheralArgs, rssiArgs: rssiArgs, advertisementArgs: advertisementArgs) {_ in }
@@ -312,7 +312,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
     func didConnect(central: CBCentralManager, peripheral: CBPeripheral) {
         let peripheralArgs = peripheral.toArgs()
         let uuidArgs = peripheralArgs.uuidArgs
-        let stateArgs = MyConnectionStateArgs.connected
+        let stateArgs = ConnectionStateArgs.connected
         mAPI.onConnectionStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) { _ in }
         guard let completion = mConnectCompletions.removeValue(forKey: uuidArgs) else {
             return
@@ -325,7 +325,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         guard let completion = mConnectCompletions.removeValue(forKey: uuidArgs) else {
             return
         }
-        completion(.failure(error ?? MyError.unknown))
+        completion(.failure(error ?? BluetoothLowEnergyError.unknown))
     }
     
     func didDisconnectPeripheral(central: CBCentralManager, peripheral: CBPeripheral, error: Error?) {
@@ -334,7 +334,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         mServices.removeValue(forKey: uuidArgs)
         mCharacteristics.removeValue(forKey: uuidArgs)
         mDescriptors.removeValue(forKey: uuidArgs)
-        let errorNotNil = error ?? MyError.unknown
+        let errorNotNil = error ?? BluetoothLowEnergyError.unknown
         let readRssiCompletion = mReadRSSICompletions.removeValue(forKey: uuidArgs)
         readRssiCompletion?(.failure(errorNotNil))
         let discoverServicesCompletion = mDiscoverServicesCompletions.removeValue(forKey: uuidArgs)
@@ -395,7 +395,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
                 completion(.failure(errorNotNil))
             }
         }
-        let stateArgs = MyConnectionStateArgs.disconnected
+        let stateArgs = ConnectionStateArgs.disconnected
         mAPI.onConnectionStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) { _ in }
         guard let completion = mDisconnectCompletions.removeValue(forKey: uuidArgs) else {
             return
@@ -427,7 +427,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         }
         if error == nil {
             let services = peripheral.services ?? []
-            var servicesArgs = [MyGATTServiceArgs]()
+            var servicesArgs = [GATTServiceArgs]()
             for service in services {
                 let serviceArgs = service.toArgs()
                 self.mServices[uuidArgs, default: [:]][serviceArgs.hashCodeArgs] = service
@@ -447,7 +447,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         }
         if error == nil {
             let includedServices = service.includedServices ?? []
-            var includedServicesArgs = [MyGATTServiceArgs]()
+            var includedServicesArgs = [GATTServiceArgs]()
             for includedService in includedServices {
                 let includedServiceArgs = includedService.toArgs()
                 self.mServices[uuidArgs, default: [:]][includedServiceArgs.hashCodeArgs] = includedService
@@ -467,7 +467,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         }
         if error == nil {
             let characteristics = service.characteristics ?? []
-            var characteristicsArgs = [MyGATTCharacteristicArgs]()
+            var characteristicsArgs = [GATTCharacteristicArgs]()
             for characteristic in characteristics {
                 let characteristicArgs = characteristic.toArgs()
                 self.mCharacteristics[uuidArgs, default: [:]][characteristicArgs.hashCodeArgs] = characteristic
@@ -487,7 +487,7 @@ class MyCentralManager: MyCentralManagerHostAPI {
         }
         if error == nil {
             let descriptors = characteristic.descriptors ?? []
-            var descriptorsArgs = [MyGATTDescriptorArgs]()
+            var descriptorsArgs = [GATTDescriptorArgs]()
             for descriptor in descriptors {
                 let descriptorArgs = descriptor.toArgs()
                 self.mDescriptors[uuidArgs, default: [:]][descriptorArgs.hashCodeArgs] = descriptor
@@ -587,37 +587,37 @@ class MyCentralManager: MyCentralManagerHostAPI {
     
     private func retrievePeripheral(uuidArgs: String) throws -> CBPeripheral {
         guard let peripheral = mPeripherals[uuidArgs] else {
-            throw MyError.illegalArgument
+            throw BluetoothLowEnergyError.illegalArgument
         }
         return peripheral
     }
     
     private func retrieveService(uuidArgs: String, hashCodeArgs: Int64) throws -> CBService {
         guard let services = self.mServices[uuidArgs] else {
-            throw MyError.illegalArgument
+            throw BluetoothLowEnergyError.illegalArgument
         }
         guard let service = services[hashCodeArgs] else {
-            throw MyError.illegalArgument
+            throw BluetoothLowEnergyError.illegalArgument
         }
         return service
     }
     
     private func retrieveCharacteristic(uuidArgs: String, hashCodeArgs: Int64) throws -> CBCharacteristic {
         guard let characteristics = self.mCharacteristics[uuidArgs] else {
-            throw MyError.illegalArgument
+            throw BluetoothLowEnergyError.illegalArgument
         }
         guard let characteristic = characteristics[hashCodeArgs] else {
-            throw MyError.illegalArgument
+            throw BluetoothLowEnergyError.illegalArgument
         }
         return characteristic
     }
     
     private func retrieveDescriptor(uuidArgs: String, hashCodeArgs: Int64) throws -> CBDescriptor {
         guard let descriptors = self.mDescriptors[uuidArgs] else {
-            throw MyError.illegalArgument
+            throw BluetoothLowEnergyError.illegalArgument
         }
         guard let descriptor = descriptors[hashCodeArgs] else {
-            throw MyError.illegalArgument
+            throw BluetoothLowEnergyError.illegalArgument
         }
         return descriptor
     }

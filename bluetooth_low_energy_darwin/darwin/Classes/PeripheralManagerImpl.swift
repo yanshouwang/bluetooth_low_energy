@@ -16,15 +16,15 @@ import FlutterMacOS
 #error("Unsupported platform.")
 #endif
 
-class MyPeripheralManager: MyPeripheralManagerHostAPI {
-    private let mAPI: MyPeripheralManagerFlutterAPI
+class PeripheralManagerImpl: PeripheralManagerHostAPI {
+    private let mAPI: PeripheralManagerFlutterAPI
     private let mPeripheralManager: CBPeripheralManager
     
-    private lazy var mPeripheralManagerDelegate = MyPeripheralManagerDelegate(peripheralManager: self)
+    private lazy var mPeripheralManagerDelegateImpl = PeripheralManagerDelegateImpl(peripheralManager: self)
     
-    private var mServicesArgs: [Int: MyMutableGATTServiceArgs]
-    private var mCharacteristicsArgs: [Int: MyMutableGATTCharacteristicArgs]
-    private var mDescriptorsArgs: [Int: MyMutableGATTDescriptorArgs]
+    private var mServicesArgs: [Int: MutableGATTServiceArgs]
+    private var mCharacteristicsArgs: [Int: MutableGATTCharacteristicArgs]
+    private var mDescriptorsArgs: [Int: MutableGATTDescriptorArgs]
     
     private var mCentrals: [String: CBCentral]
     private var mServices: [Int64: CBMutableService]
@@ -36,7 +36,7 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
     private var mStartAdvertisingCompletion: ((Result<Void, Error>) -> Void)?
     
     init(messenger: FlutterBinaryMessenger) {
-        mAPI = MyPeripheralManagerFlutterAPI(binaryMessenger: messenger)
+        mAPI = PeripheralManagerFlutterAPI(binaryMessenger: messenger)
         mPeripheralManager = CBPeripheralManager()
         
         mServicesArgs = [:]
@@ -71,10 +71,10 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
         mAddServiceCompletion = nil
         mStartAdvertisingCompletion = nil
         
-        mPeripheralManager.delegate = mPeripheralManagerDelegate
+        mPeripheralManager.delegate = mPeripheralManagerDelegateImpl
     }
 
-    func getState() throws -> MyBluetoothLowEnergyStateArgs {
+    func getState() throws -> BluetoothLowEnergyStateArgs {
         let state = mPeripheralManager.state
         let stateArgs = state.toArgs()
         return stateArgs
@@ -84,24 +84,24 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
 #if os(iOS)
         do {
             guard let url = URL(string: UIApplication.openSettingsURLString) else {
-                throw MyError.illegalArgument
+                throw BluetoothLowEnergyError.illegalArgument
             }
             UIApplication.shared.open(url) { success in
                 if (success) {
                     completion(.success(()))
                 } else {
-                    completion(.failure(MyError.unknown))
+                    completion(.failure(BluetoothLowEnergyError.unknown))
                 }
             }
         } catch {
             completion(.failure(error))
         }
 #else
-        completion(.failure(MyError.unsupported))
+        completion(.failure(BluetoothLowEnergyError.unsupported))
 #endif
     }
     
-    func addService(serviceArgs: MyMutableGATTServiceArgs, completion: @escaping (Result<Void, Error>) -> Void) {
+    func addService(serviceArgs: MutableGATTServiceArgs, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             let service = try addServiceArgs(serviceArgs)
             mPeripheralManager.add(service)
@@ -113,10 +113,10 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
     
     func removeService(hashCodeArgs: Int64) throws {
         guard let service = mServices[hashCodeArgs] else {
-            throw MyError.illegalArgument
+            throw BluetoothLowEnergyError.illegalArgument
         }
         guard let serviceArgs = mServicesArgs[service.hash] else {
-            throw MyError.illegalArgument
+            throw BluetoothLowEnergyError.illegalArgument
         }
         mPeripheralManager.remove(service)
         try removeServiceArgs(serviceArgs)
@@ -134,7 +134,7 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
         mDescriptors.removeAll()
     }
     
-    func startAdvertising(advertisementArgs: MyAdvertisementArgs, completion: @escaping (Result<Void, Error>) -> Void) {
+    func startAdvertising(advertisementArgs: AdvertisementArgs, completion: @escaping (Result<Void, Error>) -> Void) {
         let advertisement = advertisementArgs.toAdvertisement()
         mPeripheralManager.startAdvertising(advertisement)
         mStartAdvertisingCompletion = completion
@@ -146,16 +146,16 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
     
     func getMaximumNotifyLength(uuidArgs: String) throws -> Int64 {
         guard let central = mCentrals[uuidArgs] else {
-            throw MyError.illegalArgument
+            throw BluetoothLowEnergyError.illegalArgument
         }
         let maximumNotifyLength = central.maximumUpdateValueLength
         let maximumNotifyLengthArgs = maximumNotifyLength.toInt64()
         return maximumNotifyLengthArgs
     }
     
-    func respond(hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData?, errorArgs: MyATTErrorArgs) throws {
+    func respond(hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData?, errorArgs: ATTErrorArgs) throws {
         guard let request = mRequests.removeValue(forKey: hashCodeArgs) else {
-            throw MyError.illegalArgument
+            throw BluetoothLowEnergyError.illegalArgument
         }
         if valueArgs != nil {
             request.value = valueArgs!.data
@@ -167,12 +167,12 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
     func updateValue(hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData, uuidsArgs: [String]?) throws -> Bool {
         let centrals = try uuidsArgs?.map { uuidArgs in
             guard let central = self.mCentrals[uuidArgs] else {
-                throw MyError.illegalArgument
+                throw BluetoothLowEnergyError.illegalArgument
             }
             return central
         }
         guard let characteristic = mCharacteristics[hashCodeArgs] else {
-            throw MyError.illegalArgument
+            throw BluetoothLowEnergyError.illegalArgument
         }
         let value = valueArgs.data
         let updated = mPeripheralManager.updateValue(value, for: characteristic, onSubscribedCentrals: centrals)
@@ -223,13 +223,13 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
         let value = request.value
         let valueArgs = value == nil ? nil : FlutterStandardTypedData(bytes: value!)
         let offsetArgs = request.offset.toInt64()
-        let requestArgs = MyATTRequestArgs(hashCodeArgs: hashCodeArgs, centralArgs: centralArgs, characteristicHashCodeArgs: characteristicHashCodeArgs, valueArgs: valueArgs, offsetArgs: offsetArgs)
+        let requestArgs = ATTRequestArgs(hashCodeArgs: hashCodeArgs, characteristicHashCodeArgs: characteristicHashCodeArgs, centralArgs: centralArgs, offsetArgs: offsetArgs, valueArgs: valueArgs)
         mRequests[hashCodeArgs] = request
         mAPI.didReceiveRead(requestArgs: requestArgs) { _ in }
     }
     
     func didReceiveWrite(peripheral: CBPeripheralManager, requests: [CBATTRequest]) {
-        var requestsArgs = [MyATTRequestArgs]()
+        var requestsArgs = [ATTRequestArgs]()
         for request in requests {
             let hashCodeArgs = request.hash.toInt64()
             let central = request.central
@@ -244,7 +244,7 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
             let value = request.value
             let valueArgs = value == nil ? nil : FlutterStandardTypedData(bytes: value!)
             let offsetArgs = request.offset.toInt64()
-            let requestArgs = MyATTRequestArgs(hashCodeArgs: hashCodeArgs, centralArgs: centralArgs, characteristicHashCodeArgs: characteristicHashCodeArgs, valueArgs: valueArgs, offsetArgs: offsetArgs)
+            let requestArgs = ATTRequestArgs(hashCodeArgs: hashCodeArgs, characteristicHashCodeArgs: characteristicHashCodeArgs, centralArgs: centralArgs, offsetArgs: offsetArgs, valueArgs: valueArgs)
             requestsArgs.append(requestArgs)
         }
         guard let request = requests.first else {
@@ -266,7 +266,7 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
         }
         let hashCodeArgs = characteristicArgs.hashCodeArgs
         let stateArgs = true
-        mAPI.onCharacteristicNotifyStateChanged(centralArgs: centralArgs, hashCodeArgs: hashCodeArgs, stateArgs: stateArgs) { _ in }
+        mAPI.onCharacteristicNotifyStateChanged(hashCodeArgs: hashCodeArgs, centralArgs: centralArgs, stateArgs: stateArgs) { _ in }
     }
     
     func didUnsubscribeFrom(peripheral: CBPeripheralManager, central: CBCentral, characteristic: CBCharacteristic) {
@@ -278,14 +278,14 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
         }
         let hashCodeArgs = characteristicArgs.hashCodeArgs
         let stateArgs = false
-        mAPI.onCharacteristicNotifyStateChanged(centralArgs: centralArgs, hashCodeArgs: hashCodeArgs, stateArgs: stateArgs) { _ in }
+        mAPI.onCharacteristicNotifyStateChanged(hashCodeArgs: hashCodeArgs, centralArgs: centralArgs, stateArgs: stateArgs) { _ in }
     }
     
     func isReadyToUpdateSubscribers(peripheral: CBPeripheralManager) {
         mAPI.isReady() { _ in }
     }
     
-    private func addServiceArgs(_ serviceArgs: MyMutableGATTServiceArgs) throws -> CBMutableService {
+    private func addServiceArgs(_ serviceArgs: MutableGATTServiceArgs) throws -> CBMutableService {
         let service = serviceArgs.toService()
         mServicesArgs[service.hash] = serviceArgs
         mServices[serviceArgs.hashCodeArgs] = service
@@ -293,7 +293,7 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
         let includedServicesArgs = serviceArgs.includedServicesArgs
         for args in includedServicesArgs {
             guard let includedServiceArgs = args else {
-                throw MyError.illegalArgument
+                throw BluetoothLowEnergyError.illegalArgument
             }
             let includedService = try addServiceArgs(includedServiceArgs)
             self.mServicesArgs[includedService.hash] = includedServiceArgs
@@ -305,7 +305,7 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
         let characteristicsArgs = serviceArgs.characteristicsArgs
         for args in characteristicsArgs {
             guard let characteristicArgs = args else {
-                throw MyError.illegalArgument
+                throw BluetoothLowEnergyError.illegalArgument
             }
             let characteristic = characteristicArgs.toCharacteristic()
             self.mCharacteristicsArgs[characteristic.hash] = characteristicArgs
@@ -328,33 +328,33 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
         return service
     }
     
-    private func removeServiceArgs(_ serviceArgs: MyMutableGATTServiceArgs) throws {
+    private func removeServiceArgs(_ serviceArgs: MutableGATTServiceArgs) throws {
         for args in serviceArgs.includedServicesArgs {
             guard let includedServiceArgs = args else {
-                throw MyError.illegalArgument
+                throw BluetoothLowEnergyError.illegalArgument
             }
             try removeServiceArgs(includedServiceArgs)
         }
         for args in serviceArgs.characteristicsArgs {
             guard let characteristicArgs = args else {
-                throw MyError.illegalArgument
+                throw BluetoothLowEnergyError.illegalArgument
             }
             for args in characteristicArgs.descriptorsArgs {
                 guard let descriptorArgs = args else {
-                    throw MyError.illegalArgument
+                    throw BluetoothLowEnergyError.illegalArgument
                 }
                 guard let descriptor = mDescriptors.removeValue(forKey: descriptorArgs.hashCodeArgs) else {
-                    throw MyError.illegalArgument
+                    throw BluetoothLowEnergyError.illegalArgument
                 }
                 mDescriptorsArgs.removeValue(forKey: descriptor.hash)
             }
             guard let characteristic = mCharacteristics.removeValue(forKey: characteristicArgs.hashCodeArgs) else {
-                throw MyError.illegalArgument
+                throw BluetoothLowEnergyError.illegalArgument
             }
             mCharacteristicsArgs.removeValue(forKey: characteristic.hash)
         }
         guard let service = mServices.removeValue(forKey: serviceArgs.hashCodeArgs) else {
-            throw MyError.illegalArgument
+            throw BluetoothLowEnergyError.illegalArgument
         }
         mServicesArgs.removeValue(forKey: service.hash)
     }

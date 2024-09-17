@@ -79,7 +79,6 @@ class PeripheralManagerViewModel extends ViewModel {
         await _manager.notifyCharacteristic(
           characteristic,
           value: value,
-          central: central,
         );
       }
     });

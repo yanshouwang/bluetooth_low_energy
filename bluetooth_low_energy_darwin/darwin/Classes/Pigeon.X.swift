@@ -17,7 +17,7 @@ import FlutterMacOS
 #endif
 
 // ToObj
-extension [MyGATTCharacteristicPropertyArgs] {
+extension [GATTCharacteristicPropertyArgs] {
     func toProperties() -> CBCharacteristicProperties {
         var properties: CBCharacteristicProperties = []
         for args in self {
@@ -38,7 +38,7 @@ extension [MyGATTCharacteristicPropertyArgs] {
     }
 }
 
-extension [MyGATTCharacteristicPermissionArgs] {
+extension [GATTCharacteristicPermissionArgs] {
     func toPermissions() -> CBAttributePermissions {
         var permissions: CBAttributePermissions = []
         for args in self {
@@ -57,7 +57,7 @@ extension [MyGATTCharacteristicPermissionArgs] {
     }
 }
 
-extension MyGATTCharacteristicWriteTypeArgs {
+extension GATTCharacteristicWriteTypeArgs {
     func toWriteType() -> CBCharacteristicWriteType {
         switch self {
         case .withResponse:
@@ -68,7 +68,7 @@ extension MyGATTCharacteristicWriteTypeArgs {
     }
 }
 
-extension MyATTErrorArgs {
+extension ATTErrorArgs {
     func toError() -> CBATTError.Code {
         switch self {
         case .success:
@@ -111,7 +111,7 @@ extension MyATTErrorArgs {
     }
 }
 
-extension MyAdvertisementArgs {
+extension AdvertisementArgs {
     func toAdvertisement() -> [String : Any] {
         // CoreBluetooth only support `CBAdvertisementDataLocalNameKey` and `CBAdvertisementDataServiceUUIDsKey`
         // see https://developer.apple.com/documentation/corebluetooth/cbperipheralmanager/1393252-startadvertising
@@ -128,7 +128,7 @@ extension MyAdvertisementArgs {
     }
 }
 
-extension MyMutableGATTDescriptorArgs {
+extension MutableGATTDescriptorArgs {
     func toDescriptor() -> CBMutableDescriptor {
         let type = uuidArgs.toCBUUID()
         let value = valueArgs?.data
@@ -136,25 +136,25 @@ extension MyMutableGATTDescriptorArgs {
     }
 }
 
-extension MyMutableGATTCharacteristicArgs {
+extension MutableGATTCharacteristicArgs {
     func toCharacteristic() -> CBMutableCharacteristic {
         let type = uuidArgs.toCBUUID()
         let propertiesArgs = propertyNumbersArgs.map { propertyNumberArgs in
             let propertyNumber = propertyNumberArgs!.toInt()
-            return MyGATTCharacteristicPropertyArgs(rawValue: propertyNumber)!
+            return GATTCharacteristicPropertyArgs(rawValue: propertyNumber)!
         }
         let properties = propertiesArgs.toProperties()
         let value = valueArgs?.data
         let permissionsArgs = permissionNumbersArgs.map { permissionNumberArgs in
             let permissionNumber = permissionNumberArgs!.toInt()
-            return MyGATTCharacteristicPermissionArgs(rawValue: permissionNumber)!
+            return GATTCharacteristicPermissionArgs(rawValue: permissionNumber)!
         }
         let permissions = permissionsArgs.toPermissions()
         return CBMutableCharacteristic(type: type, properties: properties, value: value, permissions: permissions)
     }
 }
 
-extension MyMutableGATTServiceArgs {
+extension MutableGATTServiceArgs {
     func toService() -> CBMutableService {
         let type = uuidArgs.toCBUUID()
         let primary = isPrimaryArgs
@@ -176,7 +176,7 @@ extension String {
 
 // ToArgs
 extension CBManagerState {
-    func toArgs() -> MyBluetoothLowEnergyStateArgs {
+    func toArgs() -> BluetoothLowEnergyStateArgs {
         switch self {
         case .resetting:
             return .resetting
@@ -195,7 +195,7 @@ extension CBManagerState {
 }
 
 extension [String: Any] {
-    func toAdvertisementArgs() -> MyAdvertisementArgs {
+    func toAdvertisementArgs() -> AdvertisementArgs {
         let nameArgs = self[CBAdvertisementDataLocalNameKey] as? String
         let serviceUUIDs = self[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID] ?? []
         let serviceUUIDsArgs = serviceUUIDs.map { uuid in uuid.uuidString }
@@ -208,45 +208,45 @@ extension [String: Any] {
         let serviceDataArgs = [String?: FlutterStandardTypedData?](uniqueKeysWithValues: serviceDataArgsKeyWithValues)
         let manufacturerData = self[CBAdvertisementDataManufacturerDataKey] as? Data
         let manufacturerSpecificDataArgs = manufacturerData == nil ? nil : FlutterStandardTypedData(bytes: manufacturerData!)
-        return MyAdvertisementArgs(nameArgs: nameArgs, serviceUUIDsArgs: serviceUUIDsArgs, serviceDataArgs: serviceDataArgs, manufacturerSpecificDataArgs: manufacturerSpecificDataArgs)
+        return AdvertisementArgs(nameArgs: nameArgs, serviceUUIDsArgs: serviceUUIDsArgs, serviceDataArgs: serviceDataArgs, manufacturerSpecificDataArgs: manufacturerSpecificDataArgs)
     }
 }
 
 extension CBCentral {
-    func toArgs() -> MyCentralArgs {
+    func toArgs() -> CentralArgs {
         let uuidArgs = identifier.toArgs()
-        return MyCentralArgs(uuidArgs: uuidArgs)
+        return CentralArgs(uuidArgs: uuidArgs)
     }
 }
 
 extension CBPeripheral {
-    func toArgs() -> MyPeripheralArgs {
+    func toArgs() -> PeripheralArgs {
         let uuidArgs = identifier.toArgs()
-        return MyPeripheralArgs(uuidArgs: uuidArgs)
+        return PeripheralArgs(uuidArgs: uuidArgs)
     }
 }
 
 extension CBDescriptor {
-    func toArgs() -> MyGATTDescriptorArgs {
+    func toArgs() -> GATTDescriptorArgs {
         let hashCodeArgs = hash.toInt64()
         let uuidArgs = uuid.toArgs()
-        return MyGATTDescriptorArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs)
+        return GATTDescriptorArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs)
     }
 }
 
 extension CBCharacteristic {
-    func toArgs() -> MyGATTCharacteristicArgs {
+    func toArgs() -> GATTCharacteristicArgs {
         let hashCodeArgs = hash.toInt64()
         let uuidArgs = uuid.toArgs()
         let propertyNumbersArgs = properties.toArgs().map { args in args.rawValue.toInt64() }
         let descriptorsArgs = descriptors?.map { descriptor in descriptor.toArgs() } ?? []
-        return MyGATTCharacteristicArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, propertyNumbersArgs: propertyNumbersArgs, descriptorsArgs: descriptorsArgs)
+        return GATTCharacteristicArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, propertyNumbersArgs: propertyNumbersArgs, descriptorsArgs: descriptorsArgs)
     }
 }
 
 extension CBCharacteristicProperties {
-    func toArgs() -> [MyGATTCharacteristicPropertyArgs] {
-        var args = [MyGATTCharacteristicPropertyArgs]()
+    func toArgs() -> [GATTCharacteristicPropertyArgs] {
+        var args = [GATTCharacteristicPropertyArgs]()
         if contains(.read) {
             args.append(.read)
         }
@@ -267,13 +267,13 @@ extension CBCharacteristicProperties {
 }
 
 extension CBService {
-    func toArgs() -> MyGATTServiceArgs {
+    func toArgs() -> GATTServiceArgs {
         let hashCodeArgs = hash.toInt64()
         let uuidArgs = uuid.toArgs()
         let isPrimaryArgs = isPrimary
         let includedServicesArgs = includedServices?.map { includedService in includedService.toArgs() } ?? []
         let characteristicsArgs = characteristics?.map { characteristic in characteristic.toArgs() } ?? []
-        return MyGATTServiceArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, isPrimaryArgs: isPrimaryArgs, includedServicesArgs: includedServicesArgs, characteristicsArgs: characteristicsArgs)
+        return GATTServiceArgs(hashCodeArgs: hashCodeArgs, uuidArgs: uuidArgs, isPrimaryArgs: isPrimaryArgs, includedServicesArgs: includedServicesArgs, characteristicsArgs: characteristicsArgs)
     }
 }
 

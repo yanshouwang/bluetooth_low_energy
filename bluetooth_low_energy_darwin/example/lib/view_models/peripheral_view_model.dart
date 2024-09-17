@@ -50,7 +50,7 @@ class PeripheralViewModel extends ViewModel with TypeLogger {
   }
 
   Future<void> discoverGATT() async {
-    final services = await _manager.discoverGATT(_peripheral);
+    final services = await _manager.discoverServices(_peripheral);
     _serviceViewModels = services
         .map((service) => ServiceViewModel(
               manager: _manager,

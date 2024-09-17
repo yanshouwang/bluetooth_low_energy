@@ -8,7 +8,7 @@
 import Foundation
 import CoreBluetooth
 
-class MyPeripheralDelegate: NSObject, CBPeripheralDelegate {
+class PeripheralDelegateImpl: NSObject, CBPeripheralDelegate {
     private let mCentralManager: MyCentralManager
     
     init(centralManager: MyCentralManager) {

@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
-import 'my_api.g.dart';
+import 'pigeon.g.dart';
 
 // ToObject
 extension Uint8ListX on Uint8List {
@@ -24,38 +24,37 @@ extension Uint8ListX on Uint8List {
   }
 }
 
-extension MyBluetoothLowEnergyStateArgsX on MyBluetoothLowEnergyStateArgs {
+extension BluetoothLowEnergyStateArgsX on BluetoothLowEnergyStateArgs {
   BluetoothLowEnergyState toState() {
     switch (this) {
-      case MyBluetoothLowEnergyStateArgs.unknown:
-      case MyBluetoothLowEnergyStateArgs.resetting:
+      case BluetoothLowEnergyStateArgs.unknown:
+      case BluetoothLowEnergyStateArgs.resetting:
         return BluetoothLowEnergyState.unknown;
-      case MyBluetoothLowEnergyStateArgs.unsupported:
+      case BluetoothLowEnergyStateArgs.unsupported:
         return BluetoothLowEnergyState.unsupported;
-      case MyBluetoothLowEnergyStateArgs.unauthorized:
+      case BluetoothLowEnergyStateArgs.unauthorized:
         return BluetoothLowEnergyState.unauthorized;
-      case MyBluetoothLowEnergyStateArgs.poweredOff:
+      case BluetoothLowEnergyStateArgs.poweredOff:
         return BluetoothLowEnergyState.poweredOff;
-      case MyBluetoothLowEnergyStateArgs.poweredOn:
+      case BluetoothLowEnergyStateArgs.poweredOn:
         return BluetoothLowEnergyState.poweredOn;
     }
   }
 }
 
-extension MyConnectionStateArgsX on MyConnectionStateArgs {
+extension ConnectionStateArgsX on ConnectionStateArgs {
   ConnectionState toState() {
     return ConnectionState.values[index];
   }
 }
 
-extension MyGATTCharacteristicPropertyArgsX
-    on MyGATTCharacteristicPropertyArgs {
+extension GATTCharacteristicPropertyArgsX on GATTCharacteristicPropertyArgs {
   GATTCharacteristicProperty toProperty() {
     return GATTCharacteristicProperty.values[index];
   }
 }
 
-extension MyAdvertisementArgsX on MyAdvertisementArgs {
+extension AdvertisementArgsX on AdvertisementArgs {
   Advertisement toAdvertisement() {
     return Advertisement(
       name: nameArgs,
@@ -75,22 +74,6 @@ extension MyAdvertisementArgsX on MyAdvertisementArgs {
   }
 }
 
-extension MyPeripheralArgsX on MyPeripheralArgs {
-  Peripheral toPeripheral() {
-    return Peripheral(
-      uuid: UUID.fromString(uuidArgs),
-    );
-  }
-}
-
-extension MyCentralArgsX on MyCentralArgs {
-  Central toCentral() {
-    return Central(
-      uuid: UUID.fromString(uuidArgs),
-    );
-  }
-}
-
 // ToArgs
 extension UUIDX on UUID {
   String toArgs() {
@@ -99,73 +82,73 @@ extension UUIDX on UUID {
 }
 
 extension GATTCharacteristicWriteTypeX on GATTCharacteristicWriteType {
-  MyGATTCharacteristicWriteTypeArgs toArgs() {
-    return MyGATTCharacteristicWriteTypeArgs.values[index];
+  GATTCharacteristicWriteTypeArgs toArgs() {
+    return GATTCharacteristicWriteTypeArgs.values[index];
   }
 }
 
 extension GATTCharacteristicPropertyX on GATTCharacteristicProperty {
-  MyGATTCharacteristicPropertyArgs toArgs() {
-    return MyGATTCharacteristicPropertyArgs.values[index];
+  GATTCharacteristicPropertyArgs toArgs() {
+    return GATTCharacteristicPropertyArgs.values[index];
   }
 }
 
 extension GATTCharacteristicPermissionX on GATTCharacteristicPermission {
-  MyGATTCharacteristicPermissionArgs toArgs() {
-    return MyGATTCharacteristicPermissionArgs.values[index];
+  GATTCharacteristicPermissionArgs toArgs() {
+    return GATTCharacteristicPermissionArgs.values[index];
   }
 }
 
 extension GATTErrorX on GATTError {
-  MyATTErrorArgs toArgs() {
+  ATTErrorArgs toArgs() {
     switch (this) {
       case GATTError.invalidHandle:
-        return MyATTErrorArgs.invalidHandle;
+        return ATTErrorArgs.invalidHandle;
       case GATTError.readNotPermitted:
-        return MyATTErrorArgs.readNotPermitted;
+        return ATTErrorArgs.readNotPermitted;
       case GATTError.writeNotPermitted:
-        return MyATTErrorArgs.writeNotPermitted;
+        return ATTErrorArgs.writeNotPermitted;
       case GATTError.invalidPDU:
-        return MyATTErrorArgs.invalidPDU;
+        return ATTErrorArgs.invalidPDU;
       case GATTError.insufficientAuthentication:
-        return MyATTErrorArgs.insufficientAuthentication;
+        return ATTErrorArgs.insufficientAuthentication;
       case GATTError.requestNotSupported:
-        return MyATTErrorArgs.requestNotSupported;
+        return ATTErrorArgs.requestNotSupported;
       case GATTError.invalidOffset:
-        return MyATTErrorArgs.invalidOffset;
+        return ATTErrorArgs.invalidOffset;
       case GATTError.insufficientAuthorization:
-        return MyATTErrorArgs.insufficientAuthorization;
+        return ATTErrorArgs.insufficientAuthorization;
       case GATTError.prepareQueueFull:
-        return MyATTErrorArgs.prepareQueueFull;
+        return ATTErrorArgs.prepareQueueFull;
       case GATTError.attributeNotFound:
-        return MyATTErrorArgs.attributeNotFound;
+        return ATTErrorArgs.attributeNotFound;
       case GATTError.attributeNotLong:
-        return MyATTErrorArgs.attributeNotLong;
+        return ATTErrorArgs.attributeNotLong;
       case GATTError.insufficientEncryptionKeySize:
-        return MyATTErrorArgs.insufficientEncryptionKeySize;
+        return ATTErrorArgs.insufficientEncryptionKeySize;
       case GATTError.invalidAttributeValueLength:
-        return MyATTErrorArgs.invalidAttributeValueLength;
+        return ATTErrorArgs.invalidAttributeValueLength;
       case GATTError.unlikelyError:
-        return MyATTErrorArgs.unlikelyError;
+        return ATTErrorArgs.unlikelyError;
       case GATTError.insufficientEncryption:
-        return MyATTErrorArgs.insufficientEncryption;
+        return ATTErrorArgs.insufficientEncryption;
       case GATTError.unsupportedGroupType:
-        return MyATTErrorArgs.unsupportedGroupType;
+        return ATTErrorArgs.unsupportedGroupType;
       case GATTError.insufficientResources:
-        return MyATTErrorArgs.insufficientResources;
+        return ATTErrorArgs.insufficientResources;
     }
   }
 }
 
 extension AdvertisementX on Advertisement {
-  MyAdvertisementArgs toArgs() {
+  AdvertisementArgs toArgs() {
     // CoreBluetooth only support `CBAdvertisementDataLocalNameKey` and `CBAdvertisementDataServiceUUIDsKey`
     // see https://developer.apple.com/documentation/corebluetooth/cbperipheralmanager/1393252-startadvertising
     if (serviceData.isNotEmpty || manufacturerSpecificData.isNotEmpty) {
       throw UnsupportedError(
           'serviceData and manufacturerSpecificData is not supported on Darwin.');
     }
-    return MyAdvertisementArgs(
+    return AdvertisementArgs(
       nameArgs: name,
       serviceUUIDsArgs: serviceUUIDs.map((uuid) => uuid.toArgs()).toList(),
       serviceDataArgs: {},
@@ -175,8 +158,8 @@ extension AdvertisementX on Advertisement {
 }
 
 extension MutableGATTDescriptorX on MutableGATTDescriptor {
-  MyMutableGATTDescriptorArgs toArgs() {
-    return MyMutableGATTDescriptorArgs(
+  MutableGATTDescriptorArgs toArgs() {
+    return MutableGATTDescriptorArgs(
       hashCodeArgs: hashCode,
       uuidArgs: uuid.toArgs(),
       valueArgs: this is ImmutableGATTDescriptor
@@ -187,8 +170,8 @@ extension MutableGATTDescriptorX on MutableGATTDescriptor {
 }
 
 extension MutableGATTCharacteristicX on MutableGATTCharacteristic {
-  MyMutableGATTCharacteristicArgs toArgs() {
-    return MyMutableGATTCharacteristicArgs(
+  MutableGATTCharacteristicArgs toArgs() {
+    return MutableGATTCharacteristicArgs(
       hashCodeArgs: hashCode,
       uuidArgs: uuid.toArgs(),
       propertyNumbersArgs: properties.map((property) {
@@ -211,8 +194,8 @@ extension MutableGATTCharacteristicX on MutableGATTCharacteristic {
 }
 
 extension GATTServiceX on GATTService {
-  MyMutableGATTServiceArgs toArgs() {
-    return MyMutableGATTServiceArgs(
+  MutableGATTServiceArgs toArgs() {
+    return MutableGATTServiceArgs(
       hashCodeArgs: hashCode,
       uuidArgs: uuid.toArgs(),
       isPrimaryArgs: isPrimary,

@@ -8,7 +8,7 @@
 import Foundation
 import CoreBluetooth
 
-class MyCentralManagerDelegate: NSObject, CBCentralManagerDelegate {
+class CentralManagerDelegateImpl: NSObject, CBCentralManagerDelegate {
     private let mCentralManager: MyCentralManager
     
     init(centralManager: MyCentralManager) {

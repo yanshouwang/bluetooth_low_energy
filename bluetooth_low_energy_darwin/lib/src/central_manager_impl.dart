@@ -3,14 +3,18 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
+import 'package:hybrid_logging/hybrid_logging.dart';
 
-import 'my_api.dart';
-import 'my_api.g.dart';
-import 'my_gatt.dart';
+import 'gatt_impl.dart';
+import 'peripheral_impl.dart';
+import 'pigeon.dart';
 
-final class MyCentralManager extends PlatformCentralManager
-    implements MyCentralManagerFlutterAPI {
-  final MyCentralManagerHostAPI _api;
+final class CentralManagerImpl
+    with TypeLogger, LoggerController
+    implements CentralManager, CentralManagerFlutterAPI {
+  static CentralManagerImpl? _instance;
+
+  final CentralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
       _stateChangedController;
   final StreamController<DiscoveredEventArgs> _discoveredController;
@@ -21,13 +25,24 @@ final class MyCentralManager extends PlatformCentralManager
 
   BluetoothLowEnergyState _state;
 
-  MyCentralManager()
-      : _api = MyCentralManagerHostAPI(),
+  CentralManagerImpl._()
+      : _api = CentralManagerHostAPI(),
         _stateChangedController = StreamController.broadcast(),
         _discoveredController = StreamController.broadcast(),
         _connectionStateChangedController = StreamController.broadcast(),
         _characteristicNotifiedController = StreamController.broadcast(),
-        _state = BluetoothLowEnergyState.unknown;
+        _state = BluetoothLowEnergyState.unknown {
+    CentralManagerFlutterAPI.setUp(this);
+    _initialize();
+  }
+
+  factory CentralManagerImpl() {
+    var instance = _instance;
+    if (instance == null) {
+      _instance = instance = CentralManagerImpl._();
+    }
+    return instance;
+  }
 
   @override
   BluetoothLowEnergyState get state => _state;
@@ -48,12 +63,6 @@ final class MyCentralManager extends PlatformCentralManager
   @override
   Stream<GATTCharacteristicNotifiedEventArgs> get characteristicNotified =>
       _characteristicNotifiedController.stream;
-
-  @override
-  void initialize() {
-    MyCentralManagerFlutterAPI.setUp(this);
-    _initialize();
-  }
 
   @override
   Future<bool> authorize() {
@@ -102,22 +111,28 @@ final class MyCentralManager extends PlatformCentralManager
     logger.info('retrieveConnectedPeripherals');
     final peripheralsArgs = await _api.retrieveConnectedPeripherals();
     final peripherals = peripheralsArgs
-        .cast<MyPeripheralArgs>()
-        .map((args) => args.toPeripheral())
+        .cast<PeripheralArgs>()
+        .map((args) => PeripheralImpl.fromArgs(args))
         .toList();
     return peripherals;
   }
 
   @override
   Future<void> connect(Peripheral peripheral) async {
-    final uuidArgs = peripheral.uuid.toArgs();
+    if (peripheral is! PeripheralImpl) {
+      throw TypeError();
+    }
+    final uuidArgs = peripheral.uuidArgs;
     logger.info('connect: $uuidArgs');
     await _api.connect(uuidArgs);
   }
 
   @override
   Future<void> disconnect(Peripheral peripheral) async {
-    final uuidArgs = peripheral.uuid.toArgs();
+    if (peripheral is! PeripheralImpl) {
+      throw TypeError();
+    }
+    final uuidArgs = peripheral.uuidArgs;
     logger.info('disconnect: $uuidArgs');
     await _api.disconnect(uuidArgs);
   }
@@ -131,11 +146,23 @@ final class MyCentralManager extends PlatformCentralManager
   }
 
   @override
+  Future<void> requestConnectionPriority(
+    Peripheral peripheral, {
+    required ConnectionPriority priority,
+  }) {
+    throw UnsupportedError(
+        'requestConnectionPriority is not supported on Darwin.');
+  }
+
+  @override
   Future<int> getMaximumWriteLength(
     Peripheral peripheral, {
     required GATTCharacteristicWriteType type,
   }) async {
-    final uuidArgs = peripheral.uuid.toArgs();
+    if (peripheral is! PeripheralImpl) {
+      throw TypeError();
+    }
+    final uuidArgs = peripheral.uuidArgs;
     final typeArgs = type.toArgs();
     logger.info('getMaximumWriteLength: $uuidArgs - $typeArgs');
     final maximumWriteLength = await _api.getMaximumWriteLength(
@@ -147,19 +174,24 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<int> readRSSI(Peripheral peripheral) async {
-    final uuidArgs = peripheral.uuid.toArgs();
+    if (peripheral is! PeripheralImpl) {
+      throw TypeError();
+    }
+    final uuidArgs = peripheral.uuidArgs;
     logger.info('readRSSI: $uuidArgs');
     final rssi = await _api.readRSSI(uuidArgs);
     return rssi;
   }
 
   @override
-  Future<List<GATTService>> discoverGATT(Peripheral peripheral) async {
-    // 发现 GATT 服务
-    final uuidArgs = peripheral.uuid.toArgs();
+  Future<List<GATTService>> discoverServices(Peripheral peripheral) async {
+    if (peripheral is! PeripheralImpl) {
+      throw TypeError();
+    }
+    final uuidArgs = peripheral.uuidArgs;
     final servicesArgs = await _discoverServices(uuidArgs);
     final services = servicesArgs
-        .map((serviceArgs) => MyGATTService.fromArgs(
+        .map((serviceArgs) => GATTServiceImpl.fromArgs(
               uuidArgs: uuidArgs,
               serviceArgs: serviceArgs,
             ))
@@ -170,7 +202,7 @@ final class MyCentralManager extends PlatformCentralManager
   @override
   Future<Uint8List> readCharacteristic(
       GATTCharacteristic characteristic) async {
-    if (characteristic is! MyGATTCharacteristic) {
+    if (characteristic is! GATTCharacteristicImpl) {
       throw TypeError();
     }
     final uuidArgs = characteristic.uuidArgs;
@@ -186,7 +218,7 @@ final class MyCentralManager extends PlatformCentralManager
     required Uint8List value,
     required GATTCharacteristicWriteType type,
   }) async {
-    if (characteristic is! MyGATTCharacteristic) {
+    if (characteristic is! GATTCharacteristicImpl) {
       throw TypeError();
     }
     final uuidArgs = characteristic.uuidArgs;
@@ -203,7 +235,7 @@ final class MyCentralManager extends PlatformCentralManager
     GATTCharacteristic characteristic, {
     required bool state,
   }) async {
-    if (characteristic is! MyGATTCharacteristic) {
+    if (characteristic is! GATTCharacteristicImpl) {
       throw TypeError();
     }
     final uuidArgs = characteristic.uuidArgs;
@@ -216,7 +248,7 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   Future<Uint8List> readDescriptor(GATTDescriptor descriptor) async {
-    if (descriptor is! MyGATTDescriptor) {
+    if (descriptor is! GATTDescriptorImpl) {
       throw TypeError();
     }
     final uuidArgs = descriptor.uuidArgs;
@@ -231,7 +263,7 @@ final class MyCentralManager extends PlatformCentralManager
     GATTDescriptor descriptor, {
     required Uint8List value,
   }) async {
-    if (descriptor is! MyGATTDescriptor) {
+    if (descriptor is! GATTDescriptorImpl) {
       throw TypeError();
     }
     final uuidArgs = descriptor.uuidArgs;
@@ -242,7 +274,7 @@ final class MyCentralManager extends PlatformCentralManager
   }
 
   @override
-  void onStateChanged(MyBluetoothLowEnergyStateArgs stateArgs) {
+  void onStateChanged(BluetoothLowEnergyStateArgs stateArgs) {
     logger.info('onStateChanged: $stateArgs');
     final state = stateArgs.toState();
     if (_state == state) {
@@ -255,13 +287,13 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   void onDiscovered(
-    MyPeripheralArgs peripheralArgs,
+    PeripheralArgs peripheralArgs,
     int rssiArgs,
-    MyAdvertisementArgs advertisementArgs,
+    AdvertisementArgs advertisementArgs,
   ) {
     final uuidArgs = peripheralArgs.uuidArgs;
     logger.info('onDiscovered: $uuidArgs - $rssiArgs, $advertisementArgs');
-    final peripheral = peripheralArgs.toPeripheral();
+    final peripheral = PeripheralImpl.fromArgs(peripheralArgs);
     final advertisement = advertisementArgs.toAdvertisement();
     final eventArgs = DiscoveredEventArgs(
       peripheral,
@@ -273,12 +305,12 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   void onConnectionStateChanged(
-    MyPeripheralArgs peripheralArgs,
-    MyConnectionStateArgs stateArgs,
+    PeripheralArgs peripheralArgs,
+    ConnectionStateArgs stateArgs,
   ) {
     final uuidArgs = peripheralArgs.uuidArgs;
     logger.info('onConnectionStateChanged: $uuidArgs - $stateArgs');
-    final peripheral = peripheralArgs.toPeripheral();
+    final peripheral = PeripheralImpl.fromArgs(peripheralArgs);
     final state = stateArgs.toState();
     final eventArgs = PeripheralConnectionStateChangedEventArgs(
       peripheral,
@@ -289,21 +321,19 @@ final class MyCentralManager extends PlatformCentralManager
 
   @override
   void onCharacteristicNotified(
-    MyPeripheralArgs peripheralArgs,
-    MyGATTCharacteristicArgs characteristicArgs,
+    PeripheralArgs peripheralArgs,
+    GATTCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
   ) {
     final uuidArgs = peripheralArgs.uuidArgs;
     final hashCodeArgs = characteristicArgs.hashCodeArgs;
     logger
         .info('onCharacteristicNotified: $uuidArgs.$hashCodeArgs - $valueArgs');
-    final peripheral = peripheralArgs.toPeripheral();
-    final characteristic = MyGATTCharacteristic.fromArgs(
+    final characteristic = GATTCharacteristicImpl.fromArgs(
       uuidArgs: uuidArgs,
       characteristicArgs: characteristicArgs,
     );
     final eventArgs = GATTCharacteristicNotifiedEventArgs(
-      peripheral,
       characteristic,
       valueArgs,
     );
@@ -333,11 +363,11 @@ final class MyCentralManager extends PlatformCentralManager
     }
   }
 
-  Future<List<MyGATTServiceArgs>> _discoverServices(String uuidArgs) async {
+  Future<List<GATTServiceArgs>> _discoverServices(String uuidArgs) async {
     logger.info('discoverServices: $uuidArgs');
     final servicesArgs = await _api
         .discoverServices(uuidArgs)
-        .then((args) => args.cast<MyGATTServiceArgs>());
+        .then((args) => args.cast<GATTServiceArgs>());
     for (var serviceArgs in servicesArgs) {
       final hashCodeArgs = serviceArgs.hashCodeArgs;
       final includedServicesArgs = await _discoverIncludedServices(
@@ -354,14 +384,14 @@ final class MyCentralManager extends PlatformCentralManager
     return servicesArgs;
   }
 
-  Future<List<MyGATTServiceArgs>> _discoverIncludedServices(
+  Future<List<GATTServiceArgs>> _discoverIncludedServices(
     String uuidArgs,
     int hashCodeArgs,
   ) async {
     logger.info('discoverIncludedServices: $uuidArgs.$hashCodeArgs');
     final servicesArgs = await _api
         .discoverIncludedServices(uuidArgs, hashCodeArgs)
-        .then((args) => args.cast<MyGATTServiceArgs>());
+        .then((args) => args.cast<GATTServiceArgs>());
     for (var serviceArgs in servicesArgs) {
       final hashCodeArgs = serviceArgs.hashCodeArgs;
       final includedServicesArgs = await _discoverIncludedServices(
@@ -378,14 +408,14 @@ final class MyCentralManager extends PlatformCentralManager
     return servicesArgs;
   }
 
-  Future<List<MyGATTCharacteristicArgs>> _discoverCharacteristics(
+  Future<List<GATTCharacteristicArgs>> _discoverCharacteristics(
     String uuidArgs,
     int hashCodeArgs,
   ) async {
     logger.info('discoverCharacteristics: $uuidArgs.$hashCodeArgs');
     final characteristicsArgs = await _api
         .discoverCharacteristics(uuidArgs, hashCodeArgs)
-        .then((args) => args.cast<MyGATTCharacteristicArgs>());
+        .then((args) => args.cast<GATTCharacteristicArgs>());
     for (var characteristicArgs in characteristicsArgs) {
       final hashCodeArgs = characteristicArgs.hashCodeArgs;
       final descriptorsArgs = await _discoverDescriptors(
@@ -397,14 +427,14 @@ final class MyCentralManager extends PlatformCentralManager
     return characteristicsArgs;
   }
 
-  Future<List<MyGATTDescriptorArgs>> _discoverDescriptors(
+  Future<List<GATTDescriptorArgs>> _discoverDescriptors(
     String uuidArgs,
     int hashCodeArgs,
   ) async {
     logger.info('discoverDescriptors: $uuidArgs.$hashCodeArgs');
     final descriptorsArgs = await _api
         .discoverDescriptors(uuidArgs, hashCodeArgs)
-        .then((args) => args.cast<MyGATTDescriptorArgs>());
+        .then((args) => args.cast<GATTDescriptorArgs>());
     return descriptorsArgs;
   }
 }

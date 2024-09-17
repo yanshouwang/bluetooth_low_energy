@@ -1,26 +1,25 @@
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
-import 'my_api.dart';
-import 'my_api.g.dart';
+import 'pigeon.dart';
 
-final class MyGATTDescriptor extends GATTDescriptor {
+final class GATTDescriptorImpl extends GATTDescriptor {
   final String uuidArgs;
   final int hashCodeArgs;
 
-  MyGATTDescriptor({
+  GATTDescriptorImpl({
+    required super.uuid,
     required this.uuidArgs,
     required this.hashCodeArgs,
-    required super.uuid,
   });
 
-  factory MyGATTDescriptor.fromArgs({
+  factory GATTDescriptorImpl.fromArgs({
     required String uuidArgs,
-    required MyGATTDescriptorArgs descriptorArgs,
+    required GATTDescriptorArgs descriptorArgs,
   }) {
-    return MyGATTDescriptor(
+    return GATTDescriptorImpl(
+      uuid: UUID.fromString(descriptorArgs.uuidArgs),
       uuidArgs: uuidArgs,
       hashCodeArgs: descriptorArgs.hashCodeArgs,
-      uuid: UUID.fromString(descriptorArgs.uuidArgs),
     );
   }
 
@@ -29,140 +28,135 @@ final class MyGATTDescriptor extends GATTDescriptor {
 
   @override
   bool operator ==(Object other) {
-    return other is MyGATTDescriptor &&
+    return other is GATTDescriptorImpl &&
         other.uuidArgs == uuidArgs &&
         other.hashCodeArgs == hashCodeArgs;
   }
 }
 
-final class MyGATTCharacteristic extends GATTCharacteristic {
+final class GATTCharacteristicImpl extends GATTCharacteristic {
   final String uuidArgs;
   final int hashCodeArgs;
 
-  MyGATTCharacteristic({
-    required this.uuidArgs,
-    required this.hashCodeArgs,
+  GATTCharacteristicImpl({
     required super.uuid,
     required super.properties,
-    required List<MyGATTDescriptor> descriptors,
-  }) : super(
-          descriptors: descriptors,
-        );
+    required super.descriptors,
+    required this.uuidArgs,
+    required this.hashCodeArgs,
+  });
 
-  factory MyGATTCharacteristic.fromArgs({
+  factory GATTCharacteristicImpl.fromArgs({
     required String uuidArgs,
-    required MyGATTCharacteristicArgs characteristicArgs,
+    required GATTCharacteristicArgs characteristicArgs,
   }) {
-    return MyGATTCharacteristic(
-      uuidArgs: uuidArgs,
-      hashCodeArgs: characteristicArgs.hashCodeArgs,
+    return GATTCharacteristicImpl(
       uuid: UUID.fromString(characteristicArgs.uuidArgs),
       properties: characteristicArgs.propertyNumbersArgs
           .cast<int>()
           .map((propertyNumberArgs) {
         final propertyArgs =
-            MyGATTCharacteristicPropertyArgs.values[propertyNumberArgs];
+            GATTCharacteristicPropertyArgs.values[propertyNumberArgs];
         return propertyArgs.toProperty();
       }).toList(),
       descriptors: characteristicArgs.descriptorsArgs
-          .cast<MyGATTDescriptorArgs>()
-          .map((descriptorArgs) => MyGATTDescriptor.fromArgs(
+          .cast<GATTDescriptorArgs>()
+          .map((descriptorArgs) => GATTDescriptorImpl.fromArgs(
                 uuidArgs: uuidArgs,
                 descriptorArgs: descriptorArgs,
               ))
           .toList(),
+      uuidArgs: uuidArgs,
+      hashCodeArgs: characteristicArgs.hashCodeArgs,
     );
   }
 
   @override
-  List<MyGATTDescriptor> get descriptors =>
-      super.descriptors.cast<MyGATTDescriptor>();
+  List<GATTDescriptorImpl> get descriptors =>
+      super.descriptors.cast<GATTDescriptorImpl>();
 
   @override
   int get hashCode => Object.hash(uuidArgs, hashCodeArgs);
 
   @override
   bool operator ==(Object other) {
-    return other is MyGATTCharacteristic &&
+    return other is GATTCharacteristicImpl &&
         other.uuidArgs == uuidArgs &&
         other.hashCodeArgs == hashCodeArgs;
   }
 }
 
-final class MyGATTService extends GATTService {
+final class GATTServiceImpl extends GATTService {
   final String uuidArgs;
   final int hashCodeArgs;
 
-  MyGATTService({
-    required this.uuidArgs,
-    required this.hashCodeArgs,
+  GATTServiceImpl({
     required super.uuid,
     required super.isPrimary,
-    required List<MyGATTService> includedServices,
-    required List<MyGATTCharacteristic> characteristics,
-  }) : super(
-          includedServices: includedServices,
-          characteristics: characteristics,
-        );
+    required super.includedServices,
+    required super.characteristics,
+    required this.uuidArgs,
+    required this.hashCodeArgs,
+  });
 
-  factory MyGATTService.fromArgs({
+  factory GATTServiceImpl.fromArgs({
     required String uuidArgs,
-    required MyGATTServiceArgs serviceArgs,
+    required GATTServiceArgs serviceArgs,
   }) {
-    return MyGATTService(
-      uuidArgs: uuidArgs,
-      hashCodeArgs: serviceArgs.hashCodeArgs,
+    return GATTServiceImpl(
       uuid: UUID.fromString(serviceArgs.uuidArgs),
       isPrimary: serviceArgs.isPrimaryArgs,
       includedServices: serviceArgs.includedServicesArgs
-          .cast<MyGATTServiceArgs>()
-          .map((includedServiceArgs) => MyGATTService.fromArgs(
+          .cast<GATTServiceArgs>()
+          .map((includedServiceArgs) => GATTServiceImpl.fromArgs(
                 uuidArgs: uuidArgs,
                 serviceArgs: includedServiceArgs,
               ))
           .toList(),
       characteristics: serviceArgs.characteristicsArgs
-          .cast<MyGATTCharacteristicArgs>()
-          .map((characteristicArgs) => MyGATTCharacteristic.fromArgs(
+          .cast<GATTCharacteristicArgs>()
+          .map((characteristicArgs) => GATTCharacteristicImpl.fromArgs(
                 uuidArgs: uuidArgs,
                 characteristicArgs: characteristicArgs,
               ))
           .toList(),
+      uuidArgs: uuidArgs,
+      hashCodeArgs: serviceArgs.hashCodeArgs,
     );
   }
 
   @override
-  List<MyGATTService> get includedServices =>
-      super.includedServices.cast<MyGATTService>();
+  List<GATTServiceImpl> get includedServices =>
+      super.includedServices.cast<GATTServiceImpl>();
 
   @override
-  List<MyGATTCharacteristic> get characteristics =>
-      super.characteristics.cast<MyGATTCharacteristic>();
+  List<GATTCharacteristicImpl> get characteristics =>
+      super.characteristics.cast<GATTCharacteristicImpl>();
 
   @override
   int get hashCode => Object.hash(uuidArgs, hashCodeArgs);
 
   @override
   bool operator ==(Object other) {
-    return other is MyGATTService &&
+    return other is GATTServiceImpl &&
         other.uuidArgs == uuidArgs &&
         other.hashCodeArgs == hashCodeArgs;
   }
 }
 
-final class MyGATTReadRequest extends GATTReadRequest {
+final class GATTReadRequestImpl extends GATTReadRequest {
   final int hashCodeArgs;
 
-  MyGATTReadRequest({
+  GATTReadRequestImpl({
     required this.hashCodeArgs,
     required super.offset,
   });
 }
 
-final class MyGATTWriteRequest extends GATTWriteRequest {
+final class GATTWriteRequestImpl extends GATTWriteRequest {
   final int hashCodeArgs;
 
-  MyGATTWriteRequest({
+  GATTWriteRequestImpl({
     required this.hashCodeArgs,
     required super.offset,
     required super.value,
