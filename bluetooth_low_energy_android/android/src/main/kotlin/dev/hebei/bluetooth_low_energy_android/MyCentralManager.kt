@@ -168,7 +168,7 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
 
     override fun connect(addressArgs: String, callback: (Result<Unit>) -> Unit) {
         try {
-            val device = mDevices[addressArgs] ?: throw IllegalArgumentException()
+            val device = mDevices[addressArgs] ?: adapter.getRemoteDevice(addressArgs.substringAfterLast("-"))
             val autoConnect = false // Add to bluetoothGATTs cache.
             mGATTs[addressArgs] = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 val transport = BluetoothDevice.TRANSPORT_LE
