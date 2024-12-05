@@ -26,6 +26,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import io.flutter.plugin.common.BinaryMessenger
+import java.lang.reflect.Method
 import java.util.concurrent.Executor
 
 class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyBluetoothLowEnergyManager(context), MyCentralManagerHostAPI {
@@ -174,7 +175,23 @@ class MyCentralManager(context: Context, binaryMessenger: BinaryMessenger) : MyB
                 val transport = BluetoothDevice.TRANSPORT_LE
                 device.connectGatt(context, autoConnect, mBluetoothGattCallback, transport)
             } else {
-                device.connectGatt(context, autoConnect, mBluetoothGattCallback)
+                try {
+                    // From Android LOLLIPOP (21) the transport types exists, but it is private
+                    // have to use reflection to call it for TRANSPORT_LE
+                    val connectGattMethod: Method = device.javaClass.getDeclaredMethod(
+                        "connectGatt",
+                        Context::class.java,
+                        Boolean::class.javaPrimitiveType,
+                        BluetoothGattCallback::class.java,
+                        Int::class.javaPrimitiveType
+                    )
+                    connectGattMethod.isAccessible = true
+                    connectGattMethod.invoke(
+                        device, context, autoConnect, mBluetoothGattCallback, 2 /* TRANSPORT_LE */) as BluetoothGatt
+                } catch (ex: Exception) {
+                    // fall back to default method if reflection fails
+                    device.connectGatt(context, autoConnect, mBluetoothGattCallback)
+                }
             }
             mConnectCallbacks[addressArgs] = callback
         } catch (e: Throwable) {
