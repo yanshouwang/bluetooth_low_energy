@@ -100,6 +100,7 @@ If you find this open-source project is helpful, consider to be a sponsor on Git
 * [WeChat Pay](https://sponsors.hebei.dev/#/wechat-pay)
 * [Bitcoin Wallet](https://sponsors.hebei.dev/#/bitcoin-wallet)
 
+<!-- TODO: Save this list to database and show this in the sponsors.hebei.dev -->
 ### Sponsors Details
 
 |Date|Sponsor|Amount|
