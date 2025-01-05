@@ -92,6 +92,21 @@ The `PeripheralManager` API is not implemented since the [`bluez`][8] didn't sup
 
 * [Migrate from 5.x to 6.x][9]
 
+## Sponsors
+
+If you find this open-source project is helpful, consider to be a sponsor on GitHub Sponsors. Your support will help me dedicate more time on the open-source community.
+
+* [Alipay](https://sponsors.hebei.dev/#/alipay)
+* [WeChat Pay](https://sponsors.hebei.dev/#/wechat-pay)
+* [Bitcoin Wallet](https://sponsors.hebei.dev/#/bitcoin-wallet)
+
+<!-- TODO: Save this list to database and show this in the sponsors.hebei.dev -->
+### Sponsors Details
+
+|Date|Sponsor|Amount|
+|:---:|:---:|:---:|
+|2025.1.1|[Jeff-Lawson][10]|0.01177286BTC|
+
 [1]: https://docs.flutter.dev/packages-and-plugins/using-packages
 [2]: https://developer.apple.com/documentation/corebluetooth
 [3]: https://developer.apple.com/documentation/bundleresources/information_property_list/nsbluetoothalwaysusagedescription
@@ -101,3 +116,5 @@ The `PeripheralManager` API is not implemented since the [`bluez`][8] didn't sup
 [7]: https://learn.microsoft.com/en-us/uwp/api/windows.devices.bluetooth.advertisement.bluetoothleadvertisementpublisher.advertisement?view=winrt-22621
 [8]: https://github.com/canonical/bluez.dart
 [9]: doc/migrations/migration-v6.md
+
+[10]: https://github.com/Jeff-Lawson
