@@ -1,1 +1,0 @@
-bluetooth_low_energy/README.md
