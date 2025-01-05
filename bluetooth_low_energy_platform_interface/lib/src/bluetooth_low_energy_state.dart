@@ -9,9 +9,15 @@ enum BluetoothLowEnergyState {
   /// The bluetooth low energy is unauthorized.
   unauthorized,
 
-  /// The bluetooth low energy is powered off.
-  poweredOff,
+  /// The bluetooth low energy is off.
+  off,
 
-  /// The bluetooth low energy is powered on.
-  poweredOn,
+  /// The bluetooth low energy is turning off.
+  turningOn,
+
+  /// The bluetooth low energy is on.
+  on,
+
+  /// The bluetooth low energy is turning on.
+  turningOff,
 }
