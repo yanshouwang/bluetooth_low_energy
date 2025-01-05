@@ -104,7 +104,7 @@ If you find this open-source project is helpful, consider to be a sponsor on Git
 
 |Date|Sponsor|Amount|
 |:---:|:---:|:---:|
-|2025.1.1|[<img src="https://github.com/Jeff-Lawson.png" style="width:32px; height:32px; border-radius:50%; vertical-align:middle"/> Jeff-Lawson][10]|0.01177286BTC|
+|2025.1.1|[Jeff-Lawson][10]|0.01177286BTC|
 
 [1]: https://docs.flutter.dev/packages-and-plugins/using-packages
 [2]: https://developer.apple.com/documentation/corebluetooth
