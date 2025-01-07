@@ -9,8 +9,9 @@ topics:
   - ble
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
-  flutter: '>=3.0.0'
+  sdk: ^3.6.0
+  flutter: '>=3.3.0'
+resolution: workspace
 
 dependencies:
   flutter:
@@ -21,4 +22,4 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0

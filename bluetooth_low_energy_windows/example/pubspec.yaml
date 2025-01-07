@@ -1,11 +1,12 @@
 name: bluetooth_low_energy_windows_example
-description: "Demonstrates how to use the bluetooth_low_energy_windows plugin."
+description: 'Demonstrates how to use the bluetooth_low_energy_windows plugin.'
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ^3.6.0
+resolution: workspace
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -35,7 +36,7 @@ dependencies:
   logging: ^1.2.0
   hybrid_logging: ^1.0.0
   go_router: ^14.1.3
-  clover: ^3.0.0
+  clover: ^4.0.0
   collection: ^1.18.0
   convert: ^3.1.1
   flutter_simple_treeview: ^3.0.2
@@ -52,14 +53,13 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
