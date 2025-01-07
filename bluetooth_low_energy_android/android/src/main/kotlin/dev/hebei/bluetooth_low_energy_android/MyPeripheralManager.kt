@@ -108,7 +108,9 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
     }
 
     override fun getState(): MyBluetoothLowEnergyStateArgs {
-        val supported = context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
+        // Use isMultipleAdvertisementSupported() to check whether LE Advertising is supported on this device before calling this method.
+        // See https://developer.android.com/reference/kotlin/android/bluetooth/BluetoothAdapter#getbluetoothleadvertiser
+        val supported = context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) && adapter.isMultipleAdvertisementSupported
         return if (supported) {
             val authorized = permissions.all { permission -> ActivityCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED }
             return if (authorized) adapter.state.toBluetoothLowEnergyStateArgs()

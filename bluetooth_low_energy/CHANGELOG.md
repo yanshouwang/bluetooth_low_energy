@@ -11,6 +11,10 @@
 * Add `includeDeviceName` and `includeTXPowerLevel` arguments to `PeripheralManager#startAdvertising` method.
 * Move the `central` argument in `PeripheralManger#notifyCharacteristic` method to name argument.
 
+## 6.0.2
+
+* `Android` [Use `isMultipleAdvertisementSupported` to check whether `PeripheralManager` is supported on this device.](https://github.com/yanshouwang/bluetooth_low_energy/issues/83).
+
 ## 6.0.1
 
 * `Android` Fix the issue that [advertisement name is wrong when advertising](https://github.com/yanshouwang/bluetooth_low_energy/issues/62).
