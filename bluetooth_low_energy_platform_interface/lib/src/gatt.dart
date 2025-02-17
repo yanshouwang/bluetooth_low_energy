@@ -1,27 +1,30 @@
 import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'uuid.dart';
 
 /// A representation of common aspects of services offered by a peripheral.
-abstract base class GATTAttribute {
+abstract base class GATTAttribute extends PlatformInterface {
+  static final _token = Object();
+
   /// The Bluetooth-specific UUID of the attribute.
   final UUID uuid;
 
   /// Constructs a [GATTAttribute].
-  GATTAttribute({
+  GATTAttribute.impl({
     required this.uuid,
-  });
+  }) : super(token: _token);
 }
 
 /// An object that provides further information about a remote peripheral’s
 /// characteristic.
 abstract base class GATTDescriptor extends GATTAttribute {
   /// Constructs a [GATTDescriptor].
-  GATTDescriptor({
+  GATTDescriptor.impl({
     required super.uuid,
-  });
+  }) : super.impl();
 
   /// Creates a mutable descriptor.
   ///
@@ -66,11 +69,11 @@ abstract base class GATTCharacteristic extends GATTAttribute {
   final List<GATTDescriptor> descriptors;
 
   /// Constructs a [GATTCharacteristic].
-  GATTCharacteristic({
+  GATTCharacteristic.impl({
     required super.uuid,
     required this.properties,
     required this.descriptors,
-  });
+  }) : super.impl();
 
   /// Creates a mutable characteristic with specified permissions, properties.
   ///
@@ -130,7 +133,7 @@ base class GATTService extends GATTAttribute {
     required this.isPrimary,
     required this.includedServices,
     required this.characteristics,
-  });
+  }) : super.impl();
 }
 
 /// An object that provides additional information about a local peripheral’s
@@ -150,7 +153,7 @@ final class MutableGATTDescriptor extends GATTDescriptor {
   MutableGATTDescriptor({
     required super.uuid,
     required this.permissions,
-  });
+  }) : super.impl();
 }
 
 /// An object that provides additional information about a local peripheral’s
@@ -195,7 +198,7 @@ final class MutableGATTCharacteristic extends GATTCharacteristic {
     required super.properties,
     required this.permissions,
     required super.descriptors,
-  });
+  }) : super.impl();
 }
 
 /// An immutable characteristic of a local peripheral’s service.
@@ -224,18 +227,22 @@ final class ImmutableGATTCharacteristic extends MutableGATTCharacteristic {
 }
 
 /// A read request that uses the Attribute Protocol (ATT).
-abstract base class GATTReadRequest {
+abstract base class GATTReadRequest extends PlatformInterface {
+  static final _token = Object();
+
   /// The zero-based index of the first byte for the read request.
   final int offset;
 
   /// Constructs a [GATTReadRequest].
-  GATTReadRequest({
+  GATTReadRequest.impl({
     required this.offset,
-  });
+  }) : super(token: _token);
 }
 
 /// A write request that uses the Attribute Protocol (ATT).
-abstract base class GATTWriteRequest {
+abstract base class GATTWriteRequest extends PlatformInterface {
+  static final _token = Object();
+
   /// The zero-based index of the first byte for the write request.
   final int offset;
 
@@ -243,10 +250,10 @@ abstract base class GATTWriteRequest {
   final Uint8List value;
 
   /// Constructs a [GATTWriteRequest].
-  GATTWriteRequest({
+  GATTWriteRequest.impl({
     required this.offset,
     required this.value,
-  });
+  }) : super(token: _token);
 }
 
 /// Values that represent the possible properties of a characteristic.

@@ -5,10 +5,10 @@ import 'peripheral_manager.dart';
 
 /// The abstract base channel class that manages central and peripheral objects.
 abstract base class BluetoothLowEnergyPlugin extends PlatformInterface {
-  static final Object _token = Object();
+  static final _token = Object();
 
   /// Constructs a [BluetoothLowEnergyPlugin].
-  BluetoothLowEnergyPlugin() : super(token: _token);
+  BluetoothLowEnergyPlugin.impl() : super(token: _token);
 
   static BluetoothLowEnergyPlugin? _instance;
 

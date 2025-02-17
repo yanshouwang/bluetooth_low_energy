@@ -62,7 +62,9 @@ final class GATTCharacteristicNotifiedEventArgs extends EventArgs {
 }
 
 /// An object that scans for, discovers, connects to, and manages peripherals.
-abstract interface class CentralManager implements BluetoothLowEnergyManager {
+abstract base class CentralManager extends BluetoothLowEnergyManager {
+  CentralManager.impl():super.impl();
+
   /// Gets the instance of [CentralManager] to use.
   factory CentralManager() {
     return BluetoothLowEnergyPlugin.instance.createCentralManager();

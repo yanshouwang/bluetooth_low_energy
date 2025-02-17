@@ -1,4 +1,5 @@
 import 'package:hybrid_logging/hybrid_logging.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'bluetooth_low_energy_state.dart';
 import 'event_args.dart';
@@ -22,7 +23,12 @@ final class NameChangedEventArgs extends EventArgs {
 }
 
 /// The abstract base class that manages central and peripheral objects.
-abstract interface class BluetoothLowEnergyManager implements LogController {
+abstract base class BluetoothLowEnergyManager extends PlatformInterface
+    implements LogController {
+  static final _token = Object();
+
+  BluetoothLowEnergyManager.impl() : super(token: _token);
+
   /// Tells the manager's state updated.
   Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged;
 

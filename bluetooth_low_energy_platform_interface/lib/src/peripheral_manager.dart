@@ -113,8 +113,9 @@ final class GATTDescriptorWriteRequestedEventArgs extends EventArgs {
 }
 
 /// An object that manages and advertises peripheral services exposed by this app.
-abstract interface class PeripheralManager
-    implements BluetoothLowEnergyManager {
+abstract base class PeripheralManager extends BluetoothLowEnergyManager {
+  PeripheralManager.impl() : super.impl();
+
   /// Gets the instance of [PeripheralManager] to use.
   factory PeripheralManager() {
     return BluetoothLowEnergyPlugin.instance.createPeripheralManager();

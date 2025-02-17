@@ -1,13 +1,4 @@
-## 7.0.0-dev.2
-
-* Add `central` argument to `GATTCharacteristicReadRequestedEventArgs`.
-* Add `central` argument to `GATTCharacteristicWriteRequestedEventArgs`.
-* Add `central` argument to `GATTCharacteristicNotifyStateChangedEventArgs`.
-* Add `central` argument to `GATTDescriptorReadRequestedEventArgs`.
-* Add `central` argument to `GATTDescriptorWriteRequestedEventArgs`.
-* Remove `abstract` modifier from `GATTService` class.
-
-## 7.0.0-dev.1
+## 7.0.0-dev.4
 
 * Add `BluetoothLowEnergyPlugin` class.
 * Add `BluetoothLowEnergyPlugin#createCentralManager` method.
@@ -16,19 +7,15 @@
 * Add `ConnectionPriority` enum.
 * Add `abstract` modifier to `Central` class.
 * Add `abstract` modifier to `Peripheral` class.
-* Add `abstract` modifier to `GATTService` class.
 * Add `abstract` modifier to `EventArgs` class.
+* Add `PlatformInterface` to platform classes.
 * Move `CentralManager#discoverGATT` to `CentralManager#discoverServices`.
 * Move `central` argument of `PeripheralManager#notifyCharacteristic` to optional `centrals` argument.
+* Move `BluetoothLowEnergyManager#state` property to `BluetoothLowEnergyManager#getState()` method.
 * Remove `PlatformBluetoothLowEnergyManager` class.
 * Remove `PlatformCentralManager` class.
 * Remove `peripheral` argument from `GATTCharacteristicNotifiedEventArgs`.
 * Remove `PlatformPeripheralManager` class.
-* Remove `central` argument from `GATTCharacteristicReadRequestedEventArgs`.
-* Remove `central` argument from `GATTCharacteristicWriteRequestedEventArgs`.
-* Remove `central` argument from `GATTCharacteristicNotifyStateChangedEventArgs`.
-* Remove `central` argument from `GATTDescriptorReadRequestedEventArgs`.
-* Remove `central` argument from `GATTDescriptorWriteRequestedEventArgs`.
 
 ## 7.0.0-dev.0
 
