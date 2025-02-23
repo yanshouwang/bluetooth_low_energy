@@ -1,4 +1,104 @@
+// Run with `dart run pigeon --input api.dart`.
+
 import 'package:pigeon/pigeon.dart';
+
+@ConfigurePigeon(
+  PigeonOptions(
+    dartOut: 'lib/src/api.g.dart',
+    kotlinOut:
+        'android/src/main/kotlin/dev/hebei/bluetooth_low_energy_android/Api.g.kt',
+    kotlinOptions: KotlinOptions(
+      package: 'dev.hebei.bluetooth_low_energy_android',
+      errorClassName: 'BluetoothLowEnergyError',
+    ),
+  ),
+)
+
+// https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/
+
+/// The root of the Kotlin class hierarchy. Every Kotlin class has Any as a
+/// superclass.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'Any',
+  ),
+)
+abstract class Any {
+  Any();
+
+  /// Indicates whether some other object is "equal to" this one. Implementations
+  /// must fulfil the following requirements:
+  bool equals(Any? other);
+
+  /// Returns a hash code value for the object.  The general contract of hashCode
+  /// is:
+  int hashCodeX();
+
+  /// Returns a string representation of the object.
+  String toStringX();
+}
+
+// https://developer.android.google.cn/reference/kotlin/android/app/package-summary
+
+/// A description of an Intent and target action to perform with it. Instances of
+/// this class are created with #getActivity, #getActivities, getBroadcast, and
+/// getService; the returned object can be handed to other applications so that
+/// they can perform the action you described on your behalf at a later time.
+///
+/// By giving a PendingIntent to another application, you are granting it the
+/// right to perform the operation you have specified as if the other application
+/// was yourself (with the same permissions and identity). As such, you should be
+/// careful about how you build the PendingIntent: almost always, for example,
+/// the base Intent you supply should have the component name explicitly set to
+/// one of your own components, to ensure it is ultimately sent there and nowhere
+/// else.
+///
+/// A PendingIntent itself is simply a reference to a token maintained by the
+/// system describing the original data used to retrieve it. This means that, even
+/// if its owning application's process is killed, the PendingIntent itself will
+/// remain usable from other processes that have been given it. If the creating
+/// application later re-retrieves the same kind of PendingIntent (same operation,
+/// same Intent action, data, categories, and components, and same flags), it will
+/// receive a PendingIntent representing the same token if that is still valid,
+/// and can thus call cancel to remove it.
+///
+/// Because of this behavior, it is important to know when two Intents are considered
+/// to be the same for purposes of retrieving a PendingIntent. A common mistake
+/// people make is to create multiple PendingIntent objects with Intents that only
+/// vary in their "extra" contents, expecting to get a different PendingIntent
+/// each time. This does not happen. The parts of the Intent that are used for
+/// matching are the same ones defined by Intent.filterEquals. If you use two
+/// Intent objects that are equivalent as per Intent.filterEquals, then you will
+/// get the same PendingIntent for both of them.
+///
+/// There are two typical ways to deal with this.
+///
+/// If you truly need multiple distinct PendingIntent objects active at the same
+/// time (such as to use as two notifications that are both shown at the same
+/// time), then you will need to ensure there is something that is different about
+/// them to associate them with different PendingIntents. This may be any of the
+/// Intent attributes considered by Intent.filterEquals, or different request code
+/// integers supplied to #getActivity, #getActivities, getBroadcast, or getService.
+///
+/// If you only need one PendingIntent active at a time for any of the Intents
+/// you will use, then you can alternatively use the flags FLAG_CANCEL_CURRENT or
+/// FLAG_UPDATE_CURRENT to either cancel or modify whatever current PendingIntent
+/// is associated with the Intent you are supplying.
+///
+/// Also note that flags like FLAG_ONE_SHOT or FLAG_IMMUTABLE describe the
+/// PendingIntent instance and thus, are used to identify it. Any calls to retrieve
+/// or modify a PendingIntent created with these flags will also require these
+/// flags to be supplied in conjunction with others. E.g. To retrieve an existing
+/// PendingIntent created with FLAG_ONE_SHOT, both FLAG_ONE_SHOT and FLAG_NO_CREATE
+/// need to be supplied.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.app.PendingIntent',
+  ),
+)
+abstract class PendingIntent extends Any {}
+
+// https://developer.android.google.cn/reference/kotlin/android/bluetooth/package-summary
 
 /// Represents the local device Bluetooth adapter. The BluetoothAdapter lets you
 /// perform fundamental Bluetooth tasks, such as initiate device discovery, query
@@ -27,7 +127,7 @@ import 'package:pigeon/pigeon.dart';
     fullClassName: 'android.bluetooth.BluetoothAdapter',
   ),
 )
-abstract class BluetoothAdapter {
+abstract class BluetoothAdapter extends Any {
   /// Cancel the current device discovery process.
   ///
   /// Because discovery is a heavyweight procedure for the Bluetooth adapter, this
@@ -72,8 +172,8 @@ abstract class BluetoothAdapter {
   /// to either STATE_OFF or STATE_ON. If this call returns false then there was
   /// an immediate problem that will prevent the adapter from being turned off -
   /// such as the adapter already being turned off.
-  @Deprecated(
-      'Starting with android.os.Build.VERSION_CODES#TIRAMISU, applications are not allowed to enable/disable Bluetooth. Compatibility Note: For applications targeting android.os.Build.VERSION_CODES#TIRAMISU or above, this API will always fail and return false. If apps are targeting an older SDK (android.os.Build.VERSION_CODES#S or below), they can continue to use this API.')
+  // @Deprecated(
+  //     'Starting with android.os.Build.VERSION_CODES#TIRAMISU, applications are not allowed to enable/disable Bluetooth. Compatibility Note: For applications targeting android.os.Build.VERSION_CODES#TIRAMISU or above, this API will always fail and return false. If apps are targeting an older SDK (android.os.Build.VERSION_CODES#S or below), they can continue to use this API.')
   bool disable();
 
   /// Turn on the local Bluetooth adapter—do not use without explicit user action
@@ -96,8 +196,8 @@ abstract class BluetoothAdapter {
   /// to either STATE_OFF or STATE_ON. If this call returns false then there was
   /// an immediate problem that will prevent the adapter from being turned on -
   /// such as Airplane mode, or the adapter is already turned on.
-  @Deprecated(
-      'Starting with android.os.Build.VERSION_CODES#TIRAMISU, applications are not allowed to enable/disable Bluetooth. Compatibility Note: For applications targeting android.os.Build.VERSION_CODES#TIRAMISU or above, this API will always fail and return false. If apps are targeting an older SDK (android.os.Build.VERSION_CODES#S or below), they can continue to use this API.')
+  // @Deprecated(
+  //     'Starting with android.os.Build.VERSION_CODES#TIRAMISU, applications are not allowed to enable/disable Bluetooth. Compatibility Note: For applications targeting android.os.Build.VERSION_CODES#TIRAMISU or above, this API will always fail and return false. If apps are targeting an older SDK (android.os.Build.VERSION_CODES#S or below), they can continue to use this API.')
   bool enable();
 
   /// Returns the hardware address of the local Bluetooth adapter.
@@ -128,29 +228,29 @@ abstract class BluetoothAdapter {
   ///
   /// Currently Android only supports one Bluetooth adapter, but the API could be
   /// extended to support more. This will always return the default adapter.
-  @Deprecated(
-      'this method will continue to work, but developers are strongly encouraged to migrate to using BluetoothManager.getAdapter(), since that approach enables support for Context.createAttributionContext.')
+  // @Deprecated(
+  //     'this method will continue to work, but developers are strongly encouraged to migrate to using BluetoothManager.getAdapter(), since that approach enables support for Context.createAttributionContext.')
   @static
   BluetoothAdapter getDefaultAdapter();
 
   /// Get the timeout duration of the SCAN_MODE_CONNECTABLE_DISCOVERABLE.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 33,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
   int? getDiscoverableTimeout();
 
   /// Return the maximum LE advertising data length in bytes, if LE Extended
   /// Advertising feature is supported, 0 otherwise.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 26,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
   int getLeMaximumAdvertisingDataLength();
 
   /// Get the maximum number of connected devices per audio profile for this
   /// device.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 33,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
   int getMaxConnectedAudioDevices();
 
   /// Get the friendly Bluetooth name of the local Bluetooth adapter.
@@ -200,9 +300,9 @@ abstract class BluetoothAdapter {
   ///
   /// A BluetoothDevice will always be returned for a valid hardware address and
   /// type, even if this adapter has never seen that device.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 33,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
   BluetoothDevice getRemoteLeDevice(String address, int addressType);
 
   /// Get the current Bluetooth scan mode of the local Bluetooth adapter.
@@ -246,51 +346,51 @@ abstract class BluetoothAdapter {
   bool isEnabled();
 
   /// Return true if LE 2M PHY feature is supported.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 26,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
   bool isLe2MPhySupported();
 
   /// Returns BluetoothStatusCodes.FEATURE_SUPPORTED if the LE audio broadcast
   /// assistant feature is supported, BluetoothStatusCodes.FEATURE_NOT_SUPPORTED
   /// if the feature is not supported, or an error code.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 33,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
   int isLeAudioBroadcastAssistantSupported();
 
   /// Returns BluetoothStatusCodes.FEATURE_SUPPORTED if the LE audio broadcast
   /// source feature is supported, BluetoothStatusCodes.FEATURE_NOT_SUPPORTED if
   /// the feature is not supported, or an error code.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 33,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
   int isLeAudioBroadcastSourceSupported();
 
   /// Returns BluetoothStatusCodes.FEATURE_SUPPORTED if the LE audio feature is
   /// supported, BluetoothStatusCodes.FEATURE_NOT_SUPPORTED if the feature is not
   /// supported, or an error code.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 33,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
   int isLeAudioSupported();
 
   /// Return true if LE Coded PHY feature is supported.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 26,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
   bool isLeCodedPhySupported();
 
   /// Return true if LE Extended Advertising feature is supported.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 26,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
   bool isLeExtendedAdvertisingSupported();
 
   /// Return true if LE Periodic Advertising feature is supported.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 26,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
   bool isLePeriodicAdvertisingSupported();
 
   /// Return true if the multi advertisement is supported by the chipset
@@ -323,9 +423,9 @@ abstract class BluetoothAdapter {
   ///
   /// Use BluetoothDevice.createInsecureL2capChannel(int) to connect to this server
   /// socket from another Android device that is given the PSM value.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 29,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 29,
+  // )
   BluetoothServerSocket listenUsingInsecureL2capChannel();
 
   /// Create a listening, insecure RFCOMM Bluetooth socket with Service Record.
@@ -363,9 +463,9 @@ abstract class BluetoothAdapter {
   ///
   /// Use BluetoothDevice.createL2capChannel(int) to connect to this server socket
   /// from another Android device that is given the PSM value.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 29,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 29,
+  // )
   BluetoothServerSocket listenUsingL2capChannel();
 
   /// Create a listening, secure RFCOMM Bluetooth socket with Service Record.
@@ -435,25 +535,26 @@ abstract class BluetoothAdapter {
   /// request will be ignored.
   bool startDiscovery();
 
+  /// Starts a scan for Bluetooth LE devices.
+  ///
+  /// Results of the scan are reported using the LeScanCallback.onLeScan callback.
+  // @Deprecated(
+  //     'use BluetoothLeScanner.startScan(List, ScanSettings, ScanCallback) instead.')
+  bool startLeScan1(BluetoothAdapterLeScanCallback callback);
+
   /// Starts a scan for Bluetooth LE devices, looking for devices that advertise
   /// given services.
   ///
   /// Devices which advertise all specified services are reported using the
   /// BluetoothAdapter.LeScanCallback.onLeScan(BluetoothDevice, int, byte) callback.
-  @Deprecated(
-      'use BluetoothLeScanner.startScan(List, ScanSettings, ScanCallback) instead.')
-  bool startLeScan1(List<UUID> serviceUuids, LeScanCallback callback);
-
-  /// Starts a scan for Bluetooth LE devices.
-  ///
-  /// Results of the scan are reported using the LeScanCallback.onLeScan callback.
-  @Deprecated(
-      'use BluetoothLeScanner.startScan(List, ScanSettings, ScanCallback) instead.')
-  bool startLeScan2(LeScanCallback callback);
+  // @Deprecated(
+  //     'use BluetoothLeScanner.startScan(List, ScanSettings, ScanCallback) instead.')
+  bool startLeScan2(
+      List<UUID> serviceUuids, BluetoothAdapterLeScanCallback callback);
 
   /// Stops an ongoing Bluetooth LE device scan.
-  @Deprecated('Use BluetoothLeScanner.stopScan(ScanCallback) instead.')
-  void stopLeScan(LeScanCallback callback);
+  // @Deprecated('Use BluetoothLeScanner.stopScan(ScanCallback) instead.')
+  void stopLeScan(BluetoothAdapterLeScanCallback callback);
 }
 
 /// Represents a Bluetooth class, which describes general characteristics and
@@ -478,14 +579,14 @@ abstract class BluetoothAdapter {
     fullClassName: 'android.bluetooth.BluetoothClass',
   ),
 )
-abstract class BluetoothClass {
+abstract class BluetoothClass extends Any {
   /// Check class bits for possible bluetooth profile support. This is a simple
   /// heuristic that tries to guess if a device with the given class bits might
   /// support specified profile. It is not accurate for all devices. It tries to
   /// err on the side of false positives.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 33,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
   bool doesClassMatch(int profile);
 
   /// Return the (major and minor) device class component of this BluetoothClass.
@@ -530,7 +631,7 @@ abstract class BluetoothClass {
     fullClassName: 'android.bluetooth.BluetoothDevice',
   ),
 )
-abstract class BluetoothDevice {
+abstract class BluetoothDevice extends Any {
   /// Connect to GATT Server hosted by this device. Caller acts as GATT client.
   /// The callback is used to deliver results to Caller, such as connection status
   /// as well as any further GATT client operations. The method returns a
@@ -543,9 +644,9 @@ abstract class BluetoothDevice {
   /// as well as any further GATT client operations. The method returns a
   /// BluetoothGatt instance. You can use BluetoothGatt to conduct GATT client
   /// operations.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 23,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 23,
+  // )
   BluetoothGatt connectGatt2(
       bool autoConnect, BluetoothGattCallback callback, int transport);
 
@@ -554,9 +655,9 @@ abstract class BluetoothDevice {
   /// as well as any further GATT client operations. The method returns a
   /// BluetoothGatt instance. You can use BluetoothGatt to conduct GATT client
   /// operations.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 26,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
   BluetoothGatt connectGatt3(
       bool autoConnect, BluetoothGattCallback callback, int transport, int phy);
 
@@ -586,9 +687,9 @@ abstract class BluetoothDevice {
   /// The communication channel may not have an authenticated link key, i.e. it
   /// may be subject to person-in-the-middle attacks. Use createL2capChannel(int)
   /// if an encrypted and authenticated communication channel is possible.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 29,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 29,
+  // )
   BluetoothSocket createInsecureL2capChannel(int psm);
 
   /// Create an RFCOMM BluetoothSocket socket ready to start an insecure outgoing
@@ -635,9 +736,9 @@ abstract class BluetoothDevice {
   /// Use this socket if an authenticated socket link is possible. Authentication
   /// refers to the authentication of the link key to prevent person-in-the-middle
   /// type of attacks.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 29,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 29,
+  // )
   BluetoothSocket createL2capChannel(int psm);
 
   /// Create an RFCOMM BluetoothSocket ready to start a secure outgoing connection
@@ -680,15 +781,15 @@ abstract class BluetoothDevice {
 
   /// Returns the address type of this BluetoothDevice, one of ADDRESS_TYPE_PUBLIC,
   /// ADDRESS_TYPE_RANDOM, ADDRESS_TYPE_ANONYMOUS, or ADDRESS_TYPE_UNKNOWN.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 35,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 35,
+  // )
   int getAddressType();
 
   /// Get the locally modifiable name (alias) of the remote Bluetooth device.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 30,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 30,
+  // )
   String? getAlias();
 
   /// Get the Bluetooth class of the remote device.
@@ -723,9 +824,9 @@ abstract class BluetoothDevice {
   /// in local storage so that the change is preserved over power cycles.
   ///
   /// This method requires the calling app to have the android.Manifest.permission#BLUETOOTH_CONNECT permission. Additionally, an app must either have the android.Manifest.permission#BLUETOOTH_PRIVILEGED or be associated with the Companion Device manager (see android.companion.CompanionDeviceManager#associate( * AssociationRequest, android.companion.CompanionDeviceManager.Callback, Handler))
-  @KotlinProxyApiOptions(
-    minAndroidApi: 31,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 31,
+  // )
   int setAlias(String? alias);
 
   /// Confirm passkey for PAIRING_VARIANT_PASSKEY_CONFIRMATION pairing.
@@ -752,7 +853,7 @@ abstract class BluetoothDevice {
     fullClassName: 'android.bluetooth.BluetoothGatt',
   ),
 )
-abstract class BluetoothGatt {
+abstract class BluetoothGatt extends Any {
   /// Cancels a reliable write transaction for a given device.
   ///
   /// Calling this function will discard all queued characteristic write operations
@@ -844,9 +945,9 @@ abstract class BluetoothGatt {
 
   /// Read the current transmitter PHY and receiver PHY of the connection. The
   /// values are returned in BluetoothGattCallback.onPhyRead
-  @KotlinProxyApiOptions(
-    minAndroidApi: 26,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
   void readPhy();
 
   /// Read the RSSI for a connected remote device.
@@ -892,9 +993,9 @@ abstract class BluetoothGatt {
   /// BluetoothGattCallback.onPhyUpdate will be triggered as a result of this
   /// call, even if no PHY change happens. It is also triggered when remote device
   /// updates the PHY.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 26,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
   void setPreferredPhy(int txPhy, int rxPhy, int phyOptions);
 
   /// Writes a given characteristic and its values to the associated remote device.
@@ -902,8 +1003,8 @@ abstract class BluetoothGatt {
   /// Once the write operation has been completed, the
   /// android.bluetooth.BluetoothGattCallback#onCharacteristicWrite callback is
   /// invoked, reporting the result of the operation.
-  @Deprecated(
-      'Use BluetoothGatt.writeCharacteristic(BluetoothGattCharacteristic, byte[], as this is not memory safe because it relies on a BluetoothGattCharacteristic object whose underlying fields are subject to change outside this method.')
+  // @Deprecated(
+  //     'Use BluetoothGatt.writeCharacteristic(BluetoothGattCharacteristic, byte[], as this is not memory safe because it relies on a BluetoothGattCharacteristic object whose underlying fields are subject to change outside this method.')
   bool writeCharacteristic1(BluetoothGattCharacteristic characteristic);
 
   /// Writes a given characteristic and its values to the associated remote device.
@@ -911,9 +1012,9 @@ abstract class BluetoothGatt {
   /// Once the write operation has been completed, the
   /// android.bluetooth.BluetoothGattCallback#onCharacteristicWrite callback is
   /// invoked, reporting the result of the operation.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 33,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
   int writeCharacteristic2(BluetoothGattCharacteristic characteristic,
       Uint8List value, int writeType);
 
@@ -921,17 +1022,17 @@ abstract class BluetoothGatt {
   ///
   /// A BluetoothGattCallback.onDescriptorWrite callback is triggered to report
   /// the result of the write operation.
-  @Deprecated(
-      ' Use BluetoothGatt.writeDescriptor(BluetoothGattDescriptor, byte[]) as this is not memory safe because it relies on a BluetoothGattDescriptor object whose underlying fields are subject to change outside this method.')
+  // @Deprecated(
+  //     ' Use BluetoothGatt.writeDescriptor(BluetoothGattDescriptor, byte[]) as this is not memory safe because it relies on a BluetoothGattDescriptor object whose underlying fields are subject to change outside this method.')
   bool writeDescriptor1(BluetoothGattDescriptor descriptor);
 
   /// Write the value of a given descriptor to the associated remote device.
   ///
   /// A BluetoothGattCallback.onDescriptorWrite callback is triggered to report
   /// the result of the write operation.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 33,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
   int writeDescriptor2(BluetoothGattDescriptor descriptor, Uint8List value);
 }
 
@@ -941,35 +1042,45 @@ abstract class BluetoothGatt {
     fullClassName: 'android.bluetooth.BluetoothGattCallback',
   ),
 )
-abstract class BluetoothGattCallback {
+abstract class BluetoothGattCallback extends Any {
+  BluetoothGattCallback();
+
   /// Callback triggered as a result of a remote characteristic notification.
-  @Deprecated(
-      'Use BluetoothGattCallback.onCharacteristicChanged(BluetoothGatt, as it is memory safe by providing the characteristic value at the time of notification.')
-  void onCharacteristicChanged1(
-      BluetoothGatt gatt, BluetoothGattCharacteristic characteristic);
+  // @Deprecated(
+  //     'Use BluetoothGattCallback.onCharacteristicChanged(BluetoothGatt, as it is memory safe by providing the characteristic value at the time of notification.')
+  late final void Function(
+          BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
+      onCharacteristicChanged1;
 
   /// Callback triggered as a result of a remote characteristic notification. Note
   /// that the value within the characteristic object may have changed since
   /// receiving the remote characteristic notification, so check the parameter
   /// value for the value at the time of notification.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 33,
-  )
-  void onCharacteristicChanged2(BluetoothGatt gatt,
-      BluetoothGattCharacteristic characteristic, Uint8List value);
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
+  late final void Function(
+      BluetoothGatt gatt,
+      BluetoothGattCharacteristic characteristic,
+      Uint8List value) onCharacteristicChanged2;
 
   /// Callback reporting the result of a characteristic read operation.
-  @Deprecated(
-      'Use BluetoothGattCallback.onCharacteristicRead(BluetoothGatt, as it is memory safe')
-  void onCharacteristicRead1(BluetoothGatt gatt,
-      BluetoothGattCharacteristic characteristic, int status);
+  // @Deprecated(
+  //     'Use BluetoothGattCallback.onCharacteristicRead(BluetoothGatt, as it is memory safe')
+  late final void Function(
+      BluetoothGatt gatt,
+      BluetoothGattCharacteristic characteristic,
+      int status) onCharacteristicRead1;
 
   /// Callback reporting the result of a characteristic read operation.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 33,
-  )
-  void onCharacteristicRead2(BluetoothGatt gatt,
-      BluetoothGattCharacteristic characteristic, Uint8List value, int status);
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
+  late final void Function(
+      BluetoothGatt gatt,
+      BluetoothGattCharacteristic characteristic,
+      Uint8List value,
+      int status) onCharacteristicRead2;
 
   /// Callback indicating the result of a characteristic write operation.
   ///
@@ -978,72 +1089,85 @@ abstract class BluetoothGattCallback {
   /// device. An application should compare this value to the desired value to be
   /// written. If the values don't match, the application must abort the reliable
   /// write transaction.
-  void onCharacteristicWrite(BluetoothGatt gatt,
-      BluetoothGattCharacteristic characteristic, int status);
+  late final void Function(
+      BluetoothGatt gatt,
+      BluetoothGattCharacteristic characteristic,
+      int status) onCharacteristicWrite;
 
   /// Callback indicating when GATT client has connected/disconnected to/from a
   /// remote GATT server.
-  void onConnectionStateChange(BluetoothGatt gatt, int status, int newState);
+  late final void Function(BluetoothGatt gatt, int status, int newState)
+      onConnectionStateChange;
 
   /// Callback triggered as a result of a remote descriptor read operation.
-  @Deprecated(
-      'Use BluetoothGattCallback.onDescriptorRead(BluetoothGatt, as it is memory safe by providing the descriptor value at the time it was read.')
-  void onDescriptorRead1(
-      BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status);
+  // @Deprecated(
+  //     'Use BluetoothGattCallback.onDescriptorRead(BluetoothGatt, as it is memory safe by providing the descriptor value at the time it was read.')
+  late final void Function(
+          BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status)
+      onDescriptorRead1;
 
   /// Callback reporting the result of a descriptor read operation.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 33,
-  )
-  void onDescriptorRead2(BluetoothGatt gatt, BluetoothGattDescriptor descriptor,
-      int status, Uint8List value);
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
+  late final void Function(
+      BluetoothGatt gatt,
+      BluetoothGattDescriptor descriptor,
+      int status,
+      Uint8List value) onDescriptorRead2;
 
   /// Callback triggered as a result of a remote descriptor write operation.
-  void onDescriptorWrite(
-      BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status);
+  late final void Function(
+          BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status)
+      onDescriptorWrite;
 
   /// Callback indicating the MTU for a given device connection has changed.
   ///
   /// This callback is triggered in response to the BluetoothGatt.requestMtu
   /// function, or in response to a connection event.
-  void onMtuChanged(BluetoothGatt gatt, int mtu, int status);
+  late final void Function(BluetoothGatt gatt, int mtu, int status)
+      onMtuChanged;
 
   /// Callback triggered as result of BluetoothGatt.readPhy
-  @KotlinProxyApiOptions(
-    minAndroidApi: 26,
-  )
-  void onPhyRead(BluetoothGatt gatt, int txPhy, int rxPhy, int status);
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
+  late final void Function(BluetoothGatt gatt, int txPhy, int rxPhy, int status)
+      onPhyRead;
 
   /// Callback triggered as result of BluetoothGatt.setPreferredPhy, or as a result
   /// of remote device changing the PHY.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 26,
-  )
-  void onPhyUpdate(BluetoothGatt gatt, int txPhy, int rxPhy, int status);
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
+  late final void Function(BluetoothGatt gatt, int txPhy, int rxPhy, int status)
+      onPhyUpdate;
 
   /// Callback reporting the RSSI for a remote device connection.
   ///
   /// This callback is triggered in response to the BluetoothGatt.readRemoteRssi
   /// function.
-  void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status);
+  late final void Function(BluetoothGatt gatt, int rssi, int status)
+      onReadRemoteRssi;
 
   /// Callback invoked when a reliable write transaction has been completed.
-  void onReliableWriteCompleted(BluetoothGatt gatt, int status);
+  late final void Function(BluetoothGatt gatt, int status)
+      onReliableWriteCompleted;
 
   /// Callback indicating service changed event is received
   ///
   /// Receiving this event means that the GATT database is out of sync with the
   /// remote device. BluetoothGatt.discoverServices should be called to re-discover
   /// the services.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 31,
-  )
-  void onServiceChanged(BluetoothGatt gatt);
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 31,
+  // )
+  late final void Function(BluetoothGatt gatt) onServiceChanged;
 
   /// Callback invoked when the list of remote services, characteristics and
   /// descriptors for the remote device have been updated, ie new services have
   /// been discovered.
-  void onServicesDiscovered(BluetoothGatt gatt, int status);
+  late final void Function(BluetoothGatt gatt, int status) onServicesDiscovered;
 }
 
 /// Represents a Bluetooth GATT Characteristic
@@ -1056,7 +1180,7 @@ abstract class BluetoothGattCallback {
     fullClassName: 'android.bluetooth.BluetoothGattCharacteristic',
   ),
 )
-abstract class BluetoothGattCharacteristic {
+abstract class BluetoothGattCharacteristic extends Any {
   /// Create a new BluetoothGattCharacteristic.
   BluetoothGattCharacteristic(
     UUID uuid,
@@ -1077,8 +1201,8 @@ abstract class BluetoothGattCharacteristic {
   /// Return the stored value of this characteristic.
   ///
   /// See getValue for details.
-  @Deprecated(
-      'Use BluetoothGatt.readCharacteristic(BluetoothGattCharacteristic) to get the characteristic value')
+  // @Deprecated(
+  //     'Use BluetoothGatt.readCharacteristic(BluetoothGattCharacteristic) to get the characteristic value')
   double getFloatValue(int formatType, int offset);
 
   /// Returns the instance ID for this characteristic.
@@ -1093,8 +1217,8 @@ abstract class BluetoothGattCharacteristic {
   /// interpreted. For example, setting formatType to FORMAT_UINT16 specifies that
   /// the first two bytes of the characteristic value at the given offset are
   /// interpreted to generate the return value.
-  @Deprecated(
-      'Use BluetoothGatt.readCharacteristic(BluetoothGattCharacteristic) to get the characteristic value')
+  // @Deprecated(
+  //     'Use BluetoothGatt.readCharacteristic(BluetoothGattCharacteristic) to get the characteristic value')
   int getIntValue(int formatType, int offset);
 
   /// Returns the permissions for this characteristic.
@@ -1110,8 +1234,8 @@ abstract class BluetoothGattCharacteristic {
   BluetoothGattService getService();
 
   /// Return the stored value of this characteristic.
-  @Deprecated(
-      'Use BluetoothGatt.readCharacteristic(BluetoothGattCharacteristic) to get the characteristic value')
+  // @Deprecated(
+  //     'Use BluetoothGatt.readCharacteristic(BluetoothGattCharacteristic) to get the characteristic value')
   String getStringValue(int offset);
 
   /// Returns the UUID of this characteristic
@@ -1123,8 +1247,8 @@ abstract class BluetoothGattCharacteristic {
   /// by calling BluetoothGatt.readCharacteristic. The cached value of the
   /// characteristic is updated as a result of a read characteristic operation or
   /// if a characteristic update notification has been received.
-  @Deprecated(
-      ' Use BluetoothGatt.readCharacteristic(BluetoothGattCharacteristic) instead')
+  // @Deprecated(
+  //     ' Use BluetoothGatt.readCharacteristic(BluetoothGattCharacteristic) instead')
   Uint8List getValue();
 
   /// Gets the write type for this characteristic.
@@ -1135,29 +1259,29 @@ abstract class BluetoothGattCharacteristic {
   /// This function modifies the locally stored cached value of this characteristic.
   /// To send the value to the remote device, call android.bluetooth.BluetoothGatt#writeCharacteristic
   /// to send the value to the remote device.
-  @Deprecated(
-      'Pass the characteristic value directly into android.bluetooth.BluetoothGatt#writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic,byte[],int)')
+  // @Deprecated(
+  //     'Pass the characteristic value directly into android.bluetooth.BluetoothGatt#writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic,byte[],int)')
   bool setValue1(Uint8List value);
 
   /// Set the locally stored value of this characteristic.
   ///
   /// See setValue(byte[]) for details.
-  @Deprecated(
-      'Pass the characteristic value directly into android.bluetooth.BluetoothGatt#writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic,byte[],int)')
+  // @Deprecated(
+  //     'Pass the characteristic value directly into android.bluetooth.BluetoothGatt#writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic,byte[],int)')
   bool setValue2(Uint8List value, int formatType, int offset);
 
   /// Set the locally stored value of this characteristic.
   ///
   /// See setValue(byte[]) for details.
-  @Deprecated(
-      ' Pass the characteristic value directly into android.bluetooth.BluetoothGatt#writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic,byte[],int)')
+  // @Deprecated(
+  //     ' Pass the characteristic value directly into android.bluetooth.BluetoothGatt#writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic,byte[],int)')
   bool setValue3(int mantissa, int exponent, int formatType, int offset);
 
   /// Set the locally stored value of this characteristic.
   ///
   /// See setValue(byte[]) for details.
-  @Deprecated(
-      'Pass the characteristic value directly into android.bluetooth.BluetoothGatt#writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic,byte[],int)')
+  // @Deprecated(
+  //     'Pass the characteristic value directly into android.bluetooth.BluetoothGatt#writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic,byte[],int)')
   bool setValue4(String value);
 
   /// Set the write type for this characteristic
@@ -1178,7 +1302,7 @@ abstract class BluetoothGattCharacteristic {
     fullClassName: 'android.bluetooth.BluetoothGattDescriptor',
   ),
 )
-abstract class BluetoothGattDescriptor {
+abstract class BluetoothGattDescriptor extends Any {
   /// Create a new BluetoothGattDescriptor.
   BluetoothGattDescriptor(
     UUID uuid,
@@ -1199,8 +1323,8 @@ abstract class BluetoothGattDescriptor {
   /// This function returns the stored value for this descriptor as retrieved by
   /// calling android.bluetooth.BluetoothGatt#readDescriptor. The cached value of
   /// the descriptor is updated as a result of a descriptor read operation.
-  @Deprecated(
-      'Use BluetoothGatt.readDescriptor(BluetoothGattDescriptor) instead')
+  // @Deprecated(
+  //     'Use BluetoothGatt.readDescriptor(BluetoothGattDescriptor) instead')
   Uint8List getValue();
 
   /// Updates the locally stored value of this descriptor.
@@ -1208,16 +1332,16 @@ abstract class BluetoothGattDescriptor {
   /// This function modifies the locally stored cached value of this descriptor.
   /// To send the value to the remote device, call android.bluetooth.BluetoothGatt#writeDescriptor
   /// to send the value to the remote device.
-  @Deprecated(
-      'Pass the descriptor value directly into android.bluetooth.BluetoothGatt#writeDescriptor(android.bluetooth.BluetoothGattDescriptor,byte[])')
+  // @Deprecated(
+  //     'Pass the descriptor value directly into android.bluetooth.BluetoothGatt#writeDescriptor(android.bluetooth.BluetoothGattDescriptor,byte[])')
   bool setValue(Uint8List value);
 
   @static
-  Uint8List get disableNotificationValue;
+  Uint8List disableNotificationValue();
   @static
-  Uint8List get enableIndicationValue;
+  Uint8List enableIndicationValue();
   @static
-  Uint8List get enableNotificationValue;
+  Uint8List enableNotificationValue();
 }
 
 /// Public API for the Bluetooth GATT Profile server role.
@@ -1232,7 +1356,7 @@ abstract class BluetoothGattDescriptor {
     fullClassName: 'android.bluetooth.BluetoothGattServer',
   ),
 )
-abstract class BluetoothGattServer {
+abstract class BluetoothGattServer extends Any {
   /// Add a service to the list of services to be hosted.
   ///
   /// Once a service has been added to the list, the service and its included
@@ -1271,18 +1395,6 @@ abstract class BluetoothGattServer {
   /// set to true.
   bool connect(BluetoothDevice device, bool autoConnect);
 
-  /// Not supported - please use BluetoothManager.getConnectedDevices(int) with
-  /// android.bluetooth.BluetoothProfile#GATT as argument
-  List<BluetoothDevice> getConnectedDevices();
-
-  /// Not supported - please use BluetoothManager.getConnectedDevices(int) with
-  /// android.bluetooth.BluetoothProfile#GATT as argument
-  int getConnectionState(BluetoothDevice device);
-
-  /// Not supported - please use BluetoothManager.getDevicesMatchingConnectionStates(int,
-  /// with BluetoothProfile.GATT as first argument
-  List<BluetoothDevice> getDevicesMatchingConnectionStates(List<int> states);
-
   /// Returns a BluetoothGattService from the list of services offered by this
   /// device.
   ///
@@ -1303,8 +1415,8 @@ abstract class BluetoothGattServer {
   /// the characteristic has been updated. This function should be invoked for
   /// every client that requests notifications/indications by writing to the
   /// "Client Configuration" descriptor for the given characteristic.
-  @Deprecated(
-      'Use BluetoothGattServer.notifyCharacteristicChanged(BluetoothDevice, as this is not memory safe.')
+  // @Deprecated(
+  //     'Use BluetoothGattServer.notifyCharacteristicChanged(BluetoothDevice, as this is not memory safe.')
   bool notifyCharacteristicChanged(BluetoothDevice device,
       BluetoothGattCharacteristic characteristic, bool confirm);
 
@@ -1315,9 +1427,9 @@ abstract class BluetoothGattServer {
   /// the characteristic has been updated. This function should be invoked for
   /// every client that requests notifications/indications by writing to the
   /// "Client Configuration" descriptor for the given characteristic.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 33,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
   int notifyCharacteristicChanged1(
       BluetoothDevice device,
       BluetoothGattCharacteristic characteristic,
@@ -1326,9 +1438,9 @@ abstract class BluetoothGattServer {
 
   /// Read the current transmitter PHY and receiver PHY of the connection. The
   /// values are returned in BluetoothGattServerCallback.onPhyRead
-  @KotlinProxyApiOptions(
-    minAndroidApi: 26,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
   void readPhy(BluetoothDevice device);
 
   /// Removes a service from the list of services to be provided.
@@ -1354,9 +1466,9 @@ abstract class BluetoothGattServer {
   /// BluetoothGattServerCallback.onPhyUpdate will be triggered as a result of
   /// this call, even if no PHY change happens. It is also triggered when remote
   /// device updates the PHY.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 26,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
   void setPreferredPhy(
       BluetoothDevice device, int txPhy, int rxPhy, int phyOptions);
 }
@@ -1367,88 +1479,95 @@ abstract class BluetoothGattServer {
     fullClassName: 'android.bluetooth.BluetoothGattServerCallback',
   ),
 )
-abstract class BluetoothGattServerCallback {
+abstract class BluetoothGattServerCallback extends Any {
+  BluetoothGattServerCallback();
+
   /// A remote client has requested to read a local characteristic.
   ///
   /// An application must call BluetoothGattServer.sendResponse to complete the
   /// request.
-  void onCharacteristicReadRequest(BluetoothDevice device, int requestId,
-      int offset, BluetoothGattCharacteristic characteristic);
+  late final void Function(BluetoothDevice device, int requestId, int offset,
+      BluetoothGattCharacteristic characteristic) onCharacteristicReadRequest;
 
   /// A remote client has requested to write to a local characteristic.
   ///
   /// An application must call BluetoothGattServer.sendResponse to complete the
   /// request.
-  void onCharacteristicWriteRequest(
+  late final void Function(
       BluetoothDevice device,
       int requestId,
       BluetoothGattCharacteristic characteristic,
       bool preparedWrite,
       bool responseNeeded,
       int offset,
-      Uint8List value);
+      Uint8List value) onCharacteristicWriteRequest;
 
   /// Callback indicating when a remote device has been connected or disconnected.
-  void onConnectionStateChange(
-      BluetoothDevice device, int status, int newState);
+  late final void Function(BluetoothDevice device, int status, int newState)
+      onConnectionStateChange;
 
   /// A remote client has requested to read a local descriptor.
   ///
   /// An application must call BluetoothGattServer.sendResponse to complete the
   /// request.
-  void onDescriptorReadRequest(BluetoothDevice device, int requestId,
-      int offset, BluetoothGattDescriptor descriptor);
+  late final void Function(BluetoothDevice device, int requestId, int offset,
+      BluetoothGattDescriptor descriptor) onDescriptorReadRequest;
 
   /// A remote client has requested to write to a local descriptor.
   ///
   /// An application must call BluetoothGattServer.sendResponse to complete the
   /// request.
-  void onDescriptorWriteRequest(
+  late final void Function(
       BluetoothDevice device,
       int requestId,
       BluetoothGattDescriptor descriptor,
       bool preparedWrite,
       bool responseNeeded,
       int offset,
-      Uint8List value);
+      Uint8List value) onDescriptorWriteRequest;
 
   /// Execute all pending write operations for this device.
   ///
   /// An application must call BluetoothGattServer.sendResponse to complete the
   /// request.
-  void onExecuteWrite(BluetoothDevice device, int requestId, bool execute);
+  late final void Function(BluetoothDevice device, int requestId, bool execute)
+      onExecuteWrite;
 
   /// Callback indicating the MTU for a given device connection has changed.
   ///
   /// This callback will be invoked if a remote client has requested to change
   /// the MTU for a given connection.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 22,
-  )
-  void onMtuChanged(BluetoothDevice device, int mtu);
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 22,
+  // )
+  late final void Function(BluetoothDevice device, int mtu) onMtuChanged;
 
   /// Callback invoked when a notification or indication has been sent to a remote
   /// device.
   ///
   /// When multiple notifications are to be sent, an application must wait for
   /// this callback to be received before sending additional notifications.
-  void onNotificationSent(BluetoothDevice device, int status);
+  late final void Function(BluetoothDevice device, int status)
+      onNotificationSent;
 
   /// Callback triggered as result of BluetoothGattServer.readPhy
-  @KotlinProxyApiOptions(
-    minAndroidApi: 26,
-  )
-  void onPhyRead(BluetoothDevice device, int txPhy, int rxPhy, int status);
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
+  late final void Function(
+      BluetoothDevice device, int txPhy, int rxPhy, int status) onPhyRead;
 
   /// Callback triggered as result of BluetoothGattServer.setPreferredPhy, or as
   /// a result of remote device changing the PHY.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 26,
-  )
-  void onPhyUpdate(BluetoothDevice device, int txPhy, int rxPhy, int status);
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
+  late final void Function(
+      BluetoothDevice device, int txPhy, int rxPhy, int status) onPhyUpdate;
 
   /// Indicates whether a local service has been added successfully.
-  void onServiceAdded(int status, BluetoothGattService service);
+  late final void Function(int status, BluetoothGattService service)
+      onServiceAdded;
 }
 
 /// Represents a Bluetooth GATT Service
@@ -1460,7 +1579,7 @@ abstract class BluetoothGattServerCallback {
     fullClassName: 'android.bluetooth.BluetoothGattService',
   ),
 )
-abstract class BluetoothGattService {
+abstract class BluetoothGattService extends Any {
   /// Create a new BluetoothGattService.
   BluetoothGattService(UUID uuid, int serviceType);
 
@@ -1507,7 +1626,7 @@ abstract class BluetoothGattService {
     fullClassName: 'android.bluetooth.BluetoothManager',
   ),
 )
-abstract class BluetoothManager {
+abstract class BluetoothManager extends Any {
   /// Get the BluetoothAdapter for this device.
   BluetoothAdapter getAdapter();
 
@@ -1547,11 +1666,677 @@ abstract class BluetoothManager {
   BluetoothGattServer openGattServer(BluetoothGattServerCallback callback);
 }
 
-abstract class BluetoothServerSocket {}
+/// A listening Bluetooth socket.
+///
+/// The interface for Bluetooth Sockets is similar to that of TCP sockets:
+/// java.net.Socket and java.net.ServerSocket. On the server side, use a
+/// BluetoothServerSocket to create a listening server socket. When a connection
+/// is accepted by the BluetoothServerSocket, it will return a new BluetoothSocket
+/// to manage the connection. On the client side, use a single BluetoothSocket to
+/// both initiate an outgoing connection and to manage the connection.
+///
+/// For Bluetooth BR/EDR, the most common type of socket is RFCOMM, which is the
+/// type supported by the Android APIs. RFCOMM is a connection-oriented, streaming
+/// transport over Bluetooth BR/EDR. It is also known as the Serial Port Profile
+/// (SPP). To create a listening BluetoothServerSocket that's ready for incoming
+/// Bluetooth BR/EDR connections, use BluetoothAdapter.listenUsingRfcommWithServiceRecord().
+///
+/// For Bluetooth LE, the socket uses LE Connection-oriented Channel (CoC). LE
+/// CoC is a connection-oriented, streaming transport over Bluetooth LE and has
+/// a credit-based flow control. Correspondingly, use BluetoothAdapter.listenUsingL2capChannel()
+/// to create a listening BluetoothServerSocket that's ready for incoming Bluetooth
+/// LE CoC connections. For LE CoC, you can use getPsm() to get the protocol/service
+/// multiplexer (PSM) value that the peer needs to use to connect to your socket.
+///
+/// After the listening BluetoothServerSocket is created, call accept() to listen
+/// for incoming connection requests. This call will block until a connection is
+/// established, at which point, it will return a BluetoothSocket to manage the
+/// connection. Once the BluetoothSocket is acquired, it's a good idea to call
+/// #close() on the BluetoothServerSocket when it's no longer needed for accepting
+/// connections. Closing the BluetoothServerSocket will not close the returned
+/// BluetoothSocket.
+///
+/// BluetoothServerSocket is thread safe. In particular, #close will always
+/// immediately abort ongoing operations and close the server socket.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.BluetoothServerSocket',
+  ),
+)
+abstract class BluetoothServerSocket extends Any {
+  /// Block until a connection is established.
+  ///
+  /// Returns a connected BluetoothSocket on successful connection.
+  ///
+  /// Once this call returns, it can be called again to accept subsequent incoming connections.
+  ///
+  /// close can be used to abort this call from another thread.
+  BluetoothSocket accept1();
 
-abstract class BluetoothSocket {}
+  /// Block until a connection is established, with timeout.
+  ///
+  /// Returns a connected BluetoothSocket on successful connection.
+  ///
+  /// Once this call returns, it can be called again to accept subsequent incoming
+  /// connections.
+  ///
+  /// close can be used to abort this call from another thread.
+  BluetoothSocket accept2(int timeout);
 
-abstract class BluetoothStatusCodes {}
+  /// Immediately close this socket, and release all associated resources.
+  ///
+  /// Causes blocked calls on this socket in other threads to immediately throw
+  /// an IOException.
+  ///
+  /// Closing the BluetoothServerSocket will not close any BluetoothSocket received
+  /// from accept().
+  void close();
+
+  /// Returns the assigned dynamic protocol/service multiplexer (PSM) value for
+  /// the listening L2CAP Connection-oriented Channel (CoC) server socket. This
+  /// server socket must be returned by the BluetoothAdapter.listenUsingL2capChannel()
+  /// or android.bluetooth.BluetoothAdapter#listenUsingInsecureL2capChannel().
+  /// The returned value is undefined if this method is called on non-L2CAP server
+  /// sockets.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 29,
+  // )
+  int getPsm();
+}
+
+/// A connected or connecting Bluetooth socket.
+///
+/// The interface for Bluetooth Sockets is similar to that of TCP sockets:
+/// java.net.Socket and java.net.ServerSocket. On the server side, use a
+/// BluetoothServerSocket to create a listening server socket. When a connection
+/// is accepted by the BluetoothServerSocket, it will return a new BluetoothSocket
+/// to manage the connection. On the client side, use a single BluetoothSocket to
+/// both initiate an outgoing connection and to manage the connection.
+///
+/// The most common type of Bluetooth socket is RFCOMM, which is the type supported
+/// by the Android APIs. RFCOMM is a connection-oriented, streaming transport over
+/// Bluetooth. It is also known as the Serial Port Profile (SPP).
+///
+/// To create a BluetoothSocket for connecting to a known device, use
+/// BluetoothDevice.createRfcommSocketToServiceRecord(). Then call connect() to
+/// attempt a connection to the remote device. This call will block until a
+/// connection is established or the connection fails.
+///
+/// To create a BluetoothSocket as a server (or "host"), see the BluetoothServerSocket
+/// documentation.
+///
+/// Once the socket is connected, whether initiated as a client or accepted as a
+/// server, open the IO streams by calling getInputStream and getOutputStream in
+/// order to retrieve java.io.InputStream and java.io.OutputStream objects,
+/// respectively, which are automatically connected to the socket.
+///
+/// BluetoothSocket is thread safe. In particular, #close will always immediately
+/// abort ongoing operations and close the socket.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.BluetoothSocket',
+  ),
+)
+abstract class BluetoothSocket extends Any {
+  void close();
+
+  /// Attempt to connect to a remote device.
+  ///
+  /// This method will block until a connection is made or the connection fails.
+  /// If this method returns without an exception then this socket is now connected.
+  ///
+  /// Creating new connections to remote Bluetooth devices should not be attempted
+  /// while device discovery is in progress. Device discovery is a heavyweight
+  /// procedure on the Bluetooth adapter and will significantly slow a device
+  /// connection. Use android.bluetooth.BluetoothAdapter#cancelDiscovery() to
+  /// cancel an ongoing discovery. Discovery is not managed by the Activity, but
+  /// is run as a system service, so an application should always call
+  /// android.bluetooth.BluetoothAdapter#cancelDiscovery() even if it did not
+  /// directly request a discovery, just to be sure.
+  ///
+  /// close can be used to abort this call from another thread.
+  ///
+  /// Requires the android.Manifest.permission#BLUETOOTH_PRIVILEGED permission
+  /// only when mDataPath is different from android.bluetooth.BluetoothSocketSettings#DATA_PATH_NO_OFFLOAD.
+  void connect();
+
+  /// Get the type of the underlying connection.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 23,
+  // )
+  int getConnectionType();
+
+  /// Get the input stream associated with this socket.
+  ///
+  /// The input stream will be returned even if the socket is not yet connected,
+  /// but operations on that stream will throw IOException until the associated
+  /// socket is connected.
+  InputStream getInputStream();
+
+  /// Get the maximum supported Receive packet size for the underlying transport.
+  /// Use this to optimize the reads done on the input stream, as any call to read
+  /// will return a maximum of this amount of bytes - or for some transports a
+  /// multiple of this value.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 23,
+  // )
+  int getMaxReceivePacketSize();
+
+  /// Get the maximum supported Transmit packet size for the underlying transport.
+  /// Use this to optimize the writes done to the output socket, to avoid sending
+  /// half full packets.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 23,
+  // )
+  int getMaxTransmitPacketSize();
+
+  /// Get the output stream associated with this socket.
+  ///
+  /// The output stream will be returned even if the socket is not yet connected,
+  /// but operations on that stream will throw IOException until the associated
+  /// socket is connected.
+  OutputStream getOutputStream();
+
+  /// Get the remote device this socket is connecting, or connected, to.
+  BluetoothDevice getRemoteDevice();
+
+  /// Get the connection status of this socket, ie, whether there is an active
+  /// connection with remote device.
+  bool isConnected();
+}
+
+/// A class with constants representing possible return values for Bluetooth APIs.
+/// General return values occupy the range 0 to 199. Profile-specific return values
+/// occupy the range 200-999. API-specific return values start at 1000. The
+/// exception to this is the "UNKNOWN" error code which occupies the max integer
+/// value.
+enum BluetoothStatusCodes {
+  /// Error code indicating that the API call was initiated by neither the system
+  /// nor the active user.
+  errorBluetoothNotAllowed,
+
+  /// Error code indicating that Bluetooth is not enabled.
+  errorBluetoothNotEnabled,
+
+  /// Error code indicating that the Bluetooth Device specified is not bonded.
+  errorDeviceNotBonded,
+
+  /// A GATT writeCharacteristic request is not permitted on the remote device.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
+  errorGattWriteNotAllowed,
+
+  /// A GATT writeCharacteristic request is issued to a busy remote device.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
+  errorGattWriteRequestBusy,
+
+  /// Error code indicating that the caller does not have the
+  /// android.Manifest.permission#BLUETOOTH_CONNECT permission.
+  errorMissingBluetoothConnectPermission,
+
+  /// Error code indicating that the profile service is not bound. You can bind
+  /// a profile service by calling BluetoothAdapter.getProfileProxy.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
+  errorProfileServiceNotBound,
+
+  /// Indicates that an unknown error has occurred.
+  errorUnknown,
+
+  /// Indicates that the feature status is not configured yet.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 34,
+  // )
+  featureNotConfigured,
+
+  /// Indicates that the feature is not supported.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
+  featureNotSupported,
+
+  /// Indicates that the feature is supported.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
+  featureSupported,
+
+  /// Indicates that the API call was successful.
+  success,
+}
+
+/// Callback interface used to deliver LE scan results.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.BluetoothAdapter.LeScanCallback',
+  ),
+)
+abstract class BluetoothAdapterLeScanCallback {
+  BluetoothAdapterLeScanCallback();
+
+  late final void Function(
+      BluetoothDevice device, int rssi, Uint8List scanRecord) onLeScan;
+}
+
+/// Public APIs for the Bluetooth Profiles.
+///
+/// Clients should call BluetoothAdapter.getProfileProxy, to get the Profile Proxy.
+/// Each public profile with this interface.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.BluetoothProfile',
+  ),
+)
+abstract class BluetoothProfile {
+  List<BluetoothDevice> getConnectedDevices();
+  int getConnectionState(BluetoothDevice device);
+  List<BluetoothDevice> getDevicesMatchingConnectionStates(List<int> states);
+}
+
+/// An interface for notifying BluetoothProfile IPC clients when they have been
+/// connected or disconnected to the service.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.BluetoothProfile.ServiceListener',
+  ),
+)
+abstract class BluetoothProfileServiceListener {
+  BluetoothProfileServiceListener();
+
+  /// Called to notify the client when the proxy object has been connected to the
+  /// service.
+  late final void Function(int profile, BluetoothProfile proxy)
+      onServiceConnected;
+
+  /// Called to notify the client that this proxy object has been disconnected
+  /// from the service.
+  late final void Function(int profile) onServiceDisconnected;
+}
+
+// https://developer.android.google.cn/reference/kotlin/android/bluetooth/le/package-summary
+
+/// Bluetooth LE advertising callbacks, used to deliver advertising operation
+/// status.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.AdvertiseCallback',
+  ),
+)
+abstract class AdvertiseCallback extends Any {
+  AdvertiseCallback();
+
+  /// Callback when advertising could not be started.
+  late final void Function(int errorCode) onStartFailure;
+
+  /// Callback triggered in response to android.bluetooth.le.BluetoothLeAdvertiser#startAdvertising
+  /// indicating that the advertising has been started successfully.
+  late final void Function(AdvertiseSettings settingsInEffect) onStartSuccess;
+}
+
+/// Advertise data packet container for Bluetooth LE advertising. This represents the data to be advertised as well as the scan response data for active scans.
+///
+/// Use AdvertiseData.Builder to create an instance of AdvertiseData to be advertised.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.AdvertiseData',
+  ),
+)
+abstract class AdvertiseData extends Any {
+  /// Whether the device name will be included in the advertisement packet.
+  bool getIncludeDeviceName();
+
+  /// Whether the transmission power level will be included in the advertisement
+  /// packet.
+  bool getIncludeTxPowerLevel();
+
+  /// Returns an array of manufacturer Id and the corresponding manufacturer
+  /// specific data. The manufacturer id is a non-negative number assigned by
+  /// Bluetooth SIG.
+  Map<int, Uint8List> getManufacturerSpecificData();
+
+  /// Returns a map of 16-bit UUID and its corresponding service data.
+  Map<ParcelUuid, Uint8List> getServiceData();
+
+  /// Returns a list of service solicitation UUIDs within the advertisement that
+  /// we invite to connect.
+  List<ParcelUuid> getServiceSolicitationUuids();
+
+  /// Returns a list of service UUIDs within the advertisement that are used to
+  /// identify the Bluetooth GATT services.
+  List<ParcelUuid> getServiceUuids();
+
+  /// Returns a list of TransportDiscoveryData within the advertisement.
+  List<TransportDiscoveryData> getTransportDiscoveryData();
+}
+
+/// Builder for AdvertiseData.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.AdvertiseData.Builder',
+  ),
+)
+abstract class AdvertiseDataBuilder extends Any {
+  AdvertiseDataBuilder();
+
+  /// Add manufacturer specific data.
+  ///
+  /// Please refer to the Bluetooth Assigned Numbers document provided by the
+  /// Bluetooth SIG for a list of existing company identifiers.
+  AdvertiseDataBuilder addManufacturerData(
+      int manufacturerId, Uint8List manufacturerSpecificData);
+
+  /// Add service data to advertise data.
+  AdvertiseDataBuilder addServiceData(
+      ParcelUuid serviceDataUuid, Uint8List serviceData);
+
+  /// Add a service solicitation UUID to advertise data.
+  AdvertiseDataBuilder addServiceSolicitationUuid(
+      ParcelUuid serviceSolicitationUuid);
+
+  /// Add a service UUID to advertise data.
+  AdvertiseDataBuilder addServiceUuid(ParcelUuid serviceUuid);
+
+  /// Add Transport Discovery Data to advertise data.
+  AdvertiseDataBuilder addTransportDiscoveryData(
+      TransportDiscoveryData transportDiscoveryData);
+
+  /// Build the AdvertiseData.
+  AdvertiseData build();
+
+  /// Set whether the device name should be included in advertise packet.
+  AdvertiseDataBuilder setIncludeDeviceName(bool includeDeviceName);
+
+  /// Whether the transmission power level should be included in the advertise
+  /// packet. Tx power level field takes 3 bytes in advertise packet.
+  AdvertiseDataBuilder setIncludeTxPowerLevel(bool includeTxPowerLevel);
+}
+
+/// The AdvertiseSettings provide a way to adjust advertising preferences for each
+/// Bluetooth LE advertisement instance. Use AdvertiseSettings.Builder to create
+/// an instance of this class.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.AdvertiseSettings',
+  ),
+)
+abstract class AdvertiseSettings extends Any {
+  /// Returns the advertise mode.
+  int getMode();
+
+  /// Returns the advertising time limit in milliseconds.
+  int getTimeout();
+
+  /// Returns the TX power level for advertising.
+  int getTxPowerLevel();
+
+  /// Returns whether the advertisement will indicate connectable.
+  bool isConnectable();
+
+  /// Returns whether the advertisement will be discoverable.
+  bool isDiscoverable();
+}
+
+/// Builder class for AdvertiseSettings.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.AdvertiseSettings.Builder',
+  ),
+)
+abstract class AdvertiseSettingsBuilder extends Any {
+  AdvertiseSettingsBuilder();
+
+  /// Build the AdvertiseSettings object.
+  AdvertiseSettings build();
+
+  /// Set advertise mode to control the advertising power and latency.
+  AdvertiseSettingsBuilder setAdvertiseMode(int advertiseMode);
+
+  /// Set whether the advertisement type should be connectable or non-connectable.
+  AdvertiseSettingsBuilder setConnectable(bool connectable);
+
+  /// Set whether the advertisement type should be discoverable or non-discoverable.
+  AdvertiseSettingsBuilder setDiscoverable(bool discoverable);
+
+  /// Limit advertising to a given amount of time.
+  AdvertiseSettingsBuilder setTimeout(int timeoutMillis);
+
+  /// Set advertise TX power level to control the transmission power level for
+  /// the advertising.
+  AdvertiseSettingsBuilder setTxPowerLevel(int txPowerLevel);
+}
+
+/// This class provides a way to control single Bluetooth LE advertising instance.
+///
+/// To get an instance of AdvertisingSet, call the
+/// android.bluetooth.le.BluetoothLeAdvertiser#startAdvertisingSet method.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.AdvertisingSet',
+    minAndroidApi: 26,
+  ),
+)
+abstract class AdvertisingSet extends Any {
+  /// Enables Advertising. This method returns immediately, the operation status
+  /// is delivered through callback.onAdvertisingEnabled().
+  void enableAdvertising(
+      bool enable, int duration, int maxExtendedAdvertisingEvents);
+
+  /// Set/update data being Advertised. Make sure that data doesn't exceed the
+  /// size limit for specified AdvertisingSetParameters. This method returns
+  /// immediately, the operation status is delivered through callback.onAdvertisingDataSet().
+  ///
+  /// Advertising data must be empty if non-legacy scannable advertising is used.
+  void setAdvertisingData(AdvertiseData advertiseData);
+
+  /// Update advertising parameters associated with this AdvertisingSet. Must be
+  /// called when advertising is not active. This method returns immediately, the
+  /// operation status is delivered through callback.onAdvertisingParametersUpdated.
+  ///
+  /// Requires the android.Manifest.permission#BLUETOOTH_PRIVILEGED permission
+  /// when parameters.getOwnAddressType() is different from
+  /// AdvertisingSetParameters.ADDRESS_TYPE_DEFAULT or parameters.isDirected() is
+  /// true.
+  void setAdvertisingParameters(AdvertisingSetParameters parameters);
+
+  /// Used to set periodic advertising data, must be called after
+  /// setPeriodicAdvertisingParameters, or after advertising was started with
+  /// periodic advertising data set. This method returns immediately, the operation
+  /// status is delivered through callback.onPeriodicAdvertisingDataSet().
+  void setPeriodicAdvertisingData(AdvertiseData periodicData);
+
+  /// Used to enable/disable periodic advertising. This method returns immediately,
+  /// the operation status is delivered through callback.onPeriodicAdvertisingEnable().
+  void setPeriodicAdvertisingEnabled(bool enable);
+
+  /// Update periodic advertising parameters associated with this set. Must be
+  /// called when periodic advertising is not enabled. This method returns
+  /// immediately, the operation status is delivered through
+  /// callback.onPeriodicAdvertisingParametersUpdated().
+  void setPeriodicAdvertisingParameters(
+      PeriodicAdvertisingParameters parameters);
+
+  /// Set/update scan response data. Make sure that data doesn't exceed the size
+  /// limit for specified AdvertisingSetParameters. This method returns immediately,
+  /// the operation status is delivered through callback.onScanResponseDataSet().
+  void setScanResponseData(AdvertiseData scanResponse);
+}
+
+/// Bluetooth LE advertising set callbacks, used to deliver advertising operation
+/// status.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.AdvertisingSetCallback',
+    minAndroidApi: 26,
+  ),
+)
+abstract class AdvertisingSetCallback extends Any {
+  AdvertisingSetCallback();
+
+  /// Callback triggered in response to AdvertisingSet.setAdvertisingData indicating
+  /// result of the operation. If status is ADVERTISE_SUCCESS, then data was
+  /// changed.
+  late final void Function(AdvertisingSet advertisingSet, int status)
+      onAdvertisingDataSet;
+
+  /// Callback triggered in response to android.bluetooth.le.BluetoothLeAdvertiser#startAdvertisingSet
+  /// indicating result of the operation. If status is ADVERTISE_SUCCESS, then
+  /// advertising set is advertising.
+  late final void Function(
+          AdvertisingSet advertisingSet, bool enable, int status)
+      onAdvertisingEnabled;
+
+  /// Callback triggered in response to AdvertisingSet.setAdvertisingParameters
+  /// indicating result of the operation.
+  late final void Function(
+          AdvertisingSet advertisingSet, int txPower, int status)
+      onAdvertisingParametersUpdated;
+
+  /// Callback triggered in response to android.bluetooth.le.BluetoothLeAdvertiser#startAdvertisingSet
+  /// indicating result of the operation. If status is ADVERTISE_SUCCESS, then
+  /// advertisingSet contains the started set and it is advertising. If error
+  /// occurred, advertisingSet is null, and status will be set to proper error
+  /// code.
+  late final void Function(
+          AdvertisingSet advertisingSet, int txPower, int status)
+      onAdvertisingSetStarted;
+
+  /// Callback triggered in response to BluetoothLeAdvertiser.stopAdvertisingSet
+  /// indicating advertising set is stopped.
+  late final void Function(AdvertisingSet advertisingSet)
+      onAdvertisingSetStopped;
+
+  /// Callback triggered in response to AdvertisingSet.setPeriodicAdvertisingData
+  /// indicating result of the operation.
+  late final void Function(AdvertisingSet advertisingSet, int status)
+      onPeriodicAdvertisingDataSet;
+
+  /// Callback triggered in response to AdvertisingSet.setPeriodicAdvertisingEnabled
+  /// indicating result of the operation.
+  late final void Function(
+          AdvertisingSet advertisingSet, bool enable, int status)
+      onPeriodicAdvertisingEnabled;
+
+  /// Callback triggered in response to AdvertisingSet.setPeriodicAdvertisingParameters
+  /// indicating result of the operation.
+  late final void Function(AdvertisingSet advertisingSet, int status)
+      onPeriodicAdvertisingParametersUpdated;
+
+  /// Callback triggered in response to AdvertisingSet.setAdvertisingData indicating
+  /// result of the operation.
+  late final void Function(AdvertisingSet advertisingSet, int status)
+      onScanResponseDataSet;
+}
+
+/// The AdvertisingSetParameters provide a way to adjust advertising preferences
+/// for each Bluetooth LE advertising set. Use AdvertisingSetParameters.Builder
+/// to create an instance of this class.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.AdvertisingSetParameters',
+    minAndroidApi: 26,
+  ),
+)
+abstract class AdvertisingSetParameters extends Any {
+  /// Returns the advertising interval.
+  int getInterval();
+
+  /// Returns the primary advertising phy.
+  int getPrimaryPhy();
+
+  /// Returns the secondary advertising phy.
+  int getSecondaryPhy();
+
+  /// Returns the TX power level for advertising.
+  int getTxPowerLevel();
+
+  /// Returns whether the TX Power will be included.
+  bool includeTxPower();
+
+  /// Returns whether the advertisement will be anonymous.
+  bool isAnonymous();
+
+  /// Returns whether the advertisement will be connectable.
+  bool isConnectable();
+
+  /// Returns whether the advertisement will be discoverable.
+  bool isDiscoverable();
+
+  /// Returns whether the legacy advertisement will be used.
+  bool isLegacy();
+
+  /// Returns whether the advertisement will be scannable.
+  bool isScannable();
+}
+
+/// Builder class for AdvertisingSetParameters.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.AdvertisingSetParameters.Builder',
+    minAndroidApi: 26,
+  ),
+)
+abstract class AdvertisingSetParametersBuilder extends Any {
+  AdvertisingSetParametersBuilder();
+
+  /// Build the AdvertisingSetParameters object.
+  AdvertisingSetParameters build();
+
+  /// Set whether advertiser address should be omitted from all packets. If this
+  /// mode is used, periodic advertising can't be enabled for this set.
+  ///
+  /// This is used only if legacy mode is not used.
+  AdvertisingSetParametersBuilder setAnonymous(bool isAnonymous);
+
+  /// Set whether the advertisement type should be connectable or non-connectable.
+  /// Legacy advertisements can be both connectable and scannable. Non-legacy
+  /// advertisements can be only scannable or only connectable.
+  AdvertisingSetParametersBuilder setConnectable(bool connectable);
+
+  /// Set whether the advertisement type should be discoverable or non-discoverable.
+  /// By default, advertisements will be discoverable. Devices connecting to
+  /// non-discoverable advertisements cannot initiate bonding.
+  AdvertisingSetParametersBuilder setDiscoverable(bool discoverable);
+
+  /// Set whether TX power should be included in the extended header.
+  ///
+  /// This is used only if legacy mode is not used.
+  AdvertisingSetParametersBuilder setIncludeTxPower(bool includeTxPower);
+
+  /// Set advertising interval.
+  AdvertisingSetParametersBuilder setInterval(int interval);
+
+  /// When set to true, advertising set will advertise 4.x Spec compliant
+  /// advertisements.
+  AdvertisingSetParametersBuilder setLegacyMode(bool isLegacy);
+
+  /// Set the primary physical channel used for this advertising set.
+  ///
+  /// This is used only if legacy mode is not used.
+  ///
+  /// Use BluetoothAdapter.isLeCodedPhySupported to determine if LE Coded PHY is
+  /// supported on this device.
+  AdvertisingSetParametersBuilder setPrimaryPhy(int primaryPhy);
+
+  /// Set whether the advertisement type should be scannable. Legacy advertisements
+  /// can be both connectable and scannable. Non-legacy advertisements can be only
+  /// scannable or only connectable.
+  AdvertisingSetParametersBuilder setScannable(bool scannable);
+
+  /// Set the secondary physical channel used for this advertising set.
+  ///
+  /// This is used only if legacy mode is not used.
+  ///
+  /// Use BluetoothAdapter.isLeCodedPhySupported and android.bluetooth.BluetoothAdapter#isLe2MPhySupported
+  /// to determine if LE Coded PHY or 2M PHY is supported on this device.
+  AdvertisingSetParametersBuilder setSecondaryPhy(int secondaryPhy);
+
+  /// Set the transmission power level for the advertising.
+  AdvertisingSetParametersBuilder setTxPowerLevel(int txPowerLevel);
+}
 
 /// This class provides a way to perform Bluetooth LE advertise operations, such
 /// as starting and stopping advertising. An advertiser can broadcast up to 31
@@ -1564,7 +2349,7 @@ abstract class BluetoothStatusCodes {}
     fullClassName: 'android.bluetooth.le.BluetoothLeAdvertiser',
   ),
 )
-abstract class BluetoothLeAdvertiser {
+abstract class BluetoothLeAdvertiser extends Any {
   /// Start Bluetooth LE Advertising. On success, the advertiseData will be
   /// broadcasted. Returns immediately, the operation status is delivered through
   /// callback.
@@ -1606,9 +2391,9 @@ abstract class BluetoothLeAdvertiser {
   ///
   /// The android.Manifest.permission#BLUETOOTH_ADVERTISE permission is always
   /// enforced.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 26,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
   void startAdvertisingSet1(
     AdvertisingSetParameters parameters,
     AdvertiseData advertiseData,
@@ -1629,9 +2414,9 @@ abstract class BluetoothLeAdvertiser {
   ///
   /// The android.Manifest.permission#BLUETOOTH_ADVERTISE permission is always
   /// enforced.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 26,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
   void startAdvertisingSet2(
     AdvertisingSetParameters parameters,
     AdvertiseData advertiseData,
@@ -1649,9 +2434,9 @@ abstract class BluetoothLeAdvertiser {
 
   /// Used to dispose of a AdvertisingSet object, obtained with
   /// android.bluetooth.le.BluetoothLeAdvertiser#startAdvertisingSet.
-  @KotlinProxyApiOptions(
-    minAndroidApi: 26,
-  )
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
   void stopAdvertisingSet(AdvertisingSetCallback callback);
 }
 
@@ -1666,7 +2451,7 @@ abstract class BluetoothLeAdvertiser {
     fullClassName: 'android.bluetooth.le.BluetoothLeScanner',
   ),
 )
-abstract class BluetoothLeScanner {
+abstract class BluetoothLeScanner extends Any {
   /// Flush pending batch scan results stored in Bluetooth controller. This will
   /// return Bluetooth LE scan results batched on bluetooth controller. Returns
   /// immediately, batch scan results data will be delivered through the callback.
@@ -1719,41 +2504,552 @@ abstract class BluetoothLeScanner {
   void stopScan2(ScanCallback callback);
 }
 
-abstract class LeScanCallback {
-  LeScanCallback();
+/// The PeriodicAdvertisingParameters provide a way to adjust periodic advertising
+/// preferences for each Bluetooth LE advertising set. Use PeriodicAdvertisingParameters.Builder
+/// to create an instance of this class.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.PeriodicAdvertisingParameters',
+    minAndroidApi: 26,
+  ),
+)
+abstract class PeriodicAdvertisingParameters extends Any {
+  /// Returns whether the TX Power will be included.
+  bool getIncludeTxPower();
 
-  late final void Function(
-      BluetoothDevice device, int rssi, Uint8List scanRecord) onLeScan;
+  /// Returns the periodic advertising interval, in 1.25ms unit. Valid values are
+  /// from 80 (100ms) to 65519 (81.89875s).
+  int getInterval();
 }
 
-abstract class BluetoothProfileServiceListener {}
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.PeriodicAdvertisingParameters.Builder',
+    minAndroidApi: 26,
+  ),
+)
+abstract class PeriodicAdvertisingParametersBuilder extends Any {
+  PeriodicAdvertisingParametersBuilder();
 
-abstract class ScanCallback {}
+  /// Build the AdvertisingSetParameters object.
+  PeriodicAdvertisingParameters build();
 
-abstract class BluetoothProfile {
-  List<BluetoothDevice> getConnectedDevices();
-  int getConnectionState(BluetoothDevice device);
-  List<BluetoothDevice> getDevicesMatchingConnectionStates(List<int> states);
+  /// Whether the transmission power level should be included in the periodic
+  /// packet.
+  PeriodicAdvertisingParametersBuilder setIncludeTxPower(bool includeTxPower);
+
+  /// Set advertising interval for periodic advertising, in 1.25ms unit. Valid
+  /// values are from 80 (100ms) to 65519 (81.89875s). Value from range
+  /// [interval, interval+20ms] will be picked as the actual value.
+  PeriodicAdvertisingParametersBuilder setInterval(int interval);
 }
 
-abstract class UUID {}
+/// Bluetooth LE scan callbacks. Scan results are reported using these callbacks.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.ScanCallback',
+  ),
+)
+abstract class ScanCallback extends Any {
+  ScanCallback();
 
-abstract class ParcelUuid {}
+  /// Callback when batch results are delivered.
+  late final void Function(List<ScanResult> results) onBatchScanResults;
 
-abstract class AdvertiseSettings {}
+  /// Callback when scan could not be started.
+  late final void Function(int errorCode) onScanFailed;
 
-abstract class AdvertiseData {}
+  /// Callback when a BLE advertisement has been found.
+  late final void Function(ScanResult result) onScanResult;
+}
 
-abstract class AdvertiseCallback {}
+/// Criteria for filtering result from Bluetooth LE scans. A ScanFilter allows
+/// clients to restrict scan results to only those that are of interest to them.
+///
+/// Current filtering on the following fields are supported:
+///
+/// * Service UUIDs which identify the bluetooth gatt services running on the device.
+/// * Name of remote Bluetooth LE device.
+/// * Mac address of the remote device.
+/// * Service data which is the data associated with a service.
+/// * Manufacturer specific data which is the data associated with a particular manufacturer.
+/// * Advertising data type and corresponding data.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.ScanFilter',
+  ),
+)
+abstract class ScanFilter extends Any {
+  /// Returns the advertising data of this filter.
+  Uint8List? getAdvertisingData();
 
-abstract class AdvertisingSetParameters {}
+  /// Returns the advertising data mask of this filter.
+  Uint8List? getAdvertisingDataMask();
 
-abstract class PeriodicAdvertisingParameters {}
+  /// Returns the advertising data type of this filter. Returns ScanRecord.DATA_TYPE_NONE
+  /// if the type is not set. The values of advertising data type are defined in
+  /// the Bluetooth Generic Access Profile (https://www.bluetooth.com/specifications/assigned-numbers/)
+  int getAdvertisingDataType();
+  String? getDeviceAddress();
 
-abstract class AdvertisingSetCallback {}
+  /// Returns the filter set the device name field of Bluetooth advertisement
+  /// data.
+  String? getDeviceName();
 
-abstract class ScanFilter {}
+  Uint8List? getManufacturerData();
+  Uint8List? getManufacturerDataMask();
 
-abstract class ScanSettings {}
+  /// Returns the manufacturer id. -1 if the manufacturer filter is not set.
+  int getManufacturerId();
+  Uint8List? getServiceData();
+  Uint8List? getServiceDataMask();
+  ParcelUuid? getServiceDataUuid();
 
-abstract class PendingIntent {}
+  /// Returns the filter set on the service Solicitation uuid.
+  ParcelUuid? getServiceSolicitationUuid();
+
+  /// Returns the filter set on the service Solicitation uuid mask.
+  ParcelUuid? getServiceSolicitationUuidMask();
+
+  /// Returns the filter set on the service uuid.
+  ParcelUuid? getServiceUuid();
+  ParcelUuid? getServiceUuidMask();
+
+  /// Check if the scan filter matches a scanResult. A scan result is considered
+  /// as a match if it matches all the field filters.
+  bool matches(ScanResult scanResult);
+}
+
+/// Builder class for ScanFilter.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.ScanFilter.Builder',
+  ),
+)
+abstract class ScanFilterBuilder extends Any {
+  ScanFilterBuilder();
+
+  /// Build ScanFilter.
+  ScanFilter build();
+
+  /// Set filter on advertising data with specific advertising data type.
+  ///
+  /// The values of advertisingDataType are assigned by Bluetooth SIG. For more
+  /// details refer to Bluetooth Generic Access Profile.
+  /// (https://www.bluetooth.com/specifications/assigned-numbers/)
+  ScanFilterBuilder setAdvertisingDataType(int advertisingDataType);
+
+  /// Set filter on advertising data with specific advertising data type. For any
+  /// bit in the mask, set it the 1 if it needs to match the one in advertising
+  /// data, otherwise set it to 0.
+  ///
+  /// The values of advertisingDataType are assigned by Bluetooth SIG. For more
+  /// details refer to Bluetooth Generic Access Profile.
+  /// (https://www.bluetooth.com/specifications/assigned-numbers/) The
+  /// advertisingDataMask must have the same length of advertisingData.
+  ScanFilterBuilder setAdvertisingDataTypeWithData(int advertisingDataType,
+      Uint8List advertisingData, Uint8List advertisingDataMask);
+
+  /// Set a scan filter on the remote device address.
+  ///
+  /// The address passed to this API must be in big endian byte order. It needs
+  /// to be in the format of "01:02:03:AB:CD:EF". The device address can be
+  /// validated using android.bluetooth.BluetoothAdapter#checkBluetoothAddress.
+  /// The @AddressType is defaulted to android.bluetooth.BluetoothDevice#ADDRESS_TYPE_PUBLIC.
+  ScanFilterBuilder setDeviceAddress(String deviceAddress);
+
+  /// Set filter on device name.
+  ScanFilterBuilder setDeviceName(String deviceName);
+
+  /// Set filter on on manufacturerData. A negative manufacturerId is considered
+  /// as invalid id.
+  ScanFilterBuilder setManufacturerData1(
+      int manufacturerId, Uint8List manufacturerData);
+
+  /// Set filter on partial manufacture data. For any bit in the mask, set it the
+  /// 1 if it needs to match the one in manufacturer data, otherwise set it to 0.
+  ///
+  /// The manufacturerDataMask must have the same length of manufacturerData.
+  ScanFilterBuilder setManufacturerData2(int manufacturerId,
+      Uint8List manufacturerData, Uint8List manufacturerDataMask);
+
+  /// Set filtering on service data.
+  ScanFilterBuilder setServiceData1(
+      ParcelUuid serviceDataUuid, Uint8List serviceData);
+
+  /// Set partial filter on service data. For any bit in the mask, set it to 1 if
+  /// it needs to match the one in service data, otherwise set it to 0 to ignore
+  /// that bit.
+  ///
+  /// The serviceDataMask must have the same length of the serviceData.
+  ScanFilterBuilder setServiceData2(ParcelUuid serviceDataUuid,
+      Uint8List serviceData, Uint8List serviceDataMask);
+
+  /// Set filter on service solicitation uuid.
+  ScanFilterBuilder setServiceSolicitationUuid1(
+      ParcelUuid? serviceSolicitationUuid);
+
+  /// Set filter on partial service Solicitation uuid. The SolicitationUuidMask
+  /// is the bit mask for the serviceSolicitationUuid. Set any bit in the mask to
+  /// 1 to indicate a match is needed for the bit in serviceSolicitationUuid, and
+  /// 0 to ignore that bit.
+  ScanFilterBuilder setServiceSolicitationUuid2(
+      ParcelUuid? serviceSolicitationUuid, ParcelUuid? solicitationUuidMask);
+
+  /// Set filter on service uuid.
+  ScanFilterBuilder setServiceUuid1(ParcelUuid serviceUuid);
+
+  /// Set filter on partial service uuid. The uuidMask is the bit mask for the
+  /// serviceUuid. Set any bit in the mask to 1 to indicate a match is needed for
+  /// the bit in serviceUuid, and 0 to ignore that bit.
+  ScanFilterBuilder setServiceUuid2(
+      ParcelUuid serviceUuid, ParcelUuid uuidMask);
+}
+
+/// Represents a scan record from Bluetooth LE scan.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.ScanRecord',
+  ),
+)
+abstract class ScanRecord extends Any {
+  /// Returns the advertising flags indicating the discoverable mode and capability
+  /// of the device. Returns -1 if the flag field is not set.
+  int getAdvertiseFlags();
+
+  /// Returns a map of advertising data type and its corresponding advertising
+  /// data. The values of advertising data type are defined in the Bluetooth
+  /// Generic Access Profile (https://www.bluetooth.com/specifications/assigned-numbers/)
+  Map<int, Uint8List> getAdvertisingDataMap();
+
+  /// Returns raw bytes of scan record.
+  Uint8List getBytes();
+
+  /// Returns the local name of the BLE device. This is a UTF-8 encoded string.
+  String? getDeviceName();
+
+  /// Returns a sparse array of manufacturer identifier and its corresponding
+  /// manufacturer specific data.
+  Map<int, Uint8List> getManufacturerSpecificData1();
+
+  /// Returns the manufacturer specific data associated with the manufacturer id.
+  /// Returns null if the manufacturerId is not found.
+  Uint8List? getManufacturerSpecificData2(int manufacturerId);
+
+  /// Returns a map of service UUID and its corresponding service data.
+  Map<ParcelUuid, Uint8List> getServiceData1();
+
+  /// Returns the service data byte array associated with the serviceUuid. Returns
+  /// null if the serviceDataUuid is not found.
+  Uint8List? getServiceData2(ParcelUuid serviceDataUuid);
+
+  /// Returns a list of service solicitation UUIDs within the advertisement that
+  /// are used to identify the Bluetooth GATT services.
+  List<ParcelUuid> getServiceSolicitationUuids();
+
+  /// Returns a list of service UUIDs within the advertisement that are used to
+  /// identify the bluetooth GATT services.
+  List<ParcelUuid> getServiceUuids();
+
+  /// Returns the transmission power level of the packet in dBm. Returns
+  /// Integer.MIN_VALUE if the field is not set. This value can be used to calculate
+  /// the path loss of a received packet using the following equation:
+  ///
+  /// `pathloss = txPowerLevel - rssi`
+  int getTxPowerLevel();
+}
+
+/// ScanResult for Bluetooth LE scan.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.ScanResult',
+  ),
+)
+abstract class ScanResult extends Any {
+  /// Returns the advertising set id. May return ScanResult.SID_NOT_PRESENT if no
+  /// set id was is present.
+  int getAdvertisingSid();
+
+  /// Returns the data status. Can be one of ScanResult.DATA_COMPLETE or
+  /// android.bluetooth.le.ScanResult#DATA_TRUNCATED.
+  int getDataStatus();
+
+  /// Returns the remote Bluetooth device identified by the Bluetooth device
+  /// address. If the device is bonded, calling BluetoothDevice.getAddress on the
+  /// object returned by this method will return the address that was originally
+  /// bonded with (either identity address or random address).
+  BluetoothDevice getDevice();
+
+  /// Returns the periodic advertising interval in units of 1.25ms. Valid range
+  /// is 6 (7.5ms) to 65536 (81918.75ms). A value of ScanResult.PERIODIC_INTERVAL_NOT_PRESENT
+  /// means periodic advertising interval is not present.
+  int getPeriodicAdvertisingInterval();
+
+  /// Returns the primary Physical Layer on which this advertisement was received.
+  /// Can be one of BluetoothDevice.PHY_LE_1M or BluetoothDevice.PHY_LE_CODED.
+  int getPrimaryPhy();
+
+  /// Returns the received signal strength in dBm. The valid range is [-127, 126].
+  int getRssi();
+
+  /// Returns the scan record, which is a combination of advertisement and scan
+  /// response.
+  ScanRecord? getScanRecord();
+
+  /// Returns the secondary Physical Layer on which this advertisement was received.
+  /// Can be one of BluetoothDevice.PHY_LE_1M, BluetoothDevice.PHY_LE_2M,
+  /// android.bluetooth.BluetoothDevice#PHY_LE_CODED or ScanResult.PHY_UNUSED -
+  /// if the advertisement was not received on a secondary physical channel.
+  int getSecondaryPhy();
+
+  /// Returns timestamp since boot when the scan record was observed.
+  int getTimestampNanos();
+
+  /// Returns the transmit power in dBm. Valid range is [-127, 126]. A value of
+  /// android.bluetooth.le.ScanResult#TX_POWER_NOT_PRESENT indicates that the TX
+  /// power is not present.
+  int getTxPower();
+
+  /// Returns true if this object represents connectable scan result.
+  bool isConnectable();
+
+  /// Returns true if this object represents legacy scan result. Legacy scan
+  /// results do not contain advanced advertising information as specified in the
+  /// Bluetooth Core Specification v5.
+  bool isLegacy();
+}
+
+/// Bluetooth LE scan settings are passed to android.bluetooth.le.BluetoothLeScanner#startScan
+/// to define the parameters for the scan.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.ScanSettings',
+  ),
+)
+abstract class ScanSettings extends Any {
+  int getCallbackType();
+
+  /// Returns whether only legacy advertisements will be returned. Legacy
+  /// advertisements include advertisements as specified by the Bluetooth core
+  /// specification 4.2 and below.
+  bool getLegacy();
+
+  /// Returns the physical layer used during a scan.
+  int getPhy();
+
+  /// Returns report delay timestamp based on the device clock.
+  int getReportDelayMillis();
+  int getScanMode();
+  int getScanResultType();
+}
+
+/// Builder for ScanSettings.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.ScanSettings.Builder',
+  ),
+)
+abstract class ScanSettingsBuilder extends Any {
+  ScanSettingsBuilder();
+
+  /// Build ScanSettings.
+  ScanSettings build();
+
+  /// Set callback type for Bluetooth LE scan.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 23,
+  // )
+  ScanSettingsBuilder setCallbackType(int callbackType);
+
+  /// Set whether only legacy advertisements should be returned in scan results.
+  /// Legacy advertisements include advertisements as specified by the Bluetooth
+  /// core specification 4.2 and below. This is true by default for compatibility
+  /// with older apps.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
+  ScanSettingsBuilder setLegacy(bool legacy);
+
+  /// Set match mode for Bluetooth LE scan filters hardware match.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 23,
+  // )
+  ScanSettingsBuilder setMatchMode(int matchMode);
+
+  /// Set the number of matches for Bluetooth LE scan filters hardware match.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 23,
+  // )
+  ScanSettingsBuilder setNumOfMatches(int numOfMatches);
+
+  /// Set the Physical Layer to use during this scan. This is used only if
+  /// android.bluetooth.le.ScanSettings.Builder#setLegacy is set to false.
+  /// android.bluetooth.BluetoothAdapter#isLeCodedPhySupported may be used to
+  /// check whether LE Coded phy is supported by calling
+  /// android.bluetooth.BluetoothAdapter#isLeCodedPhySupported. Selecting an
+  /// unsupported phy will result in failure to start scan.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 26,
+  // )
+  ScanSettingsBuilder setPhy(int phy);
+
+  /// Set report delay timestamp for Bluetooth LE scan. If set to 0, you will be
+  /// notified of scan results immediately. If > 0, scan results are queued up
+  /// and delivered after the requested delay or 5000 milliseconds (whichever is
+  /// higher). Note scan results may be delivered sooner if the internal buffers
+  /// fill up.
+  ScanSettingsBuilder setReportDelay(int reportDelayMillis);
+
+  /// Set scan mode for Bluetooth LE scan.
+  ScanSettingsBuilder setScanMode(int scanMode);
+}
+
+/// Wrapper for Transport Discovery Data Transport Blocks. This class represents
+/// a Transport Block from a Transport Discovery Data.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.TransportBlock',
+    minAndroidApi: 33,
+  ),
+)
+abstract class TransportBlock extends Any {}
+
+/// Wrapper for Transport Discovery Data AD Type. This class contains the Transport
+/// Discovery Data AD Type Code as well as a list of potential Transport Blocks.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.bluetooth.le.TransportDiscoveryData',
+    minAndroidApi: 33,
+  ),
+)
+abstract class TransportDiscoveryData extends Any {}
+
+// https://developer.android.google.cn/reference/kotlin/android/os/package-summary
+
+/// This class is a Parcelable wrapper around UUID which is an immutable representation
+/// of a 128-bit universally unique identifier.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.os.ParcelUuid',
+  ),
+)
+abstract class ParcelUuid extends Any {
+  /// Constructor creates a ParcelUuid instance from the given UUID.
+  ParcelUuid(UUID uuid);
+
+  /// Creates a new ParcelUuid from a string representation of UUID.
+  ParcelUuid fromString(String uuid);
+
+  /// Get the UUID represented by the ParcelUuid.
+  UUID getUuid();
+}
+
+// https://developer.android.google.cn/reference/kotlin/java/io/package-summary
+
+/// This abstract class is the superclass of all classes representing an input
+/// stream of bytes.
+///
+/// Applications that need to define a subclass of InputStream must always provide
+/// a method that returns the next byte of input.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'java.io.InputStream',
+  ),
+)
+abstract class InputStream extends Any {}
+
+/// This abstract class is the superclass of all classes representing an output
+/// stream of bytes. An output stream accepts output bytes and sends them to some
+/// sink.
+///
+/// Applications that need to define a subclass of OutputStream must always provide
+/// at least a method that writes one byte of output.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'java.io.OutputStream',
+  ),
+)
+abstract class OutputStream extends Any {}
+
+// https://developer.android.google.cn/reference/kotlin/java/util/package-summary
+
+/// Constructs a new UUID using the specified data. mostSigBits is used for the
+/// most significant 64 bits of the UUID and leastSigBits becomes the least
+/// significant 64 bits of the UUID.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'java.util.UUID',
+  ),
+)
+abstract class UUID extends Any {
+  UUID(int mostSigBits, int leastSigBits);
+
+  /// The clock sequence value associated with this UUID.
+  ///
+  /// The 14 bit clock sequence value is constructed from the clock sequence field
+  /// of this UUID. The clock sequence field is used to guarantee temporal uniqueness
+  /// in a time-based UUID.
+  ///
+  /// The clockSequence value is only meaningful in a time-based UUID, which has
+  /// version type 1. If this UUID is not a time-based UUID then this method throws
+  /// UnsupportedOperationException.
+  int clockSequence();
+
+  /// Compares this UUID with the specified UUID.
+  ///
+  /// The first of two UUIDs is greater than the second if the most significant
+  /// field in which the UUIDs differ is greater for the first UUID.
+  int compareTo(UUID other);
+
+  /// Creates a UUID from the string standard representation as described in the
+  /// toString method.
+  @static
+  UUID fromString(String name);
+
+  /// Returns the least significant 64 bits of this UUID's 128 bit value.
+  int getLeastSignificantBits();
+
+  /// Returns the most significant 64 bits of this UUID's 128 bit value.
+  int getMostSignificantBits();
+
+  /// Static factory to retrieve a type 3 (name based) UUID based on the specified
+  /// byte array.
+  @static
+  UUID nameUUIDFromBytes(Uint8List name);
+
+  /// The node value associated with this UUID.
+  ///
+  /// The 48 bit node value is constructed from the node field of this UUID. This
+  /// field is intended to hold the IEEE 802 address of the machine that generated
+  /// this UUID to guarantee spatial uniqueness.
+  ///
+  /// The node value is only meaningful in a time-based UUID, which has version
+  /// type 1. If this UUID is not a time-based UUID then this method throws
+  /// UnsupportedOperationException.
+  int node();
+
+  /// Static factory to retrieve a type 4 (pseudo randomly generated) UUID. The
+  /// UUID is generated using a cryptographically strong pseudo random number
+  /// generator.
+  @static
+  UUID randomUUID();
+
+  /// The timestamp value associated with this UUID.
+  ///
+  /// The 60 bit timestamp value is constructed from the time_low, time_mid, and
+  /// time_hi fields of this UUID. The resulting timestamp is measured in
+  /// 100-nanosecond units since midnight, October 15, 1582 UTC.
+  ///
+  /// The timestamp value is only meaningful in a time-based UUID, which has
+  /// version type 1. If this UUID is not a time-based UUID then this method throws
+  /// UnsupportedOperationException.
+  int timestamp();
+
+  /// The variant number associated with this UUID. The variant number describes the layout of the UUID. The variant number has the following meaning:
+  ///
+  /// * 0 Reserved for NCS backward compatibility
+  /// * 2 IETF RFC 4122 (Leach-Salz), used by this class
+  /// * 6 Reserved, Microsoft Corporation backward compatibility
+  /// * 7 Reserved for future definition
+  int variant();
+}
