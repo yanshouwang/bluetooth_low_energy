@@ -168,9 +168,11 @@ class PigeonInstanceManager {
     ScanSettingsBuilder.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     TransportBlock.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     TransportDiscoveryData.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
+    Context.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     ParcelUuid.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     InputStream.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     OutputStream.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
+    Duration.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     UUID.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     return instanceManager;
   }
@@ -1337,7 +1339,7 @@ class BluetoothAdapter extends Any {
   }
 
   /// Get the timeout duration of the SCAN_MODE_CONNECTABLE_DISCOVERABLE.
-  Future<int?> getDiscoverableTimeout() async {
+  Future<Duration?> getDiscoverableTimeout() async {
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
         _pigeonVar_codecBluetoothAdapter;
     final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
@@ -1362,7 +1364,7 @@ class BluetoothAdapter extends Any {
         details: pigeonVar_replyList[2],
       );
     } else {
-      return (pigeonVar_replyList[0] as int?);
+      return (pigeonVar_replyList[0] as Duration?);
     }
   }
 
@@ -1481,7 +1483,7 @@ class BluetoothAdapter extends Any {
   /// BluetoothProfile.A2DP.
   ///
   /// Return the profile connection state
-  Future<int> getProfileConnectionState(BluetoothProfile profile) async {
+  Future<int> getProfileConnectionState(int profile) async {
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
         _pigeonVar_codecBluetoothAdapter;
     final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
@@ -1520,6 +1522,7 @@ class BluetoothAdapter extends Any {
   /// The ServiceListener's methods will be invoked on the application's main
   /// looper
   Future<bool> getProfileProxy(
+    Context context,
     BluetoothProfileServiceListener listener,
     int profile,
   ) async {
@@ -1535,7 +1538,7 @@ class BluetoothAdapter extends Any {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this, listener, profile]);
+        pigeonVar_channel.send(<Object?>[this, context, listener, profile]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -9504,7 +9507,9 @@ class BluetoothManager extends Any {
   /// operations. The method returns a BluetoothGattServer instance. You can use
   /// BluetoothGattServer to conduct GATT server operations.
   Future<BluetoothGattServer> openGattServer(
-      BluetoothGattServerCallback callback) async {
+    Context context,
+    BluetoothGattServerCallback callback,
+  ) async {
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
         _pigeonVar_codecBluetoothManager;
     final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
@@ -9517,7 +9522,7 @@ class BluetoothManager extends Any {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this, callback]);
+        pigeonVar_channel.send(<Object?>[this, context, callback]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -18584,6 +18589,78 @@ class TransportDiscoveryData extends Any {
   }
 }
 
+/// Interface to global information about an application environment. This is an
+/// abstract class whose implementation is provided by the Android system. It
+/// allows access to application-specific resources and classes, as well as up-calls for application-level operations such as launching activities, broadcasting and receiving intents, etc.
+class Context extends Any {
+  /// Constructs [Context] without creating the associated native object.
+  ///
+  /// This should only be used by subclasses created by this library or to
+  /// create copies for an [PigeonInstanceManager].
+  @protected
+  Context.pigeon_detached({
+    super.pigeon_binaryMessenger,
+    super.pigeon_instanceManager,
+  }) : super.pigeon_detached();
+
+  static void pigeon_setUpMessageHandlers({
+    bool pigeon_clearHandlers = false,
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+    Context Function()? pigeon_newInstance,
+  }) {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
+    final BinaryMessenger? binaryMessenger = pigeon_binaryMessenger;
+    {
+      final BasicMessageChannel<
+          Object?> pigeonVar_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.Context.pigeon_newInstance',
+          pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (pigeon_clearHandlers) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.Context.pigeon_newInstance was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final int? arg_pigeon_instanceIdentifier = (args[0] as int?);
+          assert(arg_pigeon_instanceIdentifier != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.Context.pigeon_newInstance was null, expected non-null int.');
+          try {
+            (pigeon_instanceManager ?? PigeonInstanceManager.instance)
+                .addHostCreatedInstance(
+              pigeon_newInstance?.call() ??
+                  Context.pigeon_detached(
+                    pigeon_binaryMessenger: pigeon_binaryMessenger,
+                    pigeon_instanceManager: pigeon_instanceManager,
+                  ),
+              arg_pigeon_instanceIdentifier!,
+            );
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+  }
+
+  @override
+  Context pigeon_copy() {
+    return Context.pigeon_detached(
+      pigeon_binaryMessenger: pigeon_binaryMessenger,
+      pigeon_instanceManager: pigeon_instanceManager,
+    );
+  }
+}
+
 /// This class is a Parcelable wrapper around UUID which is an immutable representation
 /// of a 128-bit universally unique identifier.
 class ParcelUuid extends Any {
@@ -18909,6 +18986,98 @@ class OutputStream extends Any {
   @override
   OutputStream pigeon_copy() {
     return OutputStream.pigeon_detached(
+      pigeon_binaryMessenger: pigeon_binaryMessenger,
+      pigeon_instanceManager: pigeon_instanceManager,
+    );
+  }
+}
+
+/// A time-based amount of time, such as '34.5 seconds'.
+///
+/// This class models a quantity or amount of time in terms of seconds and
+/// nanoseconds. It can be accessed using other duration-based units, such as
+/// minutes and hours. In addition, the DAYS unit can be used and is treated as
+/// exactly equal to 24 hours, thus ignoring daylight savings effects. See Period
+/// for the date-based equivalent to this class.
+///
+/// A physical duration could be of infinite length. For practicality, the duration
+/// is stored with constraints similar to Instant. The duration uses nanosecond
+/// resolution with a maximum value of the seconds that can be held in a long.
+/// This is greater than the current estimated age of the universe.
+///
+/// The range of a duration requires the storage of a number larger than a long.
+/// To achieve this, the class stores a long representing seconds and an int
+/// representing nanosecond-of-second, which will always be between 0 and 999,999,999.
+/// The model is of a directed duration, meaning that the duration may be negative.
+///
+/// The duration is measured in "seconds", but these are not necessarily identical
+/// to the scientific "SI second" definition based on atomic clocks. This difference
+/// only impacts durations measured near a leap-second and should not affect most
+/// applications. See Instant for a discussion as to the meaning of the second
+/// and time-scales.
+class Duration extends Any {
+  /// Constructs [Duration] without creating the associated native object.
+  ///
+  /// This should only be used by subclasses created by this library or to
+  /// create copies for an [PigeonInstanceManager].
+  @protected
+  Duration.pigeon_detached({
+    super.pigeon_binaryMessenger,
+    super.pigeon_instanceManager,
+  }) : super.pigeon_detached();
+
+  static void pigeon_setUpMessageHandlers({
+    bool pigeon_clearHandlers = false,
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+    Duration Function()? pigeon_newInstance,
+  }) {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
+    final BinaryMessenger? binaryMessenger = pigeon_binaryMessenger;
+    {
+      final BasicMessageChannel<
+          Object?> pigeonVar_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.Duration.pigeon_newInstance',
+          pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (pigeon_clearHandlers) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.Duration.pigeon_newInstance was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final int? arg_pigeon_instanceIdentifier = (args[0] as int?);
+          assert(arg_pigeon_instanceIdentifier != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.Duration.pigeon_newInstance was null, expected non-null int.');
+          try {
+            (pigeon_instanceManager ?? PigeonInstanceManager.instance)
+                .addHostCreatedInstance(
+              pigeon_newInstance?.call() ??
+                  Duration.pigeon_detached(
+                    pigeon_binaryMessenger: pigeon_binaryMessenger,
+                    pigeon_instanceManager: pigeon_instanceManager,
+                  ),
+              arg_pigeon_instanceIdentifier!,
+            );
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+  }
+
+  @override
+  Duration pigeon_copy() {
+    return Duration.pigeon_detached(
       pigeon_binaryMessenger: pigeon_binaryMessenger,
       pigeon_instanceManager: pigeon_instanceManager,
     );

@@ -4,9 +4,9 @@ import 'package:pigeon/pigeon.dart';
 
 @ConfigurePigeon(
   PigeonOptions(
-    dartOut: 'lib/src/api.g.dart',
+    dartOut: 'lib/src/bluetooth_low_energy.g.dart',
     kotlinOut:
-        'android/src/main/kotlin/dev/hebei/bluetooth_low_energy_android/Api.g.kt',
+        'android/src/main/kotlin/dev/hebei/bluetooth_low_energy_android/BluetoothLowEnergy.g.kt',
     kotlinOptions: KotlinOptions(
       package: 'dev.hebei.bluetooth_low_energy_android',
       errorClassName: 'BluetoothLowEnergyError',
@@ -237,7 +237,7 @@ abstract class BluetoothAdapter extends Any {
   // @KotlinProxyApiOptions(
   //   minAndroidApi: 33,
   // )
-  int? getDiscoverableTimeout();
+  Duration? getDiscoverableTimeout();
 
   /// Return the maximum LE advertising data length in bytes, if LE Extended
   /// Advertising feature is supported, 0 otherwise.
@@ -264,13 +264,14 @@ abstract class BluetoothAdapter extends Any {
   /// BluetoothProfile.A2DP.
   ///
   /// Return the profile connection state
-  int getProfileConnectionState(BluetoothProfile profile);
+  int getProfileConnectionState(int profile);
 
   /// Get the profile proxy object associated with the profile.
   ///
   /// The ServiceListener's methods will be invoked on the application's main
   /// looper
-  bool getProfileProxy(BluetoothProfileServiceListener listener, int profile);
+  bool getProfileProxy(
+      Context context, BluetoothProfileServiceListener listener, int profile);
 
   /// Get a BluetoothDevice object for the given Bluetooth hardware address.
   ///
@@ -1663,7 +1664,8 @@ abstract class BluetoothManager extends Any {
   /// as connection status as well as the results of any other GATT server
   /// operations. The method returns a BluetoothGattServer instance. You can use
   /// BluetoothGattServer to conduct GATT server operations.
-  BluetoothGattServer openGattServer(BluetoothGattServerCallback callback);
+  BluetoothGattServer openGattServer(
+      Context context, BluetoothGattServerCallback callback);
 }
 
 /// A listening Bluetooth socket.
@@ -2924,6 +2926,18 @@ abstract class TransportBlock extends Any {}
 )
 abstract class TransportDiscoveryData extends Any {}
 
+// https://developer.android.google.cn/reference/kotlin/android/content/package-summary
+
+/// Interface to global information about an application environment. This is an
+/// abstract class whose implementation is provided by the Android system. It
+/// allows access to application-specific resources and classes, as well as up-calls for application-level operations such as launching activities, broadcasting and receiving intents, etc.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.content.Context',
+  ),
+)
+abstract class Context extends Any {}
+
 // https://developer.android.google.cn/reference/kotlin/android/os/package-summary
 
 /// This class is a Parcelable wrapper around UUID which is an immutable representation
@@ -2970,6 +2984,39 @@ abstract class InputStream extends Any {}
   ),
 )
 abstract class OutputStream extends Any {}
+
+// https://developer.android.google.cn/reference/kotlin/java/time/package-summary
+
+/// A time-based amount of time, such as '34.5 seconds'.
+///
+/// This class models a quantity or amount of time in terms of seconds and
+/// nanoseconds. It can be accessed using other duration-based units, such as
+/// minutes and hours. In addition, the DAYS unit can be used and is treated as
+/// exactly equal to 24 hours, thus ignoring daylight savings effects. See Period
+/// for the date-based equivalent to this class.
+///
+/// A physical duration could be of infinite length. For practicality, the duration
+/// is stored with constraints similar to Instant. The duration uses nanosecond
+/// resolution with a maximum value of the seconds that can be held in a long.
+/// This is greater than the current estimated age of the universe.
+///
+/// The range of a duration requires the storage of a number larger than a long.
+/// To achieve this, the class stores a long representing seconds and an int
+/// representing nanosecond-of-second, which will always be between 0 and 999,999,999.
+/// The model is of a directed duration, meaning that the duration may be negative.
+///
+/// The duration is measured in "seconds", but these are not necessarily identical
+/// to the scientific "SI second" definition based on atomic clocks. This difference
+/// only impacts durations measured near a leap-second and should not affect most
+/// applications. See Instant for a discussion as to the meaning of the second
+/// and time-scales.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'java.time.Duration',
+    minAndroidApi: 26,
+  ),
+)
+abstract class Duration extends Any {}
 
 // https://developer.android.google.cn/reference/kotlin/java/util/package-summary
 

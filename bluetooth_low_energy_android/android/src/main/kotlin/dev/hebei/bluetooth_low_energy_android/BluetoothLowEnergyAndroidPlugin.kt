@@ -8,6 +8,7 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 class BluetoothLowEnergyAndroidPlugin : FlutterPlugin, ActivityAware {
     private lateinit var mCentralManager: MyCentralManager
     private lateinit var mPeripheralManager: MyPeripheralManager
+    private lateinit var registrar: BluetoothLowEnergyPigeonProxyApiRegistrar
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         val context = binding.applicationContext
@@ -16,12 +17,16 @@ class BluetoothLowEnergyAndroidPlugin : FlutterPlugin, ActivityAware {
         mPeripheralManager = MyPeripheralManager(context, binaryMessenger)
         MyCentralManagerHostAPI.setUp(binaryMessenger, mCentralManager)
         MyPeripheralManagerHostAPI.setUp(binaryMessenger, mPeripheralManager)
+        registrar = BluetoothLowEnergyRegistrar(binding.binaryMessenger)
+        registrar.setUp()
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         val binaryMessenger = binding.binaryMessenger
         MyCentralManagerHostAPI.setUp(binaryMessenger, null)
         MyPeripheralManagerHostAPI.setUp(binaryMessenger, null)
+        registrar.tearDown()
+        registrar.instanceManager.stopFinalizationListener()
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {

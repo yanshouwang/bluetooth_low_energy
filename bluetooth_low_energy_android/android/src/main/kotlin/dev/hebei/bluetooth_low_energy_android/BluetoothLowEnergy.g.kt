@@ -64,7 +64,7 @@ class BluetoothLowEnergyError (
  * is recreated. The strong reference will then need to be removed manually again.
  */
 @Suppress("UNCHECKED_CAST", "MemberVisibilityCanBePrivate")
-class ApiPigeonInstanceManager(private val finalizationListener: PigeonFinalizationListener) {
+class BluetoothLowEnergyPigeonInstanceManager(private val finalizationListener: PigeonFinalizationListener) {
   /** Interface for listening when a weak reference of an instance is removed from the manager.  */
   interface PigeonFinalizationListener {
     fun onFinalize(identifier: Long)
@@ -111,8 +111,8 @@ class ApiPigeonInstanceManager(private val finalizationListener: PigeonFinalizat
      *
      * When the manager is no longer needed, [stopFinalizationListener] must be called.
      */
-    fun create(finalizationListener: PigeonFinalizationListener): ApiPigeonInstanceManager {
-      return ApiPigeonInstanceManager(finalizationListener)
+    fun create(finalizationListener: PigeonFinalizationListener): BluetoothLowEnergyPigeonInstanceManager {
+      return BluetoothLowEnergyPigeonInstanceManager(finalizationListener)
     }
   }
 
@@ -135,7 +135,7 @@ class ApiPigeonInstanceManager(private val finalizationListener: PigeonFinalizat
    *
    *
    * If this method returns a nonnull identifier, this method also expects the Dart
-   * `ApiPigeonInstanceManager` to have, or recreate, a weak reference to the Dart instance the
+   * `BluetoothLowEnergyPigeonInstanceManager` to have, or recreate, a weak reference to the Dart instance the
    * identifier is associated with.
    */
   fun getIdentifierForStrongReference(instance: Any?): Long? {
@@ -264,18 +264,18 @@ class ApiPigeonInstanceManager(private val finalizationListener: PigeonFinalizat
 
 
 /** Generated API for managing the Dart and native `InstanceManager`s. */
-private class ApiPigeonInstanceManagerApi(val binaryMessenger: BinaryMessenger) {
+private class BluetoothLowEnergyPigeonInstanceManagerApi(val binaryMessenger: BinaryMessenger) {
   companion object {
-    /** The codec used by ApiPigeonInstanceManagerApi. */
+    /** The codec used by BluetoothLowEnergyPigeonInstanceManagerApi. */
     val codec: MessageCodec<Any?> by lazy {
-      ApiPigeonCodec()
+      BluetoothLowEnergyPigeonCodec()
     }
 
     /**
-     * Sets up an instance of `ApiPigeonInstanceManagerApi` to handle messages from the
+     * Sets up an instance of `BluetoothLowEnergyPigeonInstanceManagerApi` to handle messages from the
      * `binaryMessenger`.
      */
-    fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, instanceManager: ApiPigeonInstanceManager?) {
+    fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, instanceManager: BluetoothLowEnergyPigeonInstanceManager?) {
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PigeonInternalInstanceManager.removeStrongReference", codec)
         if (instanceManager != null) {
@@ -334,23 +334,23 @@ private class ApiPigeonInstanceManagerApi(val binaryMessenger: BinaryMessenger) 
  * Provides implementations for each ProxyApi implementation and provides access to resources
  * needed by any implementation.
  */
-abstract class ApiPigeonProxyApiRegistrar(val binaryMessenger: BinaryMessenger) {
+abstract class BluetoothLowEnergyPigeonProxyApiRegistrar(val binaryMessenger: BinaryMessenger) {
   /** Whether APIs should ignore calling to Dart. */
   public var ignoreCallsToDart = false
-  val instanceManager: ApiPigeonInstanceManager
+  val instanceManager: BluetoothLowEnergyPigeonInstanceManager
   private var _codec: MessageCodec<Any?>? = null
   val codec: MessageCodec<Any?>
     get() {
       if (_codec == null) {
-        _codec = ApiPigeonProxyApiBaseCodec(this)
+        _codec = BluetoothLowEnergyPigeonProxyApiBaseCodec(this)
       }
       return _codec!!
     }
 
   init {
-    val api = ApiPigeonInstanceManagerApi(binaryMessenger)
-    instanceManager = ApiPigeonInstanceManager.create(
-      object : ApiPigeonInstanceManager.PigeonFinalizationListener {
+    val api = BluetoothLowEnergyPigeonInstanceManagerApi(binaryMessenger)
+    instanceManager = BluetoothLowEnergyPigeonInstanceManager.create(
+      object : BluetoothLowEnergyPigeonInstanceManager.PigeonFinalizationListener {
         override fun onFinalize(identifier: Long) {
           api.removeStrongReference(identifier) {
             if (it.isFailure) {
@@ -614,6 +614,15 @@ abstract class ApiPigeonProxyApiRegistrar(val binaryMessenger: BinaryMessenger) 
   }
 
   /**
+   * An implementation of [PigeonApiContext] used to add a new Dart instance of
+   * `Context` to the Dart `InstanceManager`.
+   */
+  open fun getPigeonApiContext(): PigeonApiContext
+  {
+    return PigeonApiContext(this)
+  }
+
+  /**
    * An implementation of [PigeonApiParcelUuid] used to add a new Dart instance of
    * `ParcelUuid` to the Dart `InstanceManager`.
    */
@@ -638,13 +647,22 @@ abstract class ApiPigeonProxyApiRegistrar(val binaryMessenger: BinaryMessenger) 
   }
 
   /**
+   * An implementation of [PigeonApiDuration] used to add a new Dart instance of
+   * `Duration` to the Dart `InstanceManager`.
+   */
+  open fun getPigeonApiDuration(): PigeonApiDuration
+  {
+    return PigeonApiDuration(this)
+  }
+
+  /**
    * An implementation of [PigeonApiUUID] used to add a new Dart instance of
    * `UUID` to the Dart `InstanceManager`.
    */
   abstract fun getPigeonApiUUID(): PigeonApiUUID
 
   fun setUp() {
-    ApiPigeonInstanceManagerApi.setUpMessageHandlers(binaryMessenger, instanceManager)
+    BluetoothLowEnergyPigeonInstanceManagerApi.setUpMessageHandlers(binaryMessenger, instanceManager)
     PigeonApiAny.setUpMessageHandlers(binaryMessenger, getPigeonApiAny())
     PigeonApiBluetoothAdapter.setUpMessageHandlers(binaryMessenger, getPigeonApiBluetoothAdapter())
     PigeonApiBluetoothClass.setUpMessageHandlers(binaryMessenger, getPigeonApiBluetoothClass())
@@ -686,7 +704,7 @@ abstract class ApiPigeonProxyApiRegistrar(val binaryMessenger: BinaryMessenger) 
     PigeonApiUUID.setUpMessageHandlers(binaryMessenger, getPigeonApiUUID())
   }
   fun tearDown() {
-    ApiPigeonInstanceManagerApi.setUpMessageHandlers(binaryMessenger, null)
+    BluetoothLowEnergyPigeonInstanceManagerApi.setUpMessageHandlers(binaryMessenger, null)
     PigeonApiAny.setUpMessageHandlers(binaryMessenger, null)
     PigeonApiBluetoothAdapter.setUpMessageHandlers(binaryMessenger, null)
     PigeonApiBluetoothClass.setUpMessageHandlers(binaryMessenger, null)
@@ -728,7 +746,7 @@ abstract class ApiPigeonProxyApiRegistrar(val binaryMessenger: BinaryMessenger) 
     PigeonApiUUID.setUpMessageHandlers(binaryMessenger, null)
   }
 }
-private class ApiPigeonProxyApiBaseCodec(val registrar: ApiPigeonProxyApiRegistrar) : ApiPigeonCodec() {
+private class BluetoothLowEnergyPigeonProxyApiBaseCodec(val registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : BluetoothLowEnergyPigeonCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
       128.toByte() -> {
@@ -869,6 +887,9 @@ private class ApiPigeonProxyApiBaseCodec(val registrar: ApiPigeonProxyApiRegistr
      else if (android.os.Build.VERSION.SDK_INT >= 33 && value is android.bluetooth.le.TransportDiscoveryData) {
       registrar.getPigeonApiTransportDiscoveryData().pigeon_newInstance(value) { }
     }
+     else if (value is android.content.Context) {
+      registrar.getPigeonApiContext().pigeon_newInstance(value) { }
+    }
      else if (value is android.os.ParcelUuid) {
       registrar.getPigeonApiParcelUuid().pigeon_newInstance(value) { }
     }
@@ -877,6 +898,9 @@ private class ApiPigeonProxyApiBaseCodec(val registrar: ApiPigeonProxyApiRegistr
     }
      else if (value is java.io.OutputStream) {
       registrar.getPigeonApiOutputStream().pigeon_newInstance(value) { }
+    }
+     else if (android.os.Build.VERSION.SDK_INT >= 26 && value is java.time.Duration) {
+      registrar.getPigeonApiDuration().pigeon_newInstance(value) { }
     }
      else if (value is java.util.UUID) {
       registrar.getPigeonApiUUID().pigeon_newInstance(value) { }
@@ -943,7 +967,7 @@ enum class BluetoothStatusCodes(val raw: Int) {
     }
   }
 }
-private open class ApiPigeonCodec : StandardMessageCodec() {
+private open class BluetoothLowEnergyPigeonCodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
       129.toByte() -> {
@@ -970,7 +994,7 @@ private open class ApiPigeonCodec : StandardMessageCodec() {
  * superclass.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiAny(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiAny(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   abstract fun pigeon_defaultConstructor(): Any
 
   /**
@@ -991,7 +1015,7 @@ abstract class PigeonApiAny(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiAny?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.Any.pigeon_defaultConstructor", codec)
         if (api != null) {
@@ -1150,7 +1174,7 @@ abstract class PigeonApiAny(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar
  * need to be supplied.
  */
 @Suppress("UNCHECKED_CAST")
-open class PigeonApiPendingIntent(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+open class PigeonApiPendingIntent(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   @Suppress("LocalVariableName", "FunctionName")
   /** Creates a Dart instance of PendingIntent and attaches it to [pigeon_instanceArg]. */
   fun pigeon_newInstance(pigeon_instanceArg: android.app.PendingIntent, callback: (Result<Unit>) -> Unit)
@@ -1214,7 +1238,7 @@ open class PigeonApiPendingIntent(open val pigeonRegistrar: ApiPigeonProxyApiReg
  * This class is thread safe.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothAdapter(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothAdapter(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /**
    * Cancel the current device discovery process.
    *
@@ -1331,7 +1355,8 @@ abstract class PigeonApiBluetoothAdapter(open val pigeonRegistrar: ApiPigeonProx
   abstract fun getDefaultAdapter(): android.bluetooth.BluetoothAdapter
 
   /** Get the timeout duration of the SCAN_MODE_CONNECTABLE_DISCOVERABLE. */
-  abstract fun getDiscoverableTimeout(pigeon_instance: android.bluetooth.BluetoothAdapter): Long?
+  @androidx.annotation.RequiresApi(api = 26)
+  abstract fun getDiscoverableTimeout(pigeon_instance: android.bluetooth.BluetoothAdapter): java.time.Duration?
 
   /**
    * Return the maximum LE advertising data length in bytes, if LE Extended
@@ -1360,7 +1385,7 @@ abstract class PigeonApiBluetoothAdapter(open val pigeonRegistrar: ApiPigeonProx
    *
    * Return the profile connection state
    */
-  abstract fun getProfileConnectionState(pigeon_instance: android.bluetooth.BluetoothAdapter, profile: android.bluetooth.BluetoothProfile): Long
+  abstract fun getProfileConnectionState(pigeon_instance: android.bluetooth.BluetoothAdapter, profile: Long): Long
 
   /**
    * Get the profile proxy object associated with the profile.
@@ -1368,7 +1393,7 @@ abstract class PigeonApiBluetoothAdapter(open val pigeonRegistrar: ApiPigeonProx
    * The ServiceListener's methods will be invoked on the application's main
    * looper
    */
-  abstract fun getProfileProxy(pigeon_instance: android.bluetooth.BluetoothAdapter, listener: android.bluetooth.BluetoothProfile.ServiceListener, profile: Long): Boolean
+  abstract fun getProfileProxy(pigeon_instance: android.bluetooth.BluetoothAdapter, context: android.content.Context, listener: android.bluetooth.BluetoothProfile.ServiceListener, profile: Long): Boolean
 
   /**
    * Get a BluetoothDevice object for the given Bluetooth hardware address.
@@ -1655,7 +1680,7 @@ abstract class PigeonApiBluetoothAdapter(open val pigeonRegistrar: ApiPigeonProx
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothAdapter?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothAdapter.cancelDiscovery", codec)
         if (api != null) {
@@ -1827,18 +1852,35 @@ abstract class PigeonApiBluetoothAdapter(open val pigeonRegistrar: ApiPigeonProx
           channel.setMessageHandler(null)
         }
       }
-      run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothAdapter.getDiscoverableTimeout", codec)
-        if (api != null) {
-          channel.setMessageHandler { message, reply ->
-            val args = message as List<Any?>
-            val pigeon_instanceArg = args[0] as android.bluetooth.BluetoothAdapter
-            val wrapped: List<Any?> = try {
-              listOf(api.getDiscoverableTimeout(pigeon_instanceArg))
-            } catch (exception: Throwable) {
-              wrapError(exception)
+      if (android.os.Build.VERSION.SDK_INT >= 26) {
+        run {
+          val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothAdapter.getDiscoverableTimeout", codec)
+          if (api != null) {
+            channel.setMessageHandler { message, reply ->
+              val args = message as List<Any?>
+              val pigeon_instanceArg = args[0] as android.bluetooth.BluetoothAdapter
+              val wrapped: List<Any?> = try {
+                listOf(api.getDiscoverableTimeout(pigeon_instanceArg))
+              } catch (exception: Throwable) {
+                wrapError(exception)
+              }
+              reply.reply(wrapped)
             }
-            reply.reply(wrapped)
+          } else {
+            channel.setMessageHandler(null)
+          }
+        }
+      }       else {
+        val channel = BasicMessageChannel<Any?>(
+          binaryMessenger,
+          "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothAdapter.getDiscoverableTimeout",
+          codec
+        )
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            reply.reply(wrapError(UnsupportedOperationException(
+              "Call references class `java.time.Duration`, which requires api version 26."
+            )))
           }
         } else {
           channel.setMessageHandler(null)
@@ -1901,7 +1943,7 @@ abstract class PigeonApiBluetoothAdapter(open val pigeonRegistrar: ApiPigeonProx
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val pigeon_instanceArg = args[0] as android.bluetooth.BluetoothAdapter
-            val profileArg = args[1] as android.bluetooth.BluetoothProfile
+            val profileArg = args[1] as Long
             val wrapped: List<Any?> = try {
               listOf(api.getProfileConnectionState(pigeon_instanceArg, profileArg))
             } catch (exception: Throwable) {
@@ -1919,10 +1961,11 @@ abstract class PigeonApiBluetoothAdapter(open val pigeonRegistrar: ApiPigeonProx
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val pigeon_instanceArg = args[0] as android.bluetooth.BluetoothAdapter
-            val listenerArg = args[1] as android.bluetooth.BluetoothProfile.ServiceListener
-            val profileArg = args[2] as Long
+            val contextArg = args[1] as android.content.Context
+            val listenerArg = args[2] as android.bluetooth.BluetoothProfile.ServiceListener
+            val profileArg = args[3] as Long
             val wrapped: List<Any?> = try {
-              listOf(api.getProfileProxy(pigeon_instanceArg, listenerArg, profileArg))
+              listOf(api.getProfileProxy(pigeon_instanceArg, contextArg, listenerArg, profileArg))
             } catch (exception: Throwable) {
               wrapError(exception)
             }
@@ -2449,7 +2492,7 @@ abstract class PigeonApiBluetoothAdapter(open val pigeonRegistrar: ApiPigeonProx
  * Use BluetoothDevice.getBluetoothClass to retrieve the class for a remote device.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothClass(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothClass(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /**
    * Check class bits for possible bluetooth profile support. This is a simple
    * heuristic that tries to guess if a device with the given class bits might
@@ -2487,7 +2530,7 @@ abstract class PigeonApiBluetoothClass(open val pigeonRegistrar: ApiPigeonProxyA
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothClass?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothClass.doesClassMatch", codec)
         if (api != null) {
@@ -2618,7 +2661,7 @@ abstract class PigeonApiBluetoothClass(open val pigeonRegistrar: ApiPigeonProxyA
  * using createL2capChannel(int) over Bluetooth LE.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothDevice(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothDevice(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /**
    * Connect to GATT Server hosted by this device. Caller acts as GATT client.
    * The callback is used to deliver results to Caller, such as connection status
@@ -2835,7 +2878,7 @@ abstract class PigeonApiBluetoothDevice(open val pigeonRegistrar: ApiPigeonProxy
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothDevice?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothDevice.connectGatt1", codec)
         if (api != null) {
@@ -3228,7 +3271,7 @@ abstract class PigeonApiBluetoothDevice(open val pigeonRegistrar: ApiPigeonProxy
  * discovery or BLE scan process.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothGatt(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothGatt(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /**
    * Cancels a reliable write transaction for a given device.
    *
@@ -3437,7 +3480,7 @@ abstract class PigeonApiBluetoothGatt(open val pigeonRegistrar: ApiPigeonProxyAp
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothGatt?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGatt.abortReliableWrite", codec)
         if (api != null) {
@@ -3877,13 +3920,13 @@ abstract class PigeonApiBluetoothGatt(open val pigeonRegistrar: ApiPigeonProxyAp
 }
 /** This abstract class is used to implement BluetoothGatt callbacks. */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothGattCallback(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothGattCallback(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   abstract fun pigeon_defaultConstructor(): android.bluetooth.BluetoothGattCallback
 
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothGattCallback?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.pigeon_defaultConstructor", codec)
         if (api != null) {
@@ -4393,7 +4436,7 @@ abstract class PigeonApiBluetoothGattCallback(open val pigeonRegistrar: ApiPigeo
  * information and optional GATT descriptors, BluetoothGattDescriptor.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothGattCharacteristic(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothGattCharacteristic(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /** Create a new BluetoothGattCharacteristic. */
   abstract fun pigeon_defaultConstructor(uuid: java.util.UUID, properties: Long, permissions: Long): android.bluetooth.BluetoothGattCharacteristic
 
@@ -4509,7 +4552,7 @@ abstract class PigeonApiBluetoothGattCharacteristic(open val pigeonRegistrar: Ap
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothGattCharacteristic?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCharacteristic.pigeon_defaultConstructor", codec)
         if (api != null) {
@@ -4904,7 +4947,7 @@ abstract class PigeonApiBluetoothGattCharacteristic(open val pigeonRegistrar: Ap
  * characteristic's features or to control certain behaviours of the characteristic.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothGattDescriptor(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothGattDescriptor(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /** Create a new BluetoothGattDescriptor. */
   abstract fun pigeon_defaultConstructor(uuid: java.util.UUID, permissions: Long): android.bluetooth.BluetoothGattDescriptor
 
@@ -4944,7 +4987,7 @@ abstract class PigeonApiBluetoothGattDescriptor(open val pigeonRegistrar: ApiPig
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothGattDescriptor?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattDescriptor.pigeon_defaultConstructor", codec)
         if (api != null) {
@@ -5147,7 +5190,7 @@ abstract class PigeonApiBluetoothGattDescriptor(open val pigeonRegistrar: ApiPig
  * via IPC. Use BluetoothManager.openGattServer to get an instance of this class.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothGattServer(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothGattServer(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /**
    * Add a service to the list of services to be hosted.
    *
@@ -5268,7 +5311,7 @@ abstract class PigeonApiBluetoothGattServer(open val pigeonRegistrar: ApiPigeonP
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothGattServer?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattServer.addService", codec)
         if (api != null) {
@@ -5561,13 +5604,13 @@ abstract class PigeonApiBluetoothGattServer(open val pigeonRegistrar: ApiPigeonP
 }
 /** This abstract class is used to implement BluetoothGattServer callbacks. */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothGattServerCallback(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothGattServerCallback(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   abstract fun pigeon_defaultConstructor(): android.bluetooth.BluetoothGattServerCallback
 
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothGattServerCallback?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattServerCallback.pigeon_defaultConstructor", codec)
         if (api != null) {
@@ -5946,7 +5989,7 @@ abstract class PigeonApiBluetoothGattServerCallback(open val pigeonRegistrar: Ap
  * referenced services.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothGattService(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothGattService(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /** Create a new BluetoothGattService. */
   abstract fun pigeon_defaultConstructor(uuid: java.util.UUID, serviceType: Long): android.bluetooth.BluetoothGattService
 
@@ -5992,7 +6035,7 @@ abstract class PigeonApiBluetoothGattService(open val pigeonRegistrar: ApiPigeon
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothGattService?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattService.pigeon_defaultConstructor", codec)
         if (api != null) {
@@ -6198,7 +6241,7 @@ abstract class PigeonApiBluetoothGattService(open val pigeonRegistrar: ApiPigeon
  * conduct overall Bluetooth Management.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothManager(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothManager(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /** Get the BluetoothAdapter for this device. */
   abstract fun getAdapter(pigeon_instance: android.bluetooth.BluetoothManager): android.bluetooth.BluetoothAdapter
 
@@ -6242,12 +6285,12 @@ abstract class PigeonApiBluetoothManager(open val pigeonRegistrar: ApiPigeonProx
    * operations. The method returns a BluetoothGattServer instance. You can use
    * BluetoothGattServer to conduct GATT server operations.
    */
-  abstract fun openGattServer(pigeon_instance: android.bluetooth.BluetoothManager, callback: android.bluetooth.BluetoothGattServerCallback): android.bluetooth.BluetoothGattServer
+  abstract fun openGattServer(pigeon_instance: android.bluetooth.BluetoothManager, context: android.content.Context, callback: android.bluetooth.BluetoothGattServerCallback): android.bluetooth.BluetoothGattServer
 
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothManager?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothManager.getAdapter", codec)
         if (api != null) {
@@ -6327,9 +6370,10 @@ abstract class PigeonApiBluetoothManager(open val pigeonRegistrar: ApiPigeonProx
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val pigeon_instanceArg = args[0] as android.bluetooth.BluetoothManager
-            val callbackArg = args[1] as android.bluetooth.BluetoothGattServerCallback
+            val contextArg = args[1] as android.content.Context
+            val callbackArg = args[2] as android.bluetooth.BluetoothGattServerCallback
             val wrapped: List<Any?> = try {
-              listOf(api.openGattServer(pigeon_instanceArg, callbackArg))
+              listOf(api.openGattServer(pigeon_instanceArg, contextArg, callbackArg))
             } catch (exception: Throwable) {
               wrapError(exception)
             }
@@ -6415,7 +6459,7 @@ abstract class PigeonApiBluetoothManager(open val pigeonRegistrar: ApiPigeonProx
  * immediately abort ongoing operations and close the server socket.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothServerSocket(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothServerSocket(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /**
    * Block until a connection is established.
    *
@@ -6463,7 +6507,7 @@ abstract class PigeonApiBluetoothServerSocket(open val pigeonRegistrar: ApiPigeo
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothServerSocket?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothServerSocket.accept1", codec)
         if (api != null) {
@@ -6606,7 +6650,7 @@ abstract class PigeonApiBluetoothServerSocket(open val pigeonRegistrar: ApiPigeo
  * abort ongoing operations and close the socket.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothSocket(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothSocket(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   abstract fun close(pigeon_instance: android.bluetooth.BluetoothSocket)
 
   /**
@@ -6679,7 +6723,7 @@ abstract class PigeonApiBluetoothSocket(open val pigeonRegistrar: ApiPigeonProxy
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothSocket?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothSocket.close", codec)
         if (api != null) {
@@ -6878,13 +6922,13 @@ abstract class PigeonApiBluetoothSocket(open val pigeonRegistrar: ApiPigeonProxy
 }
 /** Callback interface used to deliver LE scan results. */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothAdapterLeScanCallback(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothAdapterLeScanCallback(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   abstract fun pigeon_defaultConstructor(): android.bluetooth.BluetoothAdapter.LeScanCallback
 
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothAdapterLeScanCallback?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothAdapterLeScanCallback.pigeon_defaultConstructor", codec)
         if (api != null) {
@@ -6956,7 +7000,7 @@ abstract class PigeonApiBluetoothAdapterLeScanCallback(open val pigeonRegistrar:
  * Each public profile with this interface.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothProfile(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothProfile(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   abstract fun getConnectedDevices(pigeon_instance: android.bluetooth.BluetoothProfile): List<android.bluetooth.BluetoothDevice>
 
   abstract fun getConnectionState(pigeon_instance: android.bluetooth.BluetoothProfile, device: android.bluetooth.BluetoothDevice): Long
@@ -6966,7 +7010,7 @@ abstract class PigeonApiBluetoothProfile(open val pigeonRegistrar: ApiPigeonProx
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothProfile?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothProfile.getConnectedDevices", codec)
         if (api != null) {
@@ -7059,13 +7103,13 @@ abstract class PigeonApiBluetoothProfile(open val pigeonRegistrar: ApiPigeonProx
  * connected or disconnected to the service.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothProfileServiceListener(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothProfileServiceListener(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   abstract fun pigeon_defaultConstructor(): android.bluetooth.BluetoothProfile.ServiceListener
 
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothProfileServiceListener?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothProfileServiceListener.pigeon_defaultConstructor", codec)
         if (api != null) {
@@ -7168,13 +7212,13 @@ abstract class PigeonApiBluetoothProfileServiceListener(open val pigeonRegistrar
  * status.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiAdvertiseCallback(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiAdvertiseCallback(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   abstract fun pigeon_defaultConstructor(): android.bluetooth.le.AdvertiseCallback
 
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiAdvertiseCallback?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.AdvertiseCallback.pigeon_defaultConstructor", codec)
         if (api != null) {
@@ -7282,7 +7326,7 @@ abstract class PigeonApiAdvertiseCallback(open val pigeonRegistrar: ApiPigeonPro
  * Use AdvertiseData.Builder to create an instance of AdvertiseData to be advertised.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiAdvertiseData(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiAdvertiseData(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /** Whether the device name will be included in the advertisement packet. */
   abstract fun getIncludeDeviceName(pigeon_instance: android.bluetooth.le.AdvertiseData): Boolean
 
@@ -7321,7 +7365,7 @@ abstract class PigeonApiAdvertiseData(open val pigeonRegistrar: ApiPigeonProxyAp
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiAdvertiseData?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.AdvertiseData.getIncludeDeviceName", codec)
         if (api != null) {
@@ -7501,7 +7545,7 @@ abstract class PigeonApiAdvertiseData(open val pigeonRegistrar: ApiPigeonProxyAp
 }
 /** Builder for AdvertiseData. */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiAdvertiseDataBuilder(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiAdvertiseDataBuilder(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   abstract fun pigeon_defaultConstructor(): android.bluetooth.le.AdvertiseData.Builder
 
   /**
@@ -7540,7 +7584,7 @@ abstract class PigeonApiAdvertiseDataBuilder(open val pigeonRegistrar: ApiPigeon
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiAdvertiseDataBuilder?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.AdvertiseDataBuilder.pigeon_defaultConstructor", codec)
         if (api != null) {
@@ -7768,7 +7812,7 @@ abstract class PigeonApiAdvertiseDataBuilder(open val pigeonRegistrar: ApiPigeon
  * an instance of this class.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiAdvertiseSettings(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiAdvertiseSettings(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /** Returns the advertise mode. */
   abstract fun getMode(pigeon_instance: android.bluetooth.le.AdvertiseSettings): Long
 
@@ -7787,7 +7831,7 @@ abstract class PigeonApiAdvertiseSettings(open val pigeonRegistrar: ApiPigeonPro
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiAdvertiseSettings?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.AdvertiseSettings.getMode", codec)
         if (api != null) {
@@ -7916,7 +7960,7 @@ abstract class PigeonApiAdvertiseSettings(open val pigeonRegistrar: ApiPigeonPro
 }
 /** Builder class for AdvertiseSettings. */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiAdvertiseSettingsBuilder(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiAdvertiseSettingsBuilder(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   abstract fun pigeon_defaultConstructor(): android.bluetooth.le.AdvertiseSettings.Builder
 
   /** Build the AdvertiseSettings object. */
@@ -7943,7 +7987,7 @@ abstract class PigeonApiAdvertiseSettingsBuilder(open val pigeonRegistrar: ApiPi
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiAdvertiseSettingsBuilder?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.AdvertiseSettingsBuilder.pigeon_defaultConstructor", codec)
         if (api != null) {
@@ -8117,7 +8161,7 @@ abstract class PigeonApiAdvertiseSettingsBuilder(open val pigeonRegistrar: ApiPi
  * android.bluetooth.le.BluetoothLeAdvertiser#startAdvertisingSet method.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiAdvertisingSet(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiAdvertisingSet(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /**
    * Enables Advertising. This method returns immediately, the operation status
    * is delivered through callback.onAdvertisingEnabled().
@@ -8184,7 +8228,7 @@ abstract class PigeonApiAdvertisingSet(open val pigeonRegistrar: ApiPigeonProxyA
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiAdvertisingSet?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       if (android.os.Build.VERSION.SDK_INT >= 26) {
         run {
           val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.AdvertisingSet.enableAdvertising", codec)
@@ -8486,14 +8530,14 @@ abstract class PigeonApiAdvertisingSet(open val pigeonRegistrar: ApiPigeonProxyA
  * status.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiAdvertisingSetCallback(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiAdvertisingSetCallback(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   @androidx.annotation.RequiresApi(api = 26)
   abstract fun pigeon_defaultConstructor(): android.bluetooth.le.AdvertisingSetCallback
 
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiAdvertisingSetCallback?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       if (android.os.Build.VERSION.SDK_INT >= 26) {
         run {
           val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.AdvertisingSetCallback.pigeon_defaultConstructor", codec)
@@ -8839,7 +8883,7 @@ abstract class PigeonApiAdvertisingSetCallback(open val pigeonRegistrar: ApiPige
  * to create an instance of this class.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiAdvertisingSetParameters(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiAdvertisingSetParameters(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /** Returns the advertising interval. */
   @androidx.annotation.RequiresApi(api = 26)
   abstract fun getInterval(pigeon_instance: android.bluetooth.le.AdvertisingSetParameters): Long
@@ -8883,7 +8927,7 @@ abstract class PigeonApiAdvertisingSetParameters(open val pigeonRegistrar: ApiPi
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiAdvertisingSetParameters?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       if (android.os.Build.VERSION.SDK_INT >= 26) {
         run {
           val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.AdvertisingSetParameters.getInterval", codec)
@@ -9268,7 +9312,7 @@ abstract class PigeonApiAdvertisingSetParameters(open val pigeonRegistrar: ApiPi
 }
 /** Builder class for AdvertisingSetParameters. */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiAdvertisingSetParametersBuilder(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiAdvertisingSetParametersBuilder(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   @androidx.annotation.RequiresApi(api = 26)
   abstract fun pigeon_defaultConstructor(): android.bluetooth.le.AdvertisingSetParameters.Builder
 
@@ -9357,7 +9401,7 @@ abstract class PigeonApiAdvertisingSetParametersBuilder(open val pigeonRegistrar
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiAdvertisingSetParametersBuilder?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       if (android.os.Build.VERSION.SDK_INT >= 26) {
         run {
           val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.AdvertisingSetParametersBuilder.pigeon_defaultConstructor", codec)
@@ -9828,7 +9872,7 @@ abstract class PigeonApiAdvertisingSetParametersBuilder(open val pigeonRegistrar
  * android.bluetooth.BluetoothAdapter#getBluetoothLeAdvertiser() method.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothLeAdvertiser(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothLeAdvertiser(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /**
    * Start Bluetooth LE Advertising. On success, the advertiseData will be
    * broadcasted. Returns immediately, the operation status is delivered through
@@ -9906,7 +9950,7 @@ abstract class PigeonApiBluetoothLeAdvertiser(open val pigeonRegistrar: ApiPigeo
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothLeAdvertiser?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothLeAdvertiser.startAdvertising1", codec)
         if (api != null) {
@@ -10139,7 +10183,7 @@ abstract class PigeonApiBluetoothLeAdvertiser(open val pigeonRegistrar: ApiPigeo
  * Use BluetoothAdapter.getBluetoothLeScanner() to get an instance of BluetoothLeScanner.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiBluetoothLeScanner(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiBluetoothLeScanner(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /**
    * Flush pending batch scan results stored in Bluetooth controller. This will
    * return Bluetooth LE scan results batched on bluetooth controller. Returns
@@ -10202,7 +10246,7 @@ abstract class PigeonApiBluetoothLeScanner(open val pigeonRegistrar: ApiPigeonPr
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBluetoothLeScanner?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothLeScanner.flushPendingScanResults", codec)
         if (api != null) {
@@ -10368,7 +10412,7 @@ abstract class PigeonApiBluetoothLeScanner(open val pigeonRegistrar: ApiPigeonPr
  * to create an instance of this class.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiPeriodicAdvertisingParameters(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiPeriodicAdvertisingParameters(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /** Returns whether the TX Power will be included. */
   @androidx.annotation.RequiresApi(api = 26)
   abstract fun getIncludeTxPower(pigeon_instance: android.bluetooth.le.PeriodicAdvertisingParameters): Boolean
@@ -10383,7 +10427,7 @@ abstract class PigeonApiPeriodicAdvertisingParameters(open val pigeonRegistrar: 
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiPeriodicAdvertisingParameters?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       if (android.os.Build.VERSION.SDK_INT >= 26) {
         run {
           val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeriodicAdvertisingParameters.getIncludeTxPower", codec)
@@ -10495,7 +10539,7 @@ abstract class PigeonApiPeriodicAdvertisingParameters(open val pigeonRegistrar: 
 
 }
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiPeriodicAdvertisingParametersBuilder(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiPeriodicAdvertisingParametersBuilder(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   @androidx.annotation.RequiresApi(api = 26)
   abstract fun pigeon_defaultConstructor(): android.bluetooth.le.PeriodicAdvertisingParameters.Builder
 
@@ -10521,7 +10565,7 @@ abstract class PigeonApiPeriodicAdvertisingParametersBuilder(open val pigeonRegi
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiPeriodicAdvertisingParametersBuilder?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       if (android.os.Build.VERSION.SDK_INT >= 26) {
         run {
           val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeriodicAdvertisingParametersBuilder.pigeon_defaultConstructor", codec)
@@ -10705,13 +10749,13 @@ abstract class PigeonApiPeriodicAdvertisingParametersBuilder(open val pigeonRegi
 }
 /** Bluetooth LE scan callbacks. Scan results are reported using these callbacks. */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiScanCallback(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiScanCallback(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   abstract fun pigeon_defaultConstructor(): android.bluetooth.le.ScanCallback
 
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiScanCallback?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.ScanCallback.pigeon_defaultConstructor", codec)
         if (api != null) {
@@ -10850,7 +10894,7 @@ abstract class PigeonApiScanCallback(open val pigeonRegistrar: ApiPigeonProxyApi
  * * Advertising data type and corresponding data.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiScanFilter(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiScanFilter(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /** Returns the advertising data of this filter. */
   abstract fun getAdvertisingData(pigeon_instance: android.bluetooth.le.ScanFilter): ByteArray?
 
@@ -10905,7 +10949,7 @@ abstract class PigeonApiScanFilter(open val pigeonRegistrar: ApiPigeonProxyApiRe
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiScanFilter?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.ScanFilter.getAdvertisingData", codec)
         if (api != null) {
@@ -11222,7 +11266,7 @@ abstract class PigeonApiScanFilter(open val pigeonRegistrar: ApiPigeonProxyApiRe
 }
 /** Builder class for ScanFilter. */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiScanFilterBuilder(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiScanFilterBuilder(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   abstract fun pigeon_defaultConstructor(): android.bluetooth.le.ScanFilter.Builder
 
   /** Build ScanFilter. */
@@ -11312,7 +11356,7 @@ abstract class PigeonApiScanFilterBuilder(open val pigeonRegistrar: ApiPigeonPro
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiScanFilterBuilder?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.ScanFilterBuilder.pigeon_defaultConstructor", codec)
         if (api != null) {
@@ -11617,7 +11661,7 @@ abstract class PigeonApiScanFilterBuilder(open val pigeonRegistrar: ApiPigeonPro
 }
 /** Represents a scan record from Bluetooth LE scan. */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiScanRecord(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiScanRecord(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /**
    * Returns the advertising flags indicating the discoverable mode and capability
    * of the device. Returns -1 if the flag field is not set.
@@ -11682,7 +11726,7 @@ abstract class PigeonApiScanRecord(open val pigeonRegistrar: ApiPigeonProxyApiRe
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiScanRecord?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.ScanRecord.getAdvertiseFlags", codec)
         if (api != null) {
@@ -11915,7 +11959,7 @@ abstract class PigeonApiScanRecord(open val pigeonRegistrar: ApiPigeonProxyApiRe
 }
 /** ScanResult for Bluetooth LE scan. */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiScanResult(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiScanResult(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /**
    * Returns the advertising set id. May return ScanResult.SID_NOT_PRESENT if no
    * set id was is present.
@@ -11989,7 +12033,7 @@ abstract class PigeonApiScanResult(open val pigeonRegistrar: ApiPigeonProxyApiRe
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiScanResult?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.ScanResult.getAdvertisingSid", codec)
         if (api != null) {
@@ -12240,7 +12284,7 @@ abstract class PigeonApiScanResult(open val pigeonRegistrar: ApiPigeonProxyApiRe
  * to define the parameters for the scan.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiScanSettings(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiScanSettings(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   abstract fun getCallbackType(pigeon_instance: android.bluetooth.le.ScanSettings): Long
 
   /**
@@ -12263,7 +12307,7 @@ abstract class PigeonApiScanSettings(open val pigeonRegistrar: ApiPigeonProxyApi
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiScanSettings?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.ScanSettings.getCallbackType", codec)
         if (api != null) {
@@ -12409,7 +12453,7 @@ abstract class PigeonApiScanSettings(open val pigeonRegistrar: ApiPigeonProxyApi
 }
 /** Builder for ScanSettings. */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiScanSettingsBuilder(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiScanSettingsBuilder(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   abstract fun pigeon_defaultConstructor(): android.bluetooth.le.ScanSettings.Builder
 
   /** Build ScanSettings. */
@@ -12457,7 +12501,7 @@ abstract class PigeonApiScanSettingsBuilder(open val pigeonRegistrar: ApiPigeonP
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiScanSettingsBuilder?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.ScanSettingsBuilder.pigeon_defaultConstructor", codec)
         if (api != null) {
@@ -12665,7 +12709,7 @@ abstract class PigeonApiScanSettingsBuilder(open val pigeonRegistrar: ApiPigeonP
  * a Transport Block from a Transport Discovery Data.
  */
 @Suppress("UNCHECKED_CAST")
-open class PigeonApiTransportBlock(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+open class PigeonApiTransportBlock(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   @Suppress("LocalVariableName", "FunctionName")
   /** Creates a Dart instance of TransportBlock and attaches it to [pigeon_instanceArg]. */
   @androidx.annotation.RequiresApi(api = 33)
@@ -12710,7 +12754,7 @@ open class PigeonApiTransportBlock(open val pigeonRegistrar: ApiPigeonProxyApiRe
  * Discovery Data AD Type Code as well as a list of potential Transport Blocks.
  */
 @Suppress("UNCHECKED_CAST")
-open class PigeonApiTransportDiscoveryData(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+open class PigeonApiTransportDiscoveryData(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   @Suppress("LocalVariableName", "FunctionName")
   /** Creates a Dart instance of TransportDiscoveryData and attaches it to [pigeon_instanceArg]. */
   @androidx.annotation.RequiresApi(api = 33)
@@ -12751,11 +12795,56 @@ open class PigeonApiTransportDiscoveryData(open val pigeonRegistrar: ApiPigeonPr
 
 }
 /**
+ * Interface to global information about an application environment. This is an
+ * abstract class whose implementation is provided by the Android system. It
+ * allows access to application-specific resources and classes, as well as up-calls for application-level operations such as launching activities, broadcasting and receiving intents, etc.
+ */
+@Suppress("UNCHECKED_CAST")
+open class PigeonApiContext(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
+  @Suppress("LocalVariableName", "FunctionName")
+  /** Creates a Dart instance of Context and attaches it to [pigeon_instanceArg]. */
+  fun pigeon_newInstance(pigeon_instanceArg: android.content.Context, callback: (Result<Unit>) -> Unit)
+{
+    if (pigeonRegistrar.ignoreCallsToDart) {
+      callback(
+          Result.failure(
+              BluetoothLowEnergyError("ignore-calls-error", "Calls to Dart are being ignored.", "")))
+    }     else if (pigeonRegistrar.instanceManager.containsInstance(pigeon_instanceArg)) {
+      callback(Result.success(Unit))
+    }     else {
+      val pigeon_identifierArg = pigeonRegistrar.instanceManager.addHostCreatedInstance(pigeon_instanceArg)
+      val binaryMessenger = pigeonRegistrar.binaryMessenger
+      val codec = pigeonRegistrar.codec
+      val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.Context.pigeon_newInstance"
+      val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+      channel.send(listOf(pigeon_identifierArg)) {
+        if (it is List<*>) {
+          if (it.size > 1) {
+            callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+          } else {
+            callback(Result.success(Unit))
+          }
+        } else {
+          callback(Result.failure(createConnectionError(channelName)))
+        } 
+      }
+    }
+  }
+
+  @Suppress("FunctionName")
+  /** An implementation of [PigeonApiAny] used to access callback methods */
+  fun pigeon_getPigeonApiAny(): PigeonApiAny
+  {
+    return pigeonRegistrar.getPigeonApiAny()
+  }
+
+}
+/**
  * This class is a Parcelable wrapper around UUID which is an immutable representation
  * of a 128-bit universally unique identifier.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiParcelUuid(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiParcelUuid(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   /** Constructor creates a ParcelUuid instance from the given UUID. */
   abstract fun pigeon_defaultConstructor(uuid: java.util.UUID): android.os.ParcelUuid
 
@@ -12768,7 +12857,7 @@ abstract class PigeonApiParcelUuid(open val pigeonRegistrar: ApiPigeonProxyApiRe
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiParcelUuid?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.ParcelUuid.pigeon_defaultConstructor", codec)
         if (api != null) {
@@ -12872,7 +12961,7 @@ abstract class PigeonApiParcelUuid(open val pigeonRegistrar: ApiPigeonProxyApiRe
  * a method that returns the next byte of input.
  */
 @Suppress("UNCHECKED_CAST")
-open class PigeonApiInputStream(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+open class PigeonApiInputStream(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   @Suppress("LocalVariableName", "FunctionName")
   /** Creates a Dart instance of InputStream and attaches it to [pigeon_instanceArg]. */
   fun pigeon_newInstance(pigeon_instanceArg: java.io.InputStream, callback: (Result<Unit>) -> Unit)
@@ -12920,7 +13009,7 @@ open class PigeonApiInputStream(open val pigeonRegistrar: ApiPigeonProxyApiRegis
  * at least a method that writes one byte of output.
  */
 @Suppress("UNCHECKED_CAST")
-open class PigeonApiOutputStream(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+open class PigeonApiOutputStream(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   @Suppress("LocalVariableName", "FunctionName")
   /** Creates a Dart instance of OutputStream and attaches it to [pigeon_instanceArg]. */
   fun pigeon_newInstance(pigeon_instanceArg: java.io.OutputStream, callback: (Result<Unit>) -> Unit)
@@ -12960,12 +13049,78 @@ open class PigeonApiOutputStream(open val pigeonRegistrar: ApiPigeonProxyApiRegi
 
 }
 /**
+ * A time-based amount of time, such as '34.5 seconds'.
+ *
+ * This class models a quantity or amount of time in terms of seconds and
+ * nanoseconds. It can be accessed using other duration-based units, such as
+ * minutes and hours. In addition, the DAYS unit can be used and is treated as
+ * exactly equal to 24 hours, thus ignoring daylight savings effects. See Period
+ * for the date-based equivalent to this class.
+ *
+ * A physical duration could be of infinite length. For practicality, the duration
+ * is stored with constraints similar to Instant. The duration uses nanosecond
+ * resolution with a maximum value of the seconds that can be held in a long.
+ * This is greater than the current estimated age of the universe.
+ *
+ * The range of a duration requires the storage of a number larger than a long.
+ * To achieve this, the class stores a long representing seconds and an int
+ * representing nanosecond-of-second, which will always be between 0 and 999,999,999.
+ * The model is of a directed duration, meaning that the duration may be negative.
+ *
+ * The duration is measured in "seconds", but these are not necessarily identical
+ * to the scientific "SI second" definition based on atomic clocks. This difference
+ * only impacts durations measured near a leap-second and should not affect most
+ * applications. See Instant for a discussion as to the meaning of the second
+ * and time-scales.
+ */
+@Suppress("UNCHECKED_CAST")
+open class PigeonApiDuration(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
+  @Suppress("LocalVariableName", "FunctionName")
+  /** Creates a Dart instance of Duration and attaches it to [pigeon_instanceArg]. */
+  @androidx.annotation.RequiresApi(api = 26)
+  fun pigeon_newInstance(pigeon_instanceArg: java.time.Duration, callback: (Result<Unit>) -> Unit)
+{
+    if (pigeonRegistrar.ignoreCallsToDart) {
+      callback(
+          Result.failure(
+              BluetoothLowEnergyError("ignore-calls-error", "Calls to Dart are being ignored.", "")))
+    }     else if (pigeonRegistrar.instanceManager.containsInstance(pigeon_instanceArg)) {
+      callback(Result.success(Unit))
+    }     else {
+      val pigeon_identifierArg = pigeonRegistrar.instanceManager.addHostCreatedInstance(pigeon_instanceArg)
+      val binaryMessenger = pigeonRegistrar.binaryMessenger
+      val codec = pigeonRegistrar.codec
+      val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.Duration.pigeon_newInstance"
+      val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+      channel.send(listOf(pigeon_identifierArg)) {
+        if (it is List<*>) {
+          if (it.size > 1) {
+            callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+          } else {
+            callback(Result.success(Unit))
+          }
+        } else {
+          callback(Result.failure(createConnectionError(channelName)))
+        } 
+      }
+    }
+  }
+
+  @Suppress("FunctionName")
+  /** An implementation of [PigeonApiAny] used to access callback methods */
+  fun pigeon_getPigeonApiAny(): PigeonApiAny
+  {
+    return pigeonRegistrar.getPigeonApiAny()
+  }
+
+}
+/**
  * Constructs a new UUID using the specified data. mostSigBits is used for the
  * most significant 64 bits of the UUID and leastSigBits becomes the least
  * significant 64 bits of the UUID.
  */
 @Suppress("UNCHECKED_CAST")
-abstract class PigeonApiUUID(open val pigeonRegistrar: ApiPigeonProxyApiRegistrar) {
+abstract class PigeonApiUUID(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
   abstract fun pigeon_defaultConstructor(mostSigBits: Long, leastSigBits: Long): java.util.UUID
 
   /**
@@ -13053,7 +13208,7 @@ abstract class PigeonApiUUID(open val pigeonRegistrar: ApiPigeonProxyApiRegistra
   companion object {
     @Suppress("LocalVariableName")
     fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiUUID?) {
-      val codec = api?.pigeonRegistrar?.codec ?: ApiPigeonCodec()
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyPigeonCodec()
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.UUID.pigeon_defaultConstructor", codec)
         if (api != null) {
