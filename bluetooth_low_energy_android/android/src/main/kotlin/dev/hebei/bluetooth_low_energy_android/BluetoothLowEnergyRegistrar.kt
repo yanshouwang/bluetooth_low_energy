@@ -13,11 +13,11 @@ class BluetoothLowEnergyRegistrar(binaryMessenger: BinaryMessenger) :
     }
 
     override fun getPigeonApiBluetoothClass(): PigeonApiBluetoothClass {
-        TODO("Not yet implemented")
+        return BluetoothClassImpl(this)
     }
 
     override fun getPigeonApiBluetoothDevice(): PigeonApiBluetoothDevice {
-        TODO("Not yet implemented")
+        return BluetoothDeviceImpl(this)
     }
 
     override fun getPigeonApiBluetoothGatt(): PigeonApiBluetoothGatt {

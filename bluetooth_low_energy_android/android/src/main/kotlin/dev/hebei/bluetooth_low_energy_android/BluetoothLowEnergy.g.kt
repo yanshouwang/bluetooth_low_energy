@@ -623,6 +623,15 @@ abstract class BluetoothLowEnergyPigeonProxyApiRegistrar(val binaryMessenger: Bi
   }
 
   /**
+   * An implementation of [PigeonApiHandler] used to add a new Dart instance of
+   * `Handler` to the Dart `InstanceManager`.
+   */
+  open fun getPigeonApiHandler(): PigeonApiHandler
+  {
+    return PigeonApiHandler(this)
+  }
+
+  /**
    * An implementation of [PigeonApiParcelUuid] used to add a new Dart instance of
    * `ParcelUuid` to the Dart `InstanceManager`.
    */
@@ -889,6 +898,9 @@ private class BluetoothLowEnergyPigeonProxyApiBaseCodec(val registrar: Bluetooth
     }
      else if (value is android.content.Context) {
       registrar.getPigeonApiContext().pigeon_newInstance(value) { }
+    }
+     else if (value is android.os.Handler) {
+      registrar.getPigeonApiHandler().pigeon_newInstance(value) { }
     }
      else if (value is android.os.ParcelUuid) {
       registrar.getPigeonApiParcelUuid().pigeon_newInstance(value) { }
@@ -2669,7 +2681,7 @@ abstract class PigeonApiBluetoothDevice(open val pigeonRegistrar: BluetoothLowEn
    * BluetoothGatt instance. You can use BluetoothGatt to conduct GATT client
    * operations.
    */
-  abstract fun connectGatt1(pigeon_instance: android.bluetooth.BluetoothDevice, autoConnect: Boolean, callback: android.bluetooth.BluetoothGattCallback): android.bluetooth.BluetoothGatt
+  abstract fun connectGatt1(pigeon_instance: android.bluetooth.BluetoothDevice, context: android.content.Context, autoConnect: Boolean, callback: android.bluetooth.BluetoothGattCallback): android.bluetooth.BluetoothGatt
 
   /**
    * Connect to GATT Server hosted by this device. Caller acts as GATT client.
@@ -2678,7 +2690,7 @@ abstract class PigeonApiBluetoothDevice(open val pigeonRegistrar: BluetoothLowEn
    * BluetoothGatt instance. You can use BluetoothGatt to conduct GATT client
    * operations.
    */
-  abstract fun connectGatt2(pigeon_instance: android.bluetooth.BluetoothDevice, autoConnect: Boolean, callback: android.bluetooth.BluetoothGattCallback, transport: Long): android.bluetooth.BluetoothGatt
+  abstract fun connectGatt2(pigeon_instance: android.bluetooth.BluetoothDevice, context: android.content.Context, autoConnect: Boolean, callback: android.bluetooth.BluetoothGattCallback, transport: Long): android.bluetooth.BluetoothGatt
 
   /**
    * Connect to GATT Server hosted by this device. Caller acts as GATT client.
@@ -2687,7 +2699,16 @@ abstract class PigeonApiBluetoothDevice(open val pigeonRegistrar: BluetoothLowEn
    * BluetoothGatt instance. You can use BluetoothGatt to conduct GATT client
    * operations.
    */
-  abstract fun connectGatt3(pigeon_instance: android.bluetooth.BluetoothDevice, autoConnect: Boolean, callback: android.bluetooth.BluetoothGattCallback, transport: Long, phy: Long): android.bluetooth.BluetoothGatt
+  abstract fun connectGatt3(pigeon_instance: android.bluetooth.BluetoothDevice, context: android.content.Context, autoConnect: Boolean, callback: android.bluetooth.BluetoothGattCallback, transport: Long, phy: Long): android.bluetooth.BluetoothGatt
+
+  /**
+   * Connect to GATT Server hosted by this device. Caller acts as GATT client.
+   * The callback is used to deliver results to Caller, such as connection status
+   * as well as any further GATT client operations. The method returns a
+   * BluetoothGatt instance. You can use BluetoothGatt to conduct GATT client
+   * operations.
+   */
+  abstract fun connectGatt4(pigeon_instance: android.bluetooth.BluetoothDevice, context: android.content.Context, autoConnect: Boolean, callback: android.bluetooth.BluetoothGattCallback, transport: Long, phy: Long, handler: android.os.Handler): android.bluetooth.BluetoothGatt
 
   /**
    * Start the bonding (pairing) process with the remote device.
@@ -2885,10 +2906,11 @@ abstract class PigeonApiBluetoothDevice(open val pigeonRegistrar: BluetoothLowEn
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val pigeon_instanceArg = args[0] as android.bluetooth.BluetoothDevice
-            val autoConnectArg = args[1] as Boolean
-            val callbackArg = args[2] as android.bluetooth.BluetoothGattCallback
+            val contextArg = args[1] as android.content.Context
+            val autoConnectArg = args[2] as Boolean
+            val callbackArg = args[3] as android.bluetooth.BluetoothGattCallback
             val wrapped: List<Any?> = try {
-              listOf(api.connectGatt1(pigeon_instanceArg, autoConnectArg, callbackArg))
+              listOf(api.connectGatt1(pigeon_instanceArg, contextArg, autoConnectArg, callbackArg))
             } catch (exception: Throwable) {
               wrapError(exception)
             }
@@ -2904,11 +2926,12 @@ abstract class PigeonApiBluetoothDevice(open val pigeonRegistrar: BluetoothLowEn
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val pigeon_instanceArg = args[0] as android.bluetooth.BluetoothDevice
-            val autoConnectArg = args[1] as Boolean
-            val callbackArg = args[2] as android.bluetooth.BluetoothGattCallback
-            val transportArg = args[3] as Long
+            val contextArg = args[1] as android.content.Context
+            val autoConnectArg = args[2] as Boolean
+            val callbackArg = args[3] as android.bluetooth.BluetoothGattCallback
+            val transportArg = args[4] as Long
             val wrapped: List<Any?> = try {
-              listOf(api.connectGatt2(pigeon_instanceArg, autoConnectArg, callbackArg, transportArg))
+              listOf(api.connectGatt2(pigeon_instanceArg, contextArg, autoConnectArg, callbackArg, transportArg))
             } catch (exception: Throwable) {
               wrapError(exception)
             }
@@ -2924,12 +2947,36 @@ abstract class PigeonApiBluetoothDevice(open val pigeonRegistrar: BluetoothLowEn
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val pigeon_instanceArg = args[0] as android.bluetooth.BluetoothDevice
-            val autoConnectArg = args[1] as Boolean
-            val callbackArg = args[2] as android.bluetooth.BluetoothGattCallback
-            val transportArg = args[3] as Long
-            val phyArg = args[4] as Long
+            val contextArg = args[1] as android.content.Context
+            val autoConnectArg = args[2] as Boolean
+            val callbackArg = args[3] as android.bluetooth.BluetoothGattCallback
+            val transportArg = args[4] as Long
+            val phyArg = args[5] as Long
             val wrapped: List<Any?> = try {
-              listOf(api.connectGatt3(pigeon_instanceArg, autoConnectArg, callbackArg, transportArg, phyArg))
+              listOf(api.connectGatt3(pigeon_instanceArg, contextArg, autoConnectArg, callbackArg, transportArg, phyArg))
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothDevice.connectGatt4", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val pigeon_instanceArg = args[0] as android.bluetooth.BluetoothDevice
+            val contextArg = args[1] as android.content.Context
+            val autoConnectArg = args[2] as Boolean
+            val callbackArg = args[3] as android.bluetooth.BluetoothGattCallback
+            val transportArg = args[4] as Long
+            val phyArg = args[5] as Long
+            val handlerArg = args[6] as android.os.Handler
+            val wrapped: List<Any?> = try {
+              listOf(api.connectGatt4(pigeon_instanceArg, contextArg, autoConnectArg, callbackArg, transportArg, phyArg, handlerArg))
             } catch (exception: Throwable) {
               wrapError(exception)
             }
@@ -12816,6 +12863,79 @@ open class PigeonApiContext(open val pigeonRegistrar: BluetoothLowEnergyPigeonPr
       val binaryMessenger = pigeonRegistrar.binaryMessenger
       val codec = pigeonRegistrar.codec
       val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.Context.pigeon_newInstance"
+      val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+      channel.send(listOf(pigeon_identifierArg)) {
+        if (it is List<*>) {
+          if (it.size > 1) {
+            callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+          } else {
+            callback(Result.success(Unit))
+          }
+        } else {
+          callback(Result.failure(createConnectionError(channelName)))
+        } 
+      }
+    }
+  }
+
+  @Suppress("FunctionName")
+  /** An implementation of [PigeonApiAny] used to access callback methods */
+  fun pigeon_getPigeonApiAny(): PigeonApiAny
+  {
+    return pigeonRegistrar.getPigeonApiAny()
+  }
+
+}
+/**
+ * A Handler allows you to send and process Message and Runnable objects associated
+ * with a thread's MessageQueue. Each Handler instance is associated with a single
+ * thread and that thread's message queue. When you create a new Handler it is
+ * bound to a Looper. It will deliver messages and runnables to that Looper's
+ * message queue and execute them on that Looper's thread.
+ *
+ * There are two main uses for a Handler: (1) to schedule messages and runnables
+ * to be executed at some point in the future; and (2) to enqueue an action to
+ * be performed on a different thread than your own.
+ *
+ * Scheduling messages is accomplished with the post, postAtTime(java.lang.Runnable,long),
+ * #postDelayed, sendEmptyMessage, sendMessage, sendMessageAtTime, and
+ * sendMessageDelayed methods. The post versions allow you to enqueue Runnable
+ * objects to be called by the message queue when they are received; the sendMessage
+ * versions allow you to enqueue a Message object containing a bundle of data
+ * that will be processed by the Handler's handleMessage method (requiring that
+ * you implement a subclass of Handler).
+ *
+ * When posting or sending to a Handler, you can either allow the item to be
+ * processed as soon as the message queue is ready to do so, or specify a delay
+ * before it gets processed or absolute time for it to be processed. The latter
+ * two allow you to implement timeouts, ticks, and other timing-based behavior.
+ *
+ * When a process is created for your application, its main thread is dedicated
+ * to running a message queue that takes care of managing the top-level application
+ * objects (activities, broadcast receivers, etc) and any windows they create.
+ * You can create your own threads, and communicate back with the main application
+ * thread through a Handler. This is done by calling the same post or sendMessage
+ * methods as before, but from your new thread. The given Runnable or Message
+ * will then be scheduled in the Handler's message queue and processed when
+ * appropriate.
+ */
+@Suppress("UNCHECKED_CAST")
+open class PigeonApiHandler(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
+  @Suppress("LocalVariableName", "FunctionName")
+  /** Creates a Dart instance of Handler and attaches it to [pigeon_instanceArg]. */
+  fun pigeon_newInstance(pigeon_instanceArg: android.os.Handler, callback: (Result<Unit>) -> Unit)
+{
+    if (pigeonRegistrar.ignoreCallsToDart) {
+      callback(
+          Result.failure(
+              BluetoothLowEnergyError("ignore-calls-error", "Calls to Dart are being ignored.", "")))
+    }     else if (pigeonRegistrar.instanceManager.containsInstance(pigeon_instanceArg)) {
+      callback(Result.success(Unit))
+    }     else {
+      val pigeon_identifierArg = pigeonRegistrar.instanceManager.addHostCreatedInstance(pigeon_instanceArg)
+      val binaryMessenger = pigeonRegistrar.binaryMessenger
+      val codec = pigeonRegistrar.codec
+      val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.Handler.pigeon_newInstance"
       val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
       channel.send(listOf(pigeon_identifierArg)) {
         if (it is List<*>) {

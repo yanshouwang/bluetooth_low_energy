@@ -169,6 +169,7 @@ class PigeonInstanceManager {
     TransportBlock.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     TransportDiscoveryData.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     Context.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
+    Handler.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     ParcelUuid.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     InputStream.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     OutputStream.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
@@ -2981,6 +2982,7 @@ class BluetoothDevice extends Any {
   /// BluetoothGatt instance. You can use BluetoothGatt to conduct GATT client
   /// operations.
   Future<BluetoothGatt> connectGatt1(
+    Context context,
     bool autoConnect,
     BluetoothGattCallback callback,
   ) async {
@@ -2996,7 +2998,7 @@ class BluetoothDevice extends Any {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this, autoConnect, callback]);
+        pigeonVar_channel.send(<Object?>[this, context, autoConnect, callback]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -3023,6 +3025,7 @@ class BluetoothDevice extends Any {
   /// BluetoothGatt instance. You can use BluetoothGatt to conduct GATT client
   /// operations.
   Future<BluetoothGatt> connectGatt2(
+    Context context,
     bool autoConnect,
     BluetoothGattCallback callback,
     int transport,
@@ -3039,7 +3042,7 @@ class BluetoothDevice extends Any {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel
-        .send(<Object?>[this, autoConnect, callback, transport]);
+        .send(<Object?>[this, context, autoConnect, callback, transport]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -3066,6 +3069,7 @@ class BluetoothDevice extends Any {
   /// BluetoothGatt instance. You can use BluetoothGatt to conduct GATT client
   /// operations.
   Future<BluetoothGatt> connectGatt3(
+    Context context,
     bool autoConnect,
     BluetoothGattCallback callback,
     int transport,
@@ -3083,7 +3087,61 @@ class BluetoothDevice extends Any {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel
-        .send(<Object?>[this, autoConnect, callback, transport, phy]);
+        .send(<Object?>[this, context, autoConnect, callback, transport, phy]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as BluetoothGatt?)!;
+    }
+  }
+
+  /// Connect to GATT Server hosted by this device. Caller acts as GATT client.
+  /// The callback is used to deliver results to Caller, such as connection status
+  /// as well as any further GATT client operations. The method returns a
+  /// BluetoothGatt instance. You can use BluetoothGatt to conduct GATT client
+  /// operations.
+  Future<BluetoothGatt> connectGatt4(
+    Context context,
+    bool autoConnect,
+    BluetoothGattCallback callback,
+    int transport,
+    int phy,
+    Handler handler,
+  ) async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _pigeonVar_codecBluetoothDevice;
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothDevice.connectGatt4';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel
+        .send(<Object?>[
+      this,
+      context,
+      autoConnect,
+      callback,
+      transport,
+      phy,
+      handler
+    ]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -18655,6 +18713,106 @@ class Context extends Any {
   @override
   Context pigeon_copy() {
     return Context.pigeon_detached(
+      pigeon_binaryMessenger: pigeon_binaryMessenger,
+      pigeon_instanceManager: pigeon_instanceManager,
+    );
+  }
+}
+
+/// A Handler allows you to send and process Message and Runnable objects associated
+/// with a thread's MessageQueue. Each Handler instance is associated with a single
+/// thread and that thread's message queue. When you create a new Handler it is
+/// bound to a Looper. It will deliver messages and runnables to that Looper's
+/// message queue and execute them on that Looper's thread.
+///
+/// There are two main uses for a Handler: (1) to schedule messages and runnables
+/// to be executed at some point in the future; and (2) to enqueue an action to
+/// be performed on a different thread than your own.
+///
+/// Scheduling messages is accomplished with the post, postAtTime(java.lang.Runnable,long),
+/// #postDelayed, sendEmptyMessage, sendMessage, sendMessageAtTime, and
+/// sendMessageDelayed methods. The post versions allow you to enqueue Runnable
+/// objects to be called by the message queue when they are received; the sendMessage
+/// versions allow you to enqueue a Message object containing a bundle of data
+/// that will be processed by the Handler's handleMessage method (requiring that
+/// you implement a subclass of Handler).
+///
+/// When posting or sending to a Handler, you can either allow the item to be
+/// processed as soon as the message queue is ready to do so, or specify a delay
+/// before it gets processed or absolute time for it to be processed. The latter
+/// two allow you to implement timeouts, ticks, and other timing-based behavior.
+///
+/// When a process is created for your application, its main thread is dedicated
+/// to running a message queue that takes care of managing the top-level application
+/// objects (activities, broadcast receivers, etc) and any windows they create.
+/// You can create your own threads, and communicate back with the main application
+/// thread through a Handler. This is done by calling the same post or sendMessage
+/// methods as before, but from your new thread. The given Runnable or Message
+/// will then be scheduled in the Handler's message queue and processed when
+/// appropriate.
+class Handler extends Any {
+  /// Constructs [Handler] without creating the associated native object.
+  ///
+  /// This should only be used by subclasses created by this library or to
+  /// create copies for an [PigeonInstanceManager].
+  @protected
+  Handler.pigeon_detached({
+    super.pigeon_binaryMessenger,
+    super.pigeon_instanceManager,
+  }) : super.pigeon_detached();
+
+  static void pigeon_setUpMessageHandlers({
+    bool pigeon_clearHandlers = false,
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+    Handler Function()? pigeon_newInstance,
+  }) {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
+    final BinaryMessenger? binaryMessenger = pigeon_binaryMessenger;
+    {
+      final BasicMessageChannel<
+          Object?> pigeonVar_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.Handler.pigeon_newInstance',
+          pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (pigeon_clearHandlers) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.Handler.pigeon_newInstance was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final int? arg_pigeon_instanceIdentifier = (args[0] as int?);
+          assert(arg_pigeon_instanceIdentifier != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.Handler.pigeon_newInstance was null, expected non-null int.');
+          try {
+            (pigeon_instanceManager ?? PigeonInstanceManager.instance)
+                .addHostCreatedInstance(
+              pigeon_newInstance?.call() ??
+                  Handler.pigeon_detached(
+                    pigeon_binaryMessenger: pigeon_binaryMessenger,
+                    pigeon_instanceManager: pigeon_instanceManager,
+                  ),
+              arg_pigeon_instanceIdentifier!,
+            );
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+  }
+
+  @override
+  Handler pigeon_copy() {
+    return Handler.pigeon_detached(
       pigeon_binaryMessenger: pigeon_binaryMessenger,
       pigeon_instanceManager: pigeon_instanceManager,
     );

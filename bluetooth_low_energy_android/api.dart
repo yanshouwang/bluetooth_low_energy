@@ -638,7 +638,8 @@ abstract class BluetoothDevice extends Any {
   /// as well as any further GATT client operations. The method returns a
   /// BluetoothGatt instance. You can use BluetoothGatt to conduct GATT client
   /// operations.
-  BluetoothGatt connectGatt1(bool autoConnect, BluetoothGattCallback callback);
+  BluetoothGatt connectGatt1(
+      Context context, bool autoConnect, BluetoothGattCallback callback);
 
   /// Connect to GATT Server hosted by this device. Caller acts as GATT client.
   /// The callback is used to deliver results to Caller, such as connection status
@@ -648,8 +649,8 @@ abstract class BluetoothDevice extends Any {
   // @KotlinProxyApiOptions(
   //   minAndroidApi: 23,
   // )
-  BluetoothGatt connectGatt2(
-      bool autoConnect, BluetoothGattCallback callback, int transport);
+  BluetoothGatt connectGatt2(Context context, bool autoConnect,
+      BluetoothGattCallback callback, int transport);
 
   /// Connect to GATT Server hosted by this device. Caller acts as GATT client.
   /// The callback is used to deliver results to Caller, such as connection status
@@ -659,8 +660,16 @@ abstract class BluetoothDevice extends Any {
   // @KotlinProxyApiOptions(
   //   minAndroidApi: 26,
   // )
-  BluetoothGatt connectGatt3(
-      bool autoConnect, BluetoothGattCallback callback, int transport, int phy);
+  BluetoothGatt connectGatt3(Context context, bool autoConnect,
+      BluetoothGattCallback callback, int transport, int phy);
+
+  /// Connect to GATT Server hosted by this device. Caller acts as GATT client.
+  /// The callback is used to deliver results to Caller, such as connection status
+  /// as well as any further GATT client operations. The method returns a
+  /// BluetoothGatt instance. You can use BluetoothGatt to conduct GATT client
+  /// operations.
+  BluetoothGatt connectGatt4(Context context, bool autoConnect,
+      BluetoothGattCallback callback, int transport, int phy, Handler handler);
 
   /// Start the bonding (pairing) process with the remote device.
   ///
@@ -2939,6 +2948,44 @@ abstract class TransportDiscoveryData extends Any {}
 abstract class Context extends Any {}
 
 // https://developer.android.google.cn/reference/kotlin/android/os/package-summary
+
+/// A Handler allows you to send and process Message and Runnable objects associated
+/// with a thread's MessageQueue. Each Handler instance is associated with a single
+/// thread and that thread's message queue. When you create a new Handler it is
+/// bound to a Looper. It will deliver messages and runnables to that Looper's
+/// message queue and execute them on that Looper's thread.
+///
+/// There are two main uses for a Handler: (1) to schedule messages and runnables
+/// to be executed at some point in the future; and (2) to enqueue an action to
+/// be performed on a different thread than your own.
+///
+/// Scheduling messages is accomplished with the post, postAtTime(java.lang.Runnable,long),
+/// #postDelayed, sendEmptyMessage, sendMessage, sendMessageAtTime, and
+/// sendMessageDelayed methods. The post versions allow you to enqueue Runnable
+/// objects to be called by the message queue when they are received; the sendMessage
+/// versions allow you to enqueue a Message object containing a bundle of data
+/// that will be processed by the Handler's handleMessage method (requiring that
+/// you implement a subclass of Handler).
+///
+/// When posting or sending to a Handler, you can either allow the item to be
+/// processed as soon as the message queue is ready to do so, or specify a delay
+/// before it gets processed or absolute time for it to be processed. The latter
+/// two allow you to implement timeouts, ticks, and other timing-based behavior.
+///
+/// When a process is created for your application, its main thread is dedicated
+/// to running a message queue that takes care of managing the top-level application
+/// objects (activities, broadcast receivers, etc) and any windows they create.
+/// You can create your own threads, and communicate back with the main application
+/// thread through a Handler. This is done by calling the same post or sendMessage
+/// methods as before, but from your new thread. The given Runnable or Message
+/// will then be scheduled in the Handler's message queue and processed when
+/// appropriate.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.os.Handler',
+  ),
+)
+abstract class Handler extends Any {}
 
 /// This class is a Parcelable wrapper around UUID which is an immutable representation
 /// of a 128-bit universally unique identifier.
