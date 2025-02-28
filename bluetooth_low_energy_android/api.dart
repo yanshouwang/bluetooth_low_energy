@@ -40,6 +40,13 @@ abstract class Any {
 
 // https://developer.android.google.cn/reference/kotlin/android/app/package-summary
 
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.app.Activity',
+  ),
+)
+abstract class Activity extends Context {}
+
 /// A description of an Intent and target action to perform with it. Instances of
 /// this class are created with #getActivity, #getActivities, getBroadcast, and
 /// getService; the returned object can be handed to other applications so that

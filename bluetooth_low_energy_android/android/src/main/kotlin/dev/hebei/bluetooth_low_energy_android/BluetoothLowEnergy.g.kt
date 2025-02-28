@@ -371,6 +371,15 @@ abstract class BluetoothLowEnergyPigeonProxyApiRegistrar(val binaryMessenger: Bi
   abstract fun getPigeonApiAny(): PigeonApiAny
 
   /**
+   * An implementation of [PigeonApiActivity] used to add a new Dart instance of
+   * `Activity` to the Dart `InstanceManager`.
+   */
+  open fun getPigeonApiActivity(): PigeonApiActivity
+  {
+    return PigeonApiActivity(this)
+  }
+
+  /**
    * An implementation of [PigeonApiPendingIntent] used to add a new Dart instance of
    * `PendingIntent` to the Dart `InstanceManager`.
    */
@@ -779,7 +788,10 @@ private class BluetoothLowEnergyPigeonProxyApiBaseCodec(val registrar: Bluetooth
       return
     }
 
-    if (value is android.app.PendingIntent) {
+    if (value is android.app.Activity) {
+      registrar.getPigeonApiActivity().pigeon_newInstance(value) { }
+    }
+     else if (value is android.app.PendingIntent) {
       registrar.getPigeonApiPendingIntent().pigeon_newInstance(value) { }
     }
      else if (value is android.bluetooth.BluetoothAdapter) {
@@ -1129,6 +1141,46 @@ abstract class PigeonApiAny(open val pigeonRegistrar: BluetoothLowEnergyPigeonPr
         } 
       }
     }
+  }
+
+}
+@Suppress("UNCHECKED_CAST")
+open class PigeonApiActivity(open val pigeonRegistrar: BluetoothLowEnergyPigeonProxyApiRegistrar) {
+  @Suppress("LocalVariableName", "FunctionName")
+  /** Creates a Dart instance of Activity and attaches it to [pigeon_instanceArg]. */
+  fun pigeon_newInstance(pigeon_instanceArg: android.app.Activity, callback: (Result<Unit>) -> Unit)
+{
+    if (pigeonRegistrar.ignoreCallsToDart) {
+      callback(
+          Result.failure(
+              BluetoothLowEnergyError("ignore-calls-error", "Calls to Dart are being ignored.", "")))
+    }     else if (pigeonRegistrar.instanceManager.containsInstance(pigeon_instanceArg)) {
+      callback(Result.success(Unit))
+    }     else {
+      val pigeon_identifierArg = pigeonRegistrar.instanceManager.addHostCreatedInstance(pigeon_instanceArg)
+      val binaryMessenger = pigeonRegistrar.binaryMessenger
+      val codec = pigeonRegistrar.codec
+      val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.Activity.pigeon_newInstance"
+      val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+      channel.send(listOf(pigeon_identifierArg)) {
+        if (it is List<*>) {
+          if (it.size > 1) {
+            callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+          } else {
+            callback(Result.success(Unit))
+          }
+        } else {
+          callback(Result.failure(createConnectionError(channelName)))
+        } 
+      }
+    }
+  }
+
+  @Suppress("FunctionName")
+  /** An implementation of [PigeonApiContext] used to access callback methods */
+  fun pigeon_getPigeonApiContext(): PigeonApiContext
+  {
+    return pigeonRegistrar.getPigeonApiContext()
   }
 
 }
