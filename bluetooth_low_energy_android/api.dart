@@ -13,6 +13,52 @@ import 'package:pigeon/pigeon.dart';
     ),
   ),
 )
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName:
+        'dev.hebei.bluetooth_low_energy_android.BluetoothLowEnergyAndroidPlugin',
+  ),
+)
+abstract class BluetoothLowEnergyAndroidPlugin extends Any {
+  @static
+  late final BluetoothLowEnergyAndroidPlugin instance;
+
+  @attached
+  late final Context applicationContext;
+
+  Activity? getActivity();
+
+  void addRequestPermissionsResultListener(
+      RequestPermissionsResultListener listener);
+  void removeRequestPermissionsResultListener(
+      RequestPermissionsResultListener listener);
+
+  void addActivityResultListener(ActivityResultListener listener);
+  void removeActivityResultListener(ActivityResultListener listener);
+}
+
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName:
+        'io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener',
+  ),
+)
+abstract class RequestPermissionsResultListener {
+  late final void Function(
+          int requestCode, List<String> permissions, List<int> grantResults)
+      onRequestPermissionsResult;
+}
+
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName:
+        'io.flutter.plugin.common.PluginRegistry.ActivityResultListener',
+  ),
+)
+abstract class ActivityResultListener {
+  late final void Function(int requestCode, int resultCode, Intent? data)
+      onActivityResult;
+}
 
 // https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/
 
@@ -2953,6 +2999,13 @@ abstract class TransportDiscoveryData extends Any {}
   ),
 )
 abstract class Context extends Any {}
+
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.content.Intent',
+  ),
+)
+abstract class Intent extends Any {}
 
 // https://developer.android.google.cn/reference/kotlin/android/os/package-summary
 

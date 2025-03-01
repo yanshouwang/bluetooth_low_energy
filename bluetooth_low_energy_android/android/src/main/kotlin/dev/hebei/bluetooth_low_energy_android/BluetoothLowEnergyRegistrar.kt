@@ -2,8 +2,13 @@ package dev.hebei.bluetooth_low_energy_android
 
 import io.flutter.plugin.common.BinaryMessenger
 
-class BluetoothLowEnergyRegistrar(binaryMessenger: BinaryMessenger) :
-    BluetoothLowEnergyPigeonProxyApiRegistrar(binaryMessenger) {
+class BluetoothLowEnergyRegistrar(
+    binaryMessenger: BinaryMessenger, private val instance: BluetoothLowEnergyAndroidPlugin
+) : BluetoothLowEnergyPigeonProxyApiRegistrar(binaryMessenger) {
+    override fun getPigeonApiBluetoothLowEnergyAndroidPlugin(): PigeonApiBluetoothLowEnergyAndroidPlugin {
+        return BluetoothLowEnergyAndroidPluginImpl(this, instance)
+    }
+
     override fun getPigeonApiAny(): PigeonApiAny {
         return AnyImpl(this)
     }
@@ -21,11 +26,11 @@ class BluetoothLowEnergyRegistrar(binaryMessenger: BinaryMessenger) :
     }
 
     override fun getPigeonApiBluetoothGatt(): PigeonApiBluetoothGatt {
-        TODO("Not yet implemented")
+        return BluetoothGattImpl(this)
     }
 
     override fun getPigeonApiBluetoothGattCallback(): PigeonApiBluetoothGattCallback {
-        TODO("Not yet implemented")
+        return BluetoothGattCallbackImpl(this)
     }
 
     override fun getPigeonApiBluetoothGattCharacteristic(): PigeonApiBluetoothGattCharacteristic {
