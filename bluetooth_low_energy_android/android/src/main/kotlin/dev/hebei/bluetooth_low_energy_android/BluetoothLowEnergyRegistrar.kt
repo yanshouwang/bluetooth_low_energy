@@ -70,11 +70,11 @@ class BluetoothLowEnergyRegistrar(
     }
 
     override fun getPigeonApiBluetoothProfile(): PigeonApiBluetoothProfile {
-        TODO("Not yet implemented")
+        return BluetoothProfileImpl(this)
     }
 
     override fun getPigeonApiServiceListener(): PigeonApiServiceListener {
-        TODO("Not yet implemented")
+        return ServiceListenerImpl(this)
     }
 
     override fun getPigeonApiAdvertiseCallback(): PigeonApiAdvertiseCallback {
