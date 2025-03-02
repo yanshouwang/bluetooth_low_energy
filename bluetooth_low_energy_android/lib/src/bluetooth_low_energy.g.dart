@@ -7336,7 +7336,7 @@ class BluetoothGattCharacteristic extends Any {
   ///
   /// See setValue(byte[]) for details.
   Future<bool> setValue2(
-    Uint8List value,
+    int value,
     int formatType,
     int offset,
   ) async {

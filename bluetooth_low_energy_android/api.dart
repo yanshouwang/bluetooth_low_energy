@@ -1331,7 +1331,7 @@ abstract class BluetoothGattCharacteristic extends Any {
   /// See setValue(byte[]) for details.
   // @Deprecated(
   //     'Pass the characteristic value directly into android.bluetooth.BluetoothGatt#writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic,byte[],int)')
-  bool setValue2(Uint8List value, int formatType, int offset);
+  bool setValue2(int value, int formatType, int offset);
 
   /// Set the locally stored value of this characteristic.
   ///

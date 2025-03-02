@@ -4951,7 +4951,7 @@ abstract class PigeonApiBluetoothGattCharacteristic(open val pigeonRegistrar: Bl
    *
    * See setValue(byte[]) for details.
    */
-  abstract fun setValue2(pigeon_instance: android.bluetooth.BluetoothGattCharacteristic, value: ByteArray, formatType: Long, offset: Long): Boolean
+  abstract fun setValue2(pigeon_instance: android.bluetooth.BluetoothGattCharacteristic, value: Long, formatType: Long, offset: Long): Boolean
 
   /**
    * Set the locally stored value of this characteristic.
@@ -5253,7 +5253,7 @@ abstract class PigeonApiBluetoothGattCharacteristic(open val pigeonRegistrar: Bl
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val pigeon_instanceArg = args[0] as android.bluetooth.BluetoothGattCharacteristic
-            val valueArg = args[1] as ByteArray
+            val valueArg = args[1] as Long
             val formatTypeArg = args[2] as Long
             val offsetArg = args[3] as Long
             val wrapped: List<Any?> = try {

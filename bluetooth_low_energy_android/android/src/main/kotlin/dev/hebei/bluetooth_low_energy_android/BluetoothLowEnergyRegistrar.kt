@@ -34,23 +34,23 @@ class BluetoothLowEnergyRegistrar(
     }
 
     override fun getPigeonApiBluetoothGattCharacteristic(): PigeonApiBluetoothGattCharacteristic {
-        TODO("Not yet implemented")
+        return BluetoothGattCharacteristicImpl(this)
     }
 
     override fun getPigeonApiBluetoothGattDescriptor(): PigeonApiBluetoothGattDescriptor {
-        TODO("Not yet implemented")
+        return BluetoothGattDescriptorImpl(this)
     }
 
     override fun getPigeonApiBluetoothGattServer(): PigeonApiBluetoothGattServer {
-        TODO("Not yet implemented")
+        return BluetoothGattServerImpl(this)
     }
 
     override fun getPigeonApiBluetoothGattServerCallback(): PigeonApiBluetoothGattServerCallback {
-        TODO("Not yet implemented")
+        return BluetoothGattServerCallbackImpl(this)
     }
 
     override fun getPigeonApiBluetoothGattService(): PigeonApiBluetoothGattService {
-        TODO("Not yet implemented")
+        return BluetoothGattServiceImpl(this)
     }
 
     override fun getPigeonApiBluetoothManager(): PigeonApiBluetoothManager {
