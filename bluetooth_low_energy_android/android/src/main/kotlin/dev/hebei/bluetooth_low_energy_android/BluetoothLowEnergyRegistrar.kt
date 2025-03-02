@@ -78,43 +78,43 @@ class BluetoothLowEnergyRegistrar(
     }
 
     override fun getPigeonApiAdvertiseCallback(): PigeonApiAdvertiseCallback {
-        TODO("Not yet implemented")
+        return AdvertiseCallbackImpl(this)
     }
 
     override fun getPigeonApiAdvertiseData(): PigeonApiAdvertiseData {
-        TODO("Not yet implemented")
+        return AdvertiseDataImpl(this)
     }
 
     override fun getPigeonApiAdvertiseDataBuilder(): PigeonApiAdvertiseDataBuilder {
-        TODO("Not yet implemented")
+        return AdvertiseDataBuilderImpl(this)
     }
 
     override fun getPigeonApiAdvertiseSettings(): PigeonApiAdvertiseSettings {
-        TODO("Not yet implemented")
+        return AdvertiseSettingsImpl(this)
     }
 
     override fun getPigeonApiAdvertiseSettingsBuilder(): PigeonApiAdvertiseSettingsBuilder {
-        TODO("Not yet implemented")
+        return AdvertiseSettingsBuilderImpl(this)
     }
 
     override fun getPigeonApiAdvertisingSet(): PigeonApiAdvertisingSet {
-        TODO("Not yet implemented")
+        return AdvertisingSetImpl(this)
     }
 
     override fun getPigeonApiAdvertisingSetCallback(): PigeonApiAdvertisingSetCallback {
-        TODO("Not yet implemented")
+        return AdvertisingSetCallbackImpl(this)
     }
 
     override fun getPigeonApiAdvertisingSetParameters(): PigeonApiAdvertisingSetParameters {
-        TODO("Not yet implemented")
+        return AdvertisingSetParametersImpl(this)
     }
 
     override fun getPigeonApiAdvertisingSetParametersBuilder(): PigeonApiAdvertisingSetParametersBuilder {
-        TODO("Not yet implemented")
+        return AdvertisingSetParametersBuilderImpl(this)
     }
 
     override fun getPigeonApiBluetoothLeAdvertiser(): PigeonApiBluetoothLeAdvertiser {
-        TODO("Not yet implemented")
+        return BluetoothLeAdvertiserImpl(this)
     }
 
     override fun getPigeonApiBluetoothLeScanner(): PigeonApiBluetoothLeScanner {
