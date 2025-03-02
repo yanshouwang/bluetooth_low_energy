@@ -65,15 +65,15 @@ class BluetoothLowEnergyRegistrar(
         return BluetoothSocketImpl(this)
     }
 
-    override fun getPigeonApiBluetoothAdapterLeScanCallback(): PigeonApiBluetoothAdapterLeScanCallback {
-        TODO("Not yet implemented")
+    override fun getPigeonApiLeScanCallback(): PigeonApiLeScanCallback {
+        return LeScanCallbackImpl(this)
     }
 
     override fun getPigeonApiBluetoothProfile(): PigeonApiBluetoothProfile {
         TODO("Not yet implemented")
     }
 
-    override fun getPigeonApiBluetoothProfileServiceListener(): PigeonApiBluetoothProfileServiceListener {
+    override fun getPigeonApiServiceListener(): PigeonApiServiceListener {
         TODO("Not yet implemented")
     }
 

@@ -147,9 +147,9 @@ class PigeonInstanceManager {
     BluetoothManager.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     BluetoothServerSocket.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     BluetoothSocket.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
-    BluetoothAdapterLeScanCallback.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
+    LeScanCallback.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     BluetoothProfile.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
-    BluetoothProfileServiceListener.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
+    ServiceListener.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     AdvertiseCallback.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     AdvertiseData.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     AdvertiseDataBuilder.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
@@ -2114,7 +2114,7 @@ class BluetoothAdapter extends Any {
   /// looper
   Future<bool> getProfileProxy(
     Context context,
-    BluetoothProfileServiceListener listener,
+    ServiceListener listener,
     int profile,
   ) async {
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
@@ -3129,7 +3129,7 @@ class BluetoothAdapter extends Any {
   /// Starts a scan for Bluetooth LE devices.
   ///
   /// Results of the scan are reported using the LeScanCallback.onLeScan callback.
-  Future<bool> startLeScan1(BluetoothAdapterLeScanCallback callback) async {
+  Future<bool> startLeScan1(LeScanCallback callback) async {
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
         _pigeonVar_codecBluetoothAdapter;
     final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
@@ -3170,7 +3170,7 @@ class BluetoothAdapter extends Any {
   /// BluetoothAdapter.LeScanCallback.onLeScan(BluetoothDevice, int, byte) callback.
   Future<bool> startLeScan2(
     List<UUID> serviceUuids,
-    BluetoothAdapterLeScanCallback callback,
+    LeScanCallback callback,
   ) async {
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
         _pigeonVar_codecBluetoothAdapter;
@@ -3206,7 +3206,7 @@ class BluetoothAdapter extends Any {
   }
 
   /// Stops an ongoing Bluetooth LE device scan.
-  Future<void> stopLeScan(BluetoothAdapterLeScanCallback callback) async {
+  Future<void> stopLeScan(LeScanCallback callback) async {
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
         _pigeonVar_codecBluetoothAdapter;
     final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
@@ -10900,8 +10900,8 @@ class BluetoothSocket extends Any {
 }
 
 /// Callback interface used to deliver LE scan results.
-class BluetoothAdapterLeScanCallback extends PigeonInternalProxyApiBaseClass {
-  BluetoothAdapterLeScanCallback({
+class LeScanCallback extends PigeonInternalProxyApiBaseClass {
+  LeScanCallback({
     super.pigeon_binaryMessenger,
     super.pigeon_instanceManager,
     required this.onLeScan,
@@ -10909,10 +10909,10 @@ class BluetoothAdapterLeScanCallback extends PigeonInternalProxyApiBaseClass {
     final int pigeonVar_instanceIdentifier =
         pigeon_instanceManager.addDartCreatedInstance(this);
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecBluetoothAdapterLeScanCallback;
+        _pigeonVar_codecLeScanCallback;
     final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
     const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothAdapterLeScanCallback.pigeon_defaultConstructor';
+        'dev.flutter.pigeon.bluetooth_low_energy_android.LeScanCallback.pigeon_defaultConstructor';
     final BasicMessageChannel<Object?> pigeonVar_channel =
         BasicMessageChannel<Object?>(
       pigeonVar_channelName,
@@ -10938,19 +10938,18 @@ class BluetoothAdapterLeScanCallback extends PigeonInternalProxyApiBaseClass {
     }();
   }
 
-  /// Constructs [BluetoothAdapterLeScanCallback] without creating the associated native object.
+  /// Constructs [LeScanCallback] without creating the associated native object.
   ///
   /// This should only be used by subclasses created by this library or to
   /// create copies for an [PigeonInstanceManager].
   @protected
-  BluetoothAdapterLeScanCallback.pigeon_detached({
+  LeScanCallback.pigeon_detached({
     super.pigeon_binaryMessenger,
     super.pigeon_instanceManager,
     required this.onLeScan,
   });
 
-  late final _PigeonInternalProxyApiBaseCodec
-      _pigeonVar_codecBluetoothAdapterLeScanCallback =
+  late final _PigeonInternalProxyApiBaseCodec _pigeonVar_codecLeScanCallback =
       _PigeonInternalProxyApiBaseCodec(pigeon_instanceManager);
 
   /// Callback method.
@@ -10963,8 +10962,8 @@ class BluetoothAdapterLeScanCallback extends PigeonInternalProxyApiBaseClass {
   ///
   /// ```dart
   /// final WeakReference weakMyVariable = WeakReference(myVariable);
-  /// final BluetoothAdapterLeScanCallback instance = BluetoothAdapterLeScanCallback(
-  ///  onLeScan: (BluetoothAdapterLeScanCallback pigeon_instance, ...) {
+  /// final LeScanCallback instance = LeScanCallback(
+  ///  onLeScan: (LeScanCallback pigeon_instance, ...) {
   ///    print(weakMyVariable?.target);
   ///  },
   /// );
@@ -10973,7 +10972,7 @@ class BluetoothAdapterLeScanCallback extends PigeonInternalProxyApiBaseClass {
   /// Alternatively, [PigeonInstanceManager.removeWeakReference] can be used to
   /// release the associated Native object manually.
   final void Function(
-    BluetoothAdapterLeScanCallback pigeon_instance,
+    LeScanCallback pigeon_instance,
     BluetoothDevice device,
     int rssi,
     Uint8List scanRecord,
@@ -10984,7 +10983,7 @@ class BluetoothAdapterLeScanCallback extends PigeonInternalProxyApiBaseClass {
     BinaryMessenger? pigeon_binaryMessenger,
     PigeonInstanceManager? pigeon_instanceManager,
     void Function(
-      BluetoothAdapterLeScanCallback pigeon_instance,
+      LeScanCallback pigeon_instance,
       BluetoothDevice device,
       int rssi,
       Uint8List scanRecord,
@@ -10998,7 +10997,7 @@ class BluetoothAdapterLeScanCallback extends PigeonInternalProxyApiBaseClass {
       final BasicMessageChannel<
           Object?> pigeonVar_channel = BasicMessageChannel<
               Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothAdapterLeScanCallback.onLeScan',
+          'dev.flutter.pigeon.bluetooth_low_energy_android.LeScanCallback.onLeScan',
           pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (pigeon_clearHandlers) {
@@ -11006,21 +11005,21 @@ class BluetoothAdapterLeScanCallback extends PigeonInternalProxyApiBaseClass {
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothAdapterLeScanCallback.onLeScan was null.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.LeScanCallback.onLeScan was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final BluetoothAdapterLeScanCallback? arg_pigeon_instance =
-              (args[0] as BluetoothAdapterLeScanCallback?);
+          final LeScanCallback? arg_pigeon_instance =
+              (args[0] as LeScanCallback?);
           assert(arg_pigeon_instance != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothAdapterLeScanCallback.onLeScan was null, expected non-null BluetoothAdapterLeScanCallback.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.LeScanCallback.onLeScan was null, expected non-null LeScanCallback.');
           final BluetoothDevice? arg_device = (args[1] as BluetoothDevice?);
           assert(arg_device != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothAdapterLeScanCallback.onLeScan was null, expected non-null BluetoothDevice.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.LeScanCallback.onLeScan was null, expected non-null BluetoothDevice.');
           final int? arg_rssi = (args[2] as int?);
           assert(arg_rssi != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothAdapterLeScanCallback.onLeScan was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.LeScanCallback.onLeScan was null, expected non-null int.');
           final Uint8List? arg_scanRecord = (args[3] as Uint8List?);
           assert(arg_scanRecord != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothAdapterLeScanCallback.onLeScan was null, expected non-null Uint8List.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.LeScanCallback.onLeScan was null, expected non-null Uint8List.');
           try {
             (onLeScan ?? arg_pigeon_instance!.onLeScan).call(
                 arg_pigeon_instance!, arg_device!, arg_rssi!, arg_scanRecord!);
@@ -11037,8 +11036,8 @@ class BluetoothAdapterLeScanCallback extends PigeonInternalProxyApiBaseClass {
   }
 
   @override
-  BluetoothAdapterLeScanCallback pigeon_copy() {
-    return BluetoothAdapterLeScanCallback.pigeon_detached(
+  LeScanCallback pigeon_copy() {
+    return LeScanCallback.pigeon_detached(
       pigeon_binaryMessenger: pigeon_binaryMessenger,
       pigeon_instanceManager: pigeon_instanceManager,
       onLeScan: onLeScan,
@@ -11229,8 +11228,8 @@ class BluetoothProfile extends PigeonInternalProxyApiBaseClass {
 
 /// An interface for notifying BluetoothProfile IPC clients when they have been
 /// connected or disconnected to the service.
-class BluetoothProfileServiceListener extends PigeonInternalProxyApiBaseClass {
-  BluetoothProfileServiceListener({
+class ServiceListener extends PigeonInternalProxyApiBaseClass {
+  ServiceListener({
     super.pigeon_binaryMessenger,
     super.pigeon_instanceManager,
     required this.onServiceConnected,
@@ -11239,10 +11238,10 @@ class BluetoothProfileServiceListener extends PigeonInternalProxyApiBaseClass {
     final int pigeonVar_instanceIdentifier =
         pigeon_instanceManager.addDartCreatedInstance(this);
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecBluetoothProfileServiceListener;
+        _pigeonVar_codecServiceListener;
     final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
     const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothProfileServiceListener.pigeon_defaultConstructor';
+        'dev.flutter.pigeon.bluetooth_low_energy_android.ServiceListener.pigeon_defaultConstructor';
     final BasicMessageChannel<Object?> pigeonVar_channel =
         BasicMessageChannel<Object?>(
       pigeonVar_channelName,
@@ -11268,20 +11267,19 @@ class BluetoothProfileServiceListener extends PigeonInternalProxyApiBaseClass {
     }();
   }
 
-  /// Constructs [BluetoothProfileServiceListener] without creating the associated native object.
+  /// Constructs [ServiceListener] without creating the associated native object.
   ///
   /// This should only be used by subclasses created by this library or to
   /// create copies for an [PigeonInstanceManager].
   @protected
-  BluetoothProfileServiceListener.pigeon_detached({
+  ServiceListener.pigeon_detached({
     super.pigeon_binaryMessenger,
     super.pigeon_instanceManager,
     required this.onServiceConnected,
     required this.onServiceDisconnected,
   });
 
-  late final _PigeonInternalProxyApiBaseCodec
-      _pigeonVar_codecBluetoothProfileServiceListener =
+  late final _PigeonInternalProxyApiBaseCodec _pigeonVar_codecServiceListener =
       _PigeonInternalProxyApiBaseCodec(pigeon_instanceManager);
 
   /// Called to notify the client when the proxy object has been connected to the
@@ -11295,8 +11293,8 @@ class BluetoothProfileServiceListener extends PigeonInternalProxyApiBaseClass {
   ///
   /// ```dart
   /// final WeakReference weakMyVariable = WeakReference(myVariable);
-  /// final BluetoothProfileServiceListener instance = BluetoothProfileServiceListener(
-  ///  onServiceConnected: (BluetoothProfileServiceListener pigeon_instance, ...) {
+  /// final ServiceListener instance = ServiceListener(
+  ///  onServiceConnected: (ServiceListener pigeon_instance, ...) {
   ///    print(weakMyVariable?.target);
   ///  },
   /// );
@@ -11305,7 +11303,7 @@ class BluetoothProfileServiceListener extends PigeonInternalProxyApiBaseClass {
   /// Alternatively, [PigeonInstanceManager.removeWeakReference] can be used to
   /// release the associated Native object manually.
   final void Function(
-    BluetoothProfileServiceListener pigeon_instance,
+    ServiceListener pigeon_instance,
     int profile,
     BluetoothProfile proxy,
   ) onServiceConnected;
@@ -11321,8 +11319,8 @@ class BluetoothProfileServiceListener extends PigeonInternalProxyApiBaseClass {
   ///
   /// ```dart
   /// final WeakReference weakMyVariable = WeakReference(myVariable);
-  /// final BluetoothProfileServiceListener instance = BluetoothProfileServiceListener(
-  ///  onServiceDisconnected: (BluetoothProfileServiceListener pigeon_instance, ...) {
+  /// final ServiceListener instance = ServiceListener(
+  ///  onServiceDisconnected: (ServiceListener pigeon_instance, ...) {
   ///    print(weakMyVariable?.target);
   ///  },
   /// );
@@ -11331,7 +11329,7 @@ class BluetoothProfileServiceListener extends PigeonInternalProxyApiBaseClass {
   /// Alternatively, [PigeonInstanceManager.removeWeakReference] can be used to
   /// release the associated Native object manually.
   final void Function(
-    BluetoothProfileServiceListener pigeon_instance,
+    ServiceListener pigeon_instance,
     int profile,
   ) onServiceDisconnected;
 
@@ -11340,12 +11338,12 @@ class BluetoothProfileServiceListener extends PigeonInternalProxyApiBaseClass {
     BinaryMessenger? pigeon_binaryMessenger,
     PigeonInstanceManager? pigeon_instanceManager,
     void Function(
-      BluetoothProfileServiceListener pigeon_instance,
+      ServiceListener pigeon_instance,
       int profile,
       BluetoothProfile proxy,
     )? onServiceConnected,
     void Function(
-      BluetoothProfileServiceListener pigeon_instance,
+      ServiceListener pigeon_instance,
       int profile,
     )? onServiceDisconnected,
   }) {
@@ -11357,7 +11355,7 @@ class BluetoothProfileServiceListener extends PigeonInternalProxyApiBaseClass {
       final BasicMessageChannel<
           Object?> pigeonVar_channel = BasicMessageChannel<
               Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothProfileServiceListener.onServiceConnected',
+          'dev.flutter.pigeon.bluetooth_low_energy_android.ServiceListener.onServiceConnected',
           pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (pigeon_clearHandlers) {
@@ -11365,18 +11363,18 @@ class BluetoothProfileServiceListener extends PigeonInternalProxyApiBaseClass {
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothProfileServiceListener.onServiceConnected was null.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.ServiceListener.onServiceConnected was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final BluetoothProfileServiceListener? arg_pigeon_instance =
-              (args[0] as BluetoothProfileServiceListener?);
+          final ServiceListener? arg_pigeon_instance =
+              (args[0] as ServiceListener?);
           assert(arg_pigeon_instance != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothProfileServiceListener.onServiceConnected was null, expected non-null BluetoothProfileServiceListener.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.ServiceListener.onServiceConnected was null, expected non-null ServiceListener.');
           final int? arg_profile = (args[1] as int?);
           assert(arg_profile != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothProfileServiceListener.onServiceConnected was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.ServiceListener.onServiceConnected was null, expected non-null int.');
           final BluetoothProfile? arg_proxy = (args[2] as BluetoothProfile?);
           assert(arg_proxy != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothProfileServiceListener.onServiceConnected was null, expected non-null BluetoothProfile.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.ServiceListener.onServiceConnected was null, expected non-null BluetoothProfile.');
           try {
             (onServiceConnected ?? arg_pigeon_instance!.onServiceConnected)
                 .call(arg_pigeon_instance!, arg_profile!, arg_proxy!);
@@ -11395,7 +11393,7 @@ class BluetoothProfileServiceListener extends PigeonInternalProxyApiBaseClass {
       final BasicMessageChannel<
           Object?> pigeonVar_channel = BasicMessageChannel<
               Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothProfileServiceListener.onServiceDisconnected',
+          'dev.flutter.pigeon.bluetooth_low_energy_android.ServiceListener.onServiceDisconnected',
           pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (pigeon_clearHandlers) {
@@ -11403,15 +11401,15 @@ class BluetoothProfileServiceListener extends PigeonInternalProxyApiBaseClass {
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothProfileServiceListener.onServiceDisconnected was null.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.ServiceListener.onServiceDisconnected was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final BluetoothProfileServiceListener? arg_pigeon_instance =
-              (args[0] as BluetoothProfileServiceListener?);
+          final ServiceListener? arg_pigeon_instance =
+              (args[0] as ServiceListener?);
           assert(arg_pigeon_instance != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothProfileServiceListener.onServiceDisconnected was null, expected non-null BluetoothProfileServiceListener.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.ServiceListener.onServiceDisconnected was null, expected non-null ServiceListener.');
           final int? arg_profile = (args[1] as int?);
           assert(arg_profile != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothProfileServiceListener.onServiceDisconnected was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.ServiceListener.onServiceDisconnected was null, expected non-null int.');
           try {
             (onServiceDisconnected ??
                     arg_pigeon_instance!.onServiceDisconnected)
@@ -11429,8 +11427,8 @@ class BluetoothProfileServiceListener extends PigeonInternalProxyApiBaseClass {
   }
 
   @override
-  BluetoothProfileServiceListener pigeon_copy() {
-    return BluetoothProfileServiceListener.pigeon_detached(
+  ServiceListener pigeon_copy() {
+    return ServiceListener.pigeon_detached(
       pigeon_binaryMessenger: pigeon_binaryMessenger,
       pigeon_instanceManager: pigeon_instanceManager,
       onServiceConnected: onServiceConnected,

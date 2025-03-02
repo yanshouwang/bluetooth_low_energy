@@ -323,8 +323,7 @@ abstract class BluetoothAdapter extends Any {
   ///
   /// The ServiceListener's methods will be invoked on the application's main
   /// looper
-  bool getProfileProxy(
-      Context context, BluetoothProfileServiceListener listener, int profile);
+  bool getProfileProxy(Context context, ServiceListener listener, int profile);
 
   /// Get a BluetoothDevice object for the given Bluetooth hardware address.
   ///
@@ -594,7 +593,7 @@ abstract class BluetoothAdapter extends Any {
   /// Results of the scan are reported using the LeScanCallback.onLeScan callback.
   // @Deprecated(
   //     'use BluetoothLeScanner.startScan(List, ScanSettings, ScanCallback) instead.')
-  bool startLeScan1(BluetoothAdapterLeScanCallback callback);
+  bool startLeScan1(LeScanCallback callback);
 
   /// Starts a scan for Bluetooth LE devices, looking for devices that advertise
   /// given services.
@@ -603,12 +602,11 @@ abstract class BluetoothAdapter extends Any {
   /// BluetoothAdapter.LeScanCallback.onLeScan(BluetoothDevice, int, byte) callback.
   // @Deprecated(
   //     'use BluetoothLeScanner.startScan(List, ScanSettings, ScanCallback) instead.')
-  bool startLeScan2(
-      List<UUID> serviceUuids, BluetoothAdapterLeScanCallback callback);
+  bool startLeScan2(List<UUID> serviceUuids, LeScanCallback callback);
 
   /// Stops an ongoing Bluetooth LE device scan.
   // @Deprecated('Use BluetoothLeScanner.stopScan(ScanCallback) instead.')
-  void stopLeScan(BluetoothAdapterLeScanCallback callback);
+  void stopLeScan(LeScanCallback callback);
 }
 
 /// Represents a Bluetooth class, which describes general characteristics and
@@ -1979,8 +1977,8 @@ enum BluetoothStatusCodes {
     fullClassName: 'android.bluetooth.BluetoothAdapter.LeScanCallback',
   ),
 )
-abstract class BluetoothAdapterLeScanCallback {
-  BluetoothAdapterLeScanCallback();
+abstract class LeScanCallback {
+  LeScanCallback();
 
   late final void Function(
       BluetoothDevice device, int rssi, Uint8List scanRecord) onLeScan;
@@ -2008,8 +2006,8 @@ abstract class BluetoothProfile {
     fullClassName: 'android.bluetooth.BluetoothProfile.ServiceListener',
   ),
 )
-abstract class BluetoothProfileServiceListener {
-  BluetoothProfileServiceListener();
+abstract class ServiceListener {
+  ServiceListener();
 
   /// Called to notify the client when the proxy object has been connected to the
   /// service.
