@@ -1,6 +1,6 @@
 package dev.hebei.bluetooth_low_energy_android
 
-class AnyImpl(registrar: ApiPigeonProxyApiRegistrar) : PigeonApiAny(registrar) {
+class AnyImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : PigeonApiAny(registrar) {
     override fun pigeon_defaultConstructor(): Any {
         return Any()
     }

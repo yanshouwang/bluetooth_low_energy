@@ -10,7 +10,8 @@ import android.content.Context
 import java.time.Duration
 import java.util.*
 
-class BluetoothAdapterImpl(registrar: ApiPigeonProxyApiRegistrar) : PigeonApiBluetoothAdapter(registrar) {
+class BluetoothAdapterImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+    PigeonApiBluetoothAdapter(registrar) {
     override fun cancelDiscovery(pigeon_instance: BluetoothAdapter): Boolean {
         return pigeon_instance.cancelDiscovery()
     }

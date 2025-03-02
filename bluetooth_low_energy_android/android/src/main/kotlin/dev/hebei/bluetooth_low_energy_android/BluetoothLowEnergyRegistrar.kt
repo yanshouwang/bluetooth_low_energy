@@ -58,11 +58,11 @@ class BluetoothLowEnergyRegistrar(
     }
 
     override fun getPigeonApiBluetoothServerSocket(): PigeonApiBluetoothServerSocket {
-        TODO("Not yet implemented")
+        return BluetoothServerSocketImpl(this)
     }
 
     override fun getPigeonApiBluetoothSocket(): PigeonApiBluetoothSocket {
-        TODO("Not yet implemented")
+        return BluetoothSocketImpl(this)
     }
 
     override fun getPigeonApiBluetoothAdapterLeScanCallback(): PigeonApiBluetoothAdapterLeScanCallback {

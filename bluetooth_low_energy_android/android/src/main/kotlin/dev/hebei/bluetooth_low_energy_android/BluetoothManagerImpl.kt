@@ -3,7 +3,8 @@ package dev.hebei.bluetooth_low_energy_android
 import android.bluetooth.*
 import android.content.Context
 
-class BluetoothManagerImpl(registrar: ApiPigeonProxyApiRegistrar) : PigeonApiBluetoothManager(registrar) {
+class BluetoothManagerImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+    PigeonApiBluetoothManager(registrar) {
     override fun getAdapter(pigeon_instance: BluetoothManager): BluetoothAdapter {
         return pigeon_instance.adapter
     }
