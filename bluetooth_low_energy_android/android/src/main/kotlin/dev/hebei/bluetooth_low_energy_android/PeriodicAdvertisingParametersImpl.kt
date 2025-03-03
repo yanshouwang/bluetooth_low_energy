@@ -4,7 +4,7 @@ import android.bluetooth.le.PeriodicAdvertisingParameters
 import android.os.Build
 import androidx.annotation.RequiresApi
 
-class PeriodicAdvertisingParametersImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+class PeriodicAdvertisingParametersImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
     PigeonApiPeriodicAdvertisingParameters(registrar) {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun getIncludeTxPower(pigeon_instance: PeriodicAdvertisingParameters): Boolean {

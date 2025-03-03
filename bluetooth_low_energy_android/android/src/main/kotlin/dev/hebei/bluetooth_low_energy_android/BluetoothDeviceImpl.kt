@@ -1,13 +1,17 @@
 package dev.hebei.bluetooth_low_energy_android
 
+import android.Manifest
 import android.bluetooth.*
 import android.content.Context
 import android.os.Build
 import android.os.Handler
 import android.os.ParcelUuid
+import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
 import java.util.*
 
-class BluetoothDeviceImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : PigeonApiBluetoothDevice(registrar) {
+class BluetoothDeviceImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
+    PigeonApiBluetoothDevice(registrar) {
     override fun connectGatt1(
         pigeon_instance: BluetoothDevice, context: Context, autoConnect: Boolean, callback: BluetoothGattCallback
     ): BluetoothGatt {
@@ -38,6 +42,7 @@ class BluetoothDeviceImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) 
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun connectGatt3(
         pigeon_instance: BluetoothDevice,
         context: Context,
@@ -49,6 +54,7 @@ class BluetoothDeviceImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) 
         return pigeon_instance.connectGatt(context, autoConnect, callback, transport.toInt(), phy.toInt())
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun connectGatt4(
         pigeon_instance: BluetoothDevice,
         context: Context,
@@ -65,6 +71,7 @@ class BluetoothDeviceImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) 
         return pigeon_instance.createBond()
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun createInsecureL2capChannel(pigeon_instance: BluetoothDevice, psm: Long): BluetoothSocket {
         return pigeon_instance.createInsecureL2capChannel(psm.toInt())
     }
@@ -75,6 +82,7 @@ class BluetoothDeviceImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) 
         return pigeon_instance.createInsecureRfcommSocketToServiceRecord(uuid)
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun createL2capChannel(pigeon_instance: BluetoothDevice, psm: Long): BluetoothSocket {
         return pigeon_instance.createL2capChannel(psm.toInt())
     }
@@ -87,10 +95,12 @@ class BluetoothDeviceImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) 
         return pigeon_instance.fetchUuidsWithSdp()
     }
 
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     override fun getAddressType(pigeon_instance: BluetoothDevice): Long {
         return pigeon_instance.addressType.toLong()
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun getAlias(pigeon_instance: BluetoothDevice): String? {
         return pigeon_instance.alias
     }
@@ -115,10 +125,14 @@ class BluetoothDeviceImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) 
         return pigeon_instance.uuids.toList()
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun setAlias(pigeon_instance: BluetoothDevice, alias: String?): Long {
         return pigeon_instance.setAlias(alias).toLong()
     }
 
+    @RequiresPermission(
+        allOf = [Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_PRIVILEGED]
+    )
     override fun setPairingConfirmation(pigeon_instance: BluetoothDevice, confirm: Boolean): Boolean {
         return pigeon_instance.setPairingConfirmation(confirm)
     }

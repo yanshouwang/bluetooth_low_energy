@@ -6,7 +6,7 @@ import 'package:logging/logging.dart';
 
 class CentralManagerViewModel extends ViewModel {
   final CentralManager _manager;
-  final List<DiscoveredEventArgs> _discoveries;
+  final List<DiscoveredEvent> _discoveries;
   bool _discovering;
 
   late final StreamSubscription _stateChangedSubscription;
@@ -33,7 +33,7 @@ class CentralManagerViewModel extends ViewModel {
 
   BluetoothLowEnergyState get state => _manager.state;
   bool get discovering => _discovering;
-  List<DiscoveredEventArgs> get discoveries => _discoveries;
+  List<DiscoveredEvent> get discoveries => _discoveries;
 
   Future<void> startDiscovery({
     List<UUID>? serviceUUIDs,

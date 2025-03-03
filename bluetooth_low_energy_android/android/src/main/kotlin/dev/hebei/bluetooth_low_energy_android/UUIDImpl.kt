@@ -2,7 +2,7 @@ package dev.hebei.bluetooth_low_energy_android
 
 import java.util.*
 
-class UUIDImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : PigeonApiUUID(registrar) {
+class UUIDImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) : PigeonApiUUID(registrar) {
     override fun pigeon_defaultConstructor(mostSigBits: Long, leastSigBits: Long): UUID {
         return UUID(mostSigBits, leastSigBits)
     }

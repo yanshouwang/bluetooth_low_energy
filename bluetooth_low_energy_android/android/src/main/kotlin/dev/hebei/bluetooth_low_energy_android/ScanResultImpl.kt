@@ -3,12 +3,16 @@ package dev.hebei.bluetooth_low_energy_android
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanRecord
 import android.bluetooth.le.ScanResult
+import android.os.Build
+import androidx.annotation.RequiresApi
 
-class ScanResultImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : PigeonApiScanResult(registrar) {
+class ScanResultImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) : PigeonApiScanResult(registrar) {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun getAdvertisingSid(pigeon_instance: ScanResult): Long {
         return pigeon_instance.advertisingSid.toLong()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun getDataStatus(pigeon_instance: ScanResult): Long {
         return pigeon_instance.dataStatus.toLong()
     }
@@ -17,10 +21,12 @@ class ScanResultImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : Pig
         return pigeon_instance.device
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun getPeriodicAdvertisingInterval(pigeon_instance: ScanResult): Long {
         return pigeon_instance.periodicAdvertisingInterval.toLong()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun getPrimaryPhy(pigeon_instance: ScanResult): Long {
         return pigeon_instance.primaryPhy.toLong()
     }
@@ -33,6 +39,7 @@ class ScanResultImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : Pig
         return pigeon_instance.scanRecord
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun getSecondaryPhy(pigeon_instance: ScanResult): Long {
         return pigeon_instance.secondaryPhy.toLong()
     }
@@ -41,14 +48,17 @@ class ScanResultImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : Pig
         return pigeon_instance.timestampNanos
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun getTxPower(pigeon_instance: ScanResult): Long {
         return pigeon_instance.txPower.toLong()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun isConnectable(pigeon_instance: ScanResult): Boolean {
         return pigeon_instance.isConnectable
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun isLegacy(pigeon_instance: ScanResult): Boolean {
         return pigeon_instance.isLegacy
     }

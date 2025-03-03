@@ -4,9 +4,11 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattServer
 import android.bluetooth.BluetoothGattService
+import android.os.Build
+import androidx.annotation.RequiresApi
 import java.util.*
 
-class BluetoothGattServerImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+class BluetoothGattServerImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
     PigeonApiBluetoothGattServer(registrar) {
     override fun addService(pigeon_instance: BluetoothGattServer, service: BluetoothGattService): Boolean {
         return pigeon_instance.addService(service)
@@ -40,21 +42,20 @@ class BluetoothGattServerImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistr
         pigeon_instance: BluetoothGattServer,
         device: BluetoothDevice,
         characteristic: BluetoothGattCharacteristic,
-        confirm: Boolean
-    ): Boolean {
-        return pigeon_instance.notifyCharacteristicChanged(device, characteristic, confirm)
-    }
-
-    override fun notifyCharacteristicChanged1(
-        pigeon_instance: BluetoothGattServer,
-        device: BluetoothDevice,
-        characteristic: BluetoothGattCharacteristic,
         confirm: Boolean,
         value: ByteArray
-    ): Long {
-        return pigeon_instance.notifyCharacteristicChanged(device, characteristic, confirm, value).toLong()
+    ): BluetoothStatusCodesArgs {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            pigeon_instance.notifyCharacteristicChanged(device, characteristic, confirm, value).bluetoothStatusCodesArgs
+        } else {
+            characteristic.value = value
+            val notifying = pigeon_instance.notifyCharacteristicChanged(device, characteristic, confirm)
+            if (notifying) BluetoothStatusCodesArgs.SUCCESS
+            else BluetoothStatusCodesArgs.ERROR_UNKNOWN
+        }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun readPhy(pigeon_instance: BluetoothGattServer, device: BluetoothDevice) {
         pigeon_instance.readPhy(device)
     }
@@ -74,6 +75,7 @@ class BluetoothGattServerImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistr
         return pigeon_instance.sendResponse(device, requestId.toInt(), status.toInt(), offset.toInt(), value)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun setPreferredPhy(
         pigeon_instance: BluetoothGattServer, device: BluetoothDevice, txPhy: Long, rxPhy: Long, phyOptions: Long
     ) {

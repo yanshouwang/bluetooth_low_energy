@@ -7,7 +7,8 @@ import android.bluetooth.le.PeriodicAdvertisingParameters
 import android.os.Build
 import androidx.annotation.RequiresApi
 
-class AdvertisingSetImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : PigeonApiAdvertisingSet(registrar) {
+class AdvertisingSetImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
+    PigeonApiAdvertisingSet(registrar) {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun enableAdvertising(
         pigeon_instance: AdvertisingSet, enable: Boolean, duration: Long, maxExtendedAdvertisingEvents: Long

@@ -1,8 +1,10 @@
 package dev.hebei.bluetooth_low_energy_android
 
 import android.bluetooth.le.*
+import android.os.Build
+import androidx.annotation.RequiresApi
 
-class BluetoothLeAdvertiserImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+class BluetoothLeAdvertiserImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
     PigeonApiBluetoothLeAdvertiser(registrar) {
     override fun startAdvertising1(
         pigeon_instance: BluetoothLeAdvertiser,
@@ -23,6 +25,7 @@ class BluetoothLeAdvertiserImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegis
         pigeon_instance.startAdvertising(settings, advertiseData, scanResponse, callback)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun startAdvertisingSet1(
         pigeon_instance: BluetoothLeAdvertiser,
         parameters: AdvertisingSetParameters,
@@ -37,6 +40,7 @@ class BluetoothLeAdvertiserImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegis
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun startAdvertisingSet2(
         pigeon_instance: BluetoothLeAdvertiser,
         parameters: AdvertisingSetParameters,
@@ -64,6 +68,7 @@ class BluetoothLeAdvertiserImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegis
         pigeon_instance.stopAdvertising(callback)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun stopAdvertisingSet(pigeon_instance: BluetoothLeAdvertiser, callback: AdvertisingSetCallback) {
         pigeon_instance.stopAdvertisingSet(callback)
     }

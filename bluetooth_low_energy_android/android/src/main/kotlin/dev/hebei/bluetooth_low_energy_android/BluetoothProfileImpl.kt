@@ -3,7 +3,7 @@ package dev.hebei.bluetooth_low_energy_android
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothProfile
 
-class BluetoothProfileImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+class BluetoothProfileImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
     PigeonApiBluetoothProfile(registrar) {
     override fun getConnectedDevices(pigeon_instance: BluetoothProfile): List<BluetoothDevice> {
         return pigeon_instance.connectedDevices

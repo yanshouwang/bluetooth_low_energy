@@ -441,7 +441,7 @@ class _PigeonInternalProxyApiBaseCodec extends _PigeonCodec {
 /// occupy the range 200-999. API-specific return values start at 1000. The
 /// exception to this is the "UNKNOWN" error code which occupies the max integer
 /// value.
-enum BluetoothStatusCodes {
+enum BluetoothStatusCodesArgs {
   /// Error code indicating that the API call was initiated by neither the system
   /// nor the active user.
   errorBluetoothNotAllowed,
@@ -479,7 +479,7 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    }    else if (value is BluetoothStatusCodes) {
+    }    else if (value is BluetoothStatusCodesArgs) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
     } else {
@@ -492,7 +492,7 @@ class _PigeonCodec extends StandardMessageCodec {
     switch (type) {
       case 129: 
         final int? value = readValue(buffer) as int?;
-        return value == null ? null : BluetoothStatusCodes.values[value];
+        return value == null ? null : BluetoothStatusCodesArgs.values[value];
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -1148,77 +1148,6 @@ class Any extends PigeonInternalProxyApiBaseClass {
       );
     } else {
       return (pigeonVar_replyList[0] as bool?)!;
-    }
-  }
-
-  /// Returns a hash code value for the object.  The general contract of hashCode
-  /// is:
-  Future<int> hashCodeX() async {
-    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecAny;
-    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
-    const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.Any.hashCodeX';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
-    if (pigeonVar_replyList == null) {
-      throw _createConnectionError(pigeonVar_channelName);
-    } else if (pigeonVar_replyList.length > 1) {
-      throw PlatformException(
-        code: pigeonVar_replyList[0]! as String,
-        message: pigeonVar_replyList[1] as String?,
-        details: pigeonVar_replyList[2],
-      );
-    } else if (pigeonVar_replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
-    } else {
-      return (pigeonVar_replyList[0] as int?)!;
-    }
-  }
-
-  /// Returns a string representation of the object.
-  Future<String> toStringX() async {
-    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecAny;
-    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
-    const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.Any.toStringX';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
-    if (pigeonVar_replyList == null) {
-      throw _createConnectionError(pigeonVar_channelName);
-    } else if (pigeonVar_replyList.length > 1) {
-      throw PlatformException(
-        code: pigeonVar_replyList[0]! as String,
-        message: pigeonVar_replyList[1] as String?,
-        details: pigeonVar_replyList[2],
-      );
-    } else if (pigeonVar_replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
-    } else {
-      return (pigeonVar_replyList[0] as String?)!;
     }
   }
 
@@ -5205,47 +5134,7 @@ class BluetoothGatt extends Any {
   /// Once the write operation has been completed, the
   /// android.bluetooth.BluetoothGattCallback#onCharacteristicWrite callback is
   /// invoked, reporting the result of the operation.
-  Future<bool> writeCharacteristic1(
-      BluetoothGattCharacteristic characteristic) async {
-    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecBluetoothGatt;
-    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
-    const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGatt.writeCharacteristic1';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this, characteristic]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
-    if (pigeonVar_replyList == null) {
-      throw _createConnectionError(pigeonVar_channelName);
-    } else if (pigeonVar_replyList.length > 1) {
-      throw PlatformException(
-        code: pigeonVar_replyList[0]! as String,
-        message: pigeonVar_replyList[1] as String?,
-        details: pigeonVar_replyList[2],
-      );
-    } else if (pigeonVar_replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
-    } else {
-      return (pigeonVar_replyList[0] as bool?)!;
-    }
-  }
-
-  /// Writes a given characteristic and its values to the associated remote device.
-  ///
-  /// Once the write operation has been completed, the
-  /// android.bluetooth.BluetoothGattCallback#onCharacteristicWrite callback is
-  /// invoked, reporting the result of the operation.
-  Future<int> writeCharacteristic2(
+  Future<BluetoothStatusCodesArgs> writeCharacteristic(
     BluetoothGattCharacteristic characteristic,
     Uint8List value,
     int writeType,
@@ -5254,7 +5143,7 @@ class BluetoothGatt extends Any {
         _pigeonVar_codecBluetoothGatt;
     final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
     const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGatt.writeCharacteristic2';
+        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGatt.writeCharacteristic';
     final BasicMessageChannel<Object?> pigeonVar_channel =
         BasicMessageChannel<Object?>(
       pigeonVar_channelName,
@@ -5279,7 +5168,7 @@ class BluetoothGatt extends Any {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (pigeonVar_replyList[0] as int?)!;
+      return (pigeonVar_replyList[0] as BluetoothStatusCodesArgs?)!;
     }
   }
 
@@ -5287,45 +5176,7 @@ class BluetoothGatt extends Any {
   ///
   /// A BluetoothGattCallback.onDescriptorWrite callback is triggered to report
   /// the result of the write operation.
-  Future<bool> writeDescriptor1(BluetoothGattDescriptor descriptor) async {
-    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecBluetoothGatt;
-    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
-    const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGatt.writeDescriptor1';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this, descriptor]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
-    if (pigeonVar_replyList == null) {
-      throw _createConnectionError(pigeonVar_channelName);
-    } else if (pigeonVar_replyList.length > 1) {
-      throw PlatformException(
-        code: pigeonVar_replyList[0]! as String,
-        message: pigeonVar_replyList[1] as String?,
-        details: pigeonVar_replyList[2],
-      );
-    } else if (pigeonVar_replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
-    } else {
-      return (pigeonVar_replyList[0] as bool?)!;
-    }
-  }
-
-  /// Write the value of a given descriptor to the associated remote device.
-  ///
-  /// A BluetoothGattCallback.onDescriptorWrite callback is triggered to report
-  /// the result of the write operation.
-  Future<int> writeDescriptor2(
+  Future<BluetoothStatusCodesArgs> writeDescriptor(
     BluetoothGattDescriptor descriptor,
     Uint8List value,
   ) async {
@@ -5333,7 +5184,7 @@ class BluetoothGatt extends Any {
         _pigeonVar_codecBluetoothGatt;
     final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
     const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGatt.writeDescriptor2';
+        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGatt.writeDescriptor';
     final BasicMessageChannel<Object?> pigeonVar_channel =
         BasicMessageChannel<Object?>(
       pigeonVar_channelName,
@@ -5358,7 +5209,7 @@ class BluetoothGatt extends Any {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (pigeonVar_replyList[0] as int?)!;
+      return (pigeonVar_replyList[0] as BluetoothStatusCodesArgs?)!;
     }
   }
 
@@ -5376,14 +5227,11 @@ class BluetoothGattCallback extends Any {
   BluetoothGattCallback({
     super.pigeon_binaryMessenger,
     super.pigeon_instanceManager,
-    required this.onCharacteristicChanged1,
-    required this.onCharacteristicChanged2,
-    required this.onCharacteristicRead1,
-    required this.onCharacteristicRead2,
+    required this.onCharacteristicChanged,
+    required this.onCharacteristicRead,
     required this.onCharacteristicWrite,
     required this.onConnectionStateChange,
-    required this.onDescriptorRead1,
-    required this.onDescriptorRead2,
+    required this.onDescriptorRead,
     required this.onDescriptorWrite,
     required this.onMtuChanged,
     required this.onPhyRead,
@@ -5433,14 +5281,11 @@ class BluetoothGattCallback extends Any {
   BluetoothGattCallback.pigeon_detached({
     super.pigeon_binaryMessenger,
     super.pigeon_instanceManager,
-    required this.onCharacteristicChanged1,
-    required this.onCharacteristicChanged2,
-    required this.onCharacteristicRead1,
-    required this.onCharacteristicRead2,
+    required this.onCharacteristicChanged,
+    required this.onCharacteristicRead,
     required this.onCharacteristicWrite,
     required this.onConnectionStateChange,
-    required this.onDescriptorRead1,
-    required this.onDescriptorRead2,
+    required this.onDescriptorRead,
     required this.onDescriptorWrite,
     required this.onMtuChanged,
     required this.onPhyRead,
@@ -5454,31 +5299,6 @@ class BluetoothGattCallback extends Any {
   late final _PigeonInternalProxyApiBaseCodec
       _pigeonVar_codecBluetoothGattCallback =
       _PigeonInternalProxyApiBaseCodec(pigeon_instanceManager);
-
-  /// Callback triggered as a result of a remote characteristic notification.
-  ///
-  /// For the associated Native object to be automatically garbage collected,
-  /// it is required that the implementation of this `Function` doesn't have a
-  /// strong reference to the encapsulating class instance. When this `Function`
-  /// references a non-local variable, it is strongly recommended to access it
-  /// with a `WeakReference`:
-  ///
-  /// ```dart
-  /// final WeakReference weakMyVariable = WeakReference(myVariable);
-  /// final BluetoothGattCallback instance = BluetoothGattCallback(
-  ///  onCharacteristicChanged1: (BluetoothGattCallback pigeon_instance, ...) {
-  ///    print(weakMyVariable?.target);
-  ///  },
-  /// );
-  /// ```
-  ///
-  /// Alternatively, [PigeonInstanceManager.removeWeakReference] can be used to
-  /// release the associated Native object manually.
-  final void Function(
-    BluetoothGattCallback pigeon_instance,
-    BluetoothGatt gatt,
-    BluetoothGattCharacteristic characteristic,
-  ) onCharacteristicChanged1;
 
   /// Callback triggered as a result of a remote characteristic notification. Note
   /// that the value within the characteristic object may have changed since
@@ -5494,7 +5314,7 @@ class BluetoothGattCallback extends Any {
   /// ```dart
   /// final WeakReference weakMyVariable = WeakReference(myVariable);
   /// final BluetoothGattCallback instance = BluetoothGattCallback(
-  ///  onCharacteristicChanged2: (BluetoothGattCallback pigeon_instance, ...) {
+  ///  onCharacteristicChanged: (BluetoothGattCallback pigeon_instance, ...) {
   ///    print(weakMyVariable?.target);
   ///  },
   /// );
@@ -5507,7 +5327,7 @@ class BluetoothGattCallback extends Any {
     BluetoothGatt gatt,
     BluetoothGattCharacteristic characteristic,
     Uint8List value,
-  ) onCharacteristicChanged2;
+  ) onCharacteristicChanged;
 
   /// Callback reporting the result of a characteristic read operation.
   ///
@@ -5520,33 +5340,7 @@ class BluetoothGattCallback extends Any {
   /// ```dart
   /// final WeakReference weakMyVariable = WeakReference(myVariable);
   /// final BluetoothGattCallback instance = BluetoothGattCallback(
-  ///  onCharacteristicRead1: (BluetoothGattCallback pigeon_instance, ...) {
-  ///    print(weakMyVariable?.target);
-  ///  },
-  /// );
-  /// ```
-  ///
-  /// Alternatively, [PigeonInstanceManager.removeWeakReference] can be used to
-  /// release the associated Native object manually.
-  final void Function(
-    BluetoothGattCallback pigeon_instance,
-    BluetoothGatt gatt,
-    BluetoothGattCharacteristic characteristic,
-    int status,
-  ) onCharacteristicRead1;
-
-  /// Callback reporting the result of a characteristic read operation.
-  ///
-  /// For the associated Native object to be automatically garbage collected,
-  /// it is required that the implementation of this `Function` doesn't have a
-  /// strong reference to the encapsulating class instance. When this `Function`
-  /// references a non-local variable, it is strongly recommended to access it
-  /// with a `WeakReference`:
-  ///
-  /// ```dart
-  /// final WeakReference weakMyVariable = WeakReference(myVariable);
-  /// final BluetoothGattCallback instance = BluetoothGattCallback(
-  ///  onCharacteristicRead2: (BluetoothGattCallback pigeon_instance, ...) {
+  ///  onCharacteristicRead: (BluetoothGattCallback pigeon_instance, ...) {
   ///    print(weakMyVariable?.target);
   ///  },
   /// );
@@ -5560,7 +5354,7 @@ class BluetoothGattCallback extends Any {
     BluetoothGattCharacteristic characteristic,
     Uint8List value,
     int status,
-  ) onCharacteristicRead2;
+  ) onCharacteristicRead;
 
   /// Callback indicating the result of a characteristic write operation.
   ///
@@ -5621,32 +5415,6 @@ class BluetoothGattCallback extends Any {
     int newState,
   ) onConnectionStateChange;
 
-  /// Callback triggered as a result of a remote descriptor read operation.
-  ///
-  /// For the associated Native object to be automatically garbage collected,
-  /// it is required that the implementation of this `Function` doesn't have a
-  /// strong reference to the encapsulating class instance. When this `Function`
-  /// references a non-local variable, it is strongly recommended to access it
-  /// with a `WeakReference`:
-  ///
-  /// ```dart
-  /// final WeakReference weakMyVariable = WeakReference(myVariable);
-  /// final BluetoothGattCallback instance = BluetoothGattCallback(
-  ///  onDescriptorRead1: (BluetoothGattCallback pigeon_instance, ...) {
-  ///    print(weakMyVariable?.target);
-  ///  },
-  /// );
-  /// ```
-  ///
-  /// Alternatively, [PigeonInstanceManager.removeWeakReference] can be used to
-  /// release the associated Native object manually.
-  final void Function(
-    BluetoothGattCallback pigeon_instance,
-    BluetoothGatt gatt,
-    BluetoothGattDescriptor descriptor,
-    int status,
-  ) onDescriptorRead1;
-
   /// Callback reporting the result of a descriptor read operation.
   ///
   /// For the associated Native object to be automatically garbage collected,
@@ -5658,7 +5426,7 @@ class BluetoothGattCallback extends Any {
   /// ```dart
   /// final WeakReference weakMyVariable = WeakReference(myVariable);
   /// final BluetoothGattCallback instance = BluetoothGattCallback(
-  ///  onDescriptorRead2: (BluetoothGattCallback pigeon_instance, ...) {
+  ///  onDescriptorRead: (BluetoothGattCallback pigeon_instance, ...) {
   ///    print(weakMyVariable?.target);
   ///  },
   /// );
@@ -5672,7 +5440,7 @@ class BluetoothGattCallback extends Any {
     BluetoothGattDescriptor descriptor,
     int status,
     Uint8List value,
-  ) onDescriptorRead2;
+  ) onDescriptorRead;
 
   /// Callback triggered as a result of a remote descriptor write operation.
   ///
@@ -5901,26 +5669,15 @@ class BluetoothGattCallback extends Any {
       BluetoothGattCallback pigeon_instance,
       BluetoothGatt gatt,
       BluetoothGattCharacteristic characteristic,
-    )? onCharacteristicChanged1,
-    void Function(
-      BluetoothGattCallback pigeon_instance,
-      BluetoothGatt gatt,
-      BluetoothGattCharacteristic characteristic,
       Uint8List value,
-    )? onCharacteristicChanged2,
-    void Function(
-      BluetoothGattCallback pigeon_instance,
-      BluetoothGatt gatt,
-      BluetoothGattCharacteristic characteristic,
-      int status,
-    )? onCharacteristicRead1,
+    )? onCharacteristicChanged,
     void Function(
       BluetoothGattCallback pigeon_instance,
       BluetoothGatt gatt,
       BluetoothGattCharacteristic characteristic,
       Uint8List value,
       int status,
-    )? onCharacteristicRead2,
+    )? onCharacteristicRead,
     void Function(
       BluetoothGattCallback pigeon_instance,
       BluetoothGatt gatt,
@@ -5938,14 +5695,8 @@ class BluetoothGattCallback extends Any {
       BluetoothGatt gatt,
       BluetoothGattDescriptor descriptor,
       int status,
-    )? onDescriptorRead1,
-    void Function(
-      BluetoothGattCallback pigeon_instance,
-      BluetoothGatt gatt,
-      BluetoothGattDescriptor descriptor,
-      int status,
       Uint8List value,
-    )? onDescriptorRead2,
+    )? onDescriptorRead,
     void Function(
       BluetoothGattCallback pigeon_instance,
       BluetoothGatt gatt,
@@ -6001,7 +5752,7 @@ class BluetoothGattCallback extends Any {
       final BasicMessageChannel<
           Object?> pigeonVar_channel = BasicMessageChannel<
               Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicChanged1',
+          'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicChanged',
           pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (pigeon_clearHandlers) {
@@ -6009,65 +5760,25 @@ class BluetoothGattCallback extends Any {
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicChanged1 was null.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final BluetoothGattCallback? arg_pigeon_instance =
               (args[0] as BluetoothGattCallback?);
           assert(arg_pigeon_instance != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicChanged1 was null, expected non-null BluetoothGattCallback.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicChanged was null, expected non-null BluetoothGattCallback.');
           final BluetoothGatt? arg_gatt = (args[1] as BluetoothGatt?);
           assert(arg_gatt != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicChanged1 was null, expected non-null BluetoothGatt.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicChanged was null, expected non-null BluetoothGatt.');
           final BluetoothGattCharacteristic? arg_characteristic =
               (args[2] as BluetoothGattCharacteristic?);
           assert(arg_characteristic != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicChanged1 was null, expected non-null BluetoothGattCharacteristic.');
-          try {
-            (onCharacteristicChanged1 ??
-                    arg_pigeon_instance!.onCharacteristicChanged1)
-                .call(arg_pigeon_instance!, arg_gatt!, arg_characteristic!);
-            return wrapResponse(empty: true);
-          } on PlatformException catch (e) {
-            return wrapResponse(error: e);
-          } catch (e) {
-            return wrapResponse(
-                error: PlatformException(code: 'error', message: e.toString()));
-          }
-        });
-      }
-    }
-
-    {
-      final BasicMessageChannel<
-          Object?> pigeonVar_channel = BasicMessageChannel<
-              Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicChanged2',
-          pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
-      if (pigeon_clearHandlers) {
-        pigeonVar_channel.setMessageHandler(null);
-      } else {
-        pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(message != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicChanged2 was null.');
-          final List<Object?> args = (message as List<Object?>?)!;
-          final BluetoothGattCallback? arg_pigeon_instance =
-              (args[0] as BluetoothGattCallback?);
-          assert(arg_pigeon_instance != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicChanged2 was null, expected non-null BluetoothGattCallback.');
-          final BluetoothGatt? arg_gatt = (args[1] as BluetoothGatt?);
-          assert(arg_gatt != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicChanged2 was null, expected non-null BluetoothGatt.');
-          final BluetoothGattCharacteristic? arg_characteristic =
-              (args[2] as BluetoothGattCharacteristic?);
-          assert(arg_characteristic != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicChanged2 was null, expected non-null BluetoothGattCharacteristic.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicChanged was null, expected non-null BluetoothGattCharacteristic.');
           final Uint8List? arg_value = (args[3] as Uint8List?);
           assert(arg_value != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicChanged2 was null, expected non-null Uint8List.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicChanged was null, expected non-null Uint8List.');
           try {
-            (onCharacteristicChanged2 ??
-                    arg_pigeon_instance!.onCharacteristicChanged2)
+            (onCharacteristicChanged ??
+                    arg_pigeon_instance!.onCharacteristicChanged)
                 .call(arg_pigeon_instance!, arg_gatt!, arg_characteristic!,
                     arg_value!);
             return wrapResponse(empty: true);
@@ -6085,7 +5796,7 @@ class BluetoothGattCallback extends Any {
       final BasicMessageChannel<
           Object?> pigeonVar_channel = BasicMessageChannel<
               Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead1',
+          'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead',
           pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (pigeon_clearHandlers) {
@@ -6093,72 +5804,27 @@ class BluetoothGattCallback extends Any {
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead1 was null.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final BluetoothGattCallback? arg_pigeon_instance =
               (args[0] as BluetoothGattCallback?);
           assert(arg_pigeon_instance != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead1 was null, expected non-null BluetoothGattCallback.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead was null, expected non-null BluetoothGattCallback.');
           final BluetoothGatt? arg_gatt = (args[1] as BluetoothGatt?);
           assert(arg_gatt != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead1 was null, expected non-null BluetoothGatt.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead was null, expected non-null BluetoothGatt.');
           final BluetoothGattCharacteristic? arg_characteristic =
               (args[2] as BluetoothGattCharacteristic?);
           assert(arg_characteristic != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead1 was null, expected non-null BluetoothGattCharacteristic.');
-          final int? arg_status = (args[3] as int?);
-          assert(arg_status != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead1 was null, expected non-null int.');
-          try {
-            (onCharacteristicRead1 ??
-                    arg_pigeon_instance!.onCharacteristicRead1)
-                .call(arg_pigeon_instance!, arg_gatt!, arg_characteristic!,
-                    arg_status!);
-            return wrapResponse(empty: true);
-          } on PlatformException catch (e) {
-            return wrapResponse(error: e);
-          } catch (e) {
-            return wrapResponse(
-                error: PlatformException(code: 'error', message: e.toString()));
-          }
-        });
-      }
-    }
-
-    {
-      final BasicMessageChannel<
-          Object?> pigeonVar_channel = BasicMessageChannel<
-              Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead2',
-          pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
-      if (pigeon_clearHandlers) {
-        pigeonVar_channel.setMessageHandler(null);
-      } else {
-        pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(message != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead2 was null.');
-          final List<Object?> args = (message as List<Object?>?)!;
-          final BluetoothGattCallback? arg_pigeon_instance =
-              (args[0] as BluetoothGattCallback?);
-          assert(arg_pigeon_instance != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead2 was null, expected non-null BluetoothGattCallback.');
-          final BluetoothGatt? arg_gatt = (args[1] as BluetoothGatt?);
-          assert(arg_gatt != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead2 was null, expected non-null BluetoothGatt.');
-          final BluetoothGattCharacteristic? arg_characteristic =
-              (args[2] as BluetoothGattCharacteristic?);
-          assert(arg_characteristic != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead2 was null, expected non-null BluetoothGattCharacteristic.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead was null, expected non-null BluetoothGattCharacteristic.');
           final Uint8List? arg_value = (args[3] as Uint8List?);
           assert(arg_value != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead2 was null, expected non-null Uint8List.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead was null, expected non-null Uint8List.');
           final int? arg_status = (args[4] as int?);
           assert(arg_status != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead2 was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onCharacteristicRead was null, expected non-null int.');
           try {
-            (onCharacteristicRead2 ??
-                    arg_pigeon_instance!.onCharacteristicRead2)
+            (onCharacteristicRead ?? arg_pigeon_instance!.onCharacteristicRead)
                 .call(arg_pigeon_instance!, arg_gatt!, arg_characteristic!,
                     arg_value!, arg_status!);
             return wrapResponse(empty: true);
@@ -6263,7 +5929,7 @@ class BluetoothGattCallback extends Any {
       final BasicMessageChannel<
           Object?> pigeonVar_channel = BasicMessageChannel<
               Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead1',
+          'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead',
           pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (pigeon_clearHandlers) {
@@ -6271,69 +5937,27 @@ class BluetoothGattCallback extends Any {
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead1 was null.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final BluetoothGattCallback? arg_pigeon_instance =
               (args[0] as BluetoothGattCallback?);
           assert(arg_pigeon_instance != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead1 was null, expected non-null BluetoothGattCallback.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead was null, expected non-null BluetoothGattCallback.');
           final BluetoothGatt? arg_gatt = (args[1] as BluetoothGatt?);
           assert(arg_gatt != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead1 was null, expected non-null BluetoothGatt.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead was null, expected non-null BluetoothGatt.');
           final BluetoothGattDescriptor? arg_descriptor =
               (args[2] as BluetoothGattDescriptor?);
           assert(arg_descriptor != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead1 was null, expected non-null BluetoothGattDescriptor.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead was null, expected non-null BluetoothGattDescriptor.');
           final int? arg_status = (args[3] as int?);
           assert(arg_status != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead1 was null, expected non-null int.');
-          try {
-            (onDescriptorRead1 ?? arg_pigeon_instance!.onDescriptorRead1).call(
-                arg_pigeon_instance!, arg_gatt!, arg_descriptor!, arg_status!);
-            return wrapResponse(empty: true);
-          } on PlatformException catch (e) {
-            return wrapResponse(error: e);
-          } catch (e) {
-            return wrapResponse(
-                error: PlatformException(code: 'error', message: e.toString()));
-          }
-        });
-      }
-    }
-
-    {
-      final BasicMessageChannel<
-          Object?> pigeonVar_channel = BasicMessageChannel<
-              Object?>(
-          'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead2',
-          pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
-      if (pigeon_clearHandlers) {
-        pigeonVar_channel.setMessageHandler(null);
-      } else {
-        pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(message != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead2 was null.');
-          final List<Object?> args = (message as List<Object?>?)!;
-          final BluetoothGattCallback? arg_pigeon_instance =
-              (args[0] as BluetoothGattCallback?);
-          assert(arg_pigeon_instance != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead2 was null, expected non-null BluetoothGattCallback.');
-          final BluetoothGatt? arg_gatt = (args[1] as BluetoothGatt?);
-          assert(arg_gatt != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead2 was null, expected non-null BluetoothGatt.');
-          final BluetoothGattDescriptor? arg_descriptor =
-              (args[2] as BluetoothGattDescriptor?);
-          assert(arg_descriptor != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead2 was null, expected non-null BluetoothGattDescriptor.');
-          final int? arg_status = (args[3] as int?);
-          assert(arg_status != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead2 was null, expected non-null int.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead was null, expected non-null int.');
           final Uint8List? arg_value = (args[4] as Uint8List?);
           assert(arg_value != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead2 was null, expected non-null Uint8List.');
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCallback.onDescriptorRead was null, expected non-null Uint8List.');
           try {
-            (onDescriptorRead2 ?? arg_pigeon_instance!.onDescriptorRead2).call(
+            (onDescriptorRead ?? arg_pigeon_instance!.onDescriptorRead).call(
                 arg_pigeon_instance!,
                 arg_gatt!,
                 arg_descriptor!,
@@ -6688,14 +6312,11 @@ class BluetoothGattCallback extends Any {
     return BluetoothGattCallback.pigeon_detached(
       pigeon_binaryMessenger: pigeon_binaryMessenger,
       pigeon_instanceManager: pigeon_instanceManager,
-      onCharacteristicChanged1: onCharacteristicChanged1,
-      onCharacteristicChanged2: onCharacteristicChanged2,
-      onCharacteristicRead1: onCharacteristicRead1,
-      onCharacteristicRead2: onCharacteristicRead2,
+      onCharacteristicChanged: onCharacteristicChanged,
+      onCharacteristicRead: onCharacteristicRead,
       onCharacteristicWrite: onCharacteristicWrite,
       onConnectionStateChange: onConnectionStateChange,
-      onDescriptorRead1: onDescriptorRead1,
-      onDescriptorRead2: onDescriptorRead2,
+      onDescriptorRead: onDescriptorRead,
       onDescriptorWrite: onDescriptorWrite,
       onMtuChanged: onMtuChanged,
       onPhyRead: onPhyRead,
@@ -6919,46 +6540,6 @@ class BluetoothGattCharacteristic extends Any {
     }
   }
 
-  /// Return the stored value of this characteristic.
-  ///
-  /// See getValue for details.
-  Future<double> getFloatValue(
-    int formatType,
-    int offset,
-  ) async {
-    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecBluetoothGattCharacteristic;
-    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
-    const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCharacteristic.getFloatValue';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this, formatType, offset]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
-    if (pigeonVar_replyList == null) {
-      throw _createConnectionError(pigeonVar_channelName);
-    } else if (pigeonVar_replyList.length > 1) {
-      throw PlatformException(
-        code: pigeonVar_replyList[0]! as String,
-        message: pigeonVar_replyList[1] as String?,
-        details: pigeonVar_replyList[2],
-      );
-    } else if (pigeonVar_replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
-    } else {
-      return (pigeonVar_replyList[0] as double?)!;
-    }
-  }
-
   /// Returns the instance ID for this characteristic.
   ///
   /// If a remote device offers multiple characteristics with the same UUID, the
@@ -6977,49 +6558,6 @@ class BluetoothGattCharacteristic extends Any {
     );
     final Future<Object?> pigeonVar_sendFuture =
         pigeonVar_channel.send(<Object?>[this]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
-    if (pigeonVar_replyList == null) {
-      throw _createConnectionError(pigeonVar_channelName);
-    } else if (pigeonVar_replyList.length > 1) {
-      throw PlatformException(
-        code: pigeonVar_replyList[0]! as String,
-        message: pigeonVar_replyList[1] as String?,
-        details: pigeonVar_replyList[2],
-      );
-    } else if (pigeonVar_replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
-    } else {
-      return (pigeonVar_replyList[0] as int?)!;
-    }
-  }
-
-  /// Return the stored value of this characteristic.
-  ///
-  /// The formatType parameter determines how the characteristic value is to be
-  /// interpreted. For example, setting formatType to FORMAT_UINT16 specifies that
-  /// the first two bytes of the characteristic value at the given offset are
-  /// interpreted to generate the return value.
-  Future<int> getIntValue(
-    int formatType,
-    int offset,
-  ) async {
-    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecBluetoothGattCharacteristic;
-    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
-    const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCharacteristic.getIntValue';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this, formatType, offset]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -7148,41 +6686,6 @@ class BluetoothGattCharacteristic extends Any {
     }
   }
 
-  /// Return the stored value of this characteristic.
-  Future<String> getStringValue(int offset) async {
-    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecBluetoothGattCharacteristic;
-    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
-    const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCharacteristic.getStringValue';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this, offset]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
-    if (pigeonVar_replyList == null) {
-      throw _createConnectionError(pigeonVar_channelName);
-    } else if (pigeonVar_replyList.length > 1) {
-      throw PlatformException(
-        code: pigeonVar_replyList[0]! as String,
-        message: pigeonVar_replyList[1] as String?,
-        details: pigeonVar_replyList[2],
-      );
-    } else if (pigeonVar_replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
-    } else {
-      return (pigeonVar_replyList[0] as String?)!;
-    }
-  }
-
   /// Returns the UUID of this characteristic
   Future<UUID> getUuid() async {
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
@@ -7218,46 +6721,6 @@ class BluetoothGattCharacteristic extends Any {
     }
   }
 
-  /// Get the stored value for this characteristic.
-  ///
-  /// This function returns the stored value for this characteristic as retrieved
-  /// by calling BluetoothGatt.readCharacteristic. The cached value of the
-  /// characteristic is updated as a result of a read characteristic operation or
-  /// if a characteristic update notification has been received.
-  Future<Uint8List> getValue() async {
-    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecBluetoothGattCharacteristic;
-    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
-    const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCharacteristic.getValue';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
-    if (pigeonVar_replyList == null) {
-      throw _createConnectionError(pigeonVar_channelName);
-    } else if (pigeonVar_replyList.length > 1) {
-      throw PlatformException(
-        code: pigeonVar_replyList[0]! as String,
-        message: pigeonVar_replyList[1] as String?,
-        details: pigeonVar_replyList[2],
-      );
-    } else if (pigeonVar_replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
-    } else {
-      return (pigeonVar_replyList[0] as Uint8List?)!;
-    }
-  }
-
   /// Gets the write type for this characteristic.
   Future<int> getWriteType() async {
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
@@ -7290,165 +6753,6 @@ class BluetoothGattCharacteristic extends Any {
       );
     } else {
       return (pigeonVar_replyList[0] as int?)!;
-    }
-  }
-
-  /// Updates the locally stored value of this characteristic.
-  ///
-  /// This function modifies the locally stored cached value of this characteristic.
-  /// To send the value to the remote device, call android.bluetooth.BluetoothGatt#writeCharacteristic
-  /// to send the value to the remote device.
-  Future<bool> setValue1(Uint8List value) async {
-    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecBluetoothGattCharacteristic;
-    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
-    const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCharacteristic.setValue1';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this, value]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
-    if (pigeonVar_replyList == null) {
-      throw _createConnectionError(pigeonVar_channelName);
-    } else if (pigeonVar_replyList.length > 1) {
-      throw PlatformException(
-        code: pigeonVar_replyList[0]! as String,
-        message: pigeonVar_replyList[1] as String?,
-        details: pigeonVar_replyList[2],
-      );
-    } else if (pigeonVar_replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
-    } else {
-      return (pigeonVar_replyList[0] as bool?)!;
-    }
-  }
-
-  /// Set the locally stored value of this characteristic.
-  ///
-  /// See setValue(byte[]) for details.
-  Future<bool> setValue2(
-    int value,
-    int formatType,
-    int offset,
-  ) async {
-    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecBluetoothGattCharacteristic;
-    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
-    const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCharacteristic.setValue2';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this, value, formatType, offset]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
-    if (pigeonVar_replyList == null) {
-      throw _createConnectionError(pigeonVar_channelName);
-    } else if (pigeonVar_replyList.length > 1) {
-      throw PlatformException(
-        code: pigeonVar_replyList[0]! as String,
-        message: pigeonVar_replyList[1] as String?,
-        details: pigeonVar_replyList[2],
-      );
-    } else if (pigeonVar_replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
-    } else {
-      return (pigeonVar_replyList[0] as bool?)!;
-    }
-  }
-
-  /// Set the locally stored value of this characteristic.
-  ///
-  /// See setValue(byte[]) for details.
-  Future<bool> setValue3(
-    int mantissa,
-    int exponent,
-    int formatType,
-    int offset,
-  ) async {
-    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecBluetoothGattCharacteristic;
-    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
-    const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCharacteristic.setValue3';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel
-        .send(<Object?>[this, mantissa, exponent, formatType, offset]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
-    if (pigeonVar_replyList == null) {
-      throw _createConnectionError(pigeonVar_channelName);
-    } else if (pigeonVar_replyList.length > 1) {
-      throw PlatformException(
-        code: pigeonVar_replyList[0]! as String,
-        message: pigeonVar_replyList[1] as String?,
-        details: pigeonVar_replyList[2],
-      );
-    } else if (pigeonVar_replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
-    } else {
-      return (pigeonVar_replyList[0] as bool?)!;
-    }
-  }
-
-  /// Set the locally stored value of this characteristic.
-  ///
-  /// See setValue(byte[]) for details.
-  Future<bool> setValue4(String value) async {
-    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecBluetoothGattCharacteristic;
-    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
-    const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattCharacteristic.setValue4';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this, value]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
-    if (pigeonVar_replyList == null) {
-      throw _createConnectionError(pigeonVar_channelName);
-    } else if (pigeonVar_replyList.length > 1) {
-      throw PlatformException(
-        code: pigeonVar_replyList[0]! as String,
-        message: pigeonVar_replyList[1] as String?,
-        details: pigeonVar_replyList[2],
-      );
-    } else if (pigeonVar_replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
-    } else {
-      return (pigeonVar_replyList[0] as bool?)!;
     }
   }
 
@@ -7705,84 +7009,6 @@ class BluetoothGattDescriptor extends Any {
       );
     } else {
       return (pigeonVar_replyList[0] as UUID?)!;
-    }
-  }
-
-  /// Returns the stored value for this descriptor
-  ///
-  /// This function returns the stored value for this descriptor as retrieved by
-  /// calling android.bluetooth.BluetoothGatt#readDescriptor. The cached value of
-  /// the descriptor is updated as a result of a descriptor read operation.
-  Future<Uint8List> getValue() async {
-    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecBluetoothGattDescriptor;
-    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
-    const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattDescriptor.getValue';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
-    if (pigeonVar_replyList == null) {
-      throw _createConnectionError(pigeonVar_channelName);
-    } else if (pigeonVar_replyList.length > 1) {
-      throw PlatformException(
-        code: pigeonVar_replyList[0]! as String,
-        message: pigeonVar_replyList[1] as String?,
-        details: pigeonVar_replyList[2],
-      );
-    } else if (pigeonVar_replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
-    } else {
-      return (pigeonVar_replyList[0] as Uint8List?)!;
-    }
-  }
-
-  /// Updates the locally stored value of this descriptor.
-  ///
-  /// This function modifies the locally stored cached value of this descriptor.
-  /// To send the value to the remote device, call android.bluetooth.BluetoothGatt#writeDescriptor
-  /// to send the value to the remote device.
-  Future<bool> setValue(Uint8List value) async {
-    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecBluetoothGattDescriptor;
-    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
-    const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattDescriptor.setValue';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this, value]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
-    if (pigeonVar_replyList == null) {
-      throw _createConnectionError(pigeonVar_channelName);
-    } else if (pigeonVar_replyList.length > 1) {
-      throw PlatformException(
-        code: pigeonVar_replyList[0]! as String,
-        message: pigeonVar_replyList[1] as String?,
-        details: pigeonVar_replyList[2],
-      );
-    } else if (pigeonVar_replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
-    } else {
-      return (pigeonVar_replyList[0] as bool?)!;
     }
   }
 
@@ -8248,52 +7474,7 @@ class BluetoothGattServer extends Any {
   /// the characteristic has been updated. This function should be invoked for
   /// every client that requests notifications/indications by writing to the
   /// "Client Configuration" descriptor for the given characteristic.
-  Future<bool> notifyCharacteristicChanged(
-    BluetoothDevice device,
-    BluetoothGattCharacteristic characteristic,
-    bool confirm,
-  ) async {
-    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecBluetoothGattServer;
-    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
-    const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattServer.notifyCharacteristicChanged';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel
-        .send(<Object?>[this, device, characteristic, confirm]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
-    if (pigeonVar_replyList == null) {
-      throw _createConnectionError(pigeonVar_channelName);
-    } else if (pigeonVar_replyList.length > 1) {
-      throw PlatformException(
-        code: pigeonVar_replyList[0]! as String,
-        message: pigeonVar_replyList[1] as String?,
-        details: pigeonVar_replyList[2],
-      );
-    } else if (pigeonVar_replyList[0] == null) {
-      throw PlatformException(
-        code: 'null-error',
-        message: 'Host platform returned null value for non-null return value.',
-      );
-    } else {
-      return (pigeonVar_replyList[0] as bool?)!;
-    }
-  }
-
-  /// Send a notification or indication that a local characteristic has been
-  /// updated.
-  ///
-  /// A notification or indication is sent to the remote device to signal that
-  /// the characteristic has been updated. This function should be invoked for
-  /// every client that requests notifications/indications by writing to the
-  /// "Client Configuration" descriptor for the given characteristic.
-  Future<int> notifyCharacteristicChanged1(
+  Future<BluetoothStatusCodesArgs> notifyCharacteristicChanged(
     BluetoothDevice device,
     BluetoothGattCharacteristic characteristic,
     bool confirm,
@@ -8303,7 +7484,7 @@ class BluetoothGattServer extends Any {
         _pigeonVar_codecBluetoothGattServer;
     final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
     const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattServer.notifyCharacteristicChanged1';
+        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothGattServer.notifyCharacteristicChanged';
     final BasicMessageChannel<Object?> pigeonVar_channel =
         BasicMessageChannel<Object?>(
       pigeonVar_channelName,
@@ -8328,7 +7509,7 @@ class BluetoothGattServer extends Any {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (pigeonVar_replyList[0] as int?)!;
+      return (pigeonVar_replyList[0] as BluetoothStatusCodesArgs?)!;
     }
   }
 
@@ -15453,51 +14634,6 @@ class BluetoothLeScanner extends Any {
     }
   }
 
-  /// Start Bluetooth LE scan using a PendingIntent. The scan results will be
-  /// delivered via the PendingIntent. Use this method of scanning if your process
-  /// is not always running and it should be started when scan results are available.
-  ///
-  /// An app must have ACCESS_COARSE_LOCATION permission in order to get results.
-  /// An App targeting Android Q or later must have ACCESS_FINE_LOCATION permission
-  /// in order to get results.
-  ///
-  /// When the PendingIntent is delivered, the Intent passed to the receiver or
-  /// activity will contain one or more of the extras EXTRA_CALLBACK_TYPE,
-  /// EXTRA_ERROR_CODE and EXTRA_LIST_SCAN_RESULT to indicate the result of the
-  /// scan.
-  Future<void> startScan2(
-    List<ScanFilter>? filters,
-    ScanSettings? settings,
-    PendingIntent callbackIntent,
-  ) async {
-    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecBluetoothLeScanner;
-    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
-    const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothLeScanner.startScan2';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel
-        .send(<Object?>[this, filters, settings, callbackIntent]);
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_sendFuture as List<Object?>?;
-    if (pigeonVar_replyList == null) {
-      throw _createConnectionError(pigeonVar_channelName);
-    } else if (pigeonVar_replyList.length > 1) {
-      throw PlatformException(
-        code: pigeonVar_replyList[0]! as String,
-        message: pigeonVar_replyList[1] as String?,
-        details: pigeonVar_replyList[2],
-      );
-    } else {
-      return;
-    }
-  }
-
   /// Start Bluetooth LE scan. The scan results will be delivered through callback.
   /// For unfiltered scans, scanning is stopped on screen off to save power.
   /// Scanning is resumed when screen is turned on again. To avoid this, do filtered
@@ -15506,7 +14642,7 @@ class BluetoothLeScanner extends Any {
   /// An app must have ACCESS_COARSE_LOCATION permission in order to get results.
   /// An App targeting Android Q or later must have ACCESS_FINE_LOCATION permission
   /// in order to get results.
-  Future<void> startScan3(
+  Future<void> startScan2(
     List<ScanFilter> filters,
     ScanSettings settings,
     ScanCallback callback,
@@ -15515,7 +14651,7 @@ class BluetoothLeScanner extends Any {
         _pigeonVar_codecBluetoothLeScanner;
     final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
     const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothLeScanner.startScan3';
+        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothLeScanner.startScan2';
     final BasicMessageChannel<Object?> pigeonVar_channel =
         BasicMessageChannel<Object?>(
       pigeonVar_channelName,
@@ -15539,23 +14675,36 @@ class BluetoothLeScanner extends Any {
     }
   }
 
-  /// Stops an ongoing Bluetooth LE scan started using a PendingIntent. When
-  /// creating the PendingIntent parameter, please do not use the FLAG_CANCEL_CURRENT
-  /// flag. Otherwise, the stop scan may have no effect.
-  Future<void> stopScan1(PendingIntent callbackIntent) async {
+  /// Start Bluetooth LE scan using a PendingIntent. The scan results will be
+  /// delivered via the PendingIntent. Use this method of scanning if your process
+  /// is not always running and it should be started when scan results are available.
+  ///
+  /// An app must have ACCESS_COARSE_LOCATION permission in order to get results.
+  /// An App targeting Android Q or later must have ACCESS_FINE_LOCATION permission
+  /// in order to get results.
+  ///
+  /// When the PendingIntent is delivered, the Intent passed to the receiver or
+  /// activity will contain one or more of the extras EXTRA_CALLBACK_TYPE,
+  /// EXTRA_ERROR_CODE and EXTRA_LIST_SCAN_RESULT to indicate the result of the
+  /// scan.
+  Future<void> startScan3(
+    List<ScanFilter>? filters,
+    ScanSettings? settings,
+    PendingIntent callbackIntent,
+  ) async {
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
         _pigeonVar_codecBluetoothLeScanner;
     final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
     const String pigeonVar_channelName =
-        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothLeScanner.stopScan1';
+        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothLeScanner.startScan3';
     final BasicMessageChannel<Object?> pigeonVar_channel =
         BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this, callbackIntent]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel
+        .send(<Object?>[this, filters, settings, callbackIntent]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -15572,7 +14721,39 @@ class BluetoothLeScanner extends Any {
   }
 
   /// Stops an ongoing Bluetooth LE scan.
-  Future<void> stopScan2(ScanCallback callback) async {
+  Future<void> stopScan1(ScanCallback callback) async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _pigeonVar_codecBluetoothLeScanner;
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.BluetoothLeScanner.stopScan1';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[this, callback]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  /// Stops an ongoing Bluetooth LE scan started using a PendingIntent. When
+  /// creating the PendingIntent parameter, please do not use the FLAG_CANCEL_CURRENT
+  /// flag. Otherwise, the stop scan may have no effect.
+  Future<void> stopScan2(PendingIntent callbackIntent) async {
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
         _pigeonVar_codecBluetoothLeScanner;
     final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
@@ -15585,7 +14766,7 @@ class BluetoothLeScanner extends Any {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this, callback]);
+        pigeonVar_channel.send(<Object?>[this, callbackIntent]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {

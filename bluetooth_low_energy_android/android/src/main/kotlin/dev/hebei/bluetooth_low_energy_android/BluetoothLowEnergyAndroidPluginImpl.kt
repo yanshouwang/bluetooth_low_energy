@@ -5,7 +5,7 @@ import android.content.Context
 import io.flutter.plugin.common.PluginRegistry
 
 class BluetoothLowEnergyAndroidPluginImpl(
-    registrar: BluetoothLowEnergyPigeonProxyApiRegistrar, private val instance: BluetoothLowEnergyAndroidPlugin
+    registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar, val instance: BluetoothLowEnergyAndroidPlugin
 ) : PigeonApiBluetoothLowEnergyAndroidPlugin(registrar) {
     override fun instance(): BluetoothLowEnergyAndroidPlugin {
         return instance

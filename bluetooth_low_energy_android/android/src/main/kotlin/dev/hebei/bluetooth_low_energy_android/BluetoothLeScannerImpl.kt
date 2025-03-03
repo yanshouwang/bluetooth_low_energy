@@ -5,8 +5,10 @@ import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanSettings
+import android.os.Build
+import androidx.annotation.RequiresApi
 
-class BluetoothLeScannerImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+class BluetoothLeScannerImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
     PigeonApiBluetoothLeScanner(registrar) {
     override fun flushPendingScanResults(pigeon_instance: BluetoothLeScanner, callback: ScanCallback) {
         pigeon_instance.flushPendingScanResults(callback)
@@ -17,6 +19,13 @@ class BluetoothLeScannerImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistra
     }
 
     override fun startScan2(
+        pigeon_instance: BluetoothLeScanner, filters: List<ScanFilter>, settings: ScanSettings, callback: ScanCallback
+    ) {
+        pigeon_instance.startScan(filters, settings, callback)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun startScan3(
         pigeon_instance: BluetoothLeScanner,
         filters: List<ScanFilter>?,
         settings: ScanSettings?,
@@ -25,17 +34,12 @@ class BluetoothLeScannerImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistra
         pigeon_instance.startScan(filters, settings, callbackIntent)
     }
 
-    override fun startScan3(
-        pigeon_instance: BluetoothLeScanner, filters: List<ScanFilter>, settings: ScanSettings, callback: ScanCallback
-    ) {
-        pigeon_instance.startScan(filters, settings, callback)
-    }
-
-    override fun stopScan1(pigeon_instance: BluetoothLeScanner, callbackIntent: PendingIntent) {
-        pigeon_instance.stopScan(callbackIntent)
-    }
-
-    override fun stopScan2(pigeon_instance: BluetoothLeScanner, callback: ScanCallback) {
+    override fun stopScan1(pigeon_instance: BluetoothLeScanner, callback: ScanCallback) {
         pigeon_instance.stopScan(callback)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun stopScan2(pigeon_instance: BluetoothLeScanner, callbackIntent: PendingIntent) {
+        pigeon_instance.stopScan(callbackIntent)
     }
 }

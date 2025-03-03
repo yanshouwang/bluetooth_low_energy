@@ -16,7 +16,6 @@ export 'src/central_manager.dart';
 export 'src/central.dart';
 export 'src/connection_priority.dart';
 export 'src/connection_state.dart';
-export 'src/event_args.dart';
 export 'src/gatt.dart';
 export 'src/manufacturer_specific_data.dart';
 export 'src/peripheral_manager.dart';

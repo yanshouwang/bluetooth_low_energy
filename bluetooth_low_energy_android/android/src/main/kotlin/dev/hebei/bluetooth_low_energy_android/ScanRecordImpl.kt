@@ -1,13 +1,16 @@
 package dev.hebei.bluetooth_low_energy_android
 
 import android.bluetooth.le.ScanRecord
+import android.os.Build
 import android.os.ParcelUuid
+import androidx.annotation.RequiresApi
 
-class ScanRecordImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : PigeonApiScanRecord(registrar) {
+class ScanRecordImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) : PigeonApiScanRecord(registrar) {
     override fun getAdvertiseFlags(pigeon_instance: ScanRecord): Long {
         return pigeon_instance.advertiseFlags.toLong()
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun getAdvertisingDataMap(pigeon_instance: ScanRecord): Map<Long, ByteArray> {
         return pigeon_instance.advertisingDataMap.mapKeys { it.key.toLong() }
     }
@@ -36,6 +39,7 @@ class ScanRecordImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : Pig
         return pigeon_instance.getServiceData(serviceDataUuid)
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun getServiceSolicitationUuids(pigeon_instance: ScanRecord): List<ParcelUuid> {
         return pigeon_instance.serviceSolicitationUuids
     }

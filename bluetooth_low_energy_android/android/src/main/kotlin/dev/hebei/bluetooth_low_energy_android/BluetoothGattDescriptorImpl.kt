@@ -4,7 +4,7 @@ import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
 import java.util.*
 
-class BluetoothGattDescriptorImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+class BluetoothGattDescriptorImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
     PigeonApiBluetoothGattDescriptor(registrar) {
     override fun pigeon_defaultConstructor(uuid: UUID, permissions: Long): BluetoothGattDescriptor {
         return BluetoothGattDescriptor(uuid, permissions.toInt())
@@ -20,14 +20,6 @@ class BluetoothGattDescriptorImpl(registrar: BluetoothLowEnergyPigeonProxyApiReg
 
     override fun getUuid(pigeon_instance: BluetoothGattDescriptor): UUID {
         return pigeon_instance.uuid
-    }
-
-    override fun getValue(pigeon_instance: BluetoothGattDescriptor): ByteArray {
-        return pigeon_instance.value
-    }
-
-    override fun setValue(pigeon_instance: BluetoothGattDescriptor, value: ByteArray): Boolean {
-        return pigeon_instance.setValue(value)
     }
 
     override fun disableNotificationValue(): ByteArray {

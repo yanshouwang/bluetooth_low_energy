@@ -12,7 +12,7 @@ import io.flutter.plugin.common.PluginRegistry
 class BluetoothLowEnergyAndroidPlugin : FlutterPlugin, ActivityAware, PluginRegistry.RequestPermissionsResultListener,
     PluginRegistry.ActivityResultListener {
     private lateinit var _applicationContext: Context
-    private lateinit var _registrar: BluetoothLowEnergyPigeonProxyApiRegistrar
+    private lateinit var _registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar
     private var _binding: ActivityPluginBinding? = null
     private val _requestPermissionsResultListeners = mutableListOf<PluginRegistry.RequestPermissionsResultListener>()
     private val _activityResultListeners = mutableListOf<PluginRegistry.ActivityResultListener>()
@@ -41,7 +41,7 @@ class BluetoothLowEnergyAndroidPlugin : FlutterPlugin, ActivityAware, PluginRegi
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         _applicationContext = binding.applicationContext
-        _registrar = BluetoothLowEnergyRegistrar(binding.binaryMessenger, this)
+        _registrar = BluetoothLowEnergyAndroidRegistrarImpl(binding.binaryMessenger, this)
         _registrar.setUp()
     }
 

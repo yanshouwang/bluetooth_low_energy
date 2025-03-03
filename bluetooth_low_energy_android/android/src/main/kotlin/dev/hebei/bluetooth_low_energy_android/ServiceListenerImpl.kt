@@ -2,7 +2,8 @@ package dev.hebei.bluetooth_low_energy_android
 
 import android.bluetooth.BluetoothProfile
 
-class ServiceListenerImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : PigeonApiServiceListener(registrar) {
+class ServiceListenerImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
+    PigeonApiServiceListener(registrar) {
     override fun pigeon_defaultConstructor(): BluetoothProfile.ServiceListener {
         return object : BluetoothProfile.ServiceListener {
             override fun onServiceConnected(profile: Int, proxy: BluetoothProfile) {

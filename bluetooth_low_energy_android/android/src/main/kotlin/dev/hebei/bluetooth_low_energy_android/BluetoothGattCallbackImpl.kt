@@ -4,35 +4,48 @@ import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
+import android.os.Build
 
-class BluetoothGattCallbackImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+class BluetoothGattCallbackImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
     PigeonApiBluetoothGattCallback(registrar) {
     override fun pigeon_defaultConstructor(): BluetoothGattCallback {
         return object : BluetoothGattCallback() {
+            @Deprecated("Deprecated in Java")
             override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
                 super.onCharacteristicChanged(gatt, characteristic)
-                this@BluetoothGattCallbackImpl.onCharacteristicChanged1(this, gatt, characteristic) {}
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    return
+                }
+                val value = characteristic.value
+                this@BluetoothGattCallbackImpl.onCharacteristicChanged(this, gatt, characteristic, value) {}
             }
 
             override fun onCharacteristicChanged(
                 gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: ByteArray
             ) {
                 super.onCharacteristicChanged(gatt, characteristic, value)
-                this@BluetoothGattCallbackImpl.onCharacteristicChanged2(this, gatt, characteristic, value) {}
+                this@BluetoothGattCallbackImpl.onCharacteristicChanged(this, gatt, characteristic, value) {}
             }
 
+            @Deprecated("Deprecated in Java")
             override fun onCharacteristicRead(
                 gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int
             ) {
                 super.onCharacteristicRead(gatt, characteristic, status)
-                this@BluetoothGattCallbackImpl.onCharacteristicRead1(this, gatt, characteristic, status.toLong()) {}
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    return
+                }
+                val value = characteristic.value
+                this@BluetoothGattCallbackImpl.onCharacteristicRead(
+                    this, gatt, characteristic, value, status.toLong()
+                ) {}
             }
 
             override fun onCharacteristicRead(
                 gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: ByteArray, status: Int
             ) {
                 super.onCharacteristicRead(gatt, characteristic, value, status)
-                this@BluetoothGattCallbackImpl.onCharacteristicRead2(
+                this@BluetoothGattCallbackImpl.onCharacteristicRead(
                     this, gatt, characteristic, value, status.toLong()
                 ) {}
             }
@@ -51,16 +64,21 @@ class BluetoothGattCallbackImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegis
                 ) {}
             }
 
+            @Deprecated("Deprecated in Java")
             override fun onDescriptorRead(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {
                 super.onDescriptorRead(gatt, descriptor, status)
-                this@BluetoothGattCallbackImpl.onDescriptorRead1(this, gatt, descriptor, status.toLong()) {}
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    return
+                }
+                val value = descriptor.value
+                this@BluetoothGattCallbackImpl.onDescriptorRead(this, gatt, descriptor, status.toLong(), value) {}
             }
 
             override fun onDescriptorRead(
                 gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int, value: ByteArray
             ) {
                 super.onDescriptorRead(gatt, descriptor, status, value)
-                this@BluetoothGattCallbackImpl.onDescriptorRead2(this, gatt, descriptor, status.toLong(), value) {}
+                this@BluetoothGattCallbackImpl.onDescriptorRead(this, gatt, descriptor, status.toLong(), value) {}
             }
 
             override fun onDescriptorWrite(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {

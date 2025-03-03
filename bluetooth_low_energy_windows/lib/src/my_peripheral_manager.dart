@@ -11,18 +11,18 @@ import 'my_gatt.dart';
 final class MyPeripheralManager extends PlatformPeripheralManager
     implements MyPeripheralManagerFlutterAPI {
   final MyPeripheralManagerHostAPI _api;
-  final StreamController<BluetoothLowEnergyStateChangedEventArgs>
+  final StreamController<BluetoothLowEnergyStateChangedEvent>
       _stateChangedController;
-  final StreamController<CentralMTUChangedEventArgs> _mtuChangedController;
-  final StreamController<GATTCharacteristicReadRequestedEventArgs>
+  final StreamController<CentralMTUChangedEvent> _mtuChangedController;
+  final StreamController<GATTCharacteristicReadRequestedEvent>
       _characteristicReadRequestedController;
-  final StreamController<GATTCharacteristicWriteRequestedEventArgs>
+  final StreamController<GATTCharacteristicWriteRequestedEvent>
       _characteristicWriteRequestedController;
-  final StreamController<GATTCharacteristicNotifyStateChangedEventArgs>
+  final StreamController<GATTCharacteristicNotifyStateChangedEvent>
       _characteristicNotifyStateChangedController;
-  final StreamController<GATTDescriptorReadRequestedEventArgs>
+  final StreamController<GATTDescriptorReadRequestedEvent>
       _descriptorReadRequestedController;
-  final StreamController<GATTDescriptorWriteRequestedEventArgs>
+  final StreamController<GATTDescriptorWriteRequestedEvent>
       _descriptorWriteRequestedController;
 
   final Map<int, GATTService> _services;
@@ -52,35 +52,34 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   @override
   BluetoothLowEnergyState get state => _state;
   @override
-  Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
+  Stream<BluetoothLowEnergyStateChangedEvent> get stateChanged =>
       _stateChangedController.stream;
   @override
-  Stream<NameChangedEventArgs> get nameChanged =>
+  Stream<NameChangedEvent> get nameChanged =>
       throw UnsupportedError('nameChanged is not supported on Windows.');
   @override
-  Stream<CentralConnectionStateChangedEventArgs> get connectionStateChanged =>
+  Stream<CentralConnectionStateChangedEvent> get connectionStateChanged =>
       throw UnsupportedError(
           'connectionStateChanged is not supported on Windows.');
   @override
-  Stream<CentralMTUChangedEventArgs> get mtuChanged =>
-      _mtuChangedController.stream;
+  Stream<CentralMTUChangedEvent> get mtuChanged => _mtuChangedController.stream;
   @override
-  Stream<GATTCharacteristicReadRequestedEventArgs>
+  Stream<GATTCharacteristicReadRequestedEvent>
       get characteristicReadRequested =>
           _characteristicReadRequestedController.stream;
   @override
-  Stream<GATTCharacteristicWriteRequestedEventArgs>
+  Stream<GATTCharacteristicWriteRequestedEvent>
       get characteristicWriteRequested =>
           _characteristicWriteRequestedController.stream;
   @override
-  Stream<GATTCharacteristicNotifyStateChangedEventArgs>
+  Stream<GATTCharacteristicNotifyStateChangedEvent>
       get characteristicNotifyStateChanged =>
           _characteristicNotifyStateChangedController.stream;
   @override
-  Stream<GATTDescriptorReadRequestedEventArgs> get descriptorReadRequested =>
+  Stream<GATTDescriptorReadRequestedEvent> get descriptorReadRequested =>
       _descriptorReadRequestedController.stream;
   @override
-  Stream<GATTDescriptorWriteRequestedEventArgs> get descriptorWriteRequested =>
+  Stream<GATTDescriptorWriteRequestedEvent> get descriptorWriteRequested =>
       _descriptorWriteRequestedController.stream;
 
   @override
@@ -255,7 +254,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
       return;
     }
     _state = state;
-    final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
+    final eventArgs = BluetoothLowEnergyStateChangedEvent(state);
     _stateChangedController.add(eventArgs);
   }
 
@@ -265,7 +264,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     logger.info('onMTUChanged: $addressArgs - $mtuArgs');
     final central = MyCentral.fromArgs(centralArgs);
     final mtu = mtuArgs;
-    final eventArgs = CentralMTUChangedEventArgs(central, mtu);
+    final eventArgs = CentralMTUChangedEvent(central, mtu);
     _mtuChangedController.add(eventArgs);
   }
 
@@ -286,7 +285,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
         MyGATTProtocolErrorArgs.attributeNotFound,
       );
     } else {
-      final eventArgs = GATTCharacteristicReadRequestedEventArgs(
+      final eventArgs = GATTCharacteristicReadRequestedEvent(
         central,
         characteristic,
         MyGATTReadRequest(
@@ -320,7 +319,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
         MyGATTProtocolErrorArgs.attributeNotFound,
       );
     } else {
-      final eventArgs = GATTCharacteristicWriteRequestedEventArgs(
+      final eventArgs = GATTCharacteristicWriteRequestedEvent(
         central,
         characteristic,
         MyGATTWriteRequest(
@@ -356,7 +355,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
         newSubscribedCentralsArgs.difference(oldSubscribedCentralsArgs);
     for (var centralArgs in removedCentralsArgs) {
       final central = MyCentral.fromArgs(centralArgs);
-      final eventArgs = GATTCharacteristicNotifyStateChangedEventArgs(
+      final eventArgs = GATTCharacteristicNotifyStateChangedEvent(
         central,
         characteristic,
         false,
@@ -365,7 +364,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     }
     for (var centralArgs in addedCentralsArgs) {
       final central = MyCentral.fromArgs(centralArgs);
-      final eventArgs = GATTCharacteristicNotifyStateChangedEventArgs(
+      final eventArgs = GATTCharacteristicNotifyStateChangedEvent(
         central,
         characteristic,
         true,
@@ -392,7 +391,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
         MyGATTProtocolErrorArgs.attributeNotFound,
       );
     } else {
-      final eventArgs = GATTDescriptorReadRequestedEventArgs(
+      final eventArgs = GATTDescriptorReadRequestedEvent(
         central,
         descriptor,
         MyGATTReadRequest(
@@ -426,7 +425,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
         MyGATTProtocolErrorArgs.attributeNotFound,
       );
     } else {
-      final eventArgs = GATTDescriptorWriteRequestedEventArgs(
+      final eventArgs = GATTDescriptorWriteRequestedEvent(
         central,
         descriptor,
         MyGATTWriteRequest(

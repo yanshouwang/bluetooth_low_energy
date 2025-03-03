@@ -17,13 +17,13 @@ final class PeripheralManagerImpl
   static PeripheralManagerImpl? _instance;
 
   final PeripheralManagerHostAPI _api;
-  final StreamController<BluetoothLowEnergyStateChangedEventArgs>
+  final StreamController<BluetoothLowEnergyStateChangedEvent>
       _stateChangedController;
-  final StreamController<GATTCharacteristicReadRequestedEventArgs>
+  final StreamController<GATTCharacteristicReadRequestedEvent>
       _characteristicReadRequestedController;
-  final StreamController<GATTCharacteristicWriteRequestedEventArgs>
+  final StreamController<GATTCharacteristicWriteRequestedEvent>
       _characteristicWriteRequestedController;
-  final StreamController<GATTCharacteristicNotifyStateChangedEventArgs>
+  final StreamController<GATTCharacteristicNotifyStateChangedEvent>
       _characteristicNotifyStateChangedController;
   final StreamController<IsReadyEventArgs> _isReadyController;
 
@@ -56,36 +56,36 @@ final class PeripheralManagerImpl
   @override
   BluetoothLowEnergyState get state => _state;
   @override
-  Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
+  Stream<BluetoothLowEnergyStateChangedEvent> get stateChanged =>
       _stateChangedController.stream;
   @override
-  Stream<NameChangedEventArgs> get nameChanged =>
+  Stream<NameChangedEvent> get nameChanged =>
       throw UnsupportedError('nameChanged is not supported on Darwin.');
   @override
-  Stream<CentralConnectionStateChangedEventArgs> get connectionStateChanged =>
+  Stream<CentralConnectionStateChangedEvent> get connectionStateChanged =>
       throw UnsupportedError(
           'connectionStateChanged is not supported on Darwin.');
   @override
-  Stream<CentralMTUChangedEventArgs> get mtuChanged =>
+  Stream<CentralMTUChangedEvent> get mtuChanged =>
       throw UnsupportedError('mtuChanged is not supported on Darwin.');
   @override
-  Stream<GATTCharacteristicReadRequestedEventArgs>
+  Stream<GATTCharacteristicReadRequestedEvent>
       get characteristicReadRequested =>
           _characteristicReadRequestedController.stream;
   @override
-  Stream<GATTCharacteristicWriteRequestedEventArgs>
+  Stream<GATTCharacteristicWriteRequestedEvent>
       get characteristicWriteRequested =>
           _characteristicWriteRequestedController.stream;
   @override
-  Stream<GATTCharacteristicNotifyStateChangedEventArgs>
+  Stream<GATTCharacteristicNotifyStateChangedEvent>
       get characteristicNotifyStateChanged =>
           _characteristicNotifyStateChangedController.stream;
   @override
-  Stream<GATTDescriptorReadRequestedEventArgs> get descriptorReadRequested =>
+  Stream<GATTDescriptorReadRequestedEvent> get descriptorReadRequested =>
       throw UnsupportedError(
           'descriptorReadRequested is not supported on Darwin.');
   @override
-  Stream<GATTDescriptorWriteRequestedEventArgs> get descriptorWriteRequested =>
+  Stream<GATTDescriptorWriteRequestedEvent> get descriptorWriteRequested =>
       throw UnsupportedError(
           'descriptorWriteRequested is not supported on Darwin.');
   Stream<void> get _isReady => _isReadyController.stream;
@@ -277,7 +277,7 @@ final class PeripheralManagerImpl
       return;
     }
     _state = state;
-    final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
+    final eventArgs = BluetoothLowEnergyStateChangedEvent(state);
     _stateChangedController.add(eventArgs);
   }
 
@@ -294,7 +294,7 @@ final class PeripheralManagerImpl
       await _respond(hashCodeArgs, null, ATTErrorArgs.attributeNotFound);
     } else {
       final central = CentralImpl.fromArgs(centralArgs);
-      final eventArgs = GATTCharacteristicReadRequestedEventArgs(
+      final eventArgs = GATTCharacteristicReadRequestedEvent(
         characteristic,
         central,
         GATTReadRequestImpl(
@@ -342,7 +342,7 @@ final class PeripheralManagerImpl
             return previousValue;
           },
         );
-        final eventArgs = GATTCharacteristicWriteRequestedEventArgs(
+        final eventArgs = GATTCharacteristicWriteRequestedEvent(
           characteristic,
           central,
           GATTWriteRequestImpl(
@@ -377,7 +377,7 @@ final class PeripheralManagerImpl
       return;
     }
     final central = CentralImpl.fromArgs(centralArgs);
-    final eventArgs = GATTCharacteristicNotifyStateChangedEventArgs(
+    final eventArgs = GATTCharacteristicNotifyStateChangedEvent(
       characteristic,
       central,
       stateArgs,

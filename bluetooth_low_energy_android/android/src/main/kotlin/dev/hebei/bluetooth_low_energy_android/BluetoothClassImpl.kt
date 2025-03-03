@@ -1,8 +1,12 @@
 package dev.hebei.bluetooth_low_energy_android
 
 import android.bluetooth.BluetoothClass
+import android.os.Build
+import androidx.annotation.RequiresApi
 
-class BluetoothClassImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : PigeonApiBluetoothClass(registrar) {
+class BluetoothClassImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
+    PigeonApiBluetoothClass(registrar) {
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun doesClassMatch(pigeon_instance: BluetoothClass, profile: Long): Boolean {
         return pigeon_instance.doesClassMatch(profile.toInt())
     }

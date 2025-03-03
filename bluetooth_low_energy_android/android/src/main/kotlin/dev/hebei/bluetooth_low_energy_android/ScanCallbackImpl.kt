@@ -3,7 +3,7 @@ package dev.hebei.bluetooth_low_energy_android
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 
-class ScanCallbackImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : PigeonApiScanCallback(registrar) {
+class ScanCallbackImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) : PigeonApiScanCallback(registrar) {
     override fun pigeon_defaultConstructor(): ScanCallback {
         return object : ScanCallback() {
             override fun onBatchScanResults(results: MutableList<ScanResult>) {

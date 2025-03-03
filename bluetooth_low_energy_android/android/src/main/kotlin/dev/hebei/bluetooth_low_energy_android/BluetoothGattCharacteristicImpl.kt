@@ -5,7 +5,7 @@ import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattService
 import java.util.*
 
-class BluetoothGattCharacteristicImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+class BluetoothGattCharacteristicImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
     PigeonApiBluetoothGattCharacteristic(registrar) {
     override fun pigeon_defaultConstructor(
         uuid: UUID, properties: Long, permissions: Long
@@ -27,16 +27,8 @@ class BluetoothGattCharacteristicImpl(registrar: BluetoothLowEnergyPigeonProxyAp
         return pigeon_instance.descriptors
     }
 
-    override fun getFloatValue(pigeon_instance: BluetoothGattCharacteristic, formatType: Long, offset: Long): Double {
-        return pigeon_instance.getFloatValue(formatType.toInt(), offset.toInt()).toDouble()
-    }
-
     override fun getInstanceId(pigeon_instance: BluetoothGattCharacteristic): Long {
         return pigeon_instance.instanceId.toLong()
-    }
-
-    override fun getIntValue(pigeon_instance: BluetoothGattCharacteristic, formatType: Long, offset: Long): Long {
-        return pigeon_instance.getIntValue(formatType.toInt(), offset.toInt()).toLong()
     }
 
     override fun getPermissions(pigeon_instance: BluetoothGattCharacteristic): Long {
@@ -51,40 +43,12 @@ class BluetoothGattCharacteristicImpl(registrar: BluetoothLowEnergyPigeonProxyAp
         return pigeon_instance.service
     }
 
-    override fun getStringValue(pigeon_instance: BluetoothGattCharacteristic, offset: Long): String {
-        return pigeon_instance.getStringValue(offset.toInt())
-    }
-
     override fun getUuid(pigeon_instance: BluetoothGattCharacteristic): UUID {
         return pigeon_instance.uuid
     }
 
-    override fun getValue(pigeon_instance: BluetoothGattCharacteristic): ByteArray {
-        return pigeon_instance.value
-    }
-
     override fun getWriteType(pigeon_instance: BluetoothGattCharacteristic): Long {
         return pigeon_instance.writeType.toLong()
-    }
-
-    override fun setValue1(pigeon_instance: BluetoothGattCharacteristic, value: ByteArray): Boolean {
-        return pigeon_instance.setValue(value)
-    }
-
-    override fun setValue2(
-        pigeon_instance: BluetoothGattCharacteristic, value: Long, formatType: Long, offset: Long
-    ): Boolean {
-        return pigeon_instance.setValue(value.toInt(), formatType.toInt(), offset.toInt())
-    }
-
-    override fun setValue3(
-        pigeon_instance: BluetoothGattCharacteristic, mantissa: Long, exponent: Long, formatType: Long, offset: Long
-    ): Boolean {
-        return pigeon_instance.setValue(mantissa.toInt(), exponent.toInt(), formatType.toInt(), offset.toInt())
-    }
-
-    override fun setValue4(pigeon_instance: BluetoothGattCharacteristic, value: String): Boolean {
-        return pigeon_instance.setValue(value)
     }
 
     override fun setWriteType(pigeon_instance: BluetoothGattCharacteristic, writeType: Long) {

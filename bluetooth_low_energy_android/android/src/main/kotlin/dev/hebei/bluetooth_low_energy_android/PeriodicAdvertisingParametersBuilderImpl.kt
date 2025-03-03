@@ -4,7 +4,7 @@ import android.bluetooth.le.PeriodicAdvertisingParameters
 import android.os.Build
 import androidx.annotation.RequiresApi
 
-class PeriodicAdvertisingParametersBuilderImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+class PeriodicAdvertisingParametersBuilderImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
     PigeonApiPeriodicAdvertisingParametersBuilder(registrar) {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun pigeon_defaultConstructor(): PeriodicAdvertisingParameters.Builder {

@@ -15,7 +15,7 @@ class PeripheralViewModel extends ViewModel with TypeLogger {
 
   late final StreamSubscription _connectionStateChangedSubscription;
 
-  PeripheralViewModel(DiscoveredEventArgs eventArgs)
+  PeripheralViewModel(DiscoveredEvent eventArgs)
       : _manager = CentralManager(),
         _peripheral = eventArgs.peripheral,
         _name = eventArgs.advertisement.name,

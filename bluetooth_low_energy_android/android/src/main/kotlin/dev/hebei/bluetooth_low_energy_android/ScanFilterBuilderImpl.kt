@@ -1,9 +1,11 @@
 package dev.hebei.bluetooth_low_energy_android
 
 import android.bluetooth.le.ScanFilter
+import android.os.Build
 import android.os.ParcelUuid
+import androidx.annotation.RequiresApi
 
-class ScanFilterBuilderImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+class ScanFilterBuilderImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
     PigeonApiScanFilterBuilder(registrar) {
     override fun pigeon_defaultConstructor(): ScanFilter.Builder {
         return ScanFilter.Builder()
@@ -13,12 +15,14 @@ class ScanFilterBuilderImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar
         return pigeon_instance.build()
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun setAdvertisingDataType(
         pigeon_instance: ScanFilter.Builder, advertisingDataType: Long
     ): ScanFilter.Builder {
         return pigeon_instance.setAdvertisingDataType(advertisingDataType.toInt())
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun setAdvertisingDataTypeWithData(
         pigeon_instance: ScanFilter.Builder,
         advertisingDataType: Long,
@@ -68,12 +72,14 @@ class ScanFilterBuilderImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar
         return pigeon_instance.setServiceData(serviceDataUuid, serviceData, serviceDataMask)
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun setServiceSolicitationUuid1(
         pigeon_instance: ScanFilter.Builder, serviceSolicitationUuid: ParcelUuid?
     ): ScanFilter.Builder {
         return pigeon_instance.setServiceSolicitationUuid(serviceSolicitationUuid)
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun setServiceSolicitationUuid2(
         pigeon_instance: ScanFilter.Builder, serviceSolicitationUuid: ParcelUuid?, solicitationUuidMask: ParcelUuid?
     ): ScanFilter.Builder {

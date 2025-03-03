@@ -15,21 +15,21 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     implements MyPeripheralManagerFlutterAPI {
   final MyPeripheralManagerHostAPI _api;
   final ListEquality<int> _valueEquality;
-  final StreamController<BluetoothLowEnergyStateChangedEventArgs>
+  final StreamController<BluetoothLowEnergyStateChangedEvent>
       _stateChangedController;
-  final StreamController<NameChangedEventArgs> _nameChangedController;
-  final StreamController<CentralConnectionStateChangedEventArgs>
+  final StreamController<NameChangedEvent> _nameChangedController;
+  final StreamController<CentralConnectionStateChangedEvent>
       _connnectionStateChangedController;
-  final StreamController<CentralMTUChangedEventArgs> _mtuChangedController;
-  final StreamController<GATTCharacteristicReadRequestedEventArgs>
+  final StreamController<CentralMTUChangedEvent> _mtuChangedController;
+  final StreamController<GATTCharacteristicReadRequestedEvent>
       _characteristicReadRequestedController;
-  final StreamController<GATTCharacteristicWriteRequestedEventArgs>
+  final StreamController<GATTCharacteristicWriteRequestedEvent>
       _characteristicWriteRequestedController;
-  final StreamController<GATTCharacteristicNotifyStateChangedEventArgs>
+  final StreamController<GATTCharacteristicNotifyStateChangedEvent>
       _characteristicNotifyStateChangedController;
-  final StreamController<GATTDescriptorReadRequestedEventArgs>
+  final StreamController<GATTDescriptorReadRequestedEvent>
       _descriptorReadRequestedController;
-  final StreamController<GATTDescriptorWriteRequestedEventArgs>
+  final StreamController<GATTDescriptorWriteRequestedEvent>
       _descriptorWriteRequestedController;
 
   final Map<int, MutableGATTCharacteristic> _characteristics;
@@ -72,33 +72,32 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   @override
   BluetoothLowEnergyState get state => _state;
   @override
-  Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
+  Stream<BluetoothLowEnergyStateChangedEvent> get stateChanged =>
       _stateChangedController.stream;
   @override
-  Stream<NameChangedEventArgs> get nameChanged => _nameChangedController.stream;
+  Stream<NameChangedEvent> get nameChanged => _nameChangedController.stream;
   @override
-  Stream<CentralConnectionStateChangedEventArgs> get connectionStateChanged =>
+  Stream<CentralConnectionStateChangedEvent> get connectionStateChanged =>
       _connnectionStateChangedController.stream;
   @override
-  Stream<CentralMTUChangedEventArgs> get mtuChanged =>
-      _mtuChangedController.stream;
+  Stream<CentralMTUChangedEvent> get mtuChanged => _mtuChangedController.stream;
   @override
-  Stream<GATTCharacteristicReadRequestedEventArgs>
+  Stream<GATTCharacteristicReadRequestedEvent>
       get characteristicReadRequested =>
           _characteristicReadRequestedController.stream;
   @override
-  Stream<GATTCharacteristicWriteRequestedEventArgs>
+  Stream<GATTCharacteristicWriteRequestedEvent>
       get characteristicWriteRequested =>
           _characteristicWriteRequestedController.stream;
   @override
-  Stream<GATTCharacteristicNotifyStateChangedEventArgs>
+  Stream<GATTCharacteristicNotifyStateChangedEvent>
       get characteristicNotifyStateChanged =>
           _characteristicNotifyStateChangedController.stream;
   @override
-  Stream<GATTDescriptorReadRequestedEventArgs> get descriptorReadRequested =>
+  Stream<GATTDescriptorReadRequestedEvent> get descriptorReadRequested =>
       _descriptorReadRequestedController.stream;
   @override
-  Stream<GATTDescriptorWriteRequestedEventArgs> get descriptorWriteRequested =>
+  Stream<GATTDescriptorWriteRequestedEvent> get descriptorWriteRequested =>
       _descriptorWriteRequestedController.stream;
 
   @override
@@ -369,7 +368,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
         break;
     }
     _state = state;
-    final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
+    final eventArgs = BluetoothLowEnergyStateChangedEvent(state);
     _stateChangedController.add(eventArgs);
   }
 
@@ -379,7 +378,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     if (nameArgs == null) {
       return;
     }
-    final eventArgs = NameChangedEventArgs(nameArgs);
+    final eventArgs = NameChangedEvent(nameArgs);
     _nameChangedController.add(eventArgs);
   }
 
@@ -402,7 +401,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
       _preparedHashCodeArgs.remove(addressArgs);
       _preparedValue.remove(addressArgs);
     }
-    final eventArgs = CentralConnectionStateChangedEventArgs(central, state);
+    final eventArgs = CentralConnectionStateChangedEvent(central, state);
     _connnectionStateChangedController.add(eventArgs);
   }
 
@@ -413,7 +412,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     final central = MyCentral.fromArgs(centralArgs);
     final mtu = mtuArgs;
     _mtus[addressArgs] = mtu;
-    final eventArgs = CentralMTUChangedEventArgs(central, mtu);
+    final eventArgs = CentralMTUChangedEvent(central, mtu);
     _mtuChangedController.add(eventArgs);
   }
 
@@ -446,7 +445,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
         characteristic.value.sublist(offsetArgs),
       );
     } else {
-      final eventArgs = GATTCharacteristicReadRequestedEventArgs(
+      final eventArgs = GATTCharacteristicReadRequestedEvent(
         central,
         characteristic,
         MyGATTReadRequest(
@@ -535,7 +534,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
         null,
       );
     } else {
-      final eventArgs = GATTCharacteristicWriteRequestedEventArgs(
+      final eventArgs = GATTCharacteristicWriteRequestedEvent(
         central,
         characteristic,
         MyGATTWriteRequest(
@@ -581,7 +580,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
           descriptor.value.sublist(offsetArgs),
         );
       } else {
-        final eventArgs = GATTDescriptorReadRequestedEventArgs(
+        final eventArgs = GATTDescriptorReadRequestedEvent(
           central,
           descriptor,
           MyGATTReadRequest(
@@ -685,7 +684,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
             null,
           );
         } else {
-          final eventArgs = GATTDescriptorWriteRequestedEventArgs(
+          final eventArgs = GATTDescriptorWriteRequestedEvent(
             central,
             descriptor,
             MyGATTWriteRequest(
@@ -737,7 +736,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
           } else {
             values.remove(hashCodeArgs);
           }
-          final eventArgs = GATTCharacteristicNotifyStateChangedEventArgs(
+          final eventArgs = GATTCharacteristicNotifyStateChangedEvent(
             central,
             characteristic,
             state,
@@ -795,7 +794,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
             null,
           );
         } else {
-          final eventArgs = GATTCharacteristicWriteRequestedEventArgs(
+          final eventArgs = GATTCharacteristicWriteRequestedEvent(
             central,
             characteristic,
             MyGATTWriteRequest(
@@ -821,7 +820,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
             null,
           );
         } else {
-          final eventArgs = GATTDescriptorWriteRequestedEventArgs(
+          final eventArgs = GATTDescriptorWriteRequestedEvent(
             central,
             descriptor,
             MyGATTWriteRequest(
@@ -873,7 +872,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
           } else {
             values.remove(hashCodeArgs);
           }
-          final eventArgs = GATTCharacteristicNotifyStateChangedEventArgs(
+          final eventArgs = GATTCharacteristicNotifyStateChangedEvent(
             central,
             cccCharacteristic,
             state,

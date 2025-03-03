@@ -2,17 +2,22 @@ package dev.hebei.bluetooth_low_energy_android
 
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
+import android.os.Build
 import android.os.ParcelUuid
+import androidx.annotation.RequiresApi
 
-class ScanFilterImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : PigeonApiScanFilter(registrar) {
+class ScanFilterImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) : PigeonApiScanFilter(registrar) {
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun getAdvertisingData(pigeon_instance: ScanFilter): ByteArray? {
         return pigeon_instance.advertisingData
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun getAdvertisingDataMask(pigeon_instance: ScanFilter): ByteArray? {
         return pigeon_instance.advertisingDataMask
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun getAdvertisingDataType(pigeon_instance: ScanFilter): Long {
         return pigeon_instance.advertisingDataType.toLong()
     }
@@ -49,10 +54,12 @@ class ScanFilterImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : Pig
         return pigeon_instance.serviceDataUuid
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun getServiceSolicitationUuid(pigeon_instance: ScanFilter): ParcelUuid? {
         return pigeon_instance.serviceSolicitationUuid
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun getServiceSolicitationUuidMask(pigeon_instance: ScanFilter): ParcelUuid? {
         return pigeon_instance.serviceSolicitationUuidMask
     }

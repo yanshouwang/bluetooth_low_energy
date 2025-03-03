@@ -5,13 +5,12 @@ import 'bluetooth_low_energy_manager.dart';
 import 'bluetooth_low_energy_plugin.dart';
 import 'connection_priority.dart';
 import 'connection_state.dart';
-import 'event_args.dart';
 import 'gatt.dart';
 import 'peripheral.dart';
 import 'uuid.dart';
 
-/// The discovered event arguments.
-final class DiscoveredEventArgs extends EventArgs {
+/// The discovered event.
+final class DiscoveredEvent {
   /// The disvered peripheral.
   final Peripheral peripheral;
 
@@ -21,49 +20,49 @@ final class DiscoveredEventArgs extends EventArgs {
   /// The advertisement of the peripheral.
   final Advertisement advertisement;
 
-  /// Constructs a [DiscoveredEventArgs].
-  DiscoveredEventArgs(this.peripheral, this.rssi, this.advertisement);
+  /// Constructs a [DiscoveredEvent].
+  DiscoveredEvent(this.peripheral, this.rssi, this.advertisement);
 }
 
-/// The peripheral connection state cahnged event arguments.
-final class PeripheralConnectionStateChangedEventArgs extends EventArgs {
+/// The peripheral connection state cahnged event.
+final class PeripheralConnectionStateChangedEvent {
   /// The peripheral which connection state changed.
   final Peripheral peripheral;
 
   /// The connection state.
   final ConnectionState state;
 
-  /// Constructs a [PeripheralConnectionStateChangedEventArgs].
-  PeripheralConnectionStateChangedEventArgs(this.peripheral, this.state);
+  /// Constructs a [PeripheralConnectionStateChangedEvent].
+  PeripheralConnectionStateChangedEvent(this.peripheral, this.state);
 }
 
-/// The peripheral MTU changed event arguments.
-final class PeripheralMTUChangedEventArgs extends EventArgs {
+/// The peripheral MTU changed event.
+final class PeripheralMTUChangedEvent {
   /// The peripheral which MTU changed.
   final Peripheral peripheral;
 
   /// The MTU.
   final int mtu;
 
-  /// Constructs a [PeripheralMTUChangedEventArgs].
-  PeripheralMTUChangedEventArgs(this.peripheral, this.mtu);
+  /// Constructs a [PeripheralMTUChangedEvent].
+  PeripheralMTUChangedEvent(this.peripheral, this.mtu);
 }
 
-/// The GATT characteristic notified event arguments.
-final class GATTCharacteristicNotifiedEventArgs extends EventArgs {
+/// The GATT characteristic notified event.
+final class GATTCharacteristicNotifiedEvent {
   /// The GATT characteristic which notified.
   final GATTCharacteristic characteristic;
 
   /// The notified value.
   final Uint8List value;
 
-  /// Constructs a [GATTCharacteristicNotifiedEventArgs].
-  GATTCharacteristicNotifiedEventArgs(this.characteristic, this.value);
+  /// Constructs a [GATTCharacteristicNotifiedEvent].
+  GATTCharacteristicNotifiedEvent(this.characteristic, this.value);
 }
 
 /// An object that scans for, discovers, connects to, and manages peripherals.
 abstract base class CentralManager extends BluetoothLowEnergyManager {
-  CentralManager.impl():super.impl();
+  CentralManager.impl() : super.impl();
 
   /// Gets the instance of [CentralManager] to use.
   factory CentralManager() {
@@ -71,10 +70,10 @@ abstract base class CentralManager extends BluetoothLowEnergyManager {
   }
 
   /// Tells the central manager discovered a peripheral while scanning for devices.
-  Stream<DiscoveredEventArgs> get discovered;
+  Stream<DiscoveredEvent> get discovered;
 
   /// Tells that retrieving the specified peripheral's connection state changed.
-  Stream<PeripheralConnectionStateChangedEventArgs> get connectionStateChanged;
+  Stream<PeripheralConnectionStateChangedEvent> get connectionStateChanged;
 
   /// Callback indicating the MTU for a given device connection has changed.
   ///
@@ -83,10 +82,10 @@ abstract base class CentralManager extends BluetoothLowEnergyManager {
   ///
   /// This event is available on Android and Windows, throws [UnsupportedError]
   /// on other platforms.
-  Stream<PeripheralMTUChangedEventArgs> get mtuChanged;
+  Stream<PeripheralMTUChangedEvent> get mtuChanged;
 
   /// Tells that retrieving the specified characteristic’s value changed.
-  Stream<GATTCharacteristicNotifiedEventArgs> get characteristicNotified;
+  Stream<GATTCharacteristicNotifiedEvent> get characteristicNotified;
 
   /// Scans for peripherals that are advertising services.
   ///

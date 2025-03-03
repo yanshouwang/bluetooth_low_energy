@@ -4,9 +4,9 @@ import 'package:pigeon/pigeon.dart';
 
 @ConfigurePigeon(
   PigeonOptions(
-    dartOut: 'lib/src/bluetooth_low_energy.g.dart',
+    dartOut: 'lib/src/bluetooth_low_energy_android.g.dart',
     kotlinOut:
-        'android/src/main/kotlin/dev/hebei/bluetooth_low_energy_android/BluetoothLowEnergy.g.kt',
+        'android/src/main/kotlin/dev/hebei/bluetooth_low_energy_android/BluetoothLowEnergyAndroid.g.kt',
     kotlinOptions: KotlinOptions(
       package: 'dev.hebei.bluetooth_low_energy_android',
       errorClassName: 'BluetoothLowEnergyError',
@@ -75,13 +75,6 @@ abstract class Any {
   /// Indicates whether some other object is "equal to" this one. Implementations
   /// must fulfil the following requirements:
   bool equals(Any? other);
-
-  /// Returns a hash code value for the object.  The general contract of hashCode
-  /// is:
-  int hashCodeX();
-
-  /// Returns a string representation of the object.
-  String toStringX();
 }
 
 // https://developer.android.google.cn/reference/kotlin/android/app/package-summary
@@ -290,6 +283,11 @@ abstract class BluetoothAdapter extends Any {
   // @KotlinProxyApiOptions(
   //   minAndroidApi: 33,
   // )
+  @ProxyApi(
+    kotlinOptions: KotlinProxyApiOptions(
+      minAndroidApi: 33,
+    ),
+  )
   Duration? getDiscoverableTimeout();
 
   /// Return the maximum LE advertising data length in bytes, if LE Extended
@@ -1064,37 +1062,17 @@ abstract class BluetoothGatt extends Any {
   /// Once the write operation has been completed, the
   /// android.bluetooth.BluetoothGattCallback#onCharacteristicWrite callback is
   /// invoked, reporting the result of the operation.
-  // @Deprecated(
-  //     'Use BluetoothGatt.writeCharacteristic(BluetoothGattCharacteristic, byte[], as this is not memory safe because it relies on a BluetoothGattCharacteristic object whose underlying fields are subject to change outside this method.')
-  bool writeCharacteristic1(BluetoothGattCharacteristic characteristic);
-
-  /// Writes a given characteristic and its values to the associated remote device.
-  ///
-  /// Once the write operation has been completed, the
-  /// android.bluetooth.BluetoothGattCallback#onCharacteristicWrite callback is
-  /// invoked, reporting the result of the operation.
-  // @KotlinProxyApiOptions(
-  //   minAndroidApi: 33,
-  // )
-  int writeCharacteristic2(BluetoothGattCharacteristic characteristic,
-      Uint8List value, int writeType);
+  BluetoothStatusCodesArgs writeCharacteristic(
+      BluetoothGattCharacteristic characteristic,
+      Uint8List value,
+      int writeType);
 
   /// Write the value of a given descriptor to the associated remote device.
   ///
   /// A BluetoothGattCallback.onDescriptorWrite callback is triggered to report
   /// the result of the write operation.
-  // @Deprecated(
-  //     ' Use BluetoothGatt.writeDescriptor(BluetoothGattDescriptor, byte[]) as this is not memory safe because it relies on a BluetoothGattDescriptor object whose underlying fields are subject to change outside this method.')
-  bool writeDescriptor1(BluetoothGattDescriptor descriptor);
-
-  /// Write the value of a given descriptor to the associated remote device.
-  ///
-  /// A BluetoothGattCallback.onDescriptorWrite callback is triggered to report
-  /// the result of the write operation.
-  // @KotlinProxyApiOptions(
-  //   minAndroidApi: 33,
-  // )
-  int writeDescriptor2(BluetoothGattDescriptor descriptor, Uint8List value);
+  BluetoothStatusCodesArgs writeDescriptor(
+      BluetoothGattDescriptor descriptor, Uint8List value);
 }
 
 /// This abstract class is used to implement BluetoothGatt callbacks.
@@ -1106,42 +1084,21 @@ abstract class BluetoothGatt extends Any {
 abstract class BluetoothGattCallback extends Any {
   BluetoothGattCallback();
 
-  /// Callback triggered as a result of a remote characteristic notification.
-  // @Deprecated(
-  //     'Use BluetoothGattCallback.onCharacteristicChanged(BluetoothGatt, as it is memory safe by providing the characteristic value at the time of notification.')
-  late final void Function(
-          BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
-      onCharacteristicChanged1;
-
   /// Callback triggered as a result of a remote characteristic notification. Note
   /// that the value within the characteristic object may have changed since
   /// receiving the remote characteristic notification, so check the parameter
   /// value for the value at the time of notification.
-  // @KotlinProxyApiOptions(
-  //   minAndroidApi: 33,
-  // )
   late final void Function(
       BluetoothGatt gatt,
       BluetoothGattCharacteristic characteristic,
-      Uint8List value) onCharacteristicChanged2;
+      Uint8List value) onCharacteristicChanged;
 
   /// Callback reporting the result of a characteristic read operation.
-  // @Deprecated(
-  //     'Use BluetoothGattCallback.onCharacteristicRead(BluetoothGatt, as it is memory safe')
-  late final void Function(
-      BluetoothGatt gatt,
-      BluetoothGattCharacteristic characteristic,
-      int status) onCharacteristicRead1;
-
-  /// Callback reporting the result of a characteristic read operation.
-  // @KotlinProxyApiOptions(
-  //   minAndroidApi: 33,
-  // )
   late final void Function(
       BluetoothGatt gatt,
       BluetoothGattCharacteristic characteristic,
       Uint8List value,
-      int status) onCharacteristicRead2;
+      int status) onCharacteristicRead;
 
   /// Callback indicating the result of a characteristic write operation.
   ///
@@ -1160,22 +1117,12 @@ abstract class BluetoothGattCallback extends Any {
   late final void Function(BluetoothGatt gatt, int status, int newState)
       onConnectionStateChange;
 
-  /// Callback triggered as a result of a remote descriptor read operation.
-  // @Deprecated(
-  //     'Use BluetoothGattCallback.onDescriptorRead(BluetoothGatt, as it is memory safe by providing the descriptor value at the time it was read.')
-  late final void Function(
-          BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status)
-      onDescriptorRead1;
-
   /// Callback reporting the result of a descriptor read operation.
-  // @KotlinProxyApiOptions(
-  //   minAndroidApi: 33,
-  // )
   late final void Function(
       BluetoothGatt gatt,
       BluetoothGattDescriptor descriptor,
       int status,
-      Uint8List value) onDescriptorRead2;
+      Uint8List value) onDescriptorRead;
 
   /// Callback triggered as a result of a remote descriptor write operation.
   late final void Function(
@@ -1259,28 +1206,11 @@ abstract class BluetoothGattCharacteristic extends Any {
   /// Returns a list of descriptors for this characteristic.
   List<BluetoothGattDescriptor> getDescriptors();
 
-  /// Return the stored value of this characteristic.
-  ///
-  /// See getValue for details.
-  // @Deprecated(
-  //     'Use BluetoothGatt.readCharacteristic(BluetoothGattCharacteristic) to get the characteristic value')
-  double getFloatValue(int formatType, int offset);
-
   /// Returns the instance ID for this characteristic.
   ///
   /// If a remote device offers multiple characteristics with the same UUID, the
   /// instance ID is used to distuinguish between characteristics.
   int getInstanceId();
-
-  /// Return the stored value of this characteristic.
-  ///
-  /// The formatType parameter determines how the characteristic value is to be
-  /// interpreted. For example, setting formatType to FORMAT_UINT16 specifies that
-  /// the first two bytes of the characteristic value at the given offset are
-  /// interpreted to generate the return value.
-  // @Deprecated(
-  //     'Use BluetoothGatt.readCharacteristic(BluetoothGattCharacteristic) to get the characteristic value')
-  int getIntValue(int formatType, int offset);
 
   /// Returns the permissions for this characteristic.
   int getPermissions();
@@ -1294,56 +1224,11 @@ abstract class BluetoothGattCharacteristic extends Any {
   /// Returns the service this characteristic belongs to.
   BluetoothGattService getService();
 
-  /// Return the stored value of this characteristic.
-  // @Deprecated(
-  //     'Use BluetoothGatt.readCharacteristic(BluetoothGattCharacteristic) to get the characteristic value')
-  String getStringValue(int offset);
-
   /// Returns the UUID of this characteristic
   UUID getUuid();
 
-  /// Get the stored value for this characteristic.
-  ///
-  /// This function returns the stored value for this characteristic as retrieved
-  /// by calling BluetoothGatt.readCharacteristic. The cached value of the
-  /// characteristic is updated as a result of a read characteristic operation or
-  /// if a characteristic update notification has been received.
-  // @Deprecated(
-  //     ' Use BluetoothGatt.readCharacteristic(BluetoothGattCharacteristic) instead')
-  Uint8List getValue();
-
   /// Gets the write type for this characteristic.
   int getWriteType();
-
-  /// Updates the locally stored value of this characteristic.
-  ///
-  /// This function modifies the locally stored cached value of this characteristic.
-  /// To send the value to the remote device, call android.bluetooth.BluetoothGatt#writeCharacteristic
-  /// to send the value to the remote device.
-  // @Deprecated(
-  //     'Pass the characteristic value directly into android.bluetooth.BluetoothGatt#writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic,byte[],int)')
-  bool setValue1(Uint8List value);
-
-  /// Set the locally stored value of this characteristic.
-  ///
-  /// See setValue(byte[]) for details.
-  // @Deprecated(
-  //     'Pass the characteristic value directly into android.bluetooth.BluetoothGatt#writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic,byte[],int)')
-  bool setValue2(int value, int formatType, int offset);
-
-  /// Set the locally stored value of this characteristic.
-  ///
-  /// See setValue(byte[]) for details.
-  // @Deprecated(
-  //     ' Pass the characteristic value directly into android.bluetooth.BluetoothGatt#writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic,byte[],int)')
-  bool setValue3(int mantissa, int exponent, int formatType, int offset);
-
-  /// Set the locally stored value of this characteristic.
-  ///
-  /// See setValue(byte[]) for details.
-  // @Deprecated(
-  //     'Pass the characteristic value directly into android.bluetooth.BluetoothGatt#writeCharacteristic(android.bluetooth.BluetoothGattCharacteristic,byte[],int)')
-  bool setValue4(String value);
 
   /// Set the write type for this characteristic
   ///
@@ -1378,24 +1263,6 @@ abstract class BluetoothGattDescriptor extends Any {
 
   /// Returns the UUID of this descriptor.
   UUID getUuid();
-
-  /// Returns the stored value for this descriptor
-  ///
-  /// This function returns the stored value for this descriptor as retrieved by
-  /// calling android.bluetooth.BluetoothGatt#readDescriptor. The cached value of
-  /// the descriptor is updated as a result of a descriptor read operation.
-  // @Deprecated(
-  //     'Use BluetoothGatt.readDescriptor(BluetoothGattDescriptor) instead')
-  Uint8List getValue();
-
-  /// Updates the locally stored value of this descriptor.
-  ///
-  /// This function modifies the locally stored cached value of this descriptor.
-  /// To send the value to the remote device, call android.bluetooth.BluetoothGatt#writeDescriptor
-  /// to send the value to the remote device.
-  // @Deprecated(
-  //     'Pass the descriptor value directly into android.bluetooth.BluetoothGatt#writeDescriptor(android.bluetooth.BluetoothGattDescriptor,byte[])')
-  bool setValue(Uint8List value);
 
   @static
   Uint8List disableNotificationValue();
@@ -1476,22 +1343,7 @@ abstract class BluetoothGattServer extends Any {
   /// the characteristic has been updated. This function should be invoked for
   /// every client that requests notifications/indications by writing to the
   /// "Client Configuration" descriptor for the given characteristic.
-  // @Deprecated(
-  //     'Use BluetoothGattServer.notifyCharacteristicChanged(BluetoothDevice, as this is not memory safe.')
-  bool notifyCharacteristicChanged(BluetoothDevice device,
-      BluetoothGattCharacteristic characteristic, bool confirm);
-
-  /// Send a notification or indication that a local characteristic has been
-  /// updated.
-  ///
-  /// A notification or indication is sent to the remote device to signal that
-  /// the characteristic has been updated. This function should be invoked for
-  /// every client that requests notifications/indications by writing to the
-  /// "Client Configuration" descriptor for the given characteristic.
-  // @KotlinProxyApiOptions(
-  //   minAndroidApi: 33,
-  // )
-  int notifyCharacteristicChanged1(
+  BluetoothStatusCodesArgs notifyCharacteristicChanged(
       BluetoothDevice device,
       BluetoothGattCharacteristic characteristic,
       bool confirm,
@@ -1912,7 +1764,7 @@ abstract class BluetoothSocket extends Any {
 /// occupy the range 200-999. API-specific return values start at 1000. The
 /// exception to this is the "UNKNOWN" error code which occupies the max integer
 /// value.
-enum BluetoothStatusCodes {
+enum BluetoothStatusCodesArgs {
   /// Error code indicating that the API call was initiated by neither the system
   /// nor the active user.
   errorBluetoothNotAllowed,
@@ -2531,6 +2383,17 @@ abstract class BluetoothLeScanner extends Any {
   /// in order to get results.
   void startScan1(ScanCallback callback);
 
+  /// Start Bluetooth LE scan. The scan results will be delivered through callback.
+  /// For unfiltered scans, scanning is stopped on screen off to save power.
+  /// Scanning is resumed when screen is turned on again. To avoid this, do filtered
+  /// scanning by using proper ScanFilter.
+  ///
+  /// An app must have ACCESS_COARSE_LOCATION permission in order to get results.
+  /// An App targeting Android Q or later must have ACCESS_FINE_LOCATION permission
+  /// in order to get results.
+  void startScan2(
+      List<ScanFilter> filters, ScanSettings settings, ScanCallback callback);
+
   /// Start Bluetooth LE scan using a PendingIntent. The scan results will be
   /// delivered via the PendingIntent. Use this method of scanning if your process
   /// is not always running and it should be started when scan results are available.
@@ -2543,27 +2406,16 @@ abstract class BluetoothLeScanner extends Any {
   /// activity will contain one or more of the extras EXTRA_CALLBACK_TYPE,
   /// EXTRA_ERROR_CODE and EXTRA_LIST_SCAN_RESULT to indicate the result of the
   /// scan.
-  void startScan2(List<ScanFilter>? filters, ScanSettings? settings,
+  void startScan3(List<ScanFilter>? filters, ScanSettings? settings,
       PendingIntent callbackIntent);
 
-  /// Start Bluetooth LE scan. The scan results will be delivered through callback.
-  /// For unfiltered scans, scanning is stopped on screen off to save power.
-  /// Scanning is resumed when screen is turned on again. To avoid this, do filtered
-  /// scanning by using proper ScanFilter.
-  ///
-  /// An app must have ACCESS_COARSE_LOCATION permission in order to get results.
-  /// An App targeting Android Q or later must have ACCESS_FINE_LOCATION permission
-  /// in order to get results.
-  void startScan3(
-      List<ScanFilter> filters, ScanSettings settings, ScanCallback callback);
+  /// Stops an ongoing Bluetooth LE scan.
+  void stopScan1(ScanCallback callback);
 
   /// Stops an ongoing Bluetooth LE scan started using a PendingIntent. When
   /// creating the PendingIntent parameter, please do not use the FLAG_CANCEL_CURRENT
   /// flag. Otherwise, the stop scan may have no effect.
-  void stopScan1(PendingIntent callbackIntent);
-
-  /// Stops an ongoing Bluetooth LE scan.
-  void stopScan2(ScanCallback callback);
+  void stopScan2(PendingIntent callbackIntent);
 }
 
 /// The PeriodicAdvertisingParameters provide a way to adjust periodic advertising

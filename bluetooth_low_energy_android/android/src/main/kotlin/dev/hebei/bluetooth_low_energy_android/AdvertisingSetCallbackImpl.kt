@@ -5,7 +5,7 @@ import android.bluetooth.le.AdvertisingSetCallback
 import android.os.Build
 import androidx.annotation.RequiresApi
 
-class AdvertisingSetCallbackImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+class AdvertisingSetCallbackImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
     PigeonApiAdvertisingSetCallback(registrar) {
 
     @RequiresApi(Build.VERSION_CODES.O)

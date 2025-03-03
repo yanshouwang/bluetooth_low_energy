@@ -13,14 +13,14 @@ final class MyCentralManager extends PlatformCentralManager
     with WidgetsBindingObserver
     implements MyCentralManagerFlutterAPI {
   final MyCentralManagerHostAPI _api;
-  final StreamController<BluetoothLowEnergyStateChangedEventArgs>
+  final StreamController<BluetoothLowEnergyStateChangedEvent>
       _stateChangedController;
-  final StreamController<NameChangedEventArgs> _nameChangedController;
-  final StreamController<DiscoveredEventArgs> _discoveredController;
-  final StreamController<PeripheralConnectionStateChangedEventArgs>
+  final StreamController<NameChangedEvent> _nameChangedController;
+  final StreamController<DiscoveredEvent> _discoveredController;
+  final StreamController<PeripheralConnectionStateChangedEvent>
       _connectionStateChangedController;
-  final StreamController<PeripheralMTUChangedEventArgs> _mtuChangedController;
-  final StreamController<GATTCharacteristicNotifiedEventArgs>
+  final StreamController<PeripheralMTUChangedEvent> _mtuChangedController;
+  final StreamController<GATTCharacteristicNotifiedEvent>
       _characteristicNotifiedController;
 
   final Map<String, int> _mtus;
@@ -44,20 +44,20 @@ final class MyCentralManager extends PlatformCentralManager
   @override
   BluetoothLowEnergyState get state => _state;
   @override
-  Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
+  Stream<BluetoothLowEnergyStateChangedEvent> get stateChanged =>
       _stateChangedController.stream;
   @override
-  Stream<NameChangedEventArgs> get nameChanged => _nameChangedController.stream;
+  Stream<NameChangedEvent> get nameChanged => _nameChangedController.stream;
   @override
-  Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
+  Stream<DiscoveredEvent> get discovered => _discoveredController.stream;
   @override
-  Stream<PeripheralConnectionStateChangedEventArgs>
-      get connectionStateChanged => _connectionStateChangedController.stream;
+  Stream<PeripheralConnectionStateChangedEvent> get connectionStateChanged =>
+      _connectionStateChangedController.stream;
   @override
-  Stream<PeripheralMTUChangedEventArgs> get mtuChanged =>
+  Stream<PeripheralMTUChangedEvent> get mtuChanged =>
       _mtuChangedController.stream;
   @override
-  Stream<GATTCharacteristicNotifiedEventArgs> get characteristicNotified =>
+  Stream<GATTCharacteristicNotifiedEvent> get characteristicNotified =>
       _characteristicNotifiedController.stream;
 
   @override
@@ -314,7 +314,7 @@ final class MyCentralManager extends PlatformCentralManager
       return;
     }
     _state = state;
-    final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
+    final eventArgs = BluetoothLowEnergyStateChangedEvent(state);
     _stateChangedController.add(eventArgs);
   }
 
@@ -324,7 +324,7 @@ final class MyCentralManager extends PlatformCentralManager
     if (nameArgs == null) {
       return;
     }
-    final eventArgs = NameChangedEventArgs(nameArgs);
+    final eventArgs = NameChangedEvent(nameArgs);
     _nameChangedController.add(eventArgs);
   }
 
@@ -339,7 +339,7 @@ final class MyCentralManager extends PlatformCentralManager
     final peripheral = MyPeripheral.fromArgs(peripheralArgs);
     final rssi = rssiArgs;
     final advertisement = advertisementArgs.toAdvertisement();
-    final eventArgs = DiscoveredEventArgs(
+    final eventArgs = DiscoveredEvent(
       peripheral,
       rssi,
       advertisement,
@@ -359,7 +359,7 @@ final class MyCentralManager extends PlatformCentralManager
     if (state == ConnectionState.disconnected) {
       _mtus.remove(addressArgs);
     }
-    final eventArgs = PeripheralConnectionStateChangedEventArgs(
+    final eventArgs = PeripheralConnectionStateChangedEvent(
       peripheral,
       state,
     );
@@ -373,7 +373,7 @@ final class MyCentralManager extends PlatformCentralManager
     final peripheral = MyPeripheral.fromArgs(peripheralArgs);
     final mtu = mtuArgs;
     _mtus[addressArgs] = mtu;
-    final eventArgs = PeripheralMTUChangedEventArgs(peripheral, mtu);
+    final eventArgs = PeripheralMTUChangedEvent(peripheral, mtu);
     _mtuChangedController.add(eventArgs);
   }
 
@@ -393,7 +393,7 @@ final class MyCentralManager extends PlatformCentralManager
       characteristicArgs: characteristicArgs,
     );
     final value = valueArgs;
-    final eventArgs = GATTCharacteristicNotifiedEventArgs(
+    final eventArgs = GATTCharacteristicNotifiedEvent(
       peripheral,
       characteristic,
       value,

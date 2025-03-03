@@ -90,8 +90,7 @@ class CentralManagerView extends StatelessWidget {
     }
   }
 
-  void onTapDissovery(
-      BuildContext context, DiscoveredEventArgs discovery) async {
+  void onTapDissovery(BuildContext context, DiscoveredEvent discovery) async {
     final viewModel = ViewModel.of<CentralManagerViewModel>(context);
     if (viewModel.discovering) {
       await viewModel.stopDiscovery();
@@ -104,7 +103,7 @@ class CentralManagerView extends StatelessWidget {
   }
 
   void onLongPressDiscovery(
-      BuildContext context, DiscoveredEventArgs discovery) async {
+      BuildContext context, DiscoveredEvent discovery) async {
     await showModalBottomSheet(
       context: context,
       builder: (context) {

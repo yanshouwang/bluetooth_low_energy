@@ -4,7 +4,7 @@ import android.bluetooth.le.AdvertisingSetParameters
 import android.os.Build
 import androidx.annotation.RequiresApi
 
-class AdvertisingSetParametersBuilderImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+class AdvertisingSetParametersBuilderImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
     PigeonApiAdvertisingSetParametersBuilder(registrar) {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun pigeon_defaultConstructor(): AdvertisingSetParameters.Builder {
@@ -30,7 +30,7 @@ class AdvertisingSetParametersBuilderImpl(registrar: BluetoothLowEnergyPigeonPro
         return pigeon_instance.setConnectable(connectable)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun setDiscoverable(
         pigeon_instance: AdvertisingSetParameters.Builder, discoverable: Boolean
     ): AdvertisingSetParameters.Builder {

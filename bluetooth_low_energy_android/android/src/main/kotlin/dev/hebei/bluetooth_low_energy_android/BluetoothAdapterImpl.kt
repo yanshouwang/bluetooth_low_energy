@@ -7,10 +7,12 @@ import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.le.BluetoothLeAdvertiser
 import android.bluetooth.le.BluetoothLeScanner
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import java.time.Duration
 import java.util.*
 
-class BluetoothAdapterImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+class BluetoothAdapterImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
     PigeonApiBluetoothAdapter(registrar) {
     override fun cancelDiscovery(pigeon_instance: BluetoothAdapter): Boolean {
         return pigeon_instance.cancelDiscovery()
@@ -52,14 +54,17 @@ class BluetoothAdapterImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar)
         return BluetoothAdapter.getDefaultAdapter()
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun getDiscoverableTimeout(pigeon_instance: BluetoothAdapter): Duration? {
         return pigeon_instance.discoverableTimeout
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun getLeMaximumAdvertisingDataLength(pigeon_instance: BluetoothAdapter): Long {
         return pigeon_instance.leMaximumAdvertisingDataLength.toLong()
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun getMaxConnectedAudioDevices(pigeon_instance: BluetoothAdapter): Long {
         return pigeon_instance.maxConnectedAudioDevices.toLong()
     }
@@ -86,6 +91,7 @@ class BluetoothAdapterImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar)
         return pigeon_instance.getRemoteDevice(address)
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun getRemoteLeDevice(
         pigeon_instance: BluetoothAdapter, address: String, addressType: Long
     ): BluetoothDevice {
@@ -108,30 +114,37 @@ class BluetoothAdapterImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar)
         return pigeon_instance.isEnabled
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun isLe2MPhySupported(pigeon_instance: BluetoothAdapter): Boolean {
         return pigeon_instance.isLe2MPhySupported
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun isLeAudioBroadcastAssistantSupported(pigeon_instance: BluetoothAdapter): Long {
         return pigeon_instance.isLeAudioBroadcastAssistantSupported.toLong()
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun isLeAudioBroadcastSourceSupported(pigeon_instance: BluetoothAdapter): Long {
         return pigeon_instance.isLeAudioBroadcastSourceSupported.toLong()
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun isLeAudioSupported(pigeon_instance: BluetoothAdapter): Long {
         return pigeon_instance.isLeAudioSupported.toLong()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun isLeCodedPhySupported(pigeon_instance: BluetoothAdapter): Boolean {
         return pigeon_instance.isLeCodedPhySupported
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun isLeExtendedAdvertisingSupported(pigeon_instance: BluetoothAdapter): Boolean {
         return pigeon_instance.isLeExtendedAdvertisingSupported
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun isLePeriodicAdvertisingSupported(pigeon_instance: BluetoothAdapter): Boolean {
         return pigeon_instance.isLePeriodicAdvertisingSupported
     }
@@ -148,6 +161,7 @@ class BluetoothAdapterImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar)
         return pigeon_instance.isOffloadedScanBatchingSupported
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun listenUsingInsecureL2capChannel(pigeon_instance: BluetoothAdapter): BluetoothServerSocket {
         return pigeon_instance.listenUsingInsecureL2capChannel()
     }
@@ -158,6 +172,7 @@ class BluetoothAdapterImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar)
         return pigeon_instance.listenUsingInsecureRfcommWithServiceRecord(name, uuid)
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun listenUsingL2capChannel(pigeon_instance: BluetoothAdapter): BluetoothServerSocket {
         return pigeon_instance.listenUsingL2capChannel()
     }

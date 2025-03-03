@@ -5,35 +5,34 @@ import 'bluetooth_low_energy_manager.dart';
 import 'bluetooth_low_energy_plugin.dart';
 import 'central.dart';
 import 'connection_state.dart';
-import 'event_args.dart';
 import 'gatt.dart';
 
-/// The central connection state cahnged event arguments.
-final class CentralConnectionStateChangedEventArgs extends EventArgs {
+/// The central connection state cahnged event.
+final class CentralConnectionStateChangedEvent {
   /// The central which connection state changed.
   final Central central;
 
   /// The connection state.
   final ConnectionState state;
 
-  /// Constructs a [CentralConnectionStateChangedEventArgs].
-  CentralConnectionStateChangedEventArgs(this.central, this.state);
+  /// Constructs a [CentralConnectionStateChangedEvent].
+  CentralConnectionStateChangedEvent(this.central, this.state);
 }
 
-/// The central MTU changed event arguments.
-final class CentralMTUChangedEventArgs extends EventArgs {
+/// The central MTU changed event.
+final class CentralMTUChangedEvent {
   /// The central which MTU changed.
   final Central central;
 
   /// The MTU.
   final int mtu;
 
-  /// Constructs a [CentralMTUChangedEventArgs].
-  CentralMTUChangedEventArgs(this.central, this.mtu);
+  /// Constructs a [CentralMTUChangedEvent].
+  CentralMTUChangedEvent(this.central, this.mtu);
 }
 
-/// The GATT characteristic read requested event arguments.
-final class GATTCharacteristicReadRequestedEventArgs extends EventArgs {
+/// The GATT characteristic read requested event.
+final class GATTCharacteristicReadRequestedEvent {
   /// The characteristic to read the value of.
   final GATTCharacteristic characteristic;
 
@@ -43,13 +42,13 @@ final class GATTCharacteristicReadRequestedEventArgs extends EventArgs {
   /// The read request.
   final GATTReadRequest request;
 
-  /// Constructs a [GATTCharacteristicReadRequestedEventArgs].
-  GATTCharacteristicReadRequestedEventArgs(
+  /// Constructs a [GATTCharacteristicReadRequestedEvent].
+  GATTCharacteristicReadRequestedEvent(
       this.characteristic, this.central, this.request);
 }
 
-/// The GATT characteristic write requested event arguments.
-final class GATTCharacteristicWriteRequestedEventArgs extends EventArgs {
+/// The GATT characteristic write requested event.
+final class GATTCharacteristicWriteRequestedEvent {
   /// The characteristic to write the value of.
   final GATTCharacteristic characteristic;
 
@@ -59,13 +58,13 @@ final class GATTCharacteristicWriteRequestedEventArgs extends EventArgs {
   /// The write request.
   final GATTWriteRequest request;
 
-  /// Constructs a [GATTCharacteristicWriteRequestedEventArgs].
-  GATTCharacteristicWriteRequestedEventArgs(
+  /// Constructs a [GATTCharacteristicWriteRequestedEvent].
+  GATTCharacteristicWriteRequestedEvent(
       this.characteristic, this.central, this.request);
 }
 
-/// The GATT characteristic notify state changed event arguments.
-final class GATTCharacteristicNotifyStateChangedEventArgs extends EventArgs {
+/// The GATT characteristic notify state changed event.
+final class GATTCharacteristicNotifyStateChangedEvent {
   /// The GATT characteristic which notify state changed.
   final GATTCharacteristic characteristic;
 
@@ -75,13 +74,13 @@ final class GATTCharacteristicNotifyStateChangedEventArgs extends EventArgs {
   /// The notify state.
   final bool state;
 
-  /// Constructs a [GATTCharacteristicNotifyStateChangedEventArgs].
-  GATTCharacteristicNotifyStateChangedEventArgs(
+  /// Constructs a [GATTCharacteristicNotifyStateChangedEvent].
+  GATTCharacteristicNotifyStateChangedEvent(
       this.characteristic, this.central, this.state);
 }
 
-/// The GATT descriptor read requested event arguments.
-final class GATTDescriptorReadRequestedEventArgs extends EventArgs {
+/// The GATT descriptor read requested event.
+final class GATTDescriptorReadRequestedEvent {
   /// The descriptor to read the value of.
   final GATTDescriptor descriptor;
 
@@ -91,13 +90,12 @@ final class GATTDescriptorReadRequestedEventArgs extends EventArgs {
   /// The read request.
   final GATTReadRequest request;
 
-  /// Constructs a [GATTDescriptorReadRequestedEventArgs].
-  GATTDescriptorReadRequestedEventArgs(
-      this.descriptor, this.central, this.request);
+  /// Constructs a [GATTDescriptorReadRequestedEvent].
+  GATTDescriptorReadRequestedEvent(this.descriptor, this.central, this.request);
 }
 
-/// The GATT descriptor write requested event arguments.
-final class GATTDescriptorWriteRequestedEventArgs extends EventArgs {
+/// The GATT descriptor write requested event.
+final class GATTDescriptorWriteRequestedEvent {
   /// The descriptor to write the value of.
   final GATTDescriptor descriptor;
 
@@ -107,8 +105,8 @@ final class GATTDescriptorWriteRequestedEventArgs extends EventArgs {
   /// The write request.
   final GATTWriteRequest request;
 
-  /// Constructs a [GATTDescriptorWriteRequestedEventArgs].
-  GATTDescriptorWriteRequestedEventArgs(
+  /// Constructs a [GATTDescriptorWriteRequestedEvent].
+  GATTDescriptorWriteRequestedEvent(
       this.descriptor, this.central, this.request);
 }
 
@@ -125,7 +123,7 @@ abstract base class PeripheralManager extends BluetoothLowEnergyManager {
   ///
   /// This event is available on Android, throws [UnsupportedError] on other
   /// platforms.
-  Stream<CentralConnectionStateChangedEventArgs> get connectionStateChanged;
+  Stream<CentralConnectionStateChangedEvent> get connectionStateChanged;
 
   /// Callback indicating the MTU for a given device connection has changed.
   ///
@@ -134,20 +132,19 @@ abstract base class PeripheralManager extends BluetoothLowEnergyManager {
   ///
   /// This event is available on Android and Windows, throws [UnsupportedError]
   /// on other platforms.
-  Stream<CentralMTUChangedEventArgs> get mtuChanged;
+  Stream<CentralMTUChangedEvent> get mtuChanged;
 
   /// Tells that the local peripheral device received an Attribute Protocol (ATT)
   /// read request for a characteristic with a dynamic value.
-  Stream<GATTCharacteristicReadRequestedEventArgs>
-      get characteristicReadRequested;
+  Stream<GATTCharacteristicReadRequestedEvent> get characteristicReadRequested;
 
   /// Tells that the local peripheral device received an Attribute Protocol (ATT)
   /// write request for a characteristic with a dynamic value.
-  Stream<GATTCharacteristicWriteRequestedEventArgs>
+  Stream<GATTCharacteristicWriteRequestedEvent>
       get characteristicWriteRequested;
 
   /// Tells that the peripheral manager received a characteristic’s notify changed.
-  Stream<GATTCharacteristicNotifyStateChangedEventArgs>
+  Stream<GATTCharacteristicNotifyStateChangedEvent>
       get characteristicNotifyStateChanged;
 
   /// Tells that the local peripheral device received an Attribute Protocol (ATT)
@@ -155,14 +152,14 @@ abstract base class PeripheralManager extends BluetoothLowEnergyManager {
   ///
   /// This event is available on Android and Windows, throws [UnsupportedError]
   /// on other platforms.
-  Stream<GATTDescriptorReadRequestedEventArgs> get descriptorReadRequested;
+  Stream<GATTDescriptorReadRequestedEvent> get descriptorReadRequested;
 
   /// Tells that the local peripheral device received an Attribute Protocol (ATT)
   /// write request for a descriptor with a dynamic value.
   ///
   /// This event is available on Android and Windows, throws [UnsupportedError]
   /// on other platforms.
-  Stream<GATTDescriptorWriteRequestedEventArgs> get descriptorWriteRequested;
+  Stream<GATTDescriptorWriteRequestedEvent> get descriptorWriteRequested;
 
   /// Publishes a service and any of its associated characteristics and characteristic
   /// descriptors to the local GATT database.

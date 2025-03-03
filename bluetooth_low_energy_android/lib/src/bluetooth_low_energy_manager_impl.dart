@@ -3,11 +3,12 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 base mixin BluetoothLowEnergyManagerImpl on BluetoothLowEnergyManager {
   @override
   // TODO: implement stateChanged
-  Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
+  Stream<BluetoothLowEnergyStateChangedEvent> get stateChanged =>
       throw UnimplementedError();
+
   @override
   // TODO: implement nameChanged
-  Stream<NameChangedEventArgs> get nameChanged => throw UnimplementedError();
+  Stream<NameChangedEvent> get nameChanged => throw UnimplementedError();
 
   @override
   Future<BluetoothLowEnergyState> getState() {

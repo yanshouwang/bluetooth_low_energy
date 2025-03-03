@@ -2,10 +2,13 @@ package dev.hebei.bluetooth_low_energy_android
 
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.TransportDiscoveryData
+import android.os.Build
 import android.os.ParcelUuid
 import android.util.SparseArray
+import androidx.annotation.RequiresApi
 
-class AdvertiseDataImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : PigeonApiAdvertiseData(registrar) {
+class AdvertiseDataImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
+    PigeonApiAdvertiseData(registrar) {
     override fun getIncludeDeviceName(pigeon_instance: AdvertiseData): Boolean {
         return pigeon_instance.includeDeviceName
     }
@@ -22,6 +25,7 @@ class AdvertiseDataImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : 
         return pigeon_instance.serviceData
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun getServiceSolicitationUuids(pigeon_instance: AdvertiseData): List<ParcelUuid> {
         return pigeon_instance.serviceSolicitationUuids
     }
@@ -30,6 +34,7 @@ class AdvertiseDataImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) : 
         return pigeon_instance.serviceUuids
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun getTransportDiscoveryData(pigeon_instance: AdvertiseData): List<TransportDiscoveryData> {
         return pigeon_instance.transportDiscoveryData
     }

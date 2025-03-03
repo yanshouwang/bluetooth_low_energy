@@ -1,8 +1,10 @@
 package dev.hebei.bluetooth_low_energy_android
 
 import android.bluetooth.le.AdvertiseSettings
+import android.os.Build
+import androidx.annotation.RequiresApi
 
-class AdvertiseSettingsBuilderImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+class AdvertiseSettingsBuilderImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
     PigeonApiAdvertiseSettingsBuilder(registrar) {
     override fun pigeon_defaultConstructor(): AdvertiseSettings.Builder {
         return AdvertiseSettings.Builder()
@@ -24,6 +26,7 @@ class AdvertiseSettingsBuilderImpl(registrar: BluetoothLowEnergyPigeonProxyApiRe
         return pigeon_instance.setConnectable(connectable)
     }
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun setDiscoverable(
         pigeon_instance: AdvertiseSettings.Builder, discoverable: Boolean
     ): AdvertiseSettings.Builder {

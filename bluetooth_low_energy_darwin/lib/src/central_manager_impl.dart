@@ -15,12 +15,12 @@ final class CentralManagerImpl
   static CentralManagerImpl? _instance;
 
   final CentralManagerHostAPI _api;
-  final StreamController<BluetoothLowEnergyStateChangedEventArgs>
+  final StreamController<BluetoothLowEnergyStateChangedEvent>
       _stateChangedController;
-  final StreamController<DiscoveredEventArgs> _discoveredController;
-  final StreamController<PeripheralConnectionStateChangedEventArgs>
+  final StreamController<DiscoveredEvent> _discoveredController;
+  final StreamController<PeripheralConnectionStateChangedEvent>
       _connectionStateChangedController;
-  final StreamController<GATTCharacteristicNotifiedEventArgs>
+  final StreamController<GATTCharacteristicNotifiedEvent>
       _characteristicNotifiedController;
 
   BluetoothLowEnergyState _state;
@@ -47,21 +47,21 @@ final class CentralManagerImpl
   @override
   BluetoothLowEnergyState get state => _state;
   @override
-  Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
+  Stream<BluetoothLowEnergyStateChangedEvent> get stateChanged =>
       _stateChangedController.stream;
   @override
-  Stream<NameChangedEventArgs> get nameChanged =>
+  Stream<NameChangedEvent> get nameChanged =>
       throw UnsupportedError('nameChanged is not supported on Darwin.');
   @override
-  Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
+  Stream<DiscoveredEvent> get discovered => _discoveredController.stream;
   @override
-  Stream<PeripheralConnectionStateChangedEventArgs>
-      get connectionStateChanged => _connectionStateChangedController.stream;
+  Stream<PeripheralConnectionStateChangedEvent> get connectionStateChanged =>
+      _connectionStateChangedController.stream;
   @override
-  Stream<PeripheralMTUChangedEventArgs> get mtuChanged =>
+  Stream<PeripheralMTUChangedEvent> get mtuChanged =>
       throw UnsupportedError('mtuChanged is not supported on Darwin.');
   @override
-  Stream<GATTCharacteristicNotifiedEventArgs> get characteristicNotified =>
+  Stream<GATTCharacteristicNotifiedEvent> get characteristicNotified =>
       _characteristicNotifiedController.stream;
 
   @override
@@ -281,7 +281,7 @@ final class CentralManagerImpl
       return;
     }
     _state = state;
-    final eventArgs = BluetoothLowEnergyStateChangedEventArgs(state);
+    final eventArgs = BluetoothLowEnergyStateChangedEvent(state);
     _stateChangedController.add(eventArgs);
   }
 
@@ -295,7 +295,7 @@ final class CentralManagerImpl
     logger.info('onDiscovered: $uuidArgs - $rssiArgs, $advertisementArgs');
     final peripheral = PeripheralImpl.fromArgs(peripheralArgs);
     final advertisement = advertisementArgs.toAdvertisement();
-    final eventArgs = DiscoveredEventArgs(
+    final eventArgs = DiscoveredEvent(
       peripheral,
       rssiArgs,
       advertisement,
@@ -312,7 +312,7 @@ final class CentralManagerImpl
     logger.info('onConnectionStateChanged: $uuidArgs - $stateArgs');
     final peripheral = PeripheralImpl.fromArgs(peripheralArgs);
     final state = stateArgs.toState();
-    final eventArgs = PeripheralConnectionStateChangedEventArgs(
+    final eventArgs = PeripheralConnectionStateChangedEvent(
       peripheral,
       state,
     );
@@ -333,7 +333,7 @@ final class CentralManagerImpl
       uuidArgs: uuidArgs,
       characteristicArgs: characteristicArgs,
     );
-    final eventArgs = GATTCharacteristicNotifiedEventArgs(
+    final eventArgs = GATTCharacteristicNotifiedEvent(
       characteristic,
       valueArgs,
     );

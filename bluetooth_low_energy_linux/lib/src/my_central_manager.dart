@@ -16,12 +16,12 @@ final class BlueZDeviceServicesResolvedEventArgs extends EventArgs {
 
 final class MyCentralManager extends PlatformCentralManager {
   final BlueZClient _blueZClient;
-  final StreamController<BluetoothLowEnergyStateChangedEventArgs>
+  final StreamController<BluetoothLowEnergyStateChangedEvent>
       _stateChangedController;
-  final StreamController<DiscoveredEventArgs> _discoveredController;
-  final StreamController<PeripheralConnectionStateChangedEventArgs>
+  final StreamController<DiscoveredEvent> _discoveredController;
+  final StreamController<PeripheralConnectionStateChangedEvent>
       _connectionStateChangedController;
-  final StreamController<GATTCharacteristicNotifiedEventArgs>
+  final StreamController<GATTCharacteristicNotifiedEvent>
       _characteristicNotifiedController;
   final StreamController<BlueZDeviceServicesResolvedEventArgs>
       _blueZServicesResolvedController;
@@ -57,26 +57,26 @@ final class MyCentralManager extends PlatformCentralManager {
     }
     logger.info('onStateChagned: $value');
     _state = value;
-    final eventArgs = BluetoothLowEnergyStateChangedEventArgs(value);
+    final eventArgs = BluetoothLowEnergyStateChangedEvent(value);
     _stateChangedController.add(eventArgs);
   }
 
   @override
-  Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged =>
+  Stream<BluetoothLowEnergyStateChangedEvent> get stateChanged =>
       _stateChangedController.stream;
   @override
-  Stream<NameChangedEventArgs> get nameChanged =>
+  Stream<NameChangedEvent> get nameChanged =>
       throw UnsupportedError('nameChanged is not supported on Linux.');
   @override
-  Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
+  Stream<DiscoveredEvent> get discovered => _discoveredController.stream;
   @override
-  Stream<PeripheralConnectionStateChangedEventArgs>
-      get connectionStateChanged => _connectionStateChangedController.stream;
+  Stream<PeripheralConnectionStateChangedEvent> get connectionStateChanged =>
+      _connectionStateChangedController.stream;
   @override
-  Stream<PeripheralMTUChangedEventArgs> get mtuChanged =>
+  Stream<PeripheralMTUChangedEvent> get mtuChanged =>
       throw UnsupportedError('mtuChanged is not supported on Linux.');
   @override
-  Stream<GATTCharacteristicNotifiedEventArgs> get characteristicNotified =>
+  Stream<GATTCharacteristicNotifiedEvent> get characteristicNotified =>
       _characteristicNotifiedController.stream;
   Stream<BlueZDeviceServicesResolvedEventArgs> get _blueZServicesResolved =>
       _blueZServicesResolvedController.stream;
@@ -330,7 +330,7 @@ final class MyCentralManager extends PlatformCentralManager {
     final peripheral = MyPeripheral(blueZDevice);
     final rssi = blueZDevice.rssi;
     final advertisement = blueZDevice.myAdvertisement;
-    final eventArgs = DiscoveredEventArgs(
+    final eventArgs = DiscoveredEvent(
       peripheral,
       rssi,
       advertisement,
@@ -358,7 +358,7 @@ final class MyCentralManager extends PlatformCentralManager {
             final state = blueZDevice.connected
                 ? ConnectionState.connected
                 : ConnectionState.disconnected;
-            final eventArgs = PeripheralConnectionStateChangedEventArgs(
+            final eventArgs = PeripheralConnectionStateChangedEvent(
               peripheral,
               state,
             );
@@ -408,7 +408,7 @@ final class MyCentralManager extends PlatformCentralManager {
                     return;
                   }
                   final value = Uint8List.fromList(blueZCharacteristic.value);
-                  final eventArgs = GATTCharacteristicNotifiedEventArgs(
+                  final eventArgs = GATTCharacteristicNotifiedEvent(
                     peripheral,
                     characteristic,
                     value,

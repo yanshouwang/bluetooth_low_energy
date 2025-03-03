@@ -2,24 +2,23 @@ import 'package:hybrid_logging/hybrid_logging.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'bluetooth_low_energy_state.dart';
-import 'event_args.dart';
 
-/// The bluetooth low energy state changed event arguments.
-final class BluetoothLowEnergyStateChangedEventArgs extends EventArgs {
+/// The bluetooth low energy state changed event.
+final class BluetoothLowEnergyStateChangedEvent {
   /// The new state of the bluetooth low energy.
   final BluetoothLowEnergyState state;
 
-  /// Constructs a [BluetoothLowEnergyStateChangedEventArgs].
-  BluetoothLowEnergyStateChangedEventArgs(this.state);
+  /// Constructs a [BluetoothLowEnergyStateChangedEvent].
+  BluetoothLowEnergyStateChangedEvent(this.state);
 }
 
-/// The name changed event arguments.
-final class NameChangedEventArgs extends EventArgs {
+/// The name changed event.
+final class NameChangedEvent {
   /// The name.
   final String name;
 
-  /// Constructs a [NameChangedEventArgs].
-  NameChangedEventArgs(this.name);
+  /// Constructs a [NameChangedEvent].
+  NameChangedEvent(this.name);
 }
 
 /// The abstract base class that manages central and peripheral objects.
@@ -30,7 +29,7 @@ abstract base class BluetoothLowEnergyManager extends PlatformInterface
   BluetoothLowEnergyManager.impl() : super(token: _token);
 
   /// Tells the manager's state updated.
-  Stream<BluetoothLowEnergyStateChangedEventArgs> get stateChanged;
+  Stream<BluetoothLowEnergyStateChangedEvent> get stateChanged;
 
   /// The local Bluetooth adapter has changed its friendly Bluetooth name.
   ///
@@ -38,7 +37,7 @@ abstract base class BluetoothLowEnergyManager extends PlatformInterface
   ///
   /// This field is available on Android, throws [UnsupportedError] on other
   /// platforms.
-  Stream<NameChangedEventArgs> get nameChanged;
+  Stream<NameChangedEvent> get nameChanged;
 
   /// Gets the manager's state.
   Future<BluetoothLowEnergyState> getState();

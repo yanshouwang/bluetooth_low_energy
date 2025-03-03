@@ -15,11 +15,13 @@ extension MyBluetoothLowEnergyStateArgsX on MyBluetoothLowEnergyStateArgs {
       case MyBluetoothLowEnergyStateArgs.unauthorized:
         return BluetoothLowEnergyState.unauthorized;
       case MyBluetoothLowEnergyStateArgs.off:
+        return BluetoothLowEnergyState.off;
       case MyBluetoothLowEnergyStateArgs.turningOn:
-        return BluetoothLowEnergyState.poweredOff;
+        return BluetoothLowEnergyState.turningOn;
       case MyBluetoothLowEnergyStateArgs.on:
+        return BluetoothLowEnergyState.on;
       case MyBluetoothLowEnergyStateArgs.turningOff:
-        return BluetoothLowEnergyState.poweredOn;
+        return BluetoothLowEnergyState.turningOff;
     }
   }
 }

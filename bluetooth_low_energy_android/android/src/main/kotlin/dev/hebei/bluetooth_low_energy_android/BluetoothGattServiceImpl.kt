@@ -4,7 +4,7 @@ import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
 import java.util.*
 
-class BluetoothGattServiceImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+class BluetoothGattServiceImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
     PigeonApiBluetoothGattService(registrar) {
     override fun pigeon_defaultConstructor(uuid: UUID, serviceType: Long): BluetoothGattService {
         return BluetoothGattService(uuid, serviceType.toInt())

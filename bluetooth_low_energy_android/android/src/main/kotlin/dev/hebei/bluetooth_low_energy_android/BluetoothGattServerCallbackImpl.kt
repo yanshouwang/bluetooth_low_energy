@@ -2,7 +2,7 @@ package dev.hebei.bluetooth_low_energy_android
 
 import android.bluetooth.*
 
-class BluetoothGattServerCallbackImpl(registrar: BluetoothLowEnergyPigeonProxyApiRegistrar) :
+class BluetoothGattServerCallbackImpl(registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) :
     PigeonApiBluetoothGattServerCallback(registrar) {
     override fun pigeon_defaultConstructor(): BluetoothGattServerCallback {
         return object : BluetoothGattServerCallback() {
