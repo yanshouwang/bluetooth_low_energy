@@ -3057,6 +3057,7 @@ abstract class ParcelUuid extends Any {
   ParcelUuid(UUID uuid);
 
   /// Creates a new ParcelUuid from a string representation of UUID.
+  @static
   ParcelUuid fromString(String uuid);
 
   /// Get the UUID represented by the ParcelUuid.

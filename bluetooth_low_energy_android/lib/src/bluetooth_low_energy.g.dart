@@ -19580,9 +19580,14 @@ class ParcelUuid extends Any {
   }
 
   /// Creates a new ParcelUuid from a string representation of UUID.
-  Future<ParcelUuid> fromString(String uuid) async {
+  static Future<ParcelUuid> fromString(
+    String uuid, {
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+  }) async {
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
-        _pigeonVar_codecParcelUuid;
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
     final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
     const String pigeonVar_channelName =
         'dev.flutter.pigeon.bluetooth_low_energy_android.ParcelUuid.fromString';
@@ -19593,7 +19598,7 @@ class ParcelUuid extends Any {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this, uuid]);
+        pigeonVar_channel.send(<Object?>[uuid]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {

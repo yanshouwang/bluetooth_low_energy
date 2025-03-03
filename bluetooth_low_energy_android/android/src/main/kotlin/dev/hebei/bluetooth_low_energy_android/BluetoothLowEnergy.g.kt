@@ -13389,7 +13389,7 @@ abstract class PigeonApiParcelUuid(open val pigeonRegistrar: BluetoothLowEnergyP
   abstract fun pigeon_defaultConstructor(uuid: java.util.UUID): android.os.ParcelUuid
 
   /** Creates a new ParcelUuid from a string representation of UUID. */
-  abstract fun fromString(pigeon_instance: android.os.ParcelUuid, uuid: String): android.os.ParcelUuid
+  abstract fun fromString(uuid: String): android.os.ParcelUuid
 
   /** Get the UUID represented by the ParcelUuid. */
   abstract fun getUuid(pigeon_instance: android.os.ParcelUuid): java.util.UUID
@@ -13422,10 +13422,9 @@ abstract class PigeonApiParcelUuid(open val pigeonRegistrar: BluetoothLowEnergyP
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val pigeon_instanceArg = args[0] as android.os.ParcelUuid
-            val uuidArg = args[1] as String
+            val uuidArg = args[0] as String
             val wrapped: List<Any?> = try {
-              listOf(api.fromString(pigeon_instanceArg, uuidArg))
+              listOf(api.fromString(uuidArg))
             } catch (exception: Throwable) {
               wrapError(exception)
             }

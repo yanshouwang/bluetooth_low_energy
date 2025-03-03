@@ -118,50 +118,50 @@ class BluetoothLowEnergyRegistrar(
     }
 
     override fun getPigeonApiBluetoothLeScanner(): PigeonApiBluetoothLeScanner {
-        TODO("Not yet implemented")
+        return BluetoothLeScannerImpl(this)
     }
 
     override fun getPigeonApiPeriodicAdvertisingParameters(): PigeonApiPeriodicAdvertisingParameters {
-        TODO("Not yet implemented")
+        return PeriodicAdvertisingParametersImpl(this)
     }
 
     override fun getPigeonApiPeriodicAdvertisingParametersBuilder(): PigeonApiPeriodicAdvertisingParametersBuilder {
-        TODO("Not yet implemented")
+        return PeriodicAdvertisingParametersBuilderImpl(this)
     }
 
     override fun getPigeonApiScanCallback(): PigeonApiScanCallback {
-        TODO("Not yet implemented")
+        return ScanCallbackImpl(this)
     }
 
     override fun getPigeonApiScanFilter(): PigeonApiScanFilter {
-        TODO("Not yet implemented")
+        return ScanFilterImpl(this)
     }
 
     override fun getPigeonApiScanFilterBuilder(): PigeonApiScanFilterBuilder {
-        TODO("Not yet implemented")
+        return ScanFilterBuilderImpl(this)
     }
 
     override fun getPigeonApiScanRecord(): PigeonApiScanRecord {
-        TODO("Not yet implemented")
+        return ScanRecordImpl(this)
     }
 
     override fun getPigeonApiScanResult(): PigeonApiScanResult {
-        TODO("Not yet implemented")
+        return ScanResultImpl(this)
     }
 
     override fun getPigeonApiScanSettings(): PigeonApiScanSettings {
-        TODO("Not yet implemented")
+        return ScanSettingsImpl(this)
     }
 
     override fun getPigeonApiScanSettingsBuilder(): PigeonApiScanSettingsBuilder {
-        TODO("Not yet implemented")
+        return ScanSettingsBuilderImpl(this)
     }
 
     override fun getPigeonApiParcelUuid(): PigeonApiParcelUuid {
-        TODO("Not yet implemented")
+        return ParcelUuidImpl(this)
     }
 
     override fun getPigeonApiUUID(): PigeonApiUUID {
-        TODO("Not yet implemented")
+        return UUIDImpl(this)
     }
 }
