@@ -42,28 +42,13 @@ abstract base class BluetoothLowEnergyManager extends PlatformInterface
   /// Gets the manager's state.
   Future<BluetoothLowEnergyState> getState();
 
-  /// Requests permissions to be granted to this application. These permissions
-  /// must be requested in your manifest, they should not be granted to your app,
-  /// and they should have protection level dangerous, regardless whether they
-  /// are declared by the platform or a third-party app.
-  ///
-  /// This method is available on Android, throws [UnsupportedError] on other
-  /// platforms.
-  Future<bool> authorize();
-
-  /// Show screen of details about a particular application.
-  ///
-  /// This method is available on Android and iOS, throws [UnsupportedError] on
-  /// other platforms.
-  Future<void> showAppSettings();
-
   /// Get the friendly Bluetooth name of the local Bluetooth adapter.
   ///
   /// This name is visible to remote Bluetooth devices.
   ///
   /// This method is available on Android, throws [UnsupportedError] on other
   /// platforms.
-  Future<String> getName();
+  Future<String?> getName();
 
   /// Set the friendly Bluetooth name of the local Bluetooth adapter.
   ///
