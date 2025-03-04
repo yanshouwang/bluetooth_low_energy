@@ -44,8 +44,9 @@ abstract class BluetoothLowEnergyAndroidPlugin extends Any {
   ),
 )
 abstract class RequestPermissionsResultListener {
-  late final void Function(
-          int requestCode, List<String> permissions, List<int> grantResults)
+  RequestPermissionsResultListener();
+
+  late final void Function(int requestCode, bool result)
       onRequestPermissionsResult;
 }
 
@@ -56,6 +57,8 @@ abstract class RequestPermissionsResultListener {
   ),
 )
 abstract class ActivityResultListener {
+  ActivityResultListener();
+
   late final void Function(int requestCode, int resultCode, Intent? data)
       onActivityResult;
 }
@@ -1759,70 +1762,6 @@ abstract class BluetoothSocket extends Any {
   bool isConnected();
 }
 
-/// A class with constants representing possible return values for Bluetooth APIs.
-/// General return values occupy the range 0 to 199. Profile-specific return values
-/// occupy the range 200-999. API-specific return values start at 1000. The
-/// exception to this is the "UNKNOWN" error code which occupies the max integer
-/// value.
-enum BluetoothStatusCodesArgs {
-  /// Error code indicating that the API call was initiated by neither the system
-  /// nor the active user.
-  errorBluetoothNotAllowed,
-
-  /// Error code indicating that Bluetooth is not enabled.
-  errorBluetoothNotEnabled,
-
-  /// Error code indicating that the Bluetooth Device specified is not bonded.
-  errorDeviceNotBonded,
-
-  /// A GATT writeCharacteristic request is not permitted on the remote device.
-  // @KotlinProxyApiOptions(
-  //   minAndroidApi: 33,
-  // )
-  errorGattWriteNotAllowed,
-
-  /// A GATT writeCharacteristic request is issued to a busy remote device.
-  // @KotlinProxyApiOptions(
-  //   minAndroidApi: 33,
-  // )
-  errorGattWriteRequestBusy,
-
-  /// Error code indicating that the caller does not have the
-  /// android.Manifest.permission#BLUETOOTH_CONNECT permission.
-  errorMissingBluetoothConnectPermission,
-
-  /// Error code indicating that the profile service is not bound. You can bind
-  /// a profile service by calling BluetoothAdapter.getProfileProxy.
-  // @KotlinProxyApiOptions(
-  //   minAndroidApi: 33,
-  // )
-  errorProfileServiceNotBound,
-
-  /// Indicates that an unknown error has occurred.
-  errorUnknown,
-
-  /// Indicates that the feature status is not configured yet.
-  // @KotlinProxyApiOptions(
-  //   minAndroidApi: 34,
-  // )
-  featureNotConfigured,
-
-  /// Indicates that the feature is not supported.
-  // @KotlinProxyApiOptions(
-  //   minAndroidApi: 33,
-  // )
-  featureNotSupported,
-
-  /// Indicates that the feature is supported.
-  // @KotlinProxyApiOptions(
-  //   minAndroidApi: 33,
-  // )
-  featureSupported,
-
-  /// Indicates that the API call was successful.
-  success,
-}
-
 /// Callback interface used to deliver LE scan results.
 @ProxyApi(
   kotlinOptions: KotlinProxyApiOptions(
@@ -2840,6 +2779,48 @@ abstract class TransportDiscoveryData extends Any {}
 
 // https://developer.android.google.cn/reference/kotlin/android/content/package-summary
 
+/// Base class for code that receives and handles broadcast intents sent by
+/// android.content.Context#sendBroadcast(Intent).
+///
+/// You can either dynamically register an instance of this class with
+/// android.content.Context#registerReceiver or statically declare an implementation
+/// with the &lt;receiver&gt; tag in your AndroidManifest.xml.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.content.BroadcastReceiver',
+  ),
+)
+abstract class BroadcastReceiver extends Any {
+  BroadcastReceiver();
+
+  /// This method is called when the BroadcastReceiver is receiving an Intent
+  /// broadcast. During this time you can use the other methods on BroadcastReceiver
+  /// to view/modify the current result values. This method is always called within
+  /// the main thread of its process, unless you explicitly asked for it to be
+  /// scheduled on a different thread using
+  /// android.content.Context#registerReceiver(BroadcastReceiver, * IntentFilter, String, android.os.Handler).
+  /// When it runs on the main thread you should never perform long-running
+  /// operations in it (there is a timeout of 10 seconds that the system allows
+  /// before considering the receiver to be blocked and a candidate to be killed).
+  /// You cannot launch a popup dialog in your implementation of onReceive().
+  ///
+  /// If this BroadcastReceiver was launched through a &lt;receiver&gt; tag, then the
+  /// object is no longer alive after returning from this function. This means
+  /// you should not perform any operations that return a result to you asynchronously.
+  /// If you need to perform any follow up background work, schedule a
+  /// android.app.job.JobService with android.app.job.JobScheduler. If you wish
+  /// to interact with a service that is already running and previously bound
+  /// using bindService(), you can use peekService.
+  ///
+  /// The Intent filters used in android.content.Context#registerReceiver and in
+  /// application manifests are not guaranteed to be exclusive. They are hints to
+  /// the operating system about how to find suitable recipients. It is possible
+  /// for senders to force delivery to specific recipients, bypassing filter resolution.
+  /// For this reason, onReceive() implementations should respond only to known
+  /// actions, ignoring any unexpected Intents that they may receive.
+  late final void Function(Context context, Intent intent) onReceive;
+}
+
 /// Interface to global information about an application environment. This is an
 /// abstract class whose implementation is provided by the Android system. It
 /// allows access to application-specific resources and classes, as well as up-calls for application-level operations such as launching activities, broadcasting and receiving intents, etc.
@@ -2857,7 +2838,95 @@ abstract class Context extends Any {}
 )
 abstract class Intent extends Any {}
 
+/// Structured description of Intent values to be matched. An IntentFilter can
+/// match against actions, categories, and data (either via its type, scheme,
+/// and/or path) in an Intent. It also includes a "priority" value which is used
+/// to order multiple matching filters.
+///
+/// IntentFilter objects are often created in XML as part of a package's
+/// AndroidManifest.xml file, using intent-filter tags.
+///
+/// There are three Intent characteristics you can filter on: the action, data,
+/// and categories. For each of these characteristics you can provide multiple
+/// possible matching values (via addAction, addDataType, addDataScheme,
+/// addDataSchemeSpecificPart, addDataAuthority, addDataPath, and addCategory,
+/// respectively). For actions, if no data characteristics are specified, then the
+/// filter will only match intents that contain no data.
+///
+/// The data characteristic is itself divided into three attributes: type, scheme,
+/// authority, and path. Any that are specified must match the contents of the
+/// Intent. If you specify a scheme but no type, only Intent that does not have
+/// a type (such as mailto:) will match; a content: URI will never match because
+/// they always have a MIME type that is supplied by their content provider.
+/// Specifying a type with no scheme has somewhat special meaning: it will match
+/// either an Intent with no URI field, or an Intent with a content: or file: URI.
+/// If you specify neither, then only an Intent with no data or type will match.
+/// To specify an authority, you must also specify one or more schemes that it is
+/// associated with. To specify a path, you also must specify both one or more
+/// authorities and one or more schemes it is associated with.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.content.IntentFilter',
+  ),
+)
+abstract class IntentFilter extends Any {
+  /// New empty IntentFilter.
+  IntentFilter.new1();
+
+  /// New IntentFilter containing a copy of an existing filter.
+  IntentFilter.new2(IntentFilter o);
+
+  /// New IntentFilter that matches a single action with no data. If no data
+  /// characteristics are subsequently specified, then the filter will only match
+  /// intents that contain no data.
+  IntentFilter.new3(String action);
+
+  /// New IntentFilter that matches a single action and data type.
+  ///
+  /// Note: MIME type matching in the Android framework is case-sensitive, unlike
+  /// formal RFC MIME types. As a result, you should always write your MIME types
+  /// with lower case letters, and any MIME types you receive from outside of
+  /// Android should be converted to lower case before supplying them here.
+  ///
+  /// Throws MalformedMimeTypeException if the given MIME type is not syntactically
+  /// correct.
+  IntentFilter.new4(String action, String dataType);
+}
+
+// https://developer.android.google.cn/reference/kotlin/android/content/pm/package-summary
+
+/// Class for retrieving various kinds of information related to the application
+/// packages that are currently installed on the device. You can find this class
+/// through Context.getPackageManager.
+///
+/// Note: If your app targets Android 11 (API level 30) or higher, the methods in
+/// this class each return a filtered list of apps. Learn more about how to manage
+/// package visibility.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.content.pm.PackageManager',
+  ),
+)
+abstract class PackageManager extends Any {
+  /// Check whether the given feature name is one of the available features as
+  /// returned by getSystemAvailableFeatures(). This tests for the presence of
+  /// any version of the given feature name; use hasSystemFeature(java.lang.String,int)
+  /// to check for a minimum version.
+  bool hasSystemFeature(FeatureArgs featureNameArgs);
+}
+
 // https://developer.android.google.cn/reference/kotlin/android/os/package-summary
+
+/// A mapping from String keys to various Parcelable values.
+///
+/// Warning: Note that Bundle is a lazy container and as such it does NOT implement
+/// equals(java.lang.Object) or hashCode().
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.os.Bundle',
+  ),
+)
+abstract class Bundle extends Any {}
 
 /// A Handler allows you to send and process Message and Runnable objects associated
 /// with a thread's MessageQueue. Each Handler instance is associated with a single
@@ -2914,6 +2983,125 @@ abstract class ParcelUuid extends Any {
 
   /// Get the UUID represented by the ParcelUuid.
   UUID getUuid();
+}
+
+// https://developer.android.google.cn/reference/kotlin/androidx/core/app/package-summary
+
+/// Helper for accessing features in android.app.Activity.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'androidx.core.app.ActivityCompat',
+  ),
+)
+abstract class ActivityCompat extends ContextCompat {
+  /// Requests permissions to be granted to this application. These permissions
+  /// must be requested in your manifest, they should not be granted to your app,
+  /// and they should have protection level dangerous, regardless whether they
+  /// are declared by the platform or a third-party app.
+  ///
+  /// Normal permissions PROTECTION_NORMAL are granted at install time if requested
+  /// in the manifest. Signature permissions PROTECTION_SIGNATURE are granted at
+  /// install time if requested in the manifest and the signature of your app
+  /// matches the signature of the app declaring the permissions.
+  ///
+  /// Call shouldShowRequestPermissionRationale before calling this API to check
+  /// if the system recommends to show a rationale dialog before asking for a
+  /// permission.
+  ///
+  /// If your app does not have the requested permissions the user will be presented
+  /// with UI for accepting them. After the user has accepted or rejected the
+  /// requested permissions you will receive a callback reporting whether the
+  /// permissions were granted or not. Your activity has to implement and the
+  /// results of permission requests will be delivered to its onRequestPermissionsResult
+  /// method.
+  ///
+  /// Note that requesting a permission does not guarantee it will be granted and
+  /// your app should be able to run without having this permission.
+  ///
+  /// This method may start an activity allowing the user to choose which permissions
+  /// to grant and which to reject. Hence, you should be prepared that your activity
+  /// may be paused and resumed. Further, granting some permissions may require
+  /// a restart of you application. In such a case, the system will recreate the
+  /// activity stack before delivering the result to your onRequestPermissionsResult.
+  ///
+  /// When checking whether you have a permission you should use checkSelfPermission.
+  ///
+  /// Calling this API for permissions already granted to your app would show UI
+  /// to the user to decide whether the app can still hold these permissions. This
+  /// can be useful if the way your app uses the data guarded by the permissions
+  /// changes significantly.
+  ///
+  /// You cannot request a permission if your activity sets noHistory to true in
+  /// the manifest because in this case the activity would not receive result
+  /// callbacks including onRequestPermissionsResult.
+  ///
+  /// The RuntimePermissions sample app demonstrates how to use this method to
+  /// request permissions at run time.
+  ///
+  /// If POST_NOTIFICATIONS is requested before the device supports the notification
+  /// permission, then POST_NOTIFICATIONS will be removed from onRequestPermissionsResult.
+  /// For devices that don't support POST_NOTIFICATIONS, apps can send users to
+  /// its notification settings to enable notifications. See
+  /// android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS for more information
+  /// on launching notification settings.
+  @static
+  void requestPermissions(
+      Activity activity, PermissionArgs permissionArgs, int requestCode);
+
+  /// Start new activity with options, if able, for which you would like a result
+  /// when it finished.
+  ///
+  /// In Android 4.1+ additional options were introduced to allow for more control
+  /// on activity launch animations. Applications can use this method along with
+  /// ActivityOptionsCompat to use these animations when available. When run on
+  /// versions of the platform where this feature does not exist the activity will
+  /// be launched normally.
+  @static
+  void startActivityForResult(
+      Activity activity, Intent intent, int requestCode, Bundle? options);
+}
+
+// https://developer.android.google.cn/reference/kotlin/androidx/core/content/package-summary
+
+/// Helper for accessing features in Context.
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'androidx.core.content.ContextCompat',
+  ),
+)
+abstract class ContextCompat extends Any {
+  /// Determine whether you have been granted a particular permission.
+  @static
+  bool checkSelfPermission(Context context, PermissionArgs permissionArgs);
+
+  /// Return the handle to a system-level service by class.
+  @static
+  BluetoothManager? getBluetoothManager(Context context);
+
+  /// Register a broadcast receiver.
+  @static
+  Intent? registerReceiver1(Context context, BroadcastReceiver? receiver,
+      IntentFilter filter, RegisterReceiverFlagsArgs flagsArgs);
+
+  /// Register a broadcast receiver.
+  @static
+  Intent? registerReceiver2(
+      Context context,
+      BroadcastReceiver? receiver,
+      IntentFilter filter,
+      String broadcastPermission,
+      Handler? scheduler,
+      RegisterReceiverFlagsArgs flagsArgs);
+
+  /// Start an activity with additional launch information, if able.
+  ///
+  /// In Android 4.1+ additional options were introduced to allow for more control
+  /// on activity launch animations. Applications can use this method along with
+  /// ActivityOptionsCompat to use these animations when available. When run on
+  /// versions of the platform where this feature does not exist the activity will
+  /// be launched normally.
+  @static
+  void startActivity(Context context, Intent intent, Bundle? options);
 }
 
 // https://developer.android.google.cn/reference/kotlin/java/io/package-summary
@@ -3057,4 +3245,99 @@ abstract class UUID extends Any {
   /// * 6 Reserved, Microsoft Corporation backward compatibility
   /// * 7 Reserved for future definition
   int variant();
+}
+
+enum FeatureArgs {
+  /// Feature for getSystemAvailableFeatures and #hasSystemFeature: The device is
+  /// capable of communicating with other devices via Bluetooth.
+  bluetooth,
+
+  /// Feature for getSystemAvailableFeatures and #hasSystemFeature: The device is
+  /// capable of communicating with other devices via Bluetooth Low Energy radio.
+  bluetoothLowEnergy,
+}
+
+enum PermissionArgs {
+  central,
+  peripheral,
+}
+
+enum RegisterReceiverFlagsArgs {
+  /// Flag for registerReceiver: The receiver can receive broadcasts from other
+  /// Apps. Has the same behavior as marking a statically registered receiver with
+  /// "exported=true"
+  exported,
+
+  /// Flag for registerReceiver: The receiver cannot receive broadcasts from other
+  /// Apps. Has the same behavior as marking a statically registered receiver with
+  /// "exported=false"
+  notExported,
+
+  /// Flag for registerReceiver: The receiver can receive broadcasts from Instant
+  /// Apps.
+  visibleToInstantApps,
+}
+
+/// A class with constants representing possible return values for Bluetooth APIs.
+/// General return values occupy the range 0 to 199. Profile-specific return values
+/// occupy the range 200-999. API-specific return values start at 1000. The
+/// exception to this is the "UNKNOWN" error code which occupies the max integer
+/// value.
+enum BluetoothStatusCodesArgs {
+  /// Error code indicating that the API call was initiated by neither the system
+  /// nor the active user.
+  errorBluetoothNotAllowed,
+
+  /// Error code indicating that Bluetooth is not enabled.
+  errorBluetoothNotEnabled,
+
+  /// Error code indicating that the Bluetooth Device specified is not bonded.
+  errorDeviceNotBonded,
+
+  /// A GATT writeCharacteristic request is not permitted on the remote device.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
+  errorGattWriteNotAllowed,
+
+  /// A GATT writeCharacteristic request is issued to a busy remote device.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
+  errorGattWriteRequestBusy,
+
+  /// Error code indicating that the caller does not have the
+  /// android.Manifest.permission#BLUETOOTH_CONNECT permission.
+  errorMissingBluetoothConnectPermission,
+
+  /// Error code indicating that the profile service is not bound. You can bind
+  /// a profile service by calling BluetoothAdapter.getProfileProxy.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
+  errorProfileServiceNotBound,
+
+  /// Indicates that an unknown error has occurred.
+  errorUnknown,
+
+  /// Indicates that the feature status is not configured yet.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 34,
+  // )
+  featureNotConfigured,
+
+  /// Indicates that the feature is not supported.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
+  featureNotSupported,
+
+  /// Indicates that the feature is supported.
+  // @KotlinProxyApiOptions(
+  //   minAndroidApi: 33,
+  // )
+  featureSupported,
+
+  /// Indicates that the API call was successful.
+  success,
 }

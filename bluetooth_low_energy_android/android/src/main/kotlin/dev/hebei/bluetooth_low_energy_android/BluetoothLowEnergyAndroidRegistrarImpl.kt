@@ -9,6 +9,14 @@ class BluetoothLowEnergyAndroidRegistrarImpl(
         return BluetoothLowEnergyAndroidPluginImpl(this, bluetoothLowEnergyAndroidPlugin)
     }
 
+    override fun getPigeonApiRequestPermissionsResultListener(): PigeonApiRequestPermissionsResultListener {
+        return RequestPermissionsResultListenerImpl(this)
+    }
+
+    override fun getPigeonApiActivityResultListener(): PigeonApiActivityResultListener {
+        return ActivityResultListenerImpl(this)
+    }
+
     override fun getPigeonApiAny(): PigeonApiAny {
         return AnyImpl(this)
     }
@@ -157,8 +165,28 @@ class BluetoothLowEnergyAndroidRegistrarImpl(
         return ScanSettingsBuilderImpl(this)
     }
 
+    override fun getPigeonApiBroadcastReceiver(): PigeonApiBroadcastReceiver {
+        return BroadcastReceiverImpl(this)
+    }
+
+    override fun getPigeonApiIntentFilter(): PigeonApiIntentFilter {
+        return IntentFilterImpl(this)
+    }
+
+    override fun getPigeonApiPackageManager(): PigeonApiPackageManager {
+        return PackageManagerImpl(this)
+    }
+
     override fun getPigeonApiParcelUuid(): PigeonApiParcelUuid {
         return ParcelUuidImpl(this)
+    }
+
+    override fun getPigeonApiActivityCompat(): PigeonApiActivityCompat {
+        return ActivityCompatImpl(this)
+    }
+
+    override fun getPigeonApiContextCompat(): PigeonApiContextCompat {
+        return ContextCompatImpl(this)
     }
 
     override fun getPigeonApiUUID(): PigeonApiUUID {

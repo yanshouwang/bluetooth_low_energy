@@ -374,19 +374,13 @@ abstract class BluetoothLowEnergyAndroidPigeonProxyApiRegistrar(val binaryMessen
    * An implementation of [PigeonApiRequestPermissionsResultListener] used to add a new Dart instance of
    * `RequestPermissionsResultListener` to the Dart `InstanceManager`.
    */
-  open fun getPigeonApiRequestPermissionsResultListener(): PigeonApiRequestPermissionsResultListener
-  {
-    return PigeonApiRequestPermissionsResultListener(this)
-  }
+  abstract fun getPigeonApiRequestPermissionsResultListener(): PigeonApiRequestPermissionsResultListener
 
   /**
    * An implementation of [PigeonApiActivityResultListener] used to add a new Dart instance of
    * `ActivityResultListener` to the Dart `InstanceManager`.
    */
-  open fun getPigeonApiActivityResultListener(): PigeonApiActivityResultListener
-  {
-    return PigeonApiActivityResultListener(this)
-  }
+  abstract fun getPigeonApiActivityResultListener(): PigeonApiActivityResultListener
 
   /**
    * An implementation of [PigeonApiAny] used to add a new Dart instance of
@@ -647,6 +641,12 @@ abstract class BluetoothLowEnergyAndroidPigeonProxyApiRegistrar(val binaryMessen
   }
 
   /**
+   * An implementation of [PigeonApiBroadcastReceiver] used to add a new Dart instance of
+   * `BroadcastReceiver` to the Dart `InstanceManager`.
+   */
+  abstract fun getPigeonApiBroadcastReceiver(): PigeonApiBroadcastReceiver
+
+  /**
    * An implementation of [PigeonApiContext] used to add a new Dart instance of
    * `Context` to the Dart `InstanceManager`.
    */
@@ -665,6 +665,27 @@ abstract class BluetoothLowEnergyAndroidPigeonProxyApiRegistrar(val binaryMessen
   }
 
   /**
+   * An implementation of [PigeonApiIntentFilter] used to add a new Dart instance of
+   * `IntentFilter` to the Dart `InstanceManager`.
+   */
+  abstract fun getPigeonApiIntentFilter(): PigeonApiIntentFilter
+
+  /**
+   * An implementation of [PigeonApiPackageManager] used to add a new Dart instance of
+   * `PackageManager` to the Dart `InstanceManager`.
+   */
+  abstract fun getPigeonApiPackageManager(): PigeonApiPackageManager
+
+  /**
+   * An implementation of [PigeonApiBundle] used to add a new Dart instance of
+   * `Bundle` to the Dart `InstanceManager`.
+   */
+  open fun getPigeonApiBundle(): PigeonApiBundle
+  {
+    return PigeonApiBundle(this)
+  }
+
+  /**
    * An implementation of [PigeonApiHandler] used to add a new Dart instance of
    * `Handler` to the Dart `InstanceManager`.
    */
@@ -678,6 +699,18 @@ abstract class BluetoothLowEnergyAndroidPigeonProxyApiRegistrar(val binaryMessen
    * `ParcelUuid` to the Dart `InstanceManager`.
    */
   abstract fun getPigeonApiParcelUuid(): PigeonApiParcelUuid
+
+  /**
+   * An implementation of [PigeonApiActivityCompat] used to add a new Dart instance of
+   * `ActivityCompat` to the Dart `InstanceManager`.
+   */
+  abstract fun getPigeonApiActivityCompat(): PigeonApiActivityCompat
+
+  /**
+   * An implementation of [PigeonApiContextCompat] used to add a new Dart instance of
+   * `ContextCompat` to the Dart `InstanceManager`.
+   */
+  abstract fun getPigeonApiContextCompat(): PigeonApiContextCompat
 
   /**
    * An implementation of [PigeonApiInputStream] used to add a new Dart instance of
@@ -715,6 +748,8 @@ abstract class BluetoothLowEnergyAndroidPigeonProxyApiRegistrar(val binaryMessen
   fun setUp() {
     BluetoothLowEnergyAndroidPigeonInstanceManagerApi.setUpMessageHandlers(binaryMessenger, instanceManager)
     PigeonApiBluetoothLowEnergyAndroidPlugin.setUpMessageHandlers(binaryMessenger, getPigeonApiBluetoothLowEnergyAndroidPlugin())
+    PigeonApiRequestPermissionsResultListener.setUpMessageHandlers(binaryMessenger, getPigeonApiRequestPermissionsResultListener())
+    PigeonApiActivityResultListener.setUpMessageHandlers(binaryMessenger, getPigeonApiActivityResultListener())
     PigeonApiAny.setUpMessageHandlers(binaryMessenger, getPigeonApiAny())
     PigeonApiBluetoothAdapter.setUpMessageHandlers(binaryMessenger, getPigeonApiBluetoothAdapter())
     PigeonApiBluetoothClass.setUpMessageHandlers(binaryMessenger, getPigeonApiBluetoothClass())
@@ -752,12 +787,19 @@ abstract class BluetoothLowEnergyAndroidPigeonProxyApiRegistrar(val binaryMessen
     PigeonApiScanResult.setUpMessageHandlers(binaryMessenger, getPigeonApiScanResult())
     PigeonApiScanSettings.setUpMessageHandlers(binaryMessenger, getPigeonApiScanSettings())
     PigeonApiScanSettingsBuilder.setUpMessageHandlers(binaryMessenger, getPigeonApiScanSettingsBuilder())
+    PigeonApiBroadcastReceiver.setUpMessageHandlers(binaryMessenger, getPigeonApiBroadcastReceiver())
+    PigeonApiIntentFilter.setUpMessageHandlers(binaryMessenger, getPigeonApiIntentFilter())
+    PigeonApiPackageManager.setUpMessageHandlers(binaryMessenger, getPigeonApiPackageManager())
     PigeonApiParcelUuid.setUpMessageHandlers(binaryMessenger, getPigeonApiParcelUuid())
+    PigeonApiActivityCompat.setUpMessageHandlers(binaryMessenger, getPigeonApiActivityCompat())
+    PigeonApiContextCompat.setUpMessageHandlers(binaryMessenger, getPigeonApiContextCompat())
     PigeonApiUUID.setUpMessageHandlers(binaryMessenger, getPigeonApiUUID())
   }
   fun tearDown() {
     BluetoothLowEnergyAndroidPigeonInstanceManagerApi.setUpMessageHandlers(binaryMessenger, null)
     PigeonApiBluetoothLowEnergyAndroidPlugin.setUpMessageHandlers(binaryMessenger, null)
+    PigeonApiRequestPermissionsResultListener.setUpMessageHandlers(binaryMessenger, null)
+    PigeonApiActivityResultListener.setUpMessageHandlers(binaryMessenger, null)
     PigeonApiAny.setUpMessageHandlers(binaryMessenger, null)
     PigeonApiBluetoothAdapter.setUpMessageHandlers(binaryMessenger, null)
     PigeonApiBluetoothClass.setUpMessageHandlers(binaryMessenger, null)
@@ -795,7 +837,12 @@ abstract class BluetoothLowEnergyAndroidPigeonProxyApiRegistrar(val binaryMessen
     PigeonApiScanResult.setUpMessageHandlers(binaryMessenger, null)
     PigeonApiScanSettings.setUpMessageHandlers(binaryMessenger, null)
     PigeonApiScanSettingsBuilder.setUpMessageHandlers(binaryMessenger, null)
+    PigeonApiBroadcastReceiver.setUpMessageHandlers(binaryMessenger, null)
+    PigeonApiIntentFilter.setUpMessageHandlers(binaryMessenger, null)
+    PigeonApiPackageManager.setUpMessageHandlers(binaryMessenger, null)
     PigeonApiParcelUuid.setUpMessageHandlers(binaryMessenger, null)
+    PigeonApiActivityCompat.setUpMessageHandlers(binaryMessenger, null)
+    PigeonApiContextCompat.setUpMessageHandlers(binaryMessenger, null)
     PigeonApiUUID.setUpMessageHandlers(binaryMessenger, null)
   }
 }
@@ -818,7 +865,7 @@ private class BluetoothLowEnergyAndroidPigeonProxyApiBaseCodec(val registrar: Bl
   }
 
   override fun writeValue(stream: ByteArrayOutputStream, value: Any?) {
-    if (value is Boolean || value is ByteArray || value is Double || value is DoubleArray || value is FloatArray || value is Int || value is IntArray || value is List<*> || value is Long || value is LongArray || value is Map<*, *> || value is String || value is BluetoothStatusCodesArgs || value == null) {
+    if (value is Boolean || value is ByteArray || value is Double || value is DoubleArray || value is FloatArray || value is Int || value is IntArray || value is List<*> || value is Long || value is LongArray || value is Map<*, *> || value is String || value is FeatureArgs || value is PermissionArgs || value is RegisterReceiverFlagsArgs || value is BluetoothStatusCodesArgs || value == null) {
       super.writeValue(stream, value)
       return
     }
@@ -952,17 +999,35 @@ private class BluetoothLowEnergyAndroidPigeonProxyApiBaseCodec(val registrar: Bl
      else if (android.os.Build.VERSION.SDK_INT >= 33 && value is android.bluetooth.le.TransportDiscoveryData) {
       registrar.getPigeonApiTransportDiscoveryData().pigeon_newInstance(value) { }
     }
+     else if (value is android.content.BroadcastReceiver) {
+      registrar.getPigeonApiBroadcastReceiver().pigeon_newInstance(value) { }
+    }
      else if (value is android.content.Context) {
       registrar.getPigeonApiContext().pigeon_newInstance(value) { }
     }
      else if (value is android.content.Intent) {
       registrar.getPigeonApiIntent().pigeon_newInstance(value) { }
     }
+     else if (value is android.content.IntentFilter) {
+      registrar.getPigeonApiIntentFilter().pigeon_newInstance(value) { }
+    }
+     else if (value is android.content.pm.PackageManager) {
+      registrar.getPigeonApiPackageManager().pigeon_newInstance(value) { }
+    }
+     else if (value is android.os.Bundle) {
+      registrar.getPigeonApiBundle().pigeon_newInstance(value) { }
+    }
      else if (value is android.os.Handler) {
       registrar.getPigeonApiHandler().pigeon_newInstance(value) { }
     }
      else if (value is android.os.ParcelUuid) {
       registrar.getPigeonApiParcelUuid().pigeon_newInstance(value) { }
+    }
+     else if (value is androidx.core.app.ActivityCompat) {
+      registrar.getPigeonApiActivityCompat().pigeon_newInstance(value) { }
+    }
+     else if (value is androidx.core.content.ContextCompat) {
+      registrar.getPigeonApiContextCompat().pigeon_newInstance(value) { }
     }
      else if (value is java.io.InputStream) {
       registrar.getPigeonApiInputStream().pigeon_newInstance(value) { }
@@ -986,6 +1051,62 @@ private class BluetoothLowEnergyAndroidPigeonProxyApiBaseCodec(val registrar: Bl
         writeValue(stream, registrar.instanceManager.getIdentifierForStrongReference(value))
       }
       else -> throw IllegalArgumentException("Unsupported value: '$value' of type '${value.javaClass.name}'")
+    }
+  }
+}
+
+enum class FeatureArgs(val raw: Int) {
+  /**
+   * Feature for getSystemAvailableFeatures and #hasSystemFeature: The device is
+   * capable of communicating with other devices via Bluetooth.
+   */
+  BLUETOOTH(0),
+  /**
+   * Feature for getSystemAvailableFeatures and #hasSystemFeature: The device is
+   * capable of communicating with other devices via Bluetooth Low Energy radio.
+   */
+  BLUETOOTH_LOW_ENERGY(1);
+
+  companion object {
+    fun ofRaw(raw: Int): FeatureArgs? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
+
+enum class PermissionArgs(val raw: Int) {
+  CENTRAL(0),
+  PERIPHERAL(1);
+
+  companion object {
+    fun ofRaw(raw: Int): PermissionArgs? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
+
+enum class RegisterReceiverFlagsArgs(val raw: Int) {
+  /**
+   * Flag for registerReceiver: The receiver can receive broadcasts from other
+   * Apps. Has the same behavior as marking a statically registered receiver with
+   * "exported=true"
+   */
+  EXPORTED(0),
+  /**
+   * Flag for registerReceiver: The receiver cannot receive broadcasts from other
+   * Apps. Has the same behavior as marking a statically registered receiver with
+   * "exported=false"
+   */
+  NOT_EXPORTED(1),
+  /**
+   * Flag for registerReceiver: The receiver can receive broadcasts from Instant
+   * Apps.
+   */
+  VISIBLE_TO_INSTANT_APPS(2);
+
+  companion object {
+    fun ofRaw(raw: Int): RegisterReceiverFlagsArgs? {
+      return values().firstOrNull { it.raw == raw }
     }
   }
 }
@@ -1043,6 +1164,21 @@ private open class BluetoothLowEnergyAndroidPigeonCodec : StandardMessageCodec()
     return when (type) {
       129.toByte() -> {
         return (readValue(buffer) as Long?)?.let {
+          FeatureArgs.ofRaw(it.toInt())
+        }
+      }
+      130.toByte() -> {
+        return (readValue(buffer) as Long?)?.let {
+          PermissionArgs.ofRaw(it.toInt())
+        }
+      }
+      131.toByte() -> {
+        return (readValue(buffer) as Long?)?.let {
+          RegisterReceiverFlagsArgs.ofRaw(it.toInt())
+        }
+      }
+      132.toByte() -> {
+        return (readValue(buffer) as Long?)?.let {
           BluetoothStatusCodesArgs.ofRaw(it.toInt())
         }
       }
@@ -1051,8 +1187,20 @@ private open class BluetoothLowEnergyAndroidPigeonCodec : StandardMessageCodec()
   }
   override fun writeValue(stream: ByteArrayOutputStream, value: Any?)   {
     when (value) {
-      is BluetoothStatusCodesArgs -> {
+      is FeatureArgs -> {
         stream.write(129)
+        writeValue(stream, value.raw)
+      }
+      is PermissionArgs -> {
+        stream.write(130)
+        writeValue(stream, value.raw)
+      }
+      is RegisterReceiverFlagsArgs -> {
+        stream.write(131)
+        writeValue(stream, value.raw)
+      }
+      is BluetoothStatusCodesArgs -> {
+        stream.write(132)
         writeValue(stream, value.raw)
       }
       else -> super.writeValue(stream, value)
@@ -1252,7 +1400,34 @@ abstract class PigeonApiBluetoothLowEnergyAndroidPlugin(open val pigeonRegistrar
 
 }
 @Suppress("UNCHECKED_CAST")
-open class PigeonApiRequestPermissionsResultListener(open val pigeonRegistrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) {
+abstract class PigeonApiRequestPermissionsResultListener(open val pigeonRegistrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) {
+  abstract fun pigeon_defaultConstructor(): io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener
+
+  companion object {
+    @Suppress("LocalVariableName")
+    fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiRequestPermissionsResultListener?) {
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyAndroidPigeonCodec()
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.RequestPermissionsResultListener.pigeon_defaultConstructor", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val pigeon_identifierArg = args[0] as Long
+            val wrapped: List<Any?> = try {
+              api.pigeonRegistrar.instanceManager.addDartCreatedInstance(api.pigeon_defaultConstructor(), pigeon_identifierArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+    }
+  }
+
   @Suppress("LocalVariableName", "FunctionName")
   /** Creates a Dart instance of RequestPermissionsResultListener and attaches it to [pigeon_instanceArg]. */
   fun pigeon_newInstance(pigeon_instanceArg: io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener, callback: (Result<Unit>) -> Unit)
@@ -1270,7 +1445,7 @@ open class PigeonApiRequestPermissionsResultListener(open val pigeonRegistrar: B
     }
   }
 
-  fun onRequestPermissionsResult(pigeon_instanceArg: io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener, requestCodeArg: Long, permissionsArg: List<String>, grantResultsArg: List<Long>, callback: (Result<Unit>) -> Unit)
+  fun onRequestPermissionsResult(pigeon_instanceArg: io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener, requestCodeArg: Long, resultArg: Boolean, callback: (Result<Unit>) -> Unit)
 {
     if (pigeonRegistrar.ignoreCallsToDart) {
       callback(
@@ -1282,7 +1457,7 @@ open class PigeonApiRequestPermissionsResultListener(open val pigeonRegistrar: B
     val codec = pigeonRegistrar.codec
     val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.RequestPermissionsResultListener.onRequestPermissionsResult"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(pigeon_instanceArg, requestCodeArg, permissionsArg, grantResultsArg)) {
+    channel.send(listOf(pigeon_instanceArg, requestCodeArg, resultArg)) {
       if (it is List<*>) {
         if (it.size > 1) {
           callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
@@ -1297,7 +1472,34 @@ open class PigeonApiRequestPermissionsResultListener(open val pigeonRegistrar: B
 
 }
 @Suppress("UNCHECKED_CAST")
-open class PigeonApiActivityResultListener(open val pigeonRegistrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) {
+abstract class PigeonApiActivityResultListener(open val pigeonRegistrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) {
+  abstract fun pigeon_defaultConstructor(): io.flutter.plugin.common.PluginRegistry.ActivityResultListener
+
+  companion object {
+    @Suppress("LocalVariableName")
+    fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiActivityResultListener?) {
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyAndroidPigeonCodec()
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.ActivityResultListener.pigeon_defaultConstructor", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val pigeon_identifierArg = args[0] as Long
+            val wrapped: List<Any?> = try {
+              api.pigeonRegistrar.instanceManager.addDartCreatedInstance(api.pigeon_defaultConstructor(), pigeon_identifierArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+    }
+  }
+
   @Suppress("LocalVariableName", "FunctionName")
   /** Creates a Dart instance of ActivityResultListener and attaches it to [pigeon_instanceArg]. */
   fun pigeon_newInstance(pigeon_instanceArg: io.flutter.plugin.common.PluginRegistry.ActivityResultListener, callback: (Result<Unit>) -> Unit)
@@ -12754,6 +12956,120 @@ open class PigeonApiTransportDiscoveryData(open val pigeonRegistrar: BluetoothLo
 
 }
 /**
+ * Base class for code that receives and handles broadcast intents sent by
+ * android.content.Context#sendBroadcast(Intent).
+ *
+ * You can either dynamically register an instance of this class with
+ * android.content.Context#registerReceiver or statically declare an implementation
+ * with the &lt;receiver&gt; tag in your AndroidManifest.xml.
+ */
+@Suppress("UNCHECKED_CAST")
+abstract class PigeonApiBroadcastReceiver(open val pigeonRegistrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) {
+  abstract fun pigeon_defaultConstructor(): android.content.BroadcastReceiver
+
+  companion object {
+    @Suppress("LocalVariableName")
+    fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiBroadcastReceiver?) {
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyAndroidPigeonCodec()
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.BroadcastReceiver.pigeon_defaultConstructor", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val pigeon_identifierArg = args[0] as Long
+            val wrapped: List<Any?> = try {
+              api.pigeonRegistrar.instanceManager.addDartCreatedInstance(api.pigeon_defaultConstructor(), pigeon_identifierArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+    }
+  }
+
+  @Suppress("LocalVariableName", "FunctionName")
+  /** Creates a Dart instance of BroadcastReceiver and attaches it to [pigeon_instanceArg]. */
+  fun pigeon_newInstance(pigeon_instanceArg: android.content.BroadcastReceiver, callback: (Result<Unit>) -> Unit)
+{
+    if (pigeonRegistrar.ignoreCallsToDart) {
+      callback(
+          Result.failure(
+              BluetoothLowEnergyError("ignore-calls-error", "Calls to Dart are being ignored.", "")))
+    }     else if (pigeonRegistrar.instanceManager.containsInstance(pigeon_instanceArg)) {
+      callback(Result.success(Unit))
+    }     else {
+      callback(
+          Result.failure(
+              BluetoothLowEnergyError("new-instance-error", "Attempting to create a new Dart instance of BroadcastReceiver, but the class has a nonnull callback method.", "")))
+    }
+  }
+
+  /**
+   * This method is called when the BroadcastReceiver is receiving an Intent
+   * broadcast. During this time you can use the other methods on BroadcastReceiver
+   * to view/modify the current result values. This method is always called within
+   * the main thread of its process, unless you explicitly asked for it to be
+   * scheduled on a different thread using
+   * android.content.Context#registerReceiver(BroadcastReceiver, * IntentFilter, String, android.os.Handler).
+   * When it runs on the main thread you should never perform long-running
+   * operations in it (there is a timeout of 10 seconds that the system allows
+   * before considering the receiver to be blocked and a candidate to be killed).
+   * You cannot launch a popup dialog in your implementation of onReceive().
+   *
+   * If this BroadcastReceiver was launched through a &lt;receiver&gt; tag, then the
+   * object is no longer alive after returning from this function. This means
+   * you should not perform any operations that return a result to you asynchronously.
+   * If you need to perform any follow up background work, schedule a
+   * android.app.job.JobService with android.app.job.JobScheduler. If you wish
+   * to interact with a service that is already running and previously bound
+   * using bindService(), you can use peekService.
+   *
+   * The Intent filters used in android.content.Context#registerReceiver and in
+   * application manifests are not guaranteed to be exclusive. They are hints to
+   * the operating system about how to find suitable recipients. It is possible
+   * for senders to force delivery to specific recipients, bypassing filter resolution.
+   * For this reason, onReceive() implementations should respond only to known
+   * actions, ignoring any unexpected Intents that they may receive.
+   */
+  fun onReceive(pigeon_instanceArg: android.content.BroadcastReceiver, contextArg: android.content.Context, intentArg: android.content.Intent, callback: (Result<Unit>) -> Unit)
+{
+    if (pigeonRegistrar.ignoreCallsToDart) {
+      callback(
+          Result.failure(
+              BluetoothLowEnergyError("ignore-calls-error", "Calls to Dart are being ignored.", "")))
+      return
+    }
+    val binaryMessenger = pigeonRegistrar.binaryMessenger
+    val codec = pigeonRegistrar.codec
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.BroadcastReceiver.onReceive"
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+    channel.send(listOf(pigeon_instanceArg, contextArg, intentArg)) {
+      if (it is List<*>) {
+        if (it.size > 1) {
+          callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+        } else {
+          callback(Result.success(Unit))
+        }
+      } else {
+        callback(Result.failure(createConnectionError(channelName)))
+      } 
+    }
+  }
+
+  @Suppress("FunctionName")
+  /** An implementation of [PigeonApiAny] used to access callback methods */
+  fun pigeon_getPigeonApiAny(): PigeonApiAny
+  {
+    return pigeonRegistrar.getPigeonApiAny()
+  }
+
+}
+/**
  * Interface to global information about an application environment. This is an
  * abstract class whose implementation is provided by the Android system. It
  * allows access to application-specific resources and classes, as well as up-calls for application-level operations such as launching activities, broadcasting and receiving intents, etc.
@@ -12815,6 +13131,311 @@ open class PigeonApiIntent(open val pigeonRegistrar: BluetoothLowEnergyAndroidPi
       val binaryMessenger = pigeonRegistrar.binaryMessenger
       val codec = pigeonRegistrar.codec
       val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.Intent.pigeon_newInstance"
+      val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+      channel.send(listOf(pigeon_identifierArg)) {
+        if (it is List<*>) {
+          if (it.size > 1) {
+            callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+          } else {
+            callback(Result.success(Unit))
+          }
+        } else {
+          callback(Result.failure(createConnectionError(channelName)))
+        } 
+      }
+    }
+  }
+
+  @Suppress("FunctionName")
+  /** An implementation of [PigeonApiAny] used to access callback methods */
+  fun pigeon_getPigeonApiAny(): PigeonApiAny
+  {
+    return pigeonRegistrar.getPigeonApiAny()
+  }
+
+}
+/**
+ * Structured description of Intent values to be matched. An IntentFilter can
+ * match against actions, categories, and data (either via its type, scheme,
+ * and/or path) in an Intent. It also includes a "priority" value which is used
+ * to order multiple matching filters.
+ *
+ * IntentFilter objects are often created in XML as part of a package's
+ * AndroidManifest.xml file, using intent-filter tags.
+ *
+ * There are three Intent characteristics you can filter on: the action, data,
+ * and categories. For each of these characteristics you can provide multiple
+ * possible matching values (via addAction, addDataType, addDataScheme,
+ * addDataSchemeSpecificPart, addDataAuthority, addDataPath, and addCategory,
+ * respectively). For actions, if no data characteristics are specified, then the
+ * filter will only match intents that contain no data.
+ *
+ * The data characteristic is itself divided into three attributes: type, scheme,
+ * authority, and path. Any that are specified must match the contents of the
+ * Intent. If you specify a scheme but no type, only Intent that does not have
+ * a type (such as mailto:) will match; a content: URI will never match because
+ * they always have a MIME type that is supplied by their content provider.
+ * Specifying a type with no scheme has somewhat special meaning: it will match
+ * either an Intent with no URI field, or an Intent with a content: or file: URI.
+ * If you specify neither, then only an Intent with no data or type will match.
+ * To specify an authority, you must also specify one or more schemes that it is
+ * associated with. To specify a path, you also must specify both one or more
+ * authorities and one or more schemes it is associated with.
+ */
+@Suppress("UNCHECKED_CAST")
+abstract class PigeonApiIntentFilter(open val pigeonRegistrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) {
+  /** New empty IntentFilter. */
+  abstract fun new1(): android.content.IntentFilter
+
+  /** New IntentFilter containing a copy of an existing filter. */
+  abstract fun new2(o: android.content.IntentFilter): android.content.IntentFilter
+
+  /**
+   * New IntentFilter that matches a single action with no data. If no data
+   * characteristics are subsequently specified, then the filter will only match
+   * intents that contain no data.
+   */
+  abstract fun new3(action: String): android.content.IntentFilter
+
+  /**
+   * New IntentFilter that matches a single action and data type.
+   *
+   * Note: MIME type matching in the Android framework is case-sensitive, unlike
+   * formal RFC MIME types. As a result, you should always write your MIME types
+   * with lower case letters, and any MIME types you receive from outside of
+   * Android should be converted to lower case before supplying them here.
+   *
+   * Throws MalformedMimeTypeException if the given MIME type is not syntactically
+   * correct.
+   */
+  abstract fun new4(action: String, dataType: String): android.content.IntentFilter
+
+  companion object {
+    @Suppress("LocalVariableName")
+    fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiIntentFilter?) {
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyAndroidPigeonCodec()
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.IntentFilter.new1", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val pigeon_identifierArg = args[0] as Long
+            val wrapped: List<Any?> = try {
+              api.pigeonRegistrar.instanceManager.addDartCreatedInstance(api.new1(), pigeon_identifierArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.IntentFilter.new2", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val pigeon_identifierArg = args[0] as Long
+            val oArg = args[1] as android.content.IntentFilter
+            val wrapped: List<Any?> = try {
+              api.pigeonRegistrar.instanceManager.addDartCreatedInstance(api.new2(oArg), pigeon_identifierArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.IntentFilter.new3", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val pigeon_identifierArg = args[0] as Long
+            val actionArg = args[1] as String
+            val wrapped: List<Any?> = try {
+              api.pigeonRegistrar.instanceManager.addDartCreatedInstance(api.new3(actionArg), pigeon_identifierArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.IntentFilter.new4", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val pigeon_identifierArg = args[0] as Long
+            val actionArg = args[1] as String
+            val dataTypeArg = args[2] as String
+            val wrapped: List<Any?> = try {
+              api.pigeonRegistrar.instanceManager.addDartCreatedInstance(api.new4(actionArg,dataTypeArg), pigeon_identifierArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+    }
+  }
+
+  @Suppress("LocalVariableName", "FunctionName")
+  /** Creates a Dart instance of IntentFilter and attaches it to [pigeon_instanceArg]. */
+  fun pigeon_newInstance(pigeon_instanceArg: android.content.IntentFilter, callback: (Result<Unit>) -> Unit)
+{
+    if (pigeonRegistrar.ignoreCallsToDart) {
+      callback(
+          Result.failure(
+              BluetoothLowEnergyError("ignore-calls-error", "Calls to Dart are being ignored.", "")))
+    }     else if (pigeonRegistrar.instanceManager.containsInstance(pigeon_instanceArg)) {
+      callback(Result.success(Unit))
+    }     else {
+      val pigeon_identifierArg = pigeonRegistrar.instanceManager.addHostCreatedInstance(pigeon_instanceArg)
+      val binaryMessenger = pigeonRegistrar.binaryMessenger
+      val codec = pigeonRegistrar.codec
+      val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.IntentFilter.pigeon_newInstance"
+      val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+      channel.send(listOf(pigeon_identifierArg)) {
+        if (it is List<*>) {
+          if (it.size > 1) {
+            callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+          } else {
+            callback(Result.success(Unit))
+          }
+        } else {
+          callback(Result.failure(createConnectionError(channelName)))
+        } 
+      }
+    }
+  }
+
+  @Suppress("FunctionName")
+  /** An implementation of [PigeonApiAny] used to access callback methods */
+  fun pigeon_getPigeonApiAny(): PigeonApiAny
+  {
+    return pigeonRegistrar.getPigeonApiAny()
+  }
+
+}
+/**
+ * Class for retrieving various kinds of information related to the application
+ * packages that are currently installed on the device. You can find this class
+ * through Context.getPackageManager.
+ *
+ * Note: If your app targets Android 11 (API level 30) or higher, the methods in
+ * this class each return a filtered list of apps. Learn more about how to manage
+ * package visibility.
+ */
+@Suppress("UNCHECKED_CAST")
+abstract class PigeonApiPackageManager(open val pigeonRegistrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) {
+  /**
+   * Check whether the given feature name is one of the available features as
+   * returned by getSystemAvailableFeatures(). This tests for the presence of
+   * any version of the given feature name; use hasSystemFeature(java.lang.String,int)
+   * to check for a minimum version.
+   */
+  abstract fun hasSystemFeature(pigeon_instance: android.content.pm.PackageManager, featureNameArgs: FeatureArgs): Boolean
+
+  companion object {
+    @Suppress("LocalVariableName")
+    fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiPackageManager?) {
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyAndroidPigeonCodec()
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PackageManager.hasSystemFeature", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val pigeon_instanceArg = args[0] as android.content.pm.PackageManager
+            val featureNameArgsArg = args[1] as FeatureArgs
+            val wrapped: List<Any?> = try {
+              listOf(api.hasSystemFeature(pigeon_instanceArg, featureNameArgsArg))
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+    }
+  }
+
+  @Suppress("LocalVariableName", "FunctionName")
+  /** Creates a Dart instance of PackageManager and attaches it to [pigeon_instanceArg]. */
+  fun pigeon_newInstance(pigeon_instanceArg: android.content.pm.PackageManager, callback: (Result<Unit>) -> Unit)
+{
+    if (pigeonRegistrar.ignoreCallsToDart) {
+      callback(
+          Result.failure(
+              BluetoothLowEnergyError("ignore-calls-error", "Calls to Dart are being ignored.", "")))
+    }     else if (pigeonRegistrar.instanceManager.containsInstance(pigeon_instanceArg)) {
+      callback(Result.success(Unit))
+    }     else {
+      val pigeon_identifierArg = pigeonRegistrar.instanceManager.addHostCreatedInstance(pigeon_instanceArg)
+      val binaryMessenger = pigeonRegistrar.binaryMessenger
+      val codec = pigeonRegistrar.codec
+      val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.PackageManager.pigeon_newInstance"
+      val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+      channel.send(listOf(pigeon_identifierArg)) {
+        if (it is List<*>) {
+          if (it.size > 1) {
+            callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+          } else {
+            callback(Result.success(Unit))
+          }
+        } else {
+          callback(Result.failure(createConnectionError(channelName)))
+        } 
+      }
+    }
+  }
+
+  @Suppress("FunctionName")
+  /** An implementation of [PigeonApiAny] used to access callback methods */
+  fun pigeon_getPigeonApiAny(): PigeonApiAny
+  {
+    return pigeonRegistrar.getPigeonApiAny()
+  }
+
+}
+/**
+ * A mapping from String keys to various Parcelable values.
+ *
+ * Warning: Note that Bundle is a lazy container and as such it does NOT implement
+ * equals(java.lang.Object) or hashCode().
+ */
+@Suppress("UNCHECKED_CAST")
+open class PigeonApiBundle(open val pigeonRegistrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) {
+  @Suppress("LocalVariableName", "FunctionName")
+  /** Creates a Dart instance of Bundle and attaches it to [pigeon_instanceArg]. */
+  fun pigeon_newInstance(pigeon_instanceArg: android.os.Bundle, callback: (Result<Unit>) -> Unit)
+{
+    if (pigeonRegistrar.ignoreCallsToDart) {
+      callback(
+          Result.failure(
+              BluetoothLowEnergyError("ignore-calls-error", "Calls to Dart are being ignored.", "")))
+    }     else if (pigeonRegistrar.instanceManager.containsInstance(pigeon_instanceArg)) {
+      callback(Result.success(Unit))
+    }     else {
+      val pigeon_identifierArg = pigeonRegistrar.instanceManager.addHostCreatedInstance(pigeon_instanceArg)
+      val binaryMessenger = pigeonRegistrar.binaryMessenger
+      val codec = pigeonRegistrar.codec
+      val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.Bundle.pigeon_newInstance"
       val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
       channel.send(listOf(pigeon_identifierArg)) {
         if (it is List<*>) {
@@ -13001,6 +13622,329 @@ abstract class PigeonApiParcelUuid(open val pigeonRegistrar: BluetoothLowEnergyA
       val binaryMessenger = pigeonRegistrar.binaryMessenger
       val codec = pigeonRegistrar.codec
       val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.ParcelUuid.pigeon_newInstance"
+      val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+      channel.send(listOf(pigeon_identifierArg)) {
+        if (it is List<*>) {
+          if (it.size > 1) {
+            callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+          } else {
+            callback(Result.success(Unit))
+          }
+        } else {
+          callback(Result.failure(createConnectionError(channelName)))
+        } 
+      }
+    }
+  }
+
+  @Suppress("FunctionName")
+  /** An implementation of [PigeonApiAny] used to access callback methods */
+  fun pigeon_getPigeonApiAny(): PigeonApiAny
+  {
+    return pigeonRegistrar.getPigeonApiAny()
+  }
+
+}
+/** Helper for accessing features in android.app.Activity. */
+@Suppress("UNCHECKED_CAST")
+abstract class PigeonApiActivityCompat(open val pigeonRegistrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) {
+  /**
+   * Requests permissions to be granted to this application. These permissions
+   * must be requested in your manifest, they should not be granted to your app,
+   * and they should have protection level dangerous, regardless whether they
+   * are declared by the platform or a third-party app.
+   *
+   * Normal permissions PROTECTION_NORMAL are granted at install time if requested
+   * in the manifest. Signature permissions PROTECTION_SIGNATURE are granted at
+   * install time if requested in the manifest and the signature of your app
+   * matches the signature of the app declaring the permissions.
+   *
+   * Call shouldShowRequestPermissionRationale before calling this API to check
+   * if the system recommends to show a rationale dialog before asking for a
+   * permission.
+   *
+   * If your app does not have the requested permissions the user will be presented
+   * with UI for accepting them. After the user has accepted or rejected the
+   * requested permissions you will receive a callback reporting whether the
+   * permissions were granted or not. Your activity has to implement and the
+   * results of permission requests will be delivered to its onRequestPermissionsResult
+   * method.
+   *
+   * Note that requesting a permission does not guarantee it will be granted and
+   * your app should be able to run without having this permission.
+   *
+   * This method may start an activity allowing the user to choose which permissions
+   * to grant and which to reject. Hence, you should be prepared that your activity
+   * may be paused and resumed. Further, granting some permissions may require
+   * a restart of you application. In such a case, the system will recreate the
+   * activity stack before delivering the result to your onRequestPermissionsResult.
+   *
+   * When checking whether you have a permission you should use checkSelfPermission.
+   *
+   * Calling this API for permissions already granted to your app would show UI
+   * to the user to decide whether the app can still hold these permissions. This
+   * can be useful if the way your app uses the data guarded by the permissions
+   * changes significantly.
+   *
+   * You cannot request a permission if your activity sets noHistory to true in
+   * the manifest because in this case the activity would not receive result
+   * callbacks including onRequestPermissionsResult.
+   *
+   * The RuntimePermissions sample app demonstrates how to use this method to
+   * request permissions at run time.
+   *
+   * If POST_NOTIFICATIONS is requested before the device supports the notification
+   * permission, then POST_NOTIFICATIONS will be removed from onRequestPermissionsResult.
+   * For devices that don't support POST_NOTIFICATIONS, apps can send users to
+   * its notification settings to enable notifications. See
+   * android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS for more information
+   * on launching notification settings.
+   */
+  abstract fun requestPermissions(activity: android.app.Activity, permissionArgs: PermissionArgs, requestCode: Long)
+
+  /**
+   * Start new activity with options, if able, for which you would like a result
+   * when it finished.
+   *
+   * In Android 4.1+ additional options were introduced to allow for more control
+   * on activity launch animations. Applications can use this method along with
+   * ActivityOptionsCompat to use these animations when available. When run on
+   * versions of the platform where this feature does not exist the activity will
+   * be launched normally.
+   */
+  abstract fun startActivityForResult(activity: android.app.Activity, intent: android.content.Intent, requestCode: Long, options: android.os.Bundle?)
+
+  companion object {
+    @Suppress("LocalVariableName")
+    fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiActivityCompat?) {
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyAndroidPigeonCodec()
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.ActivityCompat.requestPermissions", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val activityArg = args[0] as android.app.Activity
+            val permissionArgsArg = args[1] as PermissionArgs
+            val requestCodeArg = args[2] as Long
+            val wrapped: List<Any?> = try {
+              api.requestPermissions(activityArg, permissionArgsArg, requestCodeArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.ActivityCompat.startActivityForResult", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val activityArg = args[0] as android.app.Activity
+            val intentArg = args[1] as android.content.Intent
+            val requestCodeArg = args[2] as Long
+            val optionsArg = args[3] as android.os.Bundle?
+            val wrapped: List<Any?> = try {
+              api.startActivityForResult(activityArg, intentArg, requestCodeArg, optionsArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+    }
+  }
+
+  @Suppress("LocalVariableName", "FunctionName")
+  /** Creates a Dart instance of ActivityCompat and attaches it to [pigeon_instanceArg]. */
+  fun pigeon_newInstance(pigeon_instanceArg: androidx.core.app.ActivityCompat, callback: (Result<Unit>) -> Unit)
+{
+    if (pigeonRegistrar.ignoreCallsToDart) {
+      callback(
+          Result.failure(
+              BluetoothLowEnergyError("ignore-calls-error", "Calls to Dart are being ignored.", "")))
+    }     else if (pigeonRegistrar.instanceManager.containsInstance(pigeon_instanceArg)) {
+      callback(Result.success(Unit))
+    }     else {
+      val pigeon_identifierArg = pigeonRegistrar.instanceManager.addHostCreatedInstance(pigeon_instanceArg)
+      val binaryMessenger = pigeonRegistrar.binaryMessenger
+      val codec = pigeonRegistrar.codec
+      val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.ActivityCompat.pigeon_newInstance"
+      val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+      channel.send(listOf(pigeon_identifierArg)) {
+        if (it is List<*>) {
+          if (it.size > 1) {
+            callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+          } else {
+            callback(Result.success(Unit))
+          }
+        } else {
+          callback(Result.failure(createConnectionError(channelName)))
+        } 
+      }
+    }
+  }
+
+  @Suppress("FunctionName")
+  /** An implementation of [PigeonApiContextCompat] used to access callback methods */
+  fun pigeon_getPigeonApiContextCompat(): PigeonApiContextCompat
+  {
+    return pigeonRegistrar.getPigeonApiContextCompat()
+  }
+
+}
+/** Helper for accessing features in Context. */
+@Suppress("UNCHECKED_CAST")
+abstract class PigeonApiContextCompat(open val pigeonRegistrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) {
+  /** Determine whether you have been granted a particular permission. */
+  abstract fun checkSelfPermission(context: android.content.Context, permissionArgs: PermissionArgs): Boolean
+
+  /** Return the handle to a system-level service by class. */
+  abstract fun getBluetoothManager(context: android.content.Context): android.bluetooth.BluetoothManager?
+
+  /** Register a broadcast receiver. */
+  abstract fun registerReceiver1(context: android.content.Context, receiver: android.content.BroadcastReceiver?, filter: android.content.IntentFilter, flagsArgs: RegisterReceiverFlagsArgs): android.content.Intent?
+
+  /** Register a broadcast receiver. */
+  abstract fun registerReceiver2(context: android.content.Context, receiver: android.content.BroadcastReceiver?, filter: android.content.IntentFilter, broadcastPermission: String, scheduler: android.os.Handler?, flagsArgs: RegisterReceiverFlagsArgs): android.content.Intent?
+
+  /**
+   * Start an activity with additional launch information, if able.
+   *
+   * In Android 4.1+ additional options were introduced to allow for more control
+   * on activity launch animations. Applications can use this method along with
+   * ActivityOptionsCompat to use these animations when available. When run on
+   * versions of the platform where this feature does not exist the activity will
+   * be launched normally.
+   */
+  abstract fun startActivity(context: android.content.Context, intent: android.content.Intent, options: android.os.Bundle?)
+
+  companion object {
+    @Suppress("LocalVariableName")
+    fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiContextCompat?) {
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyAndroidPigeonCodec()
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.ContextCompat.checkSelfPermission", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val contextArg = args[0] as android.content.Context
+            val permissionArgsArg = args[1] as PermissionArgs
+            val wrapped: List<Any?> = try {
+              listOf(api.checkSelfPermission(contextArg, permissionArgsArg))
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.ContextCompat.getBluetoothManager", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val contextArg = args[0] as android.content.Context
+            val wrapped: List<Any?> = try {
+              listOf(api.getBluetoothManager(contextArg))
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.ContextCompat.registerReceiver1", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val contextArg = args[0] as android.content.Context
+            val receiverArg = args[1] as android.content.BroadcastReceiver?
+            val filterArg = args[2] as android.content.IntentFilter
+            val flagsArgsArg = args[3] as RegisterReceiverFlagsArgs
+            val wrapped: List<Any?> = try {
+              listOf(api.registerReceiver1(contextArg, receiverArg, filterArg, flagsArgsArg))
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.ContextCompat.registerReceiver2", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val contextArg = args[0] as android.content.Context
+            val receiverArg = args[1] as android.content.BroadcastReceiver?
+            val filterArg = args[2] as android.content.IntentFilter
+            val broadcastPermissionArg = args[3] as String
+            val schedulerArg = args[4] as android.os.Handler?
+            val flagsArgsArg = args[5] as RegisterReceiverFlagsArgs
+            val wrapped: List<Any?> = try {
+              listOf(api.registerReceiver2(contextArg, receiverArg, filterArg, broadcastPermissionArg, schedulerArg, flagsArgsArg))
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.ContextCompat.startActivity", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val contextArg = args[0] as android.content.Context
+            val intentArg = args[1] as android.content.Intent
+            val optionsArg = args[2] as android.os.Bundle?
+            val wrapped: List<Any?> = try {
+              api.startActivity(contextArg, intentArg, optionsArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+    }
+  }
+
+  @Suppress("LocalVariableName", "FunctionName")
+  /** Creates a Dart instance of ContextCompat and attaches it to [pigeon_instanceArg]. */
+  fun pigeon_newInstance(pigeon_instanceArg: androidx.core.content.ContextCompat, callback: (Result<Unit>) -> Unit)
+{
+    if (pigeonRegistrar.ignoreCallsToDart) {
+      callback(
+          Result.failure(
+              BluetoothLowEnergyError("ignore-calls-error", "Calls to Dart are being ignored.", "")))
+    }     else if (pigeonRegistrar.instanceManager.containsInstance(pigeon_instanceArg)) {
+      callback(Result.success(Unit))
+    }     else {
+      val pigeon_identifierArg = pigeonRegistrar.instanceManager.addHostCreatedInstance(pigeon_instanceArg)
+      val binaryMessenger = pigeonRegistrar.binaryMessenger
+      val codec = pigeonRegistrar.codec
+      val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.ContextCompat.pigeon_newInstance"
       val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
       channel.send(listOf(pigeon_identifierArg)) {
         if (it is List<*>) {

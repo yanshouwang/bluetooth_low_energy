@@ -172,10 +172,16 @@ class PigeonInstanceManager {
     ScanSettingsBuilder.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     TransportBlock.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     TransportDiscoveryData.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
+    BroadcastReceiver.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     Context.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     Intent.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
+    IntentFilter.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
+    PackageManager.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
+    Bundle.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     Handler.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     ParcelUuid.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
+    ActivityCompat.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
+    ContextCompat.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     InputStream.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     OutputStream.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
     Duration.pigeon_setUpMessageHandlers(pigeon_instanceManager: instanceManager);
@@ -436,6 +442,34 @@ class _PigeonInternalProxyApiBaseCodec extends _PigeonCodec {
 }
 
 
+enum FeatureArgs {
+  /// Feature for getSystemAvailableFeatures and #hasSystemFeature: The device is
+  /// capable of communicating with other devices via Bluetooth.
+  bluetooth,
+  /// Feature for getSystemAvailableFeatures and #hasSystemFeature: The device is
+  /// capable of communicating with other devices via Bluetooth Low Energy radio.
+  bluetoothLowEnergy,
+}
+
+enum PermissionArgs {
+  central,
+  peripheral,
+}
+
+enum RegisterReceiverFlagsArgs {
+  /// Flag for registerReceiver: The receiver can receive broadcasts from other
+  /// Apps. Has the same behavior as marking a statically registered receiver with
+  /// "exported=true"
+  exported,
+  /// Flag for registerReceiver: The receiver cannot receive broadcasts from other
+  /// Apps. Has the same behavior as marking a statically registered receiver with
+  /// "exported=false"
+  notExported,
+  /// Flag for registerReceiver: The receiver can receive broadcasts from Instant
+  /// Apps.
+  visibleToInstantApps,
+}
+
 /// A class with constants representing possible return values for Bluetooth APIs.
 /// General return values occupy the range 0 to 199. Profile-specific return values
 /// occupy the range 200-999. API-specific return values start at 1000. The
@@ -479,8 +513,17 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    }    else if (value is BluetoothStatusCodesArgs) {
+    }    else if (value is FeatureArgs) {
       buffer.putUint8(129);
+      writeValue(buffer, value.index);
+    }    else if (value is PermissionArgs) {
+      buffer.putUint8(130);
+      writeValue(buffer, value.index);
+    }    else if (value is RegisterReceiverFlagsArgs) {
+      buffer.putUint8(131);
+      writeValue(buffer, value.index);
+    }    else if (value is BluetoothStatusCodesArgs) {
+      buffer.putUint8(132);
       writeValue(buffer, value.index);
     } else {
       super.writeValue(buffer, value);
@@ -491,6 +534,15 @@ class _PigeonCodec extends StandardMessageCodec {
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
       case 129: 
+        final int? value = readValue(buffer) as int?;
+        return value == null ? null : FeatureArgs.values[value];
+      case 130: 
+        final int? value = readValue(buffer) as int?;
+        return value == null ? null : PermissionArgs.values[value];
+      case 131: 
+        final int? value = readValue(buffer) as int?;
+        return value == null ? null : RegisterReceiverFlagsArgs.values[value];
+      case 132: 
         final int? value = readValue(buffer) as int?;
         return value == null ? null : BluetoothStatusCodesArgs.values[value];
       default:
@@ -800,6 +852,43 @@ class BluetoothLowEnergyAndroidPlugin extends Any {
 }
 
 class RequestPermissionsResultListener extends PigeonInternalProxyApiBaseClass {
+  RequestPermissionsResultListener({
+    super.pigeon_binaryMessenger,
+    super.pigeon_instanceManager,
+    required this.onRequestPermissionsResult,
+  }) {
+    final int pigeonVar_instanceIdentifier =
+        pigeon_instanceManager.addDartCreatedInstance(this);
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _pigeonVar_codecRequestPermissionsResultListener;
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.RequestPermissionsResultListener.pigeon_defaultConstructor';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[pigeonVar_instanceIdentifier]);
+    () async {
+      final List<Object?>? pigeonVar_replyList =
+          await pigeonVar_sendFuture as List<Object?>?;
+      if (pigeonVar_replyList == null) {
+        throw _createConnectionError(pigeonVar_channelName);
+      } else if (pigeonVar_replyList.length > 1) {
+        throw PlatformException(
+          code: pigeonVar_replyList[0]! as String,
+          message: pigeonVar_replyList[1] as String?,
+          details: pigeonVar_replyList[2],
+        );
+      } else {
+        return;
+      }
+    }();
+  }
+
   /// Constructs [RequestPermissionsResultListener] without creating the associated native object.
   ///
   /// This should only be used by subclasses created by this library or to
@@ -810,6 +899,10 @@ class RequestPermissionsResultListener extends PigeonInternalProxyApiBaseClass {
     super.pigeon_instanceManager,
     required this.onRequestPermissionsResult,
   });
+
+  late final _PigeonInternalProxyApiBaseCodec
+      _pigeonVar_codecRequestPermissionsResultListener =
+      _PigeonInternalProxyApiBaseCodec(pigeon_instanceManager);
 
   /// Callback method.
   ///
@@ -833,8 +926,7 @@ class RequestPermissionsResultListener extends PigeonInternalProxyApiBaseClass {
   final void Function(
     RequestPermissionsResultListener pigeon_instance,
     int requestCode,
-    List<String> permissions,
-    List<int> grantResults,
+    bool result,
   ) onRequestPermissionsResult;
 
   static void pigeon_setUpMessageHandlers({
@@ -844,8 +936,7 @@ class RequestPermissionsResultListener extends PigeonInternalProxyApiBaseClass {
     void Function(
       RequestPermissionsResultListener pigeon_instance,
       int requestCode,
-      List<String> permissions,
-      List<int> grantResults,
+      bool result,
     )? onRequestPermissionsResult,
   }) {
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
@@ -873,19 +964,13 @@ class RequestPermissionsResultListener extends PigeonInternalProxyApiBaseClass {
           final int? arg_requestCode = (args[1] as int?);
           assert(arg_requestCode != null,
               'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.RequestPermissionsResultListener.onRequestPermissionsResult was null, expected non-null int.');
-          final List<String>? arg_permissions =
-              (args[2] as List<Object?>?)?.cast<String>();
-          assert(arg_permissions != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.RequestPermissionsResultListener.onRequestPermissionsResult was null, expected non-null List<String>.');
-          final List<int>? arg_grantResults =
-              (args[3] as List<Object?>?)?.cast<int>();
-          assert(arg_grantResults != null,
-              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.RequestPermissionsResultListener.onRequestPermissionsResult was null, expected non-null List<int>.');
+          final bool? arg_result = (args[2] as bool?);
+          assert(arg_result != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.RequestPermissionsResultListener.onRequestPermissionsResult was null, expected non-null bool.');
           try {
             (onRequestPermissionsResult ??
                     arg_pigeon_instance!.onRequestPermissionsResult)
-                .call(arg_pigeon_instance!, arg_requestCode!, arg_permissions!,
-                    arg_grantResults!);
+                .call(arg_pigeon_instance!, arg_requestCode!, arg_result!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
@@ -909,6 +994,43 @@ class RequestPermissionsResultListener extends PigeonInternalProxyApiBaseClass {
 }
 
 class ActivityResultListener extends PigeonInternalProxyApiBaseClass {
+  ActivityResultListener({
+    super.pigeon_binaryMessenger,
+    super.pigeon_instanceManager,
+    required this.onActivityResult,
+  }) {
+    final int pigeonVar_instanceIdentifier =
+        pigeon_instanceManager.addDartCreatedInstance(this);
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _pigeonVar_codecActivityResultListener;
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.ActivityResultListener.pigeon_defaultConstructor';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[pigeonVar_instanceIdentifier]);
+    () async {
+      final List<Object?>? pigeonVar_replyList =
+          await pigeonVar_sendFuture as List<Object?>?;
+      if (pigeonVar_replyList == null) {
+        throw _createConnectionError(pigeonVar_channelName);
+      } else if (pigeonVar_replyList.length > 1) {
+        throw PlatformException(
+          code: pigeonVar_replyList[0]! as String,
+          message: pigeonVar_replyList[1] as String?,
+          details: pigeonVar_replyList[2],
+        );
+      } else {
+        return;
+      }
+    }();
+  }
+
   /// Constructs [ActivityResultListener] without creating the associated native object.
   ///
   /// This should only be used by subclasses created by this library or to
@@ -919,6 +1041,10 @@ class ActivityResultListener extends PigeonInternalProxyApiBaseClass {
     super.pigeon_instanceManager,
     required this.onActivityResult,
   });
+
+  late final _PigeonInternalProxyApiBaseCodec
+      _pigeonVar_codecActivityResultListener =
+      _PigeonInternalProxyApiBaseCodec(pigeon_instanceManager);
 
   /// Callback method.
   ///
@@ -18416,6 +18542,177 @@ class TransportDiscoveryData extends Any {
   }
 }
 
+/// Base class for code that receives and handles broadcast intents sent by
+/// android.content.Context#sendBroadcast(Intent).
+///
+/// You can either dynamically register an instance of this class with
+/// android.content.Context#registerReceiver or statically declare an implementation
+/// with the &lt;receiver&gt; tag in your AndroidManifest.xml.
+class BroadcastReceiver extends Any {
+  BroadcastReceiver({
+    super.pigeon_binaryMessenger,
+    super.pigeon_instanceManager,
+    required this.onReceive,
+  }) : super.pigeon_detached() {
+    final int pigeonVar_instanceIdentifier =
+        pigeon_instanceManager.addDartCreatedInstance(this);
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _pigeonVar_codecBroadcastReceiver;
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.BroadcastReceiver.pigeon_defaultConstructor';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[pigeonVar_instanceIdentifier]);
+    () async {
+      final List<Object?>? pigeonVar_replyList =
+          await pigeonVar_sendFuture as List<Object?>?;
+      if (pigeonVar_replyList == null) {
+        throw _createConnectionError(pigeonVar_channelName);
+      } else if (pigeonVar_replyList.length > 1) {
+        throw PlatformException(
+          code: pigeonVar_replyList[0]! as String,
+          message: pigeonVar_replyList[1] as String?,
+          details: pigeonVar_replyList[2],
+        );
+      } else {
+        return;
+      }
+    }();
+  }
+
+  /// Constructs [BroadcastReceiver] without creating the associated native object.
+  ///
+  /// This should only be used by subclasses created by this library or to
+  /// create copies for an [PigeonInstanceManager].
+  @protected
+  BroadcastReceiver.pigeon_detached({
+    super.pigeon_binaryMessenger,
+    super.pigeon_instanceManager,
+    required this.onReceive,
+  }) : super.pigeon_detached();
+
+  late final _PigeonInternalProxyApiBaseCodec
+      _pigeonVar_codecBroadcastReceiver =
+      _PigeonInternalProxyApiBaseCodec(pigeon_instanceManager);
+
+  /// This method is called when the BroadcastReceiver is receiving an Intent
+  /// broadcast. During this time you can use the other methods on BroadcastReceiver
+  /// to view/modify the current result values. This method is always called within
+  /// the main thread of its process, unless you explicitly asked for it to be
+  /// scheduled on a different thread using
+  /// android.content.Context#registerReceiver(BroadcastReceiver, * IntentFilter, String, android.os.Handler).
+  /// When it runs on the main thread you should never perform long-running
+  /// operations in it (there is a timeout of 10 seconds that the system allows
+  /// before considering the receiver to be blocked and a candidate to be killed).
+  /// You cannot launch a popup dialog in your implementation of onReceive().
+  ///
+  /// If this BroadcastReceiver was launched through a &lt;receiver&gt; tag, then the
+  /// object is no longer alive after returning from this function. This means
+  /// you should not perform any operations that return a result to you asynchronously.
+  /// If you need to perform any follow up background work, schedule a
+  /// android.app.job.JobService with android.app.job.JobScheduler. If you wish
+  /// to interact with a service that is already running and previously bound
+  /// using bindService(), you can use peekService.
+  ///
+  /// The Intent filters used in android.content.Context#registerReceiver and in
+  /// application manifests are not guaranteed to be exclusive. They are hints to
+  /// the operating system about how to find suitable recipients. It is possible
+  /// for senders to force delivery to specific recipients, bypassing filter resolution.
+  /// For this reason, onReceive() implementations should respond only to known
+  /// actions, ignoring any unexpected Intents that they may receive.
+  ///
+  /// For the associated Native object to be automatically garbage collected,
+  /// it is required that the implementation of this `Function` doesn't have a
+  /// strong reference to the encapsulating class instance. When this `Function`
+  /// references a non-local variable, it is strongly recommended to access it
+  /// with a `WeakReference`:
+  ///
+  /// ```dart
+  /// final WeakReference weakMyVariable = WeakReference(myVariable);
+  /// final BroadcastReceiver instance = BroadcastReceiver(
+  ///  onReceive: (BroadcastReceiver pigeon_instance, ...) {
+  ///    print(weakMyVariable?.target);
+  ///  },
+  /// );
+  /// ```
+  ///
+  /// Alternatively, [PigeonInstanceManager.removeWeakReference] can be used to
+  /// release the associated Native object manually.
+  final void Function(
+    BroadcastReceiver pigeon_instance,
+    Context context,
+    Intent intent,
+  ) onReceive;
+
+  static void pigeon_setUpMessageHandlers({
+    bool pigeon_clearHandlers = false,
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+    void Function(
+      BroadcastReceiver pigeon_instance,
+      Context context,
+      Intent intent,
+    )? onReceive,
+  }) {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
+    final BinaryMessenger? binaryMessenger = pigeon_binaryMessenger;
+    {
+      final BasicMessageChannel<
+          Object?> pigeonVar_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.BroadcastReceiver.onReceive',
+          pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (pigeon_clearHandlers) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BroadcastReceiver.onReceive was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final BroadcastReceiver? arg_pigeon_instance =
+              (args[0] as BroadcastReceiver?);
+          assert(arg_pigeon_instance != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BroadcastReceiver.onReceive was null, expected non-null BroadcastReceiver.');
+          final Context? arg_context = (args[1] as Context?);
+          assert(arg_context != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BroadcastReceiver.onReceive was null, expected non-null Context.');
+          final Intent? arg_intent = (args[2] as Intent?);
+          assert(arg_intent != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.BroadcastReceiver.onReceive was null, expected non-null Intent.');
+          try {
+            (onReceive ?? arg_pigeon_instance!.onReceive)
+                .call(arg_pigeon_instance!, arg_context!, arg_intent!);
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+  }
+
+  @override
+  BroadcastReceiver pigeon_copy() {
+    return BroadcastReceiver.pigeon_detached(
+      pigeon_binaryMessenger: pigeon_binaryMessenger,
+      pigeon_instanceManager: pigeon_instanceManager,
+      onReceive: onReceive,
+    );
+  }
+}
+
 /// Interface to global information about an application environment. This is an
 /// abstract class whose implementation is provided by the Android system. It
 /// allows access to application-specific resources and classes, as well as up-calls for application-level operations such as launching activities, broadcasting and receiving intents, etc.
@@ -18551,6 +18848,456 @@ class Intent extends Any {
   @override
   Intent pigeon_copy() {
     return Intent.pigeon_detached(
+      pigeon_binaryMessenger: pigeon_binaryMessenger,
+      pigeon_instanceManager: pigeon_instanceManager,
+    );
+  }
+}
+
+/// Structured description of Intent values to be matched. An IntentFilter can
+/// match against actions, categories, and data (either via its type, scheme,
+/// and/or path) in an Intent. It also includes a "priority" value which is used
+/// to order multiple matching filters.
+///
+/// IntentFilter objects are often created in XML as part of a package's
+/// AndroidManifest.xml file, using intent-filter tags.
+///
+/// There are three Intent characteristics you can filter on: the action, data,
+/// and categories. For each of these characteristics you can provide multiple
+/// possible matching values (via addAction, addDataType, addDataScheme,
+/// addDataSchemeSpecificPart, addDataAuthority, addDataPath, and addCategory,
+/// respectively). For actions, if no data characteristics are specified, then the
+/// filter will only match intents that contain no data.
+///
+/// The data characteristic is itself divided into three attributes: type, scheme,
+/// authority, and path. Any that are specified must match the contents of the
+/// Intent. If you specify a scheme but no type, only Intent that does not have
+/// a type (such as mailto:) will match; a content: URI will never match because
+/// they always have a MIME type that is supplied by their content provider.
+/// Specifying a type with no scheme has somewhat special meaning: it will match
+/// either an Intent with no URI field, or an Intent with a content: or file: URI.
+/// If you specify neither, then only an Intent with no data or type will match.
+/// To specify an authority, you must also specify one or more schemes that it is
+/// associated with. To specify a path, you also must specify both one or more
+/// authorities and one or more schemes it is associated with.
+class IntentFilter extends Any {
+  /// New empty IntentFilter.
+  IntentFilter.new1({
+    super.pigeon_binaryMessenger,
+    super.pigeon_instanceManager,
+  }) : super.pigeon_detached() {
+    final int pigeonVar_instanceIdentifier =
+        pigeon_instanceManager.addDartCreatedInstance(this);
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _pigeonVar_codecIntentFilter;
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.IntentFilter.new1';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[pigeonVar_instanceIdentifier]);
+    () async {
+      final List<Object?>? pigeonVar_replyList =
+          await pigeonVar_sendFuture as List<Object?>?;
+      if (pigeonVar_replyList == null) {
+        throw _createConnectionError(pigeonVar_channelName);
+      } else if (pigeonVar_replyList.length > 1) {
+        throw PlatformException(
+          code: pigeonVar_replyList[0]! as String,
+          message: pigeonVar_replyList[1] as String?,
+          details: pigeonVar_replyList[2],
+        );
+      } else {
+        return;
+      }
+    }();
+  }
+
+  /// New IntentFilter containing a copy of an existing filter.
+  IntentFilter.new2({
+    super.pigeon_binaryMessenger,
+    super.pigeon_instanceManager,
+    required IntentFilter o,
+  }) : super.pigeon_detached() {
+    final int pigeonVar_instanceIdentifier =
+        pigeon_instanceManager.addDartCreatedInstance(this);
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _pigeonVar_codecIntentFilter;
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.IntentFilter.new2';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[pigeonVar_instanceIdentifier, o]);
+    () async {
+      final List<Object?>? pigeonVar_replyList =
+          await pigeonVar_sendFuture as List<Object?>?;
+      if (pigeonVar_replyList == null) {
+        throw _createConnectionError(pigeonVar_channelName);
+      } else if (pigeonVar_replyList.length > 1) {
+        throw PlatformException(
+          code: pigeonVar_replyList[0]! as String,
+          message: pigeonVar_replyList[1] as String?,
+          details: pigeonVar_replyList[2],
+        );
+      } else {
+        return;
+      }
+    }();
+  }
+
+  /// New IntentFilter that matches a single action with no data. If no data
+  /// characteristics are subsequently specified, then the filter will only match
+  /// intents that contain no data.
+  IntentFilter.new3({
+    super.pigeon_binaryMessenger,
+    super.pigeon_instanceManager,
+    required String action,
+  }) : super.pigeon_detached() {
+    final int pigeonVar_instanceIdentifier =
+        pigeon_instanceManager.addDartCreatedInstance(this);
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _pigeonVar_codecIntentFilter;
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.IntentFilter.new3';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[pigeonVar_instanceIdentifier, action]);
+    () async {
+      final List<Object?>? pigeonVar_replyList =
+          await pigeonVar_sendFuture as List<Object?>?;
+      if (pigeonVar_replyList == null) {
+        throw _createConnectionError(pigeonVar_channelName);
+      } else if (pigeonVar_replyList.length > 1) {
+        throw PlatformException(
+          code: pigeonVar_replyList[0]! as String,
+          message: pigeonVar_replyList[1] as String?,
+          details: pigeonVar_replyList[2],
+        );
+      } else {
+        return;
+      }
+    }();
+  }
+
+  /// New IntentFilter that matches a single action and data type.
+  ///
+  /// Note: MIME type matching in the Android framework is case-sensitive, unlike
+  /// formal RFC MIME types. As a result, you should always write your MIME types
+  /// with lower case letters, and any MIME types you receive from outside of
+  /// Android should be converted to lower case before supplying them here.
+  ///
+  /// Throws MalformedMimeTypeException if the given MIME type is not syntactically
+  /// correct.
+  IntentFilter.new4({
+    super.pigeon_binaryMessenger,
+    super.pigeon_instanceManager,
+    required String action,
+    required String dataType,
+  }) : super.pigeon_detached() {
+    final int pigeonVar_instanceIdentifier =
+        pigeon_instanceManager.addDartCreatedInstance(this);
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _pigeonVar_codecIntentFilter;
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.IntentFilter.new4';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel
+        .send(<Object?>[pigeonVar_instanceIdentifier, action, dataType]);
+    () async {
+      final List<Object?>? pigeonVar_replyList =
+          await pigeonVar_sendFuture as List<Object?>?;
+      if (pigeonVar_replyList == null) {
+        throw _createConnectionError(pigeonVar_channelName);
+      } else if (pigeonVar_replyList.length > 1) {
+        throw PlatformException(
+          code: pigeonVar_replyList[0]! as String,
+          message: pigeonVar_replyList[1] as String?,
+          details: pigeonVar_replyList[2],
+        );
+      } else {
+        return;
+      }
+    }();
+  }
+
+  /// Constructs [IntentFilter] without creating the associated native object.
+  ///
+  /// This should only be used by subclasses created by this library or to
+  /// create copies for an [PigeonInstanceManager].
+  @protected
+  IntentFilter.pigeon_detached({
+    super.pigeon_binaryMessenger,
+    super.pigeon_instanceManager,
+  }) : super.pigeon_detached();
+
+  late final _PigeonInternalProxyApiBaseCodec _pigeonVar_codecIntentFilter =
+      _PigeonInternalProxyApiBaseCodec(pigeon_instanceManager);
+
+  static void pigeon_setUpMessageHandlers({
+    bool pigeon_clearHandlers = false,
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+    IntentFilter Function()? pigeon_newInstance,
+  }) {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
+    final BinaryMessenger? binaryMessenger = pigeon_binaryMessenger;
+    {
+      final BasicMessageChannel<
+          Object?> pigeonVar_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.IntentFilter.pigeon_newInstance',
+          pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (pigeon_clearHandlers) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.IntentFilter.pigeon_newInstance was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final int? arg_pigeon_instanceIdentifier = (args[0] as int?);
+          assert(arg_pigeon_instanceIdentifier != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.IntentFilter.pigeon_newInstance was null, expected non-null int.');
+          try {
+            (pigeon_instanceManager ?? PigeonInstanceManager.instance)
+                .addHostCreatedInstance(
+              pigeon_newInstance?.call() ??
+                  IntentFilter.pigeon_detached(
+                    pigeon_binaryMessenger: pigeon_binaryMessenger,
+                    pigeon_instanceManager: pigeon_instanceManager,
+                  ),
+              arg_pigeon_instanceIdentifier!,
+            );
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+  }
+
+  @override
+  IntentFilter pigeon_copy() {
+    return IntentFilter.pigeon_detached(
+      pigeon_binaryMessenger: pigeon_binaryMessenger,
+      pigeon_instanceManager: pigeon_instanceManager,
+    );
+  }
+}
+
+/// Class for retrieving various kinds of information related to the application
+/// packages that are currently installed on the device. You can find this class
+/// through Context.getPackageManager.
+///
+/// Note: If your app targets Android 11 (API level 30) or higher, the methods in
+/// this class each return a filtered list of apps. Learn more about how to manage
+/// package visibility.
+class PackageManager extends Any {
+  /// Constructs [PackageManager] without creating the associated native object.
+  ///
+  /// This should only be used by subclasses created by this library or to
+  /// create copies for an [PigeonInstanceManager].
+  @protected
+  PackageManager.pigeon_detached({
+    super.pigeon_binaryMessenger,
+    super.pigeon_instanceManager,
+  }) : super.pigeon_detached();
+
+  late final _PigeonInternalProxyApiBaseCodec _pigeonVar_codecPackageManager =
+      _PigeonInternalProxyApiBaseCodec(pigeon_instanceManager);
+
+  static void pigeon_setUpMessageHandlers({
+    bool pigeon_clearHandlers = false,
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+    PackageManager Function()? pigeon_newInstance,
+  }) {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
+    final BinaryMessenger? binaryMessenger = pigeon_binaryMessenger;
+    {
+      final BasicMessageChannel<
+          Object?> pigeonVar_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.PackageManager.pigeon_newInstance',
+          pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (pigeon_clearHandlers) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PackageManager.pigeon_newInstance was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final int? arg_pigeon_instanceIdentifier = (args[0] as int?);
+          assert(arg_pigeon_instanceIdentifier != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PackageManager.pigeon_newInstance was null, expected non-null int.');
+          try {
+            (pigeon_instanceManager ?? PigeonInstanceManager.instance)
+                .addHostCreatedInstance(
+              pigeon_newInstance?.call() ??
+                  PackageManager.pigeon_detached(
+                    pigeon_binaryMessenger: pigeon_binaryMessenger,
+                    pigeon_instanceManager: pigeon_instanceManager,
+                  ),
+              arg_pigeon_instanceIdentifier!,
+            );
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+  }
+
+  /// Check whether the given feature name is one of the available features as
+  /// returned by getSystemAvailableFeatures(). This tests for the presence of
+  /// any version of the given feature name; use hasSystemFeature(java.lang.String,int)
+  /// to check for a minimum version.
+  Future<bool> hasSystemFeature(FeatureArgs featureNameArgs) async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _pigeonVar_codecPackageManager;
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.PackageManager.hasSystemFeature';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[this, featureNameArgs]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as bool?)!;
+    }
+  }
+
+  @override
+  PackageManager pigeon_copy() {
+    return PackageManager.pigeon_detached(
+      pigeon_binaryMessenger: pigeon_binaryMessenger,
+      pigeon_instanceManager: pigeon_instanceManager,
+    );
+  }
+}
+
+/// A mapping from String keys to various Parcelable values.
+///
+/// Warning: Note that Bundle is a lazy container and as such it does NOT implement
+/// equals(java.lang.Object) or hashCode().
+class Bundle extends Any {
+  /// Constructs [Bundle] without creating the associated native object.
+  ///
+  /// This should only be used by subclasses created by this library or to
+  /// create copies for an [PigeonInstanceManager].
+  @protected
+  Bundle.pigeon_detached({
+    super.pigeon_binaryMessenger,
+    super.pigeon_instanceManager,
+  }) : super.pigeon_detached();
+
+  static void pigeon_setUpMessageHandlers({
+    bool pigeon_clearHandlers = false,
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+    Bundle Function()? pigeon_newInstance,
+  }) {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
+    final BinaryMessenger? binaryMessenger = pigeon_binaryMessenger;
+    {
+      final BasicMessageChannel<
+          Object?> pigeonVar_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.Bundle.pigeon_newInstance',
+          pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (pigeon_clearHandlers) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.Bundle.pigeon_newInstance was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final int? arg_pigeon_instanceIdentifier = (args[0] as int?);
+          assert(arg_pigeon_instanceIdentifier != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.Bundle.pigeon_newInstance was null, expected non-null int.');
+          try {
+            (pigeon_instanceManager ?? PigeonInstanceManager.instance)
+                .addHostCreatedInstance(
+              pigeon_newInstance?.call() ??
+                  Bundle.pigeon_detached(
+                    pigeon_binaryMessenger: pigeon_binaryMessenger,
+                    pigeon_instanceManager: pigeon_instanceManager,
+                  ),
+              arg_pigeon_instanceIdentifier!,
+            );
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+  }
+
+  @override
+  Bundle pigeon_copy() {
+    return Bundle.pigeon_detached(
       pigeon_binaryMessenger: pigeon_binaryMessenger,
       pigeon_instanceManager: pigeon_instanceManager,
     );
@@ -18838,6 +19585,487 @@ class ParcelUuid extends Any {
   @override
   ParcelUuid pigeon_copy() {
     return ParcelUuid.pigeon_detached(
+      pigeon_binaryMessenger: pigeon_binaryMessenger,
+      pigeon_instanceManager: pigeon_instanceManager,
+    );
+  }
+}
+
+/// Helper for accessing features in android.app.Activity.
+class ActivityCompat extends ContextCompat {
+  /// Constructs [ActivityCompat] without creating the associated native object.
+  ///
+  /// This should only be used by subclasses created by this library or to
+  /// create copies for an [PigeonInstanceManager].
+  @protected
+  ActivityCompat.pigeon_detached({
+    super.pigeon_binaryMessenger,
+    super.pigeon_instanceManager,
+  }) : super.pigeon_detached();
+
+  late final _PigeonInternalProxyApiBaseCodec _pigeonVar_codecActivityCompat =
+      _PigeonInternalProxyApiBaseCodec(pigeon_instanceManager);
+
+  static void pigeon_setUpMessageHandlers({
+    bool pigeon_clearHandlers = false,
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+    ActivityCompat Function()? pigeon_newInstance,
+  }) {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
+    final BinaryMessenger? binaryMessenger = pigeon_binaryMessenger;
+    {
+      final BasicMessageChannel<
+          Object?> pigeonVar_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.ActivityCompat.pigeon_newInstance',
+          pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (pigeon_clearHandlers) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.ActivityCompat.pigeon_newInstance was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final int? arg_pigeon_instanceIdentifier = (args[0] as int?);
+          assert(arg_pigeon_instanceIdentifier != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.ActivityCompat.pigeon_newInstance was null, expected non-null int.');
+          try {
+            (pigeon_instanceManager ?? PigeonInstanceManager.instance)
+                .addHostCreatedInstance(
+              pigeon_newInstance?.call() ??
+                  ActivityCompat.pigeon_detached(
+                    pigeon_binaryMessenger: pigeon_binaryMessenger,
+                    pigeon_instanceManager: pigeon_instanceManager,
+                  ),
+              arg_pigeon_instanceIdentifier!,
+            );
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+  }
+
+  /// Requests permissions to be granted to this application. These permissions
+  /// must be requested in your manifest, they should not be granted to your app,
+  /// and they should have protection level dangerous, regardless whether they
+  /// are declared by the platform or a third-party app.
+  ///
+  /// Normal permissions PROTECTION_NORMAL are granted at install time if requested
+  /// in the manifest. Signature permissions PROTECTION_SIGNATURE are granted at
+  /// install time if requested in the manifest and the signature of your app
+  /// matches the signature of the app declaring the permissions.
+  ///
+  /// Call shouldShowRequestPermissionRationale before calling this API to check
+  /// if the system recommends to show a rationale dialog before asking for a
+  /// permission.
+  ///
+  /// If your app does not have the requested permissions the user will be presented
+  /// with UI for accepting them. After the user has accepted or rejected the
+  /// requested permissions you will receive a callback reporting whether the
+  /// permissions were granted or not. Your activity has to implement and the
+  /// results of permission requests will be delivered to its onRequestPermissionsResult
+  /// method.
+  ///
+  /// Note that requesting a permission does not guarantee it will be granted and
+  /// your app should be able to run without having this permission.
+  ///
+  /// This method may start an activity allowing the user to choose which permissions
+  /// to grant and which to reject. Hence, you should be prepared that your activity
+  /// may be paused and resumed. Further, granting some permissions may require
+  /// a restart of you application. In such a case, the system will recreate the
+  /// activity stack before delivering the result to your onRequestPermissionsResult.
+  ///
+  /// When checking whether you have a permission you should use checkSelfPermission.
+  ///
+  /// Calling this API for permissions already granted to your app would show UI
+  /// to the user to decide whether the app can still hold these permissions. This
+  /// can be useful if the way your app uses the data guarded by the permissions
+  /// changes significantly.
+  ///
+  /// You cannot request a permission if your activity sets noHistory to true in
+  /// the manifest because in this case the activity would not receive result
+  /// callbacks including onRequestPermissionsResult.
+  ///
+  /// The RuntimePermissions sample app demonstrates how to use this method to
+  /// request permissions at run time.
+  ///
+  /// If POST_NOTIFICATIONS is requested before the device supports the notification
+  /// permission, then POST_NOTIFICATIONS will be removed from onRequestPermissionsResult.
+  /// For devices that don't support POST_NOTIFICATIONS, apps can send users to
+  /// its notification settings to enable notifications. See
+  /// android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS for more information
+  /// on launching notification settings.
+  static Future<void> requestPermissions(
+    Activity activity,
+    PermissionArgs permissionArgs,
+    int requestCode, {
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+  }) async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.ActivityCompat.requestPermissions';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel
+        .send(<Object?>[activity, permissionArgs, requestCode]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  /// Start new activity with options, if able, for which you would like a result
+  /// when it finished.
+  ///
+  /// In Android 4.1+ additional options were introduced to allow for more control
+  /// on activity launch animations. Applications can use this method along with
+  /// ActivityOptionsCompat to use these animations when available. When run on
+  /// versions of the platform where this feature does not exist the activity will
+  /// be launched normally.
+  static Future<void> startActivityForResult(
+    Activity activity,
+    Intent intent,
+    int requestCode,
+    Bundle? options, {
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+  }) async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.ActivityCompat.startActivityForResult';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel
+        .send(<Object?>[activity, intent, requestCode, options]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  @override
+  ActivityCompat pigeon_copy() {
+    return ActivityCompat.pigeon_detached(
+      pigeon_binaryMessenger: pigeon_binaryMessenger,
+      pigeon_instanceManager: pigeon_instanceManager,
+    );
+  }
+}
+
+/// Helper for accessing features in Context.
+class ContextCompat extends Any {
+  /// Constructs [ContextCompat] without creating the associated native object.
+  ///
+  /// This should only be used by subclasses created by this library or to
+  /// create copies for an [PigeonInstanceManager].
+  @protected
+  ContextCompat.pigeon_detached({
+    super.pigeon_binaryMessenger,
+    super.pigeon_instanceManager,
+  }) : super.pigeon_detached();
+
+  late final _PigeonInternalProxyApiBaseCodec _pigeonVar_codecContextCompat =
+      _PigeonInternalProxyApiBaseCodec(pigeon_instanceManager);
+
+  static void pigeon_setUpMessageHandlers({
+    bool pigeon_clearHandlers = false,
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+    ContextCompat Function()? pigeon_newInstance,
+  }) {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
+    final BinaryMessenger? binaryMessenger = pigeon_binaryMessenger;
+    {
+      final BasicMessageChannel<
+          Object?> pigeonVar_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.ContextCompat.pigeon_newInstance',
+          pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (pigeon_clearHandlers) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.ContextCompat.pigeon_newInstance was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final int? arg_pigeon_instanceIdentifier = (args[0] as int?);
+          assert(arg_pigeon_instanceIdentifier != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.ContextCompat.pigeon_newInstance was null, expected non-null int.');
+          try {
+            (pigeon_instanceManager ?? PigeonInstanceManager.instance)
+                .addHostCreatedInstance(
+              pigeon_newInstance?.call() ??
+                  ContextCompat.pigeon_detached(
+                    pigeon_binaryMessenger: pigeon_binaryMessenger,
+                    pigeon_instanceManager: pigeon_instanceManager,
+                  ),
+              arg_pigeon_instanceIdentifier!,
+            );
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+  }
+
+  /// Determine whether you have been granted a particular permission.
+  static Future<bool> checkSelfPermission(
+    Context context,
+    PermissionArgs permissionArgs, {
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+  }) async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.ContextCompat.checkSelfPermission';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[context, permissionArgs]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as bool?)!;
+    }
+  }
+
+  /// Return the handle to a system-level service by class.
+  static Future<BluetoothManager?> getBluetoothManager(
+    Context context, {
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+  }) async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.ContextCompat.getBluetoothManager';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[context]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return (pigeonVar_replyList[0] as BluetoothManager?);
+    }
+  }
+
+  /// Register a broadcast receiver.
+  static Future<Intent?> registerReceiver1(
+    Context context,
+    BroadcastReceiver? receiver,
+    IntentFilter filter,
+    RegisterReceiverFlagsArgs flagsArgs, {
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+  }) async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.ContextCompat.registerReceiver1';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[context, receiver, filter, flagsArgs]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return (pigeonVar_replyList[0] as Intent?);
+    }
+  }
+
+  /// Register a broadcast receiver.
+  static Future<Intent?> registerReceiver2(
+    Context context,
+    BroadcastReceiver? receiver,
+    IntentFilter filter,
+    String broadcastPermission,
+    Handler? scheduler,
+    RegisterReceiverFlagsArgs flagsArgs, {
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+  }) async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.ContextCompat.registerReceiver2';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel
+        .send(<Object?>[
+      context,
+      receiver,
+      filter,
+      broadcastPermission,
+      scheduler,
+      flagsArgs
+    ]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return (pigeonVar_replyList[0] as Intent?);
+    }
+  }
+
+  /// Start an activity with additional launch information, if able.
+  ///
+  /// In Android 4.1+ additional options were introduced to allow for more control
+  /// on activity launch animations. Applications can use this method along with
+  /// ActivityOptionsCompat to use these animations when available. When run on
+  /// versions of the platform where this feature does not exist the activity will
+  /// be launched normally.
+  static Future<void> startActivity(
+    Context context,
+    Intent intent,
+    Bundle? options, {
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+  }) async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.ContextCompat.startActivity';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[context, intent, options]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  @override
+  ContextCompat pigeon_copy() {
+    return ContextCompat.pigeon_detached(
       pigeon_binaryMessenger: pigeon_binaryMessenger,
       pigeon_instanceManager: pigeon_instanceManager,
     );
