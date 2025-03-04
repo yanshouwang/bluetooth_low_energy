@@ -1,6 +1,19 @@
+import 'package:bluetooth_low_energy_android/src/bluetooth_low_energy_android.g.dart'
+    as api;
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
 base mixin BluetoothLowEnergyManagerImpl on BluetoothLowEnergyManager {
+  api.BluetoothLowEnergyAndroidPlugin get bluetoothLowEnergyAndroidPlugin;
+  Future<api.PackageManager> get packageManager;
+  Future<api.BluetoothAdapter> get adapter;
+
+  api.Context get context => bluetoothLowEnergyAndroidPlugin.applicationContext;
+
+  Future<api.Activity?> getActivity() =>
+      bluetoothLowEnergyAndroidPlugin.getActivity();
+
+  api.Permission get permission;
+
   @override
   // TODO: implement stateChanged
   Stream<BluetoothLowEnergyStateChangedEvent> get stateChanged =>
@@ -11,9 +24,22 @@ base mixin BluetoothLowEnergyManagerImpl on BluetoothLowEnergyManager {
   Stream<NameChangedEvent> get nameChanged => throw UnimplementedError();
 
   @override
-  Future<BluetoothLowEnergyState> getState() {
-    // TODO: implement getState
-    throw UnimplementedError();
+  Future<BluetoothLowEnergyState> getState() async {
+    final packageManager = await context.getPackageManager();
+    final hasBluetoothLowEnergy = await packageManager
+        .hasSystemFeature(api.FeatureArgs.bluetoothLowEnergy);
+    if (hasBluetoothLowEnergy) {
+      final isGranted =
+          await api.ContextCompat.checkSelfPermission(context, permission);
+      if (isGranted) {
+        final adapter = await this.adapter;
+        final stateArgs = await adapter.getState();
+      } else {
+        return BluetoothLowEnergyState.unauthorized;
+      }
+    } else {
+      return BluetoothLowEnergyState.unsupported;
+    }
   }
 
   @override

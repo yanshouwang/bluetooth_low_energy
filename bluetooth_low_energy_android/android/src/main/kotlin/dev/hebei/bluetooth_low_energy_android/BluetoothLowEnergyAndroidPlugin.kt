@@ -41,7 +41,7 @@ class BluetoothLowEnergyAndroidPlugin : FlutterPlugin, ActivityAware, PluginRegi
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         _applicationContext = binding.applicationContext
-        _registrar = BluetoothLowEnergyAndroidRegistrarImpl(binding.binaryMessenger, this)
+        _registrar = BluetoothLowEnergyAndroidRegistrar(binding.binaryMessenger, this)
         _registrar.setUp()
     }
 

@@ -376,7 +376,7 @@ abstract class BluetoothAdapter extends Any {
   ///
   /// Possible return values are STATE_OFF, STATE_TURNING_ON, STATE_ON,
   /// STATE_TURNING_OFF.
-  int getState();
+  BluetoothState getState();
 
   /// Return true if the local Bluetooth adapter is currently in the device
   /// discovery process.
@@ -1065,7 +1065,7 @@ abstract class BluetoothGatt extends Any {
   /// Once the write operation has been completed, the
   /// android.bluetooth.BluetoothGattCallback#onCharacteristicWrite callback is
   /// invoked, reporting the result of the operation.
-  BluetoothStatusCodesArgs writeCharacteristic(
+  BluetoothStatusCodes writeCharacteristic(
       BluetoothGattCharacteristic characteristic,
       Uint8List value,
       int writeType);
@@ -1074,7 +1074,7 @@ abstract class BluetoothGatt extends Any {
   ///
   /// A BluetoothGattCallback.onDescriptorWrite callback is triggered to report
   /// the result of the write operation.
-  BluetoothStatusCodesArgs writeDescriptor(
+  BluetoothStatusCodes writeDescriptor(
       BluetoothGattDescriptor descriptor, Uint8List value);
 }
 
@@ -1346,7 +1346,7 @@ abstract class BluetoothGattServer extends Any {
   /// the characteristic has been updated. This function should be invoked for
   /// every client that requests notifications/indications by writing to the
   /// "Client Configuration" descriptor for the given characteristic.
-  BluetoothStatusCodesArgs notifyCharacteristicChanged(
+  BluetoothStatusCodes notifyCharacteristicChanged(
       BluetoothDevice device,
       BluetoothGattCharacteristic characteristic,
       bool confirm,
@@ -2829,7 +2829,10 @@ abstract class BroadcastReceiver extends Any {
     fullClassName: 'android.content.Context',
   ),
 )
-abstract class Context extends Any {}
+abstract class Context extends Any {
+  /// Return PackageManager instance to find global package information.
+  PackageManager getPackageManager();
+}
 
 @ProxyApi(
   kotlinOptions: KotlinProxyApiOptions(
@@ -2912,7 +2915,7 @@ abstract class PackageManager extends Any {
   /// returned by getSystemAvailableFeatures(). This tests for the presence of
   /// any version of the given feature name; use hasSystemFeature(java.lang.String,int)
   /// to check for a minimum version.
-  bool hasSystemFeature(FeatureArgs featureNameArgs);
+  bool hasSystemFeature(Feature featureName);
 }
 
 // https://developer.android.google.cn/reference/kotlin/android/os/package-summary
@@ -3046,7 +3049,7 @@ abstract class ActivityCompat extends ContextCompat {
   /// on launching notification settings.
   @static
   void requestPermissions(
-      Activity activity, PermissionArgs permissionArgs, int requestCode);
+      Activity activity, Permission permissions, int requestCode);
 
   /// Start new activity with options, if able, for which you would like a result
   /// when it finished.
@@ -3072,7 +3075,7 @@ abstract class ActivityCompat extends ContextCompat {
 abstract class ContextCompat extends Any {
   /// Determine whether you have been granted a particular permission.
   @static
-  bool checkSelfPermission(Context context, PermissionArgs permissionArgs);
+  bool checkSelfPermission(Context context, Permission permission);
 
   /// Return the handle to a system-level service by class.
   @static
@@ -3081,7 +3084,7 @@ abstract class ContextCompat extends Any {
   /// Register a broadcast receiver.
   @static
   Intent? registerReceiver1(Context context, BroadcastReceiver? receiver,
-      IntentFilter filter, RegisterReceiverFlagsArgs flagsArgs);
+      IntentFilter filter, RegisterReceiverFlags flags);
 
   /// Register a broadcast receiver.
   @static
@@ -3091,7 +3094,7 @@ abstract class ContextCompat extends Any {
       IntentFilter filter,
       String broadcastPermission,
       Handler? scheduler,
-      RegisterReceiverFlagsArgs flagsArgs);
+      RegisterReceiverFlags flags);
 
   /// Start an activity with additional launch information, if able.
   ///
@@ -3247,7 +3250,7 @@ abstract class UUID extends Any {
   int variant();
 }
 
-enum FeatureArgs {
+enum Feature {
   /// Feature for getSystemAvailableFeatures and #hasSystemFeature: The device is
   /// capable of communicating with other devices via Bluetooth.
   bluetooth,
@@ -3257,12 +3260,12 @@ enum FeatureArgs {
   bluetoothLowEnergy,
 }
 
-enum PermissionArgs {
+enum Permission {
   central,
   peripheral,
 }
 
-enum RegisterReceiverFlagsArgs {
+enum RegisterReceiverFlags {
   /// Flag for registerReceiver: The receiver can receive broadcasts from other
   /// Apps. Has the same behavior as marking a statically registered receiver with
   /// "exported=true"
@@ -3278,12 +3281,19 @@ enum RegisterReceiverFlagsArgs {
   visibleToInstantApps,
 }
 
+enum BluetoothState {
+  off,
+  turningOn,
+  on,
+  turningOff,
+}
+
 /// A class with constants representing possible return values for Bluetooth APIs.
 /// General return values occupy the range 0 to 199. Profile-specific return values
 /// occupy the range 200-999. API-specific return values start at 1000. The
 /// exception to this is the "UNKNOWN" error code which occupies the max integer
 /// value.
-enum BluetoothStatusCodesArgs {
+enum BluetoothStatusCodes {
   /// Error code indicating that the API call was initiated by neither the system
   /// nor the active user.
   errorBluetoothNotAllowed,

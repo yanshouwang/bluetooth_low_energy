@@ -650,10 +650,7 @@ abstract class BluetoothLowEnergyAndroidPigeonProxyApiRegistrar(val binaryMessen
    * An implementation of [PigeonApiContext] used to add a new Dart instance of
    * `Context` to the Dart `InstanceManager`.
    */
-  open fun getPigeonApiContext(): PigeonApiContext
-  {
-    return PigeonApiContext(this)
-  }
+  abstract fun getPigeonApiContext(): PigeonApiContext
 
   /**
    * An implementation of [PigeonApiIntent] used to add a new Dart instance of
@@ -788,6 +785,7 @@ abstract class BluetoothLowEnergyAndroidPigeonProxyApiRegistrar(val binaryMessen
     PigeonApiScanSettings.setUpMessageHandlers(binaryMessenger, getPigeonApiScanSettings())
     PigeonApiScanSettingsBuilder.setUpMessageHandlers(binaryMessenger, getPigeonApiScanSettingsBuilder())
     PigeonApiBroadcastReceiver.setUpMessageHandlers(binaryMessenger, getPigeonApiBroadcastReceiver())
+    PigeonApiContext.setUpMessageHandlers(binaryMessenger, getPigeonApiContext())
     PigeonApiIntentFilter.setUpMessageHandlers(binaryMessenger, getPigeonApiIntentFilter())
     PigeonApiPackageManager.setUpMessageHandlers(binaryMessenger, getPigeonApiPackageManager())
     PigeonApiParcelUuid.setUpMessageHandlers(binaryMessenger, getPigeonApiParcelUuid())
@@ -838,6 +836,7 @@ abstract class BluetoothLowEnergyAndroidPigeonProxyApiRegistrar(val binaryMessen
     PigeonApiScanSettings.setUpMessageHandlers(binaryMessenger, null)
     PigeonApiScanSettingsBuilder.setUpMessageHandlers(binaryMessenger, null)
     PigeonApiBroadcastReceiver.setUpMessageHandlers(binaryMessenger, null)
+    PigeonApiContext.setUpMessageHandlers(binaryMessenger, null)
     PigeonApiIntentFilter.setUpMessageHandlers(binaryMessenger, null)
     PigeonApiPackageManager.setUpMessageHandlers(binaryMessenger, null)
     PigeonApiParcelUuid.setUpMessageHandlers(binaryMessenger, null)
@@ -865,7 +864,7 @@ private class BluetoothLowEnergyAndroidPigeonProxyApiBaseCodec(val registrar: Bl
   }
 
   override fun writeValue(stream: ByteArrayOutputStream, value: Any?) {
-    if (value is Boolean || value is ByteArray || value is Double || value is DoubleArray || value is FloatArray || value is Int || value is IntArray || value is List<*> || value is Long || value is LongArray || value is Map<*, *> || value is String || value is FeatureArgs || value is PermissionArgs || value is RegisterReceiverFlagsArgs || value is BluetoothStatusCodesArgs || value == null) {
+    if (value is Boolean || value is ByteArray || value is Double || value is DoubleArray || value is FloatArray || value is Int || value is IntArray || value is List<*> || value is Long || value is LongArray || value is Map<*, *> || value is String || value is Feature || value is Permission || value is RegisterReceiverFlags || value is BluetoothState || value is BluetoothStatusCodes || value == null) {
       super.writeValue(stream, value)
       return
     }
@@ -1055,7 +1054,7 @@ private class BluetoothLowEnergyAndroidPigeonProxyApiBaseCodec(val registrar: Bl
   }
 }
 
-enum class FeatureArgs(val raw: Int) {
+enum class Feature(val raw: Int) {
   /**
    * Feature for getSystemAvailableFeatures and #hasSystemFeature: The device is
    * capable of communicating with other devices via Bluetooth.
@@ -1068,24 +1067,24 @@ enum class FeatureArgs(val raw: Int) {
   BLUETOOTH_LOW_ENERGY(1);
 
   companion object {
-    fun ofRaw(raw: Int): FeatureArgs? {
+    fun ofRaw(raw: Int): Feature? {
       return values().firstOrNull { it.raw == raw }
     }
   }
 }
 
-enum class PermissionArgs(val raw: Int) {
+enum class Permission(val raw: Int) {
   CENTRAL(0),
   PERIPHERAL(1);
 
   companion object {
-    fun ofRaw(raw: Int): PermissionArgs? {
+    fun ofRaw(raw: Int): Permission? {
       return values().firstOrNull { it.raw == raw }
     }
   }
 }
 
-enum class RegisterReceiverFlagsArgs(val raw: Int) {
+enum class RegisterReceiverFlags(val raw: Int) {
   /**
    * Flag for registerReceiver: The receiver can receive broadcasts from other
    * Apps. Has the same behavior as marking a statically registered receiver with
@@ -1105,7 +1104,20 @@ enum class RegisterReceiverFlagsArgs(val raw: Int) {
   VISIBLE_TO_INSTANT_APPS(2);
 
   companion object {
-    fun ofRaw(raw: Int): RegisterReceiverFlagsArgs? {
+    fun ofRaw(raw: Int): RegisterReceiverFlags? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
+
+enum class BluetoothState(val raw: Int) {
+  OFF(0),
+  TURNING_ON(1),
+  ON(2),
+  TURNING_OFF(3);
+
+  companion object {
+    fun ofRaw(raw: Int): BluetoothState? {
       return values().firstOrNull { it.raw == raw }
     }
   }
@@ -1118,7 +1130,7 @@ enum class RegisterReceiverFlagsArgs(val raw: Int) {
  * exception to this is the "UNKNOWN" error code which occupies the max integer
  * value.
  */
-enum class BluetoothStatusCodesArgs(val raw: Int) {
+enum class BluetoothStatusCodes(val raw: Int) {
   /**
    * Error code indicating that the API call was initiated by neither the system
    * nor the active user.
@@ -1154,7 +1166,7 @@ enum class BluetoothStatusCodesArgs(val raw: Int) {
   SUCCESS(11);
 
   companion object {
-    fun ofRaw(raw: Int): BluetoothStatusCodesArgs? {
+    fun ofRaw(raw: Int): BluetoothStatusCodes? {
       return values().firstOrNull { it.raw == raw }
     }
   }
@@ -1164,22 +1176,27 @@ private open class BluetoothLowEnergyAndroidPigeonCodec : StandardMessageCodec()
     return when (type) {
       129.toByte() -> {
         return (readValue(buffer) as Long?)?.let {
-          FeatureArgs.ofRaw(it.toInt())
+          Feature.ofRaw(it.toInt())
         }
       }
       130.toByte() -> {
         return (readValue(buffer) as Long?)?.let {
-          PermissionArgs.ofRaw(it.toInt())
+          Permission.ofRaw(it.toInt())
         }
       }
       131.toByte() -> {
         return (readValue(buffer) as Long?)?.let {
-          RegisterReceiverFlagsArgs.ofRaw(it.toInt())
+          RegisterReceiverFlags.ofRaw(it.toInt())
         }
       }
       132.toByte() -> {
         return (readValue(buffer) as Long?)?.let {
-          BluetoothStatusCodesArgs.ofRaw(it.toInt())
+          BluetoothState.ofRaw(it.toInt())
+        }
+      }
+      133.toByte() -> {
+        return (readValue(buffer) as Long?)?.let {
+          BluetoothStatusCodes.ofRaw(it.toInt())
         }
       }
       else -> super.readValueOfType(type, buffer)
@@ -1187,20 +1204,24 @@ private open class BluetoothLowEnergyAndroidPigeonCodec : StandardMessageCodec()
   }
   override fun writeValue(stream: ByteArrayOutputStream, value: Any?)   {
     when (value) {
-      is FeatureArgs -> {
+      is Feature -> {
         stream.write(129)
         writeValue(stream, value.raw)
       }
-      is PermissionArgs -> {
+      is Permission -> {
         stream.write(130)
         writeValue(stream, value.raw)
       }
-      is RegisterReceiverFlagsArgs -> {
+      is RegisterReceiverFlags -> {
         stream.write(131)
         writeValue(stream, value.raw)
       }
-      is BluetoothStatusCodesArgs -> {
+      is BluetoothState -> {
         stream.write(132)
+        writeValue(stream, value.raw)
+      }
+      is BluetoothStatusCodes -> {
+        stream.write(133)
         writeValue(stream, value.raw)
       }
       else -> super.writeValue(stream, value)
@@ -2003,7 +2024,7 @@ abstract class PigeonApiBluetoothAdapter(open val pigeonRegistrar: BluetoothLowE
    * Possible return values are STATE_OFF, STATE_TURNING_ON, STATE_ON,
    * STATE_TURNING_OFF.
    */
-  abstract fun getState(pigeon_instance: android.bluetooth.BluetoothAdapter): Long
+  abstract fun getState(pigeon_instance: android.bluetooth.BluetoothAdapter): BluetoothState
 
   /**
    * Return true if the local Bluetooth adapter is currently in the device
@@ -4036,7 +4057,7 @@ abstract class PigeonApiBluetoothGatt(open val pigeonRegistrar: BluetoothLowEner
    * android.bluetooth.BluetoothGattCallback#onCharacteristicWrite callback is
    * invoked, reporting the result of the operation.
    */
-  abstract fun writeCharacteristic(pigeon_instance: android.bluetooth.BluetoothGatt, characteristic: android.bluetooth.BluetoothGattCharacteristic, value: ByteArray, writeType: Long): BluetoothStatusCodesArgs
+  abstract fun writeCharacteristic(pigeon_instance: android.bluetooth.BluetoothGatt, characteristic: android.bluetooth.BluetoothGattCharacteristic, value: ByteArray, writeType: Long): BluetoothStatusCodes
 
   /**
    * Write the value of a given descriptor to the associated remote device.
@@ -4044,7 +4065,7 @@ abstract class PigeonApiBluetoothGatt(open val pigeonRegistrar: BluetoothLowEner
    * A BluetoothGattCallback.onDescriptorWrite callback is triggered to report
    * the result of the write operation.
    */
-  abstract fun writeDescriptor(pigeon_instance: android.bluetooth.BluetoothGatt, descriptor: android.bluetooth.BluetoothGattDescriptor, value: ByteArray): BluetoothStatusCodesArgs
+  abstract fun writeDescriptor(pigeon_instance: android.bluetooth.BluetoothGatt, descriptor: android.bluetooth.BluetoothGattDescriptor, value: ByteArray): BluetoothStatusCodes
 
   companion object {
     @Suppress("LocalVariableName")
@@ -5453,7 +5474,7 @@ abstract class PigeonApiBluetoothGattServer(open val pigeonRegistrar: BluetoothL
    * every client that requests notifications/indications by writing to the
    * "Client Configuration" descriptor for the given characteristic.
    */
-  abstract fun notifyCharacteristicChanged(pigeon_instance: android.bluetooth.BluetoothGattServer, device: android.bluetooth.BluetoothDevice, characteristic: android.bluetooth.BluetoothGattCharacteristic, confirm: Boolean, value: ByteArray): BluetoothStatusCodesArgs
+  abstract fun notifyCharacteristicChanged(pigeon_instance: android.bluetooth.BluetoothGattServer, device: android.bluetooth.BluetoothDevice, characteristic: android.bluetooth.BluetoothGattCharacteristic, confirm: Boolean, value: ByteArray): BluetoothStatusCodes
 
   /**
    * Read the current transmitter PHY and receiver PHY of the connection. The
@@ -13075,7 +13096,34 @@ abstract class PigeonApiBroadcastReceiver(open val pigeonRegistrar: BluetoothLow
  * allows access to application-specific resources and classes, as well as up-calls for application-level operations such as launching activities, broadcasting and receiving intents, etc.
  */
 @Suppress("UNCHECKED_CAST")
-open class PigeonApiContext(open val pigeonRegistrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) {
+abstract class PigeonApiContext(open val pigeonRegistrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) {
+  /** Return PackageManager instance to find global package information. */
+  abstract fun getPackageManager(pigeon_instance: android.content.Context): android.content.pm.PackageManager
+
+  companion object {
+    @Suppress("LocalVariableName")
+    fun setUpMessageHandlers(binaryMessenger: BinaryMessenger, api: PigeonApiContext?) {
+      val codec = api?.pigeonRegistrar?.codec ?: BluetoothLowEnergyAndroidPigeonCodec()
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.Context.getPackageManager", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val pigeon_instanceArg = args[0] as android.content.Context
+            val wrapped: List<Any?> = try {
+              listOf(api.getPackageManager(pigeon_instanceArg))
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+    }
+  }
+
   @Suppress("LocalVariableName", "FunctionName")
   /** Creates a Dart instance of Context and attaches it to [pigeon_instanceArg]. */
   fun pigeon_newInstance(pigeon_instanceArg: android.content.Context, callback: (Result<Unit>) -> Unit)
@@ -13348,7 +13396,7 @@ abstract class PigeonApiPackageManager(open val pigeonRegistrar: BluetoothLowEne
    * any version of the given feature name; use hasSystemFeature(java.lang.String,int)
    * to check for a minimum version.
    */
-  abstract fun hasSystemFeature(pigeon_instance: android.content.pm.PackageManager, featureNameArgs: FeatureArgs): Boolean
+  abstract fun hasSystemFeature(pigeon_instance: android.content.pm.PackageManager, featureName: Feature): Boolean
 
   companion object {
     @Suppress("LocalVariableName")
@@ -13360,9 +13408,9 @@ abstract class PigeonApiPackageManager(open val pigeonRegistrar: BluetoothLowEne
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val pigeon_instanceArg = args[0] as android.content.pm.PackageManager
-            val featureNameArgsArg = args[1] as FeatureArgs
+            val featureNameArg = args[1] as Feature
             val wrapped: List<Any?> = try {
-              listOf(api.hasSystemFeature(pigeon_instanceArg, featureNameArgsArg))
+              listOf(api.hasSystemFeature(pigeon_instanceArg, featureNameArg))
             } catch (exception: Throwable) {
               wrapError(exception)
             }
@@ -13700,7 +13748,7 @@ abstract class PigeonApiActivityCompat(open val pigeonRegistrar: BluetoothLowEne
    * android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS for more information
    * on launching notification settings.
    */
-  abstract fun requestPermissions(activity: android.app.Activity, permissionArgs: PermissionArgs, requestCode: Long)
+  abstract fun requestPermissions(activity: android.app.Activity, permissions: Permission, requestCode: Long)
 
   /**
    * Start new activity with options, if able, for which you would like a result
@@ -13724,10 +13772,10 @@ abstract class PigeonApiActivityCompat(open val pigeonRegistrar: BluetoothLowEne
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val activityArg = args[0] as android.app.Activity
-            val permissionArgsArg = args[1] as PermissionArgs
+            val permissionsArg = args[1] as Permission
             val requestCodeArg = args[2] as Long
             val wrapped: List<Any?> = try {
-              api.requestPermissions(activityArg, permissionArgsArg, requestCodeArg)
+              api.requestPermissions(activityArg, permissionsArg, requestCodeArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -13804,16 +13852,16 @@ abstract class PigeonApiActivityCompat(open val pigeonRegistrar: BluetoothLowEne
 @Suppress("UNCHECKED_CAST")
 abstract class PigeonApiContextCompat(open val pigeonRegistrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar) {
   /** Determine whether you have been granted a particular permission. */
-  abstract fun checkSelfPermission(context: android.content.Context, permissionArgs: PermissionArgs): Boolean
+  abstract fun checkSelfPermission(context: android.content.Context, permission: Permission): Boolean
 
   /** Return the handle to a system-level service by class. */
   abstract fun getBluetoothManager(context: android.content.Context): android.bluetooth.BluetoothManager?
 
   /** Register a broadcast receiver. */
-  abstract fun registerReceiver1(context: android.content.Context, receiver: android.content.BroadcastReceiver?, filter: android.content.IntentFilter, flagsArgs: RegisterReceiverFlagsArgs): android.content.Intent?
+  abstract fun registerReceiver1(context: android.content.Context, receiver: android.content.BroadcastReceiver?, filter: android.content.IntentFilter, flags: RegisterReceiverFlags): android.content.Intent?
 
   /** Register a broadcast receiver. */
-  abstract fun registerReceiver2(context: android.content.Context, receiver: android.content.BroadcastReceiver?, filter: android.content.IntentFilter, broadcastPermission: String, scheduler: android.os.Handler?, flagsArgs: RegisterReceiverFlagsArgs): android.content.Intent?
+  abstract fun registerReceiver2(context: android.content.Context, receiver: android.content.BroadcastReceiver?, filter: android.content.IntentFilter, broadcastPermission: String, scheduler: android.os.Handler?, flags: RegisterReceiverFlags): android.content.Intent?
 
   /**
    * Start an activity with additional launch information, if able.
@@ -13836,9 +13884,9 @@ abstract class PigeonApiContextCompat(open val pigeonRegistrar: BluetoothLowEner
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val contextArg = args[0] as android.content.Context
-            val permissionArgsArg = args[1] as PermissionArgs
+            val permissionArg = args[1] as Permission
             val wrapped: List<Any?> = try {
-              listOf(api.checkSelfPermission(contextArg, permissionArgsArg))
+              listOf(api.checkSelfPermission(contextArg, permissionArg))
             } catch (exception: Throwable) {
               wrapError(exception)
             }
@@ -13873,9 +13921,9 @@ abstract class PigeonApiContextCompat(open val pigeonRegistrar: BluetoothLowEner
             val contextArg = args[0] as android.content.Context
             val receiverArg = args[1] as android.content.BroadcastReceiver?
             val filterArg = args[2] as android.content.IntentFilter
-            val flagsArgsArg = args[3] as RegisterReceiverFlagsArgs
+            val flagsArg = args[3] as RegisterReceiverFlags
             val wrapped: List<Any?> = try {
-              listOf(api.registerReceiver1(contextArg, receiverArg, filterArg, flagsArgsArg))
+              listOf(api.registerReceiver1(contextArg, receiverArg, filterArg, flagsArg))
             } catch (exception: Throwable) {
               wrapError(exception)
             }
@@ -13895,9 +13943,9 @@ abstract class PigeonApiContextCompat(open val pigeonRegistrar: BluetoothLowEner
             val filterArg = args[2] as android.content.IntentFilter
             val broadcastPermissionArg = args[3] as String
             val schedulerArg = args[4] as android.os.Handler?
-            val flagsArgsArg = args[5] as RegisterReceiverFlagsArgs
+            val flagsArg = args[5] as RegisterReceiverFlags
             val wrapped: List<Any?> = try {
-              listOf(api.registerReceiver2(contextArg, receiverArg, filterArg, broadcastPermissionArg, schedulerArg, flagsArgsArg))
+              listOf(api.registerReceiver2(contextArg, receiverArg, filterArg, broadcastPermissionArg, schedulerArg, flagsArg))
             } catch (exception: Throwable) {
               wrapError(exception)
             }

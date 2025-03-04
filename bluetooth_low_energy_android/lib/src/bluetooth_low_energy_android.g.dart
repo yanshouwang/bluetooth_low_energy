@@ -442,7 +442,7 @@ class _PigeonInternalProxyApiBaseCodec extends _PigeonCodec {
 }
 
 
-enum FeatureArgs {
+enum Feature {
   /// Feature for getSystemAvailableFeatures and #hasSystemFeature: The device is
   /// capable of communicating with other devices via Bluetooth.
   bluetooth,
@@ -451,12 +451,12 @@ enum FeatureArgs {
   bluetoothLowEnergy,
 }
 
-enum PermissionArgs {
+enum Permission {
   central,
   peripheral,
 }
 
-enum RegisterReceiverFlagsArgs {
+enum RegisterReceiverFlags {
   /// Flag for registerReceiver: The receiver can receive broadcasts from other
   /// Apps. Has the same behavior as marking a statically registered receiver with
   /// "exported=true"
@@ -470,12 +470,19 @@ enum RegisterReceiverFlagsArgs {
   visibleToInstantApps,
 }
 
+enum BluetoothState {
+  off,
+  turningOn,
+  on,
+  turningOff,
+}
+
 /// A class with constants representing possible return values for Bluetooth APIs.
 /// General return values occupy the range 0 to 199. Profile-specific return values
 /// occupy the range 200-999. API-specific return values start at 1000. The
 /// exception to this is the "UNKNOWN" error code which occupies the max integer
 /// value.
-enum BluetoothStatusCodesArgs {
+enum BluetoothStatusCodes {
   /// Error code indicating that the API call was initiated by neither the system
   /// nor the active user.
   errorBluetoothNotAllowed,
@@ -513,17 +520,20 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    }    else if (value is FeatureArgs) {
+    }    else if (value is Feature) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
-    }    else if (value is PermissionArgs) {
+    }    else if (value is Permission) {
       buffer.putUint8(130);
       writeValue(buffer, value.index);
-    }    else if (value is RegisterReceiverFlagsArgs) {
+    }    else if (value is RegisterReceiverFlags) {
       buffer.putUint8(131);
       writeValue(buffer, value.index);
-    }    else if (value is BluetoothStatusCodesArgs) {
+    }    else if (value is BluetoothState) {
       buffer.putUint8(132);
+      writeValue(buffer, value.index);
+    }    else if (value is BluetoothStatusCodes) {
+      buffer.putUint8(133);
       writeValue(buffer, value.index);
     } else {
       super.writeValue(buffer, value);
@@ -535,16 +545,19 @@ class _PigeonCodec extends StandardMessageCodec {
     switch (type) {
       case 129: 
         final int? value = readValue(buffer) as int?;
-        return value == null ? null : FeatureArgs.values[value];
+        return value == null ? null : Feature.values[value];
       case 130: 
         final int? value = readValue(buffer) as int?;
-        return value == null ? null : PermissionArgs.values[value];
+        return value == null ? null : Permission.values[value];
       case 131: 
         final int? value = readValue(buffer) as int?;
-        return value == null ? null : RegisterReceiverFlagsArgs.values[value];
+        return value == null ? null : RegisterReceiverFlags.values[value];
       case 132: 
         final int? value = readValue(buffer) as int?;
-        return value == null ? null : BluetoothStatusCodesArgs.values[value];
+        return value == null ? null : BluetoothState.values[value];
+      case 133: 
+        final int? value = readValue(buffer) as int?;
+        return value == null ? null : BluetoothStatusCodes.values[value];
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -2383,7 +2396,7 @@ class BluetoothAdapter extends Any {
   ///
   /// Possible return values are STATE_OFF, STATE_TURNING_ON, STATE_ON,
   /// STATE_TURNING_OFF.
-  Future<int> getState() async {
+  Future<BluetoothState> getState() async {
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
         _pigeonVar_codecBluetoothAdapter;
     final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
@@ -2413,7 +2426,7 @@ class BluetoothAdapter extends Any {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (pigeonVar_replyList[0] as int?)!;
+      return (pigeonVar_replyList[0] as BluetoothState?)!;
     }
   }
 
@@ -5260,7 +5273,7 @@ class BluetoothGatt extends Any {
   /// Once the write operation has been completed, the
   /// android.bluetooth.BluetoothGattCallback#onCharacteristicWrite callback is
   /// invoked, reporting the result of the operation.
-  Future<BluetoothStatusCodesArgs> writeCharacteristic(
+  Future<BluetoothStatusCodes> writeCharacteristic(
     BluetoothGattCharacteristic characteristic,
     Uint8List value,
     int writeType,
@@ -5294,7 +5307,7 @@ class BluetoothGatt extends Any {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (pigeonVar_replyList[0] as BluetoothStatusCodesArgs?)!;
+      return (pigeonVar_replyList[0] as BluetoothStatusCodes?)!;
     }
   }
 
@@ -5302,7 +5315,7 @@ class BluetoothGatt extends Any {
   ///
   /// A BluetoothGattCallback.onDescriptorWrite callback is triggered to report
   /// the result of the write operation.
-  Future<BluetoothStatusCodesArgs> writeDescriptor(
+  Future<BluetoothStatusCodes> writeDescriptor(
     BluetoothGattDescriptor descriptor,
     Uint8List value,
   ) async {
@@ -5335,7 +5348,7 @@ class BluetoothGatt extends Any {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (pigeonVar_replyList[0] as BluetoothStatusCodesArgs?)!;
+      return (pigeonVar_replyList[0] as BluetoothStatusCodes?)!;
     }
   }
 
@@ -7600,7 +7613,7 @@ class BluetoothGattServer extends Any {
   /// the characteristic has been updated. This function should be invoked for
   /// every client that requests notifications/indications by writing to the
   /// "Client Configuration" descriptor for the given characteristic.
-  Future<BluetoothStatusCodesArgs> notifyCharacteristicChanged(
+  Future<BluetoothStatusCodes> notifyCharacteristicChanged(
     BluetoothDevice device,
     BluetoothGattCharacteristic characteristic,
     bool confirm,
@@ -7635,7 +7648,7 @@ class BluetoothGattServer extends Any {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (pigeonVar_replyList[0] as BluetoothStatusCodesArgs?)!;
+      return (pigeonVar_replyList[0] as BluetoothStatusCodes?)!;
     }
   }
 
@@ -18727,6 +18740,9 @@ class Context extends Any {
     super.pigeon_instanceManager,
   }) : super.pigeon_detached();
 
+  late final _PigeonInternalProxyApiBaseCodec _pigeonVar_codecContext =
+      _PigeonInternalProxyApiBaseCodec(pigeon_instanceManager);
+
   static void pigeon_setUpMessageHandlers({
     bool pigeon_clearHandlers = false,
     BinaryMessenger? pigeon_binaryMessenger,
@@ -18773,6 +18789,41 @@ class Context extends Any {
           }
         });
       }
+    }
+  }
+
+  /// Return PackageManager instance to find global package information.
+  Future<PackageManager> getPackageManager() async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _pigeonVar_codecContext;
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.Context.getPackageManager';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[this]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as PackageManager?)!;
     }
   }
 
@@ -19188,7 +19239,7 @@ class PackageManager extends Any {
   /// returned by getSystemAvailableFeatures(). This tests for the presence of
   /// any version of the given feature name; use hasSystemFeature(java.lang.String,int)
   /// to check for a minimum version.
-  Future<bool> hasSystemFeature(FeatureArgs featureNameArgs) async {
+  Future<bool> hasSystemFeature(Feature featureName) async {
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
         _pigeonVar_codecPackageManager;
     final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
@@ -19201,7 +19252,7 @@ class PackageManager extends Any {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[this, featureNameArgs]);
+        pigeonVar_channel.send(<Object?>[this, featureName]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -19707,7 +19758,7 @@ class ActivityCompat extends ContextCompat {
   /// on launching notification settings.
   static Future<void> requestPermissions(
     Activity activity,
-    PermissionArgs permissionArgs,
+    Permission permissions,
     int requestCode, {
     BinaryMessenger? pigeon_binaryMessenger,
     PigeonInstanceManager? pigeon_instanceManager,
@@ -19724,8 +19775,8 @@ class ActivityCompat extends ContextCompat {
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel
-        .send(<Object?>[activity, permissionArgs, requestCode]);
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[activity, permissions, requestCode]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -19862,7 +19913,7 @@ class ContextCompat extends Any {
   /// Determine whether you have been granted a particular permission.
   static Future<bool> checkSelfPermission(
     Context context,
-    PermissionArgs permissionArgs, {
+    Permission permission, {
     BinaryMessenger? pigeon_binaryMessenger,
     PigeonInstanceManager? pigeon_instanceManager,
   }) async {
@@ -19879,7 +19930,7 @@ class ContextCompat extends Any {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[context, permissionArgs]);
+        pigeonVar_channel.send(<Object?>[context, permission]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -19940,7 +19991,7 @@ class ContextCompat extends Any {
     Context context,
     BroadcastReceiver? receiver,
     IntentFilter filter,
-    RegisterReceiverFlagsArgs flagsArgs, {
+    RegisterReceiverFlags flags, {
     BinaryMessenger? pigeon_binaryMessenger,
     PigeonInstanceManager? pigeon_instanceManager,
   }) async {
@@ -19957,7 +20008,7 @@ class ContextCompat extends Any {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture =
-        pigeonVar_channel.send(<Object?>[context, receiver, filter, flagsArgs]);
+        pigeonVar_channel.send(<Object?>[context, receiver, filter, flags]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -19980,7 +20031,7 @@ class ContextCompat extends Any {
     IntentFilter filter,
     String broadcastPermission,
     Handler? scheduler,
-    RegisterReceiverFlagsArgs flagsArgs, {
+    RegisterReceiverFlags flags, {
     BinaryMessenger? pigeon_binaryMessenger,
     PigeonInstanceManager? pigeon_instanceManager,
   }) async {
@@ -20003,7 +20054,7 @@ class ContextCompat extends Any {
       filter,
       broadcastPermission,
       scheduler,
-      flagsArgs
+      flags
     ]);
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_sendFuture as List<Object?>?;
