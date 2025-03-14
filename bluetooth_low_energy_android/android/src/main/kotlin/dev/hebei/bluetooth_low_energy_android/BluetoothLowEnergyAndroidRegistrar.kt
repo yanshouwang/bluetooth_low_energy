@@ -3,197 +3,197 @@ package dev.hebei.bluetooth_low_energy_android
 import io.flutter.plugin.common.BinaryMessenger
 
 class BluetoothLowEnergyAndroidRegistrar(
-    binaryMessenger: BinaryMessenger, private val bluetoothLowEnergyAndroidPlugin: BluetoothLowEnergyAndroidPlugin
-) : BluetoothLowEnergyAndroidPigeonProxyApiRegistrar(binaryMessenger) {
+    binaryMessenger: BinaryMessenger, private val instance: BluetoothLowEnergyAndroidPlugin
+) : BluetoothLowEnergyAndroidApiPigeonProxyApiRegistrar(binaryMessenger) {
     override fun getPigeonApiBluetoothLowEnergyAndroidPlugin(): PigeonApiBluetoothLowEnergyAndroidPlugin {
-        return BluetoothLowEnergyAndroidPluginApi(this, bluetoothLowEnergyAndroidPlugin)
+        return BluetoothLowEnergyAndroidPluginImpl(this, instance)
     }
 
     override fun getPigeonApiRequestPermissionsResultListener(): PigeonApiRequestPermissionsResultListener {
-        return RequestPermissionsResultListenerApi(this)
+        return RequestPermissionsResultListenerImpl(this)
     }
 
     override fun getPigeonApiActivityResultListener(): PigeonApiActivityResultListener {
-        return ActivityResultListenerApi(this)
+        return ActivityResultListenerImpl(this)
     }
 
     override fun getPigeonApiAny(): PigeonApiAny {
-        return AnyApi(this)
+        return AnyImpl(this)
     }
 
     override fun getPigeonApiBluetoothAdapter(): PigeonApiBluetoothAdapter {
-        return BluetoothAdapterApi(this)
+        return BluetoothAdapterImpl(this)
     }
 
     override fun getPigeonApiBluetoothClass(): PigeonApiBluetoothClass {
-        return BluetoothClassApi(this)
+        return BluetoothClassImpl(this)
     }
 
     override fun getPigeonApiBluetoothDevice(): PigeonApiBluetoothDevice {
-        return BluetoothDeviceApi(this)
+        return BluetoothDeviceImpl(this)
     }
 
     override fun getPigeonApiBluetoothGatt(): PigeonApiBluetoothGatt {
-        return BluetoothGattApi(this)
+        return BluetoothGattImpl(this)
     }
 
     override fun getPigeonApiBluetoothGattCallback(): PigeonApiBluetoothGattCallback {
-        return BluetoothGattCallbackApi(this)
+        return BluetoothGattCallbackImpl(this)
     }
 
     override fun getPigeonApiBluetoothGattCharacteristic(): PigeonApiBluetoothGattCharacteristic {
-        return BluetoothGattCharacteristicApi(this)
+        return BluetoothGattCharacteristicImpl(this)
     }
 
     override fun getPigeonApiBluetoothGattDescriptor(): PigeonApiBluetoothGattDescriptor {
-        return BluetoothGattDescriptorApi(this)
+        return BluetoothGattDescriptorImpl(this)
     }
 
     override fun getPigeonApiBluetoothGattServer(): PigeonApiBluetoothGattServer {
-        return BluetoothGattServerApi(this)
+        return BluetoothGattServerImpl(this)
     }
 
     override fun getPigeonApiBluetoothGattServerCallback(): PigeonApiBluetoothGattServerCallback {
-        return BluetoothGattServerCallbackApi(this)
+        return BluetoothGattServerCallbackImpl(this)
     }
 
     override fun getPigeonApiBluetoothGattService(): PigeonApiBluetoothGattService {
-        return BluetoothGattServiceApi(this)
+        return BluetoothGattServiceImpl(this)
     }
 
     override fun getPigeonApiBluetoothManager(): PigeonApiBluetoothManager {
-        return BluetoothManagerApi(this)
+        return BluetoothManagerImpl(this)
     }
 
     override fun getPigeonApiBluetoothServerSocket(): PigeonApiBluetoothServerSocket {
-        return BluetoothServerSocketApi(this)
+        return BluetoothServerSocketImpl(this)
     }
 
     override fun getPigeonApiBluetoothSocket(): PigeonApiBluetoothSocket {
-        return BluetoothSocketApi(this)
+        return BluetoothSocketImpl(this)
     }
 
     override fun getPigeonApiLeScanCallback(): PigeonApiLeScanCallback {
-        return LeScanCallbackApi(this)
+        return LeScanCallbackImpl(this)
     }
 
     override fun getPigeonApiBluetoothProfile(): PigeonApiBluetoothProfile {
-        return BluetoothProfileApi(this)
+        return BluetoothProfileImpl(this)
     }
 
     override fun getPigeonApiServiceListener(): PigeonApiServiceListener {
-        return ServiceListenerApi(this)
+        return ServiceListenerImpl(this)
     }
 
     override fun getPigeonApiAdvertiseCallback(): PigeonApiAdvertiseCallback {
-        return AdvertiseCallbackApi(this)
+        return AdvertiseCallbackImpl(this)
     }
 
     override fun getPigeonApiAdvertiseData(): PigeonApiAdvertiseData {
-        return AdvertiseDataApi(this)
+        return AdvertiseDataImpl(this)
     }
 
     override fun getPigeonApiAdvertiseDataBuilder(): PigeonApiAdvertiseDataBuilder {
-        return AdvertiseDataBuilderApi(this)
+        return AdvertiseDataBuilderImpl(this)
     }
 
     override fun getPigeonApiAdvertiseSettings(): PigeonApiAdvertiseSettings {
-        return AdvertiseSettingsApi(this)
+        return AdvertiseSettingsImpl(this)
     }
 
     override fun getPigeonApiAdvertiseSettingsBuilder(): PigeonApiAdvertiseSettingsBuilder {
-        return AdvertiseSettingsBuilderApi(this)
+        return AdvertiseSettingsBuilderImpl(this)
     }
 
     override fun getPigeonApiAdvertisingSet(): PigeonApiAdvertisingSet {
-        return AdvertisingSetApi(this)
+        return AdvertisingSetImpl(this)
     }
 
     override fun getPigeonApiAdvertisingSetCallback(): PigeonApiAdvertisingSetCallback {
-        return AdvertisingSetCallbackApi(this)
+        return AdvertisingSetCallbackImpl(this)
     }
 
     override fun getPigeonApiAdvertisingSetParameters(): PigeonApiAdvertisingSetParameters {
-        return AdvertisingSetParametersApi(this)
+        return AdvertisingSetParametersImpl(this)
     }
 
     override fun getPigeonApiAdvertisingSetParametersBuilder(): PigeonApiAdvertisingSetParametersBuilder {
-        return AdvertisingSetParametersBuilderApi(this)
+        return AdvertisingSetParametersBuilderImpl(this)
     }
 
     override fun getPigeonApiBluetoothLeAdvertiser(): PigeonApiBluetoothLeAdvertiser {
-        return BluetoothLeAdvertiserApi(this)
+        return BluetoothLeAdvertiserImpl(this)
     }
 
     override fun getPigeonApiBluetoothLeScanner(): PigeonApiBluetoothLeScanner {
-        return BluetoothLeScannerApi(this)
+        return BluetoothLeScannerImpl(this)
     }
 
     override fun getPigeonApiPeriodicAdvertisingParameters(): PigeonApiPeriodicAdvertisingParameters {
-        return PeriodicAdvertisingParametersApi(this)
+        return PeriodicAdvertisingParametersImpl(this)
     }
 
     override fun getPigeonApiPeriodicAdvertisingParametersBuilder(): PigeonApiPeriodicAdvertisingParametersBuilder {
-        return PeriodicAdvertisingParametersBuilderApi(this)
+        return PeriodicAdvertisingParametersBuilderImpl(this)
     }
 
     override fun getPigeonApiScanCallback(): PigeonApiScanCallback {
-        return ScanCallbackApi(this)
+        return ScanCallbackImpl(this)
     }
 
     override fun getPigeonApiScanFilter(): PigeonApiScanFilter {
-        return ScanFilterApi(this)
+        return ScanFilterImpl(this)
     }
 
     override fun getPigeonApiScanFilterBuilder(): PigeonApiScanFilterBuilder {
-        return ScanFilterBuilderApi(this)
+        return ScanFilterBuilderImpl(this)
     }
 
     override fun getPigeonApiScanRecord(): PigeonApiScanRecord {
-        return ScanRecordApi(this)
+        return ScanRecordImpl(this)
     }
 
     override fun getPigeonApiScanResult(): PigeonApiScanResult {
-        return ScanResultApi(this)
+        return ScanResultImpl(this)
     }
 
     override fun getPigeonApiScanSettings(): PigeonApiScanSettings {
-        return ScanSettingsApi(this)
+        return ScanSettingsImpl(this)
     }
 
     override fun getPigeonApiScanSettingsBuilder(): PigeonApiScanSettingsBuilder {
-        return ScanSettingsBuilderApi(this)
+        return ScanSettingsBuilderImpl(this)
     }
 
     override fun getPigeonApiBroadcastReceiver(): PigeonApiBroadcastReceiver {
-        return BroadcastReceiverApi(this)
+        return BroadcastReceiverImpl(this)
     }
 
     override fun getPigeonApiContext(): PigeonApiContext {
-        return ContextApi(this)
+        return ContextImpl(this)
     }
 
     override fun getPigeonApiIntentFilter(): PigeonApiIntentFilter {
-        return IntentFilterApi(this)
+        return IntentFilterImpl(this)
     }
 
     override fun getPigeonApiPackageManager(): PigeonApiPackageManager {
-        return PackageManagerApi(this)
+        return PackageManagerImpl(this)
     }
 
     override fun getPigeonApiParcelUuid(): PigeonApiParcelUuid {
-        return ParcelUuidApi(this)
+        return ParcelUuidImpl(this)
     }
 
     override fun getPigeonApiActivityCompat(): PigeonApiActivityCompat {
-        return ActivityCompatApi(this)
+        return ActivityCompatImpl(this)
     }
 
     override fun getPigeonApiContextCompat(): PigeonApiContextCompat {
-        return ContextCompatApi(this)
+        return ContextCompatImpl(this)
     }
 
     override fun getPigeonApiUUID(): PigeonApiUUID {
-        return UUIDApi(this)
+        return UUIDImpl(this)
     }
 }

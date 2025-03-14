@@ -11,56 +11,56 @@ import io.flutter.plugin.common.PluginRegistry
 /** BluetoothLowEnergyAndroidPlugin */
 class BluetoothLowEnergyAndroidPlugin : FlutterPlugin, ActivityAware, PluginRegistry.RequestPermissionsResultListener,
     PluginRegistry.ActivityResultListener {
-    private lateinit var _applicationContext: Context
-    private lateinit var _registrar: BluetoothLowEnergyAndroidPigeonProxyApiRegistrar
-    private var _binding: ActivityPluginBinding? = null
-    private val _requestPermissionsResultListeners = mutableListOf<PluginRegistry.RequestPermissionsResultListener>()
-    private val _activityResultListeners = mutableListOf<PluginRegistry.ActivityResultListener>()
+    private lateinit var applicationContext: Context
+    private lateinit var registrar: BluetoothLowEnergyAndroidApiPigeonProxyApiRegistrar
+    private var binding: ActivityPluginBinding? = null
+    private val requestPermissionsResultListeners = mutableListOf<PluginRegistry.RequestPermissionsResultListener>()
+    private val activityResultListeners = mutableListOf<PluginRegistry.ActivityResultListener>()
 
-    val applicationContext: Context get() = _applicationContext
+    val context: Context get() = applicationContext
 
     fun gatActivity(): Activity? {
-        return _binding?.activity
+        return binding?.activity
     }
 
     fun addRequestPermissionsResultListener(listener: PluginRegistry.RequestPermissionsResultListener) {
-        _requestPermissionsResultListeners.add(listener)
+        requestPermissionsResultListeners.add(listener)
     }
 
     fun removeRequestPermissionsResultListener(listener: PluginRegistry.RequestPermissionsResultListener) {
-        _requestPermissionsResultListeners.remove(listener)
+        requestPermissionsResultListeners.remove(listener)
     }
 
     fun addActivityResultListener(listener: PluginRegistry.ActivityResultListener) {
-        _activityResultListeners.add(listener)
+        activityResultListeners.add(listener)
     }
 
     fun removeActivityResultListener(listener: PluginRegistry.ActivityResultListener) {
-        _activityResultListeners.remove(listener)
+        activityResultListeners.remove(listener)
     }
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        _applicationContext = binding.applicationContext
-        _registrar = BluetoothLowEnergyAndroidRegistrar(binding.binaryMessenger, this)
-        _registrar.setUp()
+        applicationContext = binding.applicationContext
+        registrar = BluetoothLowEnergyAndroidRegistrar(binding.binaryMessenger, this)
+        registrar.setUp()
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        _registrar.tearDown()
-        _registrar.instanceManager.stopFinalizationListener()
+        registrar.tearDown()
+        registrar.instanceManager.stopFinalizationListener()
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         binding.addRequestPermissionsResultListener(this)
         binding.addActivityResultListener(this)
-        _binding = binding
+        this.binding = binding
     }
 
     override fun onDetachedFromActivity() {
-        val binding = _binding ?: return
+        val binding = binding ?: return
         binding.removeRequestPermissionsResultListener(this)
         binding.removeActivityResultListener(this)
-        _binding = null
+        this.binding = null
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
@@ -74,14 +74,14 @@ class BluetoothLowEnergyAndroidPlugin : FlutterPlugin, ActivityAware, PluginRegi
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ): Boolean {
-        for (listener in _requestPermissionsResultListeners) {
+        for (listener in requestPermissionsResultListeners) {
             listener.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
         return true
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-        for (listener in _activityResultListeners) {
+        for (listener in activityResultListeners) {
             listener.onActivityResult(requestCode, resultCode, data)
         }
         return true

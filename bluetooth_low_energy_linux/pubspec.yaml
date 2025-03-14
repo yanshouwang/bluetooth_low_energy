@@ -1,6 +1,6 @@
 name: bluetooth_low_energy_linux
-description: 'Linux implementation of the bluetooth_low_energy plugin.'
-version: 7.0.0-dev.0
+description: "Linux implementation of the bluetooth_low_energy plugin."
+version: 7.0.0-dev.5
 repository: https://github.com/yanshouwang/bluetooth_low_energy
 issue_tracker: https://github.com/yanshouwang/bluetooth_low_energy/issues
 topics:
@@ -10,13 +10,14 @@ topics:
 
 environment:
   sdk: ^3.6.0
-  flutter: '>=3.3.0'
+  flutter: ">=3.3.0"
+
 resolution: workspace
 
 dependencies:
   flutter:
     sdk: flutter
-  bluetooth_low_energy_platform_interface: ^7.0.0-dev.0
+  bluetooth_low_energy_platform_interface: ^7.0.0-dev.5
   bluez: ^0.8.2
 
 dev_dependencies:
@@ -29,4 +30,5 @@ flutter:
     implements: bluetooth_low_energy
     platforms:
       linux:
+        pluginClass: BluetoothLowEnergyLinuxPlugin
         dartPluginClass: BluetoothLowEnergyLinuxPlugin

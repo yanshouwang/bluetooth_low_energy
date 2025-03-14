@@ -4,12 +4,12 @@ import 'package:pigeon/pigeon.dart';
 
 @ConfigurePigeon(
   PigeonOptions(
-    dartOut: 'lib/src/bluetooth_low_energy_android.g.dart',
+    dartOut: 'lib/src/api.g.dart',
     kotlinOut:
-        'android/src/main/kotlin/dev/hebei/bluetooth_low_energy_android/BluetoothLowEnergyAndroid.g.kt',
+        'android/src/main/kotlin/dev/hebei/bluetooth_low_energy_android/BluetoothLowEnergyAndroidApi.g.kt',
     kotlinOptions: KotlinOptions(
       package: 'dev.hebei.bluetooth_low_energy_android',
-      errorClassName: 'BluetoothLowEnergyError',
+      errorClassName: 'BluetoothLowEnergyAndroidError',
     ),
   ),
 )
@@ -24,7 +24,7 @@ abstract class BluetoothLowEnergyAndroidPlugin extends Any {
   late final BluetoothLowEnergyAndroidPlugin instance;
 
   @attached
-  late final Context applicationContext;
+  late final Context context;
 
   Activity? getActivity();
 
@@ -376,7 +376,7 @@ abstract class BluetoothAdapter extends Any {
   ///
   /// Possible return values are STATE_OFF, STATE_TURNING_ON, STATE_ON,
   /// STATE_TURNING_OFF.
-  BluetoothState getState();
+  BluetoothAdapterState getState();
 
   /// Return true if the local Bluetooth adapter is currently in the device
   /// discovery process.
@@ -3281,7 +3281,7 @@ enum RegisterReceiverFlags {
   visibleToInstantApps,
 }
 
-enum BluetoothState {
+enum BluetoothAdapterState {
   off,
   turningOn,
   on,

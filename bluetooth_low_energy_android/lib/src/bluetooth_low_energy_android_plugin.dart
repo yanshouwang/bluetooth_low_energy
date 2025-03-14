@@ -8,13 +8,13 @@ final class BluetoothLowEnergyAndroidPlugin extends BluetoothLowEnergyPlugin {
   }
 
   @override
-  CentralManager createCentralManager() {
+  CentralManager newCentralManager() {
     // TODO: implement createCentralManager
     throw UnimplementedError();
   }
 
   @override
-  PeripheralManager createPeripheralManager() {
+  PeripheralManager newPeripheralManager() {
     // TODO: implement createPeripheralManager
     throw UnimplementedError();
   }

@@ -1,6 +1,6 @@
 name: bluetooth_low_energy_darwin
-description: 'iOS and macOS implementation of the bluetooth_low_energy plugin.'
-version: 7.0.0-dev.1
+description: "iOS and macOS implementation of the bluetooth_low_energy plugin."
+version: 7.0.0-dev.5
 repository: https://github.com/yanshouwang/bluetooth_low_energy
 issue_tracker: https://github.com/yanshouwang/bluetooth_low_energy/issues
 topics:
@@ -12,13 +12,14 @@ environment:
   sdk: ^3.6.0
   # Flutter versions prior to 3.7 did not support the
   # sharedDarwinSource option.
-  flutter: '>=3.7.0'
+  flutter: ">=3.7.0"
+
 resolution: workspace
 
 dependencies:
   flutter:
     sdk: flutter
-  bluetooth_low_energy_platform_interface: ^7.0.0-dev.2
+  bluetooth_low_energy_platform_interface: ^7.0.0-dev.5
   logging: ^1.2.0
   hybrid_logging: ^1.0.0
 
@@ -30,12 +31,13 @@ dev_dependencies:
 
 flutter:
   plugin:
+    implements: bluetooth_low_energy
     platforms:
       ios:
-        pluginClass: BluetoothLowEnergyDarwinPlugin
         sharedDarwinSource: true
+        pluginClass: BluetoothLowEnergyDarwinPlugin
         dartPluginClass: BluetoothLowEnergyDarwinPlugin
       macos:
-        pluginClass: BluetoothLowEnergyDarwinPlugin
         sharedDarwinSource: true
+        pluginClass: BluetoothLowEnergyDarwinPlugin
         dartPluginClass: BluetoothLowEnergyDarwinPlugin

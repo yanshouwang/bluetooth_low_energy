@@ -31,8 +31,8 @@ abstract base class BluetoothLowEnergyPlugin extends PlatformInterface {
   }
 
   /// Creates the central manager instance.
-  CentralManager createCentralManager();
+  CentralManager newCentralManager();
 
   /// Creates the peripheral manager instance.
-  PeripheralManager createPeripheralManager();
+  PeripheralManager newPeripheralManager();
 }

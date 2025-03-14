@@ -66,7 +66,7 @@ abstract base class CentralManager extends BluetoothLowEnergyManager {
 
   /// Gets the instance of [CentralManager] to use.
   factory CentralManager() {
-    return BluetoothLowEnergyPlugin.instance.createCentralManager();
+    return BluetoothLowEnergyPlugin.instance.newCentralManager();
   }
 
   /// Tells the central manager discovered a peripheral while scanning for devices.

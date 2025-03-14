@@ -11,4 +11,4 @@ PRODUCT_NAME = bluetooth_low_energy_example
 PRODUCT_BUNDLE_IDENTIFIER = dev.hebei.bluetoothLowEnergyExample
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2024 dev.hebei. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2025 dev.hebei. All rights reserved.

@@ -1,7 +1,9 @@
 name: _
 publish_to: none
+
 environment:
   sdk: ^3.6.0
+
 workspace:
   - bluetooth_low_energy_platform_interface
   - bluetooth_low_energy_android

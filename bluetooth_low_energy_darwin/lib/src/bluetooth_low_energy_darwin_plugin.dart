@@ -9,12 +9,12 @@ final class BluetoothLowEnergyDarwinPlugin extends BluetoothLowEnergyPlugin {
   }
 
   @override
-  CentralManager createCentralManager() {
+  CentralManager newCentralManager() {
     return CentralManagerImpl();
   }
 
   @override
-  PeripheralManager createPeripheralManager() {
+  PeripheralManager newPeripheralManager() {
     return PeripheralManagerImpl();
   }
 }

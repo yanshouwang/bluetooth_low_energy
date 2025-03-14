@@ -116,7 +116,7 @@ abstract base class PeripheralManager extends BluetoothLowEnergyManager {
 
   /// Gets the instance of [PeripheralManager] to use.
   factory PeripheralManager() {
-    return BluetoothLowEnergyPlugin.instance.createPeripheralManager();
+    return BluetoothLowEnergyPlugin.instance.newPeripheralManager();
   }
 
   /// Callback indicating when a remote device has been connected or disconnected.
