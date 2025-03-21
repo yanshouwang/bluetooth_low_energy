@@ -34,7 +34,7 @@ abstract base class GATTDescriptor extends GATTAttribute {
   /// For more details about these descriptor types, see CBUUID.
   factory GATTDescriptor.mutable({
     required UUID uuid,
-    required List<GATTCharacteristicPermission> permissions,
+    required List<GATTPermission> permissions,
   }) =>
       MutableGATTDescriptor(
         uuid: uuid,
@@ -85,7 +85,7 @@ abstract base class GATTCharacteristic extends GATTAttribute {
   factory GATTCharacteristic.mutable({
     required UUID uuid,
     required List<GATTCharacteristicProperty> properties,
-    required List<GATTCharacteristicPermission> permissions,
+    required List<GATTPermission> permissions,
     required List<GATTDescriptor> descriptors,
   }) =>
       MutableGATTCharacteristic(
@@ -140,7 +140,7 @@ base class GATTService extends GATTAttribute {
 /// characteristic.
 final class MutableGATTDescriptor extends GATTDescriptor {
   /// The permissions of the descriptor value.
-  final List<GATTCharacteristicPermission> permissions;
+  final List<GATTPermission> permissions;
 
   /// Creates a mutable descriptor with a specified value.
   ///
@@ -176,7 +176,7 @@ final class ImmutableGATTDescriptor extends MutableGATTDescriptor {
     required this.value,
   }) : super(
           permissions: [
-            GATTCharacteristicPermission.read,
+            GATTPermission.read,
           ],
         );
 }
@@ -184,7 +184,7 @@ final class ImmutableGATTDescriptor extends MutableGATTDescriptor {
 /// A mutable characteristic of a local peripheral’s service.
 final class MutableGATTCharacteristic extends GATTCharacteristic {
   /// The permissions of the characteristic value.
-  final List<GATTCharacteristicPermission> permissions;
+  final List<GATTPermission> permissions;
 
   /// Creates a mutable characteristic with specified permissions, properties.
   ///
@@ -221,7 +221,7 @@ final class ImmutableGATTCharacteristic extends MutableGATTCharacteristic {
             GATTCharacteristicProperty.read,
           ],
           permissions: [
-            GATTCharacteristicPermission.read,
+            GATTPermission.read,
           ],
         );
 }
@@ -256,6 +256,24 @@ abstract base class GATTWriteRequest extends PlatformInterface {
   }) : super(token: _token);
 }
 
+/// Values that represent the read, write, and encryption permissions for a
+/// characteristic’s value.
+enum GATTPermission {
+  /// A permission that indicates a peripheral can read the attribute’s value.
+  read,
+
+  /// A permission that indicates only trusted devices can read the attribute’s
+  /// value.
+  readEncrypted,
+
+  /// A permission that indicates a peripheral can write the attribute’s value.
+  write,
+
+  /// A permission that indicates only trusted devices can write the attribute’s
+  /// value.
+  writeEncrypted,
+}
+
 /// Values that represent the possible properties of a characteristic.
 enum GATTCharacteristicProperty {
   /// A property that indicates a peripheral can read the characteristic’s value.
@@ -278,24 +296,6 @@ enum GATTCharacteristicProperty {
   /// characteristic’s value, with a response from the central to indicate receipt
   /// of the notification.
   indicate,
-}
-
-/// Values that represent the read, write, and encryption permissions for a
-/// characteristic’s value.
-enum GATTCharacteristicPermission {
-  /// A permission that indicates a peripheral can read the attribute’s value.
-  read,
-
-  /// A permission that indicates only trusted devices can read the attribute’s
-  /// value.
-  readEncrypted,
-
-  /// A permission that indicates a peripheral can write the attribute’s value.
-  write,
-
-  /// A permission that indicates only trusted devices can write the attribute’s
-  /// value.
-  writeEncrypted,
 }
 
 /// Values representing the possible write types to a characteristic’s value.

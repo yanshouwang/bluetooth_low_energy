@@ -90,19 +90,19 @@ extension GATTCharacteristicPropertyX on GATTCharacteristicProperty {
   }
 }
 
-extension GATTCharacteristicPermissionsX on List<GATTCharacteristicPermission> {
+extension GATTCharacteristicPermissionsX on List<GATTPermission> {
   MyGATTProtectionLevelArgs? toReadArgs() {
-    return contains(GATTCharacteristicPermission.readEncrypted)
+    return contains(GATTPermission.readEncrypted)
         ? MyGATTProtectionLevelArgs.entryptionRequired
-        : contains(GATTCharacteristicPermission.read)
+        : contains(GATTPermission.read)
             ? MyGATTProtectionLevelArgs.plain
             : null;
   }
 
   MyGATTProtectionLevelArgs? toWriteArgs() {
-    return contains(GATTCharacteristicPermission.writeEncrypted)
+    return contains(GATTPermission.writeEncrypted)
         ? MyGATTProtectionLevelArgs.entryptionRequired
-        : contains(GATTCharacteristicPermission.write)
+        : contains(GATTPermission.write)
             ? MyGATTProtectionLevelArgs.plain
             : null;
   }

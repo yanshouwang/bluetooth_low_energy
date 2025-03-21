@@ -160,6 +160,11 @@ abstract base class CentralManager extends BluetoothLowEnergyManager {
   /// Discovers the GATT services, characteristics and descriptors of the peripheral.
   Future<List<GATTService>> discoverServices(Peripheral peripheral);
 
+  Future<List<GATTCharacteristic>> discoverCharacteristics(GATTService service);
+
+  Future<List<GATTDescriptor>> discoverDescriptors(
+      GATTCharacteristic characteristic);
+
   /// Retrieves the value of a specified characteristic.
   Future<Uint8List> readCharacteristic(GATTCharacteristic characteristic);
 

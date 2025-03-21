@@ -452,11 +452,22 @@ enum Feature {
 }
 
 enum Permission {
-  central,
-  peripheral,
+  bluetoothScan,
+  bluetoothAdvertise,
+  bluetoothConnect,
 }
 
-enum RegisterReceiverFlags {
+enum Action {
+  bluetoothAdapterStateChanged,
+  bluetoothAdapterLocalNameChanged,
+}
+
+enum Extra {
+  bluetoothAdapterState,
+  bluetoothAdapterLocalName,
+}
+
+enum RegisterReceiverFlag {
   /// Flag for registerReceiver: The receiver can receive broadcasts from other
   /// Apps. Has the same behavior as marking a statically registered receiver with
   /// "exported=true"
@@ -475,6 +486,23 @@ enum BluetoothAdapterState {
   turningOn,
   on,
   turningOff,
+}
+
+enum ScanMode {
+  /// Perform Bluetooth LE scan in balanced power mode. Scan results are returned
+  /// at a rate that provides a good trade-off between scan frequency and power
+  /// consumption.
+  balanced,
+  /// Scan using highest duty cycle. It's recommended to only use this mode when
+  /// the application is running in the foreground.
+  lowLatency,
+  /// Perform Bluetooth LE scan in low power mode. This is the default scan mode
+  /// as it consumes the least power. This mode is enforced if the scanning
+  /// application is not in foreground.
+  lowPower,
+  /// A special Bluetooth LE scan mode. Applications using this scan mode will
+  /// passively listen for other scan results without starting BLE scans themselves.
+  opportunistic,
 }
 
 /// A class with constants representing possible return values for Bluetooth APIs.
@@ -526,14 +554,23 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is Permission) {
       buffer.putUint8(130);
       writeValue(buffer, value.index);
-    }    else if (value is RegisterReceiverFlags) {
+    }    else if (value is Action) {
       buffer.putUint8(131);
       writeValue(buffer, value.index);
-    }    else if (value is BluetoothAdapterState) {
+    }    else if (value is Extra) {
       buffer.putUint8(132);
       writeValue(buffer, value.index);
-    }    else if (value is BluetoothStatusCodes) {
+    }    else if (value is RegisterReceiverFlag) {
       buffer.putUint8(133);
+      writeValue(buffer, value.index);
+    }    else if (value is BluetoothAdapterState) {
+      buffer.putUint8(134);
+      writeValue(buffer, value.index);
+    }    else if (value is ScanMode) {
+      buffer.putUint8(135);
+      writeValue(buffer, value.index);
+    }    else if (value is BluetoothStatusCodes) {
+      buffer.putUint8(136);
       writeValue(buffer, value.index);
     } else {
       super.writeValue(buffer, value);
@@ -551,11 +588,20 @@ class _PigeonCodec extends StandardMessageCodec {
         return value == null ? null : Permission.values[value];
       case 131: 
         final int? value = readValue(buffer) as int?;
-        return value == null ? null : RegisterReceiverFlags.values[value];
+        return value == null ? null : Action.values[value];
       case 132: 
         final int? value = readValue(buffer) as int?;
-        return value == null ? null : BluetoothAdapterState.values[value];
+        return value == null ? null : Extra.values[value];
       case 133: 
+        final int? value = readValue(buffer) as int?;
+        return value == null ? null : RegisterReceiverFlag.values[value];
+      case 134: 
+        final int? value = readValue(buffer) as int?;
+        return value == null ? null : BluetoothAdapterState.values[value];
+      case 135: 
+        final int? value = readValue(buffer) as int?;
+        return value == null ? null : ScanMode.values[value];
+      case 136: 
         final int? value = readValue(buffer) as int?;
         return value == null ? null : BluetoothStatusCodes.values[value];
       default:
@@ -18370,7 +18416,7 @@ class ScanSettingsBuilder extends Any {
   }
 
   /// Set scan mode for Bluetooth LE scan.
-  Future<ScanSettingsBuilder> setScanMode(int scanMode) async {
+  Future<ScanSettingsBuilder> setScanMode(ScanMode scanMode) async {
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
         _pigeonVar_codecScanSettingsBuilder;
     final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
@@ -18827,6 +18873,37 @@ class Context extends Any {
     }
   }
 
+  /// Unregister a previously registered BroadcastReceiver. All filters that have
+  /// been registered for this BroadcastReceiver will be removed.
+  Future<void> unregisterReceiver(BroadcastReceiver receiver) async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _pigeonVar_codecContext;
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.Context.unregisterReceiver';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[this, receiver]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
   @override
   Context pigeon_copy() {
     return Context.pigeon_detached(
@@ -18846,6 +18923,9 @@ class Intent extends Any {
     super.pigeon_binaryMessenger,
     super.pigeon_instanceManager,
   }) : super.pigeon_detached();
+
+  late final _PigeonInternalProxyApiBaseCodec _pigeonVar_codecIntent =
+      _PigeonInternalProxyApiBaseCodec(pigeon_instanceManager);
 
   static void pigeon_setUpMessageHandlers({
     bool pigeon_clearHandlers = false,
@@ -18893,6 +18973,99 @@ class Intent extends Any {
           }
         });
       }
+    }
+  }
+
+  Future<Action> getAction() async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _pigeonVar_codecIntent;
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.Intent.getAction';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[this]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as Action?)!;
+    }
+  }
+
+  Future<BluetoothAdapterState?> getBluetoothAdapterStateExtra(
+      Extra name) async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _pigeonVar_codecIntent;
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.Intent.getBluetoothAdapterStateExtra';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[this, name]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return (pigeonVar_replyList[0] as BluetoothAdapterState?);
+    }
+  }
+
+  Future<String?> getStringExtra(Extra name) async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _pigeonVar_codecIntent;
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.Intent.getStringExtra';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[this, name]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return (pigeonVar_replyList[0] as String?);
     }
   }
 
@@ -19013,7 +19186,7 @@ class IntentFilter extends Any {
   IntentFilter.new3({
     super.pigeon_binaryMessenger,
     super.pigeon_instanceManager,
-    required String action,
+    required Action action,
   }) : super.pigeon_detached() {
     final int pigeonVar_instanceIdentifier =
         pigeon_instanceManager.addDartCreatedInstance(this);
@@ -19059,7 +19232,7 @@ class IntentFilter extends Any {
   IntentFilter.new4({
     super.pigeon_binaryMessenger,
     super.pigeon_instanceManager,
-    required String action,
+    required Action action,
     required String dataType,
   }) : super.pigeon_detached() {
     final int pigeonVar_instanceIdentifier =
@@ -19758,7 +19931,7 @@ class ActivityCompat extends ContextCompat {
   /// on launching notification settings.
   static Future<void> requestPermissions(
     Activity activity,
-    Permission permissions,
+    List<Permission> permissions,
     int requestCode, {
     BinaryMessenger? pigeon_binaryMessenger,
     PigeonInstanceManager? pigeon_instanceManager,
@@ -19789,6 +19962,47 @@ class ActivityCompat extends ContextCompat {
       );
     } else {
       return;
+    }
+  }
+
+  /// Gets whether you should show UI with rationale before requesting a permission.
+  static Future<bool> shouldShowRequestPermissionRationale(
+    Activity activity,
+    Permission permission, {
+    BinaryMessenger? pigeon_binaryMessenger,
+    PigeonInstanceManager? pigeon_instanceManager,
+  }) async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _PigeonInternalProxyApiBaseCodec(
+            pigeon_instanceManager ?? PigeonInstanceManager.instance);
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.bluetooth_low_energy_android.ActivityCompat.shouldShowRequestPermissionRationale';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture =
+        pigeonVar_channel.send(<Object?>[activity, permission]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as bool?)!;
     }
   }
 
@@ -19991,7 +20205,7 @@ class ContextCompat extends Any {
     Context context,
     BroadcastReceiver? receiver,
     IntentFilter filter,
-    RegisterReceiverFlags flags, {
+    RegisterReceiverFlag flags, {
     BinaryMessenger? pigeon_binaryMessenger,
     PigeonInstanceManager? pigeon_instanceManager,
   }) async {
@@ -20031,7 +20245,7 @@ class ContextCompat extends Any {
     IntentFilter filter,
     String broadcastPermission,
     Handler? scheduler,
-    RegisterReceiverFlags flags, {
+    RegisterReceiverFlag flags, {
     BinaryMessenger? pigeon_binaryMessenger,
     PigeonInstanceManager? pigeon_instanceManager,
   }) async {

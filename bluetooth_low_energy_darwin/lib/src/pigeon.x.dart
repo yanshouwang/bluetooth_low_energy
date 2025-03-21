@@ -93,7 +93,7 @@ extension GATTCharacteristicPropertyX on GATTCharacteristicProperty {
   }
 }
 
-extension GATTCharacteristicPermissionX on GATTCharacteristicPermission {
+extension GATTCharacteristicPermissionX on GATTPermission {
   GATTCharacteristicPermissionArgs toArgs() {
     return GATTCharacteristicPermissionArgs.values[index];
   }

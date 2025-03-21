@@ -96,7 +96,7 @@ extension GATTCharacteristicPropertyX on GATTCharacteristicProperty {
   }
 }
 
-extension GATTCharacteristicPermissionX on GATTCharacteristicPermission {
+extension GATTCharacteristicPermissionX on GATTPermission {
   MyGATTCharacteristicPermissionArgs toArgs() {
     return MyGATTCharacteristicPermissionArgs.values[index];
   }
@@ -179,8 +179,8 @@ extension MutableGATTCharacteristicX on MutableGATTCharacteristic {
     final cccDescriptor = MutableGATTDescriptor(
       uuid: cccUUID,
       permissions: [
-        GATTCharacteristicPermission.read,
-        GATTCharacteristicPermission.write,
+        GATTPermission.read,
+        GATTPermission.write,
       ],
     );
     final cccDescriptorArgs = cccDescriptor.toArgs();

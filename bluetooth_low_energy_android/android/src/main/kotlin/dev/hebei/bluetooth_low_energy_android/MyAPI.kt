@@ -276,9 +276,6 @@ fun BluetoothGattService.toArgs(): MyGATTServiceArgs {
     return MyGATTServiceArgs(hashCodeArgs, uuidArgs, isPrimaryArgs, includedServicesArgs, characteristicsArgs)
 } //endregion
 
-val Any.hashCode get() = this.hashCode()
-val Int.args get() = this.toLong()
-
 //val Any.TAG get() = this::class.java.simpleName as String
 //
 //val ScanRecord.rawValues: Map<Byte, ByteArray>

@@ -39,6 +39,12 @@ abstract base class BluetoothLowEnergyManager extends PlatformInterface
   /// platforms.
   Stream<NameChangedEvent> get nameChanged;
 
+  Future<bool> shouldShowAuthorizeRationale();
+
+  Future<bool> authorize();
+
+  Future<void> showAppSettings();
+
   /// Gets the manager's state.
   Future<BluetoothLowEnergyState> getState();
 

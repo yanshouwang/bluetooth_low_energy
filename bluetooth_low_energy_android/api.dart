@@ -2754,7 +2754,7 @@ abstract class ScanSettingsBuilder extends Any {
   ScanSettingsBuilder setReportDelay(int reportDelayMillis);
 
   /// Set scan mode for Bluetooth LE scan.
-  ScanSettingsBuilder setScanMode(int scanMode);
+  ScanSettingsBuilder setScanMode(ScanMode scanMode);
 }
 
 /// Wrapper for Transport Discovery Data Transport Blocks. This class represents
@@ -2832,6 +2832,10 @@ abstract class BroadcastReceiver extends Any {
 abstract class Context extends Any {
   /// Return PackageManager instance to find global package information.
   PackageManager getPackageManager();
+
+  /// Unregister a previously registered BroadcastReceiver. All filters that have
+  /// been registered for this BroadcastReceiver will be removed.
+  void unregisterReceiver(BroadcastReceiver receiver);
 }
 
 @ProxyApi(
@@ -2839,7 +2843,11 @@ abstract class Context extends Any {
     fullClassName: 'android.content.Intent',
   ),
 )
-abstract class Intent extends Any {}
+abstract class Intent extends Any {
+  Action getAction();
+  BluetoothAdapterState? getBluetoothAdapterStateExtra(Extra name);
+  String? getStringExtra(Extra name);
+}
 
 /// Structured description of Intent values to be matched. An IntentFilter can
 /// match against actions, categories, and data (either via its type, scheme,
@@ -2882,7 +2890,7 @@ abstract class IntentFilter extends Any {
   /// New IntentFilter that matches a single action with no data. If no data
   /// characteristics are subsequently specified, then the filter will only match
   /// intents that contain no data.
-  IntentFilter.new3(String action);
+  IntentFilter.new3(Action action);
 
   /// New IntentFilter that matches a single action and data type.
   ///
@@ -2893,7 +2901,7 @@ abstract class IntentFilter extends Any {
   ///
   /// Throws MalformedMimeTypeException if the given MIME type is not syntactically
   /// correct.
-  IntentFilter.new4(String action, String dataType);
+  IntentFilter.new4(Action action, String dataType);
 }
 
 // https://developer.android.google.cn/reference/kotlin/android/content/pm/package-summary
@@ -3049,7 +3057,12 @@ abstract class ActivityCompat extends ContextCompat {
   /// on launching notification settings.
   @static
   void requestPermissions(
-      Activity activity, Permission permissions, int requestCode);
+      Activity activity, List<Permission> permissions, int requestCode);
+
+  /// Gets whether you should show UI with rationale before requesting a permission.
+  @static
+  bool shouldShowRequestPermissionRationale(
+      Activity activity, Permission permission);
 
   /// Start new activity with options, if able, for which you would like a result
   /// when it finished.
@@ -3084,7 +3097,7 @@ abstract class ContextCompat extends Any {
   /// Register a broadcast receiver.
   @static
   Intent? registerReceiver1(Context context, BroadcastReceiver? receiver,
-      IntentFilter filter, RegisterReceiverFlags flags);
+      IntentFilter filter, RegisterReceiverFlag flags);
 
   /// Register a broadcast receiver.
   @static
@@ -3094,7 +3107,7 @@ abstract class ContextCompat extends Any {
       IntentFilter filter,
       String broadcastPermission,
       Handler? scheduler,
-      RegisterReceiverFlags flags);
+      RegisterReceiverFlag flags);
 
   /// Start an activity with additional launch information, if able.
   ///
@@ -3261,11 +3274,22 @@ enum Feature {
 }
 
 enum Permission {
-  central,
-  peripheral,
+  bluetoothScan,
+  bluetoothAdvertise,
+  bluetoothConnect,
 }
 
-enum RegisterReceiverFlags {
+enum Action {
+  bluetoothAdapterStateChanged,
+  bluetoothAdapterLocalNameChanged,
+}
+
+enum Extra {
+  bluetoothAdapterState,
+  bluetoothAdapterLocalName,
+}
+
+enum RegisterReceiverFlag {
   /// Flag for registerReceiver: The receiver can receive broadcasts from other
   /// Apps. Has the same behavior as marking a statically registered receiver with
   /// "exported=true"
@@ -3286,6 +3310,26 @@ enum BluetoothAdapterState {
   turningOn,
   on,
   turningOff,
+}
+
+enum ScanMode {
+  /// Perform Bluetooth LE scan in balanced power mode. Scan results are returned
+  /// at a rate that provides a good trade-off between scan frequency and power
+  /// consumption.
+  balanced,
+
+  /// Scan using highest duty cycle. It's recommended to only use this mode when
+  /// the application is running in the foreground.
+  lowLatency,
+
+  /// Perform Bluetooth LE scan in low power mode. This is the default scan mode
+  /// as it consumes the least power. This mode is enforced if the scanning
+  /// application is not in foreground.
+  lowPower,
+
+  /// A special Bluetooth LE scan mode. Applications using this scan mode will
+  /// passively listen for other scan results without starting BLE scans themselves.
+  opportunistic,
 }
 
 /// A class with constants representing possible return values for Bluetooth APIs.
