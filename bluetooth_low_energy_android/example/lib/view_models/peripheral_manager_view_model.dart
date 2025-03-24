@@ -4,11 +4,13 @@ import 'dart:typed_data';
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:bluetooth_low_energy_android_example/models.dart';
 import 'package:clover/clover.dart';
+import 'package:hybrid_logging/hybrid_logging.dart';
 import 'package:logging/logging.dart';
 
-class PeripheralManagerViewModel extends ViewModel {
-  final PeripheralManager _manager;
+class PeripheralManagerViewModel extends ViewModel with TypeLogger {
+  final PeripheralManager _peripheralManager;
   final List<Log> _logs;
+  BluetoothLowEnergyState _state;
   bool _advertising;
 
   late final StreamSubscription _stateChangedSubscription;
@@ -17,16 +19,25 @@ class PeripheralManagerViewModel extends ViewModel {
   late final StreamSubscription _characteristicNotifyStateChangedSubscription;
 
   PeripheralManagerViewModel()
-    : _manager = PeripheralManager()..logLevel = Level.INFO,
+    : _peripheralManager = PeripheralManager()..logLevel = Level.INFO,
       _logs = [],
+      _state = BluetoothLowEnergyState.unknown,
       _advertising = false {
-    _stateChangedSubscription = _manager.stateChanged.listen((eventArgs) async {
+    _stateChangedSubscription = _peripheralManager.stateChanged.listen((
+      eventArgs,
+    ) async {
       if (eventArgs.state == BluetoothLowEnergyState.unauthorized) {
-        await _manager.authorize();
+        final shouldShowRationale =
+            await _peripheralManager.shouldShowAuthorizeRationale();
+        logger.info('SHOULD SHOW RATIONALE: $shouldShowRationale');
+        if (shouldShowRationale) {
+          return;
+        }
+        await _peripheralManager.authorize();
       }
       notifyListeners();
     });
-    _characteristicReadRequestedSubscription = _manager
+    _characteristicReadRequestedSubscription = _peripheralManager
         .characteristicReadRequested
         .listen((eventArgs) async {
           final central = eventArgs.central;
@@ -42,12 +53,12 @@ class PeripheralManagerViewModel extends ViewModel {
           final elements = List.generate(100, (i) => i % 256);
           final value = Uint8List.fromList(elements);
           final trimmedValue = value.sublist(offset);
-          await _manager.respondReadRequestWithValue(
+          await _peripheralManager.respondReadRequestWithValue(
             request,
             value: trimmedValue,
           );
         });
-    _characteristicWriteRequestedSubscription = _manager
+    _characteristicWriteRequestedSubscription = _peripheralManager
         .characteristicWriteRequested
         .listen((eventArgs) async {
           final central = eventArgs.central;
@@ -62,9 +73,9 @@ class PeripheralManagerViewModel extends ViewModel {
           );
           _logs.add(log);
           notifyListeners();
-          await _manager.respondWriteRequest(request);
+          await _peripheralManager.respondWriteRequest(request);
         });
-    _characteristicNotifyStateChangedSubscription = _manager
+    _characteristicNotifyStateChangedSubscription = _peripheralManager
         .characteristicNotifyStateChanged
         .listen((eventArgs) async {
           final central = eventArgs.central;
@@ -78,33 +89,31 @@ class PeripheralManagerViewModel extends ViewModel {
           notifyListeners();
           // Write someting to the central when notify started.
           if (state) {
-            final maximumNotifyLength = await _manager.getMaximumNotifyLength(
-              central,
-            );
+            final maximumNotifyLength = await _peripheralManager
+                .getMaximumNotifyLength(central);
             final elements = List.generate(maximumNotifyLength, (i) => i % 256);
             final value = Uint8List.fromList(elements);
-            await _manager.notifyCharacteristic(
+            await _peripheralManager.notifyCharacteristic(
               characteristic,
               value: value,
-              central: central,
             );
           }
         });
   }
 
-  BluetoothLowEnergyState get state => _manager.state;
+  BluetoothLowEnergyState get state => _state;
   bool get advertising => _advertising;
   List<Log> get logs => _logs;
 
   Future<void> showAppSettings() async {
-    await _manager.showAppSettings();
+    await _peripheralManager.showAppSettings();
   }
 
   Future<void> startAdvertising() async {
     if (_advertising) {
       return;
     }
-    await _manager.removeAllServices();
+    await _peripheralManager.removeAllServices();
     final elements = List.generate(100, (i) => i % 256);
     final value = Uint8List.fromList(elements);
     final service = GATTService(
@@ -131,7 +140,7 @@ class PeripheralManagerViewModel extends ViewModel {
         ),
       ],
     );
-    await _manager.addService(service);
+    await _peripheralManager.addService(service);
     final advertisement = Advertisement(
       manufacturerSpecificData: [
         ManufacturerSpecificData(
@@ -141,7 +150,10 @@ class PeripheralManagerViewModel extends ViewModel {
       ],
     );
     // await _manager.setName('BLE-12138');
-    await _manager.startAdvertising(advertisement, includeDeviceName: true);
+    await _peripheralManager.startAdvertising(
+      advertisement,
+      includeDeviceName: true,
+    );
     _advertising = true;
     notifyListeners();
   }
@@ -150,7 +162,7 @@ class PeripheralManagerViewModel extends ViewModel {
     if (!_advertising) {
       return;
     }
-    await _manager.stopAdvertising();
+    await _peripheralManager.stopAdvertising();
     _advertising = false;
     notifyListeners();
   }

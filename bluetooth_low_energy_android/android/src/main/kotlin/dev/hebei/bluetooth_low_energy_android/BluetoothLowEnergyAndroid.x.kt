@@ -1,11 +1,15 @@
 package dev.hebei.bluetooth_low_energy_android
 
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.ScanResult
+import android.os.Build
 import android.util.SparseArray
+import com.google.protobuf.kotlin.toByteString
+import java.util.UUID
 
 val Int.bluetoothLowEnergyStateArgs: BluetoothLowEnergyState
     get() = when (this) {
@@ -45,6 +49,15 @@ val SparseArray<ByteArray>.manufacturerSpecificDataArgs: List<ManufacturerSpecif
             index++
         }
         return items
+    }
+
+val ConnectionPriority.obj: Int
+    get() = when (this) {
+        ConnectionPriority.BALANCED -> BluetoothGatt.CONNECTION_PRIORITY_BALANCED
+        ConnectionPriority.HIGH -> BluetoothGatt.CONNECTION_PRIORITY_HIGH
+        ConnectionPriority.LOW_POWER -> BluetoothGatt.CONNECTION_PRIORITY_LOW_POWER
+        ConnectionPriority.DCK -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) BluetoothGatt.CONNECTION_PRIORITY_DCK
+        else throw IllegalArgumentException("ConnectionPriority.DCK is not available before API 34")
     }
 
 val List<GATTPermission>.descriptorObj: Int get() = this.fold(0) { acc, permission -> acc or permission.descriptorObj }
@@ -97,4 +110,68 @@ val BluetoothGattCharacteristic.propertiesArgs: List<GATTCharacteristicProperty>
             propertiesArgs.add(GATTCharacteristicProperty.INDICATE)
         }
         return propertiesArgs
+    }
+
+val GATTCharacteristicWriteType.obj: Int
+    get() = when (this) {
+        GATTCharacteristicWriteType.WITH_RESPONSE -> BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+        GATTCharacteristicWriteType.WITHOUT_RESPONSE -> BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+    }
+
+val ConnectionPriorityApi.obj: ConnectionPriority
+    get() = when (this) {
+        ConnectionPriorityApi.BALANCED -> ConnectionPriority.BALANCED
+        ConnectionPriorityApi.HIGH -> ConnectionPriority.HIGH
+        ConnectionPriorityApi.LOW_POWER -> ConnectionPriority.LOW_POWER
+        ConnectionPriorityApi.DCK -> ConnectionPriority.DCK
+    }
+
+val GATTCharacteristicWriteTypeApi.obj: GATTCharacteristicWriteType
+    get() = when (this) {
+        GATTCharacteristicWriteTypeApi.WITH_RESPONSE -> GATTCharacteristicWriteType.WITH_RESPONSE
+        GATTCharacteristicWriteTypeApi.WITHOUT_RESPONSE -> GATTCharacteristicWriteType.WITHOUT_RESPONSE
+    }
+
+val BluetoothLowEnergyState.api: BluetoothLowEnergyStateApi
+    get() = when (this) {
+        BluetoothLowEnergyState.UNKNOWN -> BluetoothLowEnergyStateApi.UNKNOWN
+        BluetoothLowEnergyState.UNSUPPORTED -> BluetoothLowEnergyStateApi.UNSUPPORTED
+        BluetoothLowEnergyState.UNAUTHORIZED -> BluetoothLowEnergyStateApi.UNAUTHORIZED
+        BluetoothLowEnergyState.OFF -> BluetoothLowEnergyStateApi.OFF
+        BluetoothLowEnergyState.TURNING_ON -> BluetoothLowEnergyStateApi.TURNING_ON
+        BluetoothLowEnergyState.ON -> BluetoothLowEnergyStateApi.ON
+        BluetoothLowEnergyState.TURNING_OFF -> BluetoothLowEnergyStateApi.TURNING_OFF
+    }
+
+val Advertisement.api: AdvertisementApi
+    get() = advertisementApi {
+        if (this@api.name != null) {
+            this.name = this@api.name
+        }
+        this.serviceUuids.addAll(this@api.serviceUUIDs.map { it.toString() })
+        this.serviceData.putAll(this@api.serviceData.map { it.key.toString() to it.value.toByteString() }.toMap())
+        this.manufacturerSpecificData.addAll(this@api.manufacturerSpecificData.map { it.api })
+    }
+
+val ManufacturerSpecificData.api: ManufacturerSpecificDataApi
+    get() = manufacturerSpecificDataApi {
+        this.id = this@api.id
+        this.data = this@api.data.toByteString()
+    }
+
+val ConnectionState.api: ConnectionStateApi
+    get() = when (this) {
+        ConnectionState.DISCONNECTED -> ConnectionStateApi.DISCONNECTED
+        ConnectionState.CONNECTING -> ConnectionStateApi.CONNECTING
+        ConnectionState.CONNECTED -> ConnectionStateApi.CONNECTED
+        ConnectionState.DISCONNECTING -> ConnectionStateApi.DISCONNECTING
+    }
+
+val GATTCharacteristicProperty.api: GATTCharacteristicPropertyApi
+    get() = when (this) {
+        GATTCharacteristicProperty.READ -> GATTCharacteristicPropertyApi.READ
+        GATTCharacteristicProperty.WRITE -> GATTCharacteristicPropertyApi.WRITE
+        GATTCharacteristicProperty.WRITE_WITHOUT_RESPONSE -> GATTCharacteristicPropertyApi.WRITE_WITHOUT_RESPONSE
+        GATTCharacteristicProperty.NOTIFY -> GATTCharacteristicPropertyApi.NOTIFY
+        GATTCharacteristicProperty.INDICATE -> GATTCharacteristicPropertyApi.INDICATE
     }

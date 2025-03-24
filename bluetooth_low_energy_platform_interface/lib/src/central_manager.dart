@@ -93,7 +93,7 @@ abstract base class CentralManager extends BluetoothLowEnergyManager {
   /// interested in. Each [UUID] object represents the [UUID] of a service that
   /// a peripheral advertises.
   Future<void> startDiscovery({
-    List<UUID>? serviceUUIDs,
+    List<UUID> serviceUUIDs = const [],
   });
 
   /// Asks the central manager to stop scanning for peripherals.

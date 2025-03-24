@@ -17,24 +17,24 @@ class PeripheralViewModel extends ViewModel with TypeLogger {
   late final StreamSubscription _mtuChangedChangedSubscription;
 
   PeripheralViewModel(DiscoveredEvent eventArgs)
-      : _manager = CentralManager(),
-        _peripheral = eventArgs.peripheral,
-        _name = eventArgs.advertisement.name,
-        _connected = false,
-        _serviceViewModels = [] {
-    _connectionStateChangedSubscription =
-        _manager.connectionStateChanged.listen((eventArgs) {
-      if (eventArgs.peripheral != _peripheral) {
-        return;
-      }
-      if (eventArgs.state == ConnectionState.connected) {
-        _connected = true;
-      } else {
-        _connected = false;
-        _serviceViewModels = [];
-      }
-      notifyListeners();
-    });
+    : _manager = CentralManager(),
+      _peripheral = eventArgs.peripheral,
+      _name = eventArgs.advertisement.name,
+      _connected = false,
+      _serviceViewModels = [] {
+    _connectionStateChangedSubscription = _manager.connectionStateChanged
+        .listen((eventArgs) {
+          if (eventArgs.peripheral != _peripheral) {
+            return;
+          }
+          if (eventArgs.state == ConnectionState.connected) {
+            _connected = true;
+          } else {
+            _connected = false;
+            _serviceViewModels = [];
+          }
+          notifyListeners();
+        });
     _mtuChangedChangedSubscription = _manager.mtuChanged.listen((eventArgs) {
       if (eventArgs.peripheral != _peripheral) {
         return;
@@ -57,14 +57,17 @@ class PeripheralViewModel extends ViewModel with TypeLogger {
   }
 
   Future<void> discoverGATT() async {
-    final services = await _manager.discoverGATT(_peripheral);
-    _serviceViewModels = services
-        .map((service) => ServiceViewModel(
-              manager: _manager,
-              peripheral: _peripheral,
-              service: service,
-            ))
-        .toList();
+    final services = await _manager.discoverServices(_peripheral);
+    _serviceViewModels =
+        services
+            .map(
+              (service) => ServiceViewModel(
+                manager: _manager,
+                peripheral: _peripheral,
+                service: service,
+              ),
+            )
+            .toList();
     notifyListeners();
   }
 

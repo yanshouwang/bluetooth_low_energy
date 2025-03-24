@@ -2,52 +2,64 @@ import 'dart:async';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:clover/clover.dart';
+import 'package:hybrid_logging/hybrid_logging.dart';
 import 'package:logging/logging.dart';
 
-class CentralManagerViewModel extends ViewModel {
-  final CentralManager _manager;
+class CentralManagerViewModel extends ViewModel with TypeLogger {
+  final CentralManager _centralManager;
   final List<DiscoveredEvent> _discoveries;
+  BluetoothLowEnergyState _state;
   bool _discovering;
 
   late final StreamSubscription _stateChangedSubscription;
   late final StreamSubscription _discoveredSubscription;
 
   CentralManagerViewModel()
-    : _manager = CentralManager()..logLevel = Level.INFO,
+    : _centralManager = CentralManager()..logLevel = Level.INFO,
       _discoveries = [],
+      _state = BluetoothLowEnergyState.unknown,
       _discovering = false {
-    _stateChangedSubscription = _manager.stateChanged.listen((eventArgs) async {
-      if (eventArgs.state == BluetoothLowEnergyState.unauthorized) {
-        await _manager.authorize();
+    _stateChangedSubscription = _centralManager.stateChanged.listen((
+      event,
+    ) async {
+      if (event.state == BluetoothLowEnergyState.unauthorized) {
+        final shouldShowRationale =
+            await _centralManager.shouldShowAuthorizeRationale();
+        logger.info('SHOUD SHOW RATIONALE: $shouldShowRationale');
+        if (shouldShowRationale) {
+          return;
+        }
+        await _centralManager.authorize();
       }
+      _state = await _centralManager.getState();
       notifyListeners();
     });
-    _discoveredSubscription = _manager.discovered.listen((eventArgs) {
-      final peripheral = eventArgs.peripheral;
+    _discoveredSubscription = _centralManager.discovered.listen((event) {
+      final peripheral = event.peripheral;
       final index = _discoveries.indexWhere((i) => i.peripheral == peripheral);
       if (index < 0) {
-        _discoveries.add(eventArgs);
+        _discoveries.add(event);
       } else {
-        _discoveries[index] = eventArgs;
+        _discoveries[index] = event;
       }
       notifyListeners();
     });
   }
 
-  BluetoothLowEnergyState get state => _manager.state;
+  BluetoothLowEnergyState get state => _state;
   bool get discovering => _discovering;
   List<DiscoveredEvent> get discoveries => _discoveries;
 
   Future<void> showAppSettings() async {
-    await _manager.showAppSettings();
+    await _centralManager.showAppSettings();
   }
 
-  Future<void> startDiscovery({List<UUID>? serviceUUIDs}) async {
+  Future<void> startDiscovery({List<UUID> serviceUUIDs = const []}) async {
     if (_discovering) {
       return;
     }
     _discoveries.clear();
-    await _manager.startDiscovery(serviceUUIDs: serviceUUIDs);
+    await _centralManager.startDiscovery(serviceUUIDs: serviceUUIDs);
     _discovering = true;
     notifyListeners();
   }
@@ -56,7 +68,7 @@ class CentralManagerViewModel extends ViewModel {
     if (!_discovering) {
       return;
     }
-    await _manager.stopDiscovery();
+    await _centralManager.stopDiscovery();
     _discovering = false;
     notifyListeners();
   }

@@ -19,26 +19,28 @@ class PeripheralManagerView extends StatelessWidget {
         title: const Text('Peripheral Manager'),
         actions: [
           TextButton(
-            onPressed: state == BluetoothLowEnergyState.poweredOn
-                ? () async {
-                    if (advertising) {
-                      await viewModel.stopAdvertising();
-                    } else {
-                      await viewModel.startAdvertising();
+            onPressed:
+                state == BluetoothLowEnergyState.on
+                    ? () async {
+                      if (advertising) {
+                        await viewModel.stopAdvertising();
+                      } else {
+                        await viewModel.startAdvertising();
+                      }
                     }
-                  }
-                : null,
+                    : null,
             child: Text(advertising ? 'END' : 'BEGIN'),
           ),
         ],
       ),
       body: buildBody(context),
-      floatingActionButton: state == BluetoothLowEnergyState.poweredOn
-          ? FloatingActionButton(
-              onPressed: () => viewModel.clearLogs(),
-              child: const Icon(Symbols.delete),
-            )
-          : null,
+      floatingActionButton:
+          state == BluetoothLowEnergyState.on
+              ? FloatingActionButton(
+                onPressed: () => viewModel.clearLogs(),
+                child: const Icon(Symbols.delete),
+              )
+              : null,
     );
   }
 
@@ -52,24 +54,19 @@ class PeripheralManagerView extends StatelessWidget {
           child: const Text('Go to settings'),
         ),
       );
-    } else if (state == BluetoothLowEnergyState.poweredOn) {
+    } else if (state == BluetoothLowEnergyState.on) {
       final logs = viewModel.logs;
       return ListView.builder(
         padding: const EdgeInsets.all(16.0),
         itemBuilder: (context, i) {
           final log = logs[i];
-          return LogView(
-            log: log,
-          );
+          return LogView(log: log);
         },
         itemCount: logs.length,
       );
     } else {
       return Center(
-        child: Text(
-          '$state',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        child: Text('$state', style: Theme.of(context).textTheme.titleMedium),
       );
     }
   }

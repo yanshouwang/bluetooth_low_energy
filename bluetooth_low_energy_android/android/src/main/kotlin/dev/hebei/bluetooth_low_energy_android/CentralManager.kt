@@ -23,12 +23,12 @@ import kotlin.coroutines.suspendCoroutine
 typealias StartDiscoveryCallback = (errorCode: Int?) -> Unit
 typealias ConnectCallback = (gatt: BluetoothGatt, status: Int) -> Boolean
 typealias DisconnectCallback = (gatt: BluetoothGatt, status: Int) -> Boolean
-typealias RequestMTUCallback = (gatt: BluetoothGatt, mtu: Int, status: Int) -> Boolean
-typealias ReadRSSICallback = (gatt: BluetoothGatt, rssi: Int, status: Int) -> Boolean
+typealias RequestMTUCallback = (gatt: BluetoothGatt, mtu: Int?, status: Int) -> Boolean
+typealias ReadRSSICallback = (gatt: BluetoothGatt, rssi: Int?, status: Int) -> Boolean
 typealias DiscoverServicesCallback = (gatt: BluetoothGatt, status: Int) -> Boolean
-typealias ReadCharacteristicCallback = (characteristic: BluetoothGattCharacteristic, value: ByteArray, status: Int) -> Boolean
+typealias ReadCharacteristicCallback = (characteristic: BluetoothGattCharacteristic, value: ByteArray?, status: Int) -> Boolean
 typealias WriteCharacteristicCallback = (characteristic: BluetoothGattCharacteristic, status: Int) -> Boolean
-typealias ReadDescriptorCallback = (descriptor: BluetoothGattDescriptor, value: ByteArray, status: Int) -> Boolean
+typealias ReadDescriptorCallback = (descriptor: BluetoothGattDescriptor, value: ByteArray?, status: Int) -> Boolean
 typealias WriteDescriptorCallback = (descriptor: BluetoothGattDescriptor, status: Int) -> Boolean
 
 class CentralManager(private val contextUtil: ContextUtil, activityUtil: ActivityUtil) :
@@ -129,7 +129,7 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
                 return
             }
             val value = characteristic.value
-            invokeReadCharacteristicCallbacks(characteristic, value, status)
+            onCharacteristicRead(gatt, characteristic, value, status)
         }
 
         override fun onCharacteristicRead(
@@ -147,14 +147,23 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
         }
 
         // TODO: remove this override when minSdkVersion >= 33
-        override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
+        override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
             super.onCharacteristicChanged(gatt, characteristic)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                return
+            }
+            val value = characteristic.value
+            onCharacteristicChanged(gatt, characteristic, value)
         }
 
         override fun onCharacteristicChanged(
             gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: ByteArray
         ) {
             super.onCharacteristicChanged(gatt, characteristic, value)
+            val characteristicArgs = GATTCharacteristic(gatt, characteristic)
+            for (listener in characteristicNotifiedListeners) {
+                listener.onNotified(characteristicArgs, value)
+            }
         }
 
         // TODO: remove this override when minSdkVersion >= 33
@@ -164,7 +173,7 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
                 return
             }
             val value = descriptor.value
-            invokeReadDescriptorCallbacks(descriptor, value, status)
+            onDescriptorRead(gatt, descriptor, status, value)
         }
 
         override fun onDescriptorRead(
@@ -235,13 +244,13 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
         characteristicNotifiedListeners.remove(listener)
     }
 
-    suspend fun startDiscovery(serviceUUIDs: List<UUID>? = null) = suspendCoroutine {
+    suspend fun startDiscovery(serviceUUIDs: List<UUID>) = suspendCoroutine {
         try {
             ensureState()
-            val filters = serviceUUIDs?.map {
-                val serviceUUID = ParcelUuid(it)
+            val filters = serviceUUIDs.map { uuid ->
+                val serviceUUID = ParcelUuid(uuid)
                 ScanFilter.Builder().setServiceUuid(serviceUUID).build()
-            } ?: emptyList<ScanFilter>()
+            }
             val settings = ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
             bluetoothLeScanner.startScan(filters, settings, scanCallback)
             contextUtil.mainExecutor.execute { invokeStartDiscoveryCallbacks(null) }
@@ -341,13 +350,22 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
             val gatt = retrieveGATT(peripheral.obj)
             val ok = gatt.requestMtu(mtu)
             if (!ok) throw IllegalStateException("gatt.requestMtu failed")
+            val listener = object : ConnectionStateChangedListener {
+                override fun onChanged(peripheral: Peripheral, state: ConnectionState) {
+                    if (peripheral.obj != gatt.device || state != ConnectionState.DISCONNECTED) return
+                    invokeRequestMTUCallbacks(gatt, null, BluetoothGatt.GATT_FAILURE)
+                }
+            }
+            connectionStateChangedListeners.add(listener)
             requestMTUCallbacks.add { gatt1, mtu1, status ->
                 if (gatt1 != gatt) return@add false
                 try {
-                    if (status != BluetoothGatt.GATT_SUCCESS) throw IllegalStateException("reqeustMTU failed: $status")
+                    if (mtu1 == null || status != BluetoothGatt.GATT_SUCCESS) throw IllegalStateException("reqeustMTU failed: $mtu1, $status")
                     it.resume(mtu1)
                 } catch (e: Exception) {
                     it.resumeWithException(e)
+                } finally {
+                    connectionStateChangedListeners.remove(listener)
                 }
                 return@add true
             }
@@ -363,6 +381,7 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
         if (!ok) throw IllegalStateException("gatt.requestConnectionPriority failed")
     }
 
+    // TODO: Can we write 512 bytes when type is GATTCharacteristicWriteType.withResponse
     fun getMaximumWriteLength(peripheral: Peripheral, type: GATTCharacteristicWriteType): Int {
         ensureState()
         val gatt = retrieveGATT(peripheral.obj)
@@ -376,13 +395,22 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
             val gatt = retrieveGATT(peripheral.obj)
             val ok = gatt.readRemoteRssi()
             if (!ok) throw IllegalStateException("gatt.readRemoteRssi failed")
+            val listener = object : ConnectionStateChangedListener {
+                override fun onChanged(peripheral: Peripheral, state: ConnectionState) {
+                    if (peripheral.obj != gatt.device || state != ConnectionState.DISCONNECTED) return
+                    invokeReadRSSICallbacks(gatt, null, BluetoothGatt.GATT_FAILURE)
+                }
+            }
+            connectionStateChangedListeners.add(listener)
             readRSSICallbacks.add { gatt1, rssi, status ->
                 if (gatt1 != gatt) return@add false
                 try {
-                    if (status != BluetoothGatt.GATT_SUCCESS) throw IllegalStateException("readRSSI failed: $status")
+                    if (rssi == null || status != BluetoothGatt.GATT_SUCCESS) throw IllegalStateException("readRSSI failed: $rssi, $status")
                     it.resume(rssi)
                 } catch (e: Exception) {
                     it.resumeWithException(e)
+                } finally {
+                    connectionStateChangedListeners.remove(listener)
                 }
                 return@add true
             }
@@ -397,6 +425,13 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
             val gatt = retrieveGATT(peripheral.obj)
             val ok = gatt.discoverServices()
             if (!ok) throw IllegalStateException("gatt.discoverServices failed.")
+            val listener = object : ConnectionStateChangedListener {
+                override fun onChanged(peripheral: Peripheral, state: ConnectionState) {
+                    if (peripheral.obj != gatt.device || state != ConnectionState.DISCONNECTED) return
+                    invokeDiscoverServicesCallbacks(gatt, BluetoothGatt.GATT_FAILURE)
+                }
+            }
+            connectionStateChangedListeners.add(listener)
             discoverServicesCallbacks.add { gatt1, status ->
                 if (gatt1 != gatt) return@add false
                 try {
@@ -405,6 +440,8 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
                     it.resume(services)
                 } catch (e: Exception) {
                     it.resumeWithException(e)
+                } finally {
+                    connectionStateChangedListeners.remove(listener)
                 }
                 return@add true
             }
@@ -419,13 +456,22 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
             val gatt = characteristic.gattNotNull
             val ok = gatt.readCharacteristic(characteristic.obj)
             if (!ok) throw IllegalStateException("gatt.readCharacteristic failed.")
+            val listener = object : ConnectionStateChangedListener {
+                override fun onChanged(peripheral: Peripheral, state: ConnectionState) {
+                    if (peripheral.obj != gatt.device || state != ConnectionState.DISCONNECTED) return
+                    invokeReadCharacteristicCallbacks(characteristic.obj, null, BluetoothGatt.GATT_FAILURE)
+                }
+            }
+            connectionStateChangedListeners.add(listener)
             readCharacteristicCallbacks.add { characteristic1, value, status ->
                 if (characteristic1 != characteristic.obj) return@add false
                 try {
-                    if (status != BluetoothGatt.GATT_SUCCESS) throw IllegalStateException("readCharacteristic failed: $status")
+                    if (value == null || status != BluetoothGatt.GATT_SUCCESS) throw IllegalStateException("readCharacteristic failed: $value, $status")
                     it.resume(value)
                 } catch (e: Exception) {
                     it.resumeWithException(e)
+                } finally {
+                    connectionStateChangedListeners.remove(listener)
                 }
                 return@add true
             }
@@ -448,8 +494,15 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
                 characteristic.obj.value = value
                 characteristic.obj.writeType = type.obj
                 val ok = gatt.writeCharacteristic(characteristic.obj)
-                if (!ok) throw IllegalStateException("gatt.writeCharacteristic failed.")
+                if (!ok) throw IllegalStateException("gatt.writeCharacteristic failed")
             }
+            val listener = object : ConnectionStateChangedListener {
+                override fun onChanged(peripheral: Peripheral, state: ConnectionState) {
+                    if (peripheral.obj != gatt.device || state != ConnectionState.DISCONNECTED) return
+                    invokeWriteCharacteristicCallbacks(characteristic.obj, BluetoothGatt.GATT_FAILURE)
+                }
+            }
+            connectionStateChangedListeners.add(listener)
             writeCharacteristicCallbacks.add { characteristic1, status ->
                 if (characteristic1 != characteristic.obj) return@add false
                 try {
@@ -457,6 +510,8 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
                     it.resume(Unit)
                 } catch (e: Exception) {
                     it.resumeWithException(e)
+                } finally {
+                    connectionStateChangedListeners.remove(listener)
                 }
                 return@add true
             }
@@ -465,11 +520,88 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
         }
     }
 
-    suspend fun setCharacteristicNotifyState(characteristic: GATTCharacteristic, state: Boolean) = suspendCoroutine { }
+    suspend fun setCharacteristicNotifyState(characteristic: GATTCharacteristic, state: Boolean) {
+        ensureState()
+        val gatt = characteristic.gattNotNull
+        val ok = gatt.setCharacteristicNotification(characteristic.obj, state)
+        if (!ok) throw IllegalStateException("gatt.setCharacteristicNotification failed")
+        // Seems the docs is not correct, this operation is necessary for all characteristics.
+        // https://developer.android.com/guide/topics/connectivity/bluetooth/transfer-ble-data#notification
+        val descriptor = characteristic.getDescriptor(GATTDescriptor.CLIENT_CHARACTERISTIC_CONFIG)
+        val value = if (state) {
+            val canNotify = characteristic.properties.contains(GATTCharacteristicProperty.NOTIFY)
+            if (canNotify) GATTDescriptor.ENABLE_NOTIFICATION_VALUE
+            else GATTDescriptor.ENABLE_INDICATION_VALUE
+        } else GATTDescriptor.DISABLE_NOTIFICATION_VALUE
+        writeDescriptor(descriptor, value)
+    }
 
-    suspend fun readDescriptor(descriptor: GATTDescriptor): ByteArray = suspendCoroutine { }
+    suspend fun readDescriptor(descriptor: GATTDescriptor): ByteArray = suspendCoroutine {
+        try {
+            ensureState()
+            val gatt = descriptor.gattNotNull
+            val ok = gatt.readDescriptor(descriptor.obj)
+            if (!ok) throw IllegalStateException("gatt.readDescriptor failed.")
+            val listener = object : ConnectionStateChangedListener {
+                override fun onChanged(peripheral: Peripheral, state: ConnectionState) {
+                    if (peripheral.obj != gatt.device || state != ConnectionState.DISCONNECTED) return
+                    invokeReadDescriptorCallbacks(descriptor.obj, null, BluetoothGatt.GATT_FAILURE)
+                }
+            }
+            connectionStateChangedListeners.add(listener)
+            readDescriptorCallbacks.add { descriptor1, value, status ->
+                if (descriptor1 != descriptor.obj) return@add false
+                try {
+                    if (value == null || status != BluetoothGatt.GATT_SUCCESS) throw IllegalStateException("readDescriptor failed: $value, $status")
+                    it.resume(value)
+                } catch (e: Exception) {
+                    it.resumeWithException(e)
+                } finally {
+                    connectionStateChangedListeners.remove(listener)
+                }
+                return@add true
+            }
+        } catch (e: Exception) {
+            it.resumeWithException(e)
+        }
+    }
 
-    suspend fun writeDescriptor(descriptor: GATTDescriptor, value: ByteArray) = suspendCoroutine { }
+    suspend fun writeDescriptor(descriptor: GATTDescriptor, value: ByteArray) = suspendCoroutine {
+        try {
+            ensureState()
+            val gatt = descriptor.gattNotNull
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val status = gatt.writeDescriptor(descriptor.obj, value)
+                if (status != BluetoothStatusCodes.SUCCESS) throw IllegalStateException("gatt.writeDescriptor failed: $status")
+            } else {
+                // TODO: remove this when minSdkVersion >= 33
+                descriptor.obj.value = value
+                val ok = gatt.writeDescriptor(descriptor.obj)
+                if (!ok) throw IllegalStateException("gatt.writeDescriptor failed")
+            }
+            val listener = object : ConnectionStateChangedListener {
+                override fun onChanged(peripheral: Peripheral, state: ConnectionState) {
+                    if (peripheral.obj != gatt.device || state != ConnectionState.DISCONNECTED) return
+                    invokeWriteDescriptorCallbacks(descriptor.obj, BluetoothGatt.GATT_FAILURE)
+                }
+            }
+            connectionStateChangedListeners.add(listener)
+            writeCharacteristicCallbacks.add { descriptor1, status ->
+                if (descriptor1 != descriptor.obj) return@add false
+                try {
+                    if (status != BluetoothGatt.GATT_SUCCESS) throw IllegalStateException("writeDescriptor failed: $status")
+                    it.resume(Unit)
+                } catch (e: Exception) {
+                    it.resumeWithException(e)
+                } finally {
+                    connectionStateChangedListeners.remove(listener)
+                }
+                return@add true
+            }
+        } catch (e: Exception) {
+            it.resumeWithException(e)
+        }
+    }
 
     private fun retrieveGATT(device: BluetoothDevice): BluetoothGatt {
         return gatts[device] ?: throw NullPointerException("gatt is null")
@@ -496,12 +628,12 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
         disconnectCallbacks.removeAll(callbacks)
     }
 
-    private fun invokeRequestMTUCallbacks(gatt: BluetoothGatt, mtu: Int, status: Int) {
+    private fun invokeRequestMTUCallbacks(gatt: BluetoothGatt, mtu: Int?, status: Int) {
         val callbacks = requestMTUCallbacks.filter { it(gatt, mtu, status) }
         requestMTUCallbacks.removeAll(callbacks)
     }
 
-    private fun invokeReadRSSICallbacks(gatt: BluetoothGatt, rssi: Int, status: Int) {
+    private fun invokeReadRSSICallbacks(gatt: BluetoothGatt, rssi: Int?, status: Int) {
         val callbacks = readRSSICallbacks.filter { it(gatt, rssi, status) }
         readRSSICallbacks.removeAll(callbacks)
     }
@@ -512,7 +644,7 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
     }
 
     private fun invokeReadCharacteristicCallbacks(
-        characteristic: BluetoothGattCharacteristic, value: ByteArray, status: Int
+        characteristic: BluetoothGattCharacteristic, value: ByteArray?, status: Int
     ) {
         val callbacks = readCharacteristicCallbacks.filter { it(characteristic, value, status) }
         readCharacteristicCallbacks.removeAll(callbacks)
@@ -523,7 +655,7 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
         writeCharacteristicCallbacks.removeAll(callbacks)
     }
 
-    private fun invokeReadDescriptorCallbacks(descriptor: BluetoothGattDescriptor, value: ByteArray, status: Int) {
+    private fun invokeReadDescriptorCallbacks(descriptor: BluetoothGattDescriptor, value: ByteArray?, status: Int) {
         val callbacks = readDescriptorCallbacks.filter { it(descriptor, value, status) }
         readDescriptorCallbacks.removeAll(callbacks)
     }
@@ -534,18 +666,18 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
     }
 
     interface DiscoveredListener {
-        abstract fun onDiscovered(peripheral: Peripheral, rssi: Int, advertisement: Advertisement)
+        fun onDiscovered(peripheral: Peripheral, rssi: Int, advertisement: Advertisement)
     }
 
     interface ConnectionStateChangedListener {
-        abstract fun onChanged(peripheral: Peripheral, state: ConnectionState)
+        fun onChanged(peripheral: Peripheral, state: ConnectionState)
     }
 
     interface MTUChangedListener {
-        abstract fun onChanged(peripheral: Peripheral, mtu: Int)
+        fun onChanged(peripheral: Peripheral, mtu: Int)
     }
 
     interface CharacteristicNotifiedListener {
-        abstract fun onNotified(characteristic: GATTCharacteristic, value: ByteArray)
+        fun onNotified(characteristic: GATTCharacteristic, value: ByteArray)
     }
 }

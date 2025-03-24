@@ -15,7 +15,7 @@ final class BluetoothLowEnergyStateChangedEvent {
 /// The name changed event.
 final class NameChangedEvent {
   /// The name.
-  final String name;
+  final String? name;
 
   /// Constructs a [NameChangedEvent].
   NameChangedEvent(this.name);
@@ -70,7 +70,7 @@ abstract base class BluetoothLowEnergyManager extends PlatformInterface
   ///
   /// This method is available on Android, throws [UnsupportedError] on other
   /// platforms.
-  Future<void> setName(String name);
+  Future<void> setName(String? name);
 
   /// Turn on the local Bluetooth adapter—do not use without explicit user action
   /// to turn on Bluetooth.

@@ -1,5 +1,7 @@
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
+import 'impl.dart';
+
 final class BluetoothLowEnergyAndroidPlugin extends BluetoothLowEnergyPlugin {
   BluetoothLowEnergyAndroidPlugin() : super.impl();
 
@@ -9,8 +11,7 @@ final class BluetoothLowEnergyAndroidPlugin extends BluetoothLowEnergyPlugin {
 
   @override
   CentralManager newCentralManager() {
-    // TODO: implement createCentralManager
-    throw UnimplementedError();
+    return CentralManagerImpl();
   }
 
   @override

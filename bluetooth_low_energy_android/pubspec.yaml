@@ -18,9 +18,11 @@ dependencies:
   flutter:
     sdk: flutter
   bluetooth_low_energy_platform_interface: ^7.0.0-dev.5
+  protobuf: ^3.1.0
   logging: ^1.3.0
   hybrid_logging: ^1.0.0
   collection: ^1.18.0
+  meta: ^1.16.0
 
 dev_dependencies:
   flutter_test:

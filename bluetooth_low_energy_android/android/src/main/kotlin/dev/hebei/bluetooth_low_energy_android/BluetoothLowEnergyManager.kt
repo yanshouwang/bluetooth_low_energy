@@ -114,6 +114,14 @@ abstract class BluetoothLowEnergyManager(private val contextUtil: ContextUtil, p
         nameChangedListeners.remove(observer)
     }
 
+    fun shouldShowAuthorizeRationale(): Boolean {
+        return activityUtil.shouldShowRequestPermissionsRationale(permissions)
+    }
+
+    suspend fun authorize(): Boolean {
+        return activityUtil.requestPermissions(permissions, requestCode)
+    }
+
     fun showAppSettings() {
         val packageName = activityUtil.packageName
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
@@ -121,14 +129,6 @@ abstract class BluetoothLowEnergyManager(private val contextUtil: ContextUtil, p
         }
         val options = ActivityOptionsCompat.makeBasic().toBundle()
         activityUtil.startActivity(intent, options)
-    }
-
-    fun shouldShowAuthorizeRationale(): Boolean {
-        return activityUtil.shouldShowRequestPermissionsRationale(permissions)
-    }
-
-    suspend fun authorize(): Boolean {
-        return activityUtil.requestPermissions(permissions, requestCode)
     }
 
     suspend fun turnOn() = suspendCoroutine {
