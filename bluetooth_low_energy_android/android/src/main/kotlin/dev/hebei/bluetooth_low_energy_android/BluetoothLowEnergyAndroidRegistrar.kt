@@ -26,15 +26,15 @@ class BluetoothLowEnergyAndroidRegistrar(
     }
 
     override fun getPigeonApiConnectionStateChangedListenerApi(): PigeonApiConnectionStateChangedListenerApi {
-        return CentralManagerImpl.ConnectionStateChangedListenerImpl(this)
+        return CentralManagerImpl.ConnectionStateChangedListenerImpl(this, contextUtil.mainExecutor)
     }
 
     override fun getPigeonApiMTUChangedListenerApi(): PigeonApiMTUChangedListenerApi {
-        return CentralManagerImpl.MTUChangedListenerImpl(this)
+        return CentralManagerImpl.MTUChangedListenerImpl(this, contextUtil.mainExecutor)
     }
 
     override fun getPigeonApiCharacteristicNotifiedListenerApi(): PigeonApiCharacteristicNotifiedListenerApi {
-        return CentralManagerImpl.CharacteristicNotifiedListenerImpl(this)
+        return CentralManagerImpl.CharacteristicNotifiedListenerImpl(this, contextUtil.mainExecutor)
     }
 
     override fun getPigeonApiBluetoothLowEnergyPeerApi(): PigeonApiBluetoothLowEnergyPeerApi {

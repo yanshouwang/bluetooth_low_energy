@@ -81,9 +81,9 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
                 mtus.remove(gatt)
             }
             // Call connection state changed listeners
+            val peripheral = Peripheral(device)
+            val state = newState.connectionStateArgs
             for (listener in connectionStateChangedListeners) {
-                val peripheral = Peripheral(device)
-                val state = newState.connectionStateArgs
                 listener.onChanged(peripheral, state)
             }
             // Invoke connect/disconnect callbacks
@@ -94,8 +94,9 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
         override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
             super.onMtuChanged(gatt, mtu, status)
             mtus[gatt] = mtu
+            val device = gatt.device
+            val peripheral = Peripheral(device)
             for (listener in mtuChangedListeners) {
-                val peripheral = Peripheral(gatt.device)
                 listener.onChanged(peripheral, mtu)
             }
             invokeRequestMTUCallbacks(gatt, mtu, status)
@@ -103,9 +104,9 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
 
         override fun onReadRemoteRssi(gatt: BluetoothGatt, rssi: Int, status: Int) {
             super.onReadRemoteRssi(gatt, rssi, status)
+            val device = gatt.device
+            val peripheral = Peripheral(device)
             for (listener in mtuChangedListeners) {
-                val device = gatt.device
-                val peripheral = Peripheral(device)
                 listener.onChanged(peripheral, rssi)
             }
             invokeReadRSSICallbacks(gatt, rssi, status)
@@ -129,7 +130,7 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
                 return
             }
             val value = characteristic.value
-            onCharacteristicRead(gatt, characteristic, value, status)
+            invokeReadCharacteristicCallbacks(characteristic, value, status)
         }
 
         override fun onCharacteristicRead(
@@ -152,8 +153,11 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 return
             }
+            val characteristicArgs = GATTCharacteristic(gatt, characteristic)
             val value = characteristic.value
-            onCharacteristicChanged(gatt, characteristic, value)
+            for (listener in characteristicNotifiedListeners) {
+                listener.onNotified(characteristicArgs, value)
+            }
         }
 
         override fun onCharacteristicChanged(
@@ -173,7 +177,7 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
                 return
             }
             val value = descriptor.value
-            onDescriptorRead(gatt, descriptor, status, value)
+            invokeReadDescriptorCallbacks(descriptor, value, status)
         }
 
         override fun onDescriptorRead(
@@ -586,7 +590,7 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
                 }
             }
             connectionStateChangedListeners.add(listener)
-            writeCharacteristicCallbacks.add { descriptor1, status ->
+            writeDescriptorCallbacks.add { descriptor1, status ->
                 if (descriptor1 != descriptor.obj) return@add false
                 try {
                     if (status != BluetoothGatt.GATT_SUCCESS) throw IllegalStateException("writeDescriptor failed: $status")

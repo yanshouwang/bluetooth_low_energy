@@ -22,7 +22,9 @@ class CentralManagerViewModel extends ViewModel with TypeLogger {
     _stateChangedSubscription = _centralManager.stateChanged.listen((
       event,
     ) async {
-      if (event.state == BluetoothLowEnergyState.unauthorized) {
+      _state = event.state;
+      notifyListeners();
+      if (state == BluetoothLowEnergyState.unauthorized) {
         final shouldShowRationale =
             await _centralManager.shouldShowAuthorizeRationale();
         logger.info('SHOUD SHOW RATIONALE: $shouldShowRationale');
@@ -31,8 +33,6 @@ class CentralManagerViewModel extends ViewModel with TypeLogger {
         }
         await _centralManager.authorize();
       }
-      _state = await _centralManager.getState();
-      notifyListeners();
     });
     _discoveredSubscription = _centralManager.discovered.listen((event) {
       final peripheral = event.peripheral;
@@ -44,6 +44,12 @@ class CentralManagerViewModel extends ViewModel with TypeLogger {
       }
       notifyListeners();
     });
+    _initialize();
+  }
+
+  void _initialize() async {
+    _state = await _centralManager.getState();
+    notifyListeners();
   }
 
   BluetoothLowEnergyState get state => _state;
@@ -52,6 +58,14 @@ class CentralManagerViewModel extends ViewModel with TypeLogger {
 
   Future<void> showAppSettings() async {
     await _centralManager.showAppSettings();
+  }
+
+  Future<void> turnOn() async {
+    await _centralManager.turnOn();
+  }
+
+  Future<void> turnOff() async {
+    await _centralManager.turnOff();
   }
 
   Future<void> startDiscovery({List<UUID> serviceUUIDs = const []}) async {

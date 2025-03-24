@@ -24,9 +24,11 @@ class PeripheralManagerViewModel extends ViewModel with TypeLogger {
       _state = BluetoothLowEnergyState.unknown,
       _advertising = false {
     _stateChangedSubscription = _peripheralManager.stateChanged.listen((
-      eventArgs,
+      event,
     ) async {
-      if (eventArgs.state == BluetoothLowEnergyState.unauthorized) {
+      _state = event.state;
+      notifyListeners();
+      if (state == BluetoothLowEnergyState.unauthorized) {
         final shouldShowRationale =
             await _peripheralManager.shouldShowAuthorizeRationale();
         logger.info('SHOULD SHOW RATIONALE: $shouldShowRationale');
@@ -35,14 +37,13 @@ class PeripheralManagerViewModel extends ViewModel with TypeLogger {
         }
         await _peripheralManager.authorize();
       }
-      notifyListeners();
     });
     _characteristicReadRequestedSubscription = _peripheralManager
         .characteristicReadRequested
-        .listen((eventArgs) async {
-          final central = eventArgs.central;
-          final characteristic = eventArgs.characteristic;
-          final request = eventArgs.request;
+        .listen((event) async {
+          final central = event.central;
+          final characteristic = event.characteristic;
+          final request = event.request;
           final offset = request.offset;
           final log = Log(
             type: 'Characteristic read requested',
@@ -60,10 +61,10 @@ class PeripheralManagerViewModel extends ViewModel with TypeLogger {
         });
     _characteristicWriteRequestedSubscription = _peripheralManager
         .characteristicWriteRequested
-        .listen((eventArgs) async {
-          final central = eventArgs.central;
-          final characteristic = eventArgs.characteristic;
-          final request = eventArgs.request;
+        .listen((event) async {
+          final central = event.central;
+          final characteristic = event.characteristic;
+          final request = event.request;
           final offset = request.offset;
           final value = request.value;
           final log = Log(
@@ -77,10 +78,10 @@ class PeripheralManagerViewModel extends ViewModel with TypeLogger {
         });
     _characteristicNotifyStateChangedSubscription = _peripheralManager
         .characteristicNotifyStateChanged
-        .listen((eventArgs) async {
-          final central = eventArgs.central;
-          final characteristic = eventArgs.characteristic;
-          final state = eventArgs.state;
+        .listen((event) async {
+          final central = event.central;
+          final characteristic = event.characteristic;
+          final state = event.state;
           final log = Log(
             type: 'Characteristic notify state changed',
             message: '${central.uuid}, ${characteristic.uuid}, $state',
@@ -99,6 +100,12 @@ class PeripheralManagerViewModel extends ViewModel with TypeLogger {
             );
           }
         });
+    _initialize();
+  }
+
+  void _initialize() async {
+    _state = await _peripheralManager.getState();
+    notifyListeners();
   }
 
   BluetoothLowEnergyState get state => _state;
@@ -107,6 +114,14 @@ class PeripheralManagerViewModel extends ViewModel with TypeLogger {
 
   Future<void> showAppSettings() async {
     await _peripheralManager.showAppSettings();
+  }
+
+  Future<void> turnOn() async {
+    await _peripheralManager.turnOn();
+  }
+
+  Future<void> turnOff() async {
+    await _peripheralManager.turnOff();
   }
 
   Future<void> startAdvertising() async {

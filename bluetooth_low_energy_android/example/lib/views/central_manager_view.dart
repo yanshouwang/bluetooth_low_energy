@@ -21,6 +21,20 @@ class CentralManagerView extends StatelessWidget {
         actions: [
           TextButton(
             onPressed:
+                state == BluetoothLowEnergyState.on ||
+                        state == BluetoothLowEnergyState.off
+                    ? () async {
+                      if (state == BluetoothLowEnergyState.on) {
+                        await viewModel.turnOff();
+                      } else {
+                        await viewModel.turnOn();
+                      }
+                    }
+                    : null,
+            child: Text(state.name.toUpperCase()),
+          ),
+          TextButton(
+            onPressed:
                 state == BluetoothLowEnergyState.on
                     ? () async {
                       if (discovering) {

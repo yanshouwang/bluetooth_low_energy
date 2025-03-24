@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.UUID
+import java.util.concurrent.Executor
 
 class CentralManagerImpl(
     registrar: BluetoothLowEnergyAndroidApiPigeonProxyApiRegistrar, contextUtil: ContextUtil, activityUtil: ActivityUtil
@@ -61,7 +62,7 @@ class CentralManagerImpl(
     override fun startDiscovery(
         pigeon_instance: CentralManager, serviceUUIDs: List<String>, callback: (Result<Unit>) -> Unit
     ) {
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             try {
                 pigeon_instance.startDiscovery(serviceUUIDs.map { UUID.fromString(it) })
                 callback(Result.success(Unit))
@@ -80,7 +81,7 @@ class CentralManagerImpl(
     }
 
     override fun connect(pigeon_instance: CentralManager, peripheral: Peripheral, callback: (Result<Unit>) -> Unit) {
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             try {
                 pigeon_instance.connect(peripheral)
                 callback(Result.success(Unit))
@@ -91,7 +92,7 @@ class CentralManagerImpl(
     }
 
     override fun disconnect(pigeon_instance: CentralManager, peripheral: Peripheral, callback: (Result<Unit>) -> Unit) {
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             try {
                 pigeon_instance.disconnect(peripheral)
                 callback(Result.success(Unit))
@@ -104,7 +105,7 @@ class CentralManagerImpl(
     override fun requestMTU(
         pigeon_instance: CentralManager, peripheral: Peripheral, mtu: Long, callback: (Result<Long>) -> Unit
     ) {
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             try {
                 val mtu1 = pigeon_instance.requestMTU(peripheral, mtu.toInt())
                 callback(Result.success(mtu1.toLong()))
@@ -128,7 +129,7 @@ class CentralManagerImpl(
     }
 
     override fun readRSSI(pigeon_instance: CentralManager, peripheral: Peripheral, callback: (Result<Long>) -> Unit) {
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             try {
                 val rssi = pigeon_instance.readRSSI(peripheral)
                 callback(Result.success(rssi.toLong()))
@@ -141,7 +142,7 @@ class CentralManagerImpl(
     override fun discoverServices(
         pigeon_instance: CentralManager, peripheral: Peripheral, callback: (Result<List<GATTService>>) -> Unit
     ) {
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             try {
                 val services = pigeon_instance.discoverServices(peripheral)
                 callback(Result.success(services))
@@ -154,7 +155,7 @@ class CentralManagerImpl(
     override fun readCharacteristic(
         pigeon_instance: CentralManager, characterisic: GATTCharacteristic, callback: (Result<ByteArray>) -> Unit
     ) {
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             try {
                 val value = pigeon_instance.readCharacteristic(characterisic)
                 callback(Result.success(value))
@@ -171,7 +172,7 @@ class CentralManagerImpl(
         type: GATTCharacteristicWriteTypeApi,
         callback: (Result<Unit>) -> Unit
     ) {
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             try {
                 pigeon_instance.writeCharacteristic(characterisic, value, type.obj)
                 callback(Result.success(Unit))
@@ -187,7 +188,7 @@ class CentralManagerImpl(
         state: Boolean,
         callback: (Result<Unit>) -> Unit
     ) {
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             try {
                 pigeon_instance.setCharacteristicNotifyState(characterisic, state)
                 callback(Result.success(Unit))
@@ -200,7 +201,7 @@ class CentralManagerImpl(
     override fun readDescriptor(
         pigeon_instance: CentralManager, descriptor: GATTDescriptor, callback: (Result<ByteArray>) -> Unit
     ) {
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             try {
                 val value = pigeon_instance.readDescriptor(descriptor)
                 callback(Result.success(value))
@@ -213,7 +214,7 @@ class CentralManagerImpl(
     override fun writeDescriptor(
         pigeon_instance: CentralManager, descriptor: GATTDescriptor, value: ByteArray, callback: (Result<Unit>) -> Unit
     ) {
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             try {
                 pigeon_instance.writeDescriptor(descriptor, value)
                 callback(Result.success(Unit))
@@ -236,34 +237,43 @@ class CentralManagerImpl(
         }
     }
 
-    class ConnectionStateChangedListenerImpl(registrar: BluetoothLowEnergyAndroidApiPigeonProxyApiRegistrar) :
-        PigeonApiConnectionStateChangedListenerApi(registrar) {
+    class ConnectionStateChangedListenerImpl(
+        registrar: BluetoothLowEnergyAndroidApiPigeonProxyApiRegistrar, private val executor: Executor
+    ) : PigeonApiConnectionStateChangedListenerApi(registrar) {
         override fun pigeon_defaultConstructor(): CentralManager.ConnectionStateChangedListener {
             return object : CentralManager.ConnectionStateChangedListener {
                 override fun onChanged(peripheral: Peripheral, state: ConnectionState) {
-                    this@ConnectionStateChangedListenerImpl.onChanged(this, peripheral, state.api) {}
+                    executor.execute {
+                        this@ConnectionStateChangedListenerImpl.onChanged(this, peripheral, state.api) {}
+                    }
                 }
             }
         }
     }
 
-    class MTUChangedListenerImpl(registrar: BluetoothLowEnergyAndroidApiPigeonProxyApiRegistrar) :
-        PigeonApiMTUChangedListenerApi(registrar) {
+    class MTUChangedListenerImpl(
+        registrar: BluetoothLowEnergyAndroidApiPigeonProxyApiRegistrar, private val executor: Executor
+    ) : PigeonApiMTUChangedListenerApi(registrar) {
         override fun pigeon_defaultConstructor(): CentralManager.MTUChangedListener {
             return object : CentralManager.MTUChangedListener {
                 override fun onChanged(peripheral: Peripheral, mtu: Int) {
-                    this@MTUChangedListenerImpl.onChanged(this, peripheral, mtu.toLong()) {}
+                    executor.execute {
+                        this@MTUChangedListenerImpl.onChanged(this, peripheral, mtu.toLong()) {}
+                    }
                 }
             }
         }
     }
 
-    class CharacteristicNotifiedListenerImpl(registrar: BluetoothLowEnergyAndroidApiPigeonProxyApiRegistrar) :
-        PigeonApiCharacteristicNotifiedListenerApi(registrar) {
+    class CharacteristicNotifiedListenerImpl(
+        registrar: BluetoothLowEnergyAndroidApiPigeonProxyApiRegistrar, private val executor: Executor
+    ) : PigeonApiCharacteristicNotifiedListenerApi(registrar) {
         override fun pigeon_defaultConstructor(): CentralManager.CharacteristicNotifiedListener {
             return object : CentralManager.CharacteristicNotifiedListener {
                 override fun onNotified(characteristic: GATTCharacteristic, value: ByteArray) {
-                    this@CharacteristicNotifiedListenerImpl.onNotified(this, characteristic, value) {}
+                    executor.execute {
+                        this@CharacteristicNotifiedListenerImpl.onNotified(this, characteristic, value) {}
+                    }
                 }
             }
         }

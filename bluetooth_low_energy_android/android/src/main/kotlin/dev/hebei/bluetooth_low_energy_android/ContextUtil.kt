@@ -4,9 +4,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.IntentFilter
 import androidx.core.content.ContextCompat
+import java.util.concurrent.Executor
 
 class ContextUtil(val context: Context) {
-    val mainExecutor get() = ContextCompat.getMainExecutor(context)
+    val mainExecutor: Executor get() = ContextCompat.getMainExecutor(context)
 
     fun hasSystemFeature(featureName: String): Boolean {
         return context.packageManager.hasSystemFeature(featureName)
