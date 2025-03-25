@@ -8,11 +8,11 @@ workspace:
   - bluetooth_low_energy_platform_interface
   - bluetooth_low_energy_android
   - bluetooth_low_energy_android/example
-  # - bluetooth_low_energy_darwin
-  # - bluetooth_low_energy_darwin/example
-  # - bluetooth_low_energy_windows
-  # - bluetooth_low_energy_windows/example
-  # - bluetooth_low_energy_linux
-  # - bluetooth_low_energy_linux/example
-  # - bluetooth_low_energy
-  # - bluetooth_low_energy/example
+  - bluetooth_low_energy_darwin
+  - bluetooth_low_energy_darwin/example
+  - bluetooth_low_energy_windows
+  - bluetooth_low_energy_windows/example
+  - bluetooth_low_energy_linux
+  - bluetooth_low_energy_linux/example
+  - bluetooth_low_energy
+  - bluetooth_low_energy/example

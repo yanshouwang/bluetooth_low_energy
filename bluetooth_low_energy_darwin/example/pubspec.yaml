@@ -22,7 +22,7 @@ dependencies:
     sdk: flutter
   intl: any
 
-  bluetooth_low_energy_platform_interface: ^7.0.0-dev.5
+  bluetooth_low_energy_platform_interface: ^7.0.0-dev.4
   bluetooth_low_energy_darwin:
     # When depending on this package from a real application you should use:
     #   bluetooth_low_energy_darwin: ^x.y.z
