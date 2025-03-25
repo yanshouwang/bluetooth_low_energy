@@ -16,6 +16,7 @@ import android.content.Context
 import android.os.Build
 import android.os.ParcelUuid
 import java.util.UUID
+import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -62,59 +63,67 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
 
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             super.onScanResult(callbackType, result)
+            val peripheral = Peripheral(result.device)
+            val rssi = result.rssi
+            val advertisement = result.advertisementWrapper
             for (listener in discoveredListeners) {
-                val peripheral = Peripheral(result.device)
-                val rssi = result.rssi
-                val advertisement = result.advertisementArgs
                 listener.onDiscovered(peripheral, rssi, advertisement)
             }
         }
     }
     private val bluetoothGattCallback = object : BluetoothGattCallback() {
+        private val executor: Executor get() = contextUtil.mainExecutor
+
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
             val device = gatt.device
-            // Check connection state
-            if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                gatt.close()
-                gatts.remove(device)
-                mtus.remove(gatt)
-            }
-            // Call connection state changed listeners
             val peripheral = Peripheral(device)
-            val state = newState.connectionStateArgs
-            for (listener in connectionStateChangedListeners) {
-                listener.onChanged(peripheral, state)
+            val state = newState.connectionStateWrapper
+            executor.execute {
+                // Check connection state
+                if (state == ConnectionState.DISCONNECTED) {
+                    gatt.close()
+                    gatts.remove(device)
+                    mtus.remove(gatt)
+                }
+                // Call connection state changed listeners
+                for (listener in connectionStateChangedListeners) {
+                    listener.onChanged(peripheral, state)
+                }
+                // Invoke connect/disconnect callbacks
+                invokeConnectCallbacks(gatt, status)
+                invokeDisconnectCallbacks(gatt, status)
             }
-            // Invoke connect/disconnect callbacks
-            invokeConnectCallbacks(gatt, status)
-            invokeDisconnectCallbacks(gatt, status)
         }
 
         override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
             super.onMtuChanged(gatt, mtu, status)
-            mtus[gatt] = mtu
             val device = gatt.device
             val peripheral = Peripheral(device)
-            for (listener in mtuChangedListeners) {
-                listener.onChanged(peripheral, mtu)
+            executor.execute {
+                mtus[gatt] = mtu
+                for (listener in mtuChangedListeners) {
+                    listener.onChanged(peripheral, mtu)
+                }
+                invokeRequestMTUCallbacks(gatt, mtu, status)
             }
-            invokeRequestMTUCallbacks(gatt, mtu, status)
         }
 
         override fun onReadRemoteRssi(gatt: BluetoothGatt, rssi: Int, status: Int) {
             super.onReadRemoteRssi(gatt, rssi, status)
             val device = gatt.device
             val peripheral = Peripheral(device)
-            for (listener in mtuChangedListeners) {
-                listener.onChanged(peripheral, rssi)
+            executor.execute {
+                for (listener in mtuChangedListeners) {
+                    listener.onChanged(peripheral, rssi)
+                }
+                invokeReadRSSICallbacks(gatt, rssi, status)
             }
-            invokeReadRSSICallbacks(gatt, rssi, status)
         }
 
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             super.onServicesDiscovered(gatt, status)
-            invokeDiscoverServicesCallbacks(gatt, status)
+            executor.execute { invokeDiscoverServicesCallbacks(gatt, status) }
         }
 
         override fun onServiceChanged(gatt: BluetoothGatt) {
@@ -130,21 +139,21 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
                 return
             }
             val value = characteristic.value
-            invokeReadCharacteristicCallbacks(characteristic, value, status)
+            executor.execute { invokeReadCharacteristicCallbacks(characteristic, value, status) }
         }
 
         override fun onCharacteristicRead(
             gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: ByteArray, status: Int
         ) {
             super.onCharacteristicRead(gatt, characteristic, value, status)
-            invokeReadCharacteristicCallbacks(characteristic, value, status)
+            executor.execute { invokeReadCharacteristicCallbacks(characteristic, value, status) }
         }
 
         override fun onCharacteristicWrite(
             gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int
         ) {
             super.onCharacteristicWrite(gatt, characteristic, status)
-            invokeWriteCharacteristicCallbacks(characteristic, status)
+            executor.execute { invokeWriteCharacteristicCallbacks(characteristic, status) }
         }
 
         // TODO: remove this override when minSdkVersion >= 33
@@ -153,10 +162,12 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 return
             }
-            val characteristicArgs = GATTCharacteristic(gatt, characteristic)
+            val characteristicWrapper = GATTCharacteristic(gatt, characteristic)
             val value = characteristic.value
-            for (listener in characteristicNotifiedListeners) {
-                listener.onNotified(characteristicArgs, value)
+            executor.execute {
+                for (listener in characteristicNotifiedListeners) {
+                    listener.onNotified(characteristicWrapper, value)
+                }
             }
         }
 
@@ -164,9 +175,11 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
             gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: ByteArray
         ) {
             super.onCharacteristicChanged(gatt, characteristic, value)
-            val characteristicArgs = GATTCharacteristic(gatt, characteristic)
-            for (listener in characteristicNotifiedListeners) {
-                listener.onNotified(characteristicArgs, value)
+            val characteristicWrapper = GATTCharacteristic(gatt, characteristic)
+            executor.execute {
+                for (listener in characteristicNotifiedListeners) {
+                    listener.onNotified(characteristicWrapper, value)
+                }
             }
         }
 
@@ -177,30 +190,30 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
                 return
             }
             val value = descriptor.value
-            invokeReadDescriptorCallbacks(descriptor, value, status)
+            executor.execute { invokeReadDescriptorCallbacks(descriptor, value, status) }
         }
 
         override fun onDescriptorRead(
             gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int, value: ByteArray
         ) {
             super.onDescriptorRead(gatt, descriptor, status, value)
-            invokeReadDescriptorCallbacks(descriptor, value, status)
+            executor.execute { invokeReadDescriptorCallbacks(descriptor, value, status) }
         }
 
         override fun onDescriptorWrite(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {
             super.onDescriptorWrite(gatt, descriptor, status)
-            invokeWriteDescriptorCallbacks(descriptor, status)
+            executor.execute { invokeWriteDescriptorCallbacks(descriptor, status) }
         }
 
-        override fun onReliableWriteCompleted(gatt: BluetoothGatt?, status: Int) {
+        override fun onReliableWriteCompleted(gatt: BluetoothGatt, status: Int) {
             super.onReliableWriteCompleted(gatt, status)
         }
 
-        override fun onPhyRead(gatt: BluetoothGatt?, txPhy: Int, rxPhy: Int, status: Int) {
+        override fun onPhyRead(gatt: BluetoothGatt, txPhy: Int, rxPhy: Int, status: Int) {
             super.onPhyRead(gatt, txPhy, rxPhy, status)
         }
 
-        override fun onPhyUpdate(gatt: BluetoothGatt?, txPhy: Int, rxPhy: Int, status: Int) {
+        override fun onPhyUpdate(gatt: BluetoothGatt, txPhy: Int, rxPhy: Int, status: Int) {
             super.onPhyUpdate(gatt, txPhy, rxPhy, status)
         }
     }

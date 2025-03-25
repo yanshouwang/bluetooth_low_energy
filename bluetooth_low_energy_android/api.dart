@@ -6,27 +6,39 @@ import 'package:pigeon/pigeon.dart';
   PigeonOptions(
     dartOut: 'lib/src/api.g.dart',
     kotlinOut:
-        'android/src/main/kotlin/dev/hebei/bluetooth_low_energy_android/BluetoothLowEnergyAndroidApi.g.kt',
+        'android/src/main/kotlin/dev/hebei/bluetooth_low_energy_android/BluetoothLowEnergyApi.g.kt',
     kotlinOptions: KotlinOptions(
       package: 'dev.hebei.bluetooth_low_energy_android',
-      errorClassName: 'BluetoothLowEnergyAndroidError',
+      errorClassName: 'BluetoothLowEnergyError',
     ),
   ),
 )
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName:
-        'dev.hebei.bluetooth_low_energy_android.BluetoothLowEnergyManager',
-  ),
-)
-abstract class BluetoothLowEnergyManagerApi {
-  void addStateChangedListener(StateChangedListenerApi listener);
-  void removeStateChangedListener(StateChangedListenerApi listener);
+@HostApi()
+abstract class CentralManagerHostApi {
+  void addStateChangedListener();
+  void removeStateChangedListener();
 
-  void addNameChangedListener(NameChangedListenerApi listener);
-  void removeNameChangedListener(NameChangedListenerApi listener);
+  void addNameChangedListener();
+  void removeNameChangedListener();
+
+  void addDiscoveredListener();
+  void removeDiscoveredListener();
+
+  void addConnectionStateChangedListener();
+  void removeConnectionStateChangedListener();
+
+  void addMTUChanagedListener();
+  void removeMTUChangedListener();
+
+  void addCharacteristicNotifiedListener();
+  void removeCharacteristicNotifiedListener();
 
   BluetoothLowEnergyStateApi getState();
+  bool shouldShowAuthorizeRationale();
+  @async
+  bool authorize();
+  void showAppSettings();
+
   @async
   void turnOn();
   @async
@@ -36,60 +48,6 @@ abstract class BluetoothLowEnergyManagerApi {
   @async
   String? setName(String? name);
 
-  bool shouldShowAuthorizeRationale();
-  @async
-  bool authorize();
-  void showAppSettings();
-}
-
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName:
-        'dev.hebei.bluetooth_low_energy_android.BluetoothLowEnergyManager.StateChangedListener',
-  ),
-)
-abstract class StateChangedListenerApi {
-  StateChangedListenerApi();
-
-  late final void Function(BluetoothLowEnergyStateApi state) onChanged;
-}
-
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName:
-        'dev.hebei.bluetooth_low_energy_android.BluetoothLowEnergyManager.NameChangedListener',
-  ),
-)
-abstract class NameChangedListenerApi {
-  NameChangedListenerApi();
-
-  late final void Function(String? name) onChanged;
-}
-
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'dev.hebei.bluetooth_low_energy_android.CentralManager',
-  ),
-)
-abstract class CentralManagerApi extends BluetoothLowEnergyManagerApi {
-  CentralManagerApi();
-
-  void addDiscoveredListener(DiscoveredListenerApi listener);
-  void removeDiscoveredListener(DiscoveredListenerApi listener);
-
-  void addConnectionStateChangedListener(
-      ConnectionStateChangedListenerApi listener);
-  void removeConnectionStateChangedListener(
-      ConnectionStateChangedListenerApi listener);
-
-  void addMTUChanagedListener(MTUChangedListenerApi listener);
-  void removeMTUChangedListener(MTUChangedListenerApi listener);
-
-  void addCharacteristicNotifiedListener(
-      CharacteristicNotifiedListenerApi listener);
-  void removeCharacteristicNotifiedListener(
-      CharacteristicNotifiedListenerApi listener);
-
   @async
   void startDiscovery(List<String> serviceUUIDs);
   void stopDiscovery();
@@ -97,139 +55,101 @@ abstract class CentralManagerApi extends BluetoothLowEnergyManagerApi {
   List<PeripheralApi> retrieveConnectedPeripherals();
 
   @async
-  void connect(PeripheralApi peripheral);
+  void connect(String address);
   @async
-  void disconnect(PeripheralApi peripheral);
+  void disconnect(String address);
   @async
-  int requestMTU(PeripheralApi peripheral, int mtu);
+  int requestMTU(String address, int mtu);
   void requestConnectionPriority(
-      PeripheralApi peripheral, ConnectionPriorityApi priority);
+      String address, ConnectionPriorityApi priority);
   int getMaximumWriteLength(
-      PeripheralApi peripheral, GATTCharacteristicWriteTypeApi type);
+      String address, GATTCharacteristicWriteTypeApi type);
   @async
-  int readRSSI(PeripheralApi peripheral);
+  int readRSSI(String address);
   @async
-  List<GATTServiceApi> discoverServices(PeripheralApi peripheral);
-
-  @async
-  Uint8List readCharacteristic(GATTCharacteristicApi characterisic);
-  @async
-  void writeCharacteristic(GATTCharacteristicApi characterisic, Uint8List value,
-      GATTCharacteristicWriteTypeApi type);
-  @async
-  void setCharacteristicNotifyState(
-      GATTCharacteristicApi characterisic, bool state);
+  List<GATTServiceApi> discoverServices(String address);
 
   @async
-  Uint8List readDescriptor(GATTDescriptorApi descriptor);
+  Uint8List readCharacteristic(int id);
   @async
-  void writeDescriptor(GATTDescriptorApi descriptor, Uint8List value);
+  void writeCharacteristic(
+      int id, Uint8List value, GATTCharacteristicWriteTypeApi type);
+  @async
+  void setCharacteristicNotifyState(int id, bool state);
+
+  @async
+  Uint8List readDescriptor(int id);
+  @async
+  void writeDescriptor(int id, Uint8List value);
 }
 
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName:
-        'dev.hebei.bluetooth_low_energy_android.CentralManager.DiscoveredListener',
-  ),
-)
-abstract class DiscoveredListenerApi {
-  DiscoveredListenerApi();
-
-  late final void Function(
-      PeripheralApi peripheral, int rssi, Uint8List advertisement) onDiscovered;
+@FlutterApi()
+abstract class CentralManagerFlutterApi {
+  void onStateChanged(BluetoothLowEnergyStateApi state);
+  void onNameChanged(String? name);
+  void onDiscovered(
+      PeripheralApi peripheral, int rssi, AdvertisementApi advertisement);
+  void onConnectionStateChanged(
+      PeripheralApi peripheral, ConnectionStateApi state);
+  void onMTUChanged(PeripheralApi peripheral, int mtu);
+  void onCharacteristicNotified(
+      GATTCharacteristicApi characteristic, Uint8List value);
 }
 
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName:
-        'dev.hebei.bluetooth_low_energy_android.CentralManager.ConnectionStateChangedListener',
-  ),
-)
-abstract class ConnectionStateChangedListenerApi {
-  ConnectionStateChangedListenerApi();
+@HostApi()
+abstract class PeripheralManagerHostApi {}
 
-  late final void Function(PeripheralApi peripheral, ConnectionStateApi state)
-      onChanged;
+@FlutterApi()
+abstract class PeripheralManagerFlutterApi {}
+
+class PeripheralApi {
+  final String address;
+
+  PeripheralApi(this.address);
 }
 
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName:
-        'dev.hebei.bluetooth_low_energy_android.CentralManager.MTUChangedListener',
-  ),
-)
-abstract class MTUChangedListenerApi {
-  MTUChangedListenerApi();
+class ManufacturerSpecificDataApi {
+  final int id;
+  final Uint8List data;
 
-  late final void Function(PeripheralApi peripheral, int mtu) onChanged;
+  ManufacturerSpecificDataApi(this.id, this.data);
 }
 
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName:
-        'dev.hebei.bluetooth_low_energy_android.CentralManager.CharacteristicNotifiedListener',
-  ),
-)
-abstract class CharacteristicNotifiedListenerApi {
-  CharacteristicNotifiedListenerApi();
+class AdvertisementApi {
+  final String? name;
+  final List<String> serviceUUIDs;
+  final Map<String, Uint8List> serviceData;
+  final List<ManufacturerSpecificDataApi> manufacturerSpecificData;
 
-  late final void Function(
-      GATTCharacteristicApi characteristic, Uint8List value) onNotified;
+  AdvertisementApi(this.name, this.serviceUUIDs, this.serviceData,
+      this.manufacturerSpecificData);
 }
 
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName:
-        'dev.hebei.bluetooth_low_energy_android.BluetoothLowEnergyPeer',
-  ),
-)
-abstract class BluetoothLowEnergyPeerApi {
-  String getAddress();
+class GATTDescriptorApi {
+  final int id;
+  final String uuid;
+
+  GATTDescriptorApi(this.id, this.uuid);
 }
 
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'dev.hebei.bluetooth_low_energy_android.Peripheral',
-  ),
-)
-abstract class PeripheralApi extends BluetoothLowEnergyPeerApi {}
+class GATTCharacteristicApi {
+  final int id;
+  final String uuid;
+  final List<GATTCharacteristicPropertyApi> properties;
+  final List<GATTDescriptorApi> descriptors;
 
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'dev.hebei.bluetooth_low_energy_android.GATTAttribute',
-  ),
-)
-abstract class GATTAttributeApi {
-  String getUUID();
-  int getInstanceId();
+  GATTCharacteristicApi(this.id, this.uuid, this.properties, this.descriptors);
 }
 
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'dev.hebei.bluetooth_low_energy_android.GATTDescriptor',
-  ),
-)
-abstract class GATTDescriptorApi extends GATTAttributeApi {}
+class GATTServiceApi {
+  final int id;
+  final String uuid;
+  final bool isPrimary;
+  final List<GATTServiceApi> includedServices;
+  final List<GATTCharacteristicApi> characteristics;
 
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'dev.hebei.bluetooth_low_energy_android.GATTCharacteristic',
-  ),
-)
-abstract class GATTCharacteristicApi extends GATTAttributeApi {
-  List<GATTCharacteristicPropertyApi> getProperties();
-  List<GATTDescriptorApi> getDescriptors();
-}
-
-@ProxyApi(
-  kotlinOptions: KotlinProxyApiOptions(
-    fullClassName: 'dev.hebei.bluetooth_low_energy_android.GATTService',
-  ),
-)
-abstract class GATTServiceApi extends GATTAttributeApi {
-  bool getIsPrimary();
-  List<GATTServiceApi> getIncludedServices();
-  List<GATTCharacteristicApi> getCharacteristics();
+  GATTServiceApi(this.id, this.uuid, this.isPrimary, this.includedServices,
+      this.characteristics);
 }
 
 enum BluetoothLowEnergyStateApi {

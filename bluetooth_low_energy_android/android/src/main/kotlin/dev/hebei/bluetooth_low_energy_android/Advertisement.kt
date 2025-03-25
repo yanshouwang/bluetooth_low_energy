@@ -25,6 +25,6 @@ class Advertisement {
         this.name = obj.deviceName
         this.serviceUUIDs = obj.serviceUuids?.map { it.uuid } ?: emptyList()
         this.serviceData = obj.serviceData?.mapKeys { it.key.uuid } ?: emptyMap()
-        this.manufacturerSpecificData = obj.manufacturerSpecificData?.manufacturerSpecificDataArgs ?: emptyList()
+        this.manufacturerSpecificData = obj.manufacturerSpecificData?.manufacturerSpecificDataWrapper ?: emptyList()
     }
 }

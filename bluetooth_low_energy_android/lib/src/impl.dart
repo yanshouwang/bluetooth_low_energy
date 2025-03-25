@@ -3,50 +3,77 @@ import 'dart:typed_data';
 
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 import 'package:hybrid_logging/hybrid_logging.dart';
-import 'package:meta/meta.dart';
 
 import 'api.g.dart';
-import 'api.pb.dart';
+import 'api.x.dart';
 
-base mixin BluetoothLowEnergyManagerImpl on BluetoothLowEnergyManager {
+final class CentralManagerImpl extends CentralManager
+    with TypeLogger, LoggerController
+    implements CentralManagerFlutterApi {
+  final CentralManagerHostApi _api;
+
   late final StreamController<BluetoothLowEnergyStateChangedEvent>
       _stateChangedController;
   late final StreamController<NameChangedEvent> _nameChangedController;
+  late final StreamController<DiscoveredEvent> _discoveredController;
+  late final StreamController<PeripheralConnectionStateChangedEvent>
+      _connectionStateChangedController;
+  late final StreamController<PeripheralMTUChangedEvent> _mtuChangedController;
+  late final StreamController<GATTCharacteristicNotifiedEvent>
+      _characteristicNotifiedController;
 
-  late final StateChangedListenerApi _stateChangedListenerApi;
-  late final NameChangedListenerApi _nameChangedListenerApi;
-
-  BluetoothLowEnergyManagerApi get _api;
+  CentralManagerImpl()
+      : _api = CentralManagerHostApi(),
+        super.impl() {
+    _stateChangedController = StreamController.broadcast(
+      onListen: () => _api.addStateChangedListener(),
+      onCancel: () => _api.removeStateChangedListener(),
+    );
+    _nameChangedController = StreamController.broadcast(
+      onListen: () => _api.addNameChangedListener(),
+      onCancel: () => _api.removeNameChangedListener(),
+    );
+    _discoveredController = StreamController.broadcast(
+      onListen: () => _api.addDiscoveredListener(),
+      onCancel: () => _api.removeDiscoveredListener(),
+    );
+    _connectionStateChangedController = StreamController.broadcast(
+      onListen: () => _api.addConnectionStateChangedListener(),
+      onCancel: () => _api.removeConnectionStateChangedListener(),
+    );
+    _mtuChangedController = StreamController.broadcast(
+      onListen: () => _api.addMTUChanagedListener(),
+      onCancel: () => _api.removeMTUChangedListener(),
+    );
+    _characteristicNotifiedController = StreamController.broadcast(
+      onListen: () => _api.addCharacteristicNotifiedListener(),
+      onCancel: () => _api.removeCharacteristicNotifiedListener(),
+    );
+    CentralManagerFlutterApi.setUp(this);
+  }
 
   @override
   Stream<BluetoothLowEnergyStateChangedEvent> get stateChanged =>
       _stateChangedController.stream;
-
   @override
   Stream<NameChangedEvent> get nameChanged => _nameChangedController.stream;
+  @override
+  Stream<DiscoveredEvent> get discovered => _discoveredController.stream;
+  @override
+  Stream<PeripheralConnectionStateChangedEvent> get connectionStateChanged =>
+      _connectionStateChangedController.stream;
+  @override
+  Stream<PeripheralMTUChangedEvent> get mtuChanged =>
+      _mtuChangedController.stream;
+  @override
+  Stream<GATTCharacteristicNotifiedEvent> get characteristicNotified =>
+      _characteristicNotifiedController.stream;
 
-  @mustCallSuper
-  void _initialize() async {
-    _stateChangedController = StreamController.broadcast(
-      onListen: _onListenStateChanged,
-      onCancel: _onCancelStateChanged,
-    );
-    _nameChangedController = StreamController.broadcast(
-      onListen: _onListenNameChanged,
-      onCancel: _onCancelNameChanged,
-    );
-    _stateChangedListenerApi = StateChangedListenerApi(
-      onChanged: (_, state) {
-        final event = BluetoothLowEnergyStateChangedEvent(state.obj);
-        _stateChangedController.add(event);
-      },
-    );
-    _nameChangedListenerApi = NameChangedListenerApi(
-      onChanged: (_, name) {
-        final event = NameChangedEvent(name);
-        _nameChangedController.add(event);
-      },
-    );
+  @override
+  Future<BluetoothLowEnergyState> getState() async {
+    final stateApi = await _api.getState();
+    final state = stateApi.impl;
+    return state;
   }
 
   @override
@@ -64,13 +91,6 @@ base mixin BluetoothLowEnergyManagerImpl on BluetoothLowEnergyManager {
   @override
   Future<void> showAppSettings() async {
     await _api.showAppSettings();
-  }
-
-  @override
-  Future<BluetoothLowEnergyState> getState() async {
-    final stateApi = await _api.getState();
-    final state = stateApi.obj;
-    return state;
   }
 
   @override
@@ -94,150 +114,6 @@ base mixin BluetoothLowEnergyManagerImpl on BluetoothLowEnergyManager {
     await _api.setName(name);
   }
 
-  void _onListenStateChanged() async {
-    await _api.addStateChangedListener(_stateChangedListenerApi);
-  }
-
-  void _onCancelStateChanged() async {
-    await _api.removeStateChangedListener(_stateChangedListenerApi);
-  }
-
-  void _onListenNameChanged() async {
-    await _api.addNameChangedListener(_nameChangedListenerApi);
-  }
-
-  void _onCancelNameChanged() async {
-    await _api.removeNameChangedListener(_nameChangedListenerApi);
-  }
-}
-
-final class CentralManagerImpl extends CentralManager
-    with BluetoothLowEnergyManagerImpl, TypeLogger, LoggerController {
-  @override
-  final CentralManagerApi _api;
-
-  late final StreamController<DiscoveredEvent> _discoveredController;
-  late final StreamController<PeripheralConnectionStateChangedEvent>
-      _connectionStateChangedController;
-  late final StreamController<PeripheralMTUChangedEvent> _mtuChangedController;
-  late final StreamController<GATTCharacteristicNotifiedEvent>
-      _characteristicNotifiedController;
-
-  late final DiscoveredListenerApi _discoveredListenerApi;
-  late final ConnectionStateChangedListenerApi
-      _connectionStateChangedListenerApi;
-  late final MTUChangedListenerApi _mtuChangedListenerApi;
-  late final CharacteristicNotifiedListenerApi
-      _characteristicNotifiedListenerApi;
-
-  CentralManagerImpl()
-      : _api = CentralManagerApi(),
-        super.impl() {
-    _initialize();
-  }
-
-  @override
-  void _initialize() {
-    super._initialize();
-    _discoveredController = StreamController.broadcast(
-      onListen: _onListenDiscovered,
-      onCancel: _onCancelDiscovered,
-    );
-    _connectionStateChangedController = StreamController.broadcast(
-      onListen: _onListenConnectionStateChanged,
-      onCancel: _onCancelConnectionStateChanged,
-    );
-    _mtuChangedController = StreamController.broadcast(
-      onListen: _onListenMTUChanged,
-      onCancel: _onCancelMTUChanged,
-    );
-    _characteristicNotifiedController = StreamController.broadcast(
-      onListen: _onListenCharacteristicNotified,
-      onCancel: _onCancelCharacteristicNotified,
-    );
-
-    _discoveredListenerApi = DiscoveredListenerApi(
-      onDiscovered: (_, peripheralApi, rssi, advertisementApiValue) async {
-        final peripheral = await peripheralApi.obj;
-        final advertisementApi =
-            AdvertisementApi.fromBuffer(advertisementApiValue);
-        final advertisement = advertisementApi.obj;
-        final event = DiscoveredEvent(peripheral, rssi, advertisement);
-        _discoveredController.add(event);
-      },
-    );
-    _connectionStateChangedListenerApi = ConnectionStateChangedListenerApi(
-      onChanged: (_, peripheralApi, stateApi) async {
-        final peripheral = await peripheralApi.obj;
-        final state = stateApi.obj;
-        final event = PeripheralConnectionStateChangedEvent(peripheral, state);
-        _connectionStateChangedController.add(event);
-      },
-    );
-    _mtuChangedListenerApi = MTUChangedListenerApi(
-      onChanged: (_, peripheralApi, mtu) async {
-        final peripheral = await peripheralApi.obj;
-        final event = PeripheralMTUChangedEvent(peripheral, mtu);
-        _mtuChangedController.add(event);
-      },
-    );
-    _characteristicNotifiedListenerApi = CharacteristicNotifiedListenerApi(
-      onNotified: (_, characteristicApi, value) async {
-        final characteristic = await characteristicApi.obj;
-        final event = GATTCharacteristicNotifiedEvent(characteristic, value);
-        _characteristicNotifiedController.add(event);
-      },
-    );
-  }
-
-  void _onListenDiscovered() async {
-    await _api.addDiscoveredListener(_discoveredListenerApi);
-  }
-
-  void _onCancelDiscovered() async {
-    await _api.removeDiscoveredListener(_discoveredListenerApi);
-  }
-
-  void _onListenConnectionStateChanged() async {
-    await _api
-        .addConnectionStateChangedListener(_connectionStateChangedListenerApi);
-  }
-
-  void _onCancelConnectionStateChanged() async {
-    await _api.removeConnectionStateChangedListener(
-        _connectionStateChangedListenerApi);
-  }
-
-  void _onListenMTUChanged() async {
-    await _api.addMTUChanagedListener(_mtuChangedListenerApi);
-  }
-
-  void _onCancelMTUChanged() async {
-    await _api.removeMTUChangedListener(_mtuChangedListenerApi);
-  }
-
-  void _onListenCharacteristicNotified() async {
-    await _api
-        .addCharacteristicNotifiedListener(_characteristicNotifiedListenerApi);
-  }
-
-  void _onCancelCharacteristicNotified() async {
-    await _api.removeCharacteristicNotifiedListener(
-        _characteristicNotifiedListenerApi);
-  }
-
-  @override
-  Stream<DiscoveredEvent> get discovered => _discoveredController.stream;
-  @override
-  Stream<PeripheralConnectionStateChangedEvent> get connectionStateChanged =>
-      _connectionStateChangedController.stream;
-  @override
-  Stream<PeripheralMTUChangedEvent> get mtuChanged =>
-      _mtuChangedController.stream;
-  @override
-  Stream<GATTCharacteristicNotifiedEvent> get characteristicNotified =>
-      _characteristicNotifiedController.stream;
-
   @override
   Future<void> startDiscovery({
     List<UUID> serviceUUIDs = const [],
@@ -254,9 +130,7 @@ final class CentralManagerImpl extends CentralManager
   @override
   Future<List<Peripheral>> retrieveConnectedPeripherals() async {
     final peripheralApis = await _api.retrieveConnectedPeripherals();
-    final peripherals = await Stream.fromIterable(peripheralApis)
-        .asyncMap((e) => e.obj)
-        .toList();
+    final peripherals = peripheralApis.map((e) => e.impl).toList();
     return peripherals;
   }
 
@@ -265,7 +139,7 @@ final class CentralManagerImpl extends CentralManager
     if (peripheral is! PeripheralImpl) {
       throw TypeError();
     }
-    await _api.connect(peripheral._api);
+    await _api.connect(peripheral.address);
   }
 
   @override
@@ -273,7 +147,7 @@ final class CentralManagerImpl extends CentralManager
     if (peripheral is! PeripheralImpl) {
       throw TypeError();
     }
-    await _api.disconnect(peripheral._api);
+    await _api.disconnect(peripheral.address);
   }
 
   @override
@@ -284,7 +158,7 @@ final class CentralManagerImpl extends CentralManager
     if (peripheral is! PeripheralImpl) {
       throw TypeError();
     }
-    final mtu1 = await _api.requestMTU(peripheral._api, mtu);
+    final mtu1 = await _api.requestMTU(peripheral.address, mtu);
     return mtu1;
   }
 
@@ -296,7 +170,7 @@ final class CentralManagerImpl extends CentralManager
     if (peripheral is! PeripheralImpl) {
       throw TypeError();
     }
-    await _api.requestConnectionPriority(peripheral._api, priority.api);
+    await _api.requestConnectionPriority(peripheral.address, priority.api);
   }
 
   @override
@@ -308,7 +182,7 @@ final class CentralManagerImpl extends CentralManager
       throw TypeError();
     }
     final maximumWriteLength =
-        await _api.getMaximumWriteLength(peripheral._api, type.api);
+        await _api.getMaximumWriteLength(peripheral.address, type.api);
     return maximumWriteLength;
   }
 
@@ -317,7 +191,7 @@ final class CentralManagerImpl extends CentralManager
     if (peripheral is! PeripheralImpl) {
       throw TypeError();
     }
-    final rssi = await _api.readRSSI(peripheral._api);
+    final rssi = await _api.readRSSI(peripheral.address);
     return rssi;
   }
 
@@ -326,9 +200,8 @@ final class CentralManagerImpl extends CentralManager
     if (peripheral is! PeripheralImpl) {
       throw TypeError();
     }
-    final serviceApis = await _api.discoverServices(peripheral._api);
-    final services =
-        await Stream.fromIterable(serviceApis).asyncMap((e) => e.obj).toList();
+    final serviceApis = await _api.discoverServices(peripheral.address);
+    final services = serviceApis.map((e) => e.impl).toList();
     return services;
   }
 
@@ -350,7 +223,7 @@ final class CentralManagerImpl extends CentralManager
     if (characteristic is! GATTCharacteristicImpl) {
       throw TypeError();
     }
-    final value = await _api.readCharacteristic(characteristic._api);
+    final value = await _api.readCharacteristic(characteristic.id);
     return value;
   }
 
@@ -363,7 +236,7 @@ final class CentralManagerImpl extends CentralManager
     if (characteristic is! GATTCharacteristicImpl) {
       throw TypeError();
     }
-    await _api.writeCharacteristic(characteristic._api, value, type.api);
+    await _api.writeCharacteristic(characteristic.id, value, type.api);
   }
 
   @override
@@ -374,7 +247,7 @@ final class CentralManagerImpl extends CentralManager
     if (characteristic is! GATTCharacteristicImpl) {
       throw TypeError();
     }
-    await _api.setCharacteristicNotifyState(characteristic._api, state);
+    await _api.setCharacteristicNotifyState(characteristic.id, state);
   }
 
   @override
@@ -382,7 +255,7 @@ final class CentralManagerImpl extends CentralManager
     if (descriptor is! GATTDescriptorImpl) {
       throw TypeError();
     }
-    final value = await _api.readDescriptor(descriptor._api);
+    final value = await _api.readDescriptor(descriptor.id);
     return value;
   }
 
@@ -394,174 +267,89 @@ final class CentralManagerImpl extends CentralManager
     if (descriptor is! GATTDescriptorImpl) {
       throw TypeError();
     }
-    await _api.writeDescriptor(descriptor._api, value);
+    await _api.writeDescriptor(descriptor.id, value);
+  }
+
+  @override
+  void onStateChanged(BluetoothLowEnergyStateApi state) {
+    final event = BluetoothLowEnergyStateChangedEvent(state.impl);
+    _stateChangedController.add(event);
+  }
+
+  @override
+  void onNameChanged(String? name) {
+    final event = NameChangedEvent(name);
+    _nameChangedController.add(event);
+  }
+
+  @override
+  void onDiscovered(
+      PeripheralApi peripheral, int rssi, AdvertisementApi advertisement) {
+    final event = DiscoveredEvent(peripheral.impl, rssi, advertisement.impl);
+    _discoveredController.add(event);
+  }
+
+  @override
+  void onConnectionStateChanged(
+      PeripheralApi peripheral, ConnectionStateApi state) {
+    final event =
+        PeripheralConnectionStateChangedEvent(peripheral.impl, state.impl);
+    _connectionStateChangedController.add(event);
+  }
+
+  @override
+  void onMTUChanged(PeripheralApi peripheral, int mtu) {
+    final event = PeripheralMTUChangedEvent(peripheral.impl, mtu);
+    _mtuChangedController.add(event);
+  }
+
+  @override
+  void onCharacteristicNotified(
+      GATTCharacteristicApi characteristic, Uint8List value) {
+    final event = GATTCharacteristicNotifiedEvent(characteristic.impl, value);
+    _characteristicNotifiedController.add(event);
   }
 }
 
-final class PeripheralManagerImpl extends PeripheralManager
-    with BluetoothLowEnergyManagerImpl, TypeLogger, LoggerController {
-  @override
-  // TODO: implement _api
-  BluetoothLowEnergyManagerApi get _api => throw UnimplementedError();
+final class PeripheralImpl extends Peripheral {
+  final String address;
 
-  PeripheralManagerImpl() : super.impl();
-
-  @override
-  // TODO: implement connectionStateChanged
-  Stream<CentralConnectionStateChangedEvent> get connectionStateChanged =>
-      throw UnimplementedError();
-  @override
-  // TODO: implement mtuChanged
-  Stream<CentralMTUChangedEvent> get mtuChanged => throw UnimplementedError();
-  @override
-  // TODO: implement characteristicReadRequested
-  Stream<GATTCharacteristicReadRequestedEvent>
-      get characteristicReadRequested => throw UnimplementedError();
-  @override
-  // TODO: implement characteristicWriteRequested
-  Stream<GATTCharacteristicWriteRequestedEvent>
-      get characteristicWriteRequested => throw UnimplementedError();
-  @override
-  // TODO: implement characteristicNotifyStateChanged
-  Stream<GATTCharacteristicNotifyStateChangedEvent>
-      get characteristicNotifyStateChanged => throw UnimplementedError();
-  @override
-  // TODO: implement descriptorReadRequested
-  Stream<GATTDescriptorReadRequestedEvent> get descriptorReadRequested =>
-      throw UnimplementedError();
-  @override
-  // TODO: implement descriptorWriteRequested
-  Stream<GATTDescriptorWriteRequestedEvent> get descriptorWriteRequested =>
-      throw UnimplementedError();
-
-  @override
-  Future<void> addService(GATTService service) {
-    // TODO: implement addService
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> removeService(GATTService service) {
-    // TODO: implement removeService
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> removeAllServices() {
-    // TODO: implement removeAllServices
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> startAdvertising(
-    Advertisement advertisement, {
-    bool? includeDeviceName,
-    bool? includeTXPowerLevel,
-  }) {
-    // TODO: implement startAdvertising
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> stopAdvertising() {
-    // TODO: implement stopAdvertising
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<int> getMaximumNotifyLength(Central central) {
-    // TODO: implement getMaximumNotifyLength
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> respondReadRequestWithValue(
-    GATTReadRequest request, {
-    required Uint8List value,
-  }) {
-    // TODO: implement respondReadRequestWithValue
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> respondReadRequestWithError(
-    GATTReadRequest request, {
-    required GATTError error,
-  }) {
-    // TODO: implement respondReadRequestWithError
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> respondWriteRequest(GATTWriteRequest request) {
-    // TODO: implement respondWriteRequest
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> respondWriteRequestWithError(
-    GATTWriteRequest request, {
-    required GATTError error,
-  }) {
-    // TODO: implement respondWriteRequestWithError
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> notifyCharacteristic(
-    GATTCharacteristic characteristic, {
-    required Uint8List value,
-    List<Central>? centrals,
-  }) {
-    // TODO: implement notifyCharacteristic
-    throw UnimplementedError();
-  }
-}
-
-base mixin BluetoothLowEnergyPeerImpl on BluetoothLowEnergyPeer {}
-
-final class PeripheralImpl extends Peripheral with BluetoothLowEnergyPeerImpl {
-  final PeripheralApi _api;
-
-  PeripheralImpl.impl(
-    this._api, {
-    required super.uuid,
-  }) : super.impl();
+  PeripheralImpl({
+    required this.address,
+  }) : super.impl(
+          uuid: UUID.fromAddress(address),
+        );
 }
 
 base mixin GATTAttributeImpl on GATTAttribute {
-  int get instanceId;
+  int get id;
 
   @override
   bool operator ==(Object other) {
-    return other is GATTAttributeImpl && other.instanceId == instanceId;
+    return other is GATTAttributeImpl && other.id == id;
   }
 
   @override
-  int get hashCode => instanceId.hashCode;
+  int get hashCode => id.hashCode;
 }
 
 final class GATTDescriptorImpl extends GATTDescriptor with GATTAttributeImpl {
-  final GATTDescriptorApi _api;
   @override
-  final int instanceId;
+  final int id;
 
-  GATTDescriptorImpl.impl(
-    this._api, {
-    required this.instanceId,
+  GATTDescriptorImpl({
+    required this.id,
     required super.uuid,
   }) : super.impl();
 }
 
 final class GATTCharacteristicImpl extends GATTCharacteristic
     with GATTAttributeImpl {
-  final GATTCharacteristicApi _api;
   @override
-  final int instanceId;
+  final int id;
 
-  GATTCharacteristicImpl.impl(
-    this._api, {
-    required this.instanceId,
+  GATTCharacteristicImpl({
+    required this.id,
     required super.uuid,
     required super.properties,
     required super.descriptors,
@@ -569,189 +357,14 @@ final class GATTCharacteristicImpl extends GATTCharacteristic
 }
 
 final class GATTServiceImpl extends GATTService with GATTAttributeImpl {
-  final GATTServiceApi _api;
   @override
-  final int instanceId;
+  final int id;
 
-  GATTServiceImpl(
-    this._api, {
-    required this.instanceId,
+  GATTServiceImpl({
+    required this.id,
     required super.uuid,
     required super.isPrimary,
     required super.includedServices,
     required super.characteristics,
   });
-}
-
-extension on ConnectionPriority {
-  ConnectionPriorityApi get api {
-    switch (this) {
-      case ConnectionPriority.balanced:
-        return ConnectionPriorityApi.balanced;
-      case ConnectionPriority.high:
-        return ConnectionPriorityApi.high;
-      case ConnectionPriority.lowPower:
-        return ConnectionPriorityApi.lowPower;
-      case ConnectionPriority.dck:
-        return ConnectionPriorityApi.dck;
-    }
-  }
-}
-
-extension on GATTCharacteristicWriteType {
-  GATTCharacteristicWriteTypeApi get api {
-    switch (this) {
-      case GATTCharacteristicWriteType.withResponse:
-        return GATTCharacteristicWriteTypeApi.withResponse;
-      case GATTCharacteristicWriteType.withoutResponse:
-        return GATTCharacteristicWriteTypeApi.withoutResponse;
-    }
-  }
-}
-
-extension on BluetoothLowEnergyStateApi {
-  BluetoothLowEnergyState get obj {
-    switch (this) {
-      case BluetoothLowEnergyStateApi.unknown:
-        return BluetoothLowEnergyState.unknown;
-      case BluetoothLowEnergyStateApi.unsupported:
-        return BluetoothLowEnergyState.unsupported;
-      case BluetoothLowEnergyStateApi.unauthorized:
-        return BluetoothLowEnergyState.unauthorized;
-      case BluetoothLowEnergyStateApi.off:
-        return BluetoothLowEnergyState.off;
-      case BluetoothLowEnergyStateApi.turningOn:
-        return BluetoothLowEnergyState.turningOn;
-      case BluetoothLowEnergyStateApi.on:
-        return BluetoothLowEnergyState.on;
-      case BluetoothLowEnergyStateApi.turningOff:
-        return BluetoothLowEnergyState.turningOff;
-    }
-  }
-}
-
-extension on AdvertisementApi {
-  Advertisement get obj {
-    return Advertisement(
-      name: hasName() ? name : null,
-      serviceUUIDs: serviceUuids.map((e) => UUID.fromString(e)).toList(),
-      serviceData: {
-        for (var entry in serviceData.entries)
-          UUID.fromString(entry.key): Uint8List.fromList(entry.value)
-      },
-      manufacturerSpecificData:
-          manufacturerSpecificData.map((e) => e.obj).toList(),
-    );
-  }
-}
-
-extension on ManufacturerSpecificDataApi {
-  ManufacturerSpecificData get obj {
-    return ManufacturerSpecificData(
-      id: id,
-      data: Uint8List.fromList(data),
-    );
-  }
-}
-
-extension on ConnectionStateApi {
-  ConnectionState get obj {
-    switch (this) {
-      case ConnectionStateApi.disconnected:
-        return ConnectionState.disconnected;
-      case ConnectionStateApi.connecting:
-        return ConnectionState.connecting;
-      case ConnectionStateApi.connected:
-        return ConnectionState.connected;
-      case ConnectionStateApi.disconnecting:
-        return ConnectionState.disconnecting;
-    }
-  }
-}
-
-extension on PeripheralApi {
-  Future<PeripheralImpl> get obj async {
-    final address = await getAddress();
-    final uuid = UUID.fromAddress(address);
-    return PeripheralImpl.impl(
-      this,
-      uuid: uuid,
-    );
-  }
-}
-
-extension on GATTDescriptorApi {
-  Future<GATTDescriptorImpl> get obj async {
-    final instanceId = await getInstanceId();
-    final uuidValue = await getUUID();
-    final uuid = UUID.fromString(uuidValue);
-    return GATTDescriptorImpl.impl(
-      this,
-      instanceId: instanceId,
-      uuid: uuid,
-    );
-  }
-}
-
-extension on GATTCharacteristicApi {
-  Future<GATTCharacteristicImpl> get obj async {
-    final instanceId = await getInstanceId();
-    final uuidValue = await getUUID();
-    final uuid = UUID.fromString(uuidValue);
-    final propertyApis = await getProperties();
-    final properties = propertyApis.map((e) => e.obj).toList();
-    final descriptorApis = await getDescriptors();
-    final descriptors = await Stream.fromIterable(descriptorApis)
-        .asyncMap((e) => e.obj)
-        .toList();
-    return GATTCharacteristicImpl.impl(
-      this,
-      instanceId: instanceId,
-      uuid: uuid,
-      properties: properties,
-      descriptors: descriptors,
-    );
-  }
-}
-
-extension on GATTServiceApi {
-  Future<GATTServiceImpl> get obj async {
-    final instanceId = await getInstanceId();
-    final uuidValue = await getUUID();
-    final uuid = UUID.fromString(uuidValue);
-    final isPrimary = await getIsPrimary();
-    final includedServiceApis = await getIncludedServices();
-    final includedServices = await Stream.fromIterable(includedServiceApis)
-        .asyncMap((e) => e.obj)
-        .toList();
-    final characteristicApis = await getCharacteristics();
-    final characteristics = await Stream.fromIterable(characteristicApis)
-        .asyncMap((e) => e.obj)
-        .toList();
-    return GATTServiceImpl(
-      this,
-      instanceId: instanceId,
-      uuid: uuid,
-      isPrimary: isPrimary,
-      includedServices: includedServices,
-      characteristics: characteristics,
-    );
-  }
-}
-
-extension on GATTCharacteristicPropertyApi {
-  GATTCharacteristicProperty get obj {
-    switch (this) {
-      case GATTCharacteristicPropertyApi.read:
-        return GATTCharacteristicProperty.read;
-      case GATTCharacteristicPropertyApi.write:
-        return GATTCharacteristicProperty.write;
-      case GATTCharacteristicPropertyApi.writeWithoutResponse:
-        return GATTCharacteristicProperty.writeWithoutResponse;
-      case GATTCharacteristicPropertyApi.notify:
-        return GATTCharacteristicProperty.notify;
-      case GATTCharacteristicPropertyApi.indicate:
-        return GATTCharacteristicProperty.indicate;
-    }
-  }
 }

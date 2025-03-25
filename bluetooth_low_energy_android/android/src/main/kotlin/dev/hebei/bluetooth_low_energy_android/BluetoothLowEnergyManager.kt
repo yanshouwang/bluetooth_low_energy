@@ -1,5 +1,6 @@
 package dev.hebei.bluetooth_low_energy_android
 
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.BroadcastReceiver
@@ -8,7 +9,9 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
+import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
@@ -110,8 +113,8 @@ abstract class BluetoothLowEnergyManager(private val contextUtil: ContextUtil, p
         nameChangedListeners.add(listener)
     }
 
-    fun removeNameChangedListener(observer: NameChangedListener) {
-        nameChangedListeners.remove(observer)
+    fun removeNameChangedListener(listener: NameChangedListener) {
+        nameChangedListeners.remove(listener)
     }
 
     fun shouldShowAuthorizeRationale(): Boolean {
@@ -131,21 +134,31 @@ abstract class BluetoothLowEnergyManager(private val contextUtil: ContextUtil, p
         activityUtil.startActivity(intent, options)
     }
 
-    suspend fun turnOn() = suspendCoroutine {
-        try {
-            ensureState(false)
-            val ok = bluetoothAdapter.enable()
-            if (!ok) throw IllegalStateException("bluetoothAdapter.enable returns false")
-            turnOnCallbacks.add { state ->
-                try {
-                    if (state != BluetoothAdapter.STATE_ON) throw IllegalStateException("turnOn failed: $state")
-                    it.resume(Unit)
-                } catch (e: Exception) {
-                    it.resumeWithException(e)
-                }
+    suspend fun turnOn() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            val options = ActivityOptionsCompat.makeBasic().toBundle()
+            val result = activityUtil.startActivityForResult(intent, requestCode, options)
+            val resultCode = result.resultCode
+            if (resultCode != Activity.RESULT_OK) {
+                throw IllegalStateException("activityUtil.startActivityForResult failed: $resultCode")
             }
-        } catch (e: Exception) {
-            it.resumeWithException(e)
+        } else suspendCoroutine {
+            try {
+                ensureState(false)
+                val ok = bluetoothAdapter.enable()
+                if (!ok) throw IllegalStateException("bluetoothAdapter.enable returns false")
+                turnOnCallbacks.add { state ->
+                    try {
+                        if (state != BluetoothAdapter.STATE_ON) throw IllegalStateException("turnOn failed: $state")
+                        it.resume(Unit)
+                    } catch (e: Exception) {
+                        it.resumeWithException(e)
+                    }
+                }
+            } catch (e: Exception) {
+                it.resumeWithException(e)
+            }
         }
     }
 
@@ -189,7 +202,7 @@ abstract class BluetoothLowEnergyManager(private val contextUtil: ContextUtil, p
         val hasBluetoothLowEnergy = contextUtil.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
         state = if (hasBluetoothLowEnergy) {
             val isAuthorized = isAuthorized()
-            if (isAuthorized) bluetoothAdapter.state.bluetoothLowEnergyStateArgs
+            if (isAuthorized) bluetoothAdapter.state.stateWrapper
             else BluetoothLowEnergyState.UNAUTHORIZED
         } else BluetoothLowEnergyState.UNSUPPORTED
     }

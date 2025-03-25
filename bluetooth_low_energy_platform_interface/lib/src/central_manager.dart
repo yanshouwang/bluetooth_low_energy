@@ -62,12 +62,19 @@ final class GATTCharacteristicNotifiedEvent {
 
 /// An object that scans for, discovers, connects to, and manages peripherals.
 abstract base class CentralManager extends BluetoothLowEnergyManager {
-  CentralManager.impl() : super.impl();
+  static CentralManager? _instance;
 
   /// Gets the instance of [CentralManager] to use.
   factory CentralManager() {
-    return BluetoothLowEnergyPlugin.instance.newCentralManager();
+    var instance = _instance;
+    if (instance == null) {
+      _instance =
+          instance = BluetoothLowEnergyPlugin.instance.newCentralManager();
+    }
+    return instance;
   }
+
+  CentralManager.impl() : super.impl();
 
   /// Tells the central manager discovered a peripheral while scanning for devices.
   Stream<DiscoveredEvent> get discovered;

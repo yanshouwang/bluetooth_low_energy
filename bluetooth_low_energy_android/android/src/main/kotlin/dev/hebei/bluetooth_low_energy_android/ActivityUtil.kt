@@ -97,7 +97,7 @@ class ActivityUtil : ActivityAware, ActivityResultListener, RequestPermissionsRe
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-        val result = ActivityResult(requestCode, data)
+        val result = ActivityResult(resultCode, data)
         val callbacks = startActivityForResultCallbacks.filter { it(requestCode, result) }
         startActivityForResultCallbacks.removeAll(callbacks)
         return callbacks.isNotEmpty()

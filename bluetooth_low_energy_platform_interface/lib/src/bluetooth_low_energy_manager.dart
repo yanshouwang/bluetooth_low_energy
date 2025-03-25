@@ -39,14 +39,28 @@ abstract base class BluetoothLowEnergyManager extends PlatformInterface
   /// platforms.
   Stream<NameChangedEvent> get nameChanged;
 
+  /// Gets the manager's state.
+  Future<BluetoothLowEnergyState> getState();
+
   Future<bool> shouldShowAuthorizeRationale();
 
   Future<bool> authorize();
 
   Future<void> showAppSettings();
 
-  /// Gets the manager's state.
-  Future<BluetoothLowEnergyState> getState();
+  /// Turn on the local Bluetooth adapter—do not use without explicit user action
+  /// to turn on Bluetooth.
+  ///
+  /// This powers on the underlying Bluetooth hardware, and starts all Bluetooth
+  /// system services.
+  Future<void> turnOn();
+
+  /// Turn off the local Bluetooth adapter—do not use without explicit user action
+  /// to turn off Bluetooth.
+  ///
+  /// This gracefully shuts down all Bluetooth connections, stops Bluetooth system
+  /// services, and powers down the underlying Bluetooth hardware.
+  Future<void> turnOff();
 
   /// Get the friendly Bluetooth name of the local Bluetooth adapter.
   ///
@@ -71,18 +85,4 @@ abstract base class BluetoothLowEnergyManager extends PlatformInterface
   /// This method is available on Android, throws [UnsupportedError] on other
   /// platforms.
   Future<void> setName(String? name);
-
-  /// Turn on the local Bluetooth adapter—do not use without explicit user action
-  /// to turn on Bluetooth.
-  ///
-  /// This powers on the underlying Bluetooth hardware, and starts all Bluetooth
-  /// system services.
-  Future<void> turnOn();
-
-  /// Turn off the local Bluetooth adapter—do not use without explicit user action
-  /// to turn off Bluetooth.
-  ///
-  /// This gracefully shuts down all Bluetooth connections, stops Bluetooth system
-  /// services, and powers down the underlying Bluetooth hardware.
-  Future<void> turnOff();
 }

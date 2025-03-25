@@ -1,5 +1,6 @@
 package dev.hebei.bluetooth_low_energy_android
 
+import CentralManagerImpl
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -12,18 +13,19 @@ import io.flutter.plugin.common.PluginRegistry
 class BluetoothLowEnergyAndroidPlugin : FlutterPlugin, ActivityAware {
     private lateinit var contextUtil: ContextUtil
     private lateinit var activityUtil: ActivityUtil
-    private lateinit var registrar: BluetoothLowEnergyAndroidApiPigeonProxyApiRegistrar
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        contextUtil = ContextUtil(binding.applicationContext)
+        val context = binding.applicationContext
+        val messenger = binding.binaryMessenger
+        contextUtil = ContextUtil(context)
         activityUtil = ActivityUtil()
-        registrar = BluetoothLowEnergyAndroidRegistrar(binding.binaryMessenger, contextUtil, activityUtil)
-        registrar.setUp()
+        val centralManagerApi = CentralManagerImpl(messenger, contextUtil, activityUtil)
+        CentralManagerHostApi.setUp(messenger, centralManagerApi)
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        registrar.tearDown()
-        registrar.instanceManager.stopFinalizationListener()
+        val messenger = binding.binaryMessenger
+        CentralManagerHostApi.setUp(messenger, null)
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {

@@ -112,12 +112,19 @@ final class GATTDescriptorWriteRequestedEvent {
 
 /// An object that manages and advertises peripheral services exposed by this app.
 abstract base class PeripheralManager extends BluetoothLowEnergyManager {
-  PeripheralManager.impl() : super.impl();
+  static PeripheralManager? _instance;
 
   /// Gets the instance of [PeripheralManager] to use.
   factory PeripheralManager() {
-    return BluetoothLowEnergyPlugin.instance.newPeripheralManager();
+    var instance = _instance;
+    if (instance == null) {
+      _instance =
+          instance = BluetoothLowEnergyPlugin.instance.newPeripheralManager();
+    }
+    return instance;
   }
+
+  PeripheralManager.impl() : super.impl();
 
   /// Callback indicating when a remote device has been connected or disconnected.
   ///
