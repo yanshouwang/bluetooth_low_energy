@@ -60,6 +60,51 @@ abstract base class GATTDescriptor extends GATTAttribute {
       );
 }
 
+/// An object that provides additional information about a local peripheral’s
+/// characteristic.
+final class MutableGATTDescriptor extends GATTDescriptor {
+  /// The permissions of the descriptor value.
+  final List<GATTPermission> permissions;
+
+  /// Creates a mutable descriptor with a specified value.
+  ///
+  /// [uuid] A 128-bit UUID that identifies the characteristic. You must use only
+  /// one of the two currently supported descriptor types:
+  /// CBUUIDCharacteristicUserDescriptionString or CBUUIDCharacteristicFormatString.
+  /// For more details about these descriptor types, see CBUUID.
+  ///
+  /// [permissions] The permissions of the descriptor value.
+  MutableGATTDescriptor({
+    required super.uuid,
+    required this.permissions,
+  }) : super.impl();
+}
+
+/// An object that provides additional information about a local peripheral’s
+/// characteristic.
+final class ImmutableGATTDescriptor extends MutableGATTDescriptor {
+  /// The value of the descriptor.
+  final Uint8List value;
+
+  /// Creates an immutable descriptor with a specified value.
+  ///
+  /// [uuid] A 128-bit UUID that identifies the characteristic. You must use only
+  /// one of the two currently supported descriptor types:
+  /// CBUUIDCharacteristicUserDescriptionString or CBUUIDCharacteristicFormatString.
+  /// For more details about these descriptor types, see CBUUID.
+  ///
+  /// [value] The descriptor value to cache. You must provide a non-nil value.
+  /// Once published, you can’t update the value dynamically.
+  ImmutableGATTDescriptor({
+    required super.uuid,
+    required this.value,
+  }) : super(
+          permissions: [
+            GATTPermission.read,
+          ],
+        );
+}
+
 /// A characteristic of a remote peripheral’s service.
 abstract base class GATTCharacteristic extends GATTAttribute {
   /// The properties of the characteristic.
@@ -113,74 +158,6 @@ abstract base class GATTCharacteristic extends GATTAttribute {
       );
 }
 
-/// A collection of data and associated behaviors that accomplish a function or
-/// feature of a device.
-base class GATTService extends GATTAttribute {
-  /// A Boolean value that indicates whether the type of service is primary or
-  /// secondary.
-  final bool isPrimary;
-
-  /// A list of included services discovered in this service.
-  final List<GATTService> includedServices;
-
-  /// A list of characteristics discovered in this service.
-  final List<GATTCharacteristic> characteristics;
-
-  /// Creates a newly initialized mutable service specified by UUID and service
-  /// type.
-  GATTService({
-    required super.uuid,
-    required this.isPrimary,
-    required this.includedServices,
-    required this.characteristics,
-  }) : super.impl();
-}
-
-/// An object that provides additional information about a local peripheral’s
-/// characteristic.
-final class MutableGATTDescriptor extends GATTDescriptor {
-  /// The permissions of the descriptor value.
-  final List<GATTPermission> permissions;
-
-  /// Creates a mutable descriptor with a specified value.
-  ///
-  /// [uuid] A 128-bit UUID that identifies the characteristic. You must use only
-  /// one of the two currently supported descriptor types:
-  /// CBUUIDCharacteristicUserDescriptionString or CBUUIDCharacteristicFormatString.
-  /// For more details about these descriptor types, see CBUUID.
-  ///
-  /// [permissions] The permissions of the descriptor value.
-  MutableGATTDescriptor({
-    required super.uuid,
-    required this.permissions,
-  }) : super.impl();
-}
-
-/// An object that provides additional information about a local peripheral’s
-/// characteristic.
-final class ImmutableGATTDescriptor extends MutableGATTDescriptor {
-  /// The value of the descriptor.
-  final Uint8List value;
-
-  /// Creates an immutable descriptor with a specified value.
-  ///
-  /// [uuid] A 128-bit UUID that identifies the characteristic. You must use only
-  /// one of the two currently supported descriptor types:
-  /// CBUUIDCharacteristicUserDescriptionString or CBUUIDCharacteristicFormatString.
-  /// For more details about these descriptor types, see CBUUID.
-  ///
-  /// [value] The descriptor value to cache. You must provide a non-nil value.
-  /// Once published, you can’t update the value dynamically.
-  ImmutableGATTDescriptor({
-    required super.uuid,
-    required this.value,
-  }) : super(
-          permissions: [
-            GATTPermission.read,
-          ],
-        );
-}
-
 /// A mutable characteristic of a local peripheral’s service.
 final class MutableGATTCharacteristic extends GATTCharacteristic {
   /// The permissions of the characteristic value.
@@ -224,6 +201,29 @@ final class ImmutableGATTCharacteristic extends MutableGATTCharacteristic {
             GATTPermission.read,
           ],
         );
+}
+
+/// A collection of data and associated behaviors that accomplish a function or
+/// feature of a device.
+base class GATTService extends GATTAttribute {
+  /// A Boolean value that indicates whether the type of service is primary or
+  /// secondary.
+  final bool isPrimary;
+
+  /// A list of included services discovered in this service.
+  final List<GATTService> includedServices;
+
+  /// A list of characteristics discovered in this service.
+  final List<GATTCharacteristic> characteristics;
+
+  /// Creates a newly initialized mutable service specified by UUID and service
+  /// type.
+  GATTService({
+    required super.uuid,
+    required this.isPrimary,
+    required this.includedServices,
+    required this.characteristics,
+  }) : super.impl();
 }
 
 /// A read request that uses the Attribute Protocol (ATT).

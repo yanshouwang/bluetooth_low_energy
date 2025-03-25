@@ -97,15 +97,91 @@ abstract class CentralManagerFlutterApi {
 }
 
 @HostApi()
-abstract class PeripheralManagerHostApi {}
+abstract class PeripheralManagerHostApi {
+  void addStateChangedListener();
+  void removeStateChangedListener();
+
+  void addNameChangedListener();
+  void removeNameChangedListener();
+
+  void addConnectionStateChangedListener();
+  void removeConnectionStateChangedListener();
+
+  void addMTUChangedListener();
+  void removeMTUChangedListener();
+
+  void addCharacteristicReadRequestedListener();
+  void removeCharacteristicReadRequestedListener();
+
+  void addCharacteristicWriteRequestedListener();
+  void removeCharacteristicWriteRequestedListener();
+
+  void addCharacteristicNotifyStateChangedListener();
+  void removeCharacteristicNotifyStateChangedListener();
+
+  void addDescriptorReadRequestedListener();
+  void removeDescriptorReadRequestedListener();
+
+  void addDescriptorWriteRequestedListener();
+  void removeDescriptorWriteRequestedListener();
+
+  BluetoothLowEnergyStateApi getState();
+  bool shouldShowAuthorizeRationale();
+  @async
+  bool authorize();
+  void showAppSettings();
+
+  @async
+  void turnOn();
+  @async
+  void turnOff();
+
+  String? getName();
+  @async
+  String? setName(String? name);
+
+  void addService(MutableGATTServiceApi service);
+  void removeService(int id);
+  void removeAllServices();
+  @async
+  void startAdvertising(AdvertisementApi advertisement);
+  void stopAdvertising();
+  int getMaximumNotifyLength(String address);
+  void respondReadRequestWithValue(int id, Uint8List value);
+  void respondReadRequestWithError(int id, GATTErrorApi error);
+  void respondWriteRequest(int id);
+  void respondWriteRequestWithError(int id, GATTErrorApi error);
+  void notifyCharacteristic(int id, Uint8List value, List<String>? addresses);
+}
 
 @FlutterApi()
-abstract class PeripheralManagerFlutterApi {}
+abstract class PeripheralManagerFlutterApi {
+  void onStateChanged(BluetoothLowEnergyStateApi state);
+  void onNameChanged(String? name);
+  void onConnectionStateChanged(CentralApi central, ConnectionStateApi state);
+  void onMTUChanged(CentralApi central, int mtu);
+  void onCharacteristicReadRequested(
+      int id, CentralApi central, GATTReadRequestApi request);
+  void onCharacteristicWriteRequested(
+      int id, CentralApi central, GATTWriteRequestApi request);
+  void onCharacteristicNotifyStateChanged(
+      int id, CentralApi central, bool state);
+  void onDescriptorReadRequested(
+      int id, CentralApi central, GATTReadRequestApi request);
+  void onDescriptorWriteRequested(
+      int id, CentralApi central, GATTWriteRequestApi request);
+}
 
 class PeripheralApi {
   final String address;
 
   PeripheralApi(this.address);
+}
+
+class CentralApi {
+  final String address;
+
+  CentralApi(this.address);
 }
 
 class ManufacturerSpecificDataApi {
@@ -152,6 +228,52 @@ class GATTServiceApi {
       this.characteristics);
 }
 
+class MutableGATTDescriptorApi {
+  final int id;
+  final String uuid;
+  final List<GATTPermissionApi> permissions;
+
+  MutableGATTDescriptorApi(this.id, this.uuid, this.permissions);
+}
+
+class MutableGATTCharacteristicApi {
+  final int id;
+  final String uuid;
+  final List<GATTPermissionApi> permissions;
+  final List<GATTCharacteristicPropertyApi> properties;
+  final List<GATTDescriptorApi> descriptors;
+
+  MutableGATTCharacteristicApi(
+      this.id, this.uuid, this.permissions, this.properties, this.descriptors);
+}
+
+class MutableGATTServiceApi {
+  final int id;
+  final String uuid;
+  final bool isPrimary;
+  final List<MutableGATTServiceApi> includedServices;
+  final List<MutableGATTCharacteristicApi> characteristics;
+
+  MutableGATTServiceApi(this.id, this.uuid, this.isPrimary,
+      this.includedServices, this.characteristics);
+}
+
+class GATTReadRequestApi {
+  final int id;
+  final int offset;
+  final int length;
+
+  GATTReadRequestApi(this.id, this.offset, this.length);
+}
+
+class GATTWriteRequestApi {
+  final int id;
+  final int offset;
+  final Uint8List value;
+
+  GATTWriteRequestApi(this.id, this.offset, this.value);
+}
+
 enum BluetoothLowEnergyStateApi {
   unknown,
   unsupported,
@@ -194,4 +316,18 @@ enum GATTCharacteristicPropertyApi {
 enum GATTCharacteristicWriteTypeApi {
   withResponse,
   withoutResponse,
+}
+
+enum GATTErrorApi {
+  success,
+  readNotPermitted,
+  writeNotPermitted,
+  insufficientAuthentication,
+  requestNotSupported,
+  insufficientEncryption,
+  invalidOffset,
+  insufficientAuthorization,
+  invalidAttributeLength,
+  connectionCongested,
+  failure,
 }
