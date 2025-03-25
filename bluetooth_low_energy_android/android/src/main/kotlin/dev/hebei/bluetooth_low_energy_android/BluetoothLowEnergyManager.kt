@@ -11,11 +11,11 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -72,6 +72,8 @@ abstract class BluetoothLowEnergyManager(private val contextUtil: ContextUtil, p
 
     protected val bluetoothManager: BluetoothManager get() = contextUtil.getSystemService(BluetoothManager::class.java)
     protected val bluetoothAdapter: BluetoothAdapter get() = bluetoothManager.adapter
+    protected val context: Context get() = contextUtil.context
+    protected val executor: Executor get() = contextUtil.mainExecutor
 
     protected abstract val permissions: Array<String>
     protected abstract val requestCode: Int

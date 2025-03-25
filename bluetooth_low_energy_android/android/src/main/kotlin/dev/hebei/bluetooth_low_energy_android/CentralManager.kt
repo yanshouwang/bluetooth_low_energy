@@ -16,7 +16,6 @@ import android.content.Context
 import android.os.Build
 import android.os.ParcelUuid
 import java.util.UUID
-import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -32,7 +31,7 @@ typealias WriteCharacteristicCallback = (characteristic: BluetoothGattCharacteri
 typealias ReadDescriptorCallback = (descriptor: BluetoothGattDescriptor, value: ByteArray?, status: Int) -> Boolean
 typealias WriteDescriptorCallback = (descriptor: BluetoothGattDescriptor, status: Int) -> Boolean
 
-class CentralManager(private val contextUtil: ContextUtil, activityUtil: ActivityUtil) :
+class CentralManager(contextUtil: ContextUtil, activityUtil: ActivityUtil) :
     BluetoothLowEnergyManager(contextUtil, activityUtil) {
     private val gatts = mutableMapOf<BluetoothDevice, BluetoothGatt>()
     private val mtus = mutableMapOf<BluetoothGatt, Int>()
@@ -72,8 +71,6 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
         }
     }
     private val bluetoothGattCallback = object : BluetoothGattCallback() {
-        private val executor: Executor get() = contextUtil.mainExecutor
-
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
             val device = gatt.device
@@ -270,7 +267,7 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
             }
             val settings = ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
             bluetoothLeScanner.startScan(filters, settings, scanCallback)
-            contextUtil.mainExecutor.execute { invokeStartDiscoveryCallbacks(null) }
+            executor.execute { invokeStartDiscoveryCallbacks(null) }
             startDiscoveryCallbacks.add { errorCode ->
                 try {
                     if (errorCode != null) throw IllegalStateException("startDiscovery failed: $errorCode")
@@ -301,7 +298,6 @@ class CentralManager(private val contextUtil: ContextUtil, activityUtil: Activit
         try {
             ensureState()
             val device = peripheral.obj
-            val context = contextUtil.context
             val autoConnect = false
             val gatt = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 val transport = BluetoothDevice.TRANSPORT_LE
