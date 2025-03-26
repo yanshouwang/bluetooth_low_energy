@@ -84,6 +84,20 @@ enum GATTCharacteristicWriteTypeApi {
   withoutResponse,
 }
 
+enum GATTErrorApi {
+  success,
+  readNotPermitted,
+  writeNotPermitted,
+  insufficientAuthentication,
+  requestNotSupported,
+  insufficientEncryption,
+  invalidOffset,
+  insufficientAuthorization,
+  invalidAttributeLength,
+  connectionCongested,
+  failure,
+}
+
 class PeripheralApi {
   PeripheralApi({
     required this.address,
@@ -111,6 +125,48 @@ class PeripheralApi {
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
     if (other is! PeripheralApi || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return 
+      address == other.address;
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => Object.hashAll(_toList())
+;
+}
+
+class CentralApi {
+  CentralApi({
+    required this.address,
+  });
+
+  String address;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      address,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static CentralApi decode(Object result) {
+    result as List<Object?>;
+    return CentralApi(
+      address: result[0]! as String,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! CentralApi || other.runtimeType != runtimeType) {
       return false;
     }
     if (identical(this, other)) {
@@ -408,6 +464,300 @@ class GATTServiceApi {
 ;
 }
 
+class MutableGATTDescriptorApi {
+  MutableGATTDescriptorApi({
+    required this.id,
+    required this.uuid,
+    required this.permissions,
+  });
+
+  int id;
+
+  String uuid;
+
+  List<GATTPermissionApi> permissions;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      id,
+      uuid,
+      permissions,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static MutableGATTDescriptorApi decode(Object result) {
+    result as List<Object?>;
+    return MutableGATTDescriptorApi(
+      id: result[0]! as int,
+      uuid: result[1]! as String,
+      permissions: (result[2] as List<Object?>?)!.cast<GATTPermissionApi>(),
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! MutableGATTDescriptorApi || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return 
+      id == other.id
+      && uuid == other.uuid
+      && _deepEquals(permissions, other.permissions);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => Object.hashAll(_toList())
+;
+}
+
+class MutableGATTCharacteristicApi {
+  MutableGATTCharacteristicApi({
+    required this.id,
+    required this.uuid,
+    required this.permissions,
+    required this.properties,
+    required this.descriptors,
+  });
+
+  int id;
+
+  String uuid;
+
+  List<GATTPermissionApi> permissions;
+
+  List<GATTCharacteristicPropertyApi> properties;
+
+  List<GATTDescriptorApi> descriptors;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      id,
+      uuid,
+      permissions,
+      properties,
+      descriptors,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static MutableGATTCharacteristicApi decode(Object result) {
+    result as List<Object?>;
+    return MutableGATTCharacteristicApi(
+      id: result[0]! as int,
+      uuid: result[1]! as String,
+      permissions: (result[2] as List<Object?>?)!.cast<GATTPermissionApi>(),
+      properties: (result[3] as List<Object?>?)!.cast<GATTCharacteristicPropertyApi>(),
+      descriptors: (result[4] as List<Object?>?)!.cast<GATTDescriptorApi>(),
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! MutableGATTCharacteristicApi || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return 
+      id == other.id
+      && uuid == other.uuid
+      && _deepEquals(permissions, other.permissions)
+      && _deepEquals(properties, other.properties)
+      && _deepEquals(descriptors, other.descriptors);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => Object.hashAll(_toList())
+;
+}
+
+class MutableGATTServiceApi {
+  MutableGATTServiceApi({
+    required this.id,
+    required this.uuid,
+    required this.isPrimary,
+    required this.includedServices,
+    required this.characteristics,
+  });
+
+  int id;
+
+  String uuid;
+
+  bool isPrimary;
+
+  List<MutableGATTServiceApi> includedServices;
+
+  List<MutableGATTCharacteristicApi> characteristics;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      id,
+      uuid,
+      isPrimary,
+      includedServices,
+      characteristics,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static MutableGATTServiceApi decode(Object result) {
+    result as List<Object?>;
+    return MutableGATTServiceApi(
+      id: result[0]! as int,
+      uuid: result[1]! as String,
+      isPrimary: result[2]! as bool,
+      includedServices: (result[3] as List<Object?>?)!.cast<MutableGATTServiceApi>(),
+      characteristics: (result[4] as List<Object?>?)!.cast<MutableGATTCharacteristicApi>(),
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! MutableGATTServiceApi || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return 
+      id == other.id
+      && uuid == other.uuid
+      && isPrimary == other.isPrimary
+      && _deepEquals(includedServices, other.includedServices)
+      && _deepEquals(characteristics, other.characteristics);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => Object.hashAll(_toList())
+;
+}
+
+class GATTReadRequestApi {
+  GATTReadRequestApi({
+    required this.id,
+    required this.offset,
+    required this.length,
+  });
+
+  int id;
+
+  int offset;
+
+  int length;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      id,
+      offset,
+      length,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static GATTReadRequestApi decode(Object result) {
+    result as List<Object?>;
+    return GATTReadRequestApi(
+      id: result[0]! as int,
+      offset: result[1]! as int,
+      length: result[2]! as int,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! GATTReadRequestApi || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return 
+      id == other.id
+      && offset == other.offset
+      && length == other.length;
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => Object.hashAll(_toList())
+;
+}
+
+class GATTWriteRequestApi {
+  GATTWriteRequestApi({
+    required this.id,
+    required this.offset,
+    required this.value,
+  });
+
+  int id;
+
+  int offset;
+
+  Uint8List value;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      id,
+      offset,
+      value,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static GATTWriteRequestApi decode(Object result) {
+    result as List<Object?>;
+    return GATTWriteRequestApi(
+      id: result[0]! as int,
+      offset: result[1]! as int,
+      value: result[2]! as Uint8List,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! GATTWriteRequestApi || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return 
+      id == other.id
+      && offset == other.offset
+      && _deepEquals(value, other.value);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => Object.hashAll(_toList())
+;
+}
+
 
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
@@ -434,23 +784,44 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is GATTCharacteristicWriteTypeApi) {
       buffer.putUint8(134);
       writeValue(buffer, value.index);
-    }    else if (value is PeripheralApi) {
+    }    else if (value is GATTErrorApi) {
       buffer.putUint8(135);
-      writeValue(buffer, value.encode());
-    }    else if (value is ManufacturerSpecificDataApi) {
+      writeValue(buffer, value.index);
+    }    else if (value is PeripheralApi) {
       buffer.putUint8(136);
       writeValue(buffer, value.encode());
-    }    else if (value is AdvertisementApi) {
+    }    else if (value is CentralApi) {
       buffer.putUint8(137);
       writeValue(buffer, value.encode());
-    }    else if (value is GATTDescriptorApi) {
+    }    else if (value is ManufacturerSpecificDataApi) {
       buffer.putUint8(138);
       writeValue(buffer, value.encode());
-    }    else if (value is GATTCharacteristicApi) {
+    }    else if (value is AdvertisementApi) {
       buffer.putUint8(139);
       writeValue(buffer, value.encode());
-    }    else if (value is GATTServiceApi) {
+    }    else if (value is GATTDescriptorApi) {
       buffer.putUint8(140);
+      writeValue(buffer, value.encode());
+    }    else if (value is GATTCharacteristicApi) {
+      buffer.putUint8(141);
+      writeValue(buffer, value.encode());
+    }    else if (value is GATTServiceApi) {
+      buffer.putUint8(142);
+      writeValue(buffer, value.encode());
+    }    else if (value is MutableGATTDescriptorApi) {
+      buffer.putUint8(143);
+      writeValue(buffer, value.encode());
+    }    else if (value is MutableGATTCharacteristicApi) {
+      buffer.putUint8(144);
+      writeValue(buffer, value.encode());
+    }    else if (value is MutableGATTServiceApi) {
+      buffer.putUint8(145);
+      writeValue(buffer, value.encode());
+    }    else if (value is GATTReadRequestApi) {
+      buffer.putUint8(146);
+      writeValue(buffer, value.encode());
+    }    else if (value is GATTWriteRequestApi) {
+      buffer.putUint8(147);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -479,17 +850,32 @@ class _PigeonCodec extends StandardMessageCodec {
         final int? value = readValue(buffer) as int?;
         return value == null ? null : GATTCharacteristicWriteTypeApi.values[value];
       case 135: 
-        return PeripheralApi.decode(readValue(buffer)!);
+        final int? value = readValue(buffer) as int?;
+        return value == null ? null : GATTErrorApi.values[value];
       case 136: 
-        return ManufacturerSpecificDataApi.decode(readValue(buffer)!);
+        return PeripheralApi.decode(readValue(buffer)!);
       case 137: 
-        return AdvertisementApi.decode(readValue(buffer)!);
+        return CentralApi.decode(readValue(buffer)!);
       case 138: 
-        return GATTDescriptorApi.decode(readValue(buffer)!);
+        return ManufacturerSpecificDataApi.decode(readValue(buffer)!);
       case 139: 
-        return GATTCharacteristicApi.decode(readValue(buffer)!);
+        return AdvertisementApi.decode(readValue(buffer)!);
       case 140: 
+        return GATTDescriptorApi.decode(readValue(buffer)!);
+      case 141: 
+        return GATTCharacteristicApi.decode(readValue(buffer)!);
+      case 142: 
         return GATTServiceApi.decode(readValue(buffer)!);
+      case 143: 
+        return MutableGATTDescriptorApi.decode(readValue(buffer)!);
+      case 144: 
+        return MutableGATTCharacteristicApi.decode(readValue(buffer)!);
+      case 145: 
+        return MutableGATTServiceApi.decode(readValue(buffer)!);
+      case 146: 
+        return GATTReadRequestApi.decode(readValue(buffer)!);
+      case 147: 
+        return GATTWriteRequestApi.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -1561,12 +1947,1159 @@ class PeripheralManagerHostApi {
 
   final String pigeonVar_messageChannelSuffix;
 
+  Future<void> addStateChangedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addStateChangedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> removeStateChangedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeStateChangedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> addNameChangedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addNameChangedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> removeNameChangedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeNameChangedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> addConnectionStateChangedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addConnectionStateChangedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> removeConnectionStateChangedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeConnectionStateChangedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> addMTUChangedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addMTUChangedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> removeMTUChangedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeMTUChangedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> addCharacteristicReadRequestedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addCharacteristicReadRequestedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> removeCharacteristicReadRequestedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeCharacteristicReadRequestedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> addCharacteristicWriteRequestedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addCharacteristicWriteRequestedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> removeCharacteristicWriteRequestedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeCharacteristicWriteRequestedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> addCharacteristicNotifyStateChangedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addCharacteristicNotifyStateChangedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> removeCharacteristicNotifyStateChangedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeCharacteristicNotifyStateChangedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> addDescriptorReadRequestedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addDescriptorReadRequestedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> removeDescriptorReadRequestedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeDescriptorReadRequestedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> addDescriptorWriteRequestedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addDescriptorWriteRequestedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> removeDescriptorWriteRequestedListener() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeDescriptorWriteRequestedListener$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<BluetoothLowEnergyStateApi> getState() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.getState$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as BluetoothLowEnergyStateApi?)!;
+    }
+  }
+
+  Future<bool> shouldShowAuthorizeRationale() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.shouldShowAuthorizeRationale$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as bool?)!;
+    }
+  }
+
+  Future<bool> authorize() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.authorize$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as bool?)!;
+    }
+  }
+
+  Future<void> showAppSettings() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.showAppSettings$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> turnOn() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.turnOn$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> turnOff() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.turnOff$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<String?> getName() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.getName$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return (pigeonVar_replyList[0] as String?);
+    }
+  }
+
+  Future<String?> setName(String? name) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.setName$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[name]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return (pigeonVar_replyList[0] as String?);
+    }
+  }
+
+  Future<void> addService(MutableGATTServiceApi service) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addService$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[service]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> removeService(int id) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeService$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[id]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> removeAllServices() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeAllServices$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> startAdvertising(AdvertisementApi advertisement) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.startAdvertising$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[advertisement]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> stopAdvertising() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.stopAdvertising$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<int> getMaximumNotifyLength(String address) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.getMaximumNotifyLength$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[address]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as int?)!;
+    }
+  }
+
+  Future<void> respondReadRequestWithValue(int id, Uint8List value) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.respondReadRequestWithValue$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[id, value]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> respondReadRequestWithError(int id, GATTErrorApi error) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.respondReadRequestWithError$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[id, error]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> respondWriteRequest(int id) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.respondWriteRequest$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[id]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> respondWriteRequestWithError(int id, GATTErrorApi error) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.respondWriteRequestWithError$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[id, error]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> notifyCharacteristic(int id, Uint8List value, List<String>? addresses) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.notifyCharacteristic$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[id, value, addresses]);
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
 }
 
 abstract class PeripheralManagerFlutterApi {
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
 
+  void onStateChanged(BluetoothLowEnergyStateApi state);
+
+  void onNameChanged(String? name);
+
+  void onConnectionStateChanged(CentralApi central, ConnectionStateApi state);
+
+  void onMTUChanged(CentralApi central, int mtu);
+
+  void onCharacteristicReadRequested(int id, CentralApi central, GATTReadRequestApi request);
+
+  void onCharacteristicWriteRequested(int id, CentralApi central, GATTWriteRequestApi request);
+
+  void onCharacteristicNotifyStateChanged(int id, CentralApi central, bool state);
+
+  void onDescriptorReadRequested(int id, CentralApi central, GATTReadRequestApi request);
+
+  void onDescriptorWriteRequested(int id, CentralApi central, GATTWriteRequestApi request);
+
   static void setUp(PeripheralManagerFlutterApi? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+    {
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onStateChanged$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onStateChanged was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final BluetoothLowEnergyStateApi? arg_state = (args[0] as BluetoothLowEnergyStateApi?);
+          assert(arg_state != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onStateChanged was null, expected non-null BluetoothLowEnergyStateApi.');
+          try {
+            api.onStateChanged(arg_state!);
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onNameChanged$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onNameChanged was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final String? arg_name = (args[0] as String?);
+          try {
+            api.onNameChanged(arg_name);
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onConnectionStateChanged$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onConnectionStateChanged was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final CentralApi? arg_central = (args[0] as CentralApi?);
+          assert(arg_central != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onConnectionStateChanged was null, expected non-null CentralApi.');
+          final ConnectionStateApi? arg_state = (args[1] as ConnectionStateApi?);
+          assert(arg_state != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onConnectionStateChanged was null, expected non-null ConnectionStateApi.');
+          try {
+            api.onConnectionStateChanged(arg_central!, arg_state!);
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onMTUChanged$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onMTUChanged was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final CentralApi? arg_central = (args[0] as CentralApi?);
+          assert(arg_central != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onMTUChanged was null, expected non-null CentralApi.');
+          final int? arg_mtu = (args[1] as int?);
+          assert(arg_mtu != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onMTUChanged was null, expected non-null int.');
+          try {
+            api.onMTUChanged(arg_central!, arg_mtu!);
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicReadRequested$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicReadRequested was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final int? arg_id = (args[0] as int?);
+          assert(arg_id != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicReadRequested was null, expected non-null int.');
+          final CentralApi? arg_central = (args[1] as CentralApi?);
+          assert(arg_central != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicReadRequested was null, expected non-null CentralApi.');
+          final GATTReadRequestApi? arg_request = (args[2] as GATTReadRequestApi?);
+          assert(arg_request != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicReadRequested was null, expected non-null GATTReadRequestApi.');
+          try {
+            api.onCharacteristicReadRequested(arg_id!, arg_central!, arg_request!);
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicWriteRequested$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicWriteRequested was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final int? arg_id = (args[0] as int?);
+          assert(arg_id != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicWriteRequested was null, expected non-null int.');
+          final CentralApi? arg_central = (args[1] as CentralApi?);
+          assert(arg_central != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicWriteRequested was null, expected non-null CentralApi.');
+          final GATTWriteRequestApi? arg_request = (args[2] as GATTWriteRequestApi?);
+          assert(arg_request != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicWriteRequested was null, expected non-null GATTWriteRequestApi.');
+          try {
+            api.onCharacteristicWriteRequested(arg_id!, arg_central!, arg_request!);
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicNotifyStateChanged$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicNotifyStateChanged was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final int? arg_id = (args[0] as int?);
+          assert(arg_id != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicNotifyStateChanged was null, expected non-null int.');
+          final CentralApi? arg_central = (args[1] as CentralApi?);
+          assert(arg_central != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicNotifyStateChanged was null, expected non-null CentralApi.');
+          final bool? arg_state = (args[2] as bool?);
+          assert(arg_state != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicNotifyStateChanged was null, expected non-null bool.');
+          try {
+            api.onCharacteristicNotifyStateChanged(arg_id!, arg_central!, arg_state!);
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onDescriptorReadRequested$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onDescriptorReadRequested was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final int? arg_id = (args[0] as int?);
+          assert(arg_id != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onDescriptorReadRequested was null, expected non-null int.');
+          final CentralApi? arg_central = (args[1] as CentralApi?);
+          assert(arg_central != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onDescriptorReadRequested was null, expected non-null CentralApi.');
+          final GATTReadRequestApi? arg_request = (args[2] as GATTReadRequestApi?);
+          assert(arg_request != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onDescriptorReadRequested was null, expected non-null GATTReadRequestApi.');
+          try {
+            api.onDescriptorReadRequested(arg_id!, arg_central!, arg_request!);
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onDescriptorWriteRequested$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onDescriptorWriteRequested was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final int? arg_id = (args[0] as int?);
+          assert(arg_id != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onDescriptorWriteRequested was null, expected non-null int.');
+          final CentralApi? arg_central = (args[1] as CentralApi?);
+          assert(arg_central != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onDescriptorWriteRequested was null, expected non-null CentralApi.');
+          final GATTWriteRequestApi? arg_request = (args[2] as GATTWriteRequestApi?);
+          assert(arg_request != null,
+              'Argument for dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onDescriptorWriteRequested was null, expected non-null GATTWriteRequestApi.');
+          try {
+            api.onDescriptorWriteRequested(arg_id!, arg_central!, arg_request!);
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
   }
 }

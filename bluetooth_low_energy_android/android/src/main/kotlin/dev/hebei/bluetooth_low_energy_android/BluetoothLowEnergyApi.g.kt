@@ -129,6 +129,26 @@ enum class GATTCharacteristicWriteTypeApi(val raw: Int) {
   }
 }
 
+enum class GATTErrorApi(val raw: Int) {
+  SUCCESS(0),
+  READ_NOT_PERMITTED(1),
+  WRITE_NOT_PERMITTED(2),
+  INSUFFICIENT_AUTHENTICATION(3),
+  REQUEST_NOT_SUPPORTED(4),
+  INSUFFICIENT_ENCRYPTION(5),
+  INVALID_OFFSET(6),
+  INSUFFICIENT_AUTHORIZATION(7),
+  INVALID_ATTRIBUTE_LENGTH(8),
+  CONNECTION_CONGESTED(9),
+  FAILURE(10);
+
+  companion object {
+    fun ofRaw(raw: Int): GATTErrorApi? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
+
 /** Generated class from Pigeon that represents data sent in messages. */
 data class PeripheralApi (
   val address: String
@@ -138,6 +158,24 @@ data class PeripheralApi (
     fun fromList(pigeonVar_list: List<Any?>): PeripheralApi {
       val address = pigeonVar_list[0] as String
       return PeripheralApi(address)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      address,
+    )
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class CentralApi (
+  val address: String
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): CentralApi {
+      val address = pigeonVar_list[0] as String
+      return CentralApi(address)
     }
   }
   fun toList(): List<Any?> {
@@ -272,6 +310,138 @@ data class GATTServiceApi (
     )
   }
 }
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class MutableGATTDescriptorApi (
+  val id: Long,
+  val uuid: String,
+  val permissions: List<GATTPermissionApi>
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): MutableGATTDescriptorApi {
+      val id = pigeonVar_list[0] as Long
+      val uuid = pigeonVar_list[1] as String
+      val permissions = pigeonVar_list[2] as List<GATTPermissionApi>
+      return MutableGATTDescriptorApi(id, uuid, permissions)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      id,
+      uuid,
+      permissions,
+    )
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class MutableGATTCharacteristicApi (
+  val id: Long,
+  val uuid: String,
+  val permissions: List<GATTPermissionApi>,
+  val properties: List<GATTCharacteristicPropertyApi>,
+  val descriptors: List<GATTDescriptorApi>
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): MutableGATTCharacteristicApi {
+      val id = pigeonVar_list[0] as Long
+      val uuid = pigeonVar_list[1] as String
+      val permissions = pigeonVar_list[2] as List<GATTPermissionApi>
+      val properties = pigeonVar_list[3] as List<GATTCharacteristicPropertyApi>
+      val descriptors = pigeonVar_list[4] as List<GATTDescriptorApi>
+      return MutableGATTCharacteristicApi(id, uuid, permissions, properties, descriptors)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      id,
+      uuid,
+      permissions,
+      properties,
+      descriptors,
+    )
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class MutableGATTServiceApi (
+  val id: Long,
+  val uuid: String,
+  val isPrimary: Boolean,
+  val includedServices: List<MutableGATTServiceApi>,
+  val characteristics: List<MutableGATTCharacteristicApi>
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): MutableGATTServiceApi {
+      val id = pigeonVar_list[0] as Long
+      val uuid = pigeonVar_list[1] as String
+      val isPrimary = pigeonVar_list[2] as Boolean
+      val includedServices = pigeonVar_list[3] as List<MutableGATTServiceApi>
+      val characteristics = pigeonVar_list[4] as List<MutableGATTCharacteristicApi>
+      return MutableGATTServiceApi(id, uuid, isPrimary, includedServices, characteristics)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      id,
+      uuid,
+      isPrimary,
+      includedServices,
+      characteristics,
+    )
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class GATTReadRequestApi (
+  val id: Long,
+  val offset: Long,
+  val length: Long
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): GATTReadRequestApi {
+      val id = pigeonVar_list[0] as Long
+      val offset = pigeonVar_list[1] as Long
+      val length = pigeonVar_list[2] as Long
+      return GATTReadRequestApi(id, offset, length)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      id,
+      offset,
+      length,
+    )
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class GATTWriteRequestApi (
+  val id: Long,
+  val offset: Long,
+  val value: ByteArray
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): GATTWriteRequestApi {
+      val id = pigeonVar_list[0] as Long
+      val offset = pigeonVar_list[1] as Long
+      val value = pigeonVar_list[2] as ByteArray
+      return GATTWriteRequestApi(id, offset, value)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      id,
+      offset,
+      value,
+    )
+  }
+}
 private open class BluetoothLowEnergyApiPigeonCodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
@@ -306,33 +476,68 @@ private open class BluetoothLowEnergyApiPigeonCodec : StandardMessageCodec() {
         }
       }
       135.toByte() -> {
-        return (readValue(buffer) as? List<Any?>)?.let {
-          PeripheralApi.fromList(it)
+        return (readValue(buffer) as Long?)?.let {
+          GATTErrorApi.ofRaw(it.toInt())
         }
       }
       136.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          ManufacturerSpecificDataApi.fromList(it)
+          PeripheralApi.fromList(it)
         }
       }
       137.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          AdvertisementApi.fromList(it)
+          CentralApi.fromList(it)
         }
       }
       138.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          GATTDescriptorApi.fromList(it)
+          ManufacturerSpecificDataApi.fromList(it)
         }
       }
       139.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          GATTCharacteristicApi.fromList(it)
+          AdvertisementApi.fromList(it)
         }
       }
       140.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
+          GATTDescriptorApi.fromList(it)
+        }
+      }
+      141.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          GATTCharacteristicApi.fromList(it)
+        }
+      }
+      142.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
           GATTServiceApi.fromList(it)
+        }
+      }
+      143.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          MutableGATTDescriptorApi.fromList(it)
+        }
+      }
+      144.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          MutableGATTCharacteristicApi.fromList(it)
+        }
+      }
+      145.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          MutableGATTServiceApi.fromList(it)
+        }
+      }
+      146.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          GATTReadRequestApi.fromList(it)
+        }
+      }
+      147.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          GATTWriteRequestApi.fromList(it)
         }
       }
       else -> super.readValueOfType(type, buffer)
@@ -364,28 +569,56 @@ private open class BluetoothLowEnergyApiPigeonCodec : StandardMessageCodec() {
         stream.write(134)
         writeValue(stream, value.raw)
       }
-      is PeripheralApi -> {
+      is GATTErrorApi -> {
         stream.write(135)
-        writeValue(stream, value.toList())
+        writeValue(stream, value.raw)
       }
-      is ManufacturerSpecificDataApi -> {
+      is PeripheralApi -> {
         stream.write(136)
         writeValue(stream, value.toList())
       }
-      is AdvertisementApi -> {
+      is CentralApi -> {
         stream.write(137)
         writeValue(stream, value.toList())
       }
-      is GATTDescriptorApi -> {
+      is ManufacturerSpecificDataApi -> {
         stream.write(138)
         writeValue(stream, value.toList())
       }
-      is GATTCharacteristicApi -> {
+      is AdvertisementApi -> {
         stream.write(139)
         writeValue(stream, value.toList())
       }
-      is GATTServiceApi -> {
+      is GATTDescriptorApi -> {
         stream.write(140)
+        writeValue(stream, value.toList())
+      }
+      is GATTCharacteristicApi -> {
+        stream.write(141)
+        writeValue(stream, value.toList())
+      }
+      is GATTServiceApi -> {
+        stream.write(142)
+        writeValue(stream, value.toList())
+      }
+      is MutableGATTDescriptorApi -> {
+        stream.write(143)
+        writeValue(stream, value.toList())
+      }
+      is MutableGATTCharacteristicApi -> {
+        stream.write(144)
+        writeValue(stream, value.toList())
+      }
+      is MutableGATTServiceApi -> {
+        stream.write(145)
+        writeValue(stream, value.toList())
+      }
+      is GATTReadRequestApi -> {
+        stream.write(146)
+        writeValue(stream, value.toList())
+      }
+      is GATTWriteRequestApi -> {
+        stream.write(147)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -1169,6 +1402,43 @@ class CentralManagerFlutterApi(private val binaryMessenger: BinaryMessenger, pri
 }
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface PeripheralManagerHostApi {
+  fun addStateChangedListener()
+  fun removeStateChangedListener()
+  fun addNameChangedListener()
+  fun removeNameChangedListener()
+  fun addConnectionStateChangedListener()
+  fun removeConnectionStateChangedListener()
+  fun addMTUChangedListener()
+  fun removeMTUChangedListener()
+  fun addCharacteristicReadRequestedListener()
+  fun removeCharacteristicReadRequestedListener()
+  fun addCharacteristicWriteRequestedListener()
+  fun removeCharacteristicWriteRequestedListener()
+  fun addCharacteristicNotifyStateChangedListener()
+  fun removeCharacteristicNotifyStateChangedListener()
+  fun addDescriptorReadRequestedListener()
+  fun removeDescriptorReadRequestedListener()
+  fun addDescriptorWriteRequestedListener()
+  fun removeDescriptorWriteRequestedListener()
+  fun getState(): BluetoothLowEnergyStateApi
+  fun shouldShowAuthorizeRationale(): Boolean
+  fun authorize(callback: (Result<Boolean>) -> Unit)
+  fun showAppSettings()
+  fun turnOn(callback: (Result<Unit>) -> Unit)
+  fun turnOff(callback: (Result<Unit>) -> Unit)
+  fun getName(): String?
+  fun setName(name: String?, callback: (Result<String?>) -> Unit)
+  fun addService(service: MutableGATTServiceApi)
+  fun removeService(id: Long)
+  fun removeAllServices()
+  fun startAdvertising(advertisement: AdvertisementApi, callback: (Result<Unit>) -> Unit)
+  fun stopAdvertising()
+  fun getMaximumNotifyLength(address: String): Long
+  fun respondReadRequestWithValue(id: Long, value: ByteArray)
+  fun respondReadRequestWithError(id: Long, error: GATTErrorApi)
+  fun respondWriteRequest(id: Long)
+  fun respondWriteRequestWithError(id: Long, error: GATTErrorApi)
+  fun notifyCharacteristic(id: Long, value: ByteArray, addresses: List<String>?)
 
   companion object {
     /** The codec used by PeripheralManagerHostApi. */
@@ -1179,6 +1449,626 @@ interface PeripheralManagerHostApi {
     @JvmOverloads
     fun setUp(binaryMessenger: BinaryMessenger, api: PeripheralManagerHostApi?, messageChannelSuffix: String = "") {
       val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addStateChangedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.addStateChangedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeStateChangedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.removeStateChangedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addNameChangedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.addNameChangedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeNameChangedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.removeNameChangedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addConnectionStateChangedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.addConnectionStateChangedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeConnectionStateChangedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.removeConnectionStateChangedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addMTUChangedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.addMTUChangedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeMTUChangedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.removeMTUChangedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addCharacteristicReadRequestedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.addCharacteristicReadRequestedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeCharacteristicReadRequestedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.removeCharacteristicReadRequestedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addCharacteristicWriteRequestedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.addCharacteristicWriteRequestedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeCharacteristicWriteRequestedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.removeCharacteristicWriteRequestedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addCharacteristicNotifyStateChangedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.addCharacteristicNotifyStateChangedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeCharacteristicNotifyStateChangedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.removeCharacteristicNotifyStateChangedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addDescriptorReadRequestedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.addDescriptorReadRequestedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeDescriptorReadRequestedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.removeDescriptorReadRequestedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addDescriptorWriteRequestedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.addDescriptorWriteRequestedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeDescriptorWriteRequestedListener$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.removeDescriptorWriteRequestedListener()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.getState$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.getState())
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.shouldShowAuthorizeRationale$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.shouldShowAuthorizeRationale())
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.authorize$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.authorize{ result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.showAppSettings$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.showAppSettings()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.turnOn$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.turnOn{ result: Result<Unit> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(wrapError(error))
+              } else {
+                reply.reply(wrapResult(null))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.turnOff$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.turnOff{ result: Result<Unit> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(wrapError(error))
+              } else {
+                reply.reply(wrapResult(null))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.getName$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.getName())
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.setName$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val nameArg = args[0] as String?
+            api.setName(nameArg) { result: Result<String?> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.addService$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val serviceArg = args[0] as MutableGATTServiceApi
+            val wrapped: List<Any?> = try {
+              api.addService(serviceArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeService$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val idArg = args[0] as Long
+            val wrapped: List<Any?> = try {
+              api.removeService(idArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.removeAllServices$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.removeAllServices()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.startAdvertising$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val advertisementArg = args[0] as AdvertisementApi
+            api.startAdvertising(advertisementArg) { result: Result<Unit> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(wrapError(error))
+              } else {
+                reply.reply(wrapResult(null))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.stopAdvertising$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.stopAdvertising()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.getMaximumNotifyLength$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val addressArg = args[0] as String
+            val wrapped: List<Any?> = try {
+              listOf(api.getMaximumNotifyLength(addressArg))
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.respondReadRequestWithValue$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val idArg = args[0] as Long
+            val valueArg = args[1] as ByteArray
+            val wrapped: List<Any?> = try {
+              api.respondReadRequestWithValue(idArg, valueArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.respondReadRequestWithError$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val idArg = args[0] as Long
+            val errorArg = args[1] as GATTErrorApi
+            val wrapped: List<Any?> = try {
+              api.respondReadRequestWithError(idArg, errorArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.respondWriteRequest$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val idArg = args[0] as Long
+            val wrapped: List<Any?> = try {
+              api.respondWriteRequest(idArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.respondWriteRequestWithError$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val idArg = args[0] as Long
+            val errorArg = args[1] as GATTErrorApi
+            val wrapped: List<Any?> = try {
+              api.respondWriteRequestWithError(idArg, errorArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerHostApi.notifyCharacteristic$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val idArg = args[0] as Long
+            val valueArg = args[1] as ByteArray
+            val addressesArg = args[2] as List<String>?
+            val wrapped: List<Any?> = try {
+              api.notifyCharacteristic(idArg, valueArg, addressesArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
     }
   }
 }
@@ -1188,6 +2078,159 @@ class PeripheralManagerFlutterApi(private val binaryMessenger: BinaryMessenger, 
     /** The codec used by PeripheralManagerFlutterApi. */
     val codec: MessageCodec<Any?> by lazy {
       BluetoothLowEnergyApiPigeonCodec()
+    }
+  }
+  fun onStateChanged(stateArg: BluetoothLowEnergyStateApi, callback: (Result<Unit>) -> Unit)
+{
+    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onStateChanged$separatedMessageChannelSuffix"
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+    channel.send(listOf(stateArg)) {
+      if (it is List<*>) {
+        if (it.size > 1) {
+          callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+        } else {
+          callback(Result.success(Unit))
+        }
+      } else {
+        callback(Result.failure(createConnectionError(channelName)))
+      } 
+    }
+  }
+  fun onNameChanged(nameArg: String?, callback: (Result<Unit>) -> Unit)
+{
+    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onNameChanged$separatedMessageChannelSuffix"
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+    channel.send(listOf(nameArg)) {
+      if (it is List<*>) {
+        if (it.size > 1) {
+          callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+        } else {
+          callback(Result.success(Unit))
+        }
+      } else {
+        callback(Result.failure(createConnectionError(channelName)))
+      } 
+    }
+  }
+  fun onConnectionStateChanged(centralArg: CentralApi, stateArg: ConnectionStateApi, callback: (Result<Unit>) -> Unit)
+{
+    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onConnectionStateChanged$separatedMessageChannelSuffix"
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+    channel.send(listOf(centralArg, stateArg)) {
+      if (it is List<*>) {
+        if (it.size > 1) {
+          callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+        } else {
+          callback(Result.success(Unit))
+        }
+      } else {
+        callback(Result.failure(createConnectionError(channelName)))
+      } 
+    }
+  }
+  fun onMTUChanged(centralArg: CentralApi, mtuArg: Long, callback: (Result<Unit>) -> Unit)
+{
+    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onMTUChanged$separatedMessageChannelSuffix"
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+    channel.send(listOf(centralArg, mtuArg)) {
+      if (it is List<*>) {
+        if (it.size > 1) {
+          callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+        } else {
+          callback(Result.success(Unit))
+        }
+      } else {
+        callback(Result.failure(createConnectionError(channelName)))
+      } 
+    }
+  }
+  fun onCharacteristicReadRequested(idArg: Long, centralArg: CentralApi, requestArg: GATTReadRequestApi, callback: (Result<Unit>) -> Unit)
+{
+    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicReadRequested$separatedMessageChannelSuffix"
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+    channel.send(listOf(idArg, centralArg, requestArg)) {
+      if (it is List<*>) {
+        if (it.size > 1) {
+          callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+        } else {
+          callback(Result.success(Unit))
+        }
+      } else {
+        callback(Result.failure(createConnectionError(channelName)))
+      } 
+    }
+  }
+  fun onCharacteristicWriteRequested(idArg: Long, centralArg: CentralApi, requestArg: GATTWriteRequestApi, callback: (Result<Unit>) -> Unit)
+{
+    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicWriteRequested$separatedMessageChannelSuffix"
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+    channel.send(listOf(idArg, centralArg, requestArg)) {
+      if (it is List<*>) {
+        if (it.size > 1) {
+          callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+        } else {
+          callback(Result.success(Unit))
+        }
+      } else {
+        callback(Result.failure(createConnectionError(channelName)))
+      } 
+    }
+  }
+  fun onCharacteristicNotifyStateChanged(idArg: Long, centralArg: CentralApi, stateArg: Boolean, callback: (Result<Unit>) -> Unit)
+{
+    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onCharacteristicNotifyStateChanged$separatedMessageChannelSuffix"
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+    channel.send(listOf(idArg, centralArg, stateArg)) {
+      if (it is List<*>) {
+        if (it.size > 1) {
+          callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+        } else {
+          callback(Result.success(Unit))
+        }
+      } else {
+        callback(Result.failure(createConnectionError(channelName)))
+      } 
+    }
+  }
+  fun onDescriptorReadRequested(idArg: Long, centralArg: CentralApi, requestArg: GATTReadRequestApi, callback: (Result<Unit>) -> Unit)
+{
+    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onDescriptorReadRequested$separatedMessageChannelSuffix"
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+    channel.send(listOf(idArg, centralArg, requestArg)) {
+      if (it is List<*>) {
+        if (it.size > 1) {
+          callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+        } else {
+          callback(Result.success(Unit))
+        }
+      } else {
+        callback(Result.failure(createConnectionError(channelName)))
+      } 
+    }
+  }
+  fun onDescriptorWriteRequested(idArg: Long, centralArg: CentralApi, requestArg: GATTWriteRequestApi, callback: (Result<Unit>) -> Unit)
+{
+    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.PeripheralManagerFlutterApi.onDescriptorWriteRequested$separatedMessageChannelSuffix"
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+    channel.send(listOf(idArg, centralArg, requestArg)) {
+      if (it is List<*>) {
+        if (it.size > 1) {
+          callback(Result.failure(BluetoothLowEnergyError(it[0] as String, it[1] as String, it[2] as String?)))
+        } else {
+          callback(Result.success(Unit))
+        }
+      } else {
+        callback(Result.failure(createConnectionError(channelName)))
+      } 
     }
   }
 }

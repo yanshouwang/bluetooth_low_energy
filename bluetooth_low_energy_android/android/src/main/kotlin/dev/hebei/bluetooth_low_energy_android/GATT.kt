@@ -145,6 +145,12 @@ class GATTService : GATTAttribute {
     }
 }
 
+abstract class GATTRequest internal constructor(val offset: Int) {}
+
+class GATTReadRequest internal constructor(offset: Int) : GATTRequest(offset) {}
+
+class GATTWriteRequest internal constructor(offset: Int, val value: ByteArray) : GATTRequest(offset) {}
+
 enum class GATTPermission {
     READ, READ_ENCRYPTED, WRITE, WRITE_ENCRYPTED,
 }
@@ -155,4 +161,8 @@ enum class GATTCharacteristicProperty {
 
 enum class GATTCharacteristicWriteType {
     WITH_RESPONSE, WITHOUT_RESPONSE,
+}
+
+enum class GATTError {
+    READ_NOT_PERMITTED, WRITE_NOT_PERMITTED, INSUFFICIENT_AUTHENTICATION, REQUEST_NOT_SUPPORTED, INSUFFICIENT_ENCRYPTION, INVALID_OFFSET, INSUFFICIENT_AUTHORIZATION, INVALID_ATTRIBUTE_LENGTH, CONNECTION_CONGESTED, FAILURE,
 }

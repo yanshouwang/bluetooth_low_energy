@@ -226,34 +226,36 @@ base class GATTService extends GATTAttribute {
   }) : super.impl();
 }
 
-/// A read request that uses the Attribute Protocol (ATT).
-abstract base class GATTReadRequest extends PlatformInterface {
+abstract base class GATTRequest extends PlatformInterface {
   static final _token = Object();
 
-  /// The zero-based index of the first byte for the read request.
+  /// The zero-based index of the first byte for the read/write request.
   final int offset;
 
-  /// Constructs a [GATTReadRequest].
-  GATTReadRequest.impl({
+  /// Constructs a [GATTRequest].
+  GATTRequest.impl({
     required this.offset,
   }) : super(token: _token);
 }
 
+/// A read request that uses the Attribute Protocol (ATT).
+abstract base class GATTReadRequest extends GATTRequest {
+  /// Constructs a [GATTReadRequest].
+  GATTReadRequest.impl({
+    required super.offset,
+  }) : super.impl();
+}
+
 /// A write request that uses the Attribute Protocol (ATT).
-abstract base class GATTWriteRequest extends PlatformInterface {
-  static final _token = Object();
-
-  /// The zero-based index of the first byte for the write request.
-  final int offset;
-
+abstract base class GATTWriteRequest extends GATTRequest {
   /// The data that the central writes to the peripheral.
   final Uint8List value;
 
   /// Constructs a [GATTWriteRequest].
   GATTWriteRequest.impl({
-    required this.offset,
+    required super.offset,
     required this.value,
-  }) : super(token: _token);
+  }) : super.impl();
 }
 
 /// Values that represent the read, write, and encryption permissions for a

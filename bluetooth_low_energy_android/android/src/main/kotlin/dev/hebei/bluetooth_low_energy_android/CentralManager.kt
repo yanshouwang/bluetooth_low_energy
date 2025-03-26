@@ -219,8 +219,7 @@ class CentralManager(contextUtil: ContextUtil, activityUtil: ActivityUtil) :
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) arrayOf(
             android.Manifest.permission.BLUETOOTH_SCAN,
             android.Manifest.permission.BLUETOOTH_CONNECT,
-        )
-        else arrayOf(
+        ) else arrayOf(
             android.Manifest.permission.ACCESS_COARSE_LOCATION,
             android.Manifest.permission.ACCESS_FINE_LOCATION,
         )
