@@ -20,10 +20,7 @@ enum MyBluetoothLowEnergyStateArgs {
   poweredOn,
 }
 
-enum MyConnectionStateArgs {
-  disconnected,
-  connected,
-}
+enum MyConnectionStateArgs { disconnected, connected }
 
 enum MyGATTCharacteristicPropertyArgs {
   read,
@@ -40,10 +37,7 @@ enum MyGATTCharacteristicPermissionArgs {
   writeEncrypted,
 }
 
-enum MyGATTCharacteristicWriteTypeArgs {
-  withResponse,
-  withoutResponse,
-}
+enum MyGATTCharacteristicWriteTypeArgs { withResponse, withoutResponse }
 
 enum MyATTErrorArgs {
   success,
@@ -103,10 +97,7 @@ class MyGATTDescriptorArgs {
   final int hashCodeArgs;
   final String uuidArgs;
 
-  MyGATTDescriptorArgs(
-    this.hashCodeArgs,
-    this.uuidArgs,
-  );
+  MyGATTDescriptorArgs(this.hashCodeArgs, this.uuidArgs);
 }
 
 class MyGATTCharacteristicArgs {
@@ -144,11 +135,7 @@ class MyMutableGATTDescriptorArgs {
   final String uuidArgs;
   final Uint8List? valueArgs;
 
-  MyMutableGATTDescriptorArgs(
-    this.hashCodeArgs,
-    this.uuidArgs,
-    this.valueArgs,
-  );
+  MyMutableGATTDescriptorArgs(this.hashCodeArgs, this.uuidArgs, this.valueArgs);
 }
 
 class MyMutableGATTCharacteristicArgs {

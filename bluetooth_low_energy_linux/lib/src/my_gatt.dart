@@ -6,10 +6,7 @@ import 'my_bluez.dart';
 final class MyGATTDescriptor extends GATTDescriptor {
   final BlueZGattDescriptor blueZDescriptor;
 
-  MyGATTDescriptor(this.blueZDescriptor)
-      : super(
-          uuid: blueZDescriptor.myUUID,
-        );
+  MyGATTDescriptor(this.blueZDescriptor) : super(uuid: blueZDescriptor.myUUID);
 
   @override
   int get hashCode => blueZDescriptor.hashCode;
@@ -25,11 +22,11 @@ final class MyGATTCharacteristic extends GATTCharacteristic {
   final BlueZGattCharacteristic blueZCharacteristic;
 
   MyGATTCharacteristic(this.blueZCharacteristic)
-      : super(
-          uuid: blueZCharacteristic.myUUID,
-          properties: blueZCharacteristic.myProperties,
-          descriptors: blueZCharacteristic.myDescriptors,
-        );
+    : super(
+        uuid: blueZCharacteristic.myUUID,
+        properties: blueZCharacteristic.myProperties,
+        descriptors: blueZCharacteristic.myDescriptors,
+      );
 
   @override
   List<MyGATTDescriptor> get descriptors =>
@@ -49,12 +46,12 @@ final class MyGATTService extends GATTService {
   final BlueZGattService blueZService;
 
   MyGATTService(this.blueZService)
-      : super(
-          uuid: blueZService.myUUID,
-          isPrimary: blueZService.primary,
-          includedServices: [],
-          characteristics: blueZService.myCharacteristics,
-        );
+    : super(
+        uuid: blueZService.myUUID,
+        isPrimary: blueZService.primary,
+        includedServices: [],
+        characteristics: blueZService.myCharacteristics,
+      );
 
   @override
   List<MyGATTService> get includedServices =>

@@ -12,26 +12,26 @@ final class MyCentralManager extends PlatformCentralManager
     implements MyCentralManagerFlutterAPI {
   final MyCentralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
-      _stateChangedController;
+  _stateChangedController;
   final StreamController<DiscoveredEventArgs> _discoveredController;
   final StreamController<PeripheralConnectionStateChangedEventArgs>
-      _connectionStateChangedController;
+  _connectionStateChangedController;
   final StreamController<PeripheralMTUChangedEventArgs> _mtuChangedController;
   final StreamController<GATTCharacteristicNotifiedEventArgs>
-      _characteristicNotifiedController;
+  _characteristicNotifiedController;
   final Map<int, MyDiscoveryArgs> _discoveriesArgs;
 
   BluetoothLowEnergyState _state;
 
   MyCentralManager()
-      : _api = MyCentralManagerHostAPI(),
-        _stateChangedController = StreamController.broadcast(),
-        _discoveredController = StreamController.broadcast(),
-        _connectionStateChangedController = StreamController.broadcast(),
-        _mtuChangedController = StreamController.broadcast(),
-        _characteristicNotifiedController = StreamController.broadcast(),
-        _discoveriesArgs = {},
-        _state = BluetoothLowEnergyState.unknown;
+    : _api = MyCentralManagerHostAPI(),
+      _stateChangedController = StreamController.broadcast(),
+      _discoveredController = StreamController.broadcast(),
+      _connectionStateChangedController = StreamController.broadcast(),
+      _mtuChangedController = StreamController.broadcast(),
+      _characteristicNotifiedController = StreamController.broadcast(),
+      _discoveriesArgs = {},
+      _state = BluetoothLowEnergyState.unknown;
 
   @override
   BluetoothLowEnergyState get state => _state;
@@ -42,7 +42,7 @@ final class MyCentralManager extends PlatformCentralManager
   Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
   @override
   Stream<PeripheralConnectionStateChangedEventArgs>
-      get connectionStateChanged => _connectionStateChangedController.stream;
+  get connectionStateChanged => _connectionStateChangedController.stream;
   @override
   Stream<PeripheralMTUChangedEventArgs> get mtuChanged =>
       _mtuChangedController.stream;
@@ -67,9 +67,7 @@ final class MyCentralManager extends PlatformCentralManager
   }
 
   @override
-  Future<void> startDiscovery({
-    List<UUID>? serviceUUIDs,
-  }) async {
+  Future<void> startDiscovery({List<UUID>? serviceUUIDs}) async {
     _discoveriesArgs.clear();
     final serviceUUIDsArgs =
         serviceUUIDs?.map((uuid) => uuid.toArgs()).toList() ?? [];
@@ -86,7 +84,8 @@ final class MyCentralManager extends PlatformCentralManager
   @override
   Future<List<Peripheral>> retrieveConnectedPeripherals() {
     throw UnsupportedError(
-        'retrieveConnectedPeripherals is not supported on Windows.');
+      'retrieveConnectedPeripherals is not supported on Windows.',
+    );
   }
 
   @override
@@ -110,10 +109,7 @@ final class MyCentralManager extends PlatformCentralManager
   }
 
   @override
-  Future<int> requestMTU(
-    Peripheral peripheral, {
-    required int mtu,
-  }) {
+  Future<int> requestMTU(Peripheral peripheral, {required int mtu}) {
     throw UnsupportedError('requestMTU is not supported on Windows.');
   }
 
@@ -187,7 +183,8 @@ final class MyCentralManager extends PlatformCentralManager
     final valueArgs = value;
     final typeArgs = type.toArgs();
     logger.info(
-        'writeCharacteristic: $addressArgs.$handleArgs - $valueArgs, $typeArgs');
+      'writeCharacteristic: $addressArgs.$handleArgs - $valueArgs, $typeArgs',
+    );
     await _api.writeCharacteristic(
       addressArgs,
       handleArgs,
@@ -208,18 +205,18 @@ final class MyCentralManager extends PlatformCentralManager
     }
     final addressArgs = peripheral.addressArgs;
     final handleArgs = characteristic.handleArgs;
-    final stateArgs = state
-        ? characteristic.properties.contains(GATTCharacteristicProperty.notify)
-            ? MyGATTCharacteristicNotifyStateArgs.notify
-            : MyGATTCharacteristicNotifyStateArgs.indicate
-        : MyGATTCharacteristicNotifyStateArgs.none;
+    final stateArgs =
+        state
+            ? characteristic.properties.contains(
+                  GATTCharacteristicProperty.notify,
+                )
+                ? MyGATTCharacteristicNotifyStateArgs.notify
+                : MyGATTCharacteristicNotifyStateArgs.indicate
+            : MyGATTCharacteristicNotifyStateArgs.none;
     logger.info(
-        'setCharacteristicNotifyState: $addressArgs.$handleArgs - $stateArgs');
-    await _api.setCharacteristicNotifyState(
-      addressArgs,
-      handleArgs,
-      stateArgs,
+      'setCharacteristicNotifyState: $addressArgs.$handleArgs - $stateArgs',
     );
+    await _api.setCharacteristicNotifyState(addressArgs, handleArgs, stateArgs);
   }
 
   @override
@@ -276,7 +273,8 @@ final class MyCentralManager extends PlatformCentralManager
   ) {
     final addressArgs = peripheralArgs.addressArgs;
     logger.info(
-        'onDiscovered: $addressArgs - $rssiArgs, $timestampArgs, $typeArgs, $advertisementArgs');
+      'onDiscovered: $addressArgs - $rssiArgs, $timestampArgs, $typeArgs, $advertisementArgs',
+    );
     if (typeArgs == MyAdvertisementTypeArgs.connectableDirected ||
         typeArgs == MyAdvertisementTypeArgs.nonConnectableUndirected ||
         typeArgs == MyAdvertisementTypeArgs.extended) {
@@ -284,11 +282,7 @@ final class MyCentralManager extends PlatformCentralManager
       final peripheral = peripheralArgs.toPeripheral();
       final rssi = rssiArgs;
       final advertisement = advertisementArgs.toAdvertisement();
-      final eventArgs = DiscoveredEventArgs(
-        peripheral,
-        rssi,
-        advertisement,
-      );
+      final eventArgs = DiscoveredEventArgs(peripheral, rssi, advertisement);
       _discoveredController.add(eventArgs);
     } else {
       final oldDiscoveryArgs = _discoveriesArgs.remove(addressArgs);
@@ -300,7 +294,8 @@ final class MyCentralManager extends PlatformCentralManager
         advertisementArgs,
       );
       // TODO: Should we ignore this?
-      final ignored = oldDiscoveryArgs == null ||
+      final ignored =
+          oldDiscoveryArgs == null ||
           _checkDiscoveryArgs(oldDiscoveryArgs, newDiscoveryArgs);
       if (ignored) {
         // Note that ADV_IND will be ignored if the advertiser never reply the
@@ -317,13 +312,15 @@ final class MyCentralManager extends PlatformCentralManager
             typeArgs == MyAdvertisementTypeArgs.scanResponse
                 ? advertisementArgs.toAdvertisement()
                 : oldDiscoveryArgs.advertisementArgs.toAdvertisement();
-        final name = newAdvertisement.name?.isNotEmpty == true
-            ? newAdvertisement.name
-            : oldAdvertisement.name;
-        final serviceUUIDs = {
-          ...oldAdvertisement.serviceUUIDs,
-          ...newAdvertisement.serviceUUIDs,
-        }.toList();
+        final name =
+            newAdvertisement.name?.isNotEmpty == true
+                ? newAdvertisement.name
+                : oldAdvertisement.name;
+        final serviceUUIDs =
+            {
+              ...oldAdvertisement.serviceUUIDs,
+              ...newAdvertisement.serviceUUIDs,
+            }.toList();
         final serviceData = {
           ...oldAdvertisement.serviceData,
           ...newAdvertisement.serviceData,
@@ -338,11 +335,7 @@ final class MyCentralManager extends PlatformCentralManager
           serviceData: serviceData,
           manufacturerSpecificData: manufacturerSpecificData,
         );
-        final eventArgs = DiscoveredEventArgs(
-          peripheral,
-          rssi,
-          advertisement,
-        );
+        final eventArgs = DiscoveredEventArgs(peripheral, rssi, advertisement);
         _discoveredController.add(eventArgs);
       }
     }
@@ -383,7 +376,8 @@ final class MyCentralManager extends PlatformCentralManager
     final addressArgs = peripheralArgs.addressArgs;
     final handleArgs = characteristicArgs.handleArgs;
     logger.info(
-        'onCharacteristicNotified: $addressArgs.$handleArgs - $valueArgs');
+      'onCharacteristicNotified: $addressArgs.$handleArgs - $valueArgs',
+    );
     final peripheral = peripheralArgs.toPeripheral();
     final characteristic = characteristicArgs.toCharacteristic();
     final value = valueArgs;
@@ -512,20 +506,24 @@ final class MyCentralManager extends PlatformCentralManager
     final newAddressArgs = newDiscoveryArgs.peripheralArgs.addressArgs;
     if (oldAddressArgs != newAddressArgs) {
       logger.fine(
-          'ignored by different addressArgs $oldAddressArgs, $newAddressArgs');
+        'ignored by different addressArgs $oldAddressArgs, $newAddressArgs',
+      );
       return true;
     }
-    final address =
-        (newAddressArgs & 0xFFFFFFFFFFFF).toRadixString(16).padLeft(12, '0');
+    final address = (newAddressArgs & 0xFFFFFFFFFFFF)
+        .toRadixString(16)
+        .padLeft(12, '0');
     if (oldDiscoveryArgs.typeArgs == newDiscoveryArgs.typeArgs) {
       logger.fine(
-          'ignored by same typeArgs $address: ${oldDiscoveryArgs.typeArgs}:${oldDiscoveryArgs.timestampArgs}, ${newDiscoveryArgs.typeArgs}:${newDiscoveryArgs.timestampArgs}');
+        'ignored by same typeArgs $address: ${oldDiscoveryArgs.typeArgs}:${oldDiscoveryArgs.timestampArgs}, ${newDiscoveryArgs.typeArgs}:${newDiscoveryArgs.timestampArgs}',
+      );
       return true;
     }
     if (oldDiscoveryArgs.typeArgs != MyAdvertisementTypeArgs.scanResponse &&
         newDiscoveryArgs.typeArgs != MyAdvertisementTypeArgs.scanResponse) {
       logger.fine(
-          'ignored by wrong typeArgs $address:  ${oldDiscoveryArgs.typeArgs}:${oldDiscoveryArgs.timestampArgs}, ${newDiscoveryArgs.typeArgs}:${newDiscoveryArgs.timestampArgs}');
+        'ignored by wrong typeArgs $address:  ${oldDiscoveryArgs.typeArgs}:${oldDiscoveryArgs.timestampArgs}, ${newDiscoveryArgs.typeArgs}:${newDiscoveryArgs.timestampArgs}',
+      );
       return true;
     }
     final interval =
@@ -535,7 +533,8 @@ final class MyCentralManager extends PlatformCentralManager
     final ignored = interval < 0 || interval > 1000;
     if (ignored) {
       logger.fine(
-          'ignored by wrong timestampArgs $address: $interval, ${oldDiscoveryArgs.typeArgs}:${oldDiscoveryArgs.timestampArgs}, ${newDiscoveryArgs.typeArgs}:${newDiscoveryArgs.timestampArgs}');
+        'ignored by wrong timestampArgs $address: $interval, ${oldDiscoveryArgs.typeArgs}:${oldDiscoveryArgs.timestampArgs}, ${newDiscoveryArgs.typeArgs}:${newDiscoveryArgs.timestampArgs}',
+      );
     }
     return ignored;
   }

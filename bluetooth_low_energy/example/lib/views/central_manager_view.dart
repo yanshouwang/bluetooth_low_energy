@@ -22,15 +22,16 @@ class CentralManagerView extends StatelessWidget {
         title: const Text('Central Manager'),
         actions: [
           TextButton(
-            onPressed: state == BluetoothLowEnergyState.poweredOn
-                ? () async {
-                    if (discovering) {
-                      await viewModel.stopDiscovery();
-                    } else {
-                      await viewModel.startDiscovery();
+            onPressed:
+                state == BluetoothLowEnergyState.poweredOn
+                    ? () async {
+                      if (discovering) {
+                        await viewModel.stopDiscovery();
+                      } else {
+                        await viewModel.startDiscovery();
+                      }
                     }
-                  }
-                : null,
+                    : null,
             child: Text(discovering ? 'END' : 'BEGIN'),
           ),
         ],
@@ -76,32 +77,26 @@ class CentralManagerView extends StatelessWidget {
             ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
-              children: [
-                RSSIIndicator(rssi),
-                Text('$rssi'),
-              ],
+              children: [RSSIIndicator(rssi), Text('$rssi')],
             ),
           );
         },
         separatorBuilder: (context, i) {
-          return const Divider(
-            height: 0.0,
-          );
+          return const Divider(height: 0.0);
         },
         itemCount: discoveries.length,
       );
     } else {
       return Center(
-        child: Text(
-          '$state',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        child: Text('$state', style: Theme.of(context).textTheme.titleMedium),
       );
     }
   }
 
   void onTapDissovery(
-      BuildContext context, DiscoveredEventArgs discovery) async {
+    BuildContext context,
+    DiscoveredEventArgs discovery,
+  ) async {
     final viewModel = ViewModel.of<CentralManagerViewModel>(context);
     if (viewModel.discovering) {
       await viewModel.stopDiscovery();
@@ -114,13 +109,13 @@ class CentralManagerView extends StatelessWidget {
   }
 
   void onLongPressDiscovery(
-      BuildContext context, DiscoveredEventArgs discovery) async {
+    BuildContext context,
+    DiscoveredEventArgs discovery,
+  ) async {
     await showModalBottomSheet(
       context: context,
       builder: (context) {
-        return AdvertisementView(
-          advertisement: discovery.advertisement,
-        );
+        return AdvertisementView(advertisement: discovery.advertisement);
       },
     );
   }

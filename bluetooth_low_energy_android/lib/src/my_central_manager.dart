@@ -14,13 +14,13 @@ final class MyCentralManager extends PlatformCentralManager
     implements MyCentralManagerFlutterAPI {
   final MyCentralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
-      _stateChangedController;
+  _stateChangedController;
   final StreamController<DiscoveredEventArgs> _discoveredController;
   final StreamController<PeripheralConnectionStateChangedEventArgs>
-      _connectionStateChangedController;
+  _connectionStateChangedController;
   final StreamController<PeripheralMTUChangedEventArgs> _mtuChangedController;
   final StreamController<GATTCharacteristicNotifiedEventArgs>
-      _characteristicNotifiedController;
+  _characteristicNotifiedController;
 
   final Map<String, int> _mtus;
 
@@ -29,14 +29,14 @@ final class MyCentralManager extends PlatformCentralManager
   BluetoothLowEnergyState _state;
 
   MyCentralManager()
-      : _api = MyCentralManagerHostAPI(),
-        _stateChangedController = StreamController.broadcast(),
-        _discoveredController = StreamController.broadcast(),
-        _connectionStateChangedController = StreamController.broadcast(),
-        _mtuChangedController = StreamController.broadcast(),
-        _characteristicNotifiedController = StreamController.broadcast(),
-        _mtus = {},
-        _state = BluetoothLowEnergyState.unknown;
+    : _api = MyCentralManagerHostAPI(),
+      _stateChangedController = StreamController.broadcast(),
+      _discoveredController = StreamController.broadcast(),
+      _connectionStateChangedController = StreamController.broadcast(),
+      _mtuChangedController = StreamController.broadcast(),
+      _characteristicNotifiedController = StreamController.broadcast(),
+      _mtus = {},
+      _state = BluetoothLowEnergyState.unknown;
 
   UUID get cccUUID => UUID.short(0x2902);
   @override
@@ -48,7 +48,7 @@ final class MyCentralManager extends PlatformCentralManager
   Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
   @override
   Stream<PeripheralConnectionStateChangedEventArgs>
-      get connectionStateChanged => _connectionStateChangedController.stream;
+  get connectionStateChanged => _connectionStateChangedController.stream;
   @override
   Stream<PeripheralMTUChangedEventArgs> get mtuChanged =>
       _mtuChangedController.stream;
@@ -88,9 +88,7 @@ final class MyCentralManager extends PlatformCentralManager
   }
 
   @override
-  Future<void> startDiscovery({
-    List<UUID>? serviceUUIDs,
-  }) async {
+  Future<void> startDiscovery({List<UUID>? serviceUUIDs}) async {
     final serviceUUIDsArgs =
         serviceUUIDs?.map((uuid) => uuid.toArgs()).toList() ?? [];
     logger.info('startDiscovery: $serviceUUIDsArgs');
@@ -107,10 +105,11 @@ final class MyCentralManager extends PlatformCentralManager
   Future<List<Peripheral>> retrieveConnectedPeripherals() async {
     logger.info('retrieveConnectedPeripherals');
     final peripheralsArgs = await _api.retrieveConnectedPeripherals();
-    final peripherals = peripheralsArgs
-        .cast<MyPeripheralArgs>()
-        .map((args) => args.toPeripheral())
-        .toList();
+    final peripherals =
+        peripheralsArgs
+            .cast<MyPeripheralArgs>()
+            .map((args) => args.toPeripheral())
+            .toList();
     return peripherals;
   }
 
@@ -135,10 +134,7 @@ final class MyCentralManager extends PlatformCentralManager
   }
 
   @override
-  Future<int> requestMTU(
-    Peripheral peripheral, {
-    required int mtu,
-  }) async {
+  Future<int> requestMTU(Peripheral peripheral, {required int mtu}) async {
     if (peripheral is! MyPeripheral) {
       throw TypeError();
     }
@@ -182,10 +178,11 @@ final class MyCentralManager extends PlatformCentralManager
     final addressArgs = peripheral.addressArgs;
     logger.info('discoverGATT: $addressArgs');
     final servicesArgs = await _api.discoverGATT(addressArgs);
-    final services = servicesArgs
-        .cast<MyGATTServiceArgs>()
-        .map((args) => args.toService())
-        .toList();
+    final services =
+        servicesArgs
+            .cast<MyGATTServiceArgs>()
+            .map((args) => args.toService())
+            .toList();
     return services;
   }
 
@@ -221,7 +218,8 @@ final class MyCentralManager extends PlatformCentralManager
     final valueArgs = value;
     final typeArgs = type.toArgs();
     logger.info(
-        'writeCharacteristic: $addressArgs.$hashCodeArgs - $valueArgs, $typeArgs');
+      'writeCharacteristic: $addressArgs.$hashCodeArgs - $valueArgs, $typeArgs',
+    );
     await _api.writeCharacteristic(
       addressArgs,
       hashCodeArgs,
@@ -244,7 +242,8 @@ final class MyCentralManager extends PlatformCentralManager
     final hashCodeArgs = characteristic.hashCodeArgs;
     final enableArgs = state;
     logger.info(
-        'setCharacteristicNotification: $addressArgs.$hashCodeArgs - $enableArgs');
+      'setCharacteristicNotification: $addressArgs.$hashCodeArgs - $enableArgs',
+    );
     await _api.setCharacteristicNotification(
       addressArgs,
       hashCodeArgs,
@@ -252,18 +251,18 @@ final class MyCentralManager extends PlatformCentralManager
     );
     // Seems the docs is not correct, this operation is necessary for all characteristics.
     // https://developer.android.com/guide/topics/connectivity/bluetooth/transfer-ble-data#notification
-    final descriptor = characteristic.descriptors
-        .firstWhere((descriptor) => descriptor.uuid == cccUUID);
-    final value = state
-        ? characteristic.properties.contains(GATTCharacteristicProperty.notify)
-            ? _args.enableNotificationValue
-            : _args.enableIndicationValue
-        : _args.disableNotificationValue;
-    await writeDescriptor(
-      peripheral,
-      descriptor,
-      value: value,
+    final descriptor = characteristic.descriptors.firstWhere(
+      (descriptor) => descriptor.uuid == cccUUID,
     );
+    final value =
+        state
+            ? characteristic.properties.contains(
+                  GATTCharacteristicProperty.notify,
+                )
+                ? _args.enableNotificationValue
+                : _args.enableIndicationValue
+            : _args.disableNotificationValue;
+    await writeDescriptor(peripheral, descriptor, value: value);
   }
 
   @override
@@ -320,11 +319,7 @@ final class MyCentralManager extends PlatformCentralManager
     final peripheral = peripheralArgs.toPeripheral();
     final rssi = rssiArgs;
     final advertisement = advertisementArgs.toAdvertisement();
-    final eventArgs = DiscoveredEventArgs(
-      peripheral,
-      rssi,
-      advertisement,
-    );
+    final eventArgs = DiscoveredEventArgs(peripheral, rssi, advertisement);
     _discoveredController.add(eventArgs);
   }
 
@@ -367,7 +362,8 @@ final class MyCentralManager extends PlatformCentralManager
     final addressArgs = peripheralArgs.addressArgs;
     final hashCodeArgs = characteristicArgs.hashCodeArgs;
     logger.info(
-        'onCharacteristicNotified: $addressArgs.$hashCodeArgs - $valueArgs');
+      'onCharacteristicNotified: $addressArgs.$hashCodeArgs - $valueArgs',
+    );
     final peripheral = peripheralArgs.toPeripheral();
     final characteristic = characteristicArgs.toCharacteristic();
     final value = valueArgs;

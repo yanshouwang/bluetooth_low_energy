@@ -1,6 +1,6 @@
 # bluetooth_low_energy_android
 
-The Android implementation of [`bluetooth_low_energy`][1].
+Android implementation of the [`bluetooth_low_energy`][1] plugin.
 
 ## Usage
 

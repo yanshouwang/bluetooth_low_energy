@@ -8,9 +8,9 @@ import 'package:pigeon/pigeon.dart';
     dartOut: 'lib/src/my_api.g.dart',
     dartOptions: DartOptions(),
     kotlinOut:
-        'android/src/main/kotlin/dev/hebei/bluetooth_low_energy_android/MyAPI.g.kt',
+        'android/src/main/kotlin/dev/zeekr/bluetooth_low_energy_android/MyAPI.g.kt',
     kotlinOptions: KotlinOptions(
-      package: 'dev.hebei.bluetooth_low_energy_android',
+      package: 'dev.zeekr.bluetooth_low_energy_android',
     ),
   ),
 )
@@ -24,18 +24,9 @@ enum MyBluetoothLowEnergyStateArgs {
   turningOff,
 }
 
-enum MyAdvertiseModeArgs {
-  lowPower,
-  balanced,
-  lowLatency,
-}
+enum MyAdvertiseModeArgs { lowPower, balanced, lowLatency }
 
-enum MyTXPowerLevelArgs {
-  ultraLow,
-  low,
-  medium,
-  high,
-}
+enum MyTXPowerLevelArgs { ultraLow, low, medium, high }
 
 enum MyConnectionStateArgs {
   disconnected,
@@ -59,10 +50,7 @@ enum MyGATTCharacteristicPermissionArgs {
   writeEncrypted,
 }
 
-enum MyGATTCharacteristicWriteTypeArgs {
-  withResponse,
-  withoutResponse,
-}
+enum MyGATTCharacteristicWriteTypeArgs { withResponse, withoutResponse }
 
 enum MyGATTStatusArgs {
   success,
@@ -169,10 +157,7 @@ class MyGATTDescriptorArgs {
   final int hashCodeArgs;
   final String uuidArgs;
 
-  MyGATTDescriptorArgs(
-    this.hashCodeArgs,
-    this.uuidArgs,
-  );
+  MyGATTDescriptorArgs(this.hashCodeArgs, this.uuidArgs);
 }
 
 class MyGATTCharacteristicArgs {
@@ -391,9 +376,5 @@ abstract class MyPeripheralManagerFlutterAPI {
     int offsetArgs,
     Uint8List valueArgs,
   );
-  void onExecuteWrite(
-    MyCentralArgs centralArgs,
-    int idArgs,
-    bool executeArgs,
-  );
+  void onExecuteWrite(MyCentralArgs centralArgs, int idArgs, bool executeArgs);
 }

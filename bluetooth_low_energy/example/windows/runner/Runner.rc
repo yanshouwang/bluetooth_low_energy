@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "dev.hebei" "\0"
+            VALUE "CompanyName", "dev.zeekr" "\0"
             VALUE "FileDescription", "bluetooth_low_energy_example" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "bluetooth_low_energy_example" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2024 dev.hebei. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025 dev.zeekr. All rights reserved." "\0"
             VALUE "OriginalFilename", "bluetooth_low_energy_example.exe" "\0"
             VALUE "ProductName", "bluetooth_low_energy_example" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"

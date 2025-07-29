@@ -10,18 +10,14 @@ abstract base class GATTAttribute {
   final UUID uuid;
 
   /// Constructs a [GATTAttribute].
-  GATTAttribute({
-    required this.uuid,
-  });
+  GATTAttribute({required this.uuid});
 }
 
 /// An object that provides further information about a remote peripheral’s
 /// characteristic.
 abstract base class GATTDescriptor extends GATTAttribute {
   /// Constructs a [GATTDescriptor].
-  GATTDescriptor({
-    required super.uuid,
-  });
+  GATTDescriptor({required super.uuid});
 
   /// Creates a mutable descriptor.
   ///
@@ -32,11 +28,7 @@ abstract base class GATTDescriptor extends GATTAttribute {
   factory GATTDescriptor.mutable({
     required UUID uuid,
     required List<GATTCharacteristicPermission> permissions,
-  }) =>
-      MutableGATTDescriptor(
-        uuid: uuid,
-        permissions: permissions,
-      );
+  }) => MutableGATTDescriptor(uuid: uuid, permissions: permissions);
 
   /// Creates a immutable descriptor with a specified value.
   ///
@@ -50,11 +42,7 @@ abstract base class GATTDescriptor extends GATTAttribute {
   factory GATTDescriptor.immutable({
     required UUID uuid,
     required Uint8List value,
-  }) =>
-      ImmutableGATTDescriptor(
-        uuid: uuid,
-        value: value,
-      );
+  }) => ImmutableGATTDescriptor(uuid: uuid, value: value);
 }
 
 /// A characteristic of a remote peripheral’s service.
@@ -84,13 +72,12 @@ abstract base class GATTCharacteristic extends GATTAttribute {
     required List<GATTCharacteristicProperty> properties,
     required List<GATTCharacteristicPermission> permissions,
     required List<GATTDescriptor> descriptors,
-  }) =>
-      MutableGATTCharacteristic(
-        uuid: uuid,
-        properties: properties,
-        permissions: permissions,
-        descriptors: descriptors,
-      );
+  }) => MutableGATTCharacteristic(
+    uuid: uuid,
+    properties: properties,
+    permissions: permissions,
+    descriptors: descriptors,
+  );
 
   /// Creates a immutable characteristic with a specified value.
   ///
@@ -102,12 +89,11 @@ abstract base class GATTCharacteristic extends GATTAttribute {
     required UUID uuid,
     required Uint8List value,
     required List<GATTDescriptor> descriptors,
-  }) =>
-      ImmutableGATTCharacteristic(
-        uuid: uuid,
-        value: value,
-        descriptors: descriptors,
-      );
+  }) => ImmutableGATTCharacteristic(
+    uuid: uuid,
+    value: value,
+    descriptors: descriptors,
+  );
 }
 
 /// A collection of data and associated behaviors that accomplish a function or
@@ -147,10 +133,7 @@ final class MutableGATTDescriptor extends GATTDescriptor {
   /// For more details about these descriptor types, see CBUUID.
   ///
   /// [permissions] The permissions of the descriptor value.
-  MutableGATTDescriptor({
-    required super.uuid,
-    required this.permissions,
-  });
+  MutableGATTDescriptor({required super.uuid, required this.permissions});
 }
 
 /// An object that provides additional information about a local peripheral’s
@@ -168,14 +151,8 @@ final class ImmutableGATTDescriptor extends MutableGATTDescriptor {
   ///
   /// [value] The descriptor value to cache. You must provide a non-nil value.
   /// Once published, you can’t update the value dynamically.
-  ImmutableGATTDescriptor({
-    required super.uuid,
-    required this.value,
-  }) : super(
-          permissions: [
-            GATTCharacteristicPermission.read,
-          ],
-        );
+  ImmutableGATTDescriptor({required super.uuid, required this.value})
+    : super(permissions: [GATTCharacteristicPermission.read]);
 }
 
 /// A mutable characteristic of a local peripheral’s service.
@@ -214,13 +191,9 @@ final class ImmutableGATTCharacteristic extends MutableGATTCharacteristic {
     required this.value,
     required super.descriptors,
   }) : super(
-          properties: [
-            GATTCharacteristicProperty.read,
-          ],
-          permissions: [
-            GATTCharacteristicPermission.read,
-          ],
-        );
+         properties: [GATTCharacteristicProperty.read],
+         permissions: [GATTCharacteristicPermission.read],
+       );
 }
 
 /// A read request that uses the Attribute Protocol (ATT).
@@ -229,9 +202,7 @@ abstract base class GATTReadRequest {
   final int offset;
 
   /// Constructs a [GATTReadRequest].
-  GATTReadRequest({
-    required this.offset,
-  });
+  GATTReadRequest({required this.offset});
 }
 
 /// A write request that uses the Attribute Protocol (ATT).
@@ -243,10 +214,7 @@ abstract base class GATTWriteRequest {
   final Uint8List value;
 
   /// Constructs a [GATTWriteRequest].
-  GATTWriteRequest({
-    required this.offset,
-    required this.value,
-  });
+  GATTWriteRequest({required this.offset, required this.value});
 }
 
 /// Values that represent the possible properties of a characteristic.

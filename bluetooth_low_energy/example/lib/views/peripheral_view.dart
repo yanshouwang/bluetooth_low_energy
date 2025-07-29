@@ -12,9 +12,7 @@ class PeripheralView extends StatelessWidget {
   final TreeController _treeController;
 
   PeripheralView({super.key})
-      : _treeController = TreeController(
-          allNodesExpanded: false,
-        );
+    : _treeController = TreeController(allNodesExpanded: false);
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +64,8 @@ class PeripheralView extends StatelessWidget {
   }
 
   List<TreeNode> _buildCharacteristicTreeNodes(
-      List<CharacteristicViewModel> viewModels) {
+    List<CharacteristicViewModel> viewModels,
+  ) {
     return viewModels.map((viewModel) {
       final descriptorViewModels = viewModel.descriptorViewModels;
       return TreeNode(
@@ -94,7 +93,8 @@ class PeripheralView extends StatelessWidget {
   }
 
   List<TreeNode> _buildDescriptorTreeNodes(
-      List<DescriptorViewModel> viewModels) {
+    List<DescriptorViewModel> viewModels,
+  ) {
     return viewModels.map((viewModel) {
       return TreeNode(
         content: InheritedViewModel(

@@ -18,10 +18,7 @@ final class CentralConnectionStateChangedEventArgs extends EventArgs {
   final ConnectionState state;
 
   /// Constructs a [CentralConnectionStateChangedEventArgs].
-  CentralConnectionStateChangedEventArgs(
-    this.central,
-    this.state,
-  );
+  CentralConnectionStateChangedEventArgs(this.central, this.state);
 }
 
 /// The central MTU changed event arguments.
@@ -33,10 +30,7 @@ final class CentralMTUChangedEventArgs extends EventArgs {
   final int mtu;
 
   /// Constructs a [CentralMTUChangedEventArgs].
-  CentralMTUChangedEventArgs(
-    this.central,
-    this.mtu,
-  );
+  CentralMTUChangedEventArgs(this.central, this.mtu);
 }
 
 /// The GATT characteristic read requested event arguments.
@@ -167,16 +161,16 @@ abstract interface class PeripheralManager
   /// Tells that the local peripheral device received an Attribute Protocol (ATT)
   /// read request for a characteristic with a dynamic value.
   Stream<GATTCharacteristicReadRequestedEventArgs>
-      get characteristicReadRequested;
+  get characteristicReadRequested;
 
   /// Tells that the local peripheral device received an Attribute Protocol (ATT)
   /// write request for a characteristic with a dynamic value.
   Stream<GATTCharacteristicWriteRequestedEventArgs>
-      get characteristicWriteRequested;
+  get characteristicWriteRequested;
 
   /// Tells that the peripheral manager received a characteristic’s notify changed.
   Stream<GATTCharacteristicNotifyStateChangedEventArgs>
-      get characteristicNotifyStateChanged;
+  get characteristicNotifyStateChanged;
 
   /// Tells that the local peripheral device received an Attribute Protocol (ATT)
   /// read request for a descriptor with a dynamic value.
@@ -254,7 +248,8 @@ abstract interface class PeripheralManager
 /// Platform-specific implementations should implement this class to support
 /// [PlatformPeripheralManager].
 abstract base class PlatformPeripheralManager
-    extends PlatformBluetoothLowEnergyManager implements PeripheralManager {
+    extends PlatformBluetoothLowEnergyManager
+    implements PeripheralManager {
   static final Object _token = Object();
 
   static PlatformPeripheralManager? _instance;
@@ -264,7 +259,8 @@ abstract base class PlatformPeripheralManager
     final instance = _instance;
     if (instance == null) {
       throw UnimplementedError(
-          'PeripheralManager is not implemented on this platform.');
+        'PeripheralManager is not implemented on this platform.',
+      );
     }
     return instance;
   }

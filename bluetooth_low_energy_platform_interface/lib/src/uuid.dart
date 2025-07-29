@@ -27,24 +27,24 @@ final class UUID {
 
   // Creates a new Bluetooth UUID from the short (16 or 32 bit) encoding.
   UUID.short(int shortValue)
-      : value = [
-          (shortValue >> 24) & 0xff,
-          (shortValue >> 16) & 0xff,
-          (shortValue >> 8) & 0xff,
-          (shortValue >> 0) & 0xff,
-          0x00,
-          0x00,
-          0x10,
-          0x00,
-          0x80,
-          0x00,
-          0x00,
-          0x80,
-          0x5f,
-          0x9b,
-          0x34,
-          0xfb
-        ];
+    : value = [
+        (shortValue >> 24) & 0xff,
+        (shortValue >> 16) & 0xff,
+        (shortValue >> 8) & 0xff,
+        (shortValue >> 0) & 0xff,
+        0x00,
+        0x00,
+        0x10,
+        0x00,
+        0x80,
+        0x00,
+        0x00,
+        0x80,
+        0x5f,
+        0x9b,
+        0x34,
+        0xfb,
+      ];
 
   /// Creates a new UUID from the string format encoding (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
   /// where xx is a hexadecimal number).
@@ -100,12 +100,10 @@ final class UUID {
   ///
   /// The address type must be String or int.
   factory UUID.fromAddress(Object address) {
-    final node = address is String
-        ? address.splitMapJoin(
-            ':',
-            onMatch: (m) => '',
-          )
-        : address is int
+    final node =
+        address is String
+            ? address.splitMapJoin(':', onMatch: (m) => '')
+            : address is int
             ? (address & 0xFFFFFFFFFFFF).toRadixString(16).padLeft(12, '0')
             : throw TypeError();
     // We don't know the timestamp of the bluetooth device, use nil UUID as prefix.

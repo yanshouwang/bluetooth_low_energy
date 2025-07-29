@@ -45,19 +45,18 @@ class _CharacteristicViewState extends State<CharacteristicView> {
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.vertical(
                               top: const Radius.circular(12.0),
-                              bottom: viewModel.canWrite ||
-                                      viewModel.canWriteWithoutResponse
-                                  ? Radius.zero
-                                  : const Radius.circular(12.0),
+                              bottom:
+                                  viewModel.canWrite ||
+                                          viewModel.canWriteWithoutResponse
+                                      ? Radius.zero
+                                      : const Radius.circular(12.0),
                             ),
                           ),
                         ),
                         child: ListView.builder(
                           itemBuilder: (context, i) {
                             final log = logs[i];
-                            return LogView(
-                              log: log,
-                            );
+                            return LogView(log: log);
                           },
                           itemCount: logs.length,
                         ),
@@ -67,20 +66,22 @@ class _CharacteristicViewState extends State<CharacteristicView> {
                       children: [
                         Visibility(
                           visible: viewModel.canNotify,
-                          child: viewModel.notifyState
-                              ? IconButton.filled(
-                                  onPressed: () async {
-                                    await viewModel.setNotifyState(false);
-                                  },
-                                  icon:
-                                      const Icon(Symbols.notifications_active),
-                                )
-                              : IconButton.filledTonal(
-                                  onPressed: () async {
-                                    await viewModel.setNotifyState(true);
-                                  },
-                                  icon: const Icon(Symbols.notifications_off),
-                                ),
+                          child:
+                              viewModel.notifyState
+                                  ? IconButton.filled(
+                                    onPressed: () async {
+                                      await viewModel.setNotifyState(false);
+                                    },
+                                    icon: const Icon(
+                                      Symbols.notifications_active,
+                                    ),
+                                  )
+                                  : IconButton.filledTonal(
+                                    onPressed: () async {
+                                      await viewModel.setNotifyState(true);
+                                    },
+                                    icon: const Icon(Symbols.notifications_off),
+                                  ),
                         ),
                         Visibility(
                           visible: viewModel.canRead,
@@ -92,30 +93,36 @@ class _CharacteristicViewState extends State<CharacteristicView> {
                           ),
                         ),
                         Visibility(
-                          visible: viewModel.canWrite ||
+                          visible:
+                              viewModel.canWrite ||
                               viewModel.canWriteWithoutResponse,
-                          child: viewModel.writeType ==
-                                  GATTCharacteristicWriteType.withResponse
-                              ? IconButton.filled(
-                                  onPressed: viewModel.canWriteWithoutResponse
-                                      ? () {
-                                          viewModel.setWriteType(
-                                              GATTCharacteristicWriteType
-                                                  .withoutResponse);
-                                        }
-                                      : null,
-                                  icon: const Icon(Symbols.swap_vert),
-                                )
-                              : IconButton.filledTonal(
-                                  onPressed: viewModel.canWrite
-                                      ? () {
-                                          viewModel.setWriteType(
-                                              GATTCharacteristicWriteType
-                                                  .withResponse);
-                                        }
-                                      : null,
-                                  icon: const Icon(Symbols.arrow_upward),
-                                ),
+                          child:
+                              viewModel.writeType ==
+                                      GATTCharacteristicWriteType.withResponse
+                                  ? IconButton.filled(
+                                    onPressed:
+                                        viewModel.canWriteWithoutResponse
+                                            ? () {
+                                              viewModel.setWriteType(
+                                                GATTCharacteristicWriteType
+                                                    .withoutResponse,
+                                              );
+                                            }
+                                            : null,
+                                    icon: const Icon(Symbols.swap_vert),
+                                  )
+                                  : IconButton.filledTonal(
+                                    onPressed:
+                                        viewModel.canWrite
+                                            ? () {
+                                              viewModel.setWriteType(
+                                                GATTCharacteristicWriteType
+                                                    .withResponse,
+                                              );
+                                            }
+                                            : null,
+                                    icon: const Icon(Symbols.arrow_upward),
+                                  ),
                         ),
                         IconButton.filled(
                           onPressed: () => viewModel.clearLogs(),
@@ -137,9 +144,7 @@ class _CharacteristicViewState extends State<CharacteristicView> {
                 child: TextField(
                   controller: _textController,
                   decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 12.0,
-                    ),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12.0),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.vertical(
                         bottom: Radius.circular(12.0),
@@ -153,12 +158,13 @@ class _CharacteristicViewState extends State<CharacteristicView> {
                 builder: (context, tev, child) {
                   final text = tev.text;
                   return IconButton.filled(
-                    onPressed: text.isEmpty
-                        ? null
-                        : () async {
-                            final value = utf8.encode(text);
-                            await viewModel.write(value);
-                          },
+                    onPressed:
+                        text.isEmpty
+                            ? null
+                            : () async {
+                              final value = utf8.encode(text);
+                              await viewModel.write(value);
+                            },
                     icon: const Icon(Symbols.pets),
                   );
                 },

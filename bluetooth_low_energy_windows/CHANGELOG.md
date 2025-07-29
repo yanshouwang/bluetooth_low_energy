@@ -1,3 +1,7 @@
+## 6.1.0
+
+* Use fvm 3.29.3
+
 ## 6.0.0
 
 * Implement `PeripheralManager` API.

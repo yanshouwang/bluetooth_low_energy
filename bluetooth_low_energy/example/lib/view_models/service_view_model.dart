@@ -15,23 +15,29 @@ class ServiceViewModel extends ViewModel {
     required CentralManager manager,
     required Peripheral peripheral,
     required GATTService service,
-  })  : _service = service,
-        _includedServiceViewModels = Platform.isLinux
-            ? []
-            : service.includedServices
-                .map((service) => ServiceViewModel(
-                      manager: manager,
-                      peripheral: peripheral,
-                      service: service,
-                    ))
-                .toList(),
-        _characteristicViewModels = service.characteristics
-            .map((characteristic) => CharacteristicViewModel(
-                  manager: manager,
-                  peripheral: peripheral,
-                  characteristic: characteristic,
-                ))
-            .toList();
+  }) : _service = service,
+       _includedServiceViewModels =
+           Platform.isLinux
+               ? []
+               : service.includedServices
+                   .map(
+                     (service) => ServiceViewModel(
+                       manager: manager,
+                       peripheral: peripheral,
+                       service: service,
+                     ),
+                   )
+                   .toList(),
+       _characteristicViewModels =
+           service.characteristics
+               .map(
+                 (characteristic) => CharacteristicViewModel(
+                   manager: manager,
+                   peripheral: peripheral,
+                   characteristic: characteristic,
+                 ),
+               )
+               .toList();
 
   UUID get uuid => _service.uuid;
   bool get isPrimary => _service.isPrimary;

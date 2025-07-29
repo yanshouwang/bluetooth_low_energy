@@ -6,8 +6,5 @@ import 'my_bluez.dart';
 final class MyPeripheral extends Peripheral {
   final BlueZDevice blueZDevice;
 
-  MyPeripheral(this.blueZDevice)
-      : super(
-          uuid: blueZDevice.myUUID,
-        );
+  MyPeripheral(this.blueZDevice) : super(uuid: blueZDevice.myUUID);
 }

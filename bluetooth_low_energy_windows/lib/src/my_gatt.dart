@@ -5,10 +5,7 @@ import 'my_api.g.dart';
 final class MyGATTDescriptor extends GATTDescriptor {
   final int handleArgs;
 
-  MyGATTDescriptor({
-    required this.handleArgs,
-    required super.uuid,
-  });
+  MyGATTDescriptor({required this.handleArgs, required super.uuid});
 
   @override
   int get hashCode => handleArgs;
@@ -52,9 +49,9 @@ final class MyGATTService extends GATTService {
     required List<MyGATTService> includedServices,
     required List<MyGATTCharacteristic> characteristics,
   }) : super(
-          includedServices: includedServices,
-          characteristics: characteristics,
-        );
+         includedServices: includedServices,
+         characteristics: characteristics,
+       );
 
   @override
   List<MyGATTService> get includedServices =>

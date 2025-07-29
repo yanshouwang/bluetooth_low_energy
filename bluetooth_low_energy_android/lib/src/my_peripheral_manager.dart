@@ -16,20 +16,20 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   final MyPeripheralManagerHostAPI _api;
   final ListEquality<int> _valueEquality;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
-      _stateChangedController;
+  _stateChangedController;
   final StreamController<CentralConnectionStateChangedEventArgs>
-      _connnectionStateChangedController;
+  _connnectionStateChangedController;
   final StreamController<CentralMTUChangedEventArgs> _mtuChangedController;
   final StreamController<GATTCharacteristicReadRequestedEventArgs>
-      _characteristicReadRequestedController;
+  _characteristicReadRequestedController;
   final StreamController<GATTCharacteristicWriteRequestedEventArgs>
-      _characteristicWriteRequestedController;
+  _characteristicWriteRequestedController;
   final StreamController<GATTCharacteristicNotifyStateChangedEventArgs>
-      _characteristicNotifyStateChangedController;
+  _characteristicNotifyStateChangedController;
   final StreamController<GATTDescriptorReadRequestedEventArgs>
-      _descriptorReadRequestedController;
+  _descriptorReadRequestedController;
   final StreamController<GATTDescriptorWriteRequestedEventArgs>
-      _descriptorWriteRequestedController;
+  _descriptorWriteRequestedController;
 
   final Map<int, MutableGATTCharacteristic> _characteristics;
   final Map<int, MutableGATTDescriptor> _descriptors;
@@ -46,25 +46,25 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   BluetoothLowEnergyState _state;
 
   MyPeripheralManager()
-      : _api = MyPeripheralManagerHostAPI(),
-        _valueEquality = const ListEquality(),
-        _stateChangedController = StreamController.broadcast(),
-        _connnectionStateChangedController = StreamController.broadcast(),
-        _mtuChangedController = StreamController.broadcast(),
-        _characteristicReadRequestedController = StreamController.broadcast(),
-        _characteristicWriteRequestedController = StreamController.broadcast(),
-        _characteristicNotifyStateChangedController =
-            StreamController.broadcast(),
-        _descriptorReadRequestedController = StreamController.broadcast(),
-        _descriptorWriteRequestedController = StreamController.broadcast(),
-        _characteristics = {},
-        _descriptors = {},
-        _cccdCharacteristics = {},
-        _cccdValues = {},
-        _mtus = {},
-        _preparedHashCodeArgs = {},
-        _preparedValue = {},
-        _state = BluetoothLowEnergyState.unknown;
+    : _api = MyPeripheralManagerHostAPI(),
+      _valueEquality = const ListEquality(),
+      _stateChangedController = StreamController.broadcast(),
+      _connnectionStateChangedController = StreamController.broadcast(),
+      _mtuChangedController = StreamController.broadcast(),
+      _characteristicReadRequestedController = StreamController.broadcast(),
+      _characteristicWriteRequestedController = StreamController.broadcast(),
+      _characteristicNotifyStateChangedController =
+          StreamController.broadcast(),
+      _descriptorReadRequestedController = StreamController.broadcast(),
+      _descriptorWriteRequestedController = StreamController.broadcast(),
+      _characteristics = {},
+      _descriptors = {},
+      _cccdCharacteristics = {},
+      _cccdValues = {},
+      _mtus = {},
+      _preparedHashCodeArgs = {},
+      _preparedValue = {},
+      _state = BluetoothLowEnergyState.unknown;
 
   UUID get cccUUID => UUID.short(0x2902);
   @override
@@ -80,16 +80,16 @@ final class MyPeripheralManager extends PlatformPeripheralManager
       _mtuChangedController.stream;
   @override
   Stream<GATTCharacteristicReadRequestedEventArgs>
-      get characteristicReadRequested =>
-          _characteristicReadRequestedController.stream;
+  get characteristicReadRequested =>
+      _characteristicReadRequestedController.stream;
   @override
   Stream<GATTCharacteristicWriteRequestedEventArgs>
-      get characteristicWriteRequested =>
-          _characteristicWriteRequestedController.stream;
+  get characteristicWriteRequested =>
+      _characteristicWriteRequestedController.stream;
   @override
   Stream<GATTCharacteristicNotifyStateChangedEventArgs>
-      get characteristicNotifyStateChanged =>
-          _characteristicNotifyStateChangedController.stream;
+  get characteristicNotifyStateChanged =>
+      _characteristicNotifyStateChangedController.stream;
   @override
   Stream<GATTDescriptorReadRequestedEventArgs> get descriptorReadRequested =>
       _descriptorReadRequestedController.stream;
@@ -162,7 +162,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
       final newNameArgs = await _api.setName(nameArgs);
       if (newNameArgs != nameArgs) {
         throw ArgumentError(
-            'Name changed, but $newNameArgs is different from $nameArgs');
+          'Name changed, but $newNameArgs is different from $nameArgs',
+        );
       }
     }
     final settingsArgs = MyAdvertiseSettingsArgs(
@@ -172,7 +173,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     final advertiseDataArgs = advertisement.toAdvertiseDataArgs();
     final scanResponseArgs = advertisement.toScanResponseArgs();
     logger.info(
-        'startAdvertising: $settingsArgs, $advertiseDataArgs, $scanResponseArgs');
+      'startAdvertising: $settingsArgs, $advertiseDataArgs, $scanResponseArgs',
+    );
     await _api.startAdvertising(
       settingsArgs,
       advertiseDataArgs,
@@ -211,7 +213,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     final offsetArgs = request.offset;
     final valueArgs = value;
     logger.info(
-        'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs');
+      'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs',
+    );
     await _api.sendResponse(
       addressArgs,
       idArgs,
@@ -235,7 +238,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     final offsetArgs = request.offset;
     const valueArgs = null;
     logger.info(
-        'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs');
+      'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs',
+    );
     await _api.sendResponse(
       addressArgs,
       idArgs,
@@ -259,7 +263,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     final offsetArgs = request.offset;
     const valueArgs = null;
     logger.info(
-        'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs');
+      'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs',
+    );
     await _api.sendResponse(
       addressArgs,
       idArgs,
@@ -286,7 +291,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     final offsetArgs = request.offset;
     const valueArgs = null;
     logger.info(
-        'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs');
+      'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs',
+    );
     await _api.sendResponse(
       addressArgs,
       idArgs,
@@ -322,7 +328,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     );
     final valueArgs = value;
     logger.info(
-        'notifyCharacteristicChanged: $addressArgs - $hashCodeArgs, $confirmArgs, $valueArgs');
+      'notifyCharacteristicChanged: $addressArgs - $hashCodeArgs, $confirmArgs, $valueArgs',
+    );
     await _api.notifyCharacteristicChanged(
       addressArgs,
       hashCodeArgs,
@@ -362,7 +369,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   ) {
     final addressArgs = centralArgs.addressArgs;
     logger.info(
-        'onConnectionStateChanged: $addressArgs - $statusArgs, $stateArgs');
+      'onConnectionStateChanged: $addressArgs - $statusArgs, $stateArgs',
+    );
     final central = centralArgs.toCentral();
     final state = stateArgs.toState();
     if (state == ConnectionState.connected) {
@@ -397,7 +405,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   ) async {
     final addressArgs = centralArgs.addressArgs;
     logger.info(
-        'onCharacteristicReadRequest: $addressArgs - $idArgs, $offsetArgs, $hashCodeArgs');
+      'onCharacteristicReadRequest: $addressArgs - $idArgs, $offsetArgs, $hashCodeArgs',
+    );
     final central = centralArgs.toCentral();
     final characteristic = _characteristics[hashCodeArgs];
     if (characteristic == null) {
@@ -442,7 +451,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   ) async {
     final addressArgs = centralArgs.addressArgs;
     logger.info(
-        'onCharacteristicWriteRequest: $addressArgs - $idArgs, $hashCodeArgs, $preparedWriteArgs, $responseNeededArgs, $offsetArgs, $valueArgs');
+      'onCharacteristicWriteRequest: $addressArgs - $idArgs, $hashCodeArgs, $preparedWriteArgs, $responseNeededArgs, $offsetArgs, $valueArgs',
+    );
     final central = centralArgs.toCentral();
     final characteristic = _characteristics[hashCodeArgs];
     if (characteristic == null) {
@@ -530,7 +540,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   ) async {
     final addressArgs = centralArgs.addressArgs;
     logger.info(
-        'onDescriptorReadRequest: $addressArgs - $idArgs, $offsetArgs, $hashCodeArgs');
+      'onDescriptorReadRequest: $addressArgs - $idArgs, $offsetArgs, $hashCodeArgs',
+    );
     final central = centralArgs.toCentral();
     final characteristic = _cccdCharacteristics[hashCodeArgs];
     if (characteristic == null) {
@@ -589,7 +600,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   ) async {
     final addressArgs = centralArgs.addressArgs;
     logger.info(
-        'onDescriptorWriteRequest: $addressArgs - $idArgs, $hashCodeArgs, $preparedWriteArgs, $responseNeededArgs, $offsetArgs, $valueArgs');
+      'onDescriptorWriteRequest: $addressArgs - $idArgs, $hashCodeArgs, $preparedWriteArgs, $responseNeededArgs, $offsetArgs, $valueArgs',
+    );
     final central = centralArgs.toCentral();
     if (preparedWriteArgs) {
       final preparedHashCodeArgs = _preparedHashCodeArgs[addressArgs];
@@ -993,7 +1005,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   ) async {
     try {
       logger.info(
-          'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs');
+        'sendResponse: $addressArgs - $idArgs, $statusArgs, $offsetArgs, $valueArgs',
+      );
       await _api.sendResponse(
         addressArgs,
         idArgs,

@@ -11,8 +11,8 @@ class ServiceTreeNodeView extends StatelessWidget {
     return Text(
       '${viewModel.uuid}',
       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            color: Theme.of(context).colorScheme.primary,
-          ),
+        color: Theme.of(context).colorScheme.primary,
+      ),
     );
   }
 }

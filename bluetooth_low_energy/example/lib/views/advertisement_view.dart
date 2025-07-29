@@ -5,10 +5,7 @@ import 'package:flutter/material.dart';
 class AdvertisementView extends StatelessWidget {
   final Advertisement advertisement;
 
-  const AdvertisementView({
-    super.key,
-    required this.advertisement,
-  });
+  const AdvertisementView({super.key, required this.advertisement});
 
   @override
   Widget build(BuildContext context) {
@@ -36,32 +33,33 @@ class AdvertisementView extends StatelessWidget {
               ),
             ),
           ],
-          rows: manufacturerSpecificData.map((item) {
-            final id = '0x${item.id.toRadixString(16).padLeft(4, '0')}';
-            final value = hex.encode(item.data);
-            return DataRow(
-              cells: [
-                DataCell(
-                  Container(
-                    width: idWidth,
-                    alignment: Alignment.center,
-                    child: Text(id),
-                  ),
-                ),
-                DataCell(
-                  Container(
-                    width: valueWidth,
-                    alignment: Alignment.center,
-                    child: Text(
-                      value,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+          rows:
+              manufacturerSpecificData.map((item) {
+                final id = '0x${item.id.toRadixString(16).padLeft(4, '0')}';
+                final value = hex.encode(item.data);
+                return DataRow(
+                  cells: [
+                    DataCell(
+                      Container(
+                        width: idWidth,
+                        alignment: Alignment.center,
+                        child: Text(id),
+                      ),
                     ),
-                  ),
-                ),
-              ],
-            );
-          }).toList(),
+                    DataCell(
+                      Container(
+                        width: valueWidth,
+                        alignment: Alignment.center,
+                        child: Text(
+                          value,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
         );
       },
     );

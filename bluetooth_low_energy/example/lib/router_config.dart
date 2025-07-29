@@ -20,18 +20,17 @@ final routerConfig = GoRouter(
       // },
       builder: (context, state, navigationShell) => navigationShell,
       navigatorContainerBuilder: (context, navigationShell, children) {
-        final navigators = children.mapIndexed(
-          (index, element) {
-            if (index == 0) {
-              return ViewModelBinding(
-                viewBuilder: (context) => element,
-                viewModelBuilder: (context) => CentralManagerViewModel(),
-              );
-            } else {
-              return element;
-            }
-          },
-        ).toList();
+        final navigators =
+            children.mapIndexed((index, element) {
+              if (index == 0) {
+                return ViewModelBinding(
+                  viewBuilder: () => element,
+                  viewModelBuilder: () => CentralManagerViewModel(),
+                );
+              } else {
+                return element;
+              }
+            }).toList();
         return HomeView(
           navigationShell: navigationShell,
           navigators: navigators,
@@ -51,14 +50,15 @@ final routerConfig = GoRouter(
                   builder: (context, state) {
                     final uuidValue = state.pathParameters['uuid']!;
                     final uuid = UUID.fromString(uuidValue);
-                    final viewModel =
-                        ViewModel.of<CentralManagerViewModel>(context);
+                    final viewModel = ViewModel.of<CentralManagerViewModel>(
+                      context,
+                    );
                     final eventArgs = viewModel.discoveries.firstWhere(
-                        (discovery) => discovery.peripheral.uuid == uuid);
+                      (discovery) => discovery.peripheral.uuid == uuid,
+                    );
                     return ViewModelBinding(
-                      viewBuilder: (context) => PeripheralView(),
-                      viewModelBuilder: (context) =>
-                          PeripheralViewModel(eventArgs),
+                      viewBuilder: () => PeripheralView(),
+                      viewModelBuilder: () => PeripheralViewModel(eventArgs),
                     );
                   },
                 ),
@@ -72,8 +72,8 @@ final routerConfig = GoRouter(
               path: '/peripheral',
               builder: (context, state) {
                 return ViewModelBinding(
-                  viewBuilder: (context) => const PeripheralManagerView(),
-                  viewModelBuilder: (context) => PeripheralManagerViewModel(),
+                  viewBuilder: () => const PeripheralManagerView(),
+                  viewModelBuilder: () => PeripheralManagerViewModel(),
                 );
               },
             ),

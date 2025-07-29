@@ -1,3 +1,7 @@
+## 6.1.0
+
+* Use fvm 3.29.3
+
 ## 6.0.2
 
 * `Android` [Use `isMultipleAdvertisementSupported` to check whether `PeripheralManager` is supported on this device.](https://github.com/yanshouwang/bluetooth_low_energy/issues/83).

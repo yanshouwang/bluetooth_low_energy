@@ -42,9 +42,7 @@ abstract base class PlatformBluetoothLowEnergyManager extends PlatformInterface
     with TypeLogger, LoggerController
     implements BluetoothLowEnergyManager {
   /// Constructs a [PlatformBluetoothLowEnergyManager].
-  PlatformBluetoothLowEnergyManager({
-    required super.token,
-  });
+  PlatformBluetoothLowEnergyManager({required super.token});
 
   /// Initializes the [PlatformBluetoothLowEnergyManager].
   void initialize();

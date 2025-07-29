@@ -1,6 +1,6 @@
 # bluetooth_low_energy_linux
 
-The Linux implementation of [`bluetooth_low_energy`][1].
+Linux implementation of the [`bluetooth_low_energy`][1] plugin.
 
 ## Usage
 

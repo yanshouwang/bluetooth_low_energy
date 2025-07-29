@@ -1,0 +1,12 @@
+name: _
+publish_to: none
+environment:
+  sdk: ^3.7.2
+workspace:
+  - bluetooth_low_energy_platform_interface
+  - bluetooth_low_energy_android
+  - bluetooth_low_energy_darwin
+  - bluetooth_low_energy_windows
+  - bluetooth_low_energy_linux
+  - bluetooth_low_energy
+  - bluetooth_low_energy/example
