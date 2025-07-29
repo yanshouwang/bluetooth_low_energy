@@ -1,6 +1,9 @@
 ## 6.1.0
 
-* Use fvm 3.29.3
+* Upgrade flutter SDK to 3.29.3.
+* Upgrade dependencies.
+* [Remove location usage when target Android 12 or higher.](https://github.com/yanshouwang/bluetooth_low_energy/issues/115)
+* [Show bluetooth authorization as needed on iOS.](https://github.com/yanshouwang/bluetooth_low_energy/issues/118)
 
 ## 6.0.2
 
