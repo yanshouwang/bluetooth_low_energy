@@ -96,11 +96,11 @@ The `PeripheralManager` API is not implemented since the [`bluez`][8] didn't sup
 
 If you find this open-source project is helpful, consider to be a sponsor on GitHub Sponsors. Your support will help me dedicate more time on the open-source community.
 
-* [Alipay](https://sponsors.hebei.dev/#/alipay)
-* [WeChat Pay](https://sponsors.hebei.dev/#/wechat-pay)
-* [Bitcoin Wallet](https://sponsors.hebei.dev/#/bitcoin-wallet)
+* [Alipay](https://sponsors.zeekr.dev/#/alipay)
+* [WeChat Pay](https://sponsors.zeekr.dev/#/wechat-pay)
+* [Bitcoin Wallet](https://sponsors.zeekr.dev/#/bitcoin-wallet)
 
-<!-- TODO: Save this list to database and show this in the sponsors.hebei.dev -->
+<!-- TODO: Save this list to database and show this in the sponsors.zeekr.dev -->
 ### Sponsors Details
 
 |Date|Sponsor|Amount|
@@ -116,5 +116,4 @@ If you find this open-source project is helpful, consider to be a sponsor on Git
 [7]: https://learn.microsoft.com/en-us/uwp/api/windows.devices.bluetooth.advertisement.bluetoothleadvertisementpublisher.advertisement?view=winrt-22621
 [8]: https://github.com/canonical/bluez.dart
 [9]: doc/migrations/migration-v6.md
-
 [10]: https://github.com/Jeff-Lawson
