@@ -38,7 +38,7 @@ namespace bluetooth_low_energy_windows
 					return state_args;
 				}
 			}
-			return MyBluetoothLowEnergyStateArgs::unsupported;
+			return MyBluetoothLowEnergyStateArgs::kUnsupported;
 		}
 		catch (const winrt::hresult_error &ex)
 		{
@@ -754,15 +754,15 @@ namespace bluetooth_low_energy_windows
 		switch (state)
 		{
 		case winrt::Windows::Devices::Radios::RadioState::Unknown:
-			return MyBluetoothLowEnergyStateArgs::unknown;
+			return MyBluetoothLowEnergyStateArgs::kUnknown;
 		case winrt::Windows::Devices::Radios::RadioState::Disabled:
-			return MyBluetoothLowEnergyStateArgs::disabled;
+			return MyBluetoothLowEnergyStateArgs::kDisabled;
 		case winrt::Windows::Devices::Radios::RadioState::Off:
-			return MyBluetoothLowEnergyStateArgs::off;
+			return MyBluetoothLowEnergyStateArgs::kOff;
 		case winrt::Windows::Devices::Radios::RadioState::On:
-			return MyBluetoothLowEnergyStateArgs::on;
+			return MyBluetoothLowEnergyStateArgs::kOn;
 		default:
-			return MyBluetoothLowEnergyStateArgs::unknown;
+			return MyBluetoothLowEnergyStateArgs::kUnknown;
 		}
 	}
 
@@ -789,19 +789,19 @@ namespace bluetooth_low_energy_windows
 			const auto property_args = static_cast<MyGATTCharacteristicPropertyArgs>(property_number_args);
 			switch (property_args)
 			{
-			case MyGATTCharacteristicPropertyArgs::read:
+			case MyGATTCharacteristicPropertyArgs::kRead:
 				properties |= winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristicProperties::Read;
 				break;
-			case MyGATTCharacteristicPropertyArgs::write:
+			case MyGATTCharacteristicPropertyArgs::kWrite:
 				properties |= winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristicProperties::Write;
 				break;
-			case MyGATTCharacteristicPropertyArgs::writeWithoutResponse:
+			case MyGATTCharacteristicPropertyArgs::kWriteWithoutResponse:
 				properties |= winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristicProperties::WriteWithoutResponse;
 				break;
-			case MyGATTCharacteristicPropertyArgs::notify:
+			case MyGATTCharacteristicPropertyArgs::kNotify:
 				properties |= winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristicProperties::Notify;
 				break;
-			case MyGATTCharacteristicPropertyArgs::indicate:
+			case MyGATTCharacteristicPropertyArgs::kIndicate:
 				properties |= winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristicProperties::Indicate;
 				break;
 			default:
@@ -816,9 +816,9 @@ namespace bluetooth_low_energy_windows
 		switch (option)
 		{
 		case winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteOption::WriteWithResponse:
-			return MyGATTCharacteristicWriteTypeArgs::withResponse;
+			return MyGATTCharacteristicWriteTypeArgs::kWithResponse;
 		case winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteOption::WriteWithoutResponse:
-			return MyGATTCharacteristicWriteTypeArgs::withoutResponse;
+			return MyGATTCharacteristicWriteTypeArgs::kWithoutResponse;
 		default:
 			throw std::bad_cast();
 		}
@@ -828,13 +828,13 @@ namespace bluetooth_low_energy_windows
 	{
 		switch (level_args)
 		{
-		case MyGATTProtectionLevelArgs::plain:
+		case MyGATTProtectionLevelArgs::kPlain:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel::Plain;
-		case MyGATTProtectionLevelArgs::authenticationRequired:
+		case MyGATTProtectionLevelArgs::kAuthenticationRequired:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel::AuthenticationRequired;
-		case MyGATTProtectionLevelArgs::entryptionRequired:
+		case MyGATTProtectionLevelArgs::kEntryptionRequired:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel::EncryptionRequired;
-		case MyGATTProtectionLevelArgs::encryptionAndAuthenticationRequired:
+		case MyGATTProtectionLevelArgs::kEncryptionAndAuthenticationRequired:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtectionLevel::EncryptionAndAuthenticationRequired;
 		default:
 			throw std::bad_cast();
@@ -845,39 +845,39 @@ namespace bluetooth_low_energy_windows
 	{
 		switch (error_args)
 		{
-		case MyGATTProtocolErrorArgs::invalidHandle:
+		case MyGATTProtocolErrorArgs::kInvalidHandle:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtocolError::InvalidHandle();
-		case MyGATTProtocolErrorArgs::readNotPermitted:
+		case MyGATTProtocolErrorArgs::kReadNotPermitted:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtocolError::ReadNotPermitted();
-		case MyGATTProtocolErrorArgs::writeNotPermitted:
+		case MyGATTProtocolErrorArgs::kWriteNotPermitted:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtocolError::WriteNotPermitted();
-		case MyGATTProtocolErrorArgs::invalidPDU:
+		case MyGATTProtocolErrorArgs::kInvalidPDU:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtocolError::InvalidPdu();
-		case MyGATTProtocolErrorArgs::insufficientAuthentication:
+		case MyGATTProtocolErrorArgs::kInsufficientAuthentication:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtocolError::InsufficientAuthentication();
-		case MyGATTProtocolErrorArgs::requestNotSupported:
+		case MyGATTProtocolErrorArgs::kRequestNotSupported:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtocolError::RequestNotSupported();
-		case MyGATTProtocolErrorArgs::invalidOffset:
+		case MyGATTProtocolErrorArgs::kInvalidOffset:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtocolError::InvalidOffset();
-		case MyGATTProtocolErrorArgs::insufficientAuthorization:
+		case MyGATTProtocolErrorArgs::kInsufficientAuthorization:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtocolError::InsufficientAuthorization();
-		case MyGATTProtocolErrorArgs::prepareQueueFull:
+		case MyGATTProtocolErrorArgs::kPrepareQueueFull:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtocolError::PrepareQueueFull();
-		case MyGATTProtocolErrorArgs::attributeNotFound:
+		case MyGATTProtocolErrorArgs::kAttributeNotFound:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtocolError::AttributeNotFound();
-		case MyGATTProtocolErrorArgs::attributeNotLong:
+		case MyGATTProtocolErrorArgs::kAttributeNotLong:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtocolError::AttributeNotLong();
-		case MyGATTProtocolErrorArgs::insufficientEncryptionKeySize:
+		case MyGATTProtocolErrorArgs::kInsufficientEncryptionKeySize:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtocolError::InsufficientEncryptionKeySize();
-		case MyGATTProtocolErrorArgs::invalidAttributeValueLength:
+		case MyGATTProtocolErrorArgs::kInvalidAttributeValueLength:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtocolError::InvalidAttributeValueLength();
-		case MyGATTProtocolErrorArgs::unlikelyError:
+		case MyGATTProtocolErrorArgs::kUnlikelyError:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtocolError::UnlikelyError();
-		case MyGATTProtocolErrorArgs::insufficientEncryption:
+		case MyGATTProtocolErrorArgs::kInsufficientEncryption:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtocolError::InsufficientEncryption();
-		case MyGATTProtocolErrorArgs::unsupportedGroupType:
+		case MyGATTProtocolErrorArgs::kUnsupportedGroupType:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtocolError::UnsupportedGroupType();
-		case MyGATTProtocolErrorArgs::insufficientResources:
+		case MyGATTProtocolErrorArgs::kInsufficientResources:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattProtocolError::InsufficientResources();
 		default:
 			throw std::bad_cast();

@@ -9,18 +9,10 @@ import 'package:pigeon/pigeon.dart';
     dartOptions: DartOptions(),
     cppHeaderOut: 'windows/my_api.g.h',
     cppSourceOut: 'windows/my_api.g.cpp',
-    cppOptions: CppOptions(
-      namespace: 'bluetooth_low_energy_windows',
-    ),
+    cppOptions: CppOptions(namespace: 'bluetooth_low_energy_windows'),
   ),
 )
-enum MyBluetoothLowEnergyStateArgs {
-  unknown,
-  unsupported,
-  disabled,
-  off,
-  on,
-}
+enum MyBluetoothLowEnergyStateArgs { unknown, unsupported, disabled, off, on }
 
 enum MyAdvertisementTypeArgs {
   connectableUndirected,
@@ -31,10 +23,7 @@ enum MyAdvertisementTypeArgs {
   extended,
 }
 
-enum MyConnectionStateArgs {
-  disconnected,
-  connected,
-}
+enum MyConnectionStateArgs { disconnected, connected }
 
 enum MyGATTCharacteristicPropertyArgs {
   read,
@@ -44,16 +33,9 @@ enum MyGATTCharacteristicPropertyArgs {
   indicate,
 }
 
-enum MyGATTCharacteristicWriteTypeArgs {
-  withResponse,
-  withoutResponse,
-}
+enum MyGATTCharacteristicWriteTypeArgs { withResponse, withoutResponse }
 
-enum MyGATTCharacteristicNotifyStateArgs {
-  none,
-  notify,
-  indicate,
-}
+enum MyGATTCharacteristicNotifyStateArgs { none, notify, indicate }
 
 enum MyGATTProtectionLevelArgs {
   plain,
@@ -82,10 +64,7 @@ enum MyGATTProtocolErrorArgs {
   insufficientResources,
 }
 
-enum MyCacheModeArgs {
-  cached,
-  uncached,
-}
+enum MyCacheModeArgs { cached, uncached }
 
 class MyManufacturerSpecificDataArgs {
   final int idArgs;
@@ -124,10 +103,7 @@ class MyGATTDescriptorArgs {
   final int handleArgs;
   final String uuidArgs;
 
-  MyGATTDescriptorArgs(
-    this.handleArgs,
-    this.uuidArgs,
-  );
+  MyGATTDescriptorArgs(this.handleArgs, this.uuidArgs);
 }
 
 class MyGATTCharacteristicArgs {
@@ -217,11 +193,7 @@ class MyGATTReadRequestArgs {
   final int offsetArgs;
   final int lengthArgs;
 
-  MyGATTReadRequestArgs(
-    this.idArgs,
-    this.offsetArgs,
-    this.lengthArgs,
-  );
+  MyGATTReadRequestArgs(this.idArgs, this.offsetArgs, this.lengthArgs);
 }
 
 class MyGATTWriteRequestArgs {
@@ -345,11 +317,7 @@ abstract class MyPeripheralManagerHostAPI {
     MyGATTProtocolErrorArgs errorArgs,
   );
   @async
-  void notifyValue(
-    int addressArgs,
-    int hashCodeArgs,
-    Uint8List valueArgs,
-  );
+  void notifyValue(int addressArgs, int hashCodeArgs, Uint8List valueArgs);
 }
 
 @FlutterApi()

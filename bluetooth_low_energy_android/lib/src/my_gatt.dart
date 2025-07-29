@@ -3,10 +3,7 @@ import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
 final class MyGATTDescriptor extends GATTDescriptor {
   final int hashCodeArgs;
 
-  MyGATTDescriptor({
-    required this.hashCodeArgs,
-    required super.uuid,
-  });
+  MyGATTDescriptor({required this.hashCodeArgs, required super.uuid});
 
   @override
   int get hashCode => hashCodeArgs;
@@ -25,9 +22,7 @@ final class MyGATTCharacteristic extends GATTCharacteristic {
     required super.uuid,
     required super.properties,
     required List<MyGATTDescriptor> descriptors,
-  }) : super(
-          descriptors: descriptors,
-        );
+  }) : super(descriptors: descriptors);
 
   @override
   List<MyGATTDescriptor> get descriptors =>
@@ -52,9 +47,9 @@ final class MyGATTService extends GATTService {
     required List<MyGATTService> includedServices,
     required List<MyGATTCharacteristic> characteristics,
   }) : super(
-          includedServices: includedServices,
-          characteristics: characteristics,
-        );
+         includedServices: includedServices,
+         characteristics: characteristics,
+       );
 
   @override
   List<MyGATTCharacteristic> get characteristics =>

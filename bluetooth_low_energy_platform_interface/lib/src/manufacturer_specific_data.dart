@@ -9,8 +9,5 @@ final class ManufacturerSpecificData {
   final Uint8List data;
 
   /// Constructs an [ManufacturerSpecificData].
-  ManufacturerSpecificData({
-    required this.id,
-    required this.data,
-  });
+  ManufacturerSpecificData({required this.id, required this.data});
 }

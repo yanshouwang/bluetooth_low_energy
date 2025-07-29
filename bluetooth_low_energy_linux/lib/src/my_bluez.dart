@@ -62,14 +62,12 @@ extension BlueZDeviceX on BlueZDevice {
         final myData = Uint8List.fromList(data);
         return MapEntry(myUUID, myData);
       }),
-      manufacturerSpecificData: manufacturerData.entries.map((entry) {
-        final myId = entry.key.id;
-        final myData = Uint8List.fromList(entry.value);
-        return ManufacturerSpecificData(
-          id: myId,
-          data: myData,
-        );
-      }).toList(),
+      manufacturerSpecificData:
+          manufacturerData.entries.map((entry) {
+            final myId = entry.key.id;
+            final myData = Uint8List.fromList(entry.value);
+            return ManufacturerSpecificData(id: myId, data: myData);
+          }).toList(),
     );
   }
 }
@@ -81,10 +79,11 @@ extension BlueZGattDescriptorX on BlueZGattDescriptor {
 extension MyBlueZGattCharacteristic on BlueZGattCharacteristic {
   UUID get myUUID => uuid.toMyUUID();
 
-  List<GATTCharacteristicProperty> get myProperties => flags
-      .map((e) => e.toMyProperty())
-      .whereType<GATTCharacteristicProperty>()
-      .toList();
+  List<GATTCharacteristicProperty> get myProperties =>
+      flags
+          .map((e) => e.toMyProperty())
+          .whereType<GATTCharacteristicProperty>()
+          .toList();
 
   List<MyGATTDescriptor> get myDescriptors =>
       descriptors.map((descriptor) => MyGATTDescriptor(descriptor)).toList();
@@ -93,7 +92,8 @@ extension MyBlueZGattCharacteristic on BlueZGattCharacteristic {
 extension BlueZGattServiceX on BlueZGattService {
   UUID get myUUID => uuid.toMyUUID();
 
-  List<MyGATTCharacteristic> get myCharacteristics => characteristics
-      .map((characteristic) => MyGATTCharacteristic(characteristic))
-      .toList();
+  List<MyGATTCharacteristic> get myCharacteristics =>
+      characteristics
+          .map((characteristic) => MyGATTCharacteristic(characteristic))
+          .toList();
 }

@@ -1,3 +1,8 @@
+## 6.1.0
+
+* Upgrade flutter SDK to 3.29.3.
+* Upgrade dependencies.
+
 ## 6.0.0
 
 * Implement new APIs.

@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class RSSIIndicator extends StatelessWidget {
   final int rssi;
 
-  const RSSIIndicator(
-    this.rssi, {
-    super.key,
-  });
+  const RSSIIndicator(this.rssi, {super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -12,22 +12,22 @@ final class MyCentralManager extends PlatformCentralManager
     implements MyCentralManagerFlutterAPI {
   final MyCentralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
-      _stateChangedController;
+  _stateChangedController;
   final StreamController<DiscoveredEventArgs> _discoveredController;
   final StreamController<PeripheralConnectionStateChangedEventArgs>
-      _connectionStateChangedController;
+  _connectionStateChangedController;
   final StreamController<GATTCharacteristicNotifiedEventArgs>
-      _characteristicNotifiedController;
+  _characteristicNotifiedController;
 
   BluetoothLowEnergyState _state;
 
   MyCentralManager()
-      : _api = MyCentralManagerHostAPI(),
-        _stateChangedController = StreamController.broadcast(),
-        _discoveredController = StreamController.broadcast(),
-        _connectionStateChangedController = StreamController.broadcast(),
-        _characteristicNotifiedController = StreamController.broadcast(),
-        _state = BluetoothLowEnergyState.unknown;
+    : _api = MyCentralManagerHostAPI(),
+      _stateChangedController = StreamController.broadcast(),
+      _discoveredController = StreamController.broadcast(),
+      _connectionStateChangedController = StreamController.broadcast(),
+      _characteristicNotifiedController = StreamController.broadcast(),
+      _state = BluetoothLowEnergyState.unknown;
 
   @override
   BluetoothLowEnergyState get state => _state;
@@ -38,7 +38,7 @@ final class MyCentralManager extends PlatformCentralManager
   Stream<DiscoveredEventArgs> get discovered => _discoveredController.stream;
   @override
   Stream<PeripheralConnectionStateChangedEventArgs>
-      get connectionStateChanged => _connectionStateChangedController.stream;
+  get connectionStateChanged => _connectionStateChangedController.stream;
   @override
   Stream<PeripheralMTUChangedEventArgs> get mtuChanged =>
       throw UnsupportedError('mtuChanged is not supported on Darwin.');
@@ -64,14 +64,13 @@ final class MyCentralManager extends PlatformCentralManager
       await _api.showAppSettings();
     } else {
       throw UnsupportedError(
-          'showAppSettings is not supported on ${Platform.operatingSystem}.');
+        'showAppSettings is not supported on ${Platform.operatingSystem}.',
+      );
     }
   }
 
   @override
-  Future<void> startDiscovery({
-    List<UUID>? serviceUUIDs,
-  }) async {
+  Future<void> startDiscovery({List<UUID>? serviceUUIDs}) async {
     final serviceUUIDsArgs =
         serviceUUIDs?.map((uuid) => uuid.toArgs()).toList() ?? [];
     logger.info('startDiscovery: $serviceUUIDsArgs');
@@ -88,10 +87,11 @@ final class MyCentralManager extends PlatformCentralManager
   Future<List<Peripheral>> retrieveConnectedPeripherals() async {
     logger.info('retrieveConnectedPeripherals');
     final peripheralsArgs = await _api.retrieveConnectedPeripherals();
-    final peripherals = peripheralsArgs
-        .cast<MyPeripheralArgs>()
-        .map((args) => args.toPeripheral())
-        .toList();
+    final peripherals =
+        peripheralsArgs
+            .cast<MyPeripheralArgs>()
+            .map((args) => args.toPeripheral())
+            .toList();
     return peripherals;
   }
 
@@ -110,10 +110,7 @@ final class MyCentralManager extends PlatformCentralManager
   }
 
   @override
-  Future<int> requestMTU(
-    Peripheral peripheral, {
-    required int mtu,
-  }) {
+  Future<int> requestMTU(Peripheral peripheral, {required int mtu}) {
     throw UnsupportedError('requestMTU is not supported on Darwin.');
   }
 
@@ -179,7 +176,8 @@ final class MyCentralManager extends PlatformCentralManager
     final valueArgs = value;
     final typeArgs = type.toArgs();
     logger.info(
-        'writeCharacteristic: $uuidArgs.$hashCodeArgs - $valueArgs, $typeArgs');
+      'writeCharacteristic: $uuidArgs.$hashCodeArgs - $valueArgs, $typeArgs',
+    );
     await _api.writeCharacteristic(uuidArgs, hashCodeArgs, valueArgs, typeArgs);
   }
 
@@ -196,7 +194,8 @@ final class MyCentralManager extends PlatformCentralManager
     final hashCodeArgs = characteristic.hashCode;
     final stateArgs = state;
     logger.info(
-        'setCharacteristicNotifyState: $uuidArgs.$hashCodeArgs - $stateArgs');
+      'setCharacteristicNotifyState: $uuidArgs.$hashCodeArgs - $stateArgs',
+    );
     await _api.setCharacteristicNotifyState(uuidArgs, hashCodeArgs, stateArgs);
   }
 
@@ -253,11 +252,7 @@ final class MyCentralManager extends PlatformCentralManager
     logger.info('onDiscovered: $uuidArgs - $rssiArgs, $advertisementArgs');
     final peripheral = peripheralArgs.toPeripheral();
     final advertisement = advertisementArgs.toAdvertisement();
-    final eventArgs = DiscoveredEventArgs(
-      peripheral,
-      rssiArgs,
-      advertisement,
-    );
+    final eventArgs = DiscoveredEventArgs(peripheral, rssiArgs, advertisement);
     _discoveredController.add(eventArgs);
   }
 
@@ -285,8 +280,9 @@ final class MyCentralManager extends PlatformCentralManager
   ) {
     final uuidArgs = peripheralArgs.uuidArgs;
     final hashCodeArgs = characteristicArgs.hashCodeArgs;
-    logger
-        .info('onCharacteristicNotified: $uuidArgs.$hashCodeArgs - $valueArgs');
+    logger.info(
+      'onCharacteristicNotified: $uuidArgs.$hashCodeArgs - $valueArgs',
+    );
     final peripheral = peripheralArgs.toPeripheral();
     final characteristic = characteristicArgs.toCharacteristic();
     final eventArgs = GATTCharacteristicNotifiedEventArgs(

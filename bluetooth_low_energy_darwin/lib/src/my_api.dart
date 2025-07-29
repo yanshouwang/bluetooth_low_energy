@@ -60,16 +60,18 @@ extension MyAdvertisementArgsX on MyAdvertisementArgs {
   Advertisement toAdvertisement() {
     return Advertisement(
       name: nameArgs,
-      serviceUUIDs: serviceUUIDsArgs
-          .cast<String>()
-          .map((args) => UUID.fromString(args))
-          .toList(),
-      serviceData: serviceDataArgs.cast<String, Uint8List>().map(
-        (uuidArgs, dataArgs) {
-          final uuid = UUID.fromString(uuidArgs);
-          return MapEntry(uuid, dataArgs);
-        },
-      ),
+      serviceUUIDs:
+          serviceUUIDsArgs
+              .cast<String>()
+              .map((args) => UUID.fromString(args))
+              .toList(),
+      serviceData: serviceDataArgs.cast<String, Uint8List>().map((
+        uuidArgs,
+        dataArgs,
+      ) {
+        final uuid = UUID.fromString(uuidArgs);
+        return MapEntry(uuid, dataArgs);
+      }),
       manufacturerSpecificData:
           manufacturerSpecificDataArgs?.toManufacturerSpecificData() ?? [],
     );
@@ -78,9 +80,7 @@ extension MyAdvertisementArgsX on MyAdvertisementArgs {
 
 extension MyPeripheralArgsX on MyPeripheralArgs {
   Peripheral toPeripheral() {
-    return Peripheral(
-      uuid: UUID.fromString(uuidArgs),
-    );
+    return Peripheral(uuid: UUID.fromString(uuidArgs));
   }
 }
 
@@ -98,14 +98,16 @@ extension MyGATTCharacteristicArgsX on MyGATTCharacteristicArgs {
     return MyGATTCharacteristic(
       hashCodeArgs: hashCodeArgs,
       uuid: UUID.fromString(uuidArgs),
-      properties: propertyNumbersArgs.cast<int>().map((args) {
-        final propertyArgs = MyGATTCharacteristicPropertyArgs.values[args];
-        return propertyArgs.toProperty();
-      }).toList(),
-      descriptors: descriptorsArgs
-          .cast<MyGATTDescriptorArgs>()
-          .map((args) => args.toDescriptor())
-          .toList(),
+      properties:
+          propertyNumbersArgs.cast<int>().map((args) {
+            final propertyArgs = MyGATTCharacteristicPropertyArgs.values[args];
+            return propertyArgs.toProperty();
+          }).toList(),
+      descriptors:
+          descriptorsArgs
+              .cast<MyGATTDescriptorArgs>()
+              .map((args) => args.toDescriptor())
+              .toList(),
     );
   }
 }
@@ -116,23 +118,23 @@ extension MyGATTServiceArgsX on MyGATTServiceArgs {
       hashCodeArgs: hashCodeArgs,
       uuid: UUID.fromString(uuidArgs),
       isPrimary: isPrimaryArgs,
-      includedServices: includedServicesArgs
-          .cast<MyGATTServiceArgs>()
-          .map((args) => args.toService())
-          .toList(),
-      characteristics: characteristicsArgs
-          .cast<MyGATTCharacteristicArgs>()
-          .map((args) => args.toCharacteristic())
-          .toList(),
+      includedServices:
+          includedServicesArgs
+              .cast<MyGATTServiceArgs>()
+              .map((args) => args.toService())
+              .toList(),
+      characteristics:
+          characteristicsArgs
+              .cast<MyGATTCharacteristicArgs>()
+              .map((args) => args.toCharacteristic())
+              .toList(),
     );
   }
 }
 
 extension MyCentralArgsX on MyCentralArgs {
   Central toCentral() {
-    return Central(
-      uuid: UUID.fromString(uuidArgs),
-    );
+    return Central(uuid: UUID.fromString(uuidArgs));
   }
 }
 
@@ -208,7 +210,8 @@ extension AdvertisementX on Advertisement {
     // see https://developer.apple.com/documentation/corebluetooth/cbperipheralmanager/1393252-startadvertising
     if (serviceData.isNotEmpty || manufacturerSpecificData.isNotEmpty) {
       throw UnsupportedError(
-          'serviceData and manufacturerSpecificData is not supported on Darwin.');
+        'serviceData and manufacturerSpecificData is not supported on Darwin.',
+      );
     }
     return MyAdvertisementArgs(
       nameArgs: name,
@@ -224,9 +227,10 @@ extension MutableGATTDescriptorX on MutableGATTDescriptor {
     return MyMutableGATTDescriptorArgs(
       hashCodeArgs: hashCode,
       uuidArgs: uuid.toArgs(),
-      valueArgs: this is ImmutableGATTDescriptor
-          ? (this as ImmutableGATTDescriptor).value
-          : null,
+      valueArgs:
+          this is ImmutableGATTDescriptor
+              ? (this as ImmutableGATTDescriptor).value
+              : null,
     );
   }
 }
@@ -236,21 +240,25 @@ extension MutableGATTCharacteristicX on MutableGATTCharacteristic {
     return MyMutableGATTCharacteristicArgs(
       hashCodeArgs: hashCode,
       uuidArgs: uuid.toArgs(),
-      propertyNumbersArgs: properties.map((property) {
-        final propertyArgs = property.toArgs();
-        return propertyArgs.index;
-      }).toList(),
-      permissionNumbersArgs: permissions.map((permission) {
-        final permissionArgs = permission.toArgs();
-        return permissionArgs.index;
-      }).toList(),
-      valueArgs: this is ImmutableGATTCharacteristic
-          ? (this as ImmutableGATTCharacteristic).value
-          : null,
-      descriptorsArgs: descriptors
-          .cast<MutableGATTDescriptor>()
-          .map((descriptor) => descriptor.toArgs())
-          .toList(),
+      propertyNumbersArgs:
+          properties.map((property) {
+            final propertyArgs = property.toArgs();
+            return propertyArgs.index;
+          }).toList(),
+      permissionNumbersArgs:
+          permissions.map((permission) {
+            final permissionArgs = permission.toArgs();
+            return permissionArgs.index;
+          }).toList(),
+      valueArgs:
+          this is ImmutableGATTCharacteristic
+              ? (this as ImmutableGATTCharacteristic).value
+              : null,
+      descriptorsArgs:
+          descriptors
+              .cast<MutableGATTDescriptor>()
+              .map((descriptor) => descriptor.toArgs())
+              .toList(),
     );
   }
 }
@@ -263,10 +271,11 @@ extension GATTServiceX on GATTService {
       isPrimaryArgs: isPrimary,
       includedServicesArgs:
           includedServices.map((service) => service.toArgs()).toList(),
-      characteristicsArgs: characteristics
-          .cast<MutableGATTCharacteristic>()
-          .map((characteristic) => characteristic.toArgs())
-          .toList(),
+      characteristicsArgs:
+          characteristics
+              .cast<MutableGATTCharacteristic>()
+              .map((characteristic) => characteristic.toArgs())
+              .toList(),
     );
   }
 }

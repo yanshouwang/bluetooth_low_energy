@@ -1,6 +1,6 @@
 # bluetooth_low_energy_windows
 
-The Windows implementation of [`bluetooth_low_energy`][1].
+Windows implementation of the [`bluetooth_low_energy`][1] plugin.
 
 ## Usage
 

@@ -39,10 +39,7 @@ class _HomeViewState extends State<HomeView> {
           if (index == navigationShell.currentIndex) {
             return;
           }
-          navigationShell.goBranch(
-            index,
-            initialLocation: false,
-          );
+          navigationShell.goBranch(index, initialLocation: false);
         },
         itemBuilder: (context, index) {
           return navigators[index];
@@ -57,10 +54,7 @@ class _HomeViewState extends State<HomeView> {
           );
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.radar),
-            label: 'Central',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.radar), label: 'Central'),
           BottomNavigationBarItem(
             icon: Icon(Icons.sensors),
             label: 'Peripheral',

@@ -39,7 +39,7 @@ namespace bluetooth_low_energy_windows
 					return state_args;
 				}
 			}
-			return MyBluetoothLowEnergyStateArgs::unsupported;
+			return MyBluetoothLowEnergyStateArgs::kUnsupported;
 		}
 		catch (const winrt::hresult_error &ex)
 		{
@@ -107,7 +107,7 @@ namespace bluetooth_low_energy_windows
 			OnDisconnected(address_args);
 			auto &api = m_api.value();
 			const auto peripheral_args = MyPeripheralArgs(address_args);
-			const auto state_args = MyConnectionStateArgs::disconnected;
+			const auto state_args = MyConnectionStateArgs::kDisconnected;
 			// TODO: Make this thread safe when this issue closed: https://github.com/flutter/flutter/issues/134346.
 			api.OnConnectionStateChanged(peripheral_args, state_args, [] {}, [](auto error) {});
 			return std::nullopt;
@@ -293,7 +293,7 @@ namespace bluetooth_low_energy_windows
 			}
 			auto &api = m_api.value();
 			const auto peripheral_args = MyPeripheralArgs(address_args);
-			const auto state_args = MyConnectionStateArgs::connected;
+			const auto state_args = MyConnectionStateArgs::kConnected;
 			const auto mtu = session.MaxPduSize();
 			const auto mtu_args = static_cast<int64_t>(mtu);
 			api.OnConnectionStateChanged(peripheral_args, state_args, [] {}, [](auto error) {});
@@ -745,15 +745,15 @@ namespace bluetooth_low_energy_windows
 		switch (state)
 		{
 		case winrt::Windows::Devices::Radios::RadioState::Unknown:
-			return MyBluetoothLowEnergyStateArgs::unknown;
+			return MyBluetoothLowEnergyStateArgs::kUnknown;
 		case winrt::Windows::Devices::Radios::RadioState::Disabled:
-			return MyBluetoothLowEnergyStateArgs::disabled;
+			return MyBluetoothLowEnergyStateArgs::kDisabled;
 		case winrt::Windows::Devices::Radios::RadioState::Off:
-			return MyBluetoothLowEnergyStateArgs::off;
+			return MyBluetoothLowEnergyStateArgs::kOff;
 		case winrt::Windows::Devices::Radios::RadioState::On:
-			return MyBluetoothLowEnergyStateArgs::on;
+			return MyBluetoothLowEnergyStateArgs::kOn;
 		default:
-			return MyBluetoothLowEnergyStateArgs::unknown;
+			return MyBluetoothLowEnergyStateArgs::kUnknown;
 		}
 	}
 
@@ -762,17 +762,17 @@ namespace bluetooth_low_energy_windows
 		switch (type)
 		{
 		case winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType::ConnectableUndirected:
-			return MyAdvertisementTypeArgs::connectableUndirected;
+			return MyAdvertisementTypeArgs::kConnectableUndirected;
 		case winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType::ConnectableDirected:
-			return MyAdvertisementTypeArgs::connectableDirected;
+			return MyAdvertisementTypeArgs::kConnectableDirected;
 		case winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType::ScannableUndirected:
-			return MyAdvertisementTypeArgs::scannableUndirected;
+			return MyAdvertisementTypeArgs::kScannableUndirected;
 		case winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType::NonConnectableUndirected:
-			return MyAdvertisementTypeArgs::nonConnectableUndirected;
+			return MyAdvertisementTypeArgs::kNonConnectableUndirected;
 		case winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType::ScanResponse:
-			return MyAdvertisementTypeArgs::scanResponse;
+			return MyAdvertisementTypeArgs::kScanResponse;
 		case winrt::Windows::Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementType::Extended:
-			return MyAdvertisementTypeArgs::extended;
+			return MyAdvertisementTypeArgs::kExtended;
 		default:
 			throw std::bad_cast();
 		}
@@ -783,9 +783,9 @@ namespace bluetooth_low_energy_windows
 		switch (status)
 		{
 		case winrt::Windows::Devices::Bluetooth::BluetoothConnectionStatus::Disconnected:
-			return MyConnectionStateArgs::disconnected;
+			return MyConnectionStateArgs::kDisconnected;
 		case winrt::Windows::Devices::Bluetooth::BluetoothConnectionStatus::Connected:
-			return MyConnectionStateArgs::connected;
+			return MyConnectionStateArgs::kConnected;
 		default:
 			throw std::bad_cast();
 		}
@@ -904,27 +904,27 @@ namespace bluetooth_low_energy_windows
 		auto property_numbers_args = flutter::EncodableList();
 		if (readable)
 		{
-			const auto property_number_args = static_cast<int>(MyGATTCharacteristicPropertyArgs::read);
+			const auto property_number_args = static_cast<int>(MyGATTCharacteristicPropertyArgs::kRead);
 			property_numbers_args.emplace_back(property_number_args);
 		}
 		if (writable)
 		{
-			const auto property_number_args = static_cast<int>(MyGATTCharacteristicPropertyArgs::write);
+			const auto property_number_args = static_cast<int>(MyGATTCharacteristicPropertyArgs::kWrite);
 			property_numbers_args.emplace_back(property_number_args);
 		}
 		if (writableWithoutResponse)
 		{
-			const auto property_number_args = static_cast<int>(MyGATTCharacteristicPropertyArgs::writeWithoutResponse);
+			const auto property_number_args = static_cast<int>(MyGATTCharacteristicPropertyArgs::kWriteWithoutResponse);
 			property_numbers_args.emplace_back(property_number_args);
 		}
 		if (notifiable)
 		{
-			const auto property_number_args = static_cast<int>(MyGATTCharacteristicPropertyArgs::notify);
+			const auto property_number_args = static_cast<int>(MyGATTCharacteristicPropertyArgs::kNotify);
 			property_numbers_args.emplace_back(property_number_args);
 		}
 		if (indicatable)
 		{
-			const auto property_number_args = static_cast<int>(MyGATTCharacteristicPropertyArgs::indicate);
+			const auto property_number_args = static_cast<int>(MyGATTCharacteristicPropertyArgs::kIndicate);
 			property_numbers_args.emplace_back(property_number_args);
 		}
 		return property_numbers_args;
@@ -950,9 +950,9 @@ namespace bluetooth_low_energy_windows
 	{
 		switch (mode_args)
 		{
-		case MyCacheModeArgs::cached:
+		case MyCacheModeArgs::kCached:
 			return winrt::Windows::Devices::Bluetooth::BluetoothCacheMode::Cached;
-		case MyCacheModeArgs::uncached:
+		case MyCacheModeArgs::kUncached:
 			return winrt::Windows::Devices::Bluetooth::BluetoothCacheMode::Uncached;
 		default:
 			throw std::bad_cast();
@@ -963,9 +963,9 @@ namespace bluetooth_low_energy_windows
 	{
 		switch (type_args)
 		{
-		case MyGATTCharacteristicWriteTypeArgs::withoutResponse:
+		case MyGATTCharacteristicWriteTypeArgs::kWithoutResponse:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteOption::WriteWithoutResponse;
-		case MyGATTCharacteristicWriteTypeArgs::withResponse:
+		case MyGATTCharacteristicWriteTypeArgs::kWithResponse:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattWriteOption::WriteWithResponse;
 		default:
 			throw std::bad_cast();
@@ -976,11 +976,11 @@ namespace bluetooth_low_energy_windows
 	{
 		switch (state_args)
 		{
-		case MyGATTCharacteristicNotifyStateArgs::none:
+		case MyGATTCharacteristicNotifyStateArgs::kNone:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattClientCharacteristicConfigurationDescriptorValue::None;
-		case MyGATTCharacteristicNotifyStateArgs::notify:
+		case MyGATTCharacteristicNotifyStateArgs::kNotify:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattClientCharacteristicConfigurationDescriptorValue::Notify;
-		case MyGATTCharacteristicNotifyStateArgs::indicate:
+		case MyGATTCharacteristicNotifyStateArgs::kIndicate:
 			return winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattClientCharacteristicConfigurationDescriptorValue::Indicate;
 		default:
 			throw std::bad_cast();

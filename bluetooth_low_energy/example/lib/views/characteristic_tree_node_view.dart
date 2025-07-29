@@ -11,8 +11,8 @@ class CharacteristicTreeNodeView extends StatelessWidget {
     return Text(
       '${viewModel.uuid}',
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.secondary,
-          ),
+        color: Theme.of(context).colorScheme.secondary,
+      ),
     );
   }
 }

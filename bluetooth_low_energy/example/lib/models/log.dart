@@ -3,8 +3,5 @@ class Log {
   final String type;
   final String message;
 
-  Log({
-    required this.type,
-    required this.message,
-  }) : time = DateTime.now();
+  Log({required this.type, required this.message}) : time = DateTime.now();
 }

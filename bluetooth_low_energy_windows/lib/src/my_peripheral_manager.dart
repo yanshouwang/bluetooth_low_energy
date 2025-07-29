@@ -12,18 +12,18 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     implements MyPeripheralManagerFlutterAPI {
   final MyPeripheralManagerHostAPI _api;
   final StreamController<BluetoothLowEnergyStateChangedEventArgs>
-      _stateChangedController;
+  _stateChangedController;
   final StreamController<CentralMTUChangedEventArgs> _mtuChangedController;
   final StreamController<GATTCharacteristicReadRequestedEventArgs>
-      _characteristicReadRequestedController;
+  _characteristicReadRequestedController;
   final StreamController<GATTCharacteristicWriteRequestedEventArgs>
-      _characteristicWriteRequestedController;
+  _characteristicWriteRequestedController;
   final StreamController<GATTCharacteristicNotifyStateChangedEventArgs>
-      _characteristicNotifyStateChangedController;
+  _characteristicNotifyStateChangedController;
   final StreamController<GATTDescriptorReadRequestedEventArgs>
-      _descriptorReadRequestedController;
+  _descriptorReadRequestedController;
   final StreamController<GATTDescriptorWriteRequestedEventArgs>
-      _descriptorWriteRequestedController;
+  _descriptorWriteRequestedController;
 
   final Map<int, GATTService> _services;
   final Map<int, MutableGATTCharacteristic> _characteristics;
@@ -33,20 +33,20 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   BluetoothLowEnergyState _state;
 
   MyPeripheralManager()
-      : _api = MyPeripheralManagerHostAPI(),
-        _stateChangedController = StreamController.broadcast(),
-        _mtuChangedController = StreamController.broadcast(),
-        _characteristicReadRequestedController = StreamController.broadcast(),
-        _characteristicWriteRequestedController = StreamController.broadcast(),
-        _characteristicNotifyStateChangedController =
-            StreamController.broadcast(),
-        _descriptorReadRequestedController = StreamController.broadcast(),
-        _descriptorWriteRequestedController = StreamController.broadcast(),
-        _services = {},
-        _characteristics = {},
-        _descriptors = {},
-        _subscribedCentralsArgs = {},
-        _state = BluetoothLowEnergyState.unknown;
+    : _api = MyPeripheralManagerHostAPI(),
+      _stateChangedController = StreamController.broadcast(),
+      _mtuChangedController = StreamController.broadcast(),
+      _characteristicReadRequestedController = StreamController.broadcast(),
+      _characteristicWriteRequestedController = StreamController.broadcast(),
+      _characteristicNotifyStateChangedController =
+          StreamController.broadcast(),
+      _descriptorReadRequestedController = StreamController.broadcast(),
+      _descriptorWriteRequestedController = StreamController.broadcast(),
+      _services = {},
+      _characteristics = {},
+      _descriptors = {},
+      _subscribedCentralsArgs = {},
+      _state = BluetoothLowEnergyState.unknown;
 
   UUID get cccUUID => UUID.short(0x2902);
   @override
@@ -57,22 +57,23 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   @override
   Stream<CentralConnectionStateChangedEventArgs> get connectionStateChanged =>
       throw UnsupportedError(
-          'connectionStateChanged is not supported on Windows.');
+        'connectionStateChanged is not supported on Windows.',
+      );
   @override
   Stream<CentralMTUChangedEventArgs> get mtuChanged =>
       _mtuChangedController.stream;
   @override
   Stream<GATTCharacteristicReadRequestedEventArgs>
-      get characteristicReadRequested =>
-          _characteristicReadRequestedController.stream;
+  get characteristicReadRequested =>
+      _characteristicReadRequestedController.stream;
   @override
   Stream<GATTCharacteristicWriteRequestedEventArgs>
-      get characteristicWriteRequested =>
-          _characteristicWriteRequestedController.stream;
+  get characteristicWriteRequested =>
+      _characteristicWriteRequestedController.stream;
   @override
   Stream<GATTCharacteristicNotifyStateChangedEventArgs>
-      get characteristicNotifyStateChanged =>
-          _characteristicNotifyStateChangedController.stream;
+  get characteristicNotifyStateChanged =>
+      _characteristicNotifyStateChangedController.stream;
   @override
   Stream<GATTDescriptorReadRequestedEventArgs> get descriptorReadRequested =>
       _descriptorReadRequestedController.stream;
@@ -219,11 +220,7 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     final hashCodeArgs = characteristic.hashCode;
     final valueArgs = value;
     logger.info('notifyValue: $addressArgs - $hashCodeArgs, $valueArgs');
-    await _api.notifyValue(
-      addressArgs,
-      hashCodeArgs,
-      valueArgs,
-    );
+    await _api.notifyValue(addressArgs, hashCodeArgs, valueArgs);
   }
 
   @override
@@ -256,7 +253,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   ) async {
     final addressArgs = centralArgs.addressArgs;
     logger.info(
-        'onCharacteristicReadRequest: $addressArgs - $hashCodeArgs, $requestArgs');
+      'onCharacteristicReadRequest: $addressArgs - $hashCodeArgs, $requestArgs',
+    );
     final central = centralArgs.toCentral();
     final characteristic = _characteristics[hashCodeArgs];
     if (characteristic == null) {
@@ -286,7 +284,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   ) async {
     final addressArgs = centralArgs.addressArgs;
     logger.info(
-        'onCharacteristicWriteRequest: $addressArgs - $hashCodeArgs, $requestArgs');
+      'onCharacteristicWriteRequest: $addressArgs - $hashCodeArgs, $requestArgs',
+    );
     final central = centralArgs.toCentral();
     final characteristic = _characteristics[hashCodeArgs];
     if (characteristic == null) {
@@ -319,7 +318,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
     List<MyCentralArgs?> centralsArgs,
   ) {
     logger.info(
-        'onCharacteristicSubscribedClientsChanged: $hashCodeArgs - $centralsArgs');
+      'onCharacteristicSubscribedClientsChanged: $hashCodeArgs - $centralsArgs',
+    );
     final characteristic = _characteristics[hashCodeArgs];
     if (characteristic == null) {
       logger.warning('The characteristic[$hashCodeArgs] is null.');
@@ -329,10 +329,12 @@ final class MyPeripheralManager extends PlatformPeripheralManager
         _subscribedCentralsArgs[hashCodeArgs] ?? {};
     final newSubscribedCentralsArgs =
         centralsArgs.cast<MyCentralArgs>().toSet();
-    final removedCentralsArgs =
-        oldSubscribedCentralsArgs.difference(newSubscribedCentralsArgs);
-    final addedCentralsArgs =
-        newSubscribedCentralsArgs.difference(oldSubscribedCentralsArgs);
+    final removedCentralsArgs = oldSubscribedCentralsArgs.difference(
+      newSubscribedCentralsArgs,
+    );
+    final addedCentralsArgs = newSubscribedCentralsArgs.difference(
+      oldSubscribedCentralsArgs,
+    );
     for (var centralArgs in removedCentralsArgs) {
       final central = centralArgs.toCentral();
       final eventArgs = GATTCharacteristicNotifyStateChangedEventArgs(
@@ -362,7 +364,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   ) async {
     final addressArgs = centralArgs.addressArgs;
     logger.info(
-        'onDescriptorReadRequest: $addressArgs - $hashCodeArgs, $requestArgs');
+      'onDescriptorReadRequest: $addressArgs - $hashCodeArgs, $requestArgs',
+    );
     final central = centralArgs.toCentral();
     final descriptor = _descriptors[hashCodeArgs];
     if (descriptor == null) {
@@ -392,7 +395,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   ) async {
     final addressArgs = centralArgs.addressArgs;
     logger.info(
-        'onDescriptorWriteRequest: $addressArgs - $hashCodeArgs, $requestArgs');
+      'onDescriptorWriteRequest: $addressArgs - $hashCodeArgs, $requestArgs',
+    );
     final central = centralArgs.toCentral();
     final descriptor = _descriptors[hashCodeArgs];
     if (descriptor == null) {

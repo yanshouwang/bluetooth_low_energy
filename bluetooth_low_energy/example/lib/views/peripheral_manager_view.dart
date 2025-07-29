@@ -21,26 +21,28 @@ class PeripheralManagerView extends StatelessWidget {
         title: const Text('Peripheral Manager'),
         actions: [
           TextButton(
-            onPressed: state == BluetoothLowEnergyState.poweredOn
-                ? () async {
-                    if (advertising) {
-                      await viewModel.stopAdvertising();
-                    } else {
-                      await viewModel.startAdvertising();
+            onPressed:
+                state == BluetoothLowEnergyState.poweredOn
+                    ? () async {
+                      if (advertising) {
+                        await viewModel.stopAdvertising();
+                      } else {
+                        await viewModel.startAdvertising();
+                      }
                     }
-                  }
-                : null,
+                    : null,
             child: Text(advertising ? 'END' : 'BEGIN'),
           ),
         ],
       ),
       body: buildBody(context),
-      floatingActionButton: state == BluetoothLowEnergyState.poweredOn
-          ? FloatingActionButton(
-              onPressed: () => viewModel.clearLogs(),
-              child: const Icon(Symbols.delete),
-            )
-          : null,
+      floatingActionButton:
+          state == BluetoothLowEnergyState.poweredOn
+              ? FloatingActionButton(
+                onPressed: () => viewModel.clearLogs(),
+                child: const Icon(Symbols.delete),
+              )
+              : null,
     );
   }
 
@@ -61,18 +63,13 @@ class PeripheralManagerView extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         itemBuilder: (context, i) {
           final log = logs[i];
-          return LogView(
-            log: log,
-          );
+          return LogView(log: log);
         },
         itemCount: logs.length,
       );
     } else {
       return Center(
-        child: Text(
-          '$state',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        child: Text('$state', style: Theme.of(context).textTheme.titleMedium),
       );
     }
   }

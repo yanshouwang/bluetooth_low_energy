@@ -23,30 +23,31 @@ class CharacteristicViewModel extends ViewModel {
     required CentralManager manager,
     required Peripheral peripheral,
     required GATTCharacteristic characteristic,
-  })  : _manager = manager,
-        _peripheral = peripheral,
-        _characteristic = characteristic,
-        _descriptorViewModels = characteristic.descriptors
-            .map((descriptor) => DescriptorViewModel(descriptor))
-            .toList(),
-        _logs = [],
-        _writeType = GATTCharacteristicWriteType.withResponse,
-        _notifyState = false {
+  }) : _manager = manager,
+       _peripheral = peripheral,
+       _characteristic = characteristic,
+       _descriptorViewModels =
+           characteristic.descriptors
+               .map((descriptor) => DescriptorViewModel(descriptor))
+               .toList(),
+       _logs = [],
+       _writeType = GATTCharacteristicWriteType.withResponse,
+       _notifyState = false {
     if (!canWrite && canWriteWithoutResponse) {
       _writeType = GATTCharacteristicWriteType.withoutResponse;
     }
-    _characteristicNotifiedSubscription =
-        _manager.characteristicNotified.listen((eventArgs) {
-      if (eventArgs.characteristic != _characteristic) {
-        return;
-      }
-      final log = Log(
-        type: 'Notified',
-        message: '[${eventArgs.value.length}] ${eventArgs.value}',
-      );
-      _logs.add(log);
-      notifyListeners();
-    });
+    _characteristicNotifiedSubscription = _manager.characteristicNotified
+        .listen((eventArgs) {
+          if (eventArgs.characteristic != _characteristic) {
+            return;
+          }
+          final log = Log(
+            type: 'Notified',
+            message: '[${eventArgs.value.length}] ${eventArgs.value}',
+          );
+          _logs.add(log);
+          notifyListeners();
+        });
   }
 
   UUID get uuid => _characteristic.uuid;
@@ -54,8 +55,9 @@ class CharacteristicViewModel extends ViewModel {
       _characteristic.properties.contains(GATTCharacteristicProperty.read);
   bool get canWrite =>
       _characteristic.properties.contains(GATTCharacteristicProperty.write);
-  bool get canWriteWithoutResponse => _characteristic.properties
-      .contains(GATTCharacteristicProperty.writeWithoutResponse);
+  bool get canWriteWithoutResponse => _characteristic.properties.contains(
+    GATTCharacteristicProperty.writeWithoutResponse,
+  );
   bool get canNotify =>
       _characteristic.properties.contains(GATTCharacteristicProperty.notify) ||
       _characteristic.properties.contains(GATTCharacteristicProperty.indicate);
@@ -69,10 +71,7 @@ class CharacteristicViewModel extends ViewModel {
       _peripheral,
       _characteristic,
     );
-    final log = Log(
-      type: 'Read',
-      message: '[${value.length}] $value',
-    );
+    final log = Log(type: 'Read', message: '[${value.length}] $value');
     _logs.add(log);
     notifyListeners();
   }
@@ -108,9 +107,10 @@ class CharacteristicViewModel extends ViewModel {
         type: type,
       );
       final log = Log(
-        type: type == GATTCharacteristicWriteType.withResponse
-            ? 'Write'
-            : 'Write without response',
+        type:
+            type == GATTCharacteristicWriteType.withResponse
+                ? 'Write'
+                : 'Write without response',
         message: '[${value.length}] $value',
       );
       _logs.add(log);

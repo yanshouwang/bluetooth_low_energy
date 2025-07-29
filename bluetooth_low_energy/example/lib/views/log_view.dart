@@ -5,10 +5,7 @@ import 'package:intl/intl.dart';
 class LogView extends StatelessWidget {
   final Log log;
 
-  const LogView({
-    super.key,
-    required this.log,
-  });
+  const LogView({super.key, required this.log});
 
   @override
   Widget build(BuildContext context) {
@@ -22,21 +19,19 @@ class LogView extends StatelessWidget {
           TextSpan(
             text: '[$time] ',
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.error,
-                ),
+              color: Theme.of(context).colorScheme.error,
+            ),
             children: [
               TextSpan(
-                  text: log.type,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                      )),
+                text: log.type,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
             ],
           ),
         ),
-        Text(
-          log.message,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        Text(log.message, style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }

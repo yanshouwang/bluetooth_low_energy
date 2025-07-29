@@ -5,9 +5,7 @@ abstract base class BluetoothLowEnergyPeer {
   /// The UUID associated with the peer.
   final UUID uuid;
 
-  BluetoothLowEnergyPeer({
-    required this.uuid,
-  });
+  BluetoothLowEnergyPeer({required this.uuid});
 
   @override
   int get hashCode => uuid.hashCode;

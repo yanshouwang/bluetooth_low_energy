@@ -18,8 +18,8 @@ import FlutterMacOS
 
 class MyCentralManager: MyCentralManagerHostAPI {
     private let mAPI: MyCentralManagerFlutterAPI
-    private let mCentralManager: CBCentralManager
     
+    private lazy var mCentralManager = CBCentralManager()
     private lazy var mCentralManagerDelegate = MyCentralManagerDelegate(centralManager: self)
     private lazy var peripheralDelegate = MyPeripheralDelegate(centralManager: self)
     
@@ -43,7 +43,6 @@ class MyCentralManager: MyCentralManagerHostAPI {
     
     init(messenger: FlutterBinaryMessenger) {
         mAPI = MyCentralManagerFlutterAPI(binaryMessenger: messenger)
-        mCentralManager = CBCentralManager()
         
         mPeripherals = [:]
         mServices = [:]

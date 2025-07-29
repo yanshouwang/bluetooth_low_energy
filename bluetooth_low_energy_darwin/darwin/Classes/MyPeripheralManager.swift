@@ -18,8 +18,8 @@ import FlutterMacOS
 
 class MyPeripheralManager: MyPeripheralManagerHostAPI {
     private let mAPI: MyPeripheralManagerFlutterAPI
-    private let mPeripheralManager: CBPeripheralManager
     
+    private lazy var mPeripheralManager = CBPeripheralManager()
     private lazy var mPeripheralManagerDelegate = MyPeripheralManagerDelegate(peripheralManager: self)
     
     private var mServicesArgs: [Int: MyMutableGATTServiceArgs]
@@ -37,7 +37,6 @@ class MyPeripheralManager: MyPeripheralManagerHostAPI {
     
     init(messenger: FlutterBinaryMessenger) {
         mAPI = MyPeripheralManagerFlutterAPI(binaryMessenger: messenger)
-        mPeripheralManager = CBPeripheralManager()
         
         mServicesArgs = [:]
         mCharacteristicsArgs = [:]

@@ -22,11 +22,7 @@ final class DiscoveredEventArgs extends EventArgs {
   final Advertisement advertisement;
 
   /// Constructs a [DiscoveredEventArgs].
-  DiscoveredEventArgs(
-    this.peripheral,
-    this.rssi,
-    this.advertisement,
-  );
+  DiscoveredEventArgs(this.peripheral, this.rssi, this.advertisement);
 }
 
 /// The peripheral connection state cahnged event arguments.
@@ -38,10 +34,7 @@ final class PeripheralConnectionStateChangedEventArgs extends EventArgs {
   final ConnectionState state;
 
   /// Constructs a [PeripheralConnectionStateChangedEventArgs].
-  PeripheralConnectionStateChangedEventArgs(
-    this.peripheral,
-    this.state,
-  );
+  PeripheralConnectionStateChangedEventArgs(this.peripheral, this.state);
 }
 
 /// The peripheral MTU changed event arguments.
@@ -53,10 +46,7 @@ final class PeripheralMTUChangedEventArgs extends EventArgs {
   final int mtu;
 
   /// Constructs a [PeripheralMTUChangedEventArgs].
-  PeripheralMTUChangedEventArgs(
-    this.peripheral,
-    this.mtu,
-  );
+  PeripheralMTUChangedEventArgs(this.peripheral, this.mtu);
 }
 
 /// The GATT characteristic notified event arguments.
@@ -115,9 +105,7 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   /// The [serviceUUIDs] argument is an array of [UUID] objects that the app is
   /// interested in. Each [UUID] object represents the [UUID] of a service that
   /// a peripheral advertises.
-  Future<void> startDiscovery({
-    List<UUID>? serviceUUIDs,
-  });
+  Future<void> startDiscovery({List<UUID>? serviceUUIDs});
 
   /// Asks the central manager to stop scanning for peripherals.
   Future<void> stopDiscovery();
@@ -143,10 +131,7 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   ///
   /// This method is available on Android, throws [UnsupportedError] on other
   /// platforms.
-  Future<int> requestMTU(
-    Peripheral peripheral, {
-    required int mtu,
-  });
+  Future<int> requestMTU(Peripheral peripheral, {required int mtu});
 
   /// The maximum amount of data, in bytes, you can send to a characteristic in
   /// a single write type.
@@ -203,7 +188,8 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
 /// Platform-specific implementations should implement this class to support
 /// [PlatformCentralManager].
 abstract base class PlatformCentralManager
-    extends PlatformBluetoothLowEnergyManager implements CentralManager {
+    extends PlatformBluetoothLowEnergyManager
+    implements CentralManager {
   static final Object _token = Object();
 
   static PlatformCentralManager? _instance;
@@ -213,7 +199,8 @@ abstract base class PlatformCentralManager
     final instance = _instance;
     if (instance == null) {
       throw UnimplementedError(
-          'CentralManager is not implemented on this platform.');
+        'CentralManager is not implemented on this platform.',
+      );
     }
     return instance;
   }

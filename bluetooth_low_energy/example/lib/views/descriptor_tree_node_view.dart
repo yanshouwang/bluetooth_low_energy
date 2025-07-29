@@ -11,8 +11,8 @@ class DescriptorTreeNodeView extends StatelessWidget {
     return Text(
       '${viewModel.uuid}',
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
+        color: Theme.of(context).colorScheme.tertiary,
+      ),
     );
   }
 }
