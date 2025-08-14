@@ -73,6 +73,8 @@ final class MyPeripheralManager extends PlatformPeripheralManager
       );
   Stream<EventArgs> get _isReady => _isReadyController.stream;
 
+  bool isReadyDeliveredEarly = false;
+
   @override
   void initialize() {
     MyPeripheralManagerFlutterAPI.setUp(this);
@@ -217,7 +219,11 @@ final class MyPeripheralManager extends PlatformPeripheralManager
       if (updated) {
         break;
       }
-      await _isReady.first;
+      if (isReadyDeliveredEarly) {
+          isReadyDeliveredEarly = false;
+      } else {
+          await _isReady.first;
+      }
     }
   }
 
@@ -309,7 +315,11 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   @override
   void isReady() {
     final eventArgs = EventArgs();
-    _isReadyController.add(eventArgs);
+    if (!_isReadyController.hasListener) {
+        isReadyDeliveredEarly = true;
+    } else {
+        _isReadyController.add(eventArgs);
+    }
   }
 
   @override
