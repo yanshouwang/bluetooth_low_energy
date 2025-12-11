@@ -242,6 +242,16 @@ class MyPeripheralManager(context: Context, binaryMessenger: BinaryMessenger) : 
         }
     }
 
+    override fun disconnect(addressArgs: String, callback: (Result<Unit>) -> Unit) {
+        try {
+            val device = mDevices[addressArgs] ?: adapter.getRemoteDevice(addressArgs)
+            server.cancelConnection(device)
+            callback(Result.success(Unit))
+        } catch (e: Throwable) {
+            callback(Result.failure(e))
+        }
+    }
+
     override fun notifyCharacteristicChanged(
         addressArgs: String,
         hashCodeArgs: Long,

@@ -243,6 +243,9 @@ abstract interface class PeripheralManager
     GATTCharacteristic characteristic, {
     required Uint8List value,
   });
+
+  /// Disconnects a connected central.
+  Future<void> disconnectCentral(Central central);
 }
 
 /// Platform-specific implementations should implement this class to support
