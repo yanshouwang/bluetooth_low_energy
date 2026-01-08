@@ -143,6 +143,11 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
+  Future<void> disconnectCentral(Central central) async {
+    throw UnsupportedError('disconnectCentral is not supported on Darwin.');
+  }
+
+  @override
   Future<void> respondReadRequestWithValue(
     GATTReadRequest request, {
     required Uint8List value,
@@ -220,9 +225,9 @@ final class MyPeripheralManager extends PlatformPeripheralManager
         break;
       }
       if (isReadyDeliveredEarly) {
-          isReadyDeliveredEarly = false;
+        isReadyDeliveredEarly = false;
       } else {
-          await _isReady.first;
+        await _isReady.first;
       }
     }
   }
@@ -316,9 +321,9 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   void isReady() {
     final eventArgs = EventArgs();
     if (!_isReadyController.hasListener) {
-        isReadyDeliveredEarly = true;
+      isReadyDeliveredEarly = true;
     } else {
-        _isReadyController.add(eventArgs);
+      _isReadyController.add(eventArgs);
     }
   }
 

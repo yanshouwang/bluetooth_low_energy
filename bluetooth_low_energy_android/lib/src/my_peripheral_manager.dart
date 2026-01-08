@@ -303,6 +303,16 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
+  Future<void> disconnectCentral(Central central) async {
+    if (central is! MyCentral) {
+      throw TypeError();
+    }
+    final addressArgs = central.address;
+    logger.info('disconnectCentral: $addressArgs');
+    await _api.disconnect(addressArgs);
+  }
+
+  @override
   Future<void> notifyCharacteristic(
     Central central,
     GATTCharacteristic characteristic, {

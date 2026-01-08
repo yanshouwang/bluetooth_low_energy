@@ -335,6 +335,8 @@ abstract class MyPeripheralManagerHostAPI {
     bool confirmArgs,
     Uint8List valueArgs,
   );
+  @async
+  void disconnect(String addressArgs);
 }
 
 @FlutterApi()

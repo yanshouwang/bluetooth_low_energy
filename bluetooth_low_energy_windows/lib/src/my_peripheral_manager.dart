@@ -150,6 +150,11 @@ final class MyPeripheralManager extends PlatformPeripheralManager
   }
 
   @override
+  Future<void> disconnectCentral(Central central) async {
+    throw UnsupportedError('disconnectCentral is not supported on Windows.');
+  }
+
+  @override
   Future<void> respondReadRequestWithValue(
     GATTReadRequest request, {
     required Uint8List value,
