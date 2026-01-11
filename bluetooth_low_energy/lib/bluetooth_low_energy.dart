@@ -4,10 +4,9 @@ library;
 
 export 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart'
     hide
-        PlatformBluetoothLowEnergyManager,
-        PlatformCentralManager,
-        PlatformPeripheralManager,
-        MutableGATTCharacteristic,
-        ImmutableGATTCharacteristic,
-        MutableGATTDescriptor,
-        ImmutableGATTDescriptor;
+        CentralManagerChannel,
+        PeripheralManagerChannel,
+        MutableGATTCharacteristicImpl,
+        ImmutableGATTCharacteristicImpl,
+        MutableGATTDescriptorImpl,
+        ImmutableGATTDescriptorImpl;

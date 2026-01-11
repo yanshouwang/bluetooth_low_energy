@@ -32,8 +32,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   material_symbols_icons: ^4.2744.0
   logging: ^1.2.0
-  hybrid_logging: ^1.0.0
-  go_router: ^16.0.0
+  go_router: ^17.0.1
   clover: ^4.0.1
   collection: ^1.18.0
   convert: ^3.1.1

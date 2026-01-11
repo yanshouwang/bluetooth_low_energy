@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
 import 'package:clover/clover.dart';
-import 'package:logging/logging.dart';
 
 class CentralManagerViewModel extends ViewModel {
   final CentralManager _manager;
@@ -14,7 +13,7 @@ class CentralManagerViewModel extends ViewModel {
   late final StreamSubscription _discoveredSubscription;
 
   CentralManagerViewModel()
-    : _manager = CentralManager()..logLevel = Level.INFO,
+    : _manager = CentralManager(),
       _discoveries = [],
       _discovering = false {
     _stateChangedSubscription = _manager.stateChanged.listen((eventArgs) async {

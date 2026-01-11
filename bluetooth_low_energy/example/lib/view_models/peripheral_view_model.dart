@@ -3,11 +3,13 @@ import 'dart:io';
 
 import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
 import 'package:clover/clover.dart';
-import 'package:hybrid_logging/hybrid_logging.dart';
+import 'package:logging/logging.dart';
 
 import 'service_view_model.dart';
 
-class PeripheralViewModel extends ViewModel with TypeLogger {
+Logger get _logger => Logger('PeripheralViewModel');
+
+class PeripheralViewModel extends ViewModel {
   final CentralManager _manager;
   final Peripheral _peripheral;
   final String? _name;
@@ -41,7 +43,7 @@ class PeripheralViewModel extends ViewModel with TypeLogger {
         if (eventArgs.peripheral != _peripheral) {
           return;
         }
-        logger.info('MTU chanaged: ${eventArgs.mtu}');
+        _logger.info('MTU chanaged: ${eventArgs.mtu}');
       });
     }
   }

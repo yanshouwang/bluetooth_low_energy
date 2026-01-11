@@ -18,6 +18,7 @@ dependencies:
     sdk: flutter
   bluetooth_low_energy_platform_interface: ^6.1.0
   collection: ^1.18.0
+  logging: ^1.3.0
 
 dev_dependencies:
   flutter_test:

@@ -6,22 +6,22 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 
 /** BluetoothLowEnergyAndroidPlugin */
 class BluetoothLowEnergyAndroidPlugin : FlutterPlugin, ActivityAware {
-    private lateinit var mCentralManager: MyCentralManager
-    private lateinit var mPeripheralManager: MyPeripheralManager
+    private lateinit var mCentralManager: CentralManagerImpl
+    private lateinit var mPeripheralManager: PeripheralManagerImpl
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         val context = binding.applicationContext
         val binaryMessenger = binding.binaryMessenger
-        mCentralManager = MyCentralManager(context, binaryMessenger)
-        mPeripheralManager = MyPeripheralManager(context, binaryMessenger)
-        MyCentralManagerHostAPI.setUp(binaryMessenger, mCentralManager)
-        MyPeripheralManagerHostAPI.setUp(binaryMessenger, mPeripheralManager)
+        mCentralManager = CentralManagerImpl(context, binaryMessenger)
+        mPeripheralManager = PeripheralManagerImpl(context, binaryMessenger)
+        CentralManagerHostApi.setUp(binaryMessenger, mCentralManager)
+        PeripheralManagerHostApi.setUp(binaryMessenger, mPeripheralManager)
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         val binaryMessenger = binding.binaryMessenger
-        MyCentralManagerHostAPI.setUp(binaryMessenger, null)
-        MyPeripheralManagerHostAPI.setUp(binaryMessenger, null)
+        CentralManagerHostApi.setUp(binaryMessenger, null)
+        PeripheralManagerHostApi.setUp(binaryMessenger, null)
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
