@@ -8,10 +8,13 @@ topics:
   - bluetooth-low-energy
   - ble
 
-environment:
-  sdk: ^3.7.2
-  flutter: '>=3.7.0'
 resolution: workspace
+
+environment:
+  sdk: ^3.9.2
+  # Flutter versions prior to 3.7 did not support the
+  # sharedDarwinSource option.
+  flutter: '>=3.7.0'
 
 dependencies:
   flutter:

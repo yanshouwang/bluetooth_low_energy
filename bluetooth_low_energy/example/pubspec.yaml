@@ -4,9 +4,10 @@ description: 'Demonstrates how to use the bluetooth_low_energy plugin.'
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-environment:
-  sdk: ^3.7.2
 resolution: workspace
+
+environment:
+  sdk: ^3.9.2
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions

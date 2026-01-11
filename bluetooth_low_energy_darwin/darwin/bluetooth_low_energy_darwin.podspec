@@ -15,12 +15,6 @@ A new Flutter plugin project.
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
 
-  s.ios.dependency 'Flutter'
-  s.ios.deployment_target = '12.0'
-
-  s.osx.dependency 'FlutterMacOS'
-  s.osx.deployment_target = '10.11'
-
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
   s.swift_version = '5.0'
@@ -30,4 +24,10 @@ A new Flutter plugin project.
   # plugin's privacy impact, and then uncomment this line. For more information,
   # see https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
   # s.resource_bundles = {'bluetooth_low_energy_darwin_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
+  
+  s.ios.dependency 'Flutter'
+  s.ios.deployment_target = '13.0'
+
+  s.osx.dependency 'FlutterMacOS'
+  s.osx.deployment_target = '10.11'
 end
