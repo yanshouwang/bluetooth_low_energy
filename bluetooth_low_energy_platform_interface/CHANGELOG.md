@@ -1,3 +1,11 @@
+## 6.2.0
+
+* Upgrade flutter SDK to 3.35.7.
+* Add `CentralManager.getPeripheral` method.
+* Add `PeripheralManager.getCentral` method.
+* Add `PeripheralManager.retrieveConnectedCentrals` method.
+* Add `PeripheralManager.disconnect` method.
+
 ## 6.1.0
 
 * Upgrade flutter SDK to 3.29.3.

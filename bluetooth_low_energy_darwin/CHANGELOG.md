@@ -1,3 +1,8 @@
+## 6.2.0
+
+* Upgrade flutter SDK to 3.35.7.
+* Fix race condition when isReady is delivered early.
+
 ## 6.1.0
 
 * Upgrade flutter SDK to 3.29.3.
