@@ -49,6 +49,11 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   /// Asks the central manager to stop scanning for peripherals.
   Future<void> stopDiscovery();
 
+  /// Get a peripheral object for the given bluetooth hardware address.
+  ///
+  /// This method is available on Android, throws [UnsupportedError] on other platforms.
+  Future<Peripheral> getPeripheral(String address);
+
   /// Returns a list of the peripherals connected to the system.
   ///
   /// This method is available on Android, iOS, macOS and Linux, throws

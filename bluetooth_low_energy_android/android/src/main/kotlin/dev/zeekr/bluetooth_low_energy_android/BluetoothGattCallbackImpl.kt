@@ -1,10 +1,12 @@
 package dev.zeekr.bluetooth_low_energy_android
 
+import android.Manifest
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
 import android.os.Build
+import androidx.annotation.RequiresPermission
 import java.util.concurrent.Executor
 
 class BluetoothGattCallbackImpl(manager: CentralManagerImpl, executor: Executor) : BluetoothGattCallback() {
@@ -16,6 +18,7 @@ class BluetoothGattCallbackImpl(manager: CentralManagerImpl, executor: Executor)
         mExecutor = executor
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
         super.onConnectionStateChange(gatt, status, newState)
         mExecutor.execute {
@@ -45,10 +48,7 @@ class BluetoothGattCallbackImpl(manager: CentralManagerImpl, executor: Executor)
     }
 
     override fun onCharacteristicRead(
-        gatt: BluetoothGatt,
-        characteristic: BluetoothGattCharacteristic,
-        value: ByteArray,
-        status: Int
+        gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: ByteArray, status: Int
     ) {
         super.onCharacteristicRead(gatt, characteristic, value, status)
         mExecutor.execute {
@@ -76,9 +76,7 @@ class BluetoothGattCallbackImpl(manager: CentralManagerImpl, executor: Executor)
     }
 
     override fun onCharacteristicChanged(
-        gatt: BluetoothGatt,
-        characteristic: BluetoothGattCharacteristic,
-        value: ByteArray
+        gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: ByteArray
     ) {
         super.onCharacteristicChanged(gatt, characteristic, value)
         mExecutor.execute {
@@ -99,10 +97,7 @@ class BluetoothGattCallbackImpl(manager: CentralManagerImpl, executor: Executor)
     }
 
     override fun onDescriptorRead(
-        gatt: BluetoothGatt,
-        descriptor: BluetoothGattDescriptor,
-        status: Int,
-        value: ByteArray
+        gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int, value: ByteArray
     ) {
         super.onDescriptorRead(gatt, descriptor, status, value)
         mExecutor.execute {

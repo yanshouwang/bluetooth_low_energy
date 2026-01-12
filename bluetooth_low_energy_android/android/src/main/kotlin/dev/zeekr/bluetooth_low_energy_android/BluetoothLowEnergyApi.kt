@@ -98,14 +98,13 @@ fun AdvertiseDataArgs.toAdvertiseData(): AdvertiseData {
         builder.addServiceUuid(serviceUUID)
     }
     for (entry in serviceDataArgs) {
-        val serviceDataUUID = ParcelUuid.fromString(entry.key as String)
-        val serviceData = entry.value as ByteArray
+        val serviceDataUUID = ParcelUuid.fromString(entry.key)
+        val serviceData = entry.value
         builder.addServiceData(serviceDataUUID, serviceData)
     }
     for (args in manufacturerSpecificDataArgs) {
-        val itemArgs = args as ManufacturerSpecificDataArgs
-        val manufacturerId = itemArgs.idArgs.toInt()
-        val manufacturerSpecificData = itemArgs.dataArgs
+        val manufacturerId = args.idArgs.toInt()
+        val manufacturerSpecificData = args.dataArgs
         builder.addManufacturerData(manufacturerId, manufacturerSpecificData)
     }
     return builder.build()
@@ -203,8 +202,8 @@ fun ScanResult.toAdvertisementArgs(): AdvertisementArgs {
     val record = scanRecord
     return if (record == null) {
         val nameArgs = null
-        val serviceUUIDsArgs = emptyList<String?>()
-        val serviceDataArgs = emptyMap<String?, ByteArray>()
+        val serviceUUIDsArgs = emptyList<String>()
+        val serviceDataArgs = emptyMap<String, ByteArray>()
         val manufacturerSpecificDataArgs = emptyList<ManufacturerSpecificDataArgs>()
         AdvertisementArgs(nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs)
     } else {
@@ -214,7 +213,7 @@ fun ScanResult.toAdvertisementArgs(): AdvertisementArgs {
             val key = uuid.toString()
             return@map Pair(key, value)
         }?.toTypedArray() ?: emptyArray()
-        val serviceDataArgs = mapOf<String?, ByteArray?>(*pairs)
+        val serviceDataArgs = mapOf<String, ByteArray>(*pairs)
         val manufacturerSpecificDataArgs =
             record.manufacturerSpecificData?.toManufacturerSpecificDataArgs() ?: emptyList()
         AdvertisementArgs(nameArgs, serviceUUIDsArgs, serviceDataArgs, manufacturerSpecificDataArgs)

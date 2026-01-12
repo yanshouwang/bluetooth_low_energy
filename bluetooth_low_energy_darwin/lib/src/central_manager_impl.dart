@@ -84,14 +84,17 @@ final class CentralManagerImpl
   }
 
   @override
+  Future<Peripheral> getPeripheral(String address) {
+    throw UnsupportedError('getPeripheral is not supported on Darwin.');
+  }
+
+  @override
   Future<List<Peripheral>> retrieveConnectedPeripherals() async {
     _logger.info('retrieveConnectedPeripherals');
     final peripheralsArgs = await _api.retrieveConnectedPeripherals();
-    final peripherals =
-        peripheralsArgs
-            .cast<PeripheralArgs>()
-            .map((args) => args.toPeripheral())
-            .toList();
+    final peripherals = peripheralsArgs
+        .map((args) => args.toPeripheral())
+        .toList();
     return peripherals;
   }
 
@@ -318,9 +321,7 @@ final class CentralManagerImpl
 
   Future<List<GATTServiceArgs>> _discoverServices(String uuidArgs) async {
     _logger.info('discoverServices: $uuidArgs');
-    final servicesArgs = await _api
-        .discoverServices(uuidArgs)
-        .then((args) => args.cast<GATTServiceArgs>());
+    final servicesArgs = await _api.discoverServices(uuidArgs);
     for (var serviceArgs in servicesArgs) {
       final hashCodeArgs = serviceArgs.hashCodeArgs;
       final includedServicesArgs = await _discoverIncludedServices(
@@ -342,9 +343,10 @@ final class CentralManagerImpl
     int hashCodeArgs,
   ) async {
     _logger.info('discoverIncludedServices: $uuidArgs.$hashCodeArgs');
-    final servicesArgs = await _api
-        .discoverIncludedServices(uuidArgs, hashCodeArgs)
-        .then((args) => args.cast<GATTServiceArgs>());
+    final servicesArgs = await _api.discoverIncludedServices(
+      uuidArgs,
+      hashCodeArgs,
+    );
     for (var serviceArgs in servicesArgs) {
       final hashCodeArgs = serviceArgs.hashCodeArgs;
       final includedServicesArgs = await _discoverIncludedServices(
@@ -366,9 +368,10 @@ final class CentralManagerImpl
     int hashCodeArgs,
   ) async {
     _logger.info('discoverCharacteristics: $uuidArgs.$hashCodeArgs');
-    final characteristicsArgs = await _api
-        .discoverCharacteristics(uuidArgs, hashCodeArgs)
-        .then((args) => args.cast<GATTCharacteristicArgs>());
+    final characteristicsArgs = await _api.discoverCharacteristics(
+      uuidArgs,
+      hashCodeArgs,
+    );
     for (var characteristicArgs in characteristicsArgs) {
       final hashCodeArgs = characteristicArgs.hashCodeArgs;
       final descriptorsArgs = await _discoverDescriptors(
@@ -385,9 +388,10 @@ final class CentralManagerImpl
     int hashCodeArgs,
   ) async {
     _logger.info('discoverDescriptors: $uuidArgs.$hashCodeArgs');
-    final descriptorsArgs = await _api
-        .discoverDescriptors(uuidArgs, hashCodeArgs)
-        .then((args) => args.cast<GATTDescriptorArgs>());
+    final descriptorsArgs = await _api.discoverDescriptors(
+      uuidArgs,
+      hashCodeArgs,
+    );
     return descriptorsArgs;
   }
 }

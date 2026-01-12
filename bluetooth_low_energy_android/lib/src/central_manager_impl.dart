@@ -102,14 +102,21 @@ final class CentralManagerImpl
   }
 
   @override
+  Future<Peripheral> getPeripheral(String address) async {
+    final addressArgs = address;
+    _logger.info('getPeripheral: $addressArgs');
+    final peripheralArgs = await _api.getPeripheral(addressArgs);
+    final peripheral = peripheralArgs.toPeripheral();
+    return peripheral;
+  }
+
+  @override
   Future<List<Peripheral>> retrieveConnectedPeripherals() async {
     _logger.info('retrieveConnectedPeripherals');
     final peripheralsArgs = await _api.retrieveConnectedPeripherals();
-    final peripherals =
-        peripheralsArgs
-            .cast<PeripheralArgs>()
-            .map((args) => args.toPeripheral())
-            .toList();
+    final peripherals = peripheralsArgs
+        .map((args) => args.toPeripheral())
+        .toList();
     return peripherals;
   }
 
@@ -178,11 +185,7 @@ final class CentralManagerImpl
     final addressArgs = peripheral.address;
     _logger.info('discoverGATT: $addressArgs');
     final servicesArgs = await _api.discoverGATT(addressArgs);
-    final services =
-        servicesArgs
-            .cast<GATTServiceArgs>()
-            .map((args) => args.toService())
-            .toList();
+    final services = servicesArgs.map((args) => args.toService()).toList();
     return services;
   }
 
@@ -254,14 +257,11 @@ final class CentralManagerImpl
     final descriptor = characteristic.descriptors.firstWhere(
       (descriptor) => descriptor.uuid == cccUUID,
     );
-    final value =
-        state
-            ? characteristic.properties.contains(
-                  GATTCharacteristicProperty.notify,
-                )
-                ? _args.enableNotificationValue
-                : _args.enableIndicationValue
-            : _args.disableNotificationValue;
+    final value = state
+        ? characteristic.properties.contains(GATTCharacteristicProperty.notify)
+              ? _args.enableNotificationValue
+              : _args.enableIndicationValue
+        : _args.disableNotificationValue;
     await writeDescriptor(peripheral, descriptor, value: value);
   }
 

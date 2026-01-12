@@ -30,17 +30,15 @@ final class GATTCharacteristicImpl implements GATTCharacteristic {
   UUID get uuid => blueZCharacteristic.uuid.toUUID();
 
   @override
-  List<GATTCharacteristicProperty> get properties =>
-      blueZCharacteristic.flags
-          .map((e) => e.toProperty())
-          .whereType<GATTCharacteristicProperty>()
-          .toList();
+  List<GATTCharacteristicProperty> get properties => blueZCharacteristic.flags
+      .map((e) => e.toProperty())
+      .whereType<GATTCharacteristicProperty>()
+      .toList();
 
   @override
-  List<GATTDescriptor> get descriptors =>
-      blueZCharacteristic.descriptors
-          .map((descriptor) => GATTDescriptorImpl(descriptor))
-          .toList();
+  List<GATTDescriptorImpl> get descriptors => blueZCharacteristic.descriptors
+      .map((descriptor) => GATTDescriptorImpl(descriptor))
+      .toList();
 
   @override
   int get hashCode => blueZCharacteristic.hashCode;
@@ -65,13 +63,13 @@ final class GATTServiceImpl implements GATTService {
 
   @override
   // TODO: implement includedServices
-  List<GATTService> get includedServices => throw UnimplementedError();
+  List<GATTServiceImpl> get includedServices => throw UnimplementedError();
 
   @override
-  List<GATTCharacteristic> get characteristics =>
-      blueZService.characteristics
-          .map((characteristic) => GATTCharacteristicImpl(characteristic))
-          .toList();
+  List<GATTCharacteristicImpl> get characteristics => blueZService
+      .characteristics
+      .map((characteristic) => GATTCharacteristicImpl(characteristic))
+      .toList();
 
   @override
   int get hashCode => blueZService.hashCode;

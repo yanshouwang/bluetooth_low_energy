@@ -100,6 +100,7 @@ final class PeripheralManagerImpl
 
   @override
   Future<void> addService(GATTService service) async {
+    if (service is! MutableGATTServiceImpl) throw TypeError();
     final serviceArgs = service.toArgs();
     _logger.info('addService: $serviceArgs');
     await _api.addService(serviceArgs);
@@ -132,6 +133,18 @@ final class PeripheralManagerImpl
   Future<void> stopAdvertising() async {
     _logger.info('stopAdvertising');
     await _api.stopAdvertising();
+  }
+
+  @override
+  Future<Central> getCentral(String address) {
+    throw UnsupportedError('getCentral is not supported on Darwin.');
+  }
+
+  @override
+  Future<List<Central>> retrieveConnectedCentrals() {
+    throw UnsupportedError(
+      'retrieveConnectedCentrals is not supported on Darwin.',
+    );
   }
 
   @override
@@ -269,18 +282,18 @@ final class PeripheralManagerImpl
   }
 
   @override
-  void didReceiveWrite(List<ATTRequestArgs?> requestsArgs) async {
+  void didReceiveWrite(List<ATTRequestArgs> requestsArgs) async {
     // When you respond to a write request, note that the first parameter of the respond(to:with
     // Result:) method expects a single CBATTRequest object, even though you received an array of
     // them from the peripheralManager(_:didReceiveWrite:) method. To respond properly,
     // pass in the first request of the requests array.
     // see: https://developer.apple.com/documentation/corebluetooth/cbperipheralmanagerdelegate/1393315-peripheralmanager#discussion
-    final requestArgs = requestsArgs.cast<ATTRequestArgs>().first;
+    final requestArgs = requestsArgs.first;
     final centralArgs = requestArgs.centralArgs;
     final hashCodeArgs = requestArgs.hashCodeArgs;
     final characteristicHashCodeArgs = requestArgs.characteristicHashCodeArgs;
     final offsetArgs = requestArgs.offsetArgs;
-    final unsupported = requestsArgs.cast<ATTRequestArgs>().any(
+    final unsupported = requestsArgs.any(
       (args) =>
           args.centralArgs.uuidArgs != centralArgs.uuidArgs ||
           args.characteristicHashCodeArgs != characteristicHashCodeArgs,
@@ -293,10 +306,7 @@ final class PeripheralManagerImpl
       if (characteristic == null) {
         await _respond(hashCodeArgs, null, ATTErrorArgs.attributeNotFound);
       } else {
-        final elements = requestsArgs.cast<ATTRequestArgs>().fold(<int>[], (
-          previousValue,
-          args,
-        ) {
+        final elements = requestsArgs.fold(<int>[], (previousValue, args) {
           final valueArgs = args.valueArgs;
           if (valueArgs != null) {
             previousValue.insertAll(args.offsetArgs, valueArgs);
@@ -351,14 +361,11 @@ final class PeripheralManagerImpl
     _characteristicNotifyStateChangedController.add(eventArgs);
   }
 
-  void _addService(GATTService service) {
+  void _addService(MutableGATTServiceImpl service) {
     for (var includedService in service.includedServices) {
       _addService(includedService);
     }
     for (var characteristic in service.characteristics) {
-      if (characteristic is! MutableGATTCharacteristicImpl) {
-        throw TypeError();
-      }
       _characteristics[characteristic.hashCode] = characteristic;
     }
   }

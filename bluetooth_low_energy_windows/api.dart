@@ -75,9 +75,9 @@ class ManufacturerSpecificDataArgs {
 
 class AdvertisementArgs {
   final String? nameArgs;
-  final List<String?> serviceUUIDsArgs;
-  final Map<String?, Uint8List?> serviceDataArgs;
-  final List<ManufacturerSpecificDataArgs?> manufacturerSpecificDataArgs;
+  final List<String> serviceUUIDsArgs;
+  final Map<String, Uint8List> serviceDataArgs;
+  final List<ManufacturerSpecificDataArgs> manufacturerSpecificDataArgs;
 
   AdvertisementArgs(
     this.nameArgs,
@@ -109,8 +109,8 @@ class GATTDescriptorArgs {
 class GATTCharacteristicArgs {
   final int handleArgs;
   final String uuidArgs;
-  final List<int?> propertyNumbersArgs;
-  final List<GATTDescriptorArgs?> descriptorsArgs;
+  final List<int> propertyNumbersArgs;
+  final List<GATTDescriptorArgs> descriptorsArgs;
 
   GATTCharacteristicArgs(
     this.handleArgs,
@@ -124,8 +124,8 @@ class GATTServiceArgs {
   final int handleArgs;
   final String uuidArgs;
   final bool isPrimaryArgs;
-  final List<GATTServiceArgs?> includedServicesArgs;
-  final List<GATTCharacteristicArgs?> characteristicsArgs;
+  final List<GATTServiceArgs> includedServicesArgs;
+  final List<GATTCharacteristicArgs> characteristicsArgs;
 
   GATTServiceArgs(
     this.handleArgs,
@@ -156,10 +156,10 @@ class MutableGATTCharacteristicArgs {
   final int hashCodeArgs;
   final String uuidArgs;
   final Uint8List? valueArgs;
-  final List<int?> propertyNumbersArgs;
+  final List<int> propertyNumbersArgs;
   final GATTProtectionLevelArgs? readProtectionLevelArgs;
   final GATTProtectionLevelArgs? writeProtectionLevelArgs;
-  final List<MutableGATTDescriptorArgs?> descriptorsArgs;
+  final List<MutableGATTDescriptorArgs> descriptorsArgs;
 
   MutableGATTCharacteristicArgs(
     this.hashCodeArgs,
@@ -176,8 +176,8 @@ class MutableGATTServiceArgs {
   final int hashCodeArgs;
   final String uuidArgs;
   final bool isPrimaryArgs;
-  final List<MutableGATTServiceArgs?> includedServicesArgs;
-  final List<MutableGATTCharacteristicArgs?> characteristicsArgs;
+  final List<MutableGATTServiceArgs> includedServicesArgs;
+  final List<MutableGATTCharacteristicArgs> characteristicsArgs;
 
   MutableGATTServiceArgs(
     this.hashCodeArgs,

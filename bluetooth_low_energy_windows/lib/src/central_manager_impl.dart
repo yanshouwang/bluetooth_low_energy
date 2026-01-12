@@ -98,6 +98,12 @@ final class CentralManagerImpl
   }
 
   @override
+  Future<Peripheral> getPeripheral(String address) {
+    // TODO: Check is this supported on Windows.
+    throw UnsupportedError('getPeripheral is not supported on Windows.');
+  }
+
+  @override
   Future<List<Peripheral>> retrieveConnectedPeripherals() {
     throw UnsupportedError(
       'retrieveConnectedPeripherals is not supported on Windows.',
@@ -222,14 +228,11 @@ final class CentralManagerImpl
     }
     final addressArgs = peripheral.address;
     final handleArgs = characteristic.handle;
-    final stateArgs =
-        state
-            ? characteristic.properties.contains(
-                  GATTCharacteristicProperty.notify,
-                )
-                ? GATTCharacteristicNotifyStateArgs.notify
-                : GATTCharacteristicNotifyStateArgs.indicate
-            : GATTCharacteristicNotifyStateArgs.none;
+    final stateArgs = state
+        ? characteristic.properties.contains(GATTCharacteristicProperty.notify)
+              ? GATTCharacteristicNotifyStateArgs.notify
+              : GATTCharacteristicNotifyStateArgs.indicate
+        : GATTCharacteristicNotifyStateArgs.none;
     _logger.info(
       'setCharacteristicNotifyState: $addressArgs.$handleArgs - $stateArgs',
     );
@@ -321,23 +324,19 @@ final class CentralManagerImpl
       } else {
         final peripheral = oldDiscoveryArgs.peripheralArgs.toPeripheral();
         final rssi = oldDiscoveryArgs.rssiArgs;
-        final oldAdvertisement =
-            typeArgs == AdvertisementTypeArgs.scanResponse
-                ? oldDiscoveryArgs.advertisementArgs.toAdvertisement()
-                : advertisementArgs.toAdvertisement();
-        final newAdvertisement =
-            typeArgs == AdvertisementTypeArgs.scanResponse
-                ? advertisementArgs.toAdvertisement()
-                : oldDiscoveryArgs.advertisementArgs.toAdvertisement();
-        final name =
-            newAdvertisement.name?.isNotEmpty == true
-                ? newAdvertisement.name
-                : oldAdvertisement.name;
-        final serviceUUIDs =
-            {
-              ...oldAdvertisement.serviceUUIDs,
-              ...newAdvertisement.serviceUUIDs,
-            }.toList();
+        final oldAdvertisement = typeArgs == AdvertisementTypeArgs.scanResponse
+            ? oldDiscoveryArgs.advertisementArgs.toAdvertisement()
+            : advertisementArgs.toAdvertisement();
+        final newAdvertisement = typeArgs == AdvertisementTypeArgs.scanResponse
+            ? advertisementArgs.toAdvertisement()
+            : oldDiscoveryArgs.advertisementArgs.toAdvertisement();
+        final name = newAdvertisement.name?.isNotEmpty == true
+            ? newAdvertisement.name
+            : oldAdvertisement.name;
+        final serviceUUIDs = {
+          ...oldAdvertisement.serviceUUIDs,
+          ...newAdvertisement.serviceUUIDs,
+        }.toList();
         final serviceData = {
           ...oldAdvertisement.serviceData,
           ...newAdvertisement.serviceData,
@@ -434,9 +433,7 @@ final class CentralManagerImpl
     CacheModeArgs modeArgs,
   ) async {
     _logger.info('getServices: $addressArgs - $modeArgs');
-    final servicesArgs = await _api
-        .getServices(addressArgs, modeArgs)
-        .then((args) => args.cast<GATTServiceArgs>());
+    final servicesArgs = await _api.getServices(addressArgs, modeArgs);
     for (var serviceArgs in servicesArgs) {
       final handleArgs = serviceArgs.handleArgs;
       final includedServicesArgs = await _getIncludedServices(
@@ -461,9 +458,11 @@ final class CentralManagerImpl
     CacheModeArgs modeArgs,
   ) async {
     _logger.info('getIncludedServices: $addressArgs.$handleArgs - $modeArgs');
-    final servicesArgs = await _api
-        .getIncludedServices(addressArgs, handleArgs, modeArgs)
-        .then((args) => args.cast<GATTServiceArgs>());
+    final servicesArgs = await _api.getIncludedServices(
+      addressArgs,
+      handleArgs,
+      modeArgs,
+    );
     for (var serviceArgs in servicesArgs) {
       final handleArgs = serviceArgs.handleArgs;
       final includedServicesArgs = await _getIncludedServices(
@@ -488,9 +487,11 @@ final class CentralManagerImpl
     CacheModeArgs modeArgs,
   ) async {
     _logger.info('getCharacteristics: $addressArgs.$handleArgs - $modeArgs');
-    final characteristicsArgs = await _api
-        .getCharacteristics(addressArgs, handleArgs, modeArgs)
-        .then((args) => args.cast<GATTCharacteristicArgs>());
+    final characteristicsArgs = await _api.getCharacteristics(
+      addressArgs,
+      handleArgs,
+      modeArgs,
+    );
     for (var characteristicArgs in characteristicsArgs) {
       final handleArgs = characteristicArgs.handleArgs;
       final descriptorsArgs = await _getDescriptors(
@@ -509,9 +510,11 @@ final class CentralManagerImpl
     CacheModeArgs modeArgs,
   ) async {
     _logger.info('getDescriptors: $addressArgs,$handleArgs - $modeArgs');
-    final descriptorsArgs = await _api
-        .getDescriptors(addressArgs, handleArgs, modeArgs)
-        .then((args) => args.cast<GATTDescriptorArgs>());
+    final descriptorsArgs = await _api.getDescriptors(
+      addressArgs,
+      handleArgs,
+      modeArgs,
+    );
     return descriptorsArgs;
   }
 
@@ -545,8 +548,8 @@ final class CentralManagerImpl
     }
     final interval =
         newDiscoveryArgs.typeArgs == AdvertisementTypeArgs.scanResponse
-            ? newDiscoveryArgs.timestampArgs - oldDiscoveryArgs.timestampArgs
-            : oldDiscoveryArgs.timestampArgs - newDiscoveryArgs.timestampArgs;
+        ? newDiscoveryArgs.timestampArgs - oldDiscoveryArgs.timestampArgs
+        : oldDiscoveryArgs.timestampArgs - newDiscoveryArgs.timestampArgs;
     final ignored = interval < 0 || interval > 1000;
     if (ignored) {
       _logger.fine(

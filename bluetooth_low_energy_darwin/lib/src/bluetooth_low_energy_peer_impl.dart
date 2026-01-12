@@ -7,6 +7,10 @@ abstract base class BluetoothLowEnergyPeerImpl
 
   BluetoothLowEnergyPeerImpl({required this.uuid});
 
+  // @override
+  // String get address =>
+  //     throw UnsupportedError('address is not supported on Darwin.');
+
   @override
   int get hashCode => uuid.hashCode;
 

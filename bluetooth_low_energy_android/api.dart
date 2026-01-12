@@ -94,9 +94,9 @@ class ManufacturerSpecificDataArgs {
 
 class AdvertisementArgs {
   final String? nameArgs;
-  final List<String?> serviceUUIDsArgs;
-  final Map<String?, Uint8List?> serviceDataArgs;
-  final List<ManufacturerSpecificDataArgs?> manufacturerSpecificDataArgs;
+  final List<String> serviceUUIDsArgs;
+  final Map<String, Uint8List> serviceDataArgs;
+  final List<ManufacturerSpecificDataArgs> manufacturerSpecificDataArgs;
 
   AdvertisementArgs(
     this.nameArgs,
@@ -123,9 +123,9 @@ class AdvertiseSettingsArgs {
 class AdvertiseDataArgs {
   final bool? includeDeviceNameArgs;
   final bool? includeTXPowerLevelArgs;
-  final List<String?> serviceUUIDsArgs;
-  final Map<String?, Uint8List?> serviceDataArgs;
-  final List<ManufacturerSpecificDataArgs?> manufacturerSpecificDataArgs;
+  final List<String> serviceUUIDsArgs;
+  final Map<String, Uint8List> serviceDataArgs;
+  final List<ManufacturerSpecificDataArgs> manufacturerSpecificDataArgs;
 
   AdvertiseDataArgs(
     this.includeDeviceNameArgs,
@@ -158,8 +158,8 @@ class GATTDescriptorArgs {
 class GATTCharacteristicArgs {
   final int hashCodeArgs;
   final String uuidArgs;
-  final List<int?> propertyNumbersArgs;
-  final List<GATTDescriptorArgs?> descriptorsArgs;
+  final List<int> propertyNumbersArgs;
+  final List<GATTDescriptorArgs> descriptorsArgs;
 
   GATTCharacteristicArgs(
     this.hashCodeArgs,
@@ -173,8 +173,8 @@ class GATTServiceArgs {
   final int hashCodeArgs;
   final String uuidArgs;
   final bool isPrimaryArgs;
-  final List<GATTServiceArgs?> includedServicesArgs;
-  final List<GATTCharacteristicArgs?> characteristicsArgs;
+  final List<GATTServiceArgs> includedServicesArgs;
+  final List<GATTCharacteristicArgs> characteristicsArgs;
 
   GATTServiceArgs(
     this.hashCodeArgs,
@@ -188,7 +188,7 @@ class GATTServiceArgs {
 class MutableGATTDescriptorArgs {
   final int hashCodeArgs;
   final String uuidArgs;
-  final List<int?> permissionNumbersArgs;
+  final List<int> permissionNumbersArgs;
 
   MutableGATTDescriptorArgs(
     this.hashCodeArgs,
@@ -200,9 +200,9 @@ class MutableGATTDescriptorArgs {
 class MutableGATTCharacteristicArgs {
   final int hashCodeArgs;
   final String uuidArgs;
-  final List<int?> permissionNumbersArgs;
-  final List<int?> propertyNumbersArgs;
-  final List<MutableGATTDescriptorArgs?> descriptorsArgs;
+  final List<int> permissionNumbersArgs;
+  final List<int> propertyNumbersArgs;
+  final List<MutableGATTDescriptorArgs> descriptorsArgs;
 
   MutableGATTCharacteristicArgs(
     this.hashCodeArgs,
@@ -217,8 +217,8 @@ class MutableGATTServiceArgs {
   final int hashCodeArgs;
   final String uuidArgs;
   final bool isPrimaryArgs;
-  final List<MutableGATTServiceArgs?> includedServicesArgs;
-  final List<MutableGATTCharacteristicArgs?> characteristicsArgs;
+  final List<MutableGATTServiceArgs> includedServicesArgs;
+  final List<MutableGATTCharacteristicArgs> characteristicsArgs;
 
   MutableGATTServiceArgs(
     this.hashCodeArgs,
@@ -239,11 +239,12 @@ abstract class CentralManagerHostApi {
   @async
   void startDiscovery(List<String> serviceUUIDsArgs);
   void stopDiscovery();
+  PeripheralArgs getPeripheral(String addressArgs);
+  List<PeripheralArgs> retrieveConnectedPeripherals();
   @async
   void connect(String addressArgs);
   @async
   void disconnect(String addressArgs);
-  List<PeripheralArgs> retrieveConnectedPeripherals();
   @async
   int requestMTU(String addressArgs, int mtuArgs);
   @async
@@ -316,6 +317,9 @@ abstract class PeripheralManagerHostApi {
     AdvertiseDataArgs scanResponseArgs,
   );
   void stopAdvertising();
+  CentralArgs getCentral(String addressArgs);
+  List<CentralArgs> retrieveConnectedCentrals();
+  void disconnect(String addressArgs);
   void sendResponse(
     String addressArgs,
     int idArgs,
@@ -330,8 +334,6 @@ abstract class PeripheralManagerHostApi {
     bool confirmArgs,
     Uint8List valueArgs,
   );
-  @async
-  void disconnect(String addressArgs);
 }
 
 @FlutterApi()

@@ -173,7 +173,7 @@ abstract interface class GATTCharacteristic implements GATTAttribute {
     uuid: uuid,
     properties: properties,
     permissions: permissions,
-    descriptors: descriptors,
+    descriptors: descriptors.cast<MutableGATTDescriptorImpl>(),
   );
 
   /// Creates a immutable characteristic with a specified value.
@@ -189,7 +189,7 @@ abstract interface class GATTCharacteristic implements GATTAttribute {
   }) => ImmutableGATTCharacteristicImpl(
     uuid: uuid,
     value: value,
-    descriptors: descriptors,
+    descriptors: descriptors.cast<MutableGATTDescriptorImpl>(),
   );
 }
 
@@ -216,8 +216,8 @@ abstract interface class GATTService implements GATTAttribute {
   }) => MutableGATTServiceImpl(
     uuid: uuid,
     isPrimary: isPrimary,
-    includedServices: includedServices,
-    characteristics: characteristics,
+    includedServices: includedServices.cast<MutableGATTServiceImpl>(),
+    characteristics: characteristics.cast<MutableGATTCharacteristicImpl>(),
   );
 }
 
@@ -285,11 +285,11 @@ final class MutableGATTCharacteristicImpl extends GATTAttributeImpl
     implements GATTCharacteristic {
   @override
   final List<GATTCharacteristicProperty> properties;
-  @override
-  final List<GATTDescriptor> descriptors;
 
   /// The permissions of the characteristic value.
   final List<GATTCharacteristicPermission> permissions;
+  @override
+  final List<MutableGATTDescriptorImpl> descriptors;
 
   /// Creates a mutable characteristic with specified permissions, properties.
   ///
@@ -333,9 +333,9 @@ final class MutableGATTServiceImpl extends GATTAttributeImpl
   @override
   final bool isPrimary;
   @override
-  final List<GATTService> includedServices;
+  final List<MutableGATTServiceImpl> includedServices;
   @override
-  final List<GATTCharacteristic> characteristics;
+  final List<MutableGATTCharacteristicImpl> characteristics;
 
   MutableGATTServiceImpl({
     required super.uuid,

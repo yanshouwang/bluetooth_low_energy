@@ -111,17 +111,21 @@ final class CentralManagerImpl implements CentralManager {
   }
 
   @override
+  Future<Peripheral> getPeripheral(String address) {
+    throw UnsupportedError('getPeripheral is not supported on Linux.');
+  }
+
+  @override
   Future<List<Peripheral>> retrieveConnectedPeripherals() {
     logger.info('retrieveConnectedPeripherals');
-    final peripherals =
-        _blueZClient.devices
-            .where(
-              (blueZDevice) =>
-                  blueZDevice.adapter.address == _blueZAdapter.address &&
-                  blueZDevice.connected,
-            )
-            .map((blueZDevice) => PeripheralImpl(blueZDevice))
-            .toList();
+    final peripherals = _blueZClient.devices
+        .where(
+          (blueZDevice) =>
+              blueZDevice.adapter.address == _blueZAdapter.address &&
+              blueZDevice.connected,
+        )
+        .map((blueZDevice) => PeripheralImpl(blueZDevice))
+        .toList();
     return Future.value(peripherals);
   }
 
@@ -163,12 +167,11 @@ final class CentralManagerImpl implements CentralManager {
     final blueZDevice = peripheral.blueZDevice;
     final blueZAddress = blueZDevice.address;
     logger.info('getMaximumWriteLength: $blueZAddress');
-    final blueZMTU =
-        blueZDevice.gattServices
-            .firstWhere((service) => service.characteristics.isNotEmpty)
-            .characteristics
-            .first
-            .mtu;
+    final blueZMTU = blueZDevice.gattServices
+        .firstWhere((service) => service.characteristics.isNotEmpty)
+        .characteristics
+        .first
+        .mtu;
     if (blueZMTU == null) {
       throw ArgumentError.notNull();
     }
@@ -340,10 +343,9 @@ final class CentralManagerImpl implements CentralManager {
               _endBlueZCharacteristicPropertiesChangedListener(blueZDevice);
             }
             final peripheral = PeripheralImpl(blueZDevice);
-            final state =
-                blueZDevice.connected
-                    ? ConnectionState.connected
-                    : ConnectionState.disconnected;
+            final state = blueZDevice.connected
+                ? ConnectionState.connected
+                : ConnectionState.disconnected;
             final eventArgs = PeripheralConnectionStateChangedEventArgs(
               peripheral,
               state,
@@ -355,10 +357,9 @@ final class CentralManagerImpl implements CentralManager {
           case 'ServicesResolved':
             if (blueZDevice.servicesResolved) {
               _endBlueZCharacteristicPropertiesChangedListener(blueZDevice);
-              _services[blueZDevice.address] =
-                  blueZDevice.gattServices
-                      .map((service) => GATTServiceImpl(service))
-                      .toList();
+              _services[blueZDevice.address] = blueZDevice.gattServices
+                  .map((service) => GATTServiceImpl(service))
+                  .toList();
               _beginBlueZCharacteristicPropertiesChangedListener(blueZDevice);
               final eventArgs = BlueZDeviceServicesResolvedEventArgs(
                 blueZDevice,
@@ -382,8 +383,8 @@ final class CentralManagerImpl implements CentralManager {
     }
     final peripheral = PeripheralImpl(blueZDevice);
     for (var service in services) {
-      final characteristics =
-          service.characteristics.cast<GATTCharacteristicImpl>();
+      final characteristics = service.characteristics
+          .cast<GATTCharacteristicImpl>();
       for (var characteristic in characteristics) {
         final blueZCharacteristic = characteristic.blueZCharacteristic;
         final subscription = blueZCharacteristic.propertiesChanged.listen((
@@ -428,8 +429,8 @@ final class CentralManagerImpl implements CentralManager {
       return;
     }
     for (var service in services) {
-      final characteristics =
-          service.characteristics.cast<GATTCharacteristicImpl>();
+      final characteristics = service.characteristics
+          .cast<GATTCharacteristicImpl>();
       for (var characteristic in characteristics) {
         final blueZCharacteristic = characteristic.blueZCharacteristic;
         final subscription = _blueZCharacteristicPropertiesChangedSubscriptions

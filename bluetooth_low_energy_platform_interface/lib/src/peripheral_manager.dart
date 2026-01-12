@@ -81,6 +81,16 @@ abstract interface class PeripheralManager
   /// Stops advertising peripheral manager data.
   Future<void> stopAdvertising();
 
+  /// Get a central object for the given bluetooth hardware address.
+  ///
+  /// This method is available on Android, throws [UnsupportedError] on other platforms.
+  Future<Central> getCentral(String address);
+
+  /// Returns a list of the centrals connected to the system.
+  ///
+  /// This method is available on Android, throws [UnsupportedError] on other platforms.
+  Future<List<Central>> retrieveConnectedCentrals();
+
   /// Disconnects a connected central.
   ///
   /// This method is available on Android, throws [UnsupportedError] on other

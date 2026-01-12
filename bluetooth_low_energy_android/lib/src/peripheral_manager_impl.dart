@@ -130,6 +130,7 @@ final class PeripheralManagerImpl
 
   @override
   Future<void> addService(GATTService service) async {
+    if (service is! MutableGATTServiceImpl) throw TypeError();
     final serviceArgs = service.toArgs();
     _logger.info('addService: $serviceArgs');
     await _api.addService(serviceArgs);
@@ -186,6 +187,23 @@ final class PeripheralManagerImpl
   Future<void> stopAdvertising() async {
     _logger.info('stopAdvertising');
     await _api.stopAdvertising();
+  }
+
+  @override
+  Future<Central> getCentral(String address) async {
+    final addressArgs = address;
+    _logger.info('getCentral: $addressArgs');
+    final centralArgs = await _api.getCentral(addressArgs);
+    final central = centralArgs.toCentral();
+    return central;
+  }
+
+  @override
+  Future<List<Central>> retrieveConnectedCentrals() async {
+    _logger.info('retrieveConnectedCentrals');
+    final centralsArgs = await _api.retrieveConnectedCentrals();
+    final centrals = centralsArgs.map((args) => args.toCentral()).toList();
+    return centrals;
   }
 
   @override
@@ -889,16 +907,12 @@ final class PeripheralManagerImpl
     }
   }
 
-  void _addService(GATTService service) {
+  void _addService(MutableGATTServiceImpl service) {
     for (var includedService in service.includedServices) {
       _addService(includedService);
     }
-    final characteristics =
-        service.characteristics.cast<MutableGATTCharacteristicImpl>();
-    for (var characteristic in characteristics) {
-      final descriptors =
-          characteristic.descriptors.cast<MutableGATTDescriptorImpl>();
-      for (var descriptor in descriptors) {
+    for (var characteristic in service.characteristics) {
+      for (var descriptor in characteristic.descriptors) {
         // Jump CCC descriptors.
         if (descriptor.uuid == cccUUID) {
           continue;
@@ -910,22 +924,18 @@ final class PeripheralManagerImpl
   }
 
   void _addServiceArgs(MutableGATTServiceArgs serviceArgs) {
-    final includedServicesArgs =
-        serviceArgs.includedServicesArgs.cast<MutableGATTServiceArgs>();
-    for (var includedServiceArgs in includedServicesArgs) {
+    for (var includedServiceArgs in serviceArgs.includedServicesArgs) {
       _addServiceArgs(includedServiceArgs);
     }
-    final characteristicsArgs =
-        serviceArgs.characteristicsArgs.cast<MutableGATTCharacteristicArgs>();
     final cccUUIDArgs = cccUUID.toArgs();
-    for (var characteristicArgs in characteristicsArgs) {
+    for (var characteristicArgs in serviceArgs.characteristicsArgs) {
       final characteristic = _characteristics[characteristicArgs.hashCodeArgs];
       if (characteristic == null) {
         throw ArgumentError.notNull();
       }
-      final cccDescriptorArgs = characteristicArgs.descriptorsArgs
-          .cast<MutableGATTDescriptorArgs>()
-          .firstWhere((args) => args.uuidArgs == cccUUIDArgs);
+      final cccDescriptorArgs = characteristicArgs.descriptorsArgs.firstWhere(
+        (args) => args.uuidArgs == cccUUIDArgs,
+      );
       _cccdCharacteristics[cccDescriptorArgs.hashCodeArgs] = characteristic;
     }
   }

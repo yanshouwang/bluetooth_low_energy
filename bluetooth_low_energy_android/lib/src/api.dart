@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_platform_interface.dart';
 
 import 'api.g.dart';
@@ -56,23 +54,16 @@ extension AdvertisementArgsX on AdvertisementArgs {
   Advertisement toAdvertisement() {
     return Advertisement(
       name: nameArgs,
-      serviceUUIDs:
-          serviceUUIDsArgs
-              .cast<String>()
-              .map((args) => UUID.fromString(args))
-              .toList(),
-      serviceData: serviceDataArgs.cast<String, Uint8List>().map((
-        uuidArgs,
-        dataArgs,
-      ) {
+      serviceUUIDs: serviceUUIDsArgs
+          .map((args) => UUID.fromString(args))
+          .toList(),
+      serviceData: serviceDataArgs.map((uuidArgs, dataArgs) {
         final uuid = UUID.fromString(uuidArgs);
         return MapEntry(uuid, dataArgs);
       }),
-      manufacturerSpecificData:
-          manufacturerSpecificDataArgs
-              .cast<ManufacturerSpecificDataArgs>()
-              .map((args) => args.toManufacturerSpecificData())
-              .toList(),
+      manufacturerSpecificData: manufacturerSpecificDataArgs
+          .map((args) => args.toManufacturerSpecificData())
+          .toList(),
     );
   }
 }
@@ -97,16 +88,14 @@ extension GATTCharacteristicArgsX on GATTCharacteristicArgs {
     return GATTCharacteristicImpl(
       hashCode: hashCodeArgs,
       uuid: UUID.fromString(uuidArgs),
-      properties:
-          propertyNumbersArgs.cast<int>().map((args) {
-            final propertyArgs = GATTCharacteristicPropertyArgs.values[args];
-            return propertyArgs.toProperty();
-          }).toList(),
-      descriptors:
-          descriptorsArgs
-              .cast<GATTDescriptorArgs>()
-              .map((args) => args.toDescriptor())
-              .toList(),
+      properties: propertyNumbersArgs.map((args) {
+        final propertyArgs = GATTCharacteristicPropertyArgs.values[args];
+        return propertyArgs.toProperty();
+      }).toList(),
+      descriptors: descriptorsArgs
+          .map((args) => args.toDescriptor())
+          .cast<GATTDescriptorImpl>()
+          .toList(),
     );
   }
 }
@@ -117,17 +106,14 @@ extension GATTServiceArgsX on GATTServiceArgs {
       hashCode: hashCodeArgs,
       uuid: UUID.fromString(uuidArgs),
       isPrimary: isPrimaryArgs,
-      includedServices:
-          includedServicesArgs
-              .cast<GATTServiceArgs>()
-              .map((args) => args.toService())
-              .cast<GATTServiceImpl>()
-              .toList(),
-      characteristics:
-          characteristicsArgs
-              .cast<GATTCharacteristicArgs>()
-              .map((args) => args.toCharacteristic())
-              .toList(),
+      includedServices: includedServicesArgs
+          .map((args) => args.toService())
+          .cast<GATTServiceImpl>()
+          .toList(),
+      characteristics: characteristicsArgs
+          .map((args) => args.toCharacteristic())
+          .cast<GATTCharacteristicImpl>()
+          .toList(),
     );
   }
 }
@@ -203,8 +189,9 @@ extension AdvertisementX on Advertisement {
         final dataArgs = data;
         return MapEntry(uuidArgs, dataArgs);
       }),
-      manufacturerSpecificDataArgs:
-          manufacturerSpecificData.map((data) => data.toArgs()).toList(),
+      manufacturerSpecificDataArgs: manufacturerSpecificData
+          .map((data) => data.toArgs())
+          .toList(),
     );
   }
 
@@ -225,11 +212,10 @@ extension GATTDescriptorX on GATTDescriptor {
     return MutableGATTDescriptorArgs(
       hashCodeArgs: impl.hashCode,
       uuidArgs: impl.uuid.toArgs(),
-      permissionNumbersArgs:
-          impl.permissions.map((permission) {
-            final permissionArgs = permission.toArgs();
-            return permissionArgs.index;
-          }).toList(),
+      permissionNumbersArgs: impl.permissions.map((permission) {
+        final permissionArgs = permission.toArgs();
+        return permissionArgs.index;
+      }).toList(),
     );
   }
 }
@@ -240,11 +226,10 @@ extension GATTCharacteristicX on GATTCharacteristic {
     if (impl is! MutableGATTCharacteristicImpl) throw TypeError();
     // Add CCC descriptor.
     final cccUUID = UUID.short(0x2902);
-    final descriptorsArgs =
-        impl.descriptors
-            .where((descriptor) => descriptor.uuid != cccUUID)
-            .map((descriptor) => descriptor.toArgs())
-            .toList();
+    final descriptorsArgs = impl.descriptors
+        .where((descriptor) => descriptor.uuid != cccUUID)
+        .map((descriptor) => descriptor.toArgs())
+        .toList();
     final cccDescriptor = GATTDescriptor.mutable(
       uuid: cccUUID,
       permissions: [
@@ -257,16 +242,14 @@ extension GATTCharacteristicX on GATTCharacteristic {
     return MutableGATTCharacteristicArgs(
       hashCodeArgs: impl.hashCode,
       uuidArgs: impl.uuid.toArgs(),
-      permissionNumbersArgs:
-          impl.permissions.map((permission) {
-            final permissionArgs = permission.toArgs();
-            return permissionArgs.index;
-          }).toList(),
-      propertyNumbersArgs:
-          impl.properties.map((property) {
-            final propertyArgs = property.toArgs();
-            return propertyArgs.index;
-          }).toList(),
+      permissionNumbersArgs: impl.permissions.map((permission) {
+        final permissionArgs = permission.toArgs();
+        return permissionArgs.index;
+      }).toList(),
+      propertyNumbersArgs: impl.properties.map((property) {
+        final propertyArgs = property.toArgs();
+        return propertyArgs.index;
+      }).toList(),
       descriptorsArgs: descriptorsArgs,
     );
   }
@@ -280,12 +263,12 @@ extension GATTServiceX on GATTService {
       hashCodeArgs: impl.hashCode,
       uuidArgs: impl.uuid.toArgs(),
       isPrimaryArgs: impl.isPrimary,
-      includedServicesArgs:
-          impl.includedServices.map((service) => service.toArgs()).toList(),
-      characteristicsArgs:
-          impl.characteristics
-              .map((characteristic) => characteristic.toArgs())
-              .toList(),
+      includedServicesArgs: impl.includedServices
+          .map((service) => service.toArgs())
+          .toList(),
+      characteristicsArgs: impl.characteristics
+          .map((characteristic) => characteristic.toArgs())
+          .toList(),
     );
   }
 }

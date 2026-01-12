@@ -1,20 +1,8 @@
 package dev.zeekr.bluetooth_low_energy_android
 
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGatt
-import android.bluetooth.BluetoothGattCallback
-import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattDescriptor
-import android.bluetooth.BluetoothGattService
-import android.bluetooth.BluetoothManager
-import android.bluetooth.BluetoothProfile
-import android.bluetooth.BluetoothStatusCodes
-import android.bluetooth.le.BluetoothLeScanner
-import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanFilter
-import android.bluetooth.le.ScanResult
-import android.bluetooth.le.ScanSettings
+import android.Manifest
+import android.bluetooth.*
+import android.bluetooth.le.*
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -22,11 +10,11 @@ import android.net.Uri
 import android.os.Build
 import android.os.ParcelUuid
 import android.provider.Settings
+import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import io.flutter.plugin.common.BinaryMessenger
-import java.lang.reflect.Method
 
 class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : BluetoothLowEnergyManagerImpl(context),
     CentralManagerHostApi {
@@ -79,11 +67,9 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
 
     private val permissions: Array<String>
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            arrayOf(android.Manifest.permission.BLUETOOTH_SCAN, android.Manifest.permission.BLUETOOTH_CONNECT)
+            arrayOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT)
         } else {
-            arrayOf(
-                android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION
-            )
+            arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
         }
     private val manager
         get() = ContextCompat.getSystemService(
@@ -93,6 +79,7 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
     private val scanner: BluetoothLeScanner get() = adapter.bluetoothLeScanner
     private val executor get() = ContextCompat.getMainExecutor(context)
 
+    @RequiresPermission(allOf = [Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN])
     override fun initialize(): CentralManagerArgs {
         if (mDiscovering) {
             stopDiscovery()
@@ -154,6 +141,7 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         ActivityCompat.startActivity(activity, intent, options)
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     override fun startDiscovery(serviceUUIDsArgs: List<String>, callback: (Result<Unit>) -> Unit) {
         try {
             val filters = mutableListOf<ScanFilter>()
@@ -171,54 +159,21 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     override fun stopDiscovery() {
         scanner.stopScan(mScanCallback)
         mDiscovering = false
     }
 
-    override fun connect(addressArgs: String, callback: (Result<Unit>) -> Unit) {
-        try {
-            val device = mDevices[addressArgs] ?: throw IllegalArgumentException()
-            val autoConnect = false // Add to bluetoothGATTs cache.
-            mGATTs[addressArgs] = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val transport = BluetoothDevice.TRANSPORT_LE
-                device.connectGatt(context, autoConnect, mBluetoothGattCallback, transport)
-            } else {
-                try {
-                    // From Android LOLLIPOP (21) the transport types exists, but it is private
-                    // have to use reflection to call it for TRANSPORT_LE
-                    val connectGattMethod: Method = device.javaClass.getDeclaredMethod(
-                        "connectGatt",
-                        Context::class.java,
-                        Boolean::class.javaPrimitiveType,
-                        BluetoothGattCallback::class.java,
-                        Int::class.javaPrimitiveType
-                    )
-                    connectGattMethod.isAccessible = true
-                    connectGattMethod.invoke(
-                        device, context, autoConnect, mBluetoothGattCallback, 2 /* TRANSPORT_LE */
-                    ) as BluetoothGatt
-                } catch (ex: Exception) {
-                    // fall back to default method if reflection fails
-                    device.connectGatt(context, autoConnect, mBluetoothGattCallback)
-                }
-            }
-            mConnectCallbacks[addressArgs] = callback
-        } catch (e: Throwable) {
-            callback(Result.failure(e))
-        }
+    override fun getPeripheral(addressArgs: String): PeripheralArgs {
+        val device = adapter.getRemoteDevice(addressArgs)
+        val peripheralArgs = device.toPeripheralArgs()
+        val addressArgs = peripheralArgs.addressArgs
+        mDevices[addressArgs] = device
+        return peripheralArgs
     }
 
-    override fun disconnect(addressArgs: String, callback: (Result<Unit>) -> Unit) {
-        try {
-            val gatt = mGATTs[addressArgs] ?: throw IllegalArgumentException()
-            gatt.disconnect()
-            mDisconnectCallbacks[addressArgs] = callback
-        } catch (e: Throwable) {
-            callback(Result.failure(e))
-        }
-    }
-
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun retrieveConnectedPeripherals(): List<PeripheralArgs> {
         // The `BluetoothProfile.GATT` and `BluetoothProfile.GATT_SERVER` return same devices.
         val devices = manager.getConnectedDevices(BluetoothProfile.GATT)
@@ -231,6 +186,32 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         return peripheralsArgs
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    override fun connect(addressArgs: String, callback: (Result<Unit>) -> Unit) {
+        try {
+            val device = mDevices[addressArgs] ?: throw IllegalArgumentException()
+            val autoConnect = false
+            val transport = BluetoothDevice.TRANSPORT_LE
+            // Add to bluetoothGATTs cache.
+            mGATTs[addressArgs] = device.connectGatt(context, autoConnect, mBluetoothGattCallback, transport)
+            mConnectCallbacks[addressArgs] = callback
+        } catch (e: Throwable) {
+            callback(Result.failure(e))
+        }
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    override fun disconnect(addressArgs: String, callback: (Result<Unit>) -> Unit) {
+        try {
+            val gatt = mGATTs[addressArgs] ?: throw IllegalArgumentException()
+            gatt.disconnect()
+            mDisconnectCallbacks[addressArgs] = callback
+        } catch (e: Throwable) {
+            callback(Result.failure(e))
+        }
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun requestMTU(addressArgs: String, mtuArgs: Long, callback: (Result<Long>) -> Unit) {
         try {
             val gatt = mGATTs[addressArgs] ?: throw IllegalArgumentException()
@@ -245,6 +226,7 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun readRSSI(addressArgs: String, callback: (Result<Long>) -> Unit) {
         try {
             val gatt = mGATTs[addressArgs] ?: throw IllegalArgumentException()
@@ -258,6 +240,7 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun discoverGATT(addressArgs: String, callback: (Result<List<GATTServiceArgs>>) -> Unit) {
         try {
             val gatt = mGATTs[addressArgs] ?: throw IllegalArgumentException()
@@ -271,6 +254,7 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun readCharacteristic(addressArgs: String, hashCodeArgs: Long, callback: (Result<ByteArray>) -> Unit) {
         try {
             val gatt = mGATTs[addressArgs] ?: throw IllegalArgumentException()
@@ -286,6 +270,7 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun writeCharacteristic(
         addressArgs: String,
         hashCodeArgs: Long,
@@ -315,6 +300,7 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun setCharacteristicNotification(addressArgs: String, hashCodeArgs: Long, enableArgs: Boolean) {
         val gatt = mGATTs[addressArgs] ?: throw IllegalArgumentException()
         val characteristic = retrieveCharacteristic(addressArgs, hashCodeArgs)
@@ -324,6 +310,7 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun readDescriptor(addressArgs: String, hashCodeArgs: Long, callback: (Result<ByteArray>) -> Unit) {
         try {
             val gatt = mGATTs[addressArgs] ?: throw IllegalArgumentException()
@@ -339,6 +326,7 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun writeDescriptor(
         addressArgs: String, hashCodeArgs: Long, valueArgs: ByteArray, callback: (Result<Unit>) -> Unit
     ) {
@@ -409,6 +397,7 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         mApi.onDiscovered(peripheralArgs, rssiArgs, advertisementArgs) {}
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
         val device = gatt.device
         val addressArgs = device.address // check connection state.

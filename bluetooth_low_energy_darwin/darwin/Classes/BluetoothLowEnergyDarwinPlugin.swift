@@ -10,16 +10,34 @@ import FlutterMacOS
 
 public class BluetoothLowEnergyDarwinPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
-#if os(iOS)
-        let messenger = registrar.messenger()
-#elseif os(macOS)
+        let instance = BluetoothLowEnergyDarwinPlugin(with: registrar)
+        registrar.publish(instance)
+    }
+    
+    private var mCentralManager: CentralManagerImpl?
+    private var mPeripheralManager: PeripheralManagerImpl?
+    
+    init(with registrar: FlutterPluginRegistrar) {
         let messenger = registrar.messenger
-#else
-#error("Unsupported platform.")
-#endif
-        let centralManager = MyCentralManager(messenger: messenger)
-        let peripheralManager = MyPeripheralManager(messenger: messenger)
-        MyCentralManagerHostAPISetup.setUp(binaryMessenger: messenger, api: centralManager)
-        MyPeripheralManagerHostAPISetup.setUp(binaryMessenger: messenger, api: peripheralManager)
+        let centralManager = CentralManagerImpl(messenger)
+        let peripheralManager = PeripheralManagerImpl(messenger)
+        CentralManagerHostApiSetup.setUp(binaryMessenger: messenger, api: centralManager)
+        PeripheralManagerHostApiSetup.setUp(binaryMessenger: messenger, api: peripheralManager)
+        self.mCentralManager = centralManager
+        self.mPeripheralManager = peripheralManager
+    }
+    
+    public func detachFromEngine(for registrar: any FlutterPluginRegistrar) {
+        let messenger = registrar.messenger
+        CentralManagerHostApiSetup.setUp(binaryMessenger: messenger, api: nil)
+        PeripheralManagerHostApiSetup.setUp(binaryMessenger: messenger, api: nil)
+        self.mCentralManager = nil
+        self.mPeripheralManager = nil
     }
 }
+
+#if os(iOS)
+extension FlutterPluginRegistrar {
+    var messenger: FlutterBinaryMessenger { return self.messenger() }
+}
+#endif

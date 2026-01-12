@@ -1,10 +1,12 @@
 package dev.zeekr.bluetooth_low_energy_android
 
+import android.Manifest
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattServerCallback
 import android.bluetooth.BluetoothGattService
+import androidx.annotation.RequiresPermission
 import java.util.concurrent.Executor
 
 class BluetoothGattServerCallbackImpl(manager: PeripheralManagerImpl, mExecutor: Executor) :
@@ -38,11 +40,9 @@ class BluetoothGattServerCallbackImpl(manager: PeripheralManagerImpl, mExecutor:
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun onCharacteristicReadRequest(
-        device: BluetoothDevice,
-        requestId: Int,
-        offset: Int,
-        characteristic: BluetoothGattCharacteristic
+        device: BluetoothDevice, requestId: Int, offset: Int, characteristic: BluetoothGattCharacteristic
     ) {
         super.onCharacteristicReadRequest(device, requestId, offset, characteristic)
         mExecutor.execute {
@@ -50,6 +50,7 @@ class BluetoothGattServerCallbackImpl(manager: PeripheralManagerImpl, mExecutor:
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun onCharacteristicWriteRequest(
         device: BluetoothDevice,
         requestId: Int,
@@ -60,23 +61,11 @@ class BluetoothGattServerCallbackImpl(manager: PeripheralManagerImpl, mExecutor:
         value: ByteArray
     ) {
         super.onCharacteristicWriteRequest(
-            device,
-            requestId,
-            characteristic,
-            preparedWrite,
-            responseNeeded,
-            offset,
-            value
+            device, requestId, characteristic, preparedWrite, responseNeeded, offset, value
         )
         mExecutor.execute {
             mManager.onCharacteristicWriteRequest(
-                device,
-                requestId,
-                characteristic,
-                preparedWrite,
-                responseNeeded,
-                offset,
-                value
+                device, requestId, characteristic, preparedWrite, responseNeeded, offset, value
             )
         }
     }
@@ -88,11 +77,9 @@ class BluetoothGattServerCallbackImpl(manager: PeripheralManagerImpl, mExecutor:
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun onDescriptorReadRequest(
-        device: BluetoothDevice,
-        requestId: Int,
-        offset: Int,
-        descriptor: BluetoothGattDescriptor
+        device: BluetoothDevice, requestId: Int, offset: Int, descriptor: BluetoothGattDescriptor
     ) {
         super.onDescriptorReadRequest(device, requestId, offset, descriptor)
         mExecutor.execute {
@@ -100,6 +87,7 @@ class BluetoothGattServerCallbackImpl(manager: PeripheralManagerImpl, mExecutor:
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun onDescriptorWriteRequest(
         device: BluetoothDevice,
         requestId: Int,
@@ -112,13 +100,7 @@ class BluetoothGattServerCallbackImpl(manager: PeripheralManagerImpl, mExecutor:
         super.onDescriptorWriteRequest(device, requestId, descriptor, preparedWrite, responseNeeded, offset, value)
         mExecutor.execute {
             mManager.onDescriptorWriteRequest(
-                device,
-                requestId,
-                descriptor,
-                preparedWrite,
-                responseNeeded,
-                offset,
-                value
+                device, requestId, descriptor, preparedWrite, responseNeeded, offset, value
             )
         }
     }

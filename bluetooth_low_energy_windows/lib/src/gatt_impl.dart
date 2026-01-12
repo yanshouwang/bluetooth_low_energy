@@ -23,7 +23,7 @@ final class GATTCharacteristicImpl extends GATTAttributeImpl
   @override
   final List<GATTCharacteristicProperty> properties;
   @override
-  final List<GATTDescriptor> descriptors;
+  final List<GATTDescriptorImpl> descriptors;
 
   GATTCharacteristicImpl({
     required this.handle,
@@ -46,9 +46,9 @@ final class GATTServiceImpl extends GATTAttributeImpl implements GATTService {
   @override
   final bool isPrimary;
   @override
-  final List<GATTService> includedServices;
+  final List<GATTServiceImpl> includedServices;
   @override
-  final List<GATTCharacteristic> characteristics;
+  final List<GATTCharacteristicImpl> characteristics;
 
   GATTServiceImpl({
     required this.handle,

@@ -1,5 +1,6 @@
 package dev.zeekr.bluetooth_low_energy_android
 
+import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
@@ -9,6 +10,7 @@ import android.bluetooth.BluetoothGattServer
 import android.bluetooth.BluetoothGattServerCallback
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothProfile
 import android.bluetooth.BluetoothStatusCodes
 import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseSettings
@@ -18,14 +20,14 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import io.flutter.plugin.common.BinaryMessenger
 
 class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) :
-    BluetoothLowEnergyManagerImpl(context),
-    PeripheralManagerHostApi {
+    BluetoothLowEnergyManagerImpl(context), PeripheralManagerHostApi {
     private val mApi: PeripheralManagerFlutterApi
 
     private val mBluetoothGattServerCallback: BluetoothGattServerCallback by lazy {
@@ -77,21 +79,18 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
 
     private val permissions: Array<String>
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            arrayOf(android.Manifest.permission.BLUETOOTH_ADVERTISE, android.Manifest.permission.BLUETOOTH_CONNECT)
+            arrayOf(Manifest.permission.BLUETOOTH_ADVERTISE, Manifest.permission.BLUETOOTH_CONNECT)
         } else {
-            arrayOf(
-                android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION
-            )
+            arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
         }
     private val manager
-        get() = ContextCompat.getSystemService(
-            context, BluetoothManager::class.java
-        ) as BluetoothManager
+        get() = ContextCompat.getSystemService(context, BluetoothManager::class.java) as BluetoothManager
     private val adapter get() = manager.adapter as BluetoothAdapter
     private val advertiser get() = adapter.bluetoothLeAdvertiser
     private val server get() = mServer ?: throw IllegalStateException()
     private val executor get() = ContextCompat.getMainExecutor(context)
 
+    @RequiresPermission(allOf = [Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_ADVERTISE])
     override fun initialize(): PeripheralManagerArgs {
         if (mAdvertising) {
             stopAdvertising()
@@ -152,6 +151,7 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
         ActivityCompat.startActivity(activity, intent, options)
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun setName(nameArgs: String, callback: (Result<String?>) -> Unit) {
         try {
             val setting = adapter.setName(nameArgs)
@@ -164,14 +164,17 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun openGATTServer() {
         mServer = manager.openGattServer(context, mBluetoothGattServerCallback)
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun closeGATTServer() {
         server.close()
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun addService(serviceArgs: MutableGATTServiceArgs, callback: (Result<Unit>) -> Unit) {
         try {
             val service = addServiceArgs(serviceArgs)
@@ -185,6 +188,7 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun removeService(hashCodeArgs: Long) {
         val service = mServices[hashCodeArgs] ?: throw IllegalArgumentException()
         val removed = server.removeService(service)
@@ -196,6 +200,7 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
         removeServiceArgs(serviceArgs)
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun removeAllServices() {
         server.clearServices()
         mServices.clear()
@@ -224,11 +229,40 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_ADVERTISE)
     override fun stopAdvertising() {
         advertiser.stopAdvertising(mAdvertiseCallback)
         mAdvertising = false
     }
 
+    override fun getCentral(addressArgs: String): CentralArgs {
+        val device = adapter.getRemoteDevice(addressArgs)
+        val centralArgs = device.toCentralArgs()
+        val addressArgs = centralArgs.addressArgs
+        mDevices[addressArgs] = device
+        return centralArgs
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    override fun retrieveConnectedCentrals(): List<CentralArgs> {
+        // The `BluetoothProfile.GATT` and `BluetoothProfile.GATT_SERVER` return same devices.
+        val devices = manager.getConnectedDevices(BluetoothProfile.GATT_SERVER)
+        val centralsArgs = devices.map { device ->
+            val centralArgs = device.toCentralArgs()
+            val addressArgs = centralArgs.addressArgs
+            mDevices[addressArgs] = device
+            return@map centralArgs
+        }
+        return centralsArgs
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    override fun disconnect(addressArgs: String) {
+        val device = mDevices[addressArgs] ?: throw IllegalArgumentException()
+        server.cancelConnection(device)
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun sendResponse(
         addressArgs: String, idArgs: Long, statusArgs: GATTStatusArgs, offsetArgs: Long, valueArgs: ByteArray?
     ) {
@@ -242,16 +276,7 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
         }
     }
 
-    override fun disconnect(addressArgs: String, callback: (Result<Unit>) -> Unit) {
-        try {
-            val device = mDevices[addressArgs] ?: adapter.getRemoteDevice(addressArgs)
-            server.cancelConnection(device)
-            callback(Result.success(Unit))
-        } catch (e: Throwable) {
-            callback(Result.failure(e))
-        }
-    }
-
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun notifyCharacteristicChanged(
         addressArgs: String,
         hashCodeArgs: Long,
@@ -351,6 +376,7 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
         mApi.onMTUChanged(centralArgs, mtuArgs) {}
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun onCharacteristicReadRequest(
         device: BluetoothDevice, requestId: Int, offset: Int, characteristic: BluetoothGattCharacteristic
     ) {
@@ -368,6 +394,7 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun onCharacteristicWriteRequest(
         device: BluetoothDevice,
         requestId: Int,
@@ -407,6 +434,7 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun onDescriptorReadRequest(
         device: BluetoothDevice, requestId: Int, offset: Int, descriptor: BluetoothGattDescriptor
     ) {
@@ -424,6 +452,7 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
         }
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun onDescriptorWriteRequest(
         device: BluetoothDevice,
         requestId: Int,

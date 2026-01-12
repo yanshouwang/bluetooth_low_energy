@@ -23,10 +23,10 @@ void _body() async {
       stackTrace: record.stackTrace,
     ),
   );
-  // Logger.root.level = Level.ALL;
-  hierarchicalLoggingEnabled = true;
-  Logger('CentralManager').level = Level.WARNING;
-  Logger('PeripheralManager').level = Level.WARNING;
+  Logger.root.level = Level.ALL;
+  // hierarchicalLoggingEnabled = true;
+  // Logger('CentralManager').level = Level.WARNING;
+  // Logger('PeripheralManager').level = Level.WARNING;
   runApp(const MyApp());
 }
 
@@ -50,3 +50,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+ 

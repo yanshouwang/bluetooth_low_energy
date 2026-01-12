@@ -99,6 +99,7 @@ final class PeripheralManagerImpl
 
   @override
   Future<void> addService(GATTService service) async {
+    if (service is! MutableGATTServiceImpl) throw TypeError();
     final serviceArgs = service.toArgs();
     _logger.info('addService: $serviceArgs');
     await _api.addService(serviceArgs);
@@ -137,6 +138,19 @@ final class PeripheralManagerImpl
   Future<void> stopAdvertising() async {
     _logger.info('stopAdvertising');
     await _api.stopAdvertising();
+  }
+
+  @override
+  Future<Central> getCentral(String address) {
+    // TODO: Check is this supported on Windows.
+    throw UnsupportedError('getCentral is not supported on Windows.');
+  }
+
+  @override
+  Future<List<Central>> retrieveConnectedCentrals() {
+    throw UnsupportedError(
+      'retrieveConnectedCentrals is not supported on Windows.',
+    );
   }
 
   @override
@@ -322,7 +336,7 @@ final class PeripheralManagerImpl
   @override
   void onCharacteristicSubscribedClientsChanged(
     int hashCodeArgs,
-    List<CentralArgs?> centralsArgs,
+    List<CentralArgs> centralsArgs,
   ) {
     _logger.info(
       'onCharacteristicSubscribedClientsChanged: $hashCodeArgs - $centralsArgs',
@@ -334,7 +348,7 @@ final class PeripheralManagerImpl
     }
     final oldSubscribedCentralsArgs =
         _subscribedCentralsArgs[hashCodeArgs] ?? {};
-    final newSubscribedCentralsArgs = centralsArgs.cast<CentralArgs>().toSet();
+    final newSubscribedCentralsArgs = centralsArgs.toSet();
     final removedCentralsArgs = oldSubscribedCentralsArgs.difference(
       newSubscribedCentralsArgs,
     );
@@ -429,16 +443,12 @@ final class PeripheralManagerImpl
     }
   }
 
-  void _addService(GATTService service) {
+  void _addService(MutableGATTServiceImpl service) {
     for (var includedService in service.includedServices) {
       _addService(includedService);
     }
-    final characteristics =
-        service.characteristics.cast<MutableGATTCharacteristicImpl>();
-    for (var characteristic in characteristics) {
-      final descriptors =
-          characteristic.descriptors.cast<MutableGATTDescriptorImpl>();
-      for (var descriptor in descriptors) {
+    for (var characteristic in service.characteristics) {
+      for (var descriptor in characteristic.descriptors) {
         _descriptors[descriptor.hashCode] = descriptor;
       }
       _characteristics[characteristic.hashCode] = characteristic;
