@@ -62,8 +62,8 @@ final class GATTServiceImpl implements GATTService {
   bool get isPrimary => blueZService.primary;
 
   @override
-  // TODO: implement includedServices
-  List<GATTServiceImpl> get includedServices => throw UnimplementedError();
+  List<GATTServiceImpl> get includedServices =>
+      throw UnsupportedError('includedServices is not supported on Linux.');
 
   @override
   List<GATTCharacteristicImpl> get characteristics => blueZService
