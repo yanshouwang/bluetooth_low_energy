@@ -383,9 +383,7 @@ final class CentralManagerImpl implements CentralManager {
     }
     final peripheral = PeripheralImpl(blueZDevice);
     for (var service in services) {
-      final characteristics = service.characteristics
-          .cast<GATTCharacteristicImpl>();
-      for (var characteristic in characteristics) {
+      for (var characteristic in service.characteristics) {
         final blueZCharacteristic = characteristic.blueZCharacteristic;
         final subscription = blueZCharacteristic.propertiesChanged.listen((
           blueZCharacteristicProperties,
@@ -429,9 +427,7 @@ final class CentralManagerImpl implements CentralManager {
       return;
     }
     for (var service in services) {
-      final characteristics = service.characteristics
-          .cast<GATTCharacteristicImpl>();
-      for (var characteristic in characteristics) {
+      for (var characteristic in service.characteristics) {
         final blueZCharacteristic = characteristic.blueZCharacteristic;
         final subscription = _blueZCharacteristicPropertiesChangedSubscriptions
             .remove(blueZCharacteristic.hashCode);
