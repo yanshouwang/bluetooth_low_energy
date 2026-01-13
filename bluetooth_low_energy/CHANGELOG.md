@@ -6,6 +6,7 @@
 * `Android` Add `PeripheralManager.retrieveConnectedCentrals` method.
 * `Android` Add `PeripheralManager.disconnect` method.
 * `Android` Remove permission declarations from `AndroidManifest.xml`.
+* `iOS`, `macOS` Support Swift Package Manager.
 * `iOS`, `macOS` Fix race condition when isReady is delivered early.
 
 ## 6.1.0
