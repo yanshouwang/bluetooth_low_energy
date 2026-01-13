@@ -6,7 +6,6 @@ A Flutter plugin for controlling the bluetooth low energy, supports central and 
 
 |API|Android|iOS|macOS|Windows|Linux|
 |:-|:-:|:-:|:-:|:-:|:-:|
-|logLevel|✅|✅|✅|✅|✅|
 |state|✅|✅|✅|✅|✅|
 |stateChanged|✅|✅|✅|✅|✅|
 |authorize|✅|||||
@@ -17,6 +16,7 @@ A Flutter plugin for controlling the bluetooth low energy, supports central and 
 |characteristicNotified|✅|✅|✅|✅|✅|
 |startDiscovery|✅|✅|✅|✅|✅|
 |stopDiscovery|✅|✅|✅|✅|✅|
+|getPeripheral|✅|||||
 |retrieveConnectedPeripherals|✅|✅|✅||✅|
 |connect|✅|✅|✅|✅|✅|
 |disconnect|✅|✅|✅|✅|✅|
@@ -33,7 +33,6 @@ A Flutter plugin for controlling the bluetooth low energy, supports central and 
 
 |API|Android|iOS|macOS|Windows|Linux|
 |:-|:-:|:-:|:-:|:-:|:-:|
-|logLevel|✅|✅|✅|✅||
 |state|✅|✅|✅|✅||
 |stateChanged|✅|✅|✅|✅||
 |authorize|✅|||||
@@ -50,6 +49,9 @@ A Flutter plugin for controlling the bluetooth low energy, supports central and 
 |removeAllServices|✅|✅|✅|✅||
 |startAdvertising|✅|✅|✅|✅||
 |stopAdvertising|✅|✅|✅|✅||
+|getCentral|✅|||||
+|retrieveConnectedCentrals|✅|||||
+|disconnect|✅|||||
 |getMaximumNotifyLength|✅|✅|✅|✅||
 |respondReadRequestWithValue|✅|✅|✅|✅||
 |respondReadRequestWithError|✅|✅|✅|✅||
@@ -70,7 +72,7 @@ dependencies:
 
 ### Android
 
-Make sure you have a `minSdk` with 21 or higher in your `android/app/build.gradle` file.
+Make sure you have a `minSdk` with 24 or higher in your `android/app/build.gradle` file.
 
 [Set up bluetooth permissions][2] in the `AndroidManifest.xml` file.
 

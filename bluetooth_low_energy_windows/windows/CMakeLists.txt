@@ -58,16 +58,16 @@ include_directories(BEFORE SYSTEM ${CMAKE_BINARY_DIR}/include)
 list(APPEND PLUGIN_SOURCES
   "bluetooth_low_energy_windows_plugin.h"
   "bluetooth_low_energy_windows_plugin.cpp"
-  "my_api.g.h"
-  "my_api.g.cpp"
-  "my_central_manager.h"
-  "my_central_manager.cpp"
-  "my_peripheral_manager.h"
-  "my_peripheral_manager.cpp"
-  "my_exception.h"
-  "my_exception.cpp"
-  "my_format.h"
-  "my_format.cpp"
+  "bluetooth_low_energy_api.g.h"
+  "bluetooth_low_energy_api.g.cpp"
+  "bluetooth_low_energy_exception.h"
+  "bluetooth_low_energy_exception.cpp"
+  "bluetooth_low_energy_format.h"
+  "bluetooth_low_energy_format.cpp"
+  "central_manager_impl.h"
+  "central_manager_impl.cpp"
+  "peripheral_manager_impl.h"
+  "peripheral_manager_impl.cpp"
 )
 
 # Define the plugin library target. Its name must not be changed (see comment

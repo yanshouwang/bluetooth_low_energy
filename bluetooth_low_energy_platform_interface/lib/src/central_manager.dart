@@ -2,71 +2,11 @@ import 'dart:typed_data';
 
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'advertisement.dart';
 import 'bluetooth_low_energy_manager.dart';
-import 'connection_state.dart';
 import 'event_args.dart';
 import 'gatt.dart';
 import 'peripheral.dart';
 import 'uuid.dart';
-
-/// The discovered event arguments.
-final class DiscoveredEventArgs extends EventArgs {
-  /// The disvered peripheral.
-  final Peripheral peripheral;
-
-  /// The rssi of the peripheral.
-  final int rssi;
-
-  /// The advertisement of the peripheral.
-  final Advertisement advertisement;
-
-  /// Constructs a [DiscoveredEventArgs].
-  DiscoveredEventArgs(this.peripheral, this.rssi, this.advertisement);
-}
-
-/// The peripheral connection state cahnged event arguments.
-final class PeripheralConnectionStateChangedEventArgs extends EventArgs {
-  /// The peripheral which connection state changed.
-  final Peripheral peripheral;
-
-  /// The connection state.
-  final ConnectionState state;
-
-  /// Constructs a [PeripheralConnectionStateChangedEventArgs].
-  PeripheralConnectionStateChangedEventArgs(this.peripheral, this.state);
-}
-
-/// The peripheral MTU changed event arguments.
-final class PeripheralMTUChangedEventArgs extends EventArgs {
-  /// The peripheral which MTU changed.
-  final Peripheral peripheral;
-
-  /// The MTU.
-  final int mtu;
-
-  /// Constructs a [PeripheralMTUChangedEventArgs].
-  PeripheralMTUChangedEventArgs(this.peripheral, this.mtu);
-}
-
-/// The GATT characteristic notified event arguments.
-final class GATTCharacteristicNotifiedEventArgs extends EventArgs {
-  /// The peripheral which notified.
-  final Peripheral peripheral;
-
-  /// The GATT characteristic which notified.
-  final GATTCharacteristic characteristic;
-
-  /// The notified value.
-  final Uint8List value;
-
-  /// Constructs a [GATTCharacteristicNotifiedEventArgs].
-  GATTCharacteristicNotifiedEventArgs(
-    this.peripheral,
-    this.characteristic,
-    this.value,
-  );
-}
 
 /// An object that scans for, discovers, connects to, and manages peripherals.
 abstract interface class CentralManager implements BluetoothLowEnergyManager {
@@ -74,10 +14,9 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
 
   /// Gets the instance of [CentralManager] to use.
   factory CentralManager() {
-    final instance = PlatformCentralManager.instance;
-    if (instance != _instance) {
-      instance.initialize();
-      _instance = instance;
+    var instance = _instance;
+    if (instance == null) {
+      _instance = instance = CentralManagerChannel.instance.create();
     }
     return instance;
   }
@@ -109,6 +48,11 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
 
   /// Asks the central manager to stop scanning for peripherals.
   Future<void> stopDiscovery();
+
+  /// Get a peripheral object for the given bluetooth hardware address.
+  ///
+  /// This method is available on Android, throws [UnsupportedError] on other platforms.
+  Future<Peripheral> getPeripheral(String address);
 
   /// Returns a list of the peripherals connected to the system.
   ///
@@ -186,16 +130,14 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
 }
 
 /// Platform-specific implementations should implement this class to support
-/// [PlatformCentralManager].
-abstract base class PlatformCentralManager
-    extends PlatformBluetoothLowEnergyManager
-    implements CentralManager {
+/// [CentralManagerChannel].
+abstract base class CentralManagerChannel extends PlatformInterface {
   static final Object _token = Object();
 
-  static PlatformCentralManager? _instance;
+  static CentralManagerChannel? _instance;
 
-  /// The default instance of [PlatformCentralManager] to use.
-  static PlatformCentralManager get instance {
+  /// The default instance of [CentralManagerChannel] to use.
+  static CentralManagerChannel get instance {
     final instance = _instance;
     if (instance == null) {
       throw UnimplementedError(
@@ -206,13 +148,15 @@ abstract base class PlatformCentralManager
   }
 
   /// Platform-specific implementations should set this with their own
-  /// platform-specific class that extends [PlatformCentralManager] when
+  /// platform-specific class that extends [CentralManagerChannel] when
   /// they register themselves.
-  static set instance(PlatformCentralManager instance) {
+  static set instance(CentralManagerChannel instance) {
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
   }
 
-  /// Constructs a [PlatformCentralManager].
-  PlatformCentralManager() : super(token: _token);
+  /// Constructs a [CentralManagerChannel].
+  CentralManagerChannel() : super(token: _token);
+
+  CentralManager create();
 }

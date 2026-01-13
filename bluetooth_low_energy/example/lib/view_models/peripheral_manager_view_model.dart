@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
 import 'package:bluetooth_low_energy_example/models.dart';
 import 'package:clover/clover.dart';
-import 'package:logging/logging.dart';
 
 class PeripheralManagerViewModel extends ViewModel {
   final PeripheralManager _manager;
@@ -18,7 +17,7 @@ class PeripheralManagerViewModel extends ViewModel {
   late final StreamSubscription _characteristicNotifyStateChangedSubscription;
 
   PeripheralManagerViewModel()
-    : _manager = PeripheralManager()..logLevel = Level.INFO,
+    : _manager = PeripheralManager(),
       _logs = [],
       _advertising = false {
     _stateChangedSubscription = _manager.stateChanged.listen((eventArgs) async {

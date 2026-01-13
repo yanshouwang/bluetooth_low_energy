@@ -5,128 +5,8 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'advertisement.dart';
 import 'bluetooth_low_energy_manager.dart';
 import 'central.dart';
-import 'connection_state.dart';
 import 'event_args.dart';
 import 'gatt.dart';
-
-/// The central connection state cahnged event arguments.
-final class CentralConnectionStateChangedEventArgs extends EventArgs {
-  /// The central which connection state changed.
-  final Central central;
-
-  /// The connection state.
-  final ConnectionState state;
-
-  /// Constructs a [CentralConnectionStateChangedEventArgs].
-  CentralConnectionStateChangedEventArgs(this.central, this.state);
-}
-
-/// The central MTU changed event arguments.
-final class CentralMTUChangedEventArgs extends EventArgs {
-  /// The central which MTU changed.
-  final Central central;
-
-  /// The MTU.
-  final int mtu;
-
-  /// Constructs a [CentralMTUChangedEventArgs].
-  CentralMTUChangedEventArgs(this.central, this.mtu);
-}
-
-/// The GATT characteristic read requested event arguments.
-final class GATTCharacteristicReadRequestedEventArgs extends EventArgs {
-  /// The central which read this characteristic.
-  final Central central;
-
-  /// The characteristic to read the value of.
-  final GATTCharacteristic characteristic;
-
-  /// The read request.
-  final GATTReadRequest request;
-
-  /// Constructs a [GATTCharacteristicReadRequestedEventArgs].
-  GATTCharacteristicReadRequestedEventArgs(
-    this.central,
-    this.characteristic,
-    this.request,
-  );
-}
-
-/// The GATT characteristic write requested event arguments.
-final class GATTCharacteristicWriteRequestedEventArgs extends EventArgs {
-  /// The central which wrote this characteristic.
-  final Central central;
-
-  /// The characteristic to write the value of.
-  final GATTCharacteristic characteristic;
-
-  /// The write request.
-  final GATTWriteRequest request;
-
-  /// Constructs a [GATTCharacteristicWriteRequestedEventArgs].
-  GATTCharacteristicWriteRequestedEventArgs(
-    this.central,
-    this.characteristic,
-    this.request,
-  );
-}
-
-/// The GATT characteristic notify state changed event arguments.
-final class GATTCharacteristicNotifyStateChangedEventArgs extends EventArgs {
-  /// The central which set this notify state.
-  final Central central;
-
-  /// The GATT characteristic which notify state changed.
-  final GATTCharacteristic characteristic;
-
-  /// The notify state.
-  final bool state;
-
-  /// Constructs a [GATTCharacteristicNotifyStateChangedEventArgs].
-  GATTCharacteristicNotifyStateChangedEventArgs(
-    this.central,
-    this.characteristic,
-    this.state,
-  );
-}
-
-/// The GATT descriptor read requested event arguments.
-final class GATTDescriptorReadRequestedEventArgs extends EventArgs {
-  /// The central which read this descriptor.
-  final Central central;
-
-  /// The descriptor to read the value of.
-  final GATTDescriptor descriptor;
-
-  /// The read request.
-  final GATTReadRequest request;
-
-  /// Constructs a [GATTDescriptorReadRequestedEventArgs].
-  GATTDescriptorReadRequestedEventArgs(
-    this.central,
-    this.descriptor,
-    this.request,
-  );
-}
-
-/// The GATT descriptor write requested event arguments.
-final class GATTDescriptorWriteRequestedEventArgs extends EventArgs {
-  /// The central which wrote this descriptor.
-  final Central central;
-
-  /// The descriptor to write the value of.
-  final GATTDescriptor descriptor;
-
-  /// The write request.
-  final GATTWriteRequest request;
-
-  /// Constructs a [GATTDescriptorWriteRequestedEventArgs].
-  GATTDescriptorWriteRequestedEventArgs(
-    this.central,
-    this.descriptor,
-    this.request,
-  );
-}
 
 /// An object that manages and advertises peripheral services exposed by this app.
 abstract interface class PeripheralManager
@@ -135,10 +15,9 @@ abstract interface class PeripheralManager
 
   /// Gets the instance of [PeripheralManager] to use.
   factory PeripheralManager() {
-    final instance = PlatformPeripheralManager.instance;
-    if (instance != _instance) {
-      instance.initialize();
-      _instance = instance;
+    var instance = _instance;
+    if (instance == null) {
+      _instance = instance = PeripheralManagerChannel.instance.create();
     }
     return instance;
   }
@@ -202,6 +81,22 @@ abstract interface class PeripheralManager
   /// Stops advertising peripheral manager data.
   Future<void> stopAdvertising();
 
+  /// Get a central object for the given bluetooth hardware address.
+  ///
+  /// This method is available on Android, throws [UnsupportedError] on other platforms.
+  Future<Central> getCentral(String address);
+
+  /// Returns a list of the centrals connected to the system.
+  ///
+  /// This method is available on Android, throws [UnsupportedError] on other platforms.
+  Future<List<Central>> retrieveConnectedCentrals();
+
+  /// Disconnects a connected central.
+  ///
+  /// This method is available on Android, throws [UnsupportedError] on other
+  /// platforms.
+  Future<void> disconnect(Central central);
+
   /// The maximum amount of data, in bytes, that the central can receive in a
   /// single notification or indication.
   Future<int> getMaximumNotifyLength(Central central);
@@ -243,22 +138,17 @@ abstract interface class PeripheralManager
     GATTCharacteristic characteristic, {
     required Uint8List value,
   });
-
-  /// Disconnects a connected central.
-  Future<void> disconnectCentral(Central central);
 }
 
 /// Platform-specific implementations should implement this class to support
-/// [PlatformPeripheralManager].
-abstract base class PlatformPeripheralManager
-    extends PlatformBluetoothLowEnergyManager
-    implements PeripheralManager {
+/// [PeripheralManagerChannel].
+abstract base class PeripheralManagerChannel extends PlatformInterface {
   static final Object _token = Object();
 
-  static PlatformPeripheralManager? _instance;
+  static PeripheralManagerChannel? _instance;
 
-  /// The default instance of [PlatformPeripheralManager] to use.
-  static PlatformPeripheralManager get instance {
+  /// The default instance of [PeripheralManagerChannel] to use.
+  static PeripheralManagerChannel get instance {
     final instance = _instance;
     if (instance == null) {
       throw UnimplementedError(
@@ -269,13 +159,15 @@ abstract base class PlatformPeripheralManager
   }
 
   /// Platform-specific implementations should set this with their own
-  /// platform-specific class that extends [PlatformPeripheralManager] when
+  /// platform-specific class that extends [PeripheralManagerChannel] when
   /// they register themselves.
-  static set instance(PlatformPeripheralManager instance) {
+  static set instance(PeripheralManagerChannel instance) {
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
   }
 
-  /// Constructs a [PlatformPeripheralManager].
-  PlatformPeripheralManager() : super(token: _token);
+  /// Constructs a [PeripheralManagerChannel].
+  PeripheralManagerChannel() : super(token: _token);
+
+  PeripheralManager create();
 }

@@ -1,17 +1,10 @@
 import 'uuid.dart';
 
 /// An object that represents a remote device.
-abstract base class BluetoothLowEnergyPeer {
+abstract interface class BluetoothLowEnergyPeer {
+  /// The address associated with the peer.
+  // String get address;
+
   /// The UUID associated with the peer.
-  final UUID uuid;
-
-  BluetoothLowEnergyPeer({required this.uuid});
-
-  @override
-  int get hashCode => uuid.hashCode;
-
-  @override
-  bool operator ==(Object other) {
-    return other is BluetoothLowEnergyPeer && other.uuid == uuid;
-  }
+  UUID get uuid;
 }
