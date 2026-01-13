@@ -7,7 +7,8 @@ import 'package:pigeon/pigeon.dart';
   PigeonOptions(
     dartOut: 'lib/src/api.g.dart',
     dartOptions: DartOptions(),
-    swiftOut: 'darwin/Classes/BluetoothLowEnergyApi.g.swift',
+    swiftOut:
+        'darwin/bluetooth_low_energy_darwin/Sources/bluetooth_low_energy_darwin/BluetoothLowEnergyApi.g.swift',
     swiftOptions: SwiftOptions(),
   ),
 )

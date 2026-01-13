@@ -1,21 +1,14 @@
 PODS:
-  - bluetooth_low_energy_darwin (0.0.1):
-    - Flutter
-    - FlutterMacOS
   - FlutterMacOS (1.0.0)
 
 DEPENDENCIES:
-  - bluetooth_low_energy_darwin (from `Flutter/ephemeral/.symlinks/plugins/bluetooth_low_energy_darwin/darwin`)
   - FlutterMacOS (from `Flutter/ephemeral`)
 
 EXTERNAL SOURCES:
-  bluetooth_low_energy_darwin:
-    :path: Flutter/ephemeral/.symlinks/plugins/bluetooth_low_energy_darwin/darwin
   FlutterMacOS:
     :path: Flutter/ephemeral
 
 SPEC CHECKSUMS:
-  bluetooth_low_energy_darwin: 86328f072774b83093a6b034e39136c61eedda86
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
 
 PODFILE CHECKSUM: 54d867c82ac51cbd61b565781b9fada492027009

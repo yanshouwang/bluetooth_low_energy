@@ -80,10 +80,10 @@ class PeripheralManagerImpl: PeripheralManagerHostApi {
     func showAppSettings(completion: @escaping (Result<Void, any Error>) -> Void) {
 #if os(iOS)
         do {
-            guard let url = URL(string: UIApplication.openSettingsURLString) else { throw Error.illegalArgument }
+            guard let url = URL(string: UIApplication.openSettingsURLString) else { throw BluetoothLowEnergyError.illegalArgument }
             UIApplication.shared.open(url) { success in
                 if success { completion(.success(())) }
-                else { completion(.failure(Error.unknown)) }
+                else { completion(.failure(BluetoothLowEnergyError.unknown)) }
             }
         } catch {
             completion(.failure(error))
