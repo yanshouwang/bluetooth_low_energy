@@ -1,3 +1,7 @@
+## 6.2.1
+
+* Bump version.
+
 ## 6.2.0
 
 * Upgrade flutter SDK to 3.35.7.
