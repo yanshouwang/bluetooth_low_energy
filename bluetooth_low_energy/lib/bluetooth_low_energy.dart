@@ -6,7 +6,11 @@ export 'package:bluetooth_low_energy_platform_interface/bluetooth_low_energy_pla
     hide
         CentralManagerChannel,
         PeripheralManagerChannel,
+        ManufacturerSpecificDataImpl,
+        AdvertisementImpl,
+        GATTAttributeImpl,
         MutableGATTCharacteristicImpl,
         ImmutableGATTCharacteristicImpl,
         MutableGATTDescriptorImpl,
-        ImmutableGATTDescriptorImpl;
+        ImmutableGATTDescriptorImpl,
+        MutableGATTServiceImpl;

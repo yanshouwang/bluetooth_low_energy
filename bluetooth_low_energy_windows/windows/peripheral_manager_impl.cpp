@@ -785,7 +785,7 @@ namespace bluetooth_low_energy_windows
 		auto properties = winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristicProperties::None;
 		for (const auto &property_number_args_value : property_numbers_args)
 		{
-			const auto property_number_args = std::get<int>(property_number_args_value);
+			const auto property_number_args = std::get<int64_t>(property_number_args_value);
 			const auto property_args = static_cast<GATTCharacteristicPropertyArgs>(property_number_args);
 			switch (property_args)
 			{

@@ -1,3 +1,7 @@
+## 6.2.1
+
+* Fix [bad varient access](https://github.com/yanshouwang/bluetooth_low_energy/issues/147).
+
 ## 6.2.0
 
 * Upgrade flutter SDK to 3.35.7.
