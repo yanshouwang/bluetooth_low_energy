@@ -61,9 +61,13 @@ abstract class CentralManagerHostApi {
   @async
   int requestMTU(String address, int mtu);
   void requestConnectionPriority(
-      String address, ConnectionPriorityApi priority);
+    String address,
+    ConnectionPriorityApi priority,
+  );
   int getMaximumWriteLength(
-      String address, GATTCharacteristicWriteTypeApi type);
+    String address,
+    GATTCharacteristicWriteTypeApi type,
+  );
   @async
   int readRSSI(String address);
   @async
@@ -73,7 +77,10 @@ abstract class CentralManagerHostApi {
   Uint8List readCharacteristic(int id);
   @async
   void writeCharacteristic(
-      int id, Uint8List value, GATTCharacteristicWriteTypeApi type);
+    int id,
+    Uint8List value,
+    GATTCharacteristicWriteTypeApi type,
+  );
   @async
   void setCharacteristicNotifyState(int id, bool state);
 
@@ -88,12 +95,19 @@ abstract class CentralManagerFlutterApi {
   void onStateChanged(BluetoothLowEnergyStateApi state);
   void onNameChanged(String? name);
   void onDiscovered(
-      PeripheralApi peripheral, int rssi, AdvertisementApi advertisement);
+    PeripheralApi peripheral,
+    int rssi,
+    AdvertisementApi advertisement,
+  );
   void onConnectionStateChanged(
-      PeripheralApi peripheral, ConnectionStateApi state);
+    PeripheralApi peripheral,
+    ConnectionStateApi state,
+  );
   void onMTUChanged(PeripheralApi peripheral, int mtu);
   void onCharacteristicNotified(
-      GATTCharacteristicApi characteristic, Uint8List value);
+    GATTCharacteristicApi characteristic,
+    Uint8List value,
+  );
 }
 
 @HostApi()
@@ -151,6 +165,7 @@ abstract class PeripheralManagerHostApi {
   void respondReadRequestWithError(int id, GATTErrorApi error);
   void respondWriteRequest(int id);
   void respondWriteRequestWithError(int id, GATTErrorApi error);
+  @async
   void notifyCharacteristic(int id, Uint8List value, List<String>? addresses);
 }
 
@@ -161,15 +176,30 @@ abstract class PeripheralManagerFlutterApi {
   void onConnectionStateChanged(CentralApi central, ConnectionStateApi state);
   void onMTUChanged(CentralApi central, int mtu);
   void onCharacteristicReadRequested(
-      int id, CentralApi central, GATTReadRequestApi request);
+    int id,
+    CentralApi central,
+    GATTReadRequestApi request,
+  );
   void onCharacteristicWriteRequested(
-      int id, CentralApi central, GATTWriteRequestApi request);
+    int id,
+    CentralApi central,
+    GATTWriteRequestApi request,
+  );
   void onCharacteristicNotifyStateChanged(
-      int id, CentralApi central, bool state);
+    int id,
+    CentralApi central,
+    bool state,
+  );
   void onDescriptorReadRequested(
-      int id, CentralApi central, GATTReadRequestApi request);
+    int id,
+    CentralApi central,
+    GATTReadRequestApi request,
+  );
   void onDescriptorWriteRequested(
-      int id, CentralApi central, GATTWriteRequestApi request);
+    int id,
+    CentralApi central,
+    GATTWriteRequestApi request,
+  );
 }
 
 class PeripheralApi {
@@ -197,8 +227,12 @@ class AdvertisementApi {
   final Map<String, Uint8List> serviceData;
   final List<ManufacturerSpecificDataApi> manufacturerSpecificData;
 
-  AdvertisementApi(this.name, this.serviceUUIDs, this.serviceData,
-      this.manufacturerSpecificData);
+  AdvertisementApi(
+    this.name,
+    this.serviceUUIDs,
+    this.serviceData,
+    this.manufacturerSpecificData,
+  );
 }
 
 class GATTDescriptorApi {
@@ -224,8 +258,13 @@ class GATTServiceApi {
   final List<GATTServiceApi> includedServices;
   final List<GATTCharacteristicApi> characteristics;
 
-  GATTServiceApi(this.id, this.uuid, this.isPrimary, this.includedServices,
-      this.characteristics);
+  GATTServiceApi(
+    this.id,
+    this.uuid,
+    this.isPrimary,
+    this.includedServices,
+    this.characteristics,
+  );
 }
 
 class MutableGATTDescriptorApi {
@@ -244,7 +283,12 @@ class MutableGATTCharacteristicApi {
   final List<GATTDescriptorApi> descriptors;
 
   MutableGATTCharacteristicApi(
-      this.id, this.uuid, this.permissions, this.properties, this.descriptors);
+    this.id,
+    this.uuid,
+    this.permissions,
+    this.properties,
+    this.descriptors,
+  );
 }
 
 class MutableGATTServiceApi {
@@ -254,8 +298,13 @@ class MutableGATTServiceApi {
   final List<MutableGATTServiceApi> includedServices;
   final List<MutableGATTCharacteristicApi> characteristics;
 
-  MutableGATTServiceApi(this.id, this.uuid, this.isPrimary,
-      this.includedServices, this.characteristics);
+  MutableGATTServiceApi(
+    this.id,
+    this.uuid,
+    this.isPrimary,
+    this.includedServices,
+    this.characteristics,
+  );
 }
 
 class GATTReadRequestApi {
@@ -284,26 +333,11 @@ enum BluetoothLowEnergyStateApi {
   turningOff,
 }
 
-enum ConnectionStateApi {
-  disconnected,
-  connecting,
-  connected,
-  disconnecting,
-}
+enum ConnectionStateApi { disconnected, connecting, connected, disconnecting }
 
-enum ConnectionPriorityApi {
-  balanced,
-  high,
-  lowPower,
-  dck,
-}
+enum ConnectionPriorityApi { balanced, high, lowPower, dck }
 
-enum GATTPermissionApi {
-  read,
-  readEncrypted,
-  write,
-  writeEncrypted,
-}
+enum GATTPermissionApi { read, readEncrypted, write, writeEncrypted }
 
 enum GATTCharacteristicPropertyApi {
   read,
@@ -313,10 +347,7 @@ enum GATTCharacteristicPropertyApi {
   indicate,
 }
 
-enum GATTCharacteristicWriteTypeApi {
-  withResponse,
-  withoutResponse,
-}
+enum GATTCharacteristicWriteTypeApi { withResponse, withoutResponse }
 
 enum GATTErrorApi {
   success,

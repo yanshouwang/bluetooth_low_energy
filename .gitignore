@@ -31,3 +31,6 @@ migrate_working_dir/
 .flutter-plugins
 .flutter-plugins-dependencies
 build/
+
+# AI related files
+.claude/settings.local.json

@@ -21,7 +21,7 @@ class BluetoothLowEnergyAndroidPlugin : FlutterPlugin, ActivityAware {
         activityUtil = ActivityUtil()
         val centralManagerApi = CentralManagerImpl(messenger, contextUtil, activityUtil)
         CentralManagerHostApi.setUp(messenger, centralManagerApi)
-        val peripheralManagerApi = PeripheralManagerImpl(messenger)
+        val peripheralManagerApi = PeripheralManagerImpl(messenger, contextUtil, activityUtil)
         PeripheralManagerHostApi.setUp(messenger, peripheralManagerApi)
     }
 
