@@ -8,6 +8,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.os.ParcelUuid
 import android.provider.Settings
 import androidx.annotation.RequiresPermission
@@ -15,6 +17,16 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import io.flutter.plugin.common.BinaryMessenger
+import java.util.ArrayDeque
+
+private data class PendingCharacteristicWriteRequest(
+    val addressArgs: String,
+    val hashCodeArgs: Long,
+    val valueArgs: ByteArray,
+    val typeArgs: GATTCharacteristicWriteTypeArgs,
+    val callback: ((Result<Unit>) -> Unit)? = null,
+    val retryCount: Int = 0,
+)
 
 class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : BluetoothLowEnergyManagerImpl(context),
     CentralManagerHostApi {
@@ -41,6 +53,9 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
     private val mWriteCharacteristicCallbacks: MutableMap<String, MutableMap<Long, (Result<Unit>) -> Unit>>
     private val mReadDescriptorCallbacks: MutableMap<String, MutableMap<Long, (Result<ByteArray>) -> Unit>>
     private val mWriteDescriptorCallbacks: MutableMap<String, MutableMap<Long, (Result<Unit>) -> Unit>>
+    private val mPendingCharacteristicWriteRequests: MutableMap<String, ArrayDeque<PendingCharacteristicWriteRequest>>
+    private val mActiveCharacteristicWriteRequests: MutableMap<String, PendingCharacteristicWriteRequest>
+    private val mWriteDrainHandler: Handler = Handler(Looper.getMainLooper())
 
     init {
         mApi = CentralManagerFlutterApi(binaryMessenger)
@@ -63,7 +78,12 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         mWriteCharacteristicCallbacks = mutableMapOf()
         mReadDescriptorCallbacks = mutableMapOf()
         mWriteDescriptorCallbacks = mutableMapOf()
+        mPendingCharacteristicWriteRequests = mutableMapOf()
+        mActiveCharacteristicWriteRequests = mutableMapOf()
     }
+
+    private val withoutResponseWriteIntervalMs = 4L
+    private val maxWithoutResponseRetryCount = 6
 
     private val permissions: Array<String>
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -105,6 +125,8 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         mWriteCharacteristicCallbacks.clear()
         mReadDescriptorCallbacks.clear()
         mWriteDescriptorCallbacks.clear()
+        mPendingCharacteristicWriteRequests.clear()
+        mActiveCharacteristicWriteRequests.clear()
 
         val enableNotificationValue = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
         val enableIndicationValue = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
@@ -279,22 +301,22 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         callback: (Result<Unit>) -> Unit
     ) {
         try {
-            val gatt = mGATTs[addressArgs] ?: throw IllegalArgumentException()
-            val characteristic = retrieveCharacteristic(addressArgs, hashCodeArgs)
-            val type = typeArgs.toType()
-            val writing = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                val code = gatt.writeCharacteristic(characteristic, valueArgs, type)
-                code == BluetoothStatusCodes.SUCCESS
-            } else { // TODO: remove this when minSdkVersion >= 33
-                characteristic.value = valueArgs
-                characteristic.writeType = type
-                gatt.writeCharacteristic(characteristic)
+            mGATTs[addressArgs] ?: throw IllegalArgumentException()
+            retrieveCharacteristic(addressArgs, hashCodeArgs)
+
+            val request = PendingCharacteristicWriteRequest(
+                addressArgs = addressArgs,
+                hashCodeArgs = hashCodeArgs,
+                valueArgs = valueArgs,
+                typeArgs = typeArgs,
+                callback = if (typeArgs == GATTCharacteristicWriteTypeArgs.WITHOUT_RESPONSE) null else callback,
+            )
+            if (typeArgs == GATTCharacteristicWriteTypeArgs.WITHOUT_RESPONSE) {
+                callback(Result.success(Unit))
             }
-            if (!writing) {
-                throw IllegalStateException()
-            }
-            val callbacks = mWriteCharacteristicCallbacks.getOrPut(addressArgs) { mutableMapOf() }
-            callbacks[hashCodeArgs] = callback
+            val queue = mPendingCharacteristicWriteRequests.getOrPut(addressArgs) { ArrayDeque() }
+            queue.addLast(request)
+            drainCharacteristicWrites(addressArgs)
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
@@ -433,6 +455,7 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
                     callback(Result.failure(error))
                 }
             }
+            failPendingCharacteristicWrites(addressArgs, error)
             val readDescriptorCallbacks = mReadDescriptorCallbacks.remove(addressArgs)
             if (readDescriptorCallbacks != null) {
                 val callbacks = readDescriptorCallbacks.values
@@ -539,6 +562,20 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
     fun onCharacteristicWrite(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int) {
         val device = gatt.device
         val addressArgs = device.address
+        val activeRequest = mActiveCharacteristicWriteRequests.remove(addressArgs)
+        if (activeRequest != null) {
+            val callback = activeRequest.callback
+            if (callback != null) {
+                if (status == BluetoothGatt.GATT_SUCCESS) {
+                    callback(Result.success(Unit))
+                } else {
+                    val error = IllegalStateException("Write characteristic failed with status: $status.")
+                    callback(Result.failure(error))
+                }
+            }
+            drainCharacteristicWrites(addressArgs)
+            return
+        }
         val hashCodeArgs = characteristic.hashCode.args
         val callbacks = mWriteCharacteristicCallbacks[addressArgs] ?: return
         val callback = callbacks.remove(hashCodeArgs) ?: return
@@ -608,5 +645,73 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
     private fun retrieveDescriptor(addressArgs: String, hashCodeArgs: Long): BluetoothGattDescriptor {
         val descriptors = mDescriptors[addressArgs] ?: throw IllegalArgumentException()
         return descriptors[hashCodeArgs] ?: throw IllegalArgumentException()
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    private fun drainCharacteristicWrites(addressArgs: String) {
+        if (mActiveCharacteristicWriteRequests.containsKey(addressArgs)) {
+            return
+        }
+        val queue = mPendingCharacteristicWriteRequests[addressArgs] ?: return
+        if (queue.isEmpty()) {
+            return
+        }
+        val request = queue.removeFirst()
+        val gatt = mGATTs[request.addressArgs]
+        if (gatt == null) {
+            request.callback?.invoke(Result.failure(IllegalStateException("GATT is not connected.")))
+            drainCharacteristicWrites(addressArgs)
+            return
+        }
+        val characteristic = retrieveCharacteristic(request.addressArgs, request.hashCodeArgs)
+        val type = request.typeArgs.toType()
+        val writing = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val code = gatt.writeCharacteristic(characteristic, request.valueArgs, type)
+            code == BluetoothStatusCodes.SUCCESS
+        } else { // TODO: remove this when minSdkVersion >= 33
+            characteristic.value = request.valueArgs
+            characteristic.writeType = type
+            gatt.writeCharacteristic(characteristic)
+        }
+
+        if (!writing) {
+            if (request.typeArgs == GATTCharacteristicWriteTypeArgs.WITHOUT_RESPONSE &&
+                request.retryCount < maxWithoutResponseRetryCount
+            ) {
+                queue.addFirst(request.copy(retryCount = request.retryCount + 1))
+                scheduleWithoutResponseDrain(addressArgs)
+                return
+            }
+            request.callback?.invoke(Result.failure(IllegalStateException("Write characteristic enqueue failed.")))
+            drainCharacteristicWrites(addressArgs)
+            return
+        }
+
+        mActiveCharacteristicWriteRequests[addressArgs] = request
+        if (request.typeArgs == GATTCharacteristicWriteTypeArgs.WITHOUT_RESPONSE) {
+            scheduleWithoutResponseDrain(addressArgs)
+        }
+    }
+
+    private fun scheduleWithoutResponseDrain(addressArgs: String) {
+        mWriteDrainHandler.postDelayed({
+            val activeRequest = mActiveCharacteristicWriteRequests[addressArgs]
+            if (activeRequest != null &&
+                activeRequest.typeArgs == GATTCharacteristicWriteTypeArgs.WITHOUT_RESPONSE
+            ) {
+                mActiveCharacteristicWriteRequests.remove(addressArgs)
+            }
+            drainCharacteristicWrites(addressArgs)
+        }, withoutResponseWriteIntervalMs)
+    }
+
+    private fun failPendingCharacteristicWrites(addressArgs: String, error: Throwable) {
+        val activeRequest = mActiveCharacteristicWriteRequests.remove(addressArgs)
+        activeRequest?.callback?.invoke(Result.failure(error))
+        val queue = mPendingCharacteristicWriteRequests.remove(addressArgs) ?: return
+        while (queue.isNotEmpty()) {
+            val request = queue.removeFirst()
+            request.callback?.invoke(Result.failure(error))
+        }
     }
 }
