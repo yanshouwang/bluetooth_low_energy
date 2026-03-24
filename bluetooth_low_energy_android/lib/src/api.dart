@@ -183,6 +183,9 @@ extension ManufacturerSpecificDataX on ManufacturerSpecificData {
 extension AdvertisementX on Advertisement {
   AdvertiseDataArgs toAdvertiseDataArgs() {
     return AdvertiseDataArgs(
+      // Android only: optionally mirror the local name into the primary ad.
+      includeDeviceNameArgs:
+          includeDeviceNameInAdvertisement && name?.isNotEmpty == true,
       serviceUUIDsArgs: serviceUUIDs.map((uuid) => uuid.toArgs()).toList(),
       serviceDataArgs: serviceData.map((uuid, data) {
         final uuidArgs = uuid.toArgs();
@@ -197,7 +200,7 @@ extension AdvertisementX on Advertisement {
 
   AdvertiseDataArgs toScanResponseArgs() {
     return AdvertiseDataArgs(
-      includeDeviceNameArgs: name != null,
+      includeDeviceNameArgs: name?.isNotEmpty == true,
       serviceUUIDsArgs: [],
       serviceDataArgs: {},
       manufacturerSpecificDataArgs: [],
