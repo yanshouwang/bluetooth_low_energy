@@ -154,12 +154,18 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun setName(nameArgs: String, callback: (Result<String?>) -> Unit) {
         try {
-            val setting = adapter.setName(nameArgs)
-            if (!setting) {
-                throw IllegalStateException()
+            if (adapter.name == nameArgs) {
+                callback(Result.success(nameArgs))
+                return
             }
             mSetNameCallback = callback
+            val setting = adapter.setName(nameArgs)
+            if (!setting) {
+                mSetNameCallback = null
+                throw IllegalStateException()
+            }
         } catch (e: Throwable) {
+            mSetNameCallback = null
             callback(Result.failure(e))
         }
     }
@@ -178,12 +184,14 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
     override fun addService(serviceArgs: MutableGATTServiceArgs, callback: (Result<Unit>) -> Unit) {
         try {
             val service = addServiceArgs(serviceArgs)
+            mAddServiceCallback = callback
             val adding = server.addService(service)
             if (!adding) {
+                mAddServiceCallback = null
                 throw IllegalStateException()
             }
-            mAddServiceCallback = callback
         } catch (e: Throwable) {
+            mAddServiceCallback = null
             callback(Result.failure(e))
         }
     }
@@ -222,9 +230,10 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
             val settings = settingsArgs.toAdvertiseSettings()
             val advertiseData = advertiseDataArgs.toAdvertiseData()
             val scanResponse = scanResponseArgs.toAdvertiseData()
-            advertiser.startAdvertising(settings, advertiseData, scanResponse, mAdvertiseCallback)
             mStartAdvertisingCallback = callback
+            advertiser.startAdvertising(settings, advertiseData, scanResponse, mAdvertiseCallback)
         } catch (e: Throwable) {
+            mStartAdvertisingCallback = null
             callback(Result.failure(e))
         }
     }
