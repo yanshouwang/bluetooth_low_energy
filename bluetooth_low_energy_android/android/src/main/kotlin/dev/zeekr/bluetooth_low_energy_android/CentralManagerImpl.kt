@@ -531,7 +531,9 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         if (status == BluetoothGatt.GATT_SUCCESS) {
             callback(Result.success(value))
         } else {
-            val error = IllegalStateException("Read characteristic failed with status: $status.")
+            val error = IllegalStateException(
+                "Read characteristic ${characteristic.uuid} failed with status: $status."
+            )
             callback(Result.failure(error))
         }
     }
