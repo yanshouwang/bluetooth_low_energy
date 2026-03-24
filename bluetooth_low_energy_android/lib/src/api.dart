@@ -137,6 +137,21 @@ extension GATTCharacteristicWriteTypeX on GATTCharacteristicWriteType {
   }
 }
 
+extension TXPowerLevelX on TXPowerLevel {
+  TXPowerLevelArgs toArgs() {
+    switch (this) {
+      case TXPowerLevel.ultraLow:
+        return TXPowerLevelArgs.ultraLow;
+      case TXPowerLevel.low:
+        return TXPowerLevelArgs.low;
+      case TXPowerLevel.medium:
+        return TXPowerLevelArgs.medium;
+      case TXPowerLevel.high:
+        return TXPowerLevelArgs.high;
+    }
+  }
+}
+
 extension GATTCharacteristicPropertyX on GATTCharacteristicProperty {
   GATTCharacteristicPropertyArgs toArgs() {
     return GATTCharacteristicPropertyArgs.values[index];

@@ -156,7 +156,10 @@ final class PeripheralManagerImpl
   }
 
   @override
-  Future<void> startAdvertising(Advertisement advertisement) async {
+  Future<void> startAdvertising(
+    Advertisement advertisement, {
+    TXPowerLevel? txPowerLevel,
+  }) async {
     final nameArgs = advertisement.name;
     if (nameArgs != null) {
       _logger.info('setName: $nameArgs');
@@ -170,6 +173,7 @@ final class PeripheralManagerImpl
     final settingsArgs = AdvertiseSettingsArgs(
       modeArgs: AdvertiseModeArgs.balanced,
       connectableArgs: true,
+      txPowerLevelArgs: txPowerLevel?.toArgs(),
     );
     final advertiseDataArgs = advertisement.toAdvertiseDataArgs();
     final scanResponseArgs = advertisement.toScanResponseArgs();

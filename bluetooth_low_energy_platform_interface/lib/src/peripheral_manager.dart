@@ -8,6 +8,9 @@ import 'central.dart';
 import 'event_args.dart';
 import 'gatt.dart';
 
+/// Android advertising transmit power level.
+enum TXPowerLevel { ultraLow, low, medium, high }
+
 /// An object that manages and advertises peripheral services exposed by this app.
 abstract interface class PeripheralManager
     implements BluetoothLowEnergyManager {
@@ -76,7 +79,12 @@ abstract interface class PeripheralManager
   Future<void> removeAllServices();
 
   /// Advertises peripheral manager data.
-  Future<void> startAdvertising(Advertisement advertisement);
+  ///
+  /// [txPowerLevel] is available on Android and ignored on other platforms.
+  Future<void> startAdvertising(
+    Advertisement advertisement, {
+    TXPowerLevel? txPowerLevel,
+  });
 
   /// Stops advertising peripheral manager data.
   Future<void> stopAdvertising();

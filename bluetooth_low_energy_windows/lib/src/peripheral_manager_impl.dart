@@ -128,7 +128,10 @@ final class PeripheralManagerImpl
   }
 
   @override
-  Future<void> startAdvertising(Advertisement advertisement) async {
+  Future<void> startAdvertising(
+    Advertisement advertisement, {
+    TXPowerLevel? txPowerLevel,
+  }) async {
     final advertisementArgs = advertisement.toArgs();
     _logger.info('startAdvertising: $advertisementArgs');
     await _api.startAdvertising(advertisementArgs);
