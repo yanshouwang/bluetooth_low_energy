@@ -83,6 +83,13 @@ final class GATTWriteRequestImpl implements GATTWriteRequest {
   final Uint8List value;
   final bool responseNeeded;
 
+  @override
+  GATTCharacteristicWriteType get type {
+    return responseNeeded
+        ? GATTCharacteristicWriteType.withResponse
+        : GATTCharacteristicWriteType.withoutResponse;
+  }
+
   GATTWriteRequestImpl({
     required this.address,
     required this.id,

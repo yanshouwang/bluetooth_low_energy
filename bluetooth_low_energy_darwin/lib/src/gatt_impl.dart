@@ -82,11 +82,14 @@ final class GATTWriteRequestImpl implements GATTWriteRequest {
   final int offset;
   @override
   final Uint8List value;
+  @override
+  final GATTCharacteristicWriteType? type;
 
   GATTWriteRequestImpl({
     required this.hashCode,
     required this.offset,
     required this.value,
+    required this.type,
   });
 
   @override

@@ -234,6 +234,8 @@ abstract interface class GATTWriteRequest {
 
   /// The data that the central writes to the peripheral.
   Uint8List get value;
+
+  GATTCharacteristicWriteType? get type;
 }
 
 abstract base class GATTAttributeImpl implements GATTAttribute {
