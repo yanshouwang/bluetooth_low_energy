@@ -154,6 +154,10 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun setName(nameArgs: String, callback: (Result<String?>) -> Unit) {
         try {
+            if (adapter.name == nameArgs) {
+                callback(Result.success(nameArgs))
+                return
+            }
             val setting = adapter.setName(nameArgs)
             if (!setting) {
                 throw IllegalStateException()
