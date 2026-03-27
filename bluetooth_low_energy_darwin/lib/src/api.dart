@@ -133,7 +133,16 @@ extension CentralArgsX on CentralArgs {
 // ToArgs
 extension UUIDX on UUID {
   String toArgs() {
-    return toString();
+    final str = toString();
+    if (!isShort) {
+      return str;
+    }
+    // For 16-bit UUIDs (first two bytes are 0x00), return 4-char short form.
+    if (value[0] == 0x00 && value[1] == 0x00) {
+      return str.substring(4, 8);
+    }
+    // For 32-bit UUIDs, return 8-char short form.
+    return str.substring(0, 8);
   }
 }
 
