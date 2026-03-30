@@ -123,8 +123,9 @@ class CentralManagerImpl: CentralManagerHostApi {
         self.mCentralManager.stopScan()
     }
     
-    func retrieveConnectedPeripherals() throws -> [PeripheralArgs] {
-        let peripherals = self.mCentralManager.retrieveConnectedPeripherals(withServices: [])
+    func retrieveConnectedPeripherals(serviceUUIDsArgs: [String]) throws -> [PeripheralArgs] {
+        let serviceUUIDs = serviceUUIDsArgs.map { $0.toCBUUID() }
+        let peripherals = self.mCentralManager.retrieveConnectedPeripherals(withServices: serviceUUIDs)
         let peripheralsArgs = peripherals.map { peripheral in
             let peripheralArgs = peripheral.toArgs()
             let uuidArgs = peripheralArgs.uuidArgs

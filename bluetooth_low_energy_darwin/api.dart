@@ -190,7 +190,7 @@ abstract class CentralManagerHostApi {
   void showAppSettings();
   void startDiscovery(List<String> serviceUUIDsArgs);
   void stopDiscovery();
-  List<PeripheralArgs> retrieveConnectedPeripherals();
+  List<PeripheralArgs> retrieveConnectedPeripherals(List<String> serviceUUIDsArgs);
   @async
   void connect(String uuidArgs);
   @async

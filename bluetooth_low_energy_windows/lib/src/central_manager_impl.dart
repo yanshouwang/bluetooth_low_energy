@@ -104,7 +104,7 @@ final class CentralManagerImpl
   }
 
   @override
-  Future<List<Peripheral>> retrieveConnectedPeripherals() {
+  Future<List<Peripheral>> retrieveConnectedPeripherals({List<UUID>? serviceUUIDs}) {
     throw UnsupportedError(
       'retrieveConnectedPeripherals is not supported on Windows.',
     );

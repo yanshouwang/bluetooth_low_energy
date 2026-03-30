@@ -111,7 +111,7 @@ final class CentralManagerImpl
   }
 
   @override
-  Future<List<Peripheral>> retrieveConnectedPeripherals() async {
+  Future<List<Peripheral>> retrieveConnectedPeripherals({List<UUID>? serviceUUIDs}) async {
     _logger.info('retrieveConnectedPeripherals');
     final peripheralsArgs = await _api.retrieveConnectedPeripherals();
     final peripherals = peripheralsArgs

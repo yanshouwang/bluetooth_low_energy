@@ -116,7 +116,7 @@ final class CentralManagerImpl implements CentralManager {
   }
 
   @override
-  Future<List<Peripheral>> retrieveConnectedPeripherals() {
+  Future<List<Peripheral>> retrieveConnectedPeripherals({List<UUID>? serviceUUIDs}) {
     logger.info('retrieveConnectedPeripherals');
     final peripherals = _blueZClient.devices
         .where(

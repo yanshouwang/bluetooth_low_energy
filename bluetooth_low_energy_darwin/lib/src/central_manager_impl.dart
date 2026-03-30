@@ -11,6 +11,14 @@ import 'gatt_impl.dart';
 
 Logger get _logger => Logger('CentralManager');
 
+/// Default service UUIDs for retrieveConnectedPeripherals on Darwin.
+/// CoreBluetooth requires at least one service UUID — empty array returns no results.
+const _defaultServiceUUIDs = [
+  '180F', // Battery Service
+  '180A', // Device Information
+  '1800', // Generic Access
+];
+
 final class CentralManagerImpl
     implements CentralManager, CentralManagerFlutterApi {
   final CentralManagerHostApi _api;
@@ -89,9 +97,10 @@ final class CentralManagerImpl
   }
 
   @override
-  Future<List<Peripheral>> retrieveConnectedPeripherals() async {
-    _logger.info('retrieveConnectedPeripherals');
-    final peripheralsArgs = await _api.retrieveConnectedPeripherals();
+  Future<List<Peripheral>> retrieveConnectedPeripherals({List<UUID>? serviceUUIDs}) async {
+    final serviceUUIDsArgs = serviceUUIDs?.map((u) => u.toString()).toList() ?? _defaultServiceUUIDs;
+    _logger.info('retrieveConnectedPeripherals: $serviceUUIDsArgs');
+    final peripheralsArgs = await _api.retrieveConnectedPeripherals(serviceUUIDsArgs);
     final peripherals = peripheralsArgs
         .map((args) => args.toPeripheral())
         .toList();

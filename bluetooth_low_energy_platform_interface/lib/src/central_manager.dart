@@ -56,9 +56,15 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
 
   /// Returns a list of the peripherals connected to the system.
   ///
+  /// On iOS/macOS, CoreBluetooth requires at least one service UUID to filter by.
+  /// If [serviceUUIDs] is null or empty, common BLE services (Battery, Device
+  /// Information, Generic Access) are used as defaults.
+  ///
+  /// On Android, [serviceUUIDs] is ignored — all connected GATT devices are returned.
+  ///
   /// This method is available on Android, iOS, macOS and Linux, throws
   /// [UnsupportedError] on other platforms.
-  Future<List<Peripheral>> retrieveConnectedPeripherals();
+  Future<List<Peripheral>> retrieveConnectedPeripherals({List<UUID>? serviceUUIDs});
 
   /// Establishes a local connection to a peripheral.
   Future<void> connect(Peripheral peripheral);
