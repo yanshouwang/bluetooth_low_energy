@@ -187,6 +187,15 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    override fun getBondedDevices(): List<BondedDeviceArgs> {
+        val bondedDevices = adapter.bondedDevices ?: emptySet()
+        return bondedDevices.map { device ->
+            mDevices[device.address] = device
+            BondedDeviceArgs(device.address, device.name)
+        }
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun connect(addressArgs: String, callback: (Result<Unit>) -> Unit) {
         try {
             val device = mDevices[addressArgs] ?: throw IllegalArgumentException()

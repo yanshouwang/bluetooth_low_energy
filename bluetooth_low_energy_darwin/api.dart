@@ -191,6 +191,7 @@ abstract class CentralManagerHostApi {
   void startDiscovery(List<String> serviceUUIDsArgs);
   void stopDiscovery();
   List<PeripheralArgs> retrieveConnectedPeripherals(List<String> serviceUUIDsArgs);
+  List<PeripheralArgs> retrievePeripherals(List<String> uuidStringsArgs);
   @async
   void connect(String uuidArgs);
   @async

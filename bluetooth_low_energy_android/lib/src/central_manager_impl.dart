@@ -121,6 +121,18 @@ final class CentralManagerImpl
   }
 
   @override
+  Future<List<Peripheral>> retrievePeripherals(List<UUID> identifiers) async => [];
+
+  @override
+  Future<List<({String address, String? name})>> getBondedDevices() async {
+    _logger.info('getBondedDevices');
+    final bondedArgs = await _api.getBondedDevices();
+    return bondedArgs
+        .map((args) => (address: args.addressArgs, name: args.nameArgs))
+        .toList();
+  }
+
+  @override
   Future<void> connect(Peripheral peripheral) async {
     if (peripheral is! PeripheralImpl) {
       throw TypeError();

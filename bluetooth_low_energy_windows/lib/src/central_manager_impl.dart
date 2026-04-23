@@ -104,6 +104,12 @@ final class CentralManagerImpl
   }
 
   @override
+  Future<List<Peripheral>> retrievePeripherals(List<UUID> identifiers) async => [];
+
+  @override
+  Future<List<({String address, String? name})>> getBondedDevices() async => [];
+
+  @override
   Future<List<Peripheral>> retrieveConnectedPeripherals({List<UUID>? serviceUUIDs}) {
     throw UnsupportedError(
       'retrieveConnectedPeripherals is not supported on Windows.',

@@ -923,6 +923,25 @@ class CentralManagerHostApi {
     return (pigeonVar_replyValue! as List<Object?>).cast<PeripheralArgs>();
   }
 
+  Future<List<PeripheralArgs>> retrievePeripherals(List<String> uuidStringsArgs) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_darwin.CentralManagerHostApi.retrievePeripherals$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[uuidStringsArgs]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return (pigeonVar_replyValue! as List<Object?>).cast<PeripheralArgs>();
+  }
+
   Future<void> connect(String uuidArgs) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_darwin.CentralManagerHostApi.connect$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(

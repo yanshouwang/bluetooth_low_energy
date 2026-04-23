@@ -817,6 +817,7 @@ protocol CentralManagerHostApi {
   func startDiscovery(serviceUUIDsArgs: [String]) throws
   func stopDiscovery() throws
   func retrieveConnectedPeripherals(serviceUUIDsArgs: [String]) throws -> [PeripheralArgs]
+  func retrievePeripherals(uuidStringsArgs: [String]) throws -> [PeripheralArgs]
   func connect(uuidArgs: String, completion: @escaping (Result<Void, Error>) -> Void)
   func disconnect(uuidArgs: String, completion: @escaping (Result<Void, Error>) -> Void)
   func getMaximumWriteLength(uuidArgs: String, typeArgs: GATTCharacteristicWriteTypeArgs) throws -> Int64
@@ -921,6 +922,21 @@ class CentralManagerHostApiSetup {
       }
     } else {
       retrieveConnectedPeripheralsChannel.setMessageHandler(nil)
+    }
+    let retrievePeripheralsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.CentralManagerHostApi.retrievePeripherals\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      retrievePeripheralsChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let uuidStringsArgsArg = args[0] as! [String]
+        do {
+          let result = try api.retrievePeripherals(uuidStringsArgs: uuidStringsArgsArg)
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      retrievePeripheralsChannel.setMessageHandler(nil)
     }
     let connectChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.CentralManagerHostApi.connect\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {

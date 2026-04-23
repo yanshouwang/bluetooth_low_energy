@@ -66,6 +66,19 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   /// [UnsupportedError] on other platforms.
   Future<List<Peripheral>> retrieveConnectedPeripherals({List<UUID>? serviceUUIDs});
 
+  /// Returns peripherals matching the given identifiers, even if not currently connected.
+  ///
+  /// iOS/macOS only — uses [CBCentralManager.retrievePeripherals(withIdentifiers:)].
+  /// Returns empty list on other platforms.
+  Future<List<Peripheral>> retrievePeripherals(List<UUID> identifiers) async => [];
+
+  /// Returns a list of bonded (paired) devices from the system.
+  ///
+  /// Android only — uses [BluetoothAdapter.getBondedDevices()].
+  /// Returns empty list on iOS/macOS (no native API for bonded devices).
+  /// Returns records with address and optional name.
+  Future<List<({String address, String? name})>> getBondedDevices() async => [];
+
   /// Establishes a local connection to a peripheral.
   Future<void> connect(Peripheral peripheral);
 

@@ -152,6 +152,12 @@ final class CentralManagerImpl implements CentralManager {
   }
 
   @override
+  Future<List<Peripheral>> retrievePeripherals(List<UUID> identifiers) async => [];
+
+  @override
+  Future<List<({String address, String? name})>> getBondedDevices() async => [];
+
+  @override
   Future<int> requestMTU(Peripheral peripheral, {required int mtu}) {
     throw UnsupportedError('requestMTU is not supported on Linux.');
   }

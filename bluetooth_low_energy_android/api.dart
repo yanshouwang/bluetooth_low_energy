@@ -148,6 +148,13 @@ class PeripheralArgs {
   PeripheralArgs(this.addressArgs);
 }
 
+class BondedDeviceArgs {
+  final String addressArgs;
+  final String? nameArgs;
+
+  BondedDeviceArgs(this.addressArgs, this.nameArgs);
+}
+
 class GATTDescriptorArgs {
   final int hashCodeArgs;
   final String uuidArgs;
@@ -241,6 +248,7 @@ abstract class CentralManagerHostApi {
   void stopDiscovery();
   PeripheralArgs getPeripheral(String addressArgs);
   List<PeripheralArgs> retrieveConnectedPeripherals();
+  List<BondedDeviceArgs> getBondedDevices();
   @async
   void connect(String addressArgs);
   @async

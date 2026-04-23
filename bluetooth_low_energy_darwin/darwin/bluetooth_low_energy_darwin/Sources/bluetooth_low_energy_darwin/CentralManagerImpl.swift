@@ -136,6 +136,19 @@ class CentralManagerImpl: CentralManagerHostApi {
         return peripheralsArgs
     }
     
+    func retrievePeripherals(uuidStringsArgs: [String]) throws -> [PeripheralArgs] {
+        let identifiers = uuidStringsArgs.compactMap { UUID(uuidString: $0) }
+        let peripherals = self.mCentralManager.retrievePeripherals(withIdentifiers: identifiers)
+        let peripheralsArgs = peripherals.map { peripheral in
+            let peripheralArgs = peripheral.toArgs()
+            let uuidArgs = peripheralArgs.uuidArgs
+            if peripheral.delegate == nil { peripheral.delegate = self.mPeripheralDelegate }
+            self.mPeripherals[uuidArgs] = peripheral
+            return peripheralArgs
+        }
+        return peripheralsArgs
+    }
+
     func connect(uuidArgs: String, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             let peripheral = try self.retrievePeripheral(uuidArgs: uuidArgs)

@@ -97,6 +97,20 @@ final class CentralManagerImpl
   }
 
   @override
+  Future<List<Peripheral>> retrievePeripherals(List<UUID> identifiers) async {
+    final uuidStringsArgs = identifiers.map((u) => u.toString()).toList();
+    _logger.info('retrievePeripherals: $uuidStringsArgs');
+    final peripheralsArgs = await _api.retrievePeripherals(uuidStringsArgs);
+    final peripherals = peripheralsArgs
+        .map((args) => args.toPeripheral())
+        .toList();
+    return peripherals;
+  }
+
+  @override
+  Future<List<({String address, String? name})>> getBondedDevices() async => [];
+
+  @override
   Future<List<Peripheral>> retrieveConnectedPeripherals({List<UUID>? serviceUUIDs}) async {
     final serviceUUIDsArgs = serviceUUIDs?.map((u) => u.toString()).toList() ?? _defaultServiceUUIDs;
     _logger.info('retrieveConnectedPeripherals: $serviceUUIDsArgs');
