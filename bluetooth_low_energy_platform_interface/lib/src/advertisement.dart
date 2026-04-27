@@ -11,6 +11,11 @@ abstract interface class Advertisement {
   /// on other platforms.
   String? get name;
 
+  /// [Android] Add the local name to the primary advertisement packet.
+  /// May fail with `ADVERTISE_FAILED_DATA_TOO_LARGE` (`1`) if the ad is too
+  /// large or fallback to false.
+  bool get includeDeviceNameInAdvertisement;
+
   /// The GATT service uuids of the peripheral.
   List<UUID> get serviceUUIDs;
 
@@ -29,11 +34,13 @@ abstract interface class Advertisement {
   /// Constructs an [Advertisement].
   factory Advertisement({
     String? name,
+    bool includeDeviceNameInAdvertisement = false,
     List<UUID> serviceUUIDs = const [],
     Map<UUID, Uint8List> serviceData = const {},
     List<ManufacturerSpecificData> manufacturerSpecificData = const [],
   }) => AdvertisementImpl(
     name: name,
+    includeDeviceNameInAdvertisement: includeDeviceNameInAdvertisement,
     serviceUUIDs: serviceUUIDs,
     serviceData: serviceData,
     manufacturerSpecificData: manufacturerSpecificData,
@@ -44,6 +51,8 @@ final class AdvertisementImpl implements Advertisement {
   @override
   final String? name;
   @override
+  final bool includeDeviceNameInAdvertisement;
+  @override
   final List<UUID> serviceUUIDs;
   @override
   final Map<UUID, Uint8List> serviceData;
@@ -52,6 +61,7 @@ final class AdvertisementImpl implements Advertisement {
 
   AdvertisementImpl({
     required this.name,
+    required this.includeDeviceNameInAdvertisement,
     required this.serviceUUIDs,
     required this.serviceData,
     required this.manufacturerSpecificData,

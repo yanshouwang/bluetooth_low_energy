@@ -286,7 +286,10 @@ class CentralManagerImpl: CentralManagerHostApi {
         let peripheralArgs = peripheral.toArgs()
         let uuidArgs = peripheralArgs.uuidArgs
         let rssiArgs = rssi.int64Value
-        let advertisementArgs = advertisementData.toAdvertisementArgs()
+        var advertisementArgs = advertisementData.toAdvertisementArgs()
+        if advertisementArgs.nameArgs == nil {
+            advertisementArgs.nameArgs = peripheral.name
+        }
         if peripheral.delegate == nil { peripheral.delegate = self.mPeripheralDelegate }
         self.mPeripherals[uuidArgs] = peripheral
         self.mApi.onDiscovered(peripheralArgs: peripheralArgs, rssiArgs: rssiArgs, advertisementArgs: advertisementArgs) {_ in }
