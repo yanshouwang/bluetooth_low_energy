@@ -79,6 +79,25 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   /// Returns records with address and optional name.
   Future<List<({String address, String? name})>> getBondedDevices() async => [];
 
+  /// Removes the bond (pairing) with a peripheral at the system level.
+  ///
+  /// Android only — uses [BluetoothDevice.removeBond()] via reflection.
+  /// No-op on iOS/macOS — Apple does not expose an API for unpairing.
+  /// On iOS/macOS the user must remove the device manually from system settings.
+  ///
+  /// [address] is the device address. On Android pass the MAC address.
+  /// Throws [UnsupportedError] on platforms without an implementation.
+  Future<void> removeBond(String address) async {}
+
+  /// Initiates system-level bonding (pairing) with a peripheral.
+  ///
+  /// Android only — uses [BluetoothDevice.createBond()] which prompts the user
+  /// to confirm pairing. The call returns immediately; bond completion is
+  /// asynchronous and observable via the system bonded devices list.
+  /// No-op on iOS/macOS — Apple does not expose an explicit pairing API; bond
+  /// is created implicitly when the app accesses an encrypted characteristic.
+  Future<void> createBond(String address) async {}
+
   /// Establishes a local connection to a peripheral.
   Future<void> connect(Peripheral peripheral);
 

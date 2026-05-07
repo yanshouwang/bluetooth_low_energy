@@ -1267,6 +1267,44 @@ class CentralManagerHostApi {
     return (pigeonVar_replyValue! as List<Object?>).cast<BondedDeviceArgs>();
   }
 
+  Future<bool> removeBond(String addressArgs) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.CentralManagerHostApi.removeBond$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[addressArgs]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as bool;
+  }
+
+  Future<bool> createBond(String addressArgs) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.CentralManagerHostApi.createBond$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[addressArgs]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as bool;
+  }
+
   Future<void> connect(String addressArgs) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.CentralManagerHostApi.connect$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(

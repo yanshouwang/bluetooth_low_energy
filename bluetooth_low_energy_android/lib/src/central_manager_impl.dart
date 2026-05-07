@@ -133,6 +133,24 @@ final class CentralManagerImpl
   }
 
   @override
+  Future<void> removeBond(String address) async {
+    _logger.info('removeBond: $address');
+    final ok = await _api.removeBond(address);
+    if (!ok) {
+      throw StateError('removeBond failed for $address');
+    }
+  }
+
+  @override
+  Future<void> createBond(String address) async {
+    _logger.info('createBond: $address');
+    final ok = await _api.createBond(address);
+    if (!ok) {
+      throw StateError('createBond failed for $address');
+    }
+  }
+
+  @override
   Future<void> connect(Peripheral peripheral) async {
     if (peripheral is! PeripheralImpl) {
       throw TypeError();

@@ -158,6 +158,12 @@ final class CentralManagerImpl implements CentralManager {
   Future<List<({String address, String? name})>> getBondedDevices() async => [];
 
   @override
+  Future<void> removeBond(String address) async {}
+
+  @override
+  Future<void> createBond(String address) async {}
+
+  @override
   Future<int> requestMTU(Peripheral peripheral, {required int mtu}) {
     throw UnsupportedError('requestMTU is not supported on Linux.');
   }

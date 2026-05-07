@@ -110,6 +110,12 @@ final class CentralManagerImpl
   Future<List<({String address, String? name})>> getBondedDevices() async => [];
 
   @override
+  Future<void> removeBond(String address) async {}
+
+  @override
+  Future<void> createBond(String address) async {}
+
+  @override
   Future<List<Peripheral>> retrieveConnectedPeripherals({List<UUID>? serviceUUIDs}) {
     throw UnsupportedError(
       'retrieveConnectedPeripherals is not supported on Windows.',

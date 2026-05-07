@@ -196,6 +196,40 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    override fun removeBond(addressArgs: String): Boolean {
+        val device = mDevices[addressArgs]
+            ?: adapter.bondedDevices?.firstOrNull { it.address == addressArgs }
+            ?: return false
+        return try {
+            val method = device.javaClass.getMethod("removeBond")
+            val result = method.invoke(device) as? Boolean ?: false
+            result
+        } catch (e: Throwable) {
+            false
+        }
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    override fun createBond(addressArgs: String): Boolean {
+        val device = mDevices[addressArgs]
+            ?: try {
+                adapter.getRemoteDevice(addressArgs)
+            } catch (e: Throwable) {
+                null
+            }
+            ?: return false
+        mDevices[addressArgs] = device
+        if (device.bondState == BluetoothDevice.BOND_BONDED) {
+            return true
+        }
+        return try {
+            device.createBond()
+        } catch (e: Throwable) {
+            false
+        }
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun connect(addressArgs: String, callback: (Result<Unit>) -> Unit) {
         try {
             val device = mDevices[addressArgs] ?: throw IllegalArgumentException()

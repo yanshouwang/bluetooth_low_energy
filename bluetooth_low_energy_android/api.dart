@@ -249,6 +249,8 @@ abstract class CentralManagerHostApi {
   PeripheralArgs getPeripheral(String addressArgs);
   List<PeripheralArgs> retrieveConnectedPeripherals();
   List<BondedDeviceArgs> getBondedDevices();
+  bool removeBond(String addressArgs);
+  bool createBond(String addressArgs);
   @async
   void connect(String addressArgs);
   @async

@@ -1184,6 +1184,8 @@ interface CentralManagerHostApi {
   fun getPeripheral(addressArgs: String): PeripheralArgs
   fun retrieveConnectedPeripherals(): List<PeripheralArgs>
   fun getBondedDevices(): List<BondedDeviceArgs>
+  fun removeBond(addressArgs: String): Boolean
+  fun createBond(addressArgs: String): Boolean
   fun connect(addressArgs: String, callback: (Result<Unit>) -> Unit)
   fun disconnect(addressArgs: String, callback: (Result<Unit>) -> Unit)
   fun requestMTU(addressArgs: String, mtuArgs: Long, callback: (Result<Long>) -> Unit)
@@ -1341,6 +1343,40 @@ interface CentralManagerHostApi {
           channel.setMessageHandler { _, reply ->
             val wrapped: List<Any?> = try {
               listOf(api.getBondedDevices())
+            } catch (exception: Throwable) {
+              BluetoothLowEnergyApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.CentralManagerHostApi.removeBond$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val addressArgsArg = args[0] as String
+            val wrapped: List<Any?> = try {
+              listOf(api.removeBond(addressArgsArg))
+            } catch (exception: Throwable) {
+              BluetoothLowEnergyApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.CentralManagerHostApi.createBond$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val addressArgsArg = args[0] as String
+            val wrapped: List<Any?> = try {
+              listOf(api.createBond(addressArgsArg))
             } catch (exception: Throwable) {
               BluetoothLowEnergyApiPigeonUtils.wrapError(exception)
             }
