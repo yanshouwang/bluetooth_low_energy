@@ -283,6 +283,15 @@ abstract class CentralManagerHostApi {
     int hashCodeArgs,
     Uint8List valueArgs,
   );
+  // Opens a secure (authenticated/encrypted) L2CAP CoC to the device on the
+  // given PSM. Returns a native channel id used by the write/close calls and
+  // the inbound-data callbacks.
+  @async
+  int openL2CAPChannel(String addressArgs, int psmArgs);
+  @async
+  void writeL2CAPChannel(int idArgs, Uint8List valueArgs);
+  @async
+  void closeL2CAPChannel(int idArgs);
 }
 
 @FlutterApi()
@@ -303,6 +312,11 @@ abstract class CentralManagerFlutterApi {
     GATTCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
   );
+  // Inbound bytes received on the L2CAP channel with the given id.
+  void onL2CAPChannelReceived(int idArgs, Uint8List valueArgs);
+  // The L2CAP channel with the given id was closed (by the peer or on error);
+  // [errorArgs] is null on a clean close.
+  void onL2CAPChannelClosed(int idArgs, String? errorArgs);
 }
 
 @HostApi()

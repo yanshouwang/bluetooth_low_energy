@@ -130,6 +130,14 @@ final class CentralManagerImpl implements CentralManager {
   }
 
   @override
+  Future<L2CAPChannel> openL2CAPChannel(
+    Peripheral peripheral, {
+    required int psm,
+  }) {
+    throw UnsupportedError('openL2CAPChannel is not supported on Linux.');
+  }
+
+  @override
   Future<void> connect(Peripheral peripheral) async {
     if (peripheral is! PeripheralImpl) {
       throw TypeError();

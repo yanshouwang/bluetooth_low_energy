@@ -42,6 +42,10 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
     private val mReadDescriptorCallbacks: MutableMap<String, MutableMap<Long, (Result<ByteArray>) -> Unit>>
     private val mWriteDescriptorCallbacks: MutableMap<String, MutableMap<Long, (Result<Unit>) -> Unit>>
 
+    // L2CAP CoC: open channels keyed by a native channel id + a monotonic id generator.
+    private val mL2CAPChannels: MutableMap<Long, L2CAPChannelHandler>
+    private var mL2CAPChannelIdGenerator: Long
+
     init {
         mApi = CentralManagerFlutterApi(binaryMessenger)
 
@@ -63,6 +67,9 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         mWriteCharacteristicCallbacks = mutableMapOf()
         mReadDescriptorCallbacks = mutableMapOf()
         mWriteDescriptorCallbacks = mutableMapOf()
+
+        mL2CAPChannels = mutableMapOf()
+        mL2CAPChannelIdGenerator = 0
     }
 
     private val permissions: Array<String>
@@ -105,6 +112,11 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         mWriteCharacteristicCallbacks.clear()
         mReadDescriptorCallbacks.clear()
         mWriteDescriptorCallbacks.clear()
+
+        for (handler in mL2CAPChannels.values) {
+            handler.close()
+        }
+        mL2CAPChannels.clear()
 
         val enableNotificationValue = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
         val enableIndicationValue = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
@@ -391,6 +403,55 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         } catch (e: Throwable) {
             callback(Result.failure(e))
         }
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    override fun openL2CAPChannel(addressArgs: String, psmArgs: Long, callback: (Result<Long>) -> Unit) {
+        try {
+            val device = mDevices[addressArgs] ?: throw IllegalArgumentException()
+            val id = ++mL2CAPChannelIdGenerator
+            val handler = L2CAPChannelHandler(
+                device,
+                psmArgs.toInt(),
+                executor,
+                onReceived = { value -> mApi.onL2CAPChannelReceived(id, value) {} },
+                onClosed = { error ->
+                    mL2CAPChannels.remove(id)
+                    mApi.onL2CAPChannelClosed(id, error) {}
+                },
+            )
+            mL2CAPChannels[id] = handler
+            handler.open { result ->
+                result.fold(
+                    onSuccess = { callback(Result.success(id)) },
+                    onFailure = { e ->
+                        mL2CAPChannels.remove(id)
+                        callback(Result.failure(e))
+                    },
+                )
+            }
+        } catch (e: Throwable) {
+            callback(Result.failure(e))
+        }
+    }
+
+    override fun writeL2CAPChannel(idArgs: Long, valueArgs: ByteArray, callback: (Result<Unit>) -> Unit) {
+        val handler = mL2CAPChannels[idArgs]
+        if (handler == null) {
+            callback(Result.failure(IllegalArgumentException()))
+            return
+        }
+        handler.write(valueArgs, callback)
+    }
+
+    override fun closeL2CAPChannel(idArgs: Long, callback: (Result<Unit>) -> Unit) {
+        val handler = mL2CAPChannels.remove(idArgs)
+        if (handler == null) {
+            callback(Result.success(Unit))
+            return
+        }
+        handler.close()
+        callback(Result.success(Unit))
     }
 
     override fun onReceive(context: Context, intent: Intent) {

@@ -5,6 +5,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'bluetooth_low_energy_manager.dart';
 import 'event_args.dart';
 import 'gatt.dart';
+import 'l2cap_channel.dart';
 import 'peripheral.dart';
 import 'uuid.dart';
 
@@ -97,6 +98,20 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   /// No-op on iOS/macOS — Apple does not expose an explicit pairing API; bond
   /// is created implicitly when the app accesses an encrypted characteristic.
   Future<void> createBond(String address) async {}
+
+  /// Opens an L2CAP Connection-oriented Channel (CoC) to [peripheral] on the
+  /// given [psm], reusing the peripheral's existing authenticated connection.
+  ///
+  /// Returns an [L2CAPChannel] exposing an inbound byte stream and a write sink.
+  /// Available on Android, iOS and macOS; throws [UnsupportedError] on other
+  /// platforms.
+  Future<L2CAPChannel> openL2CAPChannel(
+    Peripheral peripheral, {
+    required int psm,
+  }) async =>
+      throw UnsupportedError(
+        'openL2CAPChannel is not supported on this platform.',
+      );
 
   /// Establishes a local connection to a peripheral.
   Future<void> connect(Peripheral peripheral);

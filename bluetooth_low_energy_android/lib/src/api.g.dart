@@ -1489,6 +1489,61 @@ class CentralManagerHostApi {
     )
     ;
   }
+
+  Future<int> openL2CAPChannel(String addressArgs, int psmArgs) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.CentralManagerHostApi.openL2CAPChannel$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[addressArgs, psmArgs]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as int;
+  }
+
+  Future<void> writeL2CAPChannel(int idArgs, Uint8List valueArgs) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.CentralManagerHostApi.writeL2CAPChannel$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[idArgs, valueArgs]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  Future<void> closeL2CAPChannel(int idArgs) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.CentralManagerHostApi.closeL2CAPChannel$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[idArgs]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
 }
 
 abstract class CentralManagerFlutterApi {
@@ -1503,6 +1558,10 @@ abstract class CentralManagerFlutterApi {
   void onMTUChanged(PeripheralArgs peripheralArgs, int mtuArgs);
 
   void onCharacteristicNotified(PeripheralArgs peripheralArgs, GATTCharacteristicArgs characteristicArgs, Uint8List valueArgs);
+
+  void onL2CAPChannelReceived(int idArgs, Uint8List valueArgs);
+
+  void onL2CAPChannelClosed(int idArgs, String? errorArgs);
 
   static void setUp(CentralManagerFlutterApi? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
@@ -1608,6 +1667,50 @@ abstract class CentralManagerFlutterApi {
           final Uint8List arg_valueArgs = args[2]! as Uint8List;
           try {
             api.onCharacteristicNotified(arg_peripheralArgs, arg_characteristicArgs, arg_valueArgs);
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.CentralManagerFlutterApi.onL2CAPChannelReceived$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          final List<Object?> args = message! as List<Object?>;
+          final int arg_idArgs = args[0]! as int;
+          final Uint8List arg_valueArgs = args[1]! as Uint8List;
+          try {
+            api.onL2CAPChannelReceived(arg_idArgs, arg_valueArgs);
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.CentralManagerFlutterApi.onL2CAPChannelClosed$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          final List<Object?> args = message! as List<Object?>;
+          final int arg_idArgs = args[0]! as int;
+          final String? arg_errorArgs = args[1] as String?;
+          try {
+            api.onL2CAPChannelClosed(arg_idArgs, arg_errorArgs);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);

@@ -14,6 +14,7 @@ export 'src/manufacturer_specific_data.dart';
 export 'src/advertisement.dart';
 export 'src/connection_state.dart';
 export 'src/gatt.dart';
+export 'src/l2cap_channel.dart';
 
 export 'src/bluetooth_low_energy_manager.dart';
 export 'src/central_manager.dart';

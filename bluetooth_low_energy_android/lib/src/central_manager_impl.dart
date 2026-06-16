@@ -24,6 +24,7 @@ final class CentralManagerImpl
   final StreamController<PeripheralMTUChangedEventArgs> _mtuChangedController;
   final StreamController<GATTCharacteristicNotifiedEventArgs>
   _characteristicNotifiedController;
+  final Map<int, StreamController<Uint8List>> _l2capChannelControllers;
 
   final Map<String, int> _mtus;
 
@@ -38,6 +39,7 @@ final class CentralManagerImpl
       _connectionStateChangedController = StreamController.broadcast(),
       _mtuChangedController = StreamController.broadcast(),
       _characteristicNotifiedController = StreamController.broadcast(),
+      _l2capChannelControllers = {},
       _mtus = {},
       _state = BluetoothLowEnergyState.unknown {
     CentralManagerFlutterApi.setUp(this);
@@ -148,6 +150,34 @@ final class CentralManagerImpl
     if (!ok) {
       throw StateError('createBond failed for $address');
     }
+  }
+
+  @override
+  Future<L2CAPChannel> openL2CAPChannel(
+    Peripheral peripheral, {
+    required int psm,
+  }) async {
+    if (peripheral is! PeripheralImpl) {
+      throw TypeError();
+    }
+    final addressArgs = peripheral.address;
+    _logger.info('openL2CAPChannel: $addressArgs - $psm');
+    final idArgs = await _api.openL2CAPChannel(addressArgs, psm);
+    final controller = StreamController<Uint8List>();
+    _l2capChannelControllers[idArgs] = controller;
+    return L2CAPChannelImpl(this, idArgs, psm, controller.stream);
+  }
+
+  Future<void> _writeL2CAPChannel(int idArgs, Uint8List value) async {
+    _logger.info('writeL2CAPChannel: $idArgs - ${value.length} bytes');
+    await _api.writeL2CAPChannel(idArgs, value);
+  }
+
+  Future<void> _closeL2CAPChannel(int idArgs) async {
+    _logger.info('closeL2CAPChannel: $idArgs');
+    await _api.closeL2CAPChannel(idArgs);
+    final controller = _l2capChannelControllers.remove(idArgs);
+    await controller?.close();
   }
 
   @override
@@ -405,6 +435,28 @@ final class CentralManagerImpl
     _characteristicNotifiedController.add(eventArgs);
   }
 
+  @override
+  void onL2CAPChannelReceived(int idArgs, Uint8List valueArgs) {
+    final controller = _l2capChannelControllers[idArgs];
+    if (controller == null || controller.isClosed) {
+      return;
+    }
+    controller.add(valueArgs);
+  }
+
+  @override
+  void onL2CAPChannelClosed(int idArgs, String? errorArgs) {
+    _logger.info('onL2CAPChannelClosed: $idArgs - $errorArgs');
+    final controller = _l2capChannelControllers.remove(idArgs);
+    if (controller == null || controller.isClosed) {
+      return;
+    }
+    if (errorArgs != null) {
+      controller.addError(StateError(errorArgs));
+    }
+    controller.close();
+  }
+
   Future<void> _initialize() async {
     // Here we use `Future()` to make it possible to change the `logLevel` before `initialize()`.
     await Future(() async {
@@ -427,6 +479,23 @@ final class CentralManagerImpl
       _logger.severe('getState failed.', e);
     }
   }
+}
+
+final class L2CAPChannelImpl implements L2CAPChannel {
+  final CentralManagerImpl _manager;
+  final int _idArgs;
+  @override
+  final int psm;
+  @override
+  final Stream<Uint8List> stream;
+
+  L2CAPChannelImpl(this._manager, this._idArgs, this.psm, this.stream);
+
+  @override
+  Future<void> write(Uint8List value) => _manager._writeL2CAPChannel(_idArgs, value);
+
+  @override
+  Future<void> close() => _manager._closeL2CAPChannel(_idArgs);
 }
 
 final class CentralManagerChannelImpl extends CentralManagerChannel {
