@@ -75,6 +75,9 @@ final class CentralManagerImpl implements CentralManager {
   Stream<PeripheralConnectionStateChangedEventArgs>
   get connectionStateChanged => _connectionStateChangedController.stream;
   @override
+  Stream<PeripheralBondStateChangedEventArgs> get bondStateChanged =>
+      Stream<PeripheralBondStateChangedEventArgs>.empty();
+  @override
   Stream<PeripheralMTUChangedEventArgs> get mtuChanged =>
       throw UnsupportedError('mtuChanged is not supported on Linux.');
   @override

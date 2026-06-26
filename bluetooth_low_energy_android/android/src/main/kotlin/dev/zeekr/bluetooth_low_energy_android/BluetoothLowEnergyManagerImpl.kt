@@ -2,6 +2,7 @@ package dev.zeekr.bluetooth_low_energy_android
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -26,6 +27,7 @@ abstract class BluetoothLowEnergyManagerImpl(val context: Context) {
     init {
         val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
         filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED)
+        filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
         context.registerReceiver(mBroadcastReceiver, filter)
     }
 

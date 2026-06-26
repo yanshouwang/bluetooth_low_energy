@@ -137,6 +137,12 @@ enum ConnectionStateArgs {
   disconnecting,
 }
 
+enum BondStateArgs {
+  none,
+  bonding,
+  bonded,
+}
+
 enum GATTCharacteristicPropertyArgs {
   read,
   write,
@@ -961,62 +967,65 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is ConnectionStateArgs) {
       buffer.putUint8(132);
       writeValue(buffer, value.index);
-    }    else if (value is GATTCharacteristicPropertyArgs) {
+    }    else if (value is BondStateArgs) {
       buffer.putUint8(133);
       writeValue(buffer, value.index);
-    }    else if (value is GATTCharacteristicPermissionArgs) {
+    }    else if (value is GATTCharacteristicPropertyArgs) {
       buffer.putUint8(134);
       writeValue(buffer, value.index);
-    }    else if (value is GATTCharacteristicWriteTypeArgs) {
+    }    else if (value is GATTCharacteristicPermissionArgs) {
       buffer.putUint8(135);
       writeValue(buffer, value.index);
-    }    else if (value is GATTStatusArgs) {
+    }    else if (value is GATTCharacteristicWriteTypeArgs) {
       buffer.putUint8(136);
       writeValue(buffer, value.index);
-    }    else if (value is CentralManagerArgs) {
+    }    else if (value is GATTStatusArgs) {
       buffer.putUint8(137);
-      writeValue(buffer, value.encode());
-    }    else if (value is PeripheralManagerArgs) {
+      writeValue(buffer, value.index);
+    }    else if (value is CentralManagerArgs) {
       buffer.putUint8(138);
       writeValue(buffer, value.encode());
-    }    else if (value is ManufacturerSpecificDataArgs) {
+    }    else if (value is PeripheralManagerArgs) {
       buffer.putUint8(139);
       writeValue(buffer, value.encode());
-    }    else if (value is AdvertisementArgs) {
+    }    else if (value is ManufacturerSpecificDataArgs) {
       buffer.putUint8(140);
       writeValue(buffer, value.encode());
-    }    else if (value is AdvertiseSettingsArgs) {
+    }    else if (value is AdvertisementArgs) {
       buffer.putUint8(141);
       writeValue(buffer, value.encode());
-    }    else if (value is AdvertiseDataArgs) {
+    }    else if (value is AdvertiseSettingsArgs) {
       buffer.putUint8(142);
       writeValue(buffer, value.encode());
-    }    else if (value is CentralArgs) {
+    }    else if (value is AdvertiseDataArgs) {
       buffer.putUint8(143);
       writeValue(buffer, value.encode());
-    }    else if (value is PeripheralArgs) {
+    }    else if (value is CentralArgs) {
       buffer.putUint8(144);
       writeValue(buffer, value.encode());
-    }    else if (value is BondedDeviceArgs) {
+    }    else if (value is PeripheralArgs) {
       buffer.putUint8(145);
       writeValue(buffer, value.encode());
-    }    else if (value is GATTDescriptorArgs) {
+    }    else if (value is BondedDeviceArgs) {
       buffer.putUint8(146);
       writeValue(buffer, value.encode());
-    }    else if (value is GATTCharacteristicArgs) {
+    }    else if (value is GATTDescriptorArgs) {
       buffer.putUint8(147);
       writeValue(buffer, value.encode());
-    }    else if (value is GATTServiceArgs) {
+    }    else if (value is GATTCharacteristicArgs) {
       buffer.putUint8(148);
       writeValue(buffer, value.encode());
-    }    else if (value is MutableGATTDescriptorArgs) {
+    }    else if (value is GATTServiceArgs) {
       buffer.putUint8(149);
       writeValue(buffer, value.encode());
-    }    else if (value is MutableGATTCharacteristicArgs) {
+    }    else if (value is MutableGATTDescriptorArgs) {
       buffer.putUint8(150);
       writeValue(buffer, value.encode());
-    }    else if (value is MutableGATTServiceArgs) {
+    }    else if (value is MutableGATTCharacteristicArgs) {
       buffer.putUint8(151);
+      writeValue(buffer, value.encode());
+    }    else if (value is MutableGATTServiceArgs) {
+      buffer.putUint8(152);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -1040,45 +1049,48 @@ class _PigeonCodec extends StandardMessageCodec {
         return value == null ? null : ConnectionStateArgs.values[value];
       case 133:
         final value = readValue(buffer) as int?;
-        return value == null ? null : GATTCharacteristicPropertyArgs.values[value];
+        return value == null ? null : BondStateArgs.values[value];
       case 134:
         final value = readValue(buffer) as int?;
-        return value == null ? null : GATTCharacteristicPermissionArgs.values[value];
+        return value == null ? null : GATTCharacteristicPropertyArgs.values[value];
       case 135:
         final value = readValue(buffer) as int?;
-        return value == null ? null : GATTCharacteristicWriteTypeArgs.values[value];
+        return value == null ? null : GATTCharacteristicPermissionArgs.values[value];
       case 136:
         final value = readValue(buffer) as int?;
-        return value == null ? null : GATTStatusArgs.values[value];
+        return value == null ? null : GATTCharacteristicWriteTypeArgs.values[value];
       case 137:
-        return CentralManagerArgs.decode(readValue(buffer)!);
+        final value = readValue(buffer) as int?;
+        return value == null ? null : GATTStatusArgs.values[value];
       case 138:
-        return PeripheralManagerArgs.decode(readValue(buffer)!);
+        return CentralManagerArgs.decode(readValue(buffer)!);
       case 139:
-        return ManufacturerSpecificDataArgs.decode(readValue(buffer)!);
+        return PeripheralManagerArgs.decode(readValue(buffer)!);
       case 140:
-        return AdvertisementArgs.decode(readValue(buffer)!);
+        return ManufacturerSpecificDataArgs.decode(readValue(buffer)!);
       case 141:
-        return AdvertiseSettingsArgs.decode(readValue(buffer)!);
+        return AdvertisementArgs.decode(readValue(buffer)!);
       case 142:
-        return AdvertiseDataArgs.decode(readValue(buffer)!);
+        return AdvertiseSettingsArgs.decode(readValue(buffer)!);
       case 143:
-        return CentralArgs.decode(readValue(buffer)!);
+        return AdvertiseDataArgs.decode(readValue(buffer)!);
       case 144:
-        return PeripheralArgs.decode(readValue(buffer)!);
+        return CentralArgs.decode(readValue(buffer)!);
       case 145:
-        return BondedDeviceArgs.decode(readValue(buffer)!);
+        return PeripheralArgs.decode(readValue(buffer)!);
       case 146:
-        return GATTDescriptorArgs.decode(readValue(buffer)!);
+        return BondedDeviceArgs.decode(readValue(buffer)!);
       case 147:
-        return GATTCharacteristicArgs.decode(readValue(buffer)!);
+        return GATTDescriptorArgs.decode(readValue(buffer)!);
       case 148:
-        return GATTServiceArgs.decode(readValue(buffer)!);
+        return GATTCharacteristicArgs.decode(readValue(buffer)!);
       case 149:
-        return MutableGATTDescriptorArgs.decode(readValue(buffer)!);
+        return GATTServiceArgs.decode(readValue(buffer)!);
       case 150:
-        return MutableGATTCharacteristicArgs.decode(readValue(buffer)!);
+        return MutableGATTDescriptorArgs.decode(readValue(buffer)!);
       case 151:
+        return MutableGATTCharacteristicArgs.decode(readValue(buffer)!);
+      case 152:
         return MutableGATTServiceArgs.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -1555,6 +1567,8 @@ abstract class CentralManagerFlutterApi {
 
   void onConnectionStateChanged(PeripheralArgs peripheralArgs, ConnectionStateArgs stateArgs);
 
+  void onBondStateChanged(PeripheralArgs peripheralArgs, BondStateArgs bondStateArgs);
+
   void onMTUChanged(PeripheralArgs peripheralArgs, int mtuArgs);
 
   void onCharacteristicNotified(PeripheralArgs peripheralArgs, GATTCharacteristicArgs characteristicArgs, Uint8List valueArgs);
@@ -1622,6 +1636,28 @@ abstract class CentralManagerFlutterApi {
           final ConnectionStateArgs arg_stateArgs = args[1]! as ConnectionStateArgs;
           try {
             api.onConnectionStateChanged(arg_peripheralArgs, arg_stateArgs);
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.bluetooth_low_energy_android.CentralManagerFlutterApi.onBondStateChanged$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          final List<Object?> args = message! as List<Object?>;
+          final PeripheralArgs arg_peripheralArgs = args[0]! as PeripheralArgs;
+          final BondStateArgs arg_bondStateArgs = args[1]! as BondStateArgs;
+          try {
+            api.onBondStateChanged(arg_peripheralArgs, arg_bondStateArgs);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);

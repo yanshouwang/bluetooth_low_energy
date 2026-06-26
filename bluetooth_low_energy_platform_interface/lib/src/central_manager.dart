@@ -28,6 +28,12 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   /// Tells that retrieving the specified peripheral's connection state changed.
   Stream<PeripheralConnectionStateChangedEventArgs> get connectionStateChanged;
 
+  /// Tells that the specified peripheral's bond (pairing) state changed.
+  ///
+  /// Android only — backed by `ACTION_BOND_STATE_CHANGED`. Other platforms
+  /// never emit (iOS bonds implicitly with no observable bond state).
+  Stream<PeripheralBondStateChangedEventArgs> get bondStateChanged;
+
   /// Callback indicating the MTU for a given device connection has changed.
   ///
   /// This callback is triggered in response to the BluetoothGatt#requestMtu

@@ -184,6 +184,14 @@ fun Int.toConnectionStateArgs(): ConnectionStateArgs {
     }
 }
 
+fun Int.toBondStateArgs(): BondStateArgs {
+    return when (this) {
+        BluetoothDevice.BOND_BONDING -> BondStateArgs.BONDING
+        BluetoothDevice.BOND_BONDED -> BondStateArgs.BONDED
+        else -> BondStateArgs.NONE
+    }
+}
+
 fun SparseArray<ByteArray>.toManufacturerSpecificDataArgs(): List<ManufacturerSpecificDataArgs> {
     var index = 0
     val size = this.size

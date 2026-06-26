@@ -21,6 +21,8 @@ final class CentralManagerImpl
   final StreamController<DiscoveredEventArgs> _discoveredController;
   final StreamController<PeripheralConnectionStateChangedEventArgs>
   _connectionStateChangedController;
+  final StreamController<PeripheralBondStateChangedEventArgs>
+  _bondStateChangedController;
   final StreamController<PeripheralMTUChangedEventArgs> _mtuChangedController;
   final StreamController<GATTCharacteristicNotifiedEventArgs>
   _characteristicNotifiedController;
@@ -37,6 +39,7 @@ final class CentralManagerImpl
       _stateChangedController = StreamController.broadcast(),
       _discoveredController = StreamController.broadcast(),
       _connectionStateChangedController = StreamController.broadcast(),
+      _bondStateChangedController = StreamController.broadcast(),
       _mtuChangedController = StreamController.broadcast(),
       _characteristicNotifiedController = StreamController.broadcast(),
       _l2capChannelControllers = {},
@@ -59,6 +62,9 @@ final class CentralManagerImpl
   @override
   Stream<PeripheralConnectionStateChangedEventArgs>
   get connectionStateChanged => _connectionStateChangedController.stream;
+  @override
+  Stream<PeripheralBondStateChangedEventArgs> get bondStateChanged =>
+      _bondStateChangedController.stream;
   @override
   Stream<PeripheralMTUChangedEventArgs> get mtuChanged =>
       _mtuChangedController.stream;
@@ -400,6 +406,19 @@ final class CentralManagerImpl
       state,
     );
     _connectionStateChangedController.add(eventArgs);
+  }
+
+  @override
+  void onBondStateChanged(
+    PeripheralArgs peripheralArgs,
+    BondStateArgs bondStateArgs,
+  ) {
+    final addressArgs = peripheralArgs.addressArgs;
+    _logger.info('onBondStateChanged: $addressArgs - $bondStateArgs');
+    final peripheral = peripheralArgs.toPeripheral();
+    final bondState = bondStateArgs.toBondState();
+    final eventArgs = PeripheralBondStateChangedEventArgs(peripheral, bondState);
+    _bondStateChangedController.add(eventArgs);
   }
 
   @override

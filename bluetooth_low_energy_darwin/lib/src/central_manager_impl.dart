@@ -56,6 +56,11 @@ final class CentralManagerImpl
   Stream<PeripheralConnectionStateChangedEventArgs>
   get connectionStateChanged => _connectionStateChangedController.stream;
   @override
+  // iOS/macOS bond implicitly and expose no bond state — never emits. Returning
+  // an empty stream (rather than throwing) keeps subscribers safe.
+  Stream<PeripheralBondStateChangedEventArgs> get bondStateChanged =>
+      Stream<PeripheralBondStateChangedEventArgs>.empty();
+  @override
   Stream<PeripheralMTUChangedEventArgs> get mtuChanged =>
       throw UnsupportedError('mtuChanged is not supported on Darwin.');
   @override

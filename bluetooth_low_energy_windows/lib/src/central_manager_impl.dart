@@ -66,6 +66,9 @@ final class CentralManagerImpl
   Stream<PeripheralConnectionStateChangedEventArgs>
   get connectionStateChanged => _connectionStateChangedController.stream;
   @override
+  Stream<PeripheralBondStateChangedEventArgs> get bondStateChanged =>
+      Stream<PeripheralBondStateChangedEventArgs>.empty();
+  @override
   Stream<PeripheralMTUChangedEventArgs> get mtuChanged =>
       _mtuChangedController.stream;
   @override

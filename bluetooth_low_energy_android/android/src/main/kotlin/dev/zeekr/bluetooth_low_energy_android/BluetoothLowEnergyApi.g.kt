@@ -249,6 +249,18 @@ enum class ConnectionStateArgs(val raw: Int) {
   }
 }
 
+enum class BondStateArgs(val raw: Int) {
+  NONE(0),
+  BONDING(1),
+  BONDED(2);
+
+  companion object {
+    fun ofRaw(raw: Int): BondStateArgs? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
+
 enum class GATTCharacteristicPropertyArgs(val raw: Int) {
   READ(0),
   WRITE(1),
@@ -977,95 +989,100 @@ private open class BluetoothLowEnergyApiPigeonCodec : StandardMessageCodec() {
       }
       133.toByte() -> {
         return (readValue(buffer) as Long?)?.let {
-          GATTCharacteristicPropertyArgs.ofRaw(it.toInt())
+          BondStateArgs.ofRaw(it.toInt())
         }
       }
       134.toByte() -> {
         return (readValue(buffer) as Long?)?.let {
-          GATTCharacteristicPermissionArgs.ofRaw(it.toInt())
+          GATTCharacteristicPropertyArgs.ofRaw(it.toInt())
         }
       }
       135.toByte() -> {
         return (readValue(buffer) as Long?)?.let {
-          GATTCharacteristicWriteTypeArgs.ofRaw(it.toInt())
+          GATTCharacteristicPermissionArgs.ofRaw(it.toInt())
         }
       }
       136.toByte() -> {
         return (readValue(buffer) as Long?)?.let {
-          GATTStatusArgs.ofRaw(it.toInt())
+          GATTCharacteristicWriteTypeArgs.ofRaw(it.toInt())
         }
       }
       137.toByte() -> {
-        return (readValue(buffer) as? List<Any?>)?.let {
-          CentralManagerArgs.fromList(it)
+        return (readValue(buffer) as Long?)?.let {
+          GATTStatusArgs.ofRaw(it.toInt())
         }
       }
       138.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          PeripheralManagerArgs.fromList(it)
+          CentralManagerArgs.fromList(it)
         }
       }
       139.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          ManufacturerSpecificDataArgs.fromList(it)
+          PeripheralManagerArgs.fromList(it)
         }
       }
       140.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          AdvertisementArgs.fromList(it)
+          ManufacturerSpecificDataArgs.fromList(it)
         }
       }
       141.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          AdvertiseSettingsArgs.fromList(it)
+          AdvertisementArgs.fromList(it)
         }
       }
       142.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          AdvertiseDataArgs.fromList(it)
+          AdvertiseSettingsArgs.fromList(it)
         }
       }
       143.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          CentralArgs.fromList(it)
+          AdvertiseDataArgs.fromList(it)
         }
       }
       144.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          PeripheralArgs.fromList(it)
+          CentralArgs.fromList(it)
         }
       }
       145.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          BondedDeviceArgs.fromList(it)
+          PeripheralArgs.fromList(it)
         }
       }
       146.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          GATTDescriptorArgs.fromList(it)
+          BondedDeviceArgs.fromList(it)
         }
       }
       147.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          GATTCharacteristicArgs.fromList(it)
+          GATTDescriptorArgs.fromList(it)
         }
       }
       148.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          GATTServiceArgs.fromList(it)
+          GATTCharacteristicArgs.fromList(it)
         }
       }
       149.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          MutableGATTDescriptorArgs.fromList(it)
+          GATTServiceArgs.fromList(it)
         }
       }
       150.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          MutableGATTCharacteristicArgs.fromList(it)
+          MutableGATTDescriptorArgs.fromList(it)
         }
       }
       151.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          MutableGATTCharacteristicArgs.fromList(it)
+        }
+      }
+      152.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
           MutableGATTServiceArgs.fromList(it)
         }
@@ -1091,80 +1108,84 @@ private open class BluetoothLowEnergyApiPigeonCodec : StandardMessageCodec() {
         stream.write(132)
         writeValue(stream, value.raw.toLong())
       }
-      is GATTCharacteristicPropertyArgs -> {
+      is BondStateArgs -> {
         stream.write(133)
         writeValue(stream, value.raw.toLong())
       }
-      is GATTCharacteristicPermissionArgs -> {
+      is GATTCharacteristicPropertyArgs -> {
         stream.write(134)
         writeValue(stream, value.raw.toLong())
       }
-      is GATTCharacteristicWriteTypeArgs -> {
+      is GATTCharacteristicPermissionArgs -> {
         stream.write(135)
         writeValue(stream, value.raw.toLong())
       }
-      is GATTStatusArgs -> {
+      is GATTCharacteristicWriteTypeArgs -> {
         stream.write(136)
         writeValue(stream, value.raw.toLong())
       }
-      is CentralManagerArgs -> {
+      is GATTStatusArgs -> {
         stream.write(137)
-        writeValue(stream, value.toList())
+        writeValue(stream, value.raw.toLong())
       }
-      is PeripheralManagerArgs -> {
+      is CentralManagerArgs -> {
         stream.write(138)
         writeValue(stream, value.toList())
       }
-      is ManufacturerSpecificDataArgs -> {
+      is PeripheralManagerArgs -> {
         stream.write(139)
         writeValue(stream, value.toList())
       }
-      is AdvertisementArgs -> {
+      is ManufacturerSpecificDataArgs -> {
         stream.write(140)
         writeValue(stream, value.toList())
       }
-      is AdvertiseSettingsArgs -> {
+      is AdvertisementArgs -> {
         stream.write(141)
         writeValue(stream, value.toList())
       }
-      is AdvertiseDataArgs -> {
+      is AdvertiseSettingsArgs -> {
         stream.write(142)
         writeValue(stream, value.toList())
       }
-      is CentralArgs -> {
+      is AdvertiseDataArgs -> {
         stream.write(143)
         writeValue(stream, value.toList())
       }
-      is PeripheralArgs -> {
+      is CentralArgs -> {
         stream.write(144)
         writeValue(stream, value.toList())
       }
-      is BondedDeviceArgs -> {
+      is PeripheralArgs -> {
         stream.write(145)
         writeValue(stream, value.toList())
       }
-      is GATTDescriptorArgs -> {
+      is BondedDeviceArgs -> {
         stream.write(146)
         writeValue(stream, value.toList())
       }
-      is GATTCharacteristicArgs -> {
+      is GATTDescriptorArgs -> {
         stream.write(147)
         writeValue(stream, value.toList())
       }
-      is GATTServiceArgs -> {
+      is GATTCharacteristicArgs -> {
         stream.write(148)
         writeValue(stream, value.toList())
       }
-      is MutableGATTDescriptorArgs -> {
+      is GATTServiceArgs -> {
         stream.write(149)
         writeValue(stream, value.toList())
       }
-      is MutableGATTCharacteristicArgs -> {
+      is MutableGATTDescriptorArgs -> {
         stream.write(150)
         writeValue(stream, value.toList())
       }
-      is MutableGATTServiceArgs -> {
+      is MutableGATTCharacteristicArgs -> {
         stream.write(151)
+        writeValue(stream, value.toList())
+      }
+      is MutableGATTServiceArgs -> {
+        stream.write(152)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -1704,6 +1725,23 @@ class CentralManagerFlutterApi(private val binaryMessenger: BinaryMessenger, pri
     val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.CentralManagerFlutterApi.onConnectionStateChanged$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(peripheralArgsArg, stateArgsArg)) {
+      if (it is List<*>) {
+        if (it.size > 1) {
+          callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
+        } else {
+          callback(Result.success(Unit))
+        }
+      } else {
+        callback(Result.failure(BluetoothLowEnergyApiPigeonUtils.createConnectionError(channelName)))
+      } 
+    }
+  }
+  fun onBondStateChanged(peripheralArgsArg: PeripheralArgs, bondStateArgsArg: BondStateArgs, callback: (Result<Unit>) -> Unit)
+{
+    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+    val channelName = "dev.flutter.pigeon.bluetooth_low_energy_android.CentralManagerFlutterApi.onBondStateChanged$separatedMessageChannelSuffix"
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+    channel.send(listOf(peripheralArgsArg, bondStateArgsArg)) {
       if (it is List<*>) {
         if (it.size > 1) {
           callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))

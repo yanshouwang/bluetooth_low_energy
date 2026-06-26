@@ -30,6 +30,8 @@ enum TXPowerLevelArgs { ultraLow, low, medium, high }
 
 enum ConnectionStateArgs { disconnected, connecting, connected, disconnecting }
 
+enum BondStateArgs { none, bonding, bonded }
+
 enum GATTCharacteristicPropertyArgs {
   read,
   write,
@@ -305,6 +307,10 @@ abstract class CentralManagerFlutterApi {
   void onConnectionStateChanged(
     PeripheralArgs peripheralArgs,
     ConnectionStateArgs stateArgs,
+  );
+  void onBondStateChanged(
+    PeripheralArgs peripheralArgs,
+    BondStateArgs bondStateArgs,
   );
   void onMTUChanged(PeripheralArgs peripheralArgs, int mtuArgs);
   void onCharacteristicNotified(

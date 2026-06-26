@@ -455,12 +455,25 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action != BluetoothAdapter.ACTION_STATE_CHANGED) {
-            return
+        when (intent.action) {
+            BluetoothAdapter.ACTION_STATE_CHANGED -> {
+                val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF)
+                val stateArgs = state.toBluetoothLowEnergyStateArgs()
+                mApi.onStateChanged(stateArgs) {}
+            }
+
+            BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
+                @Suppress("DEPRECATION")
+                val device =
+                    intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE) ?: return
+                val bondState = intent.getIntExtra(
+                    BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.BOND_NONE
+                )
+                val peripheralArgs = device.toPeripheralArgs()
+                val bondStateArgs = bondState.toBondStateArgs()
+                mApi.onBondStateChanged(peripheralArgs, bondStateArgs) {}
+            }
         }
-        val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF)
-        val stateArgs = state.toBluetoothLowEnergyStateArgs()
-        mApi.onStateChanged(stateArgs) {}
     }
 
     override fun onRequestPermissionsResult(

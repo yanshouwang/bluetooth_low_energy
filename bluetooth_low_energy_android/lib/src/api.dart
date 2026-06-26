@@ -38,6 +38,19 @@ extension ConnectionStateArgsX on ConnectionStateArgs {
   }
 }
 
+extension BondStateArgsX on BondStateArgs {
+  BondState toBondState() {
+    switch (this) {
+      case BondStateArgs.none:
+        return BondState.none;
+      case BondStateArgs.bonding:
+        return BondState.bonding;
+      case BondStateArgs.bonded:
+        return BondState.bonded;
+    }
+  }
+}
+
 extension GATTCharacteristicPropertyArgsX on GATTCharacteristicPropertyArgs {
   GATTCharacteristicProperty toProperty() {
     return GATTCharacteristicProperty.values[index];
