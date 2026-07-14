@@ -76,7 +76,7 @@ extension AdvertisementArgsX on AdvertisementArgs {
 
 extension PeripheralArgsX on PeripheralArgs {
   Peripheral toPeripheral() {
-    return PeripheralImpl(uuid: UUID.fromString(uuidArgs));
+    return PeripheralImpl(uuid: UUID.fromString(uuidArgs), name: nameArgs);
   }
 }
 

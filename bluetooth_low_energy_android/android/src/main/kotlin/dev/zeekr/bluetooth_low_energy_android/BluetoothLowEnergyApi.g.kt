@@ -619,18 +619,21 @@ data class CentralArgs (
 
 /** Generated class from Pigeon that represents data sent in messages. */
 data class PeripheralArgs (
-  val addressArgs: String
+  val addressArgs: String,
+  val nameArgs: String? = null
 )
  {
   companion object {
     fun fromList(pigeonVar_list: List<Any?>): PeripheralArgs {
       val addressArgs = pigeonVar_list[0] as String
-      return PeripheralArgs(addressArgs)
+      val nameArgs = pigeonVar_list[1] as String?
+      return PeripheralArgs(addressArgs, nameArgs)
     }
   }
   fun toList(): List<Any?> {
     return listOf(
       addressArgs,
+      nameArgs,
     )
   }
   override fun equals(other: Any?): Boolean {
@@ -641,12 +644,13 @@ data class PeripheralArgs (
       return true
     }
     val other = other as PeripheralArgs
-    return BluetoothLowEnergyApiPigeonUtils.deepEquals(this.addressArgs, other.addressArgs)
+    return BluetoothLowEnergyApiPigeonUtils.deepEquals(this.addressArgs, other.addressArgs) && BluetoothLowEnergyApiPigeonUtils.deepEquals(this.nameArgs, other.nameArgs)
   }
 
   override fun hashCode(): Int {
     var result = javaClass.hashCode()
     result = 31 * result + BluetoothLowEnergyApiPigeonUtils.deepHash(this.addressArgs)
+    result = 31 * result + BluetoothLowEnergyApiPigeonUtils.deepHash(this.nameArgs)
     return result
   }
 }

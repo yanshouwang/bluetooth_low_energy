@@ -4,7 +4,10 @@ import 'bluetooth_low_energy_peer_impl.dart';
 
 final class PeripheralImpl extends BluetoothLowEnergyPeerImpl
     implements Peripheral {
-  PeripheralImpl({required super.uuid});
+  @override
+  final String? name;
+
+  PeripheralImpl({required super.uuid, this.name});
 
   @override
   int get hashCode => uuid.hashCode;

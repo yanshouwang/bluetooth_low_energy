@@ -7,6 +7,9 @@ final class PeripheralImpl extends BluetoothLowEnergyPeerImpl
   PeripheralImpl(super.blueZDevice);
 
   @override
+  String? get name => blueZDevice.alias.isEmpty ? blueZDevice.name : blueZDevice.alias;
+
+  @override
   int get hashCode => blueZDevice.hashCode;
 
   @override

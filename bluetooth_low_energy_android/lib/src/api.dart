@@ -83,7 +83,7 @@ extension AdvertisementArgsX on AdvertisementArgs {
 
 extension PeripheralArgsX on PeripheralArgs {
   Peripheral toPeripheral() {
-    return PeripheralImpl(address: addressArgs);
+    return PeripheralImpl(address: addressArgs, name: nameArgs);
   }
 }
 

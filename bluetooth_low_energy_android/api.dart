@@ -146,8 +146,9 @@ class CentralArgs {
 
 class PeripheralArgs {
   final String addressArgs;
+  final String? nameArgs;
 
-  PeripheralArgs(this.addressArgs);
+  PeripheralArgs(this.addressArgs, this.nameArgs);
 }
 
 class BondedDeviceArgs {

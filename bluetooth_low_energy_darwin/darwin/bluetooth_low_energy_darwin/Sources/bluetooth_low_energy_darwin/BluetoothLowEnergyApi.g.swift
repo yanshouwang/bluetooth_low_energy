@@ -313,31 +313,36 @@ struct CentralArgs: Hashable {
 /// Generated class from Pigeon that represents data sent in messages.
 struct PeripheralArgs: Hashable {
   var uuidArgs: String
+  var nameArgs: String? = nil
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
   static func fromList(_ pigeonVar_list: [Any?]) -> PeripheralArgs? {
     let uuidArgs = pigeonVar_list[0] as! String
+    let nameArgs: String? = nilOrValue(pigeonVar_list[1])
 
     return PeripheralArgs(
-      uuidArgs: uuidArgs
+      uuidArgs: uuidArgs,
+      nameArgs: nameArgs
     )
   }
   func toList() -> [Any?] {
     return [
-      uuidArgs
+      uuidArgs,
+      nameArgs,
     ]
   }
   static func == (lhs: PeripheralArgs, rhs: PeripheralArgs) -> Bool {
     if Swift.type(of: lhs) != Swift.type(of: rhs) {
       return false
     }
-    return deepEqualsBluetoothLowEnergyApi(lhs.uuidArgs, rhs.uuidArgs)
+    return deepEqualsBluetoothLowEnergyApi(lhs.uuidArgs, rhs.uuidArgs) && deepEqualsBluetoothLowEnergyApi(lhs.nameArgs, rhs.nameArgs)
   }
 
   func hash(into hasher: inout Hasher) {
     hasher.combine("PeripheralArgs")
     deepHashBluetoothLowEnergyApi(value: uuidArgs, hasher: &hasher)
+    deepHashBluetoothLowEnergyApi(value: nameArgs, hasher: &hasher)
   }
 }
 

@@ -235,7 +235,14 @@ fun BluetoothDevice.toCentralArgs(): CentralArgs {
 
 fun BluetoothDevice.toPeripheralArgs(): PeripheralArgs {
     val addressArgs = address
-    return PeripheralArgs(addressArgs)
+    // BluetoothDevice.getName() requires BLUETOOTH_CONNECT (granted before any BLE
+    // op). Guarded so a missing permission never aborts peripheral construction.
+    val nameArgs = try {
+        name
+    } catch (e: SecurityException) {
+        null
+    }
+    return PeripheralArgs(addressArgs, nameArgs)
 }
 
 fun BluetoothGattDescriptor.toArgs(): GATTDescriptorArgs {

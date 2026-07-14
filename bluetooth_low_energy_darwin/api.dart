@@ -83,8 +83,9 @@ class CentralArgs {
 
 class PeripheralArgs {
   final String uuidArgs;
+  final String? nameArgs;
 
-  PeripheralArgs(this.uuidArgs);
+  PeripheralArgs(this.uuidArgs, this.nameArgs);
 }
 
 class GATTDescriptorArgs {

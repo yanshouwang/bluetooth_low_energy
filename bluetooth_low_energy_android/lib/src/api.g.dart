@@ -535,13 +535,17 @@ class CentralArgs {
 class PeripheralArgs {
   PeripheralArgs({
     required this.addressArgs,
+    this.nameArgs,
   });
 
   String addressArgs;
 
+  String? nameArgs;
+
   List<Object?> _toList() {
     return <Object?>[
       addressArgs,
+      nameArgs,
     ];
   }
 
@@ -552,6 +556,7 @@ class PeripheralArgs {
     result as List<Object?>;
     return PeripheralArgs(
       addressArgs: result[0]! as String,
+      nameArgs: result[1] as String?,
     );
   }
 
@@ -564,7 +569,7 @@ class PeripheralArgs {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(addressArgs, other.addressArgs);
+    return _deepEquals(addressArgs, other.addressArgs) && _deepEquals(nameArgs, other.nameArgs);
   }
 
   @override

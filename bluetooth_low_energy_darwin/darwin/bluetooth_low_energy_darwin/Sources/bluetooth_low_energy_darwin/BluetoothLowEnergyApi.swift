@@ -183,7 +183,7 @@ extension CBCentral {
 extension CBPeripheral {
     func toArgs() -> PeripheralArgs {
         let uuidArgs = identifier.toArgs()
-        return PeripheralArgs(uuidArgs: uuidArgs)
+        return PeripheralArgs(uuidArgs: uuidArgs, nameArgs: name)
     }
 }
 
