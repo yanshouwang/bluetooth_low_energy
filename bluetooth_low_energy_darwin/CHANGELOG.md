@@ -1,3 +1,7 @@
+## 6.2.1+allowduplicatesfix1
+
+* `startDiscovery()` no longer passes `CBCentralManagerScanOptionAllowDuplicatesKey: true` to `scanForPeripherals`. Confirmed live: with it enabled, a real device's subsequent connection reliably hit `CBError.connectionTimeout` within seconds; with default (deduplicated) scan options, the same connection held stable for minutes.
+
 ## 6.2.1
 
 * Bump version.

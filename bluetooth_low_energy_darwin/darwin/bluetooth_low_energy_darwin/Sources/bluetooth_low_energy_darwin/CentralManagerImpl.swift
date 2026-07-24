@@ -115,8 +115,13 @@ class CentralManagerImpl: CentralManagerHostApi {
     
     func startDiscovery(serviceUUIDsArgs: [String]) throws {
         let serviceUUIDs = serviceUUIDsArgs.isEmpty ? nil : serviceUUIDsArgs.map { serviceUUIDArgs in serviceUUIDArgs.toCBUUID() }
-        let options = [CBCentralManagerScanOptionAllowDuplicatesKey: true]
-        self.mCentralManager.scanForPeripherals(withServices: serviceUUIDs, options: options)
+        // Confirmed live: CBCentralManagerScanOptionAllowDuplicatesKey: true
+        // (continuous, undeduplicated scanning) measurably destabilized the
+        // subsequent connection on a real device — connections reliably hit
+        // CBError.connectionTimeout within seconds with it enabled, and held
+        // stable for minutes with default (deduplicated) scan options, all
+        // else identical.
+        self.mCentralManager.scanForPeripherals(withServices: serviceUUIDs, options: nil)
     }
     
     func stopDiscovery() throws {
