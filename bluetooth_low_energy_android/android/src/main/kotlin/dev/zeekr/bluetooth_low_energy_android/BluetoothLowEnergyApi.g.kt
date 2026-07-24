@@ -908,6 +908,7 @@ interface CentralManagerHostApi {
   fun connect(addressArgs: String, callback: (Result<Unit>) -> Unit)
   fun disconnect(addressArgs: String, callback: (Result<Unit>) -> Unit)
   fun requestMTU(addressArgs: String, mtuArgs: Long, callback: (Result<Long>) -> Unit)
+  fun requestConnectionPriority(addressArgs: String, priorityArgs: Long)
   fun readRSSI(addressArgs: String, callback: (Result<Long>) -> Unit)
   fun discoverGATT(addressArgs: String, callback: (Result<List<GATTServiceArgs>>) -> Unit)
   fun readCharacteristic(addressArgs: String, hashCodeArgs: Long, callback: (Result<ByteArray>) -> Unit)
@@ -1110,6 +1111,25 @@ interface CentralManagerHostApi {
                 reply.reply(BluetoothLowEnergyApiPigeonUtils.wrapResult(data))
               }
             }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.CentralManagerHostApi.requestConnectionPriority$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val addressArgsArg = args[0] as String
+            val priorityArgsArg = args[1] as Long
+            val wrapped: List<Any?> = try {
+              api.requestConnectionPriority(addressArgsArg, priorityArgsArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              BluetoothLowEnergyApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
           }
         } else {
           channel.setMessageHandler(null)

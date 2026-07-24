@@ -1278,6 +1278,24 @@ class CentralManagerHostApi {
     }
   }
 
+  Future<void> requestConnectionPriority(String addressArgs, int priorityArgs) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.CentralManagerHostApi.requestConnectionPriority$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[addressArgs, priorityArgs]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
   Future<int> readRSSI(String addressArgs) async {
     final String pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_android.CentralManagerHostApi.readRSSI$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(

@@ -136,6 +136,11 @@ final class CentralManagerImpl
   }
 
   @override
+  Future<void> requestConnectionPriority(Peripheral peripheral, {required int priority}) {
+    throw UnsupportedError('requestConnectionPriority is not supported on Windows.');
+  }
+
+  @override
   Future<int> getMaximumWriteLength(
     Peripheral peripheral, {
     required GATTCharacteristicWriteType type,

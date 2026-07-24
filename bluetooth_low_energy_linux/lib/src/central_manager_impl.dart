@@ -157,6 +157,11 @@ final class CentralManagerImpl implements CentralManager {
   }
 
   @override
+  Future<void> requestConnectionPriority(Peripheral peripheral, {required int priority}) {
+    throw UnsupportedError('requestConnectionPriority is not supported on Linux.');
+  }
+
+  @override
   Future<int> getMaximumWriteLength(
     Peripheral peripheral, {
     required GATTCharacteristicWriteType type,

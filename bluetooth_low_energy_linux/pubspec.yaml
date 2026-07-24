@@ -1,6 +1,6 @@
 name: bluetooth_low_energy_linux
 description: 'Linux implementation of the bluetooth_low_energy plugin.'
-version: 6.2.1
+version: 6.2.1+connectionpriority1
 repository: https://github.com/yanshouwang/bluetooth_low_energy
 issue_tracker: https://github.com/yanshouwang/bluetooth_low_energy/issues
 topics:

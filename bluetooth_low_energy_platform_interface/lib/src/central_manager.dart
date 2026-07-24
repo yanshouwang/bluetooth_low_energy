@@ -77,6 +77,27 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   /// platforms.
   Future<int> requestMTU(Peripheral peripheral, {required int mtu});
 
+  /// Requests a change to the connection's priority via Android's
+  /// `BluetoothGatt.requestConnectionPriority`. [priority] is one of
+  /// Android's own `BluetoothGatt.CONNECTION_PRIORITY_*` int constants
+  /// (0 = balanced, 1 = high, 2 = low power) — passed through as a raw int
+  /// rather than a typed enum since this has no equivalent on any other
+  /// platform.
+  ///
+  /// Added 2026-07-24 (L-069/L-070): confirmed live via HCI snoop capture
+  /// that Android's stack automatically degrades an idle GATT connection's
+  /// interval a few seconds after connecting (interval widens, supervision
+  /// timeout shortens) regardless of which app is connected — a real Calypso
+  /// Ultrasonic Portable Mini reliably disconnects shortly after that
+  /// degradation, while the vendor's own app (observed tolerating the same
+  /// degraded interval for 7+ minutes with no disconnects) does not. This
+  /// method exists to test requesting a sustained high-priority (fast)
+  /// interval instead of accepting the default degradation.
+  ///
+  /// This method is available on Android, throws [UnsupportedError] on other
+  /// platforms.
+  Future<void> requestConnectionPriority(Peripheral peripheral, {required int priority});
+
   /// The maximum amount of data, in bytes, you can send to a characteristic in
   /// a single write type.
   Future<int> getMaximumWriteLength(

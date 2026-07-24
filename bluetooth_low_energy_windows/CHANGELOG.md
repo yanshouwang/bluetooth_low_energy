@@ -1,3 +1,7 @@
+## 6.2.1+connectionpriority1
+
+* Update for `platform_interface`'s new `requestConnectionPriority` — throws `UnsupportedError` (no WinRT equivalent wired up).
+
 ## 6.2.1
 
 * Fix [bad varient access](https://github.com/yanshouwang/bluetooth_low_energy/issues/147).
