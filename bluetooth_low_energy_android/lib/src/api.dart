@@ -137,6 +137,12 @@ extension GATTCharacteristicWriteTypeX on GATTCharacteristicWriteType {
   }
 }
 
+extension ConnectionPriorityX on ConnectionPriority {
+  ConnectionPriorityArgs toArgs() {
+    return ConnectionPriorityArgs.values[index];
+  }
+}
+
 extension GATTCharacteristicPropertyX on GATTCharacteristicProperty {
   GATTCharacteristicPropertyArgs toArgs() {
     return GATTCharacteristicPropertyArgs.values[index];

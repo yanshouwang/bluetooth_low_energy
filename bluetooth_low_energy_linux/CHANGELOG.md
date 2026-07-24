@@ -1,3 +1,7 @@
+## 6.2.1+connectionpriority1
+
+* Update for `platform_interface`'s new `requestConnectionPriority` — throws `UnsupportedError` (no BlueZ equivalent wired up).
+
 ## 6.2.1
 
 * Bump version.

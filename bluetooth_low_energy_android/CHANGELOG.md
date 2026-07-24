@@ -1,3 +1,7 @@
+## 6.2.1+connectionpriority1
+
+* Add `CentralManager#requestConnectionPriority`, wrapping `BluetoothGatt#requestConnectionPriority` — lets a caller request Android's `CONNECTION_PRIORITY_HIGH` to avoid the stack's automatic interval degradation on an otherwise-idle connection.
+
 ## 6.2.1
 
 * Bump version.

@@ -8,6 +8,23 @@ import 'gatt.dart';
 import 'peripheral.dart';
 import 'uuid.dart';
 
+/// The requested priority for a connection, passed to
+/// [CentralManager.requestConnectionPriority]. Mirrors Android's own
+/// `BluetoothGatt.CONNECTION_PRIORITY_*` constants — the only platform this
+/// is available on.
+enum ConnectionPriority {
+  /// The default, `CONNECTION_PRIORITY_BALANCED`.
+  balanced,
+
+  /// A faster connection interval, at the cost of battery life,
+  /// `CONNECTION_PRIORITY_HIGH`.
+  high,
+
+  /// A slower connection interval, saving battery life,
+  /// `CONNECTION_PRIORITY_LOW_POWER`.
+  lowPower,
+}
+
 /// An object that scans for, discovers, connects to, and manages peripherals.
 abstract interface class CentralManager implements BluetoothLowEnergyManager {
   static CentralManager? _instance;
@@ -76,6 +93,19 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   /// This method is available on Android, throws [UnsupportedError] on other
   /// platforms.
   Future<int> requestMTU(Peripheral peripheral, {required int mtu});
+
+  /// Requests a change to the connection's priority via Android's
+  /// `BluetoothGatt.requestConnectionPriority`. Useful on connections that
+  /// stay open but go quiet between bursts of activity: Android's stack
+  /// automatically widens the connection interval and shortens the
+  /// supervision timeout on an otherwise-idle connection a few seconds after
+  /// it's established, which can make an intermittently-active peripheral
+  /// more prone to a supervision-timeout disconnect than it needs to be.
+  /// Requesting [ConnectionPriority.high] keeps the interval from degrading.
+  ///
+  /// This method is available on Android, throws [UnsupportedError] on other
+  /// platforms.
+  Future<void> requestConnectionPriority(Peripheral peripheral, {required ConnectionPriority priority});
 
   /// The maximum amount of data, in bytes, you can send to a characteristic in
   /// a single write type.

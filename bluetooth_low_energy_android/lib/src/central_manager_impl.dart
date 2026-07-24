@@ -153,6 +153,17 @@ final class CentralManagerImpl
   }
 
   @override
+  Future<void> requestConnectionPriority(Peripheral peripheral, {required ConnectionPriority priority}) async {
+    if (peripheral is! PeripheralImpl) {
+      throw TypeError();
+    }
+    final addressArgs = peripheral.address;
+    final priorityArgs = priority.toArgs();
+    _logger.info('requestConnectionPriority: $addressArgs - $priorityArgs');
+    await _api.requestConnectionPriority(addressArgs, priorityArgs);
+  }
+
+  @override
   Future<int> getMaximumWriteLength(
     Peripheral peripheral, {
     required GATTCharacteristicWriteType type,

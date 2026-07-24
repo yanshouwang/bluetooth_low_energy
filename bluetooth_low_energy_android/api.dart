@@ -30,6 +30,8 @@ enum TXPowerLevelArgs { ultraLow, low, medium, high }
 
 enum ConnectionStateArgs { disconnected, connecting, connected, disconnecting }
 
+enum ConnectionPriorityArgs { balanced, high, lowPower }
+
 enum GATTCharacteristicPropertyArgs {
   read,
   write,
@@ -247,6 +249,10 @@ abstract class CentralManagerHostApi {
   void disconnect(String addressArgs);
   @async
   int requestMTU(String addressArgs, int mtuArgs);
+  void requestConnectionPriority(
+    String addressArgs,
+    ConnectionPriorityArgs priorityArgs,
+  );
   @async
   int readRSSI(String addressArgs);
   @async

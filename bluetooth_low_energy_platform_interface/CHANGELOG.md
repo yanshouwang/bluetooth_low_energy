@@ -1,3 +1,7 @@
+## 6.2.1+connectionpriority1
+
+* Add `CentralManager#requestConnectionPriority(Peripheral, {required int priority})` — Android-only, throws `UnsupportedError` on other platforms (mirrors `requestMTU`).
+
 ## 6.2.1
 
 * Bump version.
