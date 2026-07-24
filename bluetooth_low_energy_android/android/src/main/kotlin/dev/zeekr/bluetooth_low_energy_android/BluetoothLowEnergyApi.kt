@@ -34,6 +34,14 @@ fun TXPowerLevelArgs.toTXPowerLevel(): Int {
     }
 }
 
+fun ConnectionPriorityArgs.toConnectionPriority(): Int {
+    return when (this) {
+        ConnectionPriorityArgs.BALANCED -> BluetoothGatt.CONNECTION_PRIORITY_BALANCED
+        ConnectionPriorityArgs.HIGH -> BluetoothGatt.CONNECTION_PRIORITY_HIGH
+        ConnectionPriorityArgs.LOW_POWER -> BluetoothGatt.CONNECTION_PRIORITY_LOW_POWER
+    }
+}
+
 fun GATTCharacteristicWriteTypeArgs.toType(): Int {
     return when (this) {
         GATTCharacteristicWriteTypeArgs.WITH_RESPONSE -> BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT

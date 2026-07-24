@@ -8,6 +8,23 @@ import 'gatt.dart';
 import 'peripheral.dart';
 import 'uuid.dart';
 
+/// The requested priority for a connection, passed to
+/// [CentralManager.requestConnectionPriority]. Mirrors Android's own
+/// `BluetoothGatt.CONNECTION_PRIORITY_*` constants — the only platform this
+/// is available on.
+enum ConnectionPriority {
+  /// The default, `CONNECTION_PRIORITY_BALANCED`.
+  balanced,
+
+  /// A faster connection interval, at the cost of battery life,
+  /// `CONNECTION_PRIORITY_HIGH`.
+  high,
+
+  /// A slower connection interval, saving battery life,
+  /// `CONNECTION_PRIORITY_LOW_POWER`.
+  lowPower,
+}
+
 /// An object that scans for, discovers, connects to, and manages peripherals.
 abstract interface class CentralManager implements BluetoothLowEnergyManager {
   static CentralManager? _instance;
@@ -78,25 +95,17 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
   Future<int> requestMTU(Peripheral peripheral, {required int mtu});
 
   /// Requests a change to the connection's priority via Android's
-  /// `BluetoothGatt.requestConnectionPriority`. [priority] is one of
-  /// Android's own `BluetoothGatt.CONNECTION_PRIORITY_*` int constants
-  /// (0 = balanced, 1 = high, 2 = low power) — passed through as a raw int
-  /// rather than a typed enum since this has no equivalent on any other
-  /// platform.
-  ///
-  /// Added 2026-07-24 (L-069/L-070): confirmed live via HCI snoop capture
-  /// that Android's stack automatically degrades an idle GATT connection's
-  /// interval a few seconds after connecting (interval widens, supervision
-  /// timeout shortens) regardless of which app is connected — a real Calypso
-  /// Ultrasonic Portable Mini reliably disconnects shortly after that
-  /// degradation, while the vendor's own app (observed tolerating the same
-  /// degraded interval for 7+ minutes with no disconnects) does not. This
-  /// method exists to test requesting a sustained high-priority (fast)
-  /// interval instead of accepting the default degradation.
+  /// `BluetoothGatt.requestConnectionPriority`. Useful on connections that
+  /// stay open but go quiet between bursts of activity: Android's stack
+  /// automatically widens the connection interval and shortens the
+  /// supervision timeout on an otherwise-idle connection a few seconds after
+  /// it's established, which can make an intermittently-active peripheral
+  /// more prone to a supervision-timeout disconnect than it needs to be.
+  /// Requesting [ConnectionPriority.high] keeps the interval from degrading.
   ///
   /// This method is available on Android, throws [UnsupportedError] on other
   /// platforms.
-  Future<void> requestConnectionPriority(Peripheral peripheral, {required int priority});
+  Future<void> requestConnectionPriority(Peripheral peripheral, {required ConnectionPriority priority});
 
   /// The maximum amount of data, in bytes, you can send to a characteristic in
   /// a single write type.

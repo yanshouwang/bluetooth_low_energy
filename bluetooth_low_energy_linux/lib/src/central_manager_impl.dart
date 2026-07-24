@@ -157,7 +157,7 @@ final class CentralManagerImpl implements CentralManager {
   }
 
   @override
-  Future<void> requestConnectionPriority(Peripheral peripheral, {required int priority}) {
+  Future<void> requestConnectionPriority(Peripheral peripheral, {required ConnectionPriority priority}) {
     throw UnsupportedError('requestConnectionPriority is not supported on Linux.');
   }
 

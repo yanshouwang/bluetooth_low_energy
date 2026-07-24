@@ -118,7 +118,7 @@ final class CentralManagerImpl
   }
 
   @override
-  Future<void> requestConnectionPriority(Peripheral peripheral, {required int priority}) {
+  Future<void> requestConnectionPriority(Peripheral peripheral, {required ConnectionPriority priority}) {
     throw UnsupportedError('requestConnectionPriority is not supported on Darwin.');
   }
 

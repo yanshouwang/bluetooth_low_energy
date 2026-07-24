@@ -153,13 +153,14 @@ final class CentralManagerImpl
   }
 
   @override
-  Future<void> requestConnectionPriority(Peripheral peripheral, {required int priority}) async {
+  Future<void> requestConnectionPriority(Peripheral peripheral, {required ConnectionPriority priority}) async {
     if (peripheral is! PeripheralImpl) {
       throw TypeError();
     }
     final addressArgs = peripheral.address;
-    _logger.info('requestConnectionPriority: $addressArgs - $priority');
-    await _api.requestConnectionPriority(addressArgs, priority);
+    final priorityArgs = priority.toArgs();
+    _logger.info('requestConnectionPriority: $addressArgs - $priorityArgs');
+    await _api.requestConnectionPriority(addressArgs, priorityArgs);
   }
 
   @override

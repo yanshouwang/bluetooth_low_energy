@@ -227,9 +227,9 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
-    override fun requestConnectionPriority(addressArgs: String, priorityArgs: Long) {
+    override fun requestConnectionPriority(addressArgs: String, priorityArgs: ConnectionPriorityArgs) {
         val gatt = mGATTs[addressArgs] ?: throw IllegalArgumentException()
-        gatt.requestConnectionPriority(priorityArgs.toInt())
+        gatt.requestConnectionPriority(priorityArgs.toConnectionPriority())
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
