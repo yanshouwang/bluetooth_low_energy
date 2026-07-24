@@ -470,8 +470,9 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         }
         // invoke connection state changed event.
         val peripheralArgs = device.toPeripheralArgs()
+        val statusArgs = status.toLong()
         val stateArgs = newState.toConnectionStateArgs()
-        mApi.onConnectionStateChanged(peripheralArgs, stateArgs) {}
+        mApi.onConnectionStateChanged(peripheralArgs, statusArgs, stateArgs) {}
     }
 
     fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {

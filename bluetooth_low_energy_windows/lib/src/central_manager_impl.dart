@@ -368,6 +368,7 @@ final class CentralManagerImpl
     final state = stateArgs.toState();
     final eventArgs = PeripheralConnectionStateChangedEventArgs(
       peripheral,
+      0,
       state,
     );
     _connectionStateChangedController.add(eventArgs);

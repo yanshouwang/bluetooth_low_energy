@@ -285,6 +285,7 @@ abstract class CentralManagerFlutterApi {
   );
   void onConnectionStateChanged(
     PeripheralArgs peripheralArgs,
+    int statusArgs,
     ConnectionStateArgs stateArgs,
   );
   void onMTUChanged(PeripheralArgs peripheralArgs, int mtuArgs);

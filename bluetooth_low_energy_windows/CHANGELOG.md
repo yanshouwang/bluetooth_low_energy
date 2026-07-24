@@ -1,3 +1,7 @@
+## 6.2.1+disconnectstatus1
+
+* Update for `platform_interface`'s new `PeripheralConnectionStateChangedEventArgs.status` field (always 0 on this platform; not otherwise sourced from WinRT).
+
 ## 6.2.1
 
 * Fix [bad varient access](https://github.com/yanshouwang/bluetooth_low_energy/issues/147).

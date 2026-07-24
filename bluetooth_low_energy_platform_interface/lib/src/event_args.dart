@@ -42,8 +42,19 @@ final class PeripheralConnectionStateChangedEventArgs extends EventArgs {
   /// The connection state.
   final ConnectionState state;
 
+  /// The platform-native status/error code associated with this transition
+  /// (Android: the GATT status from `onConnectionStateChange`; iOS/macOS:
+  /// the `NSError.code` from `didDisconnectPeripheral`, or 0 if there was no
+  /// error). Meaning is platform-specific and only useful for diagnostics —
+  /// not guaranteed stable across OS versions.
+  final int status;
+
   /// Constructs a [PeripheralConnectionStateChangedEventArgs].
-  PeripheralConnectionStateChangedEventArgs(this.peripheral, this.state);
+  PeripheralConnectionStateChangedEventArgs(
+    this.peripheral,
+    this.status,
+    this.state,
+  );
 }
 
 /// The peripheral MTU changed event arguments.

@@ -1,3 +1,7 @@
+## 6.2.1+disconnectstatus1
+
+* Forward the real GATT `status` from `BluetoothGattCallback#onConnectionStateChange` into `CentralManagerFlutterApi#onConnectionStateChanged`, instead of dropping it.
+
 ## 6.2.1
 
 * Bump version.

@@ -1,3 +1,7 @@
+## 6.2.1+disconnectstatus1
+
+* Forward the `NSError.code` from `didDisconnectPeripheral` into `CentralManagerFlutterApi#onConnectionStateChanged` (0 when there was no error), instead of dropping it.
+
 ## 6.2.1
 
 * Bump version.
