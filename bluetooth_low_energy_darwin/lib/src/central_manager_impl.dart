@@ -262,14 +262,18 @@ final class CentralManagerImpl
   @override
   void onConnectionStateChanged(
     PeripheralArgs peripheralArgs,
+    int statusArgs,
     ConnectionStateArgs stateArgs,
   ) {
     final uuidArgs = peripheralArgs.uuidArgs;
-    _logger.info('onConnectionStateChanged: $uuidArgs - $stateArgs');
+    _logger.info(
+      'onConnectionStateChanged: $uuidArgs - $statusArgs - $stateArgs',
+    );
     final peripheral = peripheralArgs.toPeripheral();
     final state = stateArgs.toState();
     final eventArgs = PeripheralConnectionStateChangedEventArgs(
       peripheral,
+      statusArgs,
       state,
     );
     _connectionStateChangedController.add(eventArgs);

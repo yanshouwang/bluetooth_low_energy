@@ -20,4 +20,24 @@ void main() {
     final matcher = UUID.fromString('00000000-0000-0000-0000-AABBCCDDEEFF');
     expect(actual, matcher);
   });
+  test(
+    'PeripheralConnectionStateChangedEventArgs exposes the status it was '
+    'constructed with.',
+    () {
+      final peripheral = _FakePeripheral();
+      final eventArgs = PeripheralConnectionStateChangedEventArgs(
+        peripheral,
+        8,
+        ConnectionState.disconnected,
+      );
+      expect(eventArgs.peripheral, same(peripheral));
+      expect(eventArgs.status, 8);
+      expect(eventArgs.state, ConnectionState.disconnected);
+    },
+  );
+}
+
+class _FakePeripheral implements Peripheral {
+  @override
+  final UUID uuid = UUID.fromAddress(0xAABBCCDDEEFF);
 }

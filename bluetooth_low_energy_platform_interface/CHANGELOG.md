@@ -1,3 +1,7 @@
+## 6.2.1+disconnectstatus1
+
+* Add `status` to `PeripheralConnectionStateChangedEventArgs`, exposing the platform-native disconnect status/error code.
+
 ## 6.2.1
 
 * Bump version.

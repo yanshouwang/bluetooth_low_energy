@@ -296,7 +296,7 @@ class CentralManagerImpl: CentralManagerHostApi {
         let peripheralArgs = peripheral.toArgs()
         let uuidArgs = peripheralArgs.uuidArgs
         let stateArgs = ConnectionStateArgs.connected
-        self.mApi.onConnectionStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) { _ in }
+        self.mApi.onConnectionStateChanged(peripheralArgs: peripheralArgs, statusArgs: 0, stateArgs: stateArgs) { _ in }
         guard let completion = self.mConnectCompletions.removeValue(forKey: uuidArgs) else { return }
         completion(.success(()))
     }
@@ -358,8 +358,9 @@ class CentralManagerImpl: CentralManagerHostApi {
             let completions = writeDescriptorCompletions!.values
             for completion in completions { completion(.failure(errorNotNil)) }
         }
+        let statusArgs = Int64((error as NSError?)?.code ?? 0)
         let stateArgs = ConnectionStateArgs.disconnected
-        self.mApi.onConnectionStateChanged(peripheralArgs: peripheralArgs, stateArgs: stateArgs) { _ in }
+        self.mApi.onConnectionStateChanged(peripheralArgs: peripheralArgs, statusArgs: statusArgs, stateArgs: stateArgs) { _ in }
         guard let completion = self.mDisconnectCompletions.removeValue(forKey: uuidArgs) else { return }
         if error == nil { completion(.success(())) }
         else { completion(.failure(error!)) }

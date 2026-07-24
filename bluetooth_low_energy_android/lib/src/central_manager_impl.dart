@@ -326,10 +326,13 @@ final class CentralManagerImpl
   @override
   void onConnectionStateChanged(
     PeripheralArgs peripheralArgs,
+    int statusArgs,
     ConnectionStateArgs stateArgs,
   ) {
     final addressArgs = peripheralArgs.addressArgs;
-    _logger.info('onConnectionStateChanged: $addressArgs - $stateArgs');
+    _logger.info(
+      'onConnectionStateChanged: $addressArgs - $statusArgs - $stateArgs',
+    );
     final peripheral = peripheralArgs.toPeripheral();
     final state = stateArgs.toState();
     if (state == ConnectionState.disconnected) {
@@ -337,6 +340,7 @@ final class CentralManagerImpl
     }
     final eventArgs = PeripheralConnectionStateChangedEventArgs(
       peripheral,
+      statusArgs,
       state,
     );
     _connectionStateChangedController.add(eventArgs);

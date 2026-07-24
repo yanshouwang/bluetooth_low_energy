@@ -348,6 +348,7 @@ final class CentralManagerImpl implements CentralManager {
                 : ConnectionState.disconnected;
             final eventArgs = PeripheralConnectionStateChangedEventArgs(
               peripheral,
+              0,
               state,
             );
             _connectionStateChangedController.add(eventArgs);
