@@ -73,6 +73,61 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         mL2CAPChannelIdGenerator = 0
     }
 
+    /**
+     * Drops every connection and callback this manager owns, then releases the
+     * platform receiver via the base class.
+     *
+     * Without it a destroyed engine leaves live GATT clients behind: the device
+     * keeps notifying, the plugin keeps forwarding to a detached messenger
+     * ("Tried to send a platform message to Flutter, but FlutterJNI was detached"),
+     * and the radio stays busy long after the UI is gone. Each step is guarded on
+     * its own, so a revoked permission or an already-dead handle cannot stop the
+     * rest of the cleanup.
+     */
+    @RequiresPermission(allOf = [Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN])
+    override fun tearDown() {
+        if (mDiscovering) {
+            runQuietly("stop discovery") { stopDiscovery() }
+        }
+        for (gatt in mGATTs.values) {
+            // disconnect() alone leaves the client registered; close() releases it.
+            runQuietly("close GATT for ${gatt.device.address}") {
+                gatt.disconnect()
+                gatt.close()
+            }
+        }
+        for (addressArgs in mGATTs.keys.toList()) {
+            failPendingGATTCallbacks(addressArgs, IllegalStateException("The Bluetooth plugin was detached"))
+        }
+        mGATTs.clear()
+        mDevices.clear()
+        mCharacteristics.clear()
+        mDescriptors.clear()
+
+        mConnectCallbacks.clear()
+        mDisconnectCallbacks.clear()
+        mRequestMtuCallbacks.clear()
+        mReadRssiCallbacks.clear()
+        mDiscoverServicesCallbacks.clear()
+        mAuthorizeCallback = null
+        mStartDiscoveryCallback = null
+
+        for (handler in mL2CAPChannels.values) {
+            runQuietly("close L2CAP channel") { handler.close() }
+        }
+        mL2CAPChannels.clear()
+
+        super.tearDown()
+    }
+
+    private inline fun runQuietly(what: String, block: () -> Unit) {
+        try {
+            block()
+        } catch (e: Throwable) {
+            Log.w("CentralManagerImpl", "Failed to $what while detaching: ${e.message}")
+        }
+    }
+
     private val permissions: Array<String>
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             arrayOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT)

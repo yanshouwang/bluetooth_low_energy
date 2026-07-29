@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.util.Log
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.PluginRegistry
 
@@ -40,6 +41,24 @@ abstract class BluetoothLowEnergyManagerImpl(val context: Context) {
 
     fun onDetachedFromActivity() {
         mBinding.removeRequestPermissionsResultListener(mRequestPermissionsResultListener)
+    }
+
+    /**
+     * Releases everything this manager holds on the platform side.
+     *
+     * Called when the plugin leaves the engine. The adapter receiver is registered
+     * against the APPLICATION context, so without this it outlives the engine it
+     * reports to: it keeps the manager (and its Flutter API handle) alive and
+     * delivers state changes to a messenger that is already detached. Subclasses
+     * override to also release their Bluetooth resources, and must call super.
+     */
+    open fun tearDown() {
+        try {
+            context.unregisterReceiver(mBroadcastReceiver)
+        } catch (e: IllegalArgumentException) {
+            // Not registered (already torn down) - nothing to undo.
+            Log.w("BluetoothLowEnergyManager", "Broadcast receiver was not registered: ${e.message}")
+        }
     }
 
     abstract fun onReceive(context: Context, intent: Intent)
