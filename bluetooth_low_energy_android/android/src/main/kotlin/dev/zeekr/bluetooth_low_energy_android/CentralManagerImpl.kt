@@ -500,6 +500,12 @@ class CentralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) : B
         handler.write(valueArgs, callback)
     }
 
+    override fun startL2CAPChannel(idArgs: Long, callback: (Result<Unit>) -> Unit) {
+        // Already closed, or never opened: nothing to start.
+        mL2CAPChannels[idArgs]?.start()
+        callback(Result.success(Unit))
+    }
+
     override fun closeL2CAPChannel(idArgs: Long, callback: (Result<Unit>) -> Unit) {
         val handler = mL2CAPChannels.remove(idArgs)
         if (handler == null) {

@@ -31,6 +31,16 @@ final class CentralManagerImpl
   _characteristicNotifiedController;
   final Map<int, StreamController<Uint8List>> _l2capChannelControllers;
 
+  /// Inbound bytes that arrived before [openL2CAPChannel] built the channel
+  /// object for that id. The native side waits for `startL2CAPChannel` before
+  /// it reads, so these should stay empty; they are the second line of defence
+  /// that keeps a stray early event delayed rather than dropped.
+  final Map<int, List<Uint8List>> _l2capPendingChunks;
+
+  /// Close notifications for ids with no channel object yet; the value is the
+  /// error description, null on a clean close.
+  final Map<int, String?> _l2capPendingClosures;
+
   BluetoothLowEnergyState _state;
 
   CentralManagerImpl()
@@ -40,6 +50,8 @@ final class CentralManagerImpl
       _connectionStateChangedController = StreamController.broadcast(),
       _characteristicNotifiedController = StreamController.broadcast(),
       _l2capChannelControllers = {},
+      _l2capPendingChunks = {},
+      _l2capPendingClosures = {},
       _state = BluetoothLowEnergyState.unknown {
     CentralManagerFlutterApi.setUp(this);
     _initialize();
@@ -144,7 +156,37 @@ final class CentralManagerImpl
     final idArgs = await _api.openL2CAPChannel(uuidArgs, psm);
     final controller = StreamController<Uint8List>();
     _l2capChannelControllers[idArgs] = controller;
-    return L2CAPChannelImpl(this, idArgs, psm, controller.stream);
+    _drainPendingL2CAPEvents(idArgs, controller);
+    final channel = L2CAPChannelImpl(this, idArgs, psm, controller.stream);
+    // Only now, with a stream in place to receive them, may the peer's bytes
+    // start flowing.
+    if (!controller.isClosed) {
+      await _api.startL2CAPChannel(idArgs);
+    }
+    return channel;
+  }
+
+  /// Hands the channel whatever arrived before it existed, oldest first, and
+  /// applies a close notification that raced ahead of it.
+  void _drainPendingL2CAPEvents(
+    int idArgs,
+    StreamController<Uint8List> controller,
+  ) {
+    final chunks = _l2capPendingChunks.remove(idArgs);
+    if (chunks != null) {
+      for (final chunk in chunks) {
+        controller.add(chunk);
+      }
+    }
+    if (!_l2capPendingClosures.containsKey(idArgs)) {
+      return;
+    }
+    final errorArgs = _l2capPendingClosures.remove(idArgs);
+    _l2capChannelControllers.remove(idArgs);
+    if (errorArgs != null) {
+      controller.addError(StateError(errorArgs));
+    }
+    controller.close();
   }
 
   Future<void> _writeL2CAPChannel(int idArgs, Uint8List value) async {
@@ -155,8 +197,10 @@ final class CentralManagerImpl
   Future<void> _closeL2CAPChannel(int idArgs) async {
     _logger.info('closeL2CAPChannel: $idArgs');
     await _api.closeL2CAPChannel(idArgs);
-    final controller = _l2capChannelControllers.remove(idArgs);
-    await controller?.close();
+    // The map entry stays until the native close notification lands: it marks
+    // the id as known, so anything still in flight is ignored rather than
+    // mistaken for an early event and buffered.
+    await _l2capChannelControllers[idArgs]?.close();
   }
 
   @override
@@ -360,7 +404,16 @@ final class CentralManagerImpl
   @override
   void onL2CAPChannelReceived(int idArgs, Uint8List valueArgs) {
     final controller = _l2capChannelControllers[idArgs];
-    if (controller == null || controller.isClosed) {
+    if (controller == null) {
+      // No channel object for this id yet - hold the bytes for it.
+      _logger.warning(
+        'onL2CAPChannelReceived: $idArgs - '
+        '${valueArgs.length} bytes arrived before the channel was ready',
+      );
+      _l2capPendingChunks.putIfAbsent(idArgs, () => []).add(valueArgs);
+      return;
+    }
+    if (controller.isClosed) {
       return;
     }
     controller.add(valueArgs);
@@ -370,7 +423,13 @@ final class CentralManagerImpl
   void onL2CAPChannelClosed(int idArgs, String? errorArgs) {
     _logger.info('onL2CAPChannelClosed: $idArgs - $errorArgs');
     final controller = _l2capChannelControllers.remove(idArgs);
-    if (controller == null || controller.isClosed) {
+    if (controller == null) {
+      // Same window as above: remember the close so the channel object can end
+      // its stream as soon as it exists.
+      _l2capPendingClosures[idArgs] = errorArgs;
+      return;
+    }
+    if (controller.isClosed) {
       return;
     }
     if (errorArgs != null) {

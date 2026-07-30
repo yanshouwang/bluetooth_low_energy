@@ -837,6 +837,7 @@ protocol CentralManagerHostApi {
   func readDescriptor(uuidArgs: String, hashCodeArgs: Int64, completion: @escaping (Result<FlutterStandardTypedData, Error>) -> Void)
   func writeDescriptor(uuidArgs: String, hashCodeArgs: Int64, valueArgs: FlutterStandardTypedData, completion: @escaping (Result<Void, Error>) -> Void)
   func openL2CAPChannel(uuidArgs: String, psmArgs: Int64, completion: @escaping (Result<Int64, Error>) -> Void)
+  func startL2CAPChannel(idArgs: Int64, completion: @escaping (Result<Void, Error>) -> Void)
   func writeL2CAPChannel(idArgs: Int64, valueArgs: FlutterStandardTypedData, completion: @escaping (Result<Void, Error>) -> Void)
   func closeL2CAPChannel(idArgs: Int64, completion: @escaping (Result<Void, Error>) -> Void)
 }
@@ -1195,6 +1196,23 @@ class CentralManagerHostApiSetup {
       }
     } else {
       openL2CAPChannelChannel.setMessageHandler(nil)
+    }
+    let startL2CAPChannelChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.CentralManagerHostApi.startL2CAPChannel\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      startL2CAPChannelChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let idArgsArg = args[0] as! Int64
+        api.startL2CAPChannel(idArgs: idArgsArg) { result in
+          switch result {
+          case .success:
+            reply(wrapResult(nil))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      startL2CAPChannelChannel.setMessageHandler(nil)
     }
     let writeL2CAPChannelChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.bluetooth_low_energy_darwin.CentralManagerHostApi.writeL2CAPChannel\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {

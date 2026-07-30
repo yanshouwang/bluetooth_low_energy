@@ -14,6 +14,12 @@ import CoreBluetooth
 // CBCentralManager with no dispatch queue, so CoreBluetooth delegate callbacks
 // (including didOpen) run on the main thread - handling the streams there keeps
 // everything single-threaded and avoids cross-thread access to the channel.
+// They are scheduled in .common rather than .default so a scroll or any other
+// run loop tracking mode does not suspend an in-flight transfer.
+//
+// Reading does not begin until start() is called. The Dart side calls it once
+// it has a stream to deliver to; opening the input stream any earlier would
+// hand us bytes with nowhere to put them.
 class L2CAPChannelHandler: NSObject, StreamDelegate {
     private let mChannel: CBL2CAPChannel
     private let mOnReceived: (Data) -> Void
@@ -22,6 +28,7 @@ class L2CAPChannelHandler: NSObject, StreamDelegate {
     private let mInput: InputStream
     private let mOutput: OutputStream
     private var mWriteQueue: [(data: Data, offset: Int, completion: (Result<Void, Error>) -> Void)] = []
+    private var mStarted = false
     private var mClosed = false
     private let mReadBufferSize = 8192
 
@@ -34,10 +41,19 @@ class L2CAPChannelHandler: NSObject, StreamDelegate {
         self.mInput = channel.inputStream
         self.mOutput = channel.outputStream
         super.init()
+    }
+
+    // Opens the streams and begins delivering inbound bytes. Until this runs the
+    // peer's data stays in the socket buffer, which is what keeps it from being
+    // delivered before there is a Dart stream to receive it. Writes queued
+    // beforehand flush on the first .hasSpaceAvailable event.
+    func start() {
+        if self.mStarted || self.mClosed { return }
+        self.mStarted = true
         self.mInput.delegate = self
         self.mOutput.delegate = self
-        self.mInput.schedule(in: .main, forMode: .default)
-        self.mOutput.schedule(in: .main, forMode: .default)
+        self.mInput.schedule(in: .main, forMode: .common)
+        self.mOutput.schedule(in: .main, forMode: .common)
         self.mInput.open()
         self.mOutput.open()
     }
@@ -114,12 +130,14 @@ class L2CAPChannelHandler: NSObject, StreamDelegate {
     private func closeWith(error: Error?) {
         if self.mClosed { return }
         self.mClosed = true
-        self.mInput.close()
-        self.mOutput.close()
-        self.mInput.remove(from: .main, forMode: .default)
-        self.mOutput.remove(from: .main, forMode: .default)
-        self.mInput.delegate = nil
-        self.mOutput.delegate = nil
+        if self.mStarted {
+            self.mInput.close()
+            self.mOutput.close()
+            self.mInput.remove(from: .main, forMode: .common)
+            self.mOutput.remove(from: .main, forMode: .common)
+            self.mInput.delegate = nil
+            self.mOutput.delegate = nil
+        }
         let failure = error ?? BluetoothLowEnergyError.unknown
         for item in self.mWriteQueue {
             item.completion(.failure(failure))

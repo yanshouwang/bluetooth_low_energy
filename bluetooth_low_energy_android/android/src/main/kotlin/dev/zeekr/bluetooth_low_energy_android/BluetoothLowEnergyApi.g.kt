@@ -1222,6 +1222,7 @@ interface CentralManagerHostApi {
   fun readDescriptor(addressArgs: String, hashCodeArgs: Long, callback: (Result<ByteArray>) -> Unit)
   fun writeDescriptor(addressArgs: String, hashCodeArgs: Long, valueArgs: ByteArray, callback: (Result<Unit>) -> Unit)
   fun openL2CAPChannel(addressArgs: String, psmArgs: Long, callback: (Result<Long>) -> Unit)
+  fun startL2CAPChannel(idArgs: Long, callback: (Result<Unit>) -> Unit)
   fun writeL2CAPChannel(idArgs: Long, valueArgs: ByteArray, callback: (Result<Unit>) -> Unit)
   fun closeL2CAPChannel(idArgs: Long, callback: (Result<Unit>) -> Unit)
 
@@ -1632,6 +1633,25 @@ interface CentralManagerHostApi {
               } else {
                 val data = result.getOrNull()
                 reply.reply(BluetoothLowEnergyApiPigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.bluetooth_low_energy_android.CentralManagerHostApi.startL2CAPChannel$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val idArgsArg = args[0] as Long
+            api.startL2CAPChannel(idArgsArg) { result: Result<Unit> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(BluetoothLowEnergyApiPigeonUtils.wrapError(error))
+              } else {
+                reply.reply(BluetoothLowEnergyApiPigeonUtils.wrapResult(null))
               }
             }
           }

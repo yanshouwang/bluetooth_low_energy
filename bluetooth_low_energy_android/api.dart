@@ -291,6 +291,12 @@ abstract class CentralManagerHostApi {
   // the inbound-data callbacks.
   @async
   int openL2CAPChannel(String addressArgs, int psmArgs);
+  // Starts delivering inbound bytes on the channel with the given id. Kept
+  // separate from the open call so the Dart side can register its stream before
+  // the first byte arrives: anything the peer sends between the native open and
+  // the Dart channel object has no listener to go to.
+  @async
+  void startL2CAPChannel(int idArgs);
   @async
   void writeL2CAPChannel(int idArgs, Uint8List valueArgs);
   @async

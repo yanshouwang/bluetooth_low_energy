@@ -320,6 +320,16 @@ class CentralManagerImpl: CentralManagerHostApi {
         }
     }
 
+    func startL2CAPChannel(idArgs: Int64, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let handler = self.mL2CAPChannels[idArgs] else {
+            // Already closed, or never opened: nothing to start.
+            completion(.success(()))
+            return
+        }
+        handler.start()
+        completion(.success(()))
+    }
+
     func writeL2CAPChannel(idArgs: Int64, valueArgs: FlutterStandardTypedData, completion: @escaping (Result<Void, Error>) -> Void) {
         guard let handler = self.mL2CAPChannels[idArgs] else {
             completion(.failure(BluetoothLowEnergyError.illegalArgument))

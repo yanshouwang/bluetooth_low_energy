@@ -1208,6 +1208,24 @@ class CentralManagerHostApi {
     return pigeonVar_replyValue! as int;
   }
 
+  Future<void> startL2CAPChannel(int idArgs) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_darwin.CentralManagerHostApi.startL2CAPChannel$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[idArgs]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
   Future<void> writeL2CAPChannel(int idArgs, Uint8List valueArgs) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.bluetooth_low_energy_darwin.CentralManagerHostApi.writeL2CAPChannel$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(

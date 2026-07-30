@@ -14,6 +14,10 @@ import java.util.concurrent.Executors
 // run on dedicated worker threads; received bytes and lifecycle callbacks are
 // marshalled back onto [mainExecutor] (the main thread) because Pigeon's
 // FlutterApi must be invoked there.
+//
+// The read loop does not start with the socket: [start] begins it once the Dart
+// side has a stream to deliver to. Reading any earlier would hand us bytes with
+// nowhere to put them; until then the peer's data waits in the socket buffer.
 class L2CAPChannelHandler(
     private val device: BluetoothDevice,
     private val psm: Int,
@@ -22,8 +26,14 @@ class L2CAPChannelHandler(
     private val onClosed: (String?) -> Unit,
 ) {
     private val ioExecutor = Executors.newSingleThreadExecutor()
-    private var socket: BluetoothSocket? = null
     private var readThread: Thread? = null
+
+    // Written on the io worker, read from the main thread in [start].
+    @Volatile
+    private var socket: BluetoothSocket? = null
+
+    @Volatile
+    private var started = false
 
     @Volatile
     private var finished = false
@@ -38,13 +48,22 @@ class L2CAPChannelHandler(
                 val s = device.createL2capChannel(psm)
                 socket = s
                 s.connect()
-                startReadLoop(s)
                 mainExecutor.execute { callback(Result.success(Unit)) }
             } catch (e: Throwable) {
                 finish(e.message)
                 mainExecutor.execute { callback(Result.failure(e)) }
             }
         }
+    }
+
+    @Synchronized
+    fun start() {
+        if (started || finished) {
+            return
+        }
+        val s = socket ?: return
+        started = true
+        startReadLoop(s)
     }
 
     fun write(value: ByteArray, callback: (Result<Unit>) -> Unit) {
