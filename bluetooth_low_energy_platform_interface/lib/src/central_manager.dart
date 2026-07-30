@@ -5,6 +5,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'bluetooth_low_energy_manager.dart';
 import 'event_args.dart';
 import 'gatt.dart';
+import 'l2cap_channel.dart';
 import 'peripheral.dart';
 import 'uuid.dart';
 
@@ -26,6 +27,12 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
 
   /// Tells that retrieving the specified peripheral's connection state changed.
   Stream<PeripheralConnectionStateChangedEventArgs> get connectionStateChanged;
+
+  /// Tells that the specified peripheral's bond (pairing) state changed.
+  ///
+  /// Android only — backed by `ACTION_BOND_STATE_CHANGED`. Other platforms
+  /// never emit (iOS bonds implicitly with no observable bond state).
+  Stream<PeripheralBondStateChangedEventArgs> get bondStateChanged;
 
   /// Callback indicating the MTU for a given device connection has changed.
   ///
@@ -56,9 +63,61 @@ abstract interface class CentralManager implements BluetoothLowEnergyManager {
 
   /// Returns a list of the peripherals connected to the system.
   ///
+  /// On iOS/macOS, CoreBluetooth requires at least one service UUID to filter by.
+  /// If [serviceUUIDs] is null or empty, common BLE services (Battery, Device
+  /// Information, Generic Access) are used as defaults.
+  ///
+  /// On Android, [serviceUUIDs] is ignored — all connected GATT devices are returned.
+  ///
   /// This method is available on Android, iOS, macOS and Linux, throws
   /// [UnsupportedError] on other platforms.
-  Future<List<Peripheral>> retrieveConnectedPeripherals();
+  Future<List<Peripheral>> retrieveConnectedPeripherals({List<UUID>? serviceUUIDs});
+
+  /// Returns peripherals matching the given identifiers, even if not currently connected.
+  ///
+  /// iOS/macOS only — uses [CBCentralManager.retrievePeripherals(withIdentifiers:)].
+  /// Returns empty list on other platforms.
+  Future<List<Peripheral>> retrievePeripherals(List<UUID> identifiers) async => [];
+
+  /// Returns a list of bonded (paired) devices from the system.
+  ///
+  /// Android only — uses [BluetoothAdapter.getBondedDevices()].
+  /// Returns empty list on iOS/macOS (no native API for bonded devices).
+  /// Returns records with address and optional name.
+  Future<List<({String address, String? name})>> getBondedDevices() async => [];
+
+  /// Removes the bond (pairing) with a peripheral at the system level.
+  ///
+  /// Android only — uses [BluetoothDevice.removeBond()] via reflection.
+  /// No-op on iOS/macOS — Apple does not expose an API for unpairing.
+  /// On iOS/macOS the user must remove the device manually from system settings.
+  ///
+  /// [address] is the device address. On Android pass the MAC address.
+  /// Throws [UnsupportedError] on platforms without an implementation.
+  Future<void> removeBond(String address) async {}
+
+  /// Initiates system-level bonding (pairing) with a peripheral.
+  ///
+  /// Android only — uses [BluetoothDevice.createBond()] which prompts the user
+  /// to confirm pairing. The call returns immediately; bond completion is
+  /// asynchronous and observable via the system bonded devices list.
+  /// No-op on iOS/macOS — Apple does not expose an explicit pairing API; bond
+  /// is created implicitly when the app accesses an encrypted characteristic.
+  Future<void> createBond(String address) async {}
+
+  /// Opens an L2CAP Connection-oriented Channel (CoC) to [peripheral] on the
+  /// given [psm], reusing the peripheral's existing authenticated connection.
+  ///
+  /// Returns an [L2CAPChannel] exposing an inbound byte stream and a write sink.
+  /// Available on Android, iOS and macOS; throws [UnsupportedError] on other
+  /// platforms.
+  Future<L2CAPChannel> openL2CAPChannel(
+    Peripheral peripheral, {
+    required int psm,
+  }) async =>
+      throw UnsupportedError(
+        'openL2CAPChannel is not supported on this platform.',
+      );
 
   /// Establishes a local connection to a peripheral.
   Future<void> connect(Peripheral peripheral);

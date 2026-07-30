@@ -83,8 +83,9 @@ class CentralArgs {
 
 class PeripheralArgs {
   final String uuidArgs;
+  final String? nameArgs;
 
-  PeripheralArgs(this.uuidArgs);
+  PeripheralArgs(this.uuidArgs, this.nameArgs);
 }
 
 class GATTDescriptorArgs {
@@ -190,7 +191,8 @@ abstract class CentralManagerHostApi {
   void showAppSettings();
   void startDiscovery(List<String> serviceUUIDsArgs);
   void stopDiscovery();
-  List<PeripheralArgs> retrieveConnectedPeripherals();
+  List<PeripheralArgs> retrieveConnectedPeripherals(List<String> serviceUUIDsArgs);
+  List<PeripheralArgs> retrievePeripherals(List<String> uuidStringsArgs);
   @async
   void connect(String uuidArgs);
   @async
@@ -237,6 +239,21 @@ abstract class CentralManagerHostApi {
   Uint8List readDescriptor(String uuidArgs, int hashCodeArgs);
   @async
   void writeDescriptor(String uuidArgs, int hashCodeArgs, Uint8List valueArgs);
+  // Opens an L2CAP CoC to the peripheral on the given PSM, reusing the existing
+  // authenticated connection. Returns a native channel id used by the
+  // write/close calls and the inbound-data callbacks.
+  @async
+  int openL2CAPChannel(String uuidArgs, int psmArgs);
+  // Starts delivering inbound bytes on the channel with the given id. Kept
+  // separate from the open call so the Dart side can register its stream before
+  // the first byte arrives: anything the peer sends between the native open and
+  // the Dart channel object has no listener to go to.
+  @async
+  void startL2CAPChannel(int idArgs);
+  @async
+  void writeL2CAPChannel(int idArgs, Uint8List valueArgs);
+  @async
+  void closeL2CAPChannel(int idArgs);
 }
 
 @FlutterApi()
@@ -256,6 +273,11 @@ abstract class CentralManagerFlutterApi {
     GATTCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
   );
+  // Inbound bytes received on the L2CAP channel with the given id.
+  void onL2CAPChannelReceived(int idArgs, Uint8List valueArgs);
+  // The L2CAP channel with the given id was closed (by the peer or on error);
+  // [errorArgs] is null on a clean close.
+  void onL2CAPChannelClosed(int idArgs, String? errorArgs);
 }
 
 @HostApi()

@@ -40,7 +40,15 @@ class CentralManagerImpl: CentralManagerHostApi {
     private var mSetCharacteristicNotifyStateCompletions: [String: [Int64: (Result<Void, Error>) -> Void]]
     private var mReadDescriptorCompletions: [String: [Int64: (Result<FlutterStandardTypedData, Error>) -> Void]]
     private var mWriteDescriptorCompletions: [String: [Int64: (Result<Void, Error>) -> Void]]
-    
+
+    // L2CAP CoC: open channels keyed by a native channel id, the owning
+    // peripheral per id (to close on disconnect), pending open completions keyed
+    // by "uuidArgs:psm", and a monotonic id generator.
+    private var mL2CAPChannels: [Int64: L2CAPChannelHandler]
+    private var mL2CAPChannelOwners: [Int64: String]
+    private var mOpenL2CAPCompletions: [String: (Result<Int64, Error>) -> Void]
+    private var mL2CAPChannelIdGenerator: Int64
+
     init(_ messenger: FlutterBinaryMessenger) {
         self.mApi = CentralManagerFlutterApi(binaryMessenger: messenger)
         
@@ -61,8 +69,13 @@ class CentralManagerImpl: CentralManagerHostApi {
         self.mSetCharacteristicNotifyStateCompletions = [:]
         self.mReadDescriptorCompletions = [:]
         self.mWriteDescriptorCompletions = [:]
+
+        self.mL2CAPChannels = [:]
+        self.mL2CAPChannelOwners = [:]
+        self.mOpenL2CAPCompletions = [:]
+        self.mL2CAPChannelIdGenerator = 0
     }
-    
+
     func initialize() throws {
         if(self.mCentralManager.isScanning) { self.mCentralManager.stopScan() }
         
@@ -87,7 +100,12 @@ class CentralManagerImpl: CentralManagerHostApi {
         self.mSetCharacteristicNotifyStateCompletions.removeAll()
         self.mReadDescriptorCompletions.removeAll()
         self.mWriteDescriptorCompletions.removeAll()
-        
+
+        for handler in self.mL2CAPChannels.values { handler.close() }
+        self.mL2CAPChannels.removeAll()
+        self.mL2CAPChannelOwners.removeAll()
+        self.mOpenL2CAPCompletions.removeAll()
+
         self.mCentralManager.delegate = self.mCentralManagerDelegate
     }
     
@@ -123,8 +141,9 @@ class CentralManagerImpl: CentralManagerHostApi {
         self.mCentralManager.stopScan()
     }
     
-    func retrieveConnectedPeripherals() throws -> [PeripheralArgs] {
-        let peripherals = self.mCentralManager.retrieveConnectedPeripherals(withServices: [])
+    func retrieveConnectedPeripherals(serviceUUIDsArgs: [String]) throws -> [PeripheralArgs] {
+        let serviceUUIDs = serviceUUIDsArgs.map { $0.toCBUUID() }
+        let peripherals = self.mCentralManager.retrieveConnectedPeripherals(withServices: serviceUUIDs)
         let peripheralsArgs = peripherals.map { peripheral in
             let peripheralArgs = peripheral.toArgs()
             let uuidArgs = peripheralArgs.uuidArgs
@@ -135,6 +154,19 @@ class CentralManagerImpl: CentralManagerHostApi {
         return peripheralsArgs
     }
     
+    func retrievePeripherals(uuidStringsArgs: [String]) throws -> [PeripheralArgs] {
+        let identifiers = uuidStringsArgs.compactMap { UUID(uuidString: $0) }
+        let peripherals = self.mCentralManager.retrievePeripherals(withIdentifiers: identifiers)
+        let peripheralsArgs = peripherals.map { peripheral in
+            let peripheralArgs = peripheral.toArgs()
+            let uuidArgs = peripheralArgs.uuidArgs
+            if peripheral.delegate == nil { peripheral.delegate = self.mPeripheralDelegate }
+            self.mPeripherals[uuidArgs] = peripheral
+            return peripheralArgs
+        }
+        return peripheralsArgs
+    }
+
     func connect(uuidArgs: String, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             let peripheral = try self.retrievePeripheral(uuidArgs: uuidArgs)
@@ -275,7 +307,83 @@ class CentralManagerImpl: CentralManagerHostApi {
             completion(.failure(error))
         }
     }
-    
+
+    func openL2CAPChannel(uuidArgs: String, psmArgs: Int64, completion: @escaping (Result<Int64, Error>) -> Void) {
+        do {
+            let peripheral = try self.retrievePeripheral(uuidArgs: uuidArgs)
+            let psm = CBL2CAPPSM(truncatingIfNeeded: psmArgs)
+            let key = "\(uuidArgs):\(psmArgs)"
+            self.mOpenL2CAPCompletions[key] = completion
+            peripheral.openL2CAPChannel(psm)
+        } catch {
+            completion(.failure(error))
+        }
+    }
+
+    func startL2CAPChannel(idArgs: Int64, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let handler = self.mL2CAPChannels[idArgs] else {
+            // Already closed, or never opened: nothing to start.
+            completion(.success(()))
+            return
+        }
+        handler.start()
+        completion(.success(()))
+    }
+
+    func writeL2CAPChannel(idArgs: Int64, valueArgs: FlutterStandardTypedData, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let handler = self.mL2CAPChannels[idArgs] else {
+            completion(.failure(BluetoothLowEnergyError.illegalArgument))
+            return
+        }
+        handler.write(valueArgs.data, completion: completion)
+    }
+
+    func closeL2CAPChannel(idArgs: Int64, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let handler = self.mL2CAPChannels[idArgs] else {
+            completion(.success(()))
+            return
+        }
+        handler.close()
+        completion(.success(()))
+    }
+
+    func didOpenL2CAPChannel(peripheral: CBPeripheral, channel: CBL2CAPChannel?, error: Error?) {
+        let uuidArgs = peripheral.identifier.toArgs()
+        if let channel = channel, error == nil {
+            let psmArgs = Int64(channel.psm)
+            let key = "\(uuidArgs):\(psmArgs)"
+            guard let completion = self.mOpenL2CAPCompletions.removeValue(forKey: key) else { return }
+            self.mL2CAPChannelIdGenerator += 1
+            let id = self.mL2CAPChannelIdGenerator
+            let handler = L2CAPChannelHandler(
+                channel: channel,
+                onReceived: { [weak self] data in
+                    guard let self = self else { return }
+                    let valueArgs = FlutterStandardTypedData(bytes: data)
+                    self.mApi.onL2CAPChannelReceived(idArgs: id, valueArgs: valueArgs) { _ in }
+                },
+                onClosed: { [weak self] err in
+                    guard let self = self else { return }
+                    self.mL2CAPChannels.removeValue(forKey: id)
+                    self.mL2CAPChannelOwners.removeValue(forKey: id)
+                    let errorArgs = err?.localizedDescription
+                    self.mApi.onL2CAPChannelClosed(idArgs: id, errorArgs: errorArgs) { _ in }
+                })
+            self.mL2CAPChannels[id] = handler
+            self.mL2CAPChannelOwners[id] = uuidArgs
+            completion(.success(id))
+        } else {
+            // No channel/psm to match on error: fail every pending open for this peripheral.
+            let prefix = "\(uuidArgs):"
+            let failure = error ?? BluetoothLowEnergyError.unknown
+            for key in self.mOpenL2CAPCompletions.keys where key.hasPrefix(prefix) {
+                if let completion = self.mOpenL2CAPCompletions.removeValue(forKey: key) {
+                    completion(.failure(failure))
+                }
+            }
+        }
+    }
+
     func didUpdateState(central: CBCentralManager) {
         let state = central.state
         let stateArgs = state.toArgs()
@@ -313,6 +421,12 @@ class CentralManagerImpl: CentralManagerHostApi {
         self.mServices.removeValue(forKey: uuidArgs)
         self.mCharacteristics.removeValue(forKey: uuidArgs)
         self.mDescriptors.removeValue(forKey: uuidArgs)
+        // Close any L2CAP channels owned by this peripheral (the stream's
+        // endEncountered usually fires too, but disconnect is the hard signal).
+        let ownedChannelIds = self.mL2CAPChannelOwners.filter { $0.value == uuidArgs }.map { $0.key }
+        for id in ownedChannelIds {
+            self.mL2CAPChannels.removeValue(forKey: id)?.close()
+        }
         let errorNotNil = error ?? BluetoothLowEnergyError.unknown
         let readRssiCompletion = self.mReadRSSICompletions.removeValue(forKey: uuidArgs)
         readRssiCompletion?(.failure(errorNotNil))

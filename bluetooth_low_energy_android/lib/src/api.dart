@@ -38,6 +38,19 @@ extension ConnectionStateArgsX on ConnectionStateArgs {
   }
 }
 
+extension BondStateArgsX on BondStateArgs {
+  BondState toBondState() {
+    switch (this) {
+      case BondStateArgs.none:
+        return BondState.none;
+      case BondStateArgs.bonding:
+        return BondState.bonding;
+      case BondStateArgs.bonded:
+        return BondState.bonded;
+    }
+  }
+}
+
 extension GATTCharacteristicPropertyArgsX on GATTCharacteristicPropertyArgs {
   GATTCharacteristicProperty toProperty() {
     return GATTCharacteristicProperty.values[index];
@@ -70,7 +83,7 @@ extension AdvertisementArgsX on AdvertisementArgs {
 
 extension PeripheralArgsX on PeripheralArgs {
   Peripheral toPeripheral() {
-    return PeripheralImpl(address: addressArgs);
+    return PeripheralImpl(address: addressArgs, name: nameArgs);
   }
 }
 
