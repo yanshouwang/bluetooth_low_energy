@@ -16,10 +16,12 @@ import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseSettings
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityOptionsCompat
@@ -28,6 +30,15 @@ import io.flutter.plugin.common.BinaryMessenger
 
 class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) :
     BluetoothLowEnergyManagerImpl(context), PeripheralManagerHostApi {
+    companion object {
+        private const val TAG = "BluetoothLowEnergy"
+
+        // The pairing dialog of the bluetooth settings, brought up when a central
+        // asks to pair while the screen is off and the stack only notifies.
+        private const val PAIRING_PACKAGE = "com.android.settings"
+        private const val PAIRING_CLASS = "com.android.settings.bluetooth.BluetoothPairingDialog"
+    }
+
     private val mApi: PeripheralManagerFlutterApi
 
     private val mBluetoothGattServerCallback: BluetoothGattServerCallback by lazy {
@@ -36,6 +47,7 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
         )
     }
     private val mAdvertiseCallback: AdvertiseCallback by lazy { AdvertiseCallbackImpl(this) }
+    private val mPairingReceiver: BroadcastReceiverImpl by lazy { BroadcastReceiverImpl(this) }
 
     private var mServer: BluetoothGattServer?
     private var mAdvertising: Boolean
@@ -49,6 +61,9 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
     private val mCharacteristics: MutableMap<Long, BluetoothGattCharacteristic>
     private val mDescriptors: MutableMap<Long, BluetoothGattDescriptor>
 
+    // The name the adapter had before a peripheral renamed it, see `restoreName`.
+    private var mOriginalName: String?
+
     private var mAuthorizeCallback: ((Result<Boolean>) -> Unit)?
     private var mSetNameCallback: ((Result<String?>) -> Unit)?
     private var mAddServiceCallback: ((Result<Unit>) -> Unit)?
@@ -56,6 +71,18 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
     private val mNotifyCharacteristicValueChangedCallbacks: MutableMap<String, (Result<Unit>) -> Unit>
 
     init {
+        // The pairing and bond state broadcasts are how a peripheral learns that
+        // a central is asking for an encrypted link, see [onReceive].
+        val pairingFilter = IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST)
+        pairingFilter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
+        // Exported on purpose: these are protected broadcasts sent by the
+        // bluetooth stack, and a not-exported registration is wrapped in a
+        // `.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` that the app may not
+        // declare, in which case the system drops every one of them.
+        ContextCompat.registerReceiver(
+            context, mPairingReceiver, pairingFilter, ContextCompat.RECEIVER_EXPORTED
+        )
+
         mApi = PeripheralManagerFlutterApi(binaryMessenger)
 
         mServer = null
@@ -70,6 +97,7 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
         mCharacteristics = mutableMapOf()
         mDescriptors = mutableMapOf()
 
+        mOriginalName = null
         mAuthorizeCallback = null
         mSetNameCallback = null
         mAddServiceCallback = null
@@ -154,6 +182,18 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun setName(nameArgs: String, callback: (Result<String?>) -> Unit) {
         try {
+            // The name of a LE advertisement *is* the name of the adapter here,
+            // so renaming it renames the phone itself over BR/EDR as well, and a
+            // central then lists the very same name twice. Hold on to the name it
+            // had, `stopAdvertising` hands it back.
+            if (mOriginalName == null) {
+                mOriginalName = try {
+                    adapter.name
+                } catch (e: SecurityException) {
+                    Log.w(TAG, "Reading the bluetooth name failed: $e.")
+                    null
+                }
+            }
             val setting = adapter.setName(nameArgs)
             if (!setting) {
                 throw IllegalStateException()
@@ -229,10 +269,28 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
         }
     }
 
-    @RequiresPermission(Manifest.permission.BLUETOOTH_ADVERTISE)
+    @RequiresPermission(allOf = [Manifest.permission.BLUETOOTH_ADVERTISE, Manifest.permission.BLUETOOTH_CONNECT])
     override fun stopAdvertising() {
         advertiser.stopAdvertising(mAdvertiseCallback)
         mAdvertising = false
+        restoreName()
+    }
+
+    // Hands the name the adapter had before the peripheral renamed it back, so
+    // that the phone stops showing up under the name of the advertisement.
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    fun restoreName() {
+        val nameArgs = mOriginalName ?: return
+        mOriginalName = null
+        try {
+            if (adapter.name == nameArgs) {
+                return
+            }
+            adapter.setName(nameArgs)
+            Log.v(TAG, "Restored the bluetooth name $nameArgs.")
+        } catch (e: Throwable) {
+            Log.w(TAG, "Restoring the bluetooth name $nameArgs failed: $e.")
+        }
     }
 
     override fun getCentral(addressArgs: String): CentralArgs {
@@ -318,6 +376,23 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
                 callback(Result.success(nameArgs))
             }
 
+            BluetoothDevice.ACTION_PAIRING_REQUEST -> {
+                val device = getDevice(intent) ?: return
+                // A central that pairs over BR/EDR never shows up as a connected
+                // GATT device, so this is gated on the advertising rather than on
+                // the connected centrals: a phone pairing with a phone does the
+                // classic procedure, and that is exactly the one that needs it.
+                if (!mAdvertising) return
+                showPairing(device, intent)
+            }
+
+            BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
+                val device = getDevice(intent) ?: return
+                val previousState = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, BluetoothDevice.ERROR)
+                val state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR)
+                Log.v(TAG, "Bond state of ${device.address} changed from $previousState to $state.")
+            }
+
             else -> {}
         }
     }
@@ -368,6 +443,47 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
         val stateArgs = newState.toConnectionStateArgs()
         mDevices[addressArgs] = device
         mApi.onConnectionStateChanged(centralArgs, statusArgs, stateArgs) {}
+    }
+
+    private fun showPairing(device: BluetoothDevice, intent: Intent) {
+        val variant = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_VARIANT, BluetoothDevice.ERROR)
+        val key = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_KEY, BluetoothDevice.ERROR)
+        Log.v(TAG, "Pairing with ${device.address} asked for variant $variant, key $key.")
+        // Answering the request takes `setPairingConfirmation` or `setPin`, both
+        // of which are kept for privileged callers, so the only thing left to do
+        // is make sure the user actually sees it: the stack posts a notification
+        // instead of a dialog whenever the screen is off, and that notification
+        // is easily missed, so bring up the dialog of the bluetooth settings.
+        val dialog = Intent(BluetoothDevice.ACTION_PAIRING_REQUEST)
+        dialog.setClassName(PAIRING_PACKAGE, PAIRING_CLASS)
+        dialog.putExtra(BluetoothDevice.EXTRA_DEVICE, device)
+        dialog.putExtra(BluetoothDevice.EXTRA_PAIRING_VARIANT, variant)
+        dialog.putExtra(BluetoothDevice.EXTRA_PAIRING_KEY, key)
+        dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        dialog.addFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION)
+        try {
+            context.startActivity(dialog)
+        } catch (e: Throwable) {
+            Log.w(TAG, "Showing the pairing dialog of ${device.address} failed: $e.")
+            // Not every build ships that dialog, fall back to the bluetooth
+            // settings, where the pairing can be finished by hand.
+            try {
+                val settings = Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
+                settings.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(settings)
+            } catch (e2: Throwable) {
+                Log.w(TAG, "Showing the bluetooth settings failed: $e2.")
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun getDevice(intent: Intent): BluetoothDevice? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
+        } else {
+            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE) as? BluetoothDevice
+        }
     }
 
     fun onMtuChanged(device: BluetoothDevice, mtu: Int) {

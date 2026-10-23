@@ -112,8 +112,18 @@ fun AdvertiseDataArgs.toAdvertiseData(): AdvertiseData {
 
 fun MutableGATTDescriptorArgs.toDescriptor(): BluetoothGattDescriptor {
     val uuid = UUID.fromString(uuidArgs)
-    val permissions = BluetoothGattDescriptor.PERMISSION_READ or BluetoothGattDescriptor.PERMISSION_WRITE
+    val permissions = getPermissions()
     return BluetoothGattDescriptor(uuid, permissions)
+}
+
+fun MutableGATTDescriptorArgs.getPermissions(): Int {
+    val permissionsArgs = permissionNumbersArgs.toPermissionsArgs()
+    return permissionsArgs.toPermissions(
+        BluetoothGattDescriptor.PERMISSION_READ,
+        BluetoothGattDescriptor.PERMISSION_READ_ENCRYPTED,
+        BluetoothGattDescriptor.PERMISSION_WRITE,
+        BluetoothGattDescriptor.PERMISSION_WRITE_ENCRYPTED,
+    )
 }
 
 fun MutableGATTCharacteristicArgs.toCharacteristic(): BluetoothGattCharacteristic {
@@ -143,17 +153,48 @@ fun MutableGATTCharacteristicArgs.getProperties(): Int {
 }
 
 fun MutableGATTCharacteristicArgs.getPermissions(): Int {
-    val propertiesArgs = propertyNumbersArgs.requireNoNulls().map { args ->
+    val permissionsArgs = permissionNumbersArgs.toPermissionsArgs()
+    return permissionsArgs.toPermissions(
+        BluetoothGattCharacteristic.PERMISSION_READ,
+        BluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED,
+        BluetoothGattCharacteristic.PERMISSION_WRITE,
+        BluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED,
+    )
+}
+
+fun List<Long>.toPermissionsArgs(): List<GATTCharacteristicPermissionArgs?> {
+    return requireNoNulls().map { args ->
         val raw = args.toInt()
-        GATTCharacteristicPropertyArgs.ofRaw(raw)
+        GATTCharacteristicPermissionArgs.ofRaw(raw)
     }
-    val read = propertiesArgs.contains(GATTCharacteristicPropertyArgs.READ)
-    val write = propertiesArgs.contains(GATTCharacteristicPropertyArgs.WRITE)
-    val writeWithoutResponse = propertiesArgs.contains(GATTCharacteristicPropertyArgs.WRITE_WITHOUT_RESPONSE)
-    var permissions = 0
-    if (read) permissions = permissions or BluetoothGattCharacteristic.PERMISSION_READ
-    if (write || writeWithoutResponse) permissions = permissions or BluetoothGattCharacteristic.PERMISSION_WRITE
-    return permissions
+}
+
+// An encrypted permission covers its plaintext counterpart: a bonded central
+// reads / writes the value once the link is encrypted, an unbonded one has to
+// pair first. It is the stricter of the pair, so it wins when both are set —
+// the same rule the iOS and Windows backends use. Android takes exactly one
+// level per direction, hence the if-chains rather than a plain union.
+fun List<GATTCharacteristicPermissionArgs?>.toPermissions(
+    read: Int,
+    readEncrypted: Int,
+    write: Int,
+    writeEncrypted: Int,
+): Int {
+    val readPermission = if (contains(GATTCharacteristicPermissionArgs.READ_ENCRYPTED)) {
+        readEncrypted
+    } else if (contains(GATTCharacteristicPermissionArgs.READ)) {
+        read
+    } else {
+        0
+    }
+    val writePermission = if (contains(GATTCharacteristicPermissionArgs.WRITE_ENCRYPTED)) {
+        writeEncrypted
+    } else if (contains(GATTCharacteristicPermissionArgs.WRITE)) {
+        write
+    } else {
+        0
+    }
+    return readPermission or writePermission
 }
 
 fun MutableGATTServiceArgs.toService(): BluetoothGattService {

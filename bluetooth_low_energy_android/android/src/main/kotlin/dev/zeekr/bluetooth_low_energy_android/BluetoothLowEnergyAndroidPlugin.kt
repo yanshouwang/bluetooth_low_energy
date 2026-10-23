@@ -24,6 +24,10 @@ class BluetoothLowEnergyAndroidPlugin : FlutterPlugin, ActivityAware {
         val binaryMessenger = binding.binaryMessenger
         CentralManagerHostApi.setUp(binaryMessenger, null)
         PeripheralManagerHostApi.setUp(binaryMessenger, null)
+        // The engine goes away on a hot restart and when the app does, neither of
+        // which runs `stopAdvertising`, so the name of the advertisement would
+        // otherwise stay behind as the name of the phone.
+        this.mPeripheralManager?.restoreName()
         this.mCentralManager = null
         this.mPeripheralManager = null
     }
