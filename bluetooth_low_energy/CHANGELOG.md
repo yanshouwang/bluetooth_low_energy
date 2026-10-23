@@ -1,3 +1,9 @@
+## 6.2.2
+
+* `Android` Fix the issue that the permissions of characteristics and descriptors are dropped, which makes `readEncrypted` / `writeEncrypted` a no-op and leaves every attribute readable and writable over an unencrypted link.
+* `Android` Fix the issue that a peripheral gives no sign of the pairing it asks for: bring up the pairing dialog of the bluetooth settings, falling back to the bluetooth settings, and report the requests under the logcat tag `BluetoothLowEnergy`.
+* `Android` Fix the issue that the name of an advertisement is left behind as the name of the phone, which makes a central list the same name twice.
+
 ## 6.2.1
 
 * `Windows` Fix [bad varient access](https://github.com/yanshouwang/bluetooth_low_energy/issues/147).

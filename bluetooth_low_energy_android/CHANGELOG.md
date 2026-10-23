@@ -1,3 +1,10 @@
+## 6.2.2
+
+* Fix the issue that the permissions of characteristics and descriptors are dropped, plain permissions derived from their properties are used instead, which makes `readEncrypted` / `writeEncrypted` a no-op and leaves every attribute readable and writable over an unencrypted link.
+* Bring up the pairing dialog of the bluetooth settings whenever a central asks to pair while this app is advertising, and report the request, falling back to the bluetooth settings when that dialog is not shipped. The stack only posts a notification when the screen is off, which is easily missed, and answering a request on the user's behalf is not an option any more: `setPairingConfirmation` and `setPin` need `BLUETOOTH_PRIVILEGED`, which no third-party app holds.
+* Fix the issue that the name of an advertisement is left behind as the name of the phone: `setName` renames the adapter itself, which is also the name the phone shows up with over BR/EDR, so a central ends up listing the same name twice. Stopping the advertising, or detaching the engine, now hands the previous name back.
+* Fix the issue that the pairing and bond state broadcasts never reach the peripheral: registering them as not exported wraps them in a `.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` the hosting app may not declare, and the system then denies every one of them.
+
 ## 6.2.1
 
 * Bump version.
