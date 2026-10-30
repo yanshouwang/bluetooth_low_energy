@@ -54,4 +54,8 @@ class CBPeripheralDelegateImpl: NSObject, CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor descriptor: CBDescriptor, error: Error?) {
         self.mCentralManager.didWriteDescriptorValue(peripheral: peripheral, descriptor: descriptor, error: error)
     }
+
+    func peripheral(_ peripheral: CBPeripheral, didOpen channel: CBL2CAPChannel?, error: Error?) {
+        self.mCentralManager.didOpenL2CAPChannel(peripheral: peripheral, channel: channel, error: error)
+    }
 }

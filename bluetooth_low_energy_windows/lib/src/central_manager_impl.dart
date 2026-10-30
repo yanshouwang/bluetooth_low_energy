@@ -66,6 +66,9 @@ final class CentralManagerImpl
   Stream<PeripheralConnectionStateChangedEventArgs>
   get connectionStateChanged => _connectionStateChangedController.stream;
   @override
+  Stream<PeripheralBondStateChangedEventArgs> get bondStateChanged =>
+      Stream<PeripheralBondStateChangedEventArgs>.empty();
+  @override
   Stream<PeripheralMTUChangedEventArgs> get mtuChanged =>
       _mtuChangedController.stream;
   @override
@@ -104,10 +107,30 @@ final class CentralManagerImpl
   }
 
   @override
-  Future<List<Peripheral>> retrieveConnectedPeripherals() {
+  Future<List<Peripheral>> retrievePeripherals(List<UUID> identifiers) async => [];
+
+  @override
+  Future<List<({String address, String? name})>> getBondedDevices() async => [];
+
+  @override
+  Future<void> removeBond(String address) async {}
+
+  @override
+  Future<void> createBond(String address) async {}
+
+  @override
+  Future<List<Peripheral>> retrieveConnectedPeripherals({List<UUID>? serviceUUIDs}) {
     throw UnsupportedError(
       'retrieveConnectedPeripherals is not supported on Windows.',
     );
+  }
+
+  @override
+  Future<L2CAPChannel> openL2CAPChannel(
+    Peripheral peripheral, {
+    required int psm,
+  }) {
+    throw UnsupportedError('openL2CAPChannel is not supported on Windows.');
   }
 
   @override

@@ -10,6 +10,7 @@ import android.bluetooth.BluetoothGattServer
 import android.bluetooth.BluetoothGattServerCallback
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
+import android.util.Log
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.BluetoothStatusCodes
 import android.bluetooth.le.AdvertiseCallback
@@ -89,6 +90,31 @@ class PeripheralManagerImpl(context: Context, binaryMessenger: BinaryMessenger) 
     private val advertiser get() = adapter.bluetoothLeAdvertiser
     private val server get() = mServer ?: throw IllegalStateException()
     private val executor get() = ContextCompat.getMainExecutor(context)
+
+    /**
+     * Stops advertising and closes the GATT server when the plugin leaves the
+     * engine. An advertiser left running keeps the radio busy and the device
+     * discoverable with no app behind it; the server would keep accepting
+     * centrals and dispatching their requests to a detached messenger.
+     */
+    @RequiresPermission(allOf = [Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_ADVERTISE])
+    override fun tearDown() {
+        if (mAdvertising) {
+            try {
+                stopAdvertising()
+            } catch (e: Throwable) {
+                Log.w("PeripheralManagerImpl", "Failed to stop advertising while detaching: ${e.message}")
+            }
+        }
+        try {
+            mServer?.close()
+        } catch (e: Throwable) {
+            Log.w("PeripheralManagerImpl", "Failed to close the GATT server while detaching: ${e.message}")
+        }
+        mServer = null
+        mDevices.clear()
+        super.tearDown()
+    }
 
     @RequiresPermission(allOf = [Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_ADVERTISE])
     override fun initialize(): PeripheralManagerArgs {

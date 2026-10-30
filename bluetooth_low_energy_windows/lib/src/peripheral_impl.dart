@@ -7,6 +7,10 @@ final class PeripheralImpl extends BluetoothLowEnergyPeerImpl
   PeripheralImpl({required super.address});
 
   @override
+  // WinRT BluetoothLEDevice name is not surfaced by this impl.
+  String? get name => null;
+
+  @override
   int get hashCode => address.hashCode;
 
   @override

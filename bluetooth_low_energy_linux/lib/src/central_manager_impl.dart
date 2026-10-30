@@ -75,6 +75,9 @@ final class CentralManagerImpl implements CentralManager {
   Stream<PeripheralConnectionStateChangedEventArgs>
   get connectionStateChanged => _connectionStateChangedController.stream;
   @override
+  Stream<PeripheralBondStateChangedEventArgs> get bondStateChanged =>
+      Stream<PeripheralBondStateChangedEventArgs>.empty();
+  @override
   Stream<PeripheralMTUChangedEventArgs> get mtuChanged =>
       throw UnsupportedError('mtuChanged is not supported on Linux.');
   @override
@@ -116,7 +119,7 @@ final class CentralManagerImpl implements CentralManager {
   }
 
   @override
-  Future<List<Peripheral>> retrieveConnectedPeripherals() {
+  Future<List<Peripheral>> retrieveConnectedPeripherals({List<UUID>? serviceUUIDs}) {
     logger.info('retrieveConnectedPeripherals');
     final peripherals = _blueZClient.devices
         .where(
@@ -127,6 +130,14 @@ final class CentralManagerImpl implements CentralManager {
         .map((blueZDevice) => PeripheralImpl(blueZDevice))
         .toList();
     return Future.value(peripherals);
+  }
+
+  @override
+  Future<L2CAPChannel> openL2CAPChannel(
+    Peripheral peripheral, {
+    required int psm,
+  }) {
+    throw UnsupportedError('openL2CAPChannel is not supported on Linux.');
   }
 
   @override
@@ -150,6 +161,18 @@ final class CentralManagerImpl implements CentralManager {
     logger.info('disconnect: $blueZAddress');
     await blueZDevice.disconnect();
   }
+
+  @override
+  Future<List<Peripheral>> retrievePeripherals(List<UUID> identifiers) async => [];
+
+  @override
+  Future<List<({String address, String? name})>> getBondedDevices() async => [];
+
+  @override
+  Future<void> removeBond(String address) async {}
+
+  @override
+  Future<void> createBond(String address) async {}
 
   @override
   Future<int> requestMTU(Peripheral peripheral, {required int mtu}) {

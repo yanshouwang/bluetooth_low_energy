@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'advertisement.dart';
 import 'bluetooth_low_energy_state.dart';
+import 'bond_state.dart';
 import 'central.dart';
 import 'connection_state.dart';
 import 'gatt.dart';
@@ -44,6 +45,18 @@ final class PeripheralConnectionStateChangedEventArgs extends EventArgs {
 
   /// Constructs a [PeripheralConnectionStateChangedEventArgs].
   PeripheralConnectionStateChangedEventArgs(this.peripheral, this.state);
+}
+
+/// The peripheral bond (pairing) state changed event arguments.
+final class PeripheralBondStateChangedEventArgs extends EventArgs {
+  /// The peripheral whose bond state changed.
+  final Peripheral peripheral;
+
+  /// The new bond state.
+  final BondState bondState;
+
+  /// Constructs a [PeripheralBondStateChangedEventArgs].
+  PeripheralBondStateChangedEventArgs(this.peripheral, this.bondState);
 }
 
 /// The peripheral MTU changed event arguments.

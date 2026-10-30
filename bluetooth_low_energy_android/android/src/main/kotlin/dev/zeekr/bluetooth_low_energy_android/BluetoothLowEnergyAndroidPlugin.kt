@@ -24,6 +24,13 @@ class BluetoothLowEnergyAndroidPlugin : FlutterPlugin, ActivityAware {
         val binaryMessenger = binding.binaryMessenger
         CentralManagerHostApi.setUp(binaryMessenger, null)
         PeripheralManagerHostApi.setUp(binaryMessenger, null)
+        // Dropping the references is not enough: both managers hold platform
+        // resources (GATT clients, an advertiser, a GATT server, an adapter-state
+        // receiver registered against the application context) that outlive the
+        // engine. Left running they keep the radio busy and push events at a
+        // messenger that is already detached.
+        this.mCentralManager?.tearDown()
+        this.mPeripheralManager?.tearDown()
         this.mCentralManager = null
         this.mPeripheralManager = null
     }

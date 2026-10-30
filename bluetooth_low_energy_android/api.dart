@@ -30,6 +30,8 @@ enum TXPowerLevelArgs { ultraLow, low, medium, high }
 
 enum ConnectionStateArgs { disconnected, connecting, connected, disconnecting }
 
+enum BondStateArgs { none, bonding, bonded }
+
 enum GATTCharacteristicPropertyArgs {
   read,
   write,
@@ -144,8 +146,16 @@ class CentralArgs {
 
 class PeripheralArgs {
   final String addressArgs;
+  final String? nameArgs;
 
-  PeripheralArgs(this.addressArgs);
+  PeripheralArgs(this.addressArgs, this.nameArgs);
+}
+
+class BondedDeviceArgs {
+  final String addressArgs;
+  final String? nameArgs;
+
+  BondedDeviceArgs(this.addressArgs, this.nameArgs);
 }
 
 class GATTDescriptorArgs {
@@ -241,6 +251,9 @@ abstract class CentralManagerHostApi {
   void stopDiscovery();
   PeripheralArgs getPeripheral(String addressArgs);
   List<PeripheralArgs> retrieveConnectedPeripherals();
+  List<BondedDeviceArgs> getBondedDevices();
+  bool removeBond(String addressArgs);
+  bool createBond(String addressArgs);
   @async
   void connect(String addressArgs);
   @async
@@ -273,6 +286,21 @@ abstract class CentralManagerHostApi {
     int hashCodeArgs,
     Uint8List valueArgs,
   );
+  // Opens a secure (authenticated/encrypted) L2CAP CoC to the device on the
+  // given PSM. Returns a native channel id used by the write/close calls and
+  // the inbound-data callbacks.
+  @async
+  int openL2CAPChannel(String addressArgs, int psmArgs);
+  // Starts delivering inbound bytes on the channel with the given id. Kept
+  // separate from the open call so the Dart side can register its stream before
+  // the first byte arrives: anything the peer sends between the native open and
+  // the Dart channel object has no listener to go to.
+  @async
+  void startL2CAPChannel(int idArgs);
+  @async
+  void writeL2CAPChannel(int idArgs, Uint8List valueArgs);
+  @async
+  void closeL2CAPChannel(int idArgs);
 }
 
 @FlutterApi()
@@ -287,12 +315,21 @@ abstract class CentralManagerFlutterApi {
     PeripheralArgs peripheralArgs,
     ConnectionStateArgs stateArgs,
   );
+  void onBondStateChanged(
+    PeripheralArgs peripheralArgs,
+    BondStateArgs bondStateArgs,
+  );
   void onMTUChanged(PeripheralArgs peripheralArgs, int mtuArgs);
   void onCharacteristicNotified(
     PeripheralArgs peripheralArgs,
     GATTCharacteristicArgs characteristicArgs,
     Uint8List valueArgs,
   );
+  // Inbound bytes received on the L2CAP channel with the given id.
+  void onL2CAPChannelReceived(int idArgs, Uint8List valueArgs);
+  // The L2CAP channel with the given id was closed (by the peer or on error);
+  // [errorArgs] is null on a clean close.
+  void onL2CAPChannelClosed(int idArgs, String? errorArgs);
 }
 
 @HostApi()
